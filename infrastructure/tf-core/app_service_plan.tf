@@ -33,9 +33,9 @@ module "app-service-plan" {
   os_type                                           = lookup(each.value, "os_type", var.app_service_plan.os_type)
   sku_name                                          = lookup(each.value, "sku_name", var.app_service_plan.sku_name)
   vnet_integration_subnet_id                        = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
-  # wildcard_ssl_cert_name                            = each.value.wildcard_ssl_cert_key
-  # wildcard_ssl_cert_pfx_blob_key_vault_secret_name  = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.key_vault_certificates["${each.value.wildcard_ssl_cert_key}-${each.value.region}"].pfx_blob_secret_name : null
-  # wildcard_ssl_cert_key_vault_id                    = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.key_vault["${each.value.region}"].key_vault_id : null
+  wildcard_ssl_cert_name                            = each.value.wildcard_ssl_cert_key
+  wildcard_ssl_cert_pfx_blob_key_vault_secret_name  = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.key_vault_certificates["${each.value.wildcard_ssl_cert_key}-${each.value.region}"].pfx_blob_secret_name : null
+  wildcard_ssl_cert_key_vault_id                    = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.key_vault["${each.value.region}"].key_vault_id : null
 
   tags = var.tags
 

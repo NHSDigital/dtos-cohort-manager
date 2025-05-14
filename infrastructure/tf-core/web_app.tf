@@ -3,23 +3,23 @@ module "linux_web_app" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/linux-web-app"
 
-  # providers = {
-  #   azurerm     = azurerm
-  #   azurerm.hub = azurerm.hub # For Custom Domains DNS challenge records
-  # }
+  providers = {
+    azurerm     = azurerm
+    azurerm.dns = azurerm.hub # For Custom Domains DNS challenge records
+  }
 
   linux_web_app_name  = "${module.regions_config[each.value.region].names.linux-web-app}-${lower(each.value.name_suffix)}"
   resource_group_name = azurerm_resource_group.core[each.value.region].name
   location            = each.value.region
 
-  acr_login_server      = data.azurerm_container_registry.acr.login_server
-  acr_mi_client_id      = data.azurerm_user_assigned_identity.acr_mi.client_id
-  always_on             = var.linux_web_app.always_on
-  app_settings          = each.value.app_settings
-  asp_id                = module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].app_service_plan_id
-  assigned_identity_ids = var.linux_web_app.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
-  cont_registry_use_mi  = var.linux_web_app.cont_registry_use_mi
-  # custom_domains                                        = each.value.custom_domains
+  acr_login_server                                      = data.azurerm_container_registry.acr.login_server
+  acr_mi_client_id                                      = data.azurerm_user_assigned_identity.acr_mi.client_id
+  always_on                                             = var.linux_web_app.always_on
+  app_settings                                          = each.value.app_settings
+  asp_id                                                = module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].app_service_plan_id
+  assigned_identity_ids                                 = var.linux_web_app.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
+  cont_registry_use_mi                                  = var.linux_web_app.cont_registry_use_mi
+  custom_domains                                        = each.value.custom_domains
   docker_image_name                                     = "${var.linux_web_app.docker_img_prefix}-${lower(each.value.name_suffix)}:${var.function_apps.docker_env_tag}"
   health_check_path                                     = var.linux_web_app.health_check_path
   linux_web_app_slots                                   = var.linux_web_app_slots
@@ -35,7 +35,7 @@ module "linux_web_app" {
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
 
-  # public_dns_zone_rg_name       = data.terraform_remote_state.hub.outputs.public_dns_zone_rg_name
+  public_dns_zone_rg_name       = data.terraform_remote_state.hub.outputs.public_dns_zone_rg_name
   public_network_access_enabled = var.features.public_network_access_enabled
   rbac_role_assignments         = each.value.rbac_role_assignments
   # share_name                 = var.linux_web_app.share_name
@@ -44,8 +44,8 @@ module "linux_web_app" {
   # storage_name               = var.linux_web_app.storage_name
   # storage_type               = var.linux_web_app.storage_type
   vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-webapps"].id
-  # wildcard_ssl_cert_id       = each.value.custom_domains != null ? module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].wildcard_ssl_cert_id : null
-  worker_32bit = var.linux_web_app.worker_32bit
+  wildcard_ssl_cert_id       = each.value.custom_domains != null ? module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].wildcard_ssl_cert_id : null
+  worker_32bit               = var.linux_web_app.worker_32bit
 
   tags = merge(
     var.tags,
