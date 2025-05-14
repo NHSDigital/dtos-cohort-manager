@@ -1,3 +1,10 @@
+# This workflow supports two testing approaches:
+# 1. Consolidated: All tests in a single project (ConsolidatedTests.csproj)
+# 2. Matrix: Multiple test projects run in parallel
+#
+# The consolidated approach is preferred for simplicity and consistent coverage reporting,
+# but the matrix approach is maintained as a fallback and for specific scenarios.
+
 name: Test stage
 
 on:
@@ -45,7 +52,7 @@ jobs:
   check-consolidated-tests:
     name: Check for consolidated test project
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 2
     outputs:
       has-consolidated-tests: ${{ steps.check.outputs.has-consolidated-tests }}
     env:
@@ -59,10 +66,10 @@ jobs:
         id: check
         run: |
           if [ -f "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" ]; then
-            echo "Found ConsolidatedTests.csproj in root directory"
+            echo "Found ConsolidatedTests.csproj - using consolidated approach"
             echo "has-consolidated-tests=true" >> "${GITHUB_OUTPUT}"
           else
-            echo "No ConsolidatedTests.csproj found in root directory"
+            echo "No ConsolidatedTests.csproj found - using matrix approach"
             echo "has-consolidated-tests=false" >> "${GITHUB_OUTPUT}"
           fi
 
