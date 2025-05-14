@@ -112,14 +112,20 @@ jobs:
           echo "Project key: ${{ vars.SONAR_PROJECT_KEY }}"
           echo "Organization key: ${{ vars.SONAR_ORGANISATION_KEY }}"
           
-          # Begin SonarScanner
+          # List coverage files to verify they exist
+          echo "Available coverage files:"
+          ls -la coverage/
+          
+          # Begin SonarScanner with improved coverage configuration
           dotnet sonarscanner begin \
             /k:"${{ vars.SONAR_PROJECT_KEY }}" \
             /o:"${{ vars.SONAR_ORGANISATION_KEY }}" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.cs.vscoveragexml.reportsPaths="coverage/vscoverage.xml" \
-            /d:sonar.cs.opencover.reportsPaths="coverage/cobertura.xml"
+            /d:sonar.cs.opencover.reportsPaths="coverage/*.xml" \
+            /d:sonar.cs.cobertura.reportsPaths="coverage/cobertura.xml" \
+            /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs" \
+            /d:sonar.verbose=true
       - name: Build solution
         run: |
           find . -name "*.sln" -exec dotnet build {} --no-restore \;
