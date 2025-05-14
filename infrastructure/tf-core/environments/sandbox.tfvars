@@ -128,13 +128,6 @@ app_service_plan = {
           capacity_min = "1"
           capacity_max = "2"
           capacity_def = "2"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 2
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
         }
       }
     }
