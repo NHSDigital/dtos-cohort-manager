@@ -122,7 +122,6 @@ jobs:
             /o:"${{ vars.SONAR_ORGANISATION_KEY }}" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.dotnet.projectPattern=".*\.csproj$" \
             /d:sonar.cs.opencover.reportsPaths="coverage/*.xml" \
             /d:sonar.cs.cobertura.reportsPaths="coverage/cobertura.xml" \
             /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs" \
