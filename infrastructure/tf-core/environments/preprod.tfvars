@@ -125,9 +125,9 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
-          capacity_max = "1"
-          capacity_def = "1"
+          capacity_min = "20"
+          capacity_max = "20"
+          capacity_def = "20"
 
           inc_threshold   = 5
           dec_threshold   = 5
@@ -143,9 +143,9 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
-          capacity_max = "1"
-          capacity_def = "1"
+          capacity_min = "5"
+          capacity_max = "5"
+          capacity_def = "5"
 
           inc_threshold   = 5
           dec_threshold   = 5
@@ -161,9 +161,9 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
-          capacity_max = "1"
-          capacity_def = "1"
+          capacity_min = "4"
+          capacity_max = "4"
+          capacity_def = "4"
 
           inc_threshold   = 5
           dec_threshold   = 5
