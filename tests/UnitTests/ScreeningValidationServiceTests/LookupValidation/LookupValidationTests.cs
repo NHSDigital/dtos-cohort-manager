@@ -103,22 +103,18 @@ public class LookupValidationTests
         // Try various paths for the rules files
         string[] possiblePaths = new[]
         {
-        // Original paths with different nesting depths
-        Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
-        Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
-        
-        // Try paths relative to project root
-        Path.Combine("../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
-        Path.Combine("../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
-        Path.Combine("../../../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
-        
-        // Try absolute path to handle any directory structure
-        Path.Combine("/Users/sam/git/nhs/dtos-cohort-manager/application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
-        
-        // Try with the ScreeningValidationService root directory
-        Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService", filename),
-        Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService", filename)
-    };
+            // Relative paths with different nesting depths
+            Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+            Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+            Path.Combine("../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+            Path.Combine("../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+            Path.Combine("../../../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+            
+            
+            // Try with the ScreeningValidationService root directory
+            Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService", filename),
+            Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService", filename)
+        };
 
         // Try to find the file in any of the possible locations
         string jsonContent = null;
