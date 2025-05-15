@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import path from "path";
 import { validateApiResponse } from "../../api/apiHelper";
 import { cleanDataBaseUsingServices } from "../../api/dataService/dataServiceCleaner";
-import { ensureNhsNumbersStartWith999 } from "../helpers/testDataHelper";
+import { ensureNhsNumbersStartWith999 } from "../fixtures/testDataHelper";
 
 
 export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers: string[]) {
