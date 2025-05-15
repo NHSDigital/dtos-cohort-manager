@@ -57,8 +57,7 @@ runs:
         GITHUB_TOKEN: ${{ github.token }}
         SONAR_TOKEN: ${{ inputs.sonar_token }}
       run: |
-        chmod +x $GITHUB_WORKSPACE/scripts/reports/sonar-analysis.sh
-        $GITHUB_WORKSPACE/scripts/reports/sonar-analysis.sh \
+        ${{ github.workspace }}/scripts/reports/sonar-analysis.sh \
           "${{ inputs.sonar_project_key }}" \
           "${{ inputs.sonar_organisation_key }}" \
           "${{ inputs.sonar_token }}" \
