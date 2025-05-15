@@ -125,13 +125,13 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
-          capacity_max = "1"
-          capacity_def = "1"
+          capacity_min = "20"
+          capacity_max = "20"
+          capacity_def = "20"
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 1
+          inc_scale_value = 20
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
@@ -143,13 +143,13 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
-          capacity_max = "1"
-          capacity_def = "1"
+          capacity_min = "5"
+          capacity_max = "5"
+          capacity_def = "5"
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 1
+          inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
@@ -161,13 +161,13 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
-          capacity_max = "1"
-          capacity_def = "1"
+          capacity_min = "4"
+          capacity_max = "4"
+          capacity_def = "4"
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 1
+          inc_scale_value = 4
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
@@ -1246,7 +1246,7 @@ storage_accounts = {
     name_suffix                             = "fnappstor"
     account_tier                            = "Standard"
     replication_type                        = "LRS"
-    public_network_access_enabled           = true
+    public_network_access_enabled           = false
     blob_properties_delete_retention_policy = 7
     blob_properties_versioning_enabled      = false
     containers                              = {}

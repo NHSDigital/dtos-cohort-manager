@@ -155,30 +155,12 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
-          capacity_max = "4"
-          capacity_def = "2"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 4
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
-        }
-      }
-    }
-    NemsMeshRetrieval = {
-      autoscale_override = {
-        scaling_rule = {
-          metric = "CpuPercentage"
-
-          capacity_min = "1"
           capacity_max = "1"
-          capacity_def = "2"
+          capacity_def = "1"
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 4
+          inc_scale_value = 1
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
@@ -197,8 +179,6 @@ function_apps = {
   acr_name    = "acrukshubdevcohman"
   acr_rg_name = "rg-hub-dev-uks-cohman"
 
-  app_insights_name                      = "appi-dev-uks-cohman"
-  app_insights_rg_name                   = "rg-cohman-dev-uks-audit"
   app_service_logs_disk_quota_mb         = 35
   app_service_logs_retention_period_days = 7
 
@@ -1240,7 +1220,7 @@ function_apps = {
     NemsMeshRetrieval = {
       name_suffix                  = "nems-mesh-retrieval"
       function_endpoint_name       = "NemsMeshRetrieval"
-      app_service_plan_key         = "NemsMeshRetrieval"
+      app_service_plan_key         = "RetrieveMeshFile"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "nemsmeshfolder_STORAGE"
       app_urls = [
@@ -1304,7 +1284,7 @@ storage_accounts = {
     name_suffix                             = "fnappstor"
     account_tier                            = "Standard"
     replication_type                        = "LRS"
-    public_network_access_enabled           = true
+    public_network_access_enabled           = false
     blob_properties_delete_retention_policy = 7
     blob_properties_versioning_enabled      = false
     containers                              = {}
