@@ -1,6 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "INT"
+environment           = "SBX"
 
 features = {
   acr_enabled                          = false
@@ -18,7 +18,7 @@ tags = {
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.105.0.0/16"
+    address_space     = "10.126.0.0/16"
     connect_peering   = true
     subnets = {
       apps = {
@@ -51,8 +51,8 @@ routes = {
         priority              = 900
         action                = "Allow"
         rule_name             = "CohmanToAudit"
-        source_addresses      = ["10.105.0.0/16"]
-        destination_addresses = ["10.106.0.0/16"]
+        source_addresses      = ["10.126.0.0/16"]
+        destination_addresses = ["10.127.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       },
@@ -61,8 +61,8 @@ routes = {
         priority              = 910
         action                = "Allow"
         rule_name             = "AuditToCohman"
-        source_addresses      = ["10.106.0.0/16"]
-        destination_addresses = ["10.105.0.0/16"]
+        source_addresses      = ["10.127.0.0/16"]
+        destination_addresses = ["10.126.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
@@ -70,14 +70,14 @@ routes = {
     route_table_routes_to_audit = [
       {
         name                   = "CohmanToAudit"
-        address_prefix         = "10.106.0.0/16"
+        address_prefix         = "10.127.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
     route_table_routes_from_audit = [{
       name                   = "AuditToCohman"
-      address_prefix         = "10.105.0.0/16"
+      address_prefix         = "10.126.0.0/16"
       next_hop_type          = "VirtualAppliance"
       next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -87,7 +87,7 @@ routes = {
 
 app_service_plan = {
   os_type                  = "Linux"
-  sku_name                 = "P3v3"
+  sku_name                 = "P2v3"
   vnet_integration_enabled = true
 
   autoscale = {
@@ -126,7 +126,7 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
-          capacity_max = "12"
+          capacity_max = "2"
           capacity_def = "2"
         }
       }
@@ -137,12 +137,12 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
-          capacity_max = "4"
+          capacity_max = "2"
           capacity_def = "2"
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 4
+          inc_scale_value = 2
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
@@ -187,7 +187,7 @@ function_apps = {
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "integration"
+  docker_env_tag    = "development"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage         = "false"
@@ -241,8 +241,8 @@ function_apps = {
         recordThresholdForBatching = "3"
         batchDivisionFactor        = "2"
         CheckTimer                 = "100"
-        DemographicURI             = "https://int-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
-        GetOrchestrationStatusURL  = "https://int-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
+        DemographicURI             = "https://sbx-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
+        GetOrchestrationStatusURL  = "https://sbx-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
@@ -1158,12 +1158,84 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        RetrievePdsParticipantURL = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+      }
+    }
+
+    NemsSubscriptionDataService = {
+      name_suffix            = "nems-subscription-data-service"
+      function_endpoint_name = "NemsSubscriptionDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
+    }
+
+    NemsSubscribe = {
+      name_suffix            = "nems-subscribe"
+      function_endpoint_name = "NemsSubscribe"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "RetrievePdsDemographicURL"
+          function_app_key = "RetrievePDSDemographic"
+        }
+      ]
+    }
+
+    NemsUnsubscribe = {
+      name_suffix            = "nems-unsubscribe"
+      function_endpoint_name = "NemsUnsubscribe"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
         },
         {
           env_var_name     = "ParticipantDemographicDataServiceURL"
           function_app_key = "ParticipantDemographicDataService"
         }
       ]
+    }
+
+    NemsMeshRetrieval = {
+      name_suffix                  = "nems-mesh-retrieval"
+      function_endpoint_name       = "NemsMeshRetrieval"
+      app_service_plan_key         = "RetrieveMeshFile"
+      key_vault_url                = "KeyVaultConnectionString"
+      storage_account_env_var_name = "nemsmeshfolder_STORAGE"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "FileValidationURL"
+          function_app_key = "FileValidation"
+        }
+      ]
+      env_vars_static = {
+        MeshCertName = "MeshCert"
+      }
     }
   }
 }
@@ -1179,7 +1251,7 @@ key_vault = {
 
 sqlserver = {
   sql_uai_name                         = "dtos-cohort-manager-sql-adm"
-  sql_admin_group_name                 = "sqlsvr_cohman_int_uks_admin"
+  sql_admin_group_name                 = "sqlsvr_cohman_sbx_uks_admin"
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
@@ -1196,7 +1268,7 @@ sqlserver = {
       db_name_suffix       = "DToSDB"
       collation            = "SQL_Latin1_General_CP1_CI_AS"
       licence_type         = "LicenseIncluded"
-      max_gb               = 5
+      max_gb               = 30
       read_scale           = false
       sku                  = "S1"
       storage_account_type = "Local"
