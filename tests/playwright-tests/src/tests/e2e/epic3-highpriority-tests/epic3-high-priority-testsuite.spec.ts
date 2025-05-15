@@ -128,8 +128,6 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-
-
   test('@DTOSS-5560-01 - BS Select - Records are received where IsExtracted is set to 0', {
     annotation: {
       type: 'Requirement',
@@ -151,6 +149,39 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       const firstRecord = response.data.find(() => true);
       expect(firstRecord?.IsExtracted).toBe(1);
     });
+  });
+
+  test('@DTOSS-5584-01 - BS Select - 204 if IsExtracted is set to 1', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3714',
+    },
+  }, async ({ request, testData }) => {
+
+    await test.step('Then processed ADD participant should be received using bs select get request where IsExtracted = 0', async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 10, screeningServiceId: 1 });
+      expect(response.data.length).toBe(1);
+
+    });
+
+    await test.step('And IsExtracted flag is set to 1', async () => {
+      const response = await getRecordsFromCohortDistributionService(request);
+      const firstRecord = response.data.find(() => true);
+      expect(firstRecord?.IsExtracted).toBe(1);
+    });
+
+    await test.step('When records are received again using bs select API where IsExtracted = 1, Then API should return no records with status 204', async () => {
+      const response = await getRecordsFromCohortDistributionService(request);
+      const genericValidations = composeValidators(
+        expectStatus(204),
+        validateResponseByStatus()
+      );
+      await genericValidations(response);
+    });
+
+
   });
 });
 
