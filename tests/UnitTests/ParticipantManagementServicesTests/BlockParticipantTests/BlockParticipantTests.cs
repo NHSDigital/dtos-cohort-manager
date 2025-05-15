@@ -52,8 +52,9 @@ public class BlockParticipantTests
                 return response;
             });
         
-        _dsMockParticipantManagement.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-                        .ReturnsAsync(new ParticipantManagement());                     
+        _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic()); 
+        _dsMockParticipantManagement.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(new ParticipantManagement());  
+        _dsMockParticipantManagement.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);                   
 
 
         _sut = new BlockParticipant(_dsMockParticipantManagement.Object, _dsMockParticipantDemographic.Object, _loggerMock.Object, _createResponseMock.Object, _exceptionHandler.Object);
@@ -64,11 +65,6 @@ public class BlockParticipantTests
     {
         // Arrange
         var request = _setupRequest.Setup("");
-        
-        _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic()); 
-        _dsMockParticipantManagement.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(new ParticipantManagement());  
-        _dsMockParticipantManagement.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);  
-
         request.Setup(r => r.Query).Returns(queryParams);
 
         // Act
@@ -84,9 +80,7 @@ public class BlockParticipantTests
         // Arrange
         var request = _setupRequest.Setup("");
         
-        _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync((ParticipantDemographic?)null);
-        _dsMockParticipantManagement.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(new ParticipantManagement());  
-        _dsMockParticipantManagement.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);  
+        _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync((ParticipantDemographic?)null); 
 
         request.Setup(r => r.Query).Returns(queryParams);
 
@@ -109,9 +103,7 @@ public class BlockParticipantTests
     {
         // Arrange
         var request = _setupRequest.Setup("");
-        
-        _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic());
-        _dsMockParticipantManagement.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(new ParticipantManagement());  
+  
         _dsMockParticipantManagement.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(false);  
 
         request.Setup(r => r.Query).Returns(queryParams);
@@ -135,13 +127,10 @@ public class BlockParticipantTests
     {
         // Arrange
         var request = _setupRequest.Setup("");
-
         request.Setup(r => r.Query).Returns(queryParams);
-
-        _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic());
         
         //Simulates no response from the Participant management service.
-        _dsMockParticipantManagement.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).Throws(new Exception());
+        _dsMockParticipantManagement.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).Throws(new Exception());
 
         // Act
         var response = await _sut.Run(request.Object);
@@ -162,11 +151,10 @@ public class BlockParticipantTests
     {
         // Arrange
         var request = _setupRequest.Setup("");
-
         request.Setup(r => r.Query).Returns(queryParams);
 
         //Simulates no response from the Participant demographic service.
-        _dsMockParticipantDemographic.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).Throws(new Exception());
+        _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).Throws(new NullReferenceException());
 
         // Act
         var response = await _sut.Run(request.Object);
