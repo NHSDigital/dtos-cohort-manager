@@ -18,7 +18,7 @@ export default async function Header({
           <Link
             className={styles["nhsuk-header__service-logo"]}
             href="/"
-            aria-label="Manage your screening homepage"
+            aria-label="Cohort manager overview page"
           >
             <svg
               className={styles["nhsuk-logo"]}
