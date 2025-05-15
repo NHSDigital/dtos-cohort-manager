@@ -1255,12 +1255,7 @@ linux_web_app = {
   }
 }
 
-linux_web_app_slots = [
-  {
-    linux_web_app_slots_name    = "staging"
-    linux_web_app_slots_enabled = true
-  }
-]
+linux_web_app_slots = []
 
 key_vault = {
   disk_encryption   = true
