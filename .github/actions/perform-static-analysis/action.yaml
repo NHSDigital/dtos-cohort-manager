@@ -91,7 +91,9 @@ runs:
           /d:sonar.host.url="https://sonarcloud.io" \
           /d:sonar.cs.opencover.reportsPaths="${{ inputs.coverage_path }}/*.xml" \
           /d:sonar.cs.cobertura.reportsPaths="${{ inputs.coverage_path }}/cobertura.xml" \
-          /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs" \
+          /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts" \
+          /d:sonar.tests="tests" \
+          /d:sonar.test.inclusions="**/*.spec.ts,**/*.test.ts,**/tests/**/*.ts" \
           /d:sonar.verbose=true \
           /d:sonar.scm.provider=git \
           /d:sonar.scm.revision=${{ github.sha }} \
