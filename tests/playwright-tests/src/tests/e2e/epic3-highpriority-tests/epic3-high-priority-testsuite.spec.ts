@@ -173,7 +173,8 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
 
     await test.step('When records are received again using bs select API where IsExtracted = 1, Then API should return no records with status 204', async () => {
-      const response = await getRecordsFromCohortDistributionService(request);
+
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 10, screeningServiceId: 1 });
       const genericValidations = composeValidators(
         expectStatus(204),
         validateResponseByStatus()
