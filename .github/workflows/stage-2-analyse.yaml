@@ -1,105 +1,81 @@
-name: "Perform static analysis"
+name: Analysis stage
+
 on:
   workflow_call:
     inputs:
       unit_test_dir:
-        description: "Directory containing unit tests"
+        description: Directory containing the unit tests
         required: true
         type: string
       build_datetime:
-        description: "Build datetime"
+        description: Build datetime
         required: true
         type: string
       build_timestamp:
-        description: "Build timestamp"
+        description: Build timestamp
         required: true
         type: string
       build_epoch:
-        description: "Build epoch"
+        description: Build epoch
         required: true
         type: string
       nodejs_version:
-        description: "Node.js version"
+        description: Node.js version
         required: true
         type: string
       python_version:
-        description: "Python version"
+        description: Python version
         required: true
         type: string
       terraform_version:
-        description: "Terraform version"
+        description: Terraform version
         required: true
         type: string
       version:
-        description: "Version"
+        description: Version of the software
         required: true
         type: string
-    secrets:
-      sonar_token:
-        description: "Sonar token, the API key"
-        required: true
 
 jobs:
-  analyze:
-    name: "SonarCloud Analysis"
+  download-test-coverage:
+    name: Download test coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
-          
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
+          submodules: true
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
         with:
-          java-version: 17
-          distribution: "zulu"
+          name: test-coverage-report
+          path: coverage
           
-      - name: Install .NET SDKs
-        uses: actions/setup-dotnet@v4
+  perform-static-analysis:
+    name: Perform static analysis
+    needs: [download-test-coverage]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
-          dotnet-version: |
-            7.0.x
-            8.0.x
-            9.0.x
-          
-      - name: Cache SonarQube packages
-        uses: actions/cache@v4
+          submodules: true
+          fetch-depth: 0 # Full history for more accurate reporting
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
         with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.csproj') }}
-          restore-keys: |
-            ${{ runner.os }}-sonar-
-            
-      - name: Cache NuGet packages
-        uses: actions/cache@v4
+          name: test-coverage-report
+          path: coverage
+      - name: Perform static analysis
+        uses: ./.github/actions/perform-static-analysis
         with:
-          path: ~/.nuget/packages
-          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
-          restore-keys: |
-            ${{ runner.os }}-nuget-
-            
-      - name: Install SonarScanner
-        shell: bash
-        run: dotnet tool install --global dotnet-sonarscanner
-          
-      - name: SonarCloud analysis
-        shell: bash
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          SONAR_TOKEN: ${{ secrets.sonar_token }}
-        run: |
-          chmod +x ${{ github.workspace }}/scripts/reports/sonar-analysis.sh
-          ${{ github.workspace }}/scripts/reports/sonar-analysis.sh \
-            "uk.nhs.digital.dtos:cohort-manager" \
-            "nhsdigital" \
-            "${{ secrets.sonar_token }}" \
-            "coverage" \
-            "${{ github.token }}" \
-            "${{ github.event_name }}" \
-            "${{ github.head_ref }}" \
-            "${{ github.base_ref }}" \
-            "${{ github.event.pull_request.number }}" \
-            "${{ github.repository }}" \
-            "${{ github.ref }}" \
-            "${{ github.sha }}"
+          sonar_organisation_key: ${{ vars.SONAR_ORGANISATION_KEY }}
+          sonar_project_key: ${{ vars.SONAR_PROJECT_KEY }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          coverage_path: "coverage"
