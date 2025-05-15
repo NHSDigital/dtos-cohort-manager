@@ -373,6 +373,23 @@ services:
       - ASPNETCORE_URLS=http://*:9082
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+
+  send-service-now-message:
+    container_name: send-service-now-message
+    image: cohort-manager-send-service-now-message
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: SendServiceNowMessage/Dockerfile
+    profiles: [not-implemented]
+    environment:
+      - UpdateEndpoint=" https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate/"
+      - AccessToken:="<your_access_token_here>"
+      - TokenRefreshUrl="https://nhsdigitaldev.service-now.com/oauth_token.do"
+      - ClientId="84cf403c79df44a1b0b6cf123ada5231z"
+      - ClientSecret="<your_client_secret_here>"
+      - RefreshToken="<your_refresh_token_here>"
+      - Profile="9c78f87c97912e10dd80f2df9153aff5"
   durable-demographic-function:
     container_name: durable-demographic-function
     image: cohort-manager-durable-demographic-function
