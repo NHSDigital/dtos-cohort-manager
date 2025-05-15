@@ -1,72 +1,105 @@
 name: "Perform static analysis"
-description: "Perform static analysis with SonarCloud for .NET projects"
-inputs:
-  sonar_organisation_key:
-    description: "Sonar organisation key, used to identify the project"
-    required: true
-  sonar_project_key:
-    description: "Sonar project key, used to identify the project"
-    required: true
-  sonar_token:
-    description: "Sonar token, the API key"
-    required: true
-  coverage_path:
-    description: "Path to coverage reports"
-    required: false
-    default: "coverage"
-runs:
-  using: "composite"
-  steps:
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: 17
-        distribution: "zulu"
-        
-    - name: Install .NET SDKs
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: |
-          7.0.x
-          8.0.x
-          9.0.x
-        
-    - name: Cache SonarQube packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.sonar/cache
-        key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.csproj') }}
-        restore-keys: |
-          ${{ runner.os }}-sonar-
+on:
+  workflow_call:
+    inputs:
+      unit_test_dir:
+        description: "Directory containing unit tests"
+        required: true
+        type: string
+      build_datetime:
+        description: "Build datetime"
+        required: true
+        type: string
+      build_timestamp:
+        description: "Build timestamp"
+        required: true
+        type: string
+      build_epoch:
+        description: "Build epoch"
+        required: true
+        type: string
+      nodejs_version:
+        description: "Node.js version"
+        required: true
+        type: string
+      python_version:
+        description: "Python version"
+        required: true
+        type: string
+      terraform_version:
+        description: "Terraform version"
+        required: true
+        type: string
+      version:
+        description: "Version"
+        required: true
+        type: string
+    secrets:
+      sonar_token:
+        description: "Sonar token, the API key"
+        required: true
+
+jobs:
+  analyze:
+    name: "SonarCloud Analysis"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
           
-    - name: Cache NuGet packages
-      uses: actions/cache@v4
-      with:
-        path: ~/.nuget/packages
-        key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
-        restore-keys: |
-          ${{ runner.os }}-nuget-
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: 17
+          distribution: "zulu"
           
-    - name: Install SonarScanner
-      shell: bash
-      run: dotnet tool install --global dotnet-sonarscanner
-        
-    - name: SonarCloud analysis
-      shell: bash
-      env:
-        GITHUB_TOKEN: ${{ github.token }}
-        SONAR_TOKEN: ${{ inputs.sonar_token }}
-      run: |
-        ${{ github.workspace }}/scripts/reports/sonar-analysis.sh \
-          "${{ inputs.sonar_project_key }}" \
-          "${{ inputs.sonar_organisation_key }}" \
-          "${{ inputs.sonar_token }}" \
-          "${{ inputs.coverage_path }}" \
-          "${{ github.token }}" \
-          "${{ github.event_name }}" \
-          "${{ github.head_ref }}" \
-          "${{ github.base_ref }}" \
-          "${{ github.event.pull_request.number }}" \
-          "${{ github.repository }}" \
-          "${{ github.ref }}" \
-          "${{ github.sha }}"
+      - name: Install .NET SDKs
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            7.0.x
+            8.0.x
+            9.0.x
+          
+      - name: Cache SonarQube packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-sonar-
+            
+      - name: Cache NuGet packages
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+            
+      - name: Install SonarScanner
+        shell: bash
+        run: dotnet tool install --global dotnet-sonarscanner
+          
+      - name: SonarCloud analysis
+        shell: bash
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          SONAR_TOKEN: ${{ secrets.sonar_token }}
+        run: |
+          chmod +x ${{ github.workspace }}/scripts/reports/sonar-analysis.sh
+          ${{ github.workspace }}/scripts/reports/sonar-analysis.sh \
+            "uk.nhs.digital.dtos:cohort-manager" \
+            "nhsdigital" \
+            "${{ secrets.sonar_token }}" \
+            "coverage" \
+            "${{ github.token }}" \
+            "${{ github.event_name }}" \
+            "${{ github.head_ref }}" \
+            "${{ github.base_ref }}" \
+            "${{ github.event.pull_request.number }}" \
+            "${{ github.repository }}" \
+            "${{ github.ref }}" \
+            "${{ github.sha }}"
