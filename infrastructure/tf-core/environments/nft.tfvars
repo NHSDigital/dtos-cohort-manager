@@ -36,6 +36,17 @@ regions = {
         cidr_newbits = 8
         cidr_offset  = 3
       }
+      webapps = {
+        cidr_newbits               = 8
+        cidr_offset                = 4
+        delegation_name            = "Microsoft.Web/serverFarms"
+        service_delegation_name    = "Microsoft.Web/serverFarms"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+      }
+      pep-dmz = {
+        cidr_newbits = 8
+        cidr_offset  = 5
+      }
     }
   }
 }
@@ -1170,6 +1181,58 @@ function_apps = {
 }
 
 function_app_slots = []
+
+linux_web_app = {
+  acr_mi_name = "dtos-cohort-manager-acr-push"
+  acr_name    = "acrukshubdevcohman"
+  acr_rg_name = "rg-hub-dev-uks-cohman"
+
+  always_on = true
+
+  cont_registry_use_mi = true
+
+  docker_CI_enable  = "true"
+  docker_env_tag    = "nft"
+  docker_img_prefix = "cohort-manager"
+
+  enable_appsrv_storage    = "false"
+  ftps_state               = "Disabled"
+  https_only               = true
+  remote_debugging_enabled = false
+  worker_32bit             = false
+  # storage_name             = "webappstor"
+  # storage_type             = "AzureBlob"
+  # share_name               = "webapp"
+
+  linux_web_app_config = {
+
+    FrontEndUi = {
+      name_suffix          = "web"
+      app_service_plan_key = "DefaultPlan"
+      env_vars = {
+        static = {
+          AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
+          AUTH_CIS2_CLIENT_ID  = "5789849932.cohort-manager-ui-dev.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
+          AUTH_TRUST_HOST      = "true"
+          SERVICE_NAME         = "Cohort Manager"
+        }
+        from_key_vault = {
+          # env_var_name          = "key_vault_secret_name"
+          AUTH_CIS2_CLIENT_SECRET = "auth-cis2-client-secret"
+          COHORT_MANAGER_USERS    = "cohort-manager-users"
+          NEXTAUTH_SECRET         = "nextauth-secret"
+        }
+        local_urls = {
+          # %s becomes the environment and region prefix (e.g. dev-uks)
+          EXCEPTIONS_API_URL = "https://%s-get-validation-exceptions.azurewebsites.net"
+          NEXTAUTH_URL       = "https://%s-web.azurewebsites.net/api/auth"
+        }
+      }
+    }
+  }
+}
+
+linux_web_app_slots = []
 
 key_vault = {
   disk_encryption   = true
