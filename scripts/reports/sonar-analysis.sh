@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-# Parameters
+# Get input parameters
 SONAR_PROJECT_KEY="$1"
 SONAR_ORGANISATION_KEY="$2"
 SONAR_TOKEN="$3"
@@ -10,7 +10,7 @@ GITHUB_TOKEN="$5"
 GITHUB_EVENT_NAME="$6"
 GITHUB_HEAD_REF="$7"
 GITHUB_BASE_REF="$8"
-GITHUB_EVENT_PR_NUMBER="$9"
+GITHUB_EVENT_PULL_REQUEST_NUMBER="$9"
 GITHUB_REPOSITORY="${10}"
 GITHUB_REF="${11}"
 GITHUB_SHA="${12}"
@@ -19,8 +19,7 @@ GITHUB_SHA="${12}"
 if [[ "$GITHUB_EVENT_NAME" == "pull_request" || "$GITHUB_EVENT_NAME" == "pull_request_target" ]]; then
   PR_BRANCH="$GITHUB_HEAD_REF"
   PR_BASE="$GITHUB_BASE_REF"
-  PR_KEY="$GITHUB_EVENT_PR_NUMBER"
-  
+  PR_KEY="$GITHUB_EVENT_PULL_REQUEST_NUMBER"
   echo "Running analysis for PR #${PR_KEY} from ${PR_BRANCH} into ${PR_BASE}"
   PR_ARGS="/d:sonar.pullrequest.key=${PR_KEY} /d:sonar.pullrequest.branch=${PR_BRANCH} /d:sonar.pullrequest.base=${PR_BASE} /d:sonar.pullrequest.github.repository=${GITHUB_REPOSITORY}"
 else

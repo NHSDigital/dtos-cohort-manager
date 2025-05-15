@@ -22,7 +22,7 @@ runs:
       with:
         java-version: 17
         distribution: "zulu"
-        
+
     - name: Install .NET SDKs
       uses: actions/setup-dotnet@v4
       with:
@@ -30,7 +30,7 @@ runs:
           7.0.x
           8.0.x
           9.0.x
-        
+
     - name: Cache SonarQube packages
       uses: actions/cache@v4
       with:
@@ -38,7 +38,7 @@ runs:
         key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.csproj') }}
         restore-keys: |
           ${{ runner.os }}-sonar-
-          
+
     - name: Cache NuGet packages
       uses: actions/cache@v4
       with:
@@ -46,61 +46,30 @@ runs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
-          
+
     - name: Install SonarScanner
       shell: bash
       run: dotnet tool install --global dotnet-sonarscanner
-        
+
     - name: SonarCloud analysis
       shell: bash
       env:
         GITHUB_TOKEN: ${{ github.token }}
         SONAR_TOKEN: ${{ inputs.sonar_token }}
       run: |
-        # Get PR information for SonarCloud
-        if [[ "${{ github.event_name }}" == "pull_request" || "${{ github.event_name }}" == "pull_request_target" ]]; then
-          PR_BRANCH="${{ github.head_ref }}"
-          PR_BASE="${{ github.base_ref }}"
-          PR_KEY="${{ github.event.pull_request.number }}"
-          
-          echo "Running analysis for PR #${PR_KEY} from ${PR_BRANCH} into ${PR_BASE}"
-          PR_ARGS="/d:sonar.pullrequest.key=${PR_KEY} /d:sonar.pullrequest.branch=${PR_BRANCH} /d:sonar.pullrequest.base=${PR_BASE} /d:sonar.pullrequest.github.repository=${{ github.repository }}"
-        else
-          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-          if [[ "$BRANCH_NAME" != "main" && "$BRANCH_NAME" != "master" ]]; then
-            echo "Running analysis for branch ${BRANCH_NAME}"
-            PR_ARGS="/d:sonar.branch.name=${BRANCH_NAME}"
-          else
-            echo "Running analysis for main branch"
-            PR_ARGS=""
-          fi
-        fi
-        
-        # Debug info
-        echo "GitHub event: ${{ github.event_name }}"
-        echo "PR arguments: ${PR_ARGS}"
-        
-        # Restore solution dependencies
-        find . -name "*.sln" -exec dotnet restore {} \;
-        
-        # Begin SonarScanner with coverage configuration and PR information
-        dotnet sonarscanner begin \
-          /k:"${{ inputs.sonar_project_key }}" \
-          /o:"${{ inputs.sonar_organisation_key }}" \
-          /d:sonar.token="${{ inputs.sonar_token }}" \
-          /d:sonar.host.url="https://sonarcloud.io" \
-          /d:sonar.cs.opencover.reportsPaths="${{ inputs.coverage_path }}/*.xml" \
-          /d:sonar.cs.cobertura.reportsPaths="${{ inputs.coverage_path }}/cobertura.xml" \
-          /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts" \
-          /d:sonar.tests="tests" \
-          /d:sonar.test.inclusions="**/*.spec.ts,**/*.test.ts,**/tests/**/*.ts" \
-          /d:sonar.verbose=true \
-          /d:sonar.scm.provider=git \
-          /d:sonar.scm.revision=${{ github.sha }} \
-          ${PR_ARGS}
-        
-        # Build all solutions
-        find . -name "*.sln" -exec dotnet build {} --no-restore \;
-        
-        # End SonarScanner
-        dotnet sonarscanner end /d:sonar.token="${{ inputs.sonar_token }}"
+        # Make the script executable
+        chmod +x ${{ github.workspace }}/scripts/reports/sonar-analysis.sh
+        # Run the script with all necessary parameters
+        ${{ github.workspace }}/scripts/reports/sonar-analysis.sh \
+          "${{ inputs.sonar_project_key }}" \
+          "${{ inputs.sonar_organisation_key }}" \
+          "${{ inputs.sonar_token }}" \
+          "${{ inputs.coverage_path }}" \
+          "${{ github.token }}" \
+          "${{ github.event_name }}" \
+          "${{ github.head_ref }}" \
+          "${{ github.base_ref }}" \
+          "${{ github.event.pull_request.number }}" \
+          "${{ github.repository }}" \
+          "${{ github.ref }}" \
+          "${{ github.sha }}"
