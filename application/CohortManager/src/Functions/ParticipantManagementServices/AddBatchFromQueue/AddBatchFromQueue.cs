@@ -1,57 +1,40 @@
 namespace AddBatchFromQueue;
 
 using System;
-using System.Net.WebSockets;
-using System.Text.Json;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
-using Common;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Model;
+using OpenTelemetry.Trace;
 
 public class AddBatchFromQueue
 {
     private readonly ILogger _logger;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
-    private readonly IAddBatchFromQueueProcessHelper _addBatchFromQueueProcessHelper;
-    private IMessageHandling _messageHandling;
-
-    private readonly AddBatchFromQueueConfig _config;
-
-    private int totalMessages;
-    private int batchSize;
+    private readonly IAddBatchFromQueueHelper _addBatchFromQueueHelper;
+    private readonly IMessageStore _messageStore;
+    private readonly IMessageHandling _messageHandling;
     private readonly string connectionString;
     private readonly string queueName;
-    public static long _expectedMessageCount = 0;
 
-    public static List<SerializableMessage> listOfAllValues;
-    public static TaskCompletionSource<bool> _allMessagesReceived;
 
     public AddBatchFromQueue(
         ILoggerFactory loggerFactory,
         IDataServiceClient<ParticipantManagement> participantManagementClient,
-
-        IOptions<AddBatchFromQueueConfig> config,
+        IAddBatchFromQueueHelper addBatchFromQueueHelper,
         IMessageHandling messageHandling,
-        IAddBatchFromQueueProcessHelper addBatchFromQueueProcessHelper
+        IMessageStore messageStore
         )
     {
         _logger = loggerFactory.CreateLogger<AddBatchFromQueue>();
         _participantManagementClient = participantManagementClient;
-
+        _addBatchFromQueueHelper = addBatchFromQueueHelper;
         _messageHandling = messageHandling;
-        _addBatchFromQueueProcessHelper = addBatchFromQueueProcessHelper;
-
-        _config = config.Value;
-
-        totalMessages = 0;
-        batchSize = int.Parse(_config.AddBatchSize);
-        listOfAllValues = new List<SerializableMessage>();
+        _messageStore = messageStore;
 
         connectionString = Environment.GetEnvironmentVariable("QueueConnectionString")!;
         queueName = Environment.GetEnvironmentVariable("QueueName")!;
@@ -61,25 +44,100 @@ public class AddBatchFromQueue
     public async Task AddBatchFromQueueOrchestrator(
        [OrchestrationTrigger] TaskOrchestrationContext context)
     {
+        var client = new ServiceBusClient(connectionString);
+        var receiver = client.CreateReceiver(queueName);
+
+        var participants = new List<ParticipantManagement>();
+        var participantsData = new List<ParticipantCsvRecord>();
         try
         {
+            _logger.LogInformation($"DrainServiceBusQueue started at: {DateTime.Now}");
+
             var listOfAllValues = await context.CallActivityAsync<List<SerializableMessage>>(
-                  nameof(GetMessagesFromQueueActivity),
-                  queueName
+                  nameof(GetMessagesFromQueueActivity)
               );
 
-            if (listOfAllValues.Count != 0)
+            if (listOfAllValues.Count == 0)
             {
-                var ProcessItemsActivityTask = await context.CallActivityAsync<bool>(
-                    nameof(ProcessItemsActivity), listOfAllValues
+                _logger.LogWarning("no items to process from the ProcessItems Activity");
+                return;
+            }
+
+            foreach (var message in listOfAllValues)
+            {
+                /*await context.CallActivityAsync(
+                    nameof(AlwaysFails)
+                );*/
+                try
+                {
+                    string jsonFromQueue = message.Body;
+                    _logger.LogInformation($"Processing message: {jsonFromQueue}");
+
+                    var participantCsvRecord = await context.CallActivityAsync<ParticipantCsvRecord>(
+                       nameof(GetDemoGraphicData), jsonFromQueue);
+
+                    var ValidatedParticipantCsvRecord = await context.CallActivityAsync<ParticipantCsvRecord>(
+                       nameof(ValidateMessage), participantCsvRecord!);
+
+                    if (ValidatedParticipantCsvRecord == null)
+                    {
+                        _logger.LogError("The result of validating a record was null, see errors in database for more details. Will still process any other records");
+                        // this sends a record to the dead letter queue on error
+                        await context.CallActivityAsync(nameof(DeadLetterItemAsync), message.SequenceNumber);
+                    }
+
+                    // we only want to add non null items to the database and log error records to the database this handled by validation 
+                    else
+                    {
+                        participantsData.Add(ValidatedParticipantCsvRecord!);
+                        participants.Add(ValidatedParticipantCsvRecord!.Participant.ToParticipantManagement());
+
+                        await context.CallActivityAsync(nameof(completeMessageAsync), message.SequenceNumber);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to process message");
+                    // send error messages to the dead letter queue
+                    await context.CallActivityAsync(nameof(DeadLetterItemAsync), message.SequenceNumber);
+                }
+            }
+
+            var addAllRecordsToCohortQueue = await context.CallActivityAsync<bool>(
+                nameof(AddItemsToDatabase), participants
+            );
+
+            if (addAllRecordsToCohortQueue)
+            {
+                await context.CallActivityAsync<bool>(
+                    nameof(AddItemsToCohortQueue), participantsData
                 );
             }
-            _logger.LogWarning("no items to process from the ProcessItems Activity");
+
+
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
         }
+        finally
+        {
+            // dispose of all lists and variables from memory because they are no longer needed
+            if (_messageStore.ListOfAllValues != null)
+            {
+                _messageStore.ListOfAllValues.Clear();
+            }
+
+            await _messageHandling.CleanUpDeferredMessages(receiver, queueName, connectionString);
+            await receiver.CloseAsync();
+            await client.DisposeAsync();
+        }
+    }
+
+    [Function(nameof(AlwaysFails))]
+    public void AlwaysFails([ActivityTrigger] FunctionContext functionContext)
+    {
+        throw new Exception("testing always fails retry");
     }
 
     [Function(nameof(GetMessagesFromQueueActivity))]
@@ -91,25 +149,24 @@ public class AddBatchFromQueue
         };
         var client = new ServiceBusClient(connectionString);
         var receiver = client.CreateReceiver(queueName);
-
         var processor = client.CreateProcessor(queueName, serviceBusProcessorOptions);
+        var adminClient = new ServiceBusAdministrationClient(connectionString);
+        var runtimeProperties = await adminClient.GetQueueRuntimePropertiesAsync(queueName);
 
         try
         {
-            _logger.LogInformation($"DrainServiceBusQueue started at: {DateTime.Now}");
+            _logger.LogWarning($"GetMessagesFromQueueActivity started at: {DateTime.Now}");
+            _messageStore.ExpectedMessageCount = runtimeProperties.Value.ActiveMessageCount;
 
-            var adminClient = new ServiceBusAdministrationClient(connectionString);
-            var runtimeProperties = await adminClient.GetQueueRuntimePropertiesAsync(queueName);
-            _expectedMessageCount = runtimeProperties.Value.ActiveMessageCount;
-
-            if (_expectedMessageCount == 0)
+            if (_messageStore.ExpectedMessageCount == 0)
             {
-                _logger.LogInformation("nothing to process");
+                _logger.LogWarning("nothing to process");
                 await processor.StopProcessingAsync();
                 return new List<SerializableMessage>();
             }
-            _allMessagesReceived = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
-            listOfAllValues.Clear();
+
+            _messageStore.ListOfAllValues = new List<SerializableMessage>();
+            _messageStore.AllMessagesReceived = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
             processor.ProcessMessageAsync += _messageHandling.MessageHandler;
             processor.ProcessErrorAsync += _messageHandling.ErrorHandler;
@@ -117,16 +174,20 @@ public class AddBatchFromQueue
             await processor.StartProcessingAsync();
 
             // Wait until all messages received or timeout
-            var completed = await Task.WhenAny(_allMessagesReceived.Task);
+            //var timeout = Task.Delay(TimeSpan.FromMinutes(1));
+            var completed = await Task.WhenAny(_messageStore.AllMessagesReceived.Task);
 
-            if (completed == _allMessagesReceived.Task)
+            if (completed == _messageStore.AllMessagesReceived.Task)
             {
                 await processor.StopProcessingAsync();
-                return listOfAllValues;
+                return _messageStore.ListOfAllValues;
             }
             else
             {
+
                 _logger.LogWarning("Timed out before all messages received.");
+
+
                 return new List<SerializableMessage>();
             }
         }
@@ -137,62 +198,77 @@ public class AddBatchFromQueue
         }
         finally
         {
-            await receiver.CloseAsync();
             // Calling DisposeAsync on client types is required to ensure that network
             // resources and other unmanaged objects are properly cleaned up.
+            await receiver.CloseAsync();
             await processor.DisposeAsync();
             await client.DisposeAsync();
         }
     }
 
-    [Function(nameof(ProcessItemsActivity))]
-    public async Task<bool> ProcessItemsActivity([ActivityTrigger] List<SerializableMessage> listOfAllValues)
+    [Function(nameof(GetDemoGraphicData))]
+    public async Task<ParticipantCsvRecord?> GetDemoGraphicData([ActivityTrigger] string jsonFromQueue)
     {
-        var participants = new List<ParticipantManagement>();
-        var participantsData = new List<ParticipantCsvRecord>();
+        return await _addBatchFromQueueHelper.GetDemoGraphicData(jsonFromQueue);
+    }
 
-        var allTasks = new List<Task>();
-        var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+    [Function(nameof(ValidateMessage))]
+    public async Task<ParticipantCsvRecord?> ValidateMessage([ActivityTrigger] ParticipantCsvRecord participantCsvRecord)
+    {
+        return await _addBatchFromQueueHelper.ValidateMessageFromQueue(participantCsvRecord);
+    }
 
-        _logger.LogInformation($"DrainServiceBusQueue started at: {DateTime.Now}");
-        var serviceBusProcessorOptions = new ServiceBusProcessorOptions()
-        {
-            ReceiveMode = ServiceBusReceiveMode.PeekLock
-        };
+
+    [Function(nameof(AddItemsToDatabase))]
+    public async Task<bool> AddItemsToDatabase([ActivityTrigger] List<ParticipantManagement> participants)
+    {
+        _logger.LogWarning($"sent messages from the queue to database");
+        return await _participantManagementClient.AddRange(participants); ;
+    }
+
+    [Function(nameof(AddItemsToCohortQueue))]
+    public async Task<bool> AddItemsToCohortQueue([ActivityTrigger] List<ParticipantCsvRecord> participants)
+    {
+        await _addBatchFromQueueHelper.AddAllCohortRecordsToQueue(participants);
+        _logger.LogWarning($"sent messages from the queue to cohort");
+
+        return true;
+    }
+
+    [Function(nameof(DeadLetterItemAsync))]
+    public async Task DeadLetterItemAsync([ActivityTrigger] long sequenceNumber)
+    {
         var client = new ServiceBusClient(connectionString);
         var receiver = client.CreateReceiver(queueName);
-
-        var processor = client.CreateProcessor(queueName, serviceBusProcessorOptions);
-
-        //split list of all into N amount of chunks to be processed as batches.
         try
         {
-            await _addBatchFromQueueProcessHelper.processItem(receiver, listOfAllValues, participantsData, participants, options, totalMessages);
-
-            // add batch to database
-            await _participantManagementClient.AddRange(participants);
-
-            // add all items to queue
-            await _addBatchFromQueueProcessHelper.AddAllCohortRecordsToQueue(participantsData);
-            _logger.LogWarning($"Drained and processed {totalMessages} messages from the queue.");
-
-            return true;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-            return false;
+            var fullMessage = await receiver.ReceiveDeferredMessageAsync(sequenceNumber);
+            await receiver.DeadLetterMessageAsync(fullMessage);
         }
         finally
         {
-            // dispose of all lists and variables from memory because they are no longer needed
-            listOfAllValues.Clear();
-            await receiver.CloseAsync();
-            await processor.DisposeAsync();
             await client.DisposeAsync();
+            await receiver.DisposeAsync();
         }
     }
 
+    [Function(nameof(completeMessageAsync))]
+    public async Task completeMessageAsync([ActivityTrigger] long sequenceNumber)
+    {
+        var client = new ServiceBusClient(connectionString);
+        var receiver = client.CreateReceiver(queueName);
+
+        try
+        {
+            var fullMessage = await receiver.ReceiveDeferredMessageAsync(sequenceNumber);
+            await receiver.CompleteMessageAsync(fullMessage);
+        }
+        finally
+        {
+            await client.DisposeAsync();
+            await receiver.DisposeAsync();
+        }
+    }
 
     [Function("add_batch_timer_start")]
     public async Task AddBatchFromQueue_start(

@@ -1,60 +1,104 @@
 namespace AddBatchFromQueue;
 
-using Azure.Messaging.ServiceBus;
+
+using System.Text.Json;
 using Common;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 
-public class AddBatchFromQueueProcessHelper : IAddBatchFromQueueProcessHelper
+public class AddBatchFromQueueHelper : IAddBatchFromQueueHelper
 {
-    IDurableAddProcessor _durableAddProcessor;
-    ILogger<IAddBatchFromQueueProcessHelper> _logger;
+    ILogger<AddBatchFromQueueHelper> _logger;
     ICohortDistributionHandler _cohortDistributionHandler;
     IExceptionHandler _handleException;
+    private readonly AddBatchFromQueueConfig _config;
+    private readonly ICheckDemographic _getDemographicData;
+    private readonly ICreateParticipant _createParticipant;
 
-    public AddBatchFromQueueProcessHelper(ILogger<IAddBatchFromQueueProcessHelper> logger, IDurableAddProcessor durableAddProcessor, ICohortDistributionHandler cohortDistributionHandler, IExceptionHandler handleException)
+    private readonly IValidateRecord _validateRecord;
+
+    public AddBatchFromQueueHelper(
+        ILogger<AddBatchFromQueueHelper> logger,
+        ICohortDistributionHandler cohortDistributionHandler,
+        IExceptionHandler handleException,
+        ICheckDemographic checkDemographic,
+        ICreateParticipant createParticipant,
+        IValidateRecord validateRecord,
+        IOptions<AddBatchFromQueueConfig> config
+        )
     {
         _logger = logger;
-        _durableAddProcessor = durableAddProcessor;
         _cohortDistributionHandler = cohortDistributionHandler;
         _handleException = handleException;
+        _createParticipant = createParticipant;
+        _getDemographicData = checkDemographic;
+        _validateRecord = validateRecord;
+        _config = config.Value;
     }
 
-    public async Task processItem(ServiceBusReceiver receiver, List<SerializableMessage> messages, List<ParticipantCsvRecord> participantsData, List<ParticipantManagement> participants, ParallelOptions options, int totalMessages)
+    public async Task<ParticipantCsvRecord?> GetDemoGraphicData(string jsonFromQueue)
     {
-        foreach (var message in messages)
+        var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
+
+        try
         {
-            var fullMessage = await receiver.ReceiveDeferredMessageAsync(message.SequenceNumber);
-            try
+            // Get demographic data
+            var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, _config.DemographicURIGet);
+            if (demographicData == null)
             {
-                string jsonFromQueue = message.Body;
-                _logger.LogInformation($"Processing message: {jsonFromQueue}");
-
-                var ParticipantCsvRecord = await _durableAddProcessor.ProcessAddRecord(jsonFromQueue);
-                if (ParticipantCsvRecord == null)
-                {
-                    _logger.LogError("The result of processing a record was null, see errors in database for more details. Will still process anymore records");
-                    // this sends a record to the dead letter queue on error
-                    await receiver.DeadLetterMessageAsync(fullMessage);
-                }
-                // we only want to add non null items to the database and log error records to the database this handled by validation 
-                else
-                {
-                    participantsData.Add(ParticipantCsvRecord!);
-                    await receiver.CompleteMessageAsync(fullMessage);
-
-                    participants.Add(ParticipantCsvRecord!.Participant.ToParticipantManagement());
-                    totalMessages++;
-                }
+                _logger.LogInformation("demographic function failed");
+                await _handleException.CreateSystemExceptionLog(new Exception("demographic function failed"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                return null;
             }
-            catch (Exception ex)
+
+            var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
+            var participantCsvRecord = new ParticipantCsvRecord
             {
-                _logger.LogError(ex, "Failed to process message");
-                // send error messages to the dead letter queue
-                await receiver.DeadLetterMessageAsync(fullMessage);
-            }
+                Participant = participant,
+                FileName = basicParticipantCsvRecord.FileName,
+            };
+            return participantCsvRecord;
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+            return null;
+        }
+    }
 
+    /// <summary>
+    /// process a single record 
+    /// </summary>
+    /// <param name="jsonFromQueue"></param>
+    /// <returns></returns>
+    public async Task<ParticipantCsvRecord?> ValidateMessageFromQueue(ParticipantCsvRecord participantCsvRecord)
+    {
+        Participant participant;
+        try
+        {
+            participant = participantCsvRecord.Participant;
+            //validate record and set EligibilityFlag 
+            (participantCsvRecord, participant) = await _validateRecord.ValidateData(participantCsvRecord, participant);
+            if (participantCsvRecord == null || participant == null)
+            {
+                return null;
+            }
+
+            participant.EligibilityFlag = "1";
+            var participantJson = JsonSerializer.Serialize(participant);
+
+            participantCsvRecord.Participant = participant;
+
+            _logger.LogInformation("Participant ready for creation");
+            return participantCsvRecord;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogInformation(ex, "Unable to call function.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
+            await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
+            return null;
+        }
     }
 
     public async Task AddAllCohortRecordsToQueue(List<ParticipantCsvRecord> participantsData)
@@ -71,3 +115,4 @@ public class AddBatchFromQueueProcessHelper : IAddBatchFromQueueProcessHelper
         }
     }
 }
+

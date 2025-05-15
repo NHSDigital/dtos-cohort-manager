@@ -27,10 +27,10 @@ var host = new HostBuilder()
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddSingleton<IExceptionHandler, ExceptionHandler>();
-        services.AddSingleton<IDurableAddProcessor, DurableAddProcessor>();
         services.AddSingleton<IValidateRecord, ValidateRecord>();
         services.AddSingleton<IMessageHandling, MessageHandling>();
-        services.AddSingleton<IAddBatchFromQueueProcessHelper, AddBatchFromQueueProcessHelper>();
+        services.AddSingleton<IAddBatchFromQueueHelper, AddBatchFromQueueHelper>();
+        services.AddSingleton<IMessageStore, InMemoryMessageStore>();
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()

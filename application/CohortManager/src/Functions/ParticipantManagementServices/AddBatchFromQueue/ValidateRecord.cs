@@ -12,7 +12,7 @@ using Model;
 public class ValidateRecord : IValidateRecord
 {
 
-    private readonly ILogger<DurableAddProcessor> _logger;
+    private readonly ILogger<ValidateRecord> _logger;
     private readonly IExceptionHandler _handleException;
     private readonly ICallFunction _callFunction;
     private readonly AddBatchFromQueueConfig _config;
@@ -21,7 +21,7 @@ public class ValidateRecord : IValidateRecord
 
     public ValidateRecord(
         IOptions<AddBatchFromQueueConfig> config,
-        ILogger<DurableAddProcessor> logger,
+        ILogger<ValidateRecord> logger,
         IExceptionHandler handleException,
         ICallFunction callFunction,
         IDataServiceClient<ParticipantManagement> participantManagementClient
@@ -33,7 +33,29 @@ public class ValidateRecord : IValidateRecord
         _config = config.Value;
         _participantManagementClient = participantManagementClient;
     }
-    public async Task<(Participant Participant, ValidationExceptionLog ValidationExceptionLog)> ValidateData(ParticipantCsvRecord participantCsvRecord, Participant participant)
+
+
+    public async Task<(ParticipantCsvRecord participantCsvRecord, Participant participant)> ValidateData(ParticipantCsvRecord participantCsvRecord, Participant participant)
+    {
+        var response = await ValidateStaticData(participantCsvRecord, participant);
+        if (response.ValidationExceptionLog.IsFatal)
+        {
+            return (null, null)!;
+        }
+        participant = response.Participant;
+
+        var validateLookUpResult = await ValidateLookUpData(participantCsvRecord, participantCsvRecord.FileName);
+        if (validateLookUpResult == null)
+        {
+            _logger.LogError("The validateLookUpResult was null");
+            return (null, null)!;
+        }
+        participantCsvRecord = validateLookUpResult;
+
+        return (participantCsvRecord, participant);
+    }
+
+    private async Task<(Participant Participant, ValidationExceptionLog ValidationExceptionLog)> ValidateStaticData(ParticipantCsvRecord participantCsvRecord, Participant participant)
     {
         // Validation
         ValidationExceptionLog validationExceptionLog;
@@ -76,7 +98,7 @@ public class ValidateRecord : IValidateRecord
         return (participant, responseBody);
     }
 
-    public async Task<ParticipantCsvRecord> ValidateLookUpData(ParticipantCsvRecord newParticipantCsvRecord, string fileName)
+    private async Task<ParticipantCsvRecord> ValidateLookUpData(ParticipantCsvRecord newParticipantCsvRecord, string fileName)
     {
         var existingParticipant = new Participant();
         long screeningId;
