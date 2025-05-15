@@ -1,4 +1,3 @@
-
 output "application_insights" {
   value = {
     name                = module.app_insights_audit[local.primary_region].name
