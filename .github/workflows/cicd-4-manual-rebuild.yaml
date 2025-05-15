@@ -4,10 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       environment_tag:
-        description: Environment of the deployment
+        description: Select the environment for the deployment
         required: true
-        type: string
+        type: choice
         default: development
+        options:
+          - development
+          - nft
+          - integration
       build_all_images:
         description: Build all images defined in compose files
         required: false
@@ -28,7 +32,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: 'true'
-          ref: 'main' # We ensure it's the main branch.
+          ref: 'main'
 
       - name: "Call Reusable Build Images Workflow"
         uses: NHSDigital/dtos-devops-templates/.github/workflows/stage-3-build-images.yaml@DTOSS-8936-manual-image-rebuild-process
