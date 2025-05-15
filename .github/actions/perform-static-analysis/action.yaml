@@ -57,10 +57,33 @@ runs:
         GITHUB_TOKEN: ${{ github.token }}
         SONAR_TOKEN: ${{ inputs.sonar_token }}
       run: |
+        # Get PR information for SonarCloud
+        if [[ "${{ github.event_name }}" == "pull_request" || "${{ github.event_name }}" == "pull_request_target" ]]; then
+          PR_BRANCH="${{ github.head_ref }}"
+          PR_BASE="${{ github.base_ref }}"
+          PR_KEY="${{ github.event.pull_request.number }}"
+          
+          echo "Running analysis for PR #${PR_KEY} from ${PR_BRANCH} into ${PR_BASE}"
+          PR_ARGS="/d:sonar.pullrequest.key=${PR_KEY} /d:sonar.pullrequest.branch=${PR_BRANCH} /d:sonar.pullrequest.base=${PR_BASE} /d:sonar.pullrequest.github.repository=${{ github.repository }}"
+        else
+          BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+          if [[ "$BRANCH_NAME" != "main" && "$BRANCH_NAME" != "master" ]]; then
+            echo "Running analysis for branch ${BRANCH_NAME}"
+            PR_ARGS="/d:sonar.branch.name=${BRANCH_NAME}"
+          else
+            echo "Running analysis for main branch"
+            PR_ARGS=""
+          fi
+        fi
+        
+        # Debug info
+        echo "GitHub event: ${{ github.event_name }}"
+        echo "PR arguments: ${PR_ARGS}"
+        
         # Restore solution dependencies
         find . -name "*.sln" -exec dotnet restore {} \;
         
-        # Begin SonarScanner with coverage configuration
+        # Begin SonarScanner with coverage configuration and PR information
         dotnet sonarscanner begin \
           /k:"${{ inputs.sonar_project_key }}" \
           /o:"${{ inputs.sonar_organisation_key }}" \
@@ -69,7 +92,10 @@ runs:
           /d:sonar.cs.opencover.reportsPaths="${{ inputs.coverage_path }}/*.xml" \
           /d:sonar.cs.cobertura.reportsPaths="${{ inputs.coverage_path }}/cobertura.xml" \
           /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs" \
-          /d:sonar.verbose=true
+          /d:sonar.verbose=true \
+          /d:sonar.scm.provider=git \
+          /d:sonar.scm.revision=${{ github.sha }} \
+          ${PR_ARGS}
         
         # Build all solutions
         find . -name "*.sln" -exec dotnet build {} --no-restore \;
