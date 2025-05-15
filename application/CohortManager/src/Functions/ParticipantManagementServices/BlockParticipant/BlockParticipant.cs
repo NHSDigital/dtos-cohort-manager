@@ -51,7 +51,7 @@ public class BlockParticipant
             
             try
             {
-                if (!ValidationHelper.ValidateNHSNumber(nhsNumber)) {throw new Exception("Invalid NHS Number");}
+                if (!ValidationHelper.ValidateNHSNumber(nhsNumber)) {throw new InvalidDataException("Invalid NHS Number");}
 
                 dateOfBirth = req.Query["DateOfBirth"];
                 familyName = req.Query["FamilyName"];
@@ -66,6 +66,11 @@ public class BlockParticipant
                 
                 if (!blockFlagUpdated) {throw new Exception("Failed to block participant");};
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "OK");
+            }
+            catch (InvalidDataException ex) {
+                _logger.LogError("Invalid NHS Number");
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNumber, "", screeningId.ToString(), req.ToString());
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS Number");
             }
             catch (NullReferenceException ex) {
                 _logger.LogError("Could not find participant");

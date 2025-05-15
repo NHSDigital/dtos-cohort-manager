@@ -57,7 +57,7 @@ public class BlockParticipantTests
         var request = _setupRequest.Setup("");
         var queryParams = new NameValueCollection
         {
-            { "NhsNumber", "8253303483"}, //Random NHS number created using https://data-gorilla.uk/en/healthcare/nhs-number/ (No PII used)
+            { "NhsNumber", "8253303483"},
             { "ScreeningId", "1"},
             { "DateOfBirth", "01/01/2000"},
             { "LastName", "Smith"}
@@ -115,7 +115,7 @@ public class BlockParticipantTests
         var request = _setupRequest.Setup("");
         var queryParams = new NameValueCollection
         {
-            { "NhsNumber", "8253303483"}, //Random NHS number created using https://data-gorilla.uk/en/healthcare/nhs-number/ (No PII used)
+            { "NhsNumber", "8253303483"},
             { "ScreeningId", "1"},
             { "DateOfBirth", "01/01/2000"},
             { "LastName", "Smith"}
@@ -148,7 +148,7 @@ public class BlockParticipantTests
         var request = _setupRequest.Setup("");
         var queryParams = new NameValueCollection
         {
-            { "NhsNumber", "8253303483"}, //Random NHS number created using https://data-gorilla.uk/en/healthcare/nhs-number/ (No PII used)
+            { "NhsNumber", "8253303483"},
             { "ScreeningId", "1"},
             { "DateOfBirth", "01/01/2000"},
             { "LastName", "Smith"}
@@ -182,7 +182,7 @@ public class BlockParticipantTests
         var request = _setupRequest.Setup("");
         var queryParams = new NameValueCollection
         {
-            { "NhsNumber", "8253303483"}, //Random NHS number created using https://data-gorilla.uk/en/healthcare/nhs-number/ (No PII used)
+            { "NhsNumber", "8253303483"},
             { "ScreeningId", "1"},
             { "DateOfBirth", "01/01/2000"},
             { "LastName", "Smith"}
@@ -208,7 +208,7 @@ public class BlockParticipantTests
     }
 
     [TestMethod]
-    public async Task Run_InvalidNHSNumber_ReturnInternalServerError()
+    public async Task Run_InvalidNHSNumber_ReturnBadRequest()
     {
         // Arrange
         var request = _setupRequest.Setup("");
@@ -227,12 +227,12 @@ public class BlockParticipantTests
 
         // Assert
         _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-            It.IsAny<Exception>(),
+            It.IsAny<InvalidDataException>(),
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()),
             Times.Once);
-        Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+        Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
 }
