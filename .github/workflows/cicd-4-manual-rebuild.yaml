@@ -12,7 +12,7 @@ on:
           - development
           - nft
           - integration
-      build_all_images:
+      build_all:
         description: Build all images defined in compose files
         required: false
         type: boolean
@@ -28,5 +28,5 @@ jobs:
       environment_tag: ${{ github.event.inputs.environment_tag }}
       function_app_source_code_path: application/CohortManager/src
       project_name: cohort-manager
-      build_all_services: ${{ github.event.inputs.build_all_services }}
+      build_all_images: ${{ github.event.inputs.build_all }}
     secrets: inherit
