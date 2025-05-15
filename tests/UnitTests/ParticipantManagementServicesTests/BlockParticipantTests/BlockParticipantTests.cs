@@ -22,9 +22,18 @@ public class BlockParticipantTests
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private readonly SetupRequest _setupRequest = new();
     private readonly BlockParticipant _sut;
+    private readonly NameValueCollection queryParams;
 
     public BlockParticipantTests()
     {
+        queryParams = new NameValueCollection
+        {
+            { "NhsNumber", "8253303483"},
+            { "ScreeningId", "1"},
+            { "DateOfBirth", "01/01/2000"},
+            { "LastName", "Smith"}
+        };
+
         _createResponseMock.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
             {
@@ -55,13 +64,7 @@ public class BlockParticipantTests
     {
         // Arrange
         var request = _setupRequest.Setup("");
-        var queryParams = new NameValueCollection
-        {
-            { "NhsNumber", "8253303483"},
-            { "ScreeningId", "1"},
-            { "DateOfBirth", "01/01/2000"},
-            { "LastName", "Smith"}
-        };
+        
         _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic()); 
         _dsMockParticipantManagement.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(new ParticipantManagement());  
         _dsMockParticipantManagement.Setup(x => x.Update(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);  
@@ -80,13 +83,6 @@ public class BlockParticipantTests
     {
         // Arrange
         var request = _setupRequest.Setup("");
-        var queryParams = new NameValueCollection
-        {
-            { "NhsNumber", "8253303483"}, //Random NHS number created using https://data-gorilla.uk/en/healthcare/nhs-number/ (No PII used)
-            { "ScreeningId", "1"},
-            { "DateOfBirth", "01/01/2000"},
-            { "LastName", "Smith"}
-        };
         
         _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync((ParticipantDemographic?)null);
         _dsMockParticipantManagement.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(new ParticipantManagement());  
@@ -113,13 +109,6 @@ public class BlockParticipantTests
     {
         // Arrange
         var request = _setupRequest.Setup("");
-        var queryParams = new NameValueCollection
-        {
-            { "NhsNumber", "8253303483"},
-            { "ScreeningId", "1"},
-            { "DateOfBirth", "01/01/2000"},
-            { "LastName", "Smith"}
-        };
         
         _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic());
         _dsMockParticipantManagement.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).ReturnsAsync(new ParticipantManagement());  
@@ -146,13 +135,6 @@ public class BlockParticipantTests
     {
         // Arrange
         var request = _setupRequest.Setup("");
-        var queryParams = new NameValueCollection
-        {
-            { "NhsNumber", "8253303483"},
-            { "ScreeningId", "1"},
-            { "DateOfBirth", "01/01/2000"},
-            { "LastName", "Smith"}
-        };
 
         request.Setup(r => r.Query).Returns(queryParams);
 
@@ -180,13 +162,6 @@ public class BlockParticipantTests
     {
         // Arrange
         var request = _setupRequest.Setup("");
-        var queryParams = new NameValueCollection
-        {
-            { "NhsNumber", "8253303483"},
-            { "ScreeningId", "1"},
-            { "DateOfBirth", "01/01/2000"},
-            { "LastName", "Smith"}
-        };
 
         request.Setup(r => r.Query).Returns(queryParams);
 
