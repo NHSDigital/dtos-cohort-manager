@@ -16,12 +16,19 @@ public class SetupRequest
         _request = new Mock<HttpRequestData>(_context.Object);
     }
 
-    public Mock<HttpRequestData> Setup(string json)
+    public Mock<HttpRequestData> Setup(string? json = null)
     {
-        var byteArray = Encoding.ASCII.GetBytes(json);
-        var bodyStream = new MemoryStream(byteArray);
+        if (json == null)
+        {
+            _request.Setup(r => r.Body).Returns((MemoryStream)null);
+        } else
+        {
+            var byteArray = Encoding.ASCII.GetBytes(json);
+            var bodyStream = new MemoryStream(byteArray);
 
-        _request.Setup(r => r.Body).Returns(bodyStream);
+            _request.Setup(r => r.Body).Returns(bodyStream);
+        }
+        
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
             var response = new Mock<HttpResponseData>(_context.Object);
