@@ -32,46 +32,66 @@ Make use of this repository template to expedite your project setup and enhance 
 
 ## Setup
 
-By including preferably a one-liner or if necessary a set of clear CLI instructions we improve user experience. This should be a frictionless installation process that works on various operating systems (macOS, Linux, Windows WSL) and handles all the dependencies.
+- Visual Studio Code - VS Code is the chosen editor for the project due to VS for Mac being retired
+- Git
+- HomeBrew (Mac Only): \
+    `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
+- [.NET SDK (8.0)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- Member of the NHSDigital GitHub organisation
+- Signed Git commits (if you would like to contribute): \
+    [Using 1Password](https://developer.1password.com/docs/ssh/git-commit-signing/) is the easiest option if you have it, otherwise use the below link for instructions \
+    <https://github.com/NHSDigital/software-engineering-quality-framework/blob/main/practices/guides/commit-signing.md>
+- Added the git submodule:
+  `git submodule update --init --recursive`
 
-Clone the repository
+## Set-up
 
-```shell
-git clone https://github.com/nhs-england-tools/repository-template.git
-cd nhs-england-tools/repository-template
+### 1. Import the NHS DToS Profile
+
+To easily install the required extensions and settings/configuration for VS Code, you can import the profile located in `Set-up/NHS_DToS.code-profile`
+
+On the top toolbar of Visual Studio Code go to *Code > Settings > Profiles > Import Profile > click on Select File...* and select the file **NHS_DToS.code-profile**
+
+### 2. Azure Functions Core Tools
+
+Azure Function Core Tools lets you develop and test your functions on your local computer. To install, press `ctrl/ command + shift + P` and enter `Azure Functions: Install or Update Azure Functions Core Tools`
+
+### 3. Azure Data Studio & Storage Explorer
+
+Azure Data Studio & Storage Explorer are the GUI tools we are using to manually interact with the database & Azure Storage respectively.
+
+- Install [Azure Data Studio](https://learn.microsoft.com/en-us/azure-data-studio/download-azure-data-studio?tabs=wi[…]all%2Credhat-install%2Cwindows-uninstall%2Credhat-uninstall)
+- (Optional) Install [Azure Storage Explorer](https://azure.microsoft.com/en-gb/products/storage/storage-explorer)
+
+Use the **Intel Chip/ x64** installer if you have and Intel Chip in your Mac. Otherwise, use the **Apple Silicon/ ARM64** installer.
+
+*Note: to check which version you are using, you can click on the Apple icon of your machine > About this Mac and a new window will appear. You can see the Chip your machine. Intel will have Intel in it, Apple Silicon will have something like Apple M1.*
+
+### 4. Download Docker/ Podman
+
+If you are on Windows, install Docker Engine using [these instructions](https://medium.com/@rom.bruyere/docker-and-wsl2-without-docker-desktop-f529d15d9398)
+
+If you are on Mac, install Podman by running:
+
+```bash
+brew install --cask podman
+brew install podman-compose
+
+# Allocate sufficient resources to Podman:
+podman machine stop
+podman machine set --cpus=6 --memory=12288 --disk-size=125
+podman machine start
 ```
-
-### Prerequisites
-
-The following software packages, or their equivalents, are expected to be installed and configured:
-
-- [Docker](https://www.docker.com/) container runtime or a compatible tool, e.g. [Podman](https://podman.io/),
-- [asdf](https://asdf-vm.com/) version manager,
-- [GNU make](https://www.gnu.org/software/make/) 3.82 or later,
-- [GNU coreutils](https://www.gnu.org/software/coreutils/) and [GNU binutils](https://www.gnu.org/software/binutils/) may be required to build dependencies like Python, which may need to be compiled during installation. For macOS users, this has been scripted and automated by the `dotfiles` project; please see this [script](https://github.com/nhs-england-tools/dotfiles/blob/main/assets/20-install-base-packages.macos.sh) for details,
-- [Python](https://www.python.org/) required to run Git hooks,
-- [`jq`](https://jqlang.github.io/jq/) a lightweight and flexible command-line JSON processor.
-
-> [!NOTE]<br>
-> The version of GNU make available by default on macOS is earlier than 3.82. You will need to upgrade it or certain `make` tasks will fail. On macOS, you will need [Homebrew](https://brew.sh/) installed, then to install `make`, like so:
->
-> ```shell
-> brew install make
-> ```
->
-> You will then see instructions to fix your `$PATH` variable to make the newly installed version available. If you are using [dotfiles](https://github.com/nhs-england-tools/dotfiles), this is all done for you.
 
 ### Configuration
 
-Installation and configuration of the toolchain dependencies
+Copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
 
-```shell
-make config
-```
+> **Note:** For existing users, make sure you replace where it says 127.0.0.1 in the azurite connection string and replace it with "azurite"
 
 ## Usage
 
-After a successful installation, please follow this [User Guide](./docs/user-guides/Local_machine_setup.md) to setup your local development environment.
+After a successful installation, please follow this [User Guide](./docs/user-guides/user_guide.md) to use the application.
 
 ### Testing
 
