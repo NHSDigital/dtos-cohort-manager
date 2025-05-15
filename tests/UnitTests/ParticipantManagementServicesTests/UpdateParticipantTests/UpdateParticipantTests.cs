@@ -89,6 +89,7 @@ public class UpdateParticipantTests
             .Setup(x => x.CreateSystemExceptionLog(
                 It.IsAny<Exception>(),
                 It.IsAny<Participant>(),
+                It.IsAny<string>(),
                 It.IsAny<string>())
             );
 
