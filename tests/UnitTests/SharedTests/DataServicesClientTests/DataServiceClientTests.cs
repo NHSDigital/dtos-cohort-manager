@@ -1,4 +1,4 @@
-namespace DataServiceTests;
+namespace NHS.CohortManager.Tests.Shared;
 
 using Common;
 using Microsoft.Extensions.Logging;
@@ -196,7 +196,7 @@ public class DataServiceClientTests
         _mockCallFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
-    public async Task AddRange_SendsAddRange_ReturnsFalse()
+    public async Task AddRange_CallReturns500_ReturnsFalse()
     {
         //arrange
         DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
@@ -233,7 +233,7 @@ public class DataServiceClientTests
         _mockCallFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
-    public async Task Add_SendsAddSingle_ReturnsFalse()
+    public async Task Add_CallReturns500_ReturnsFalse()
     {
         //arrange
         DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
