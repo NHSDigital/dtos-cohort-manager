@@ -114,7 +114,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'  # Just use the minimum required version
+          dotnet-version: '8.0.x'
       - name: Setup NuGet cache
         uses: actions/cache@v4
         with:
@@ -159,7 +159,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'  # Just use the minimum required version
+          dotnet-version: '8.0.x'
       - name: Setup NuGet cache
         uses: actions/cache@v4
         with:
@@ -200,7 +200,7 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'  # Just use the minimum required version
+          dotnet-version: '8.0.x'
       - name: Download all test results
         uses: actions/download-artifact@v4
         with:
@@ -211,7 +211,6 @@ jobs:
           mkdir coverage
           if [[ "${{ needs.check-consolidated-tests.outputs.has-consolidated-tests }}" == "true" ]]; then
             echo "Using consolidated test coverage report"
-            # Find the consolidated coverage report and copy it directly
             find aggregated-results -name "coverage.cobertura.xml" -exec cp {} coverage/cobertura.xml \;
             cp coverage/cobertura.xml coverage/vscoverage.xml
           else
@@ -248,5 +247,3 @@ jobs:
       - name: Save the linting result
         run: |
           echo "Nothing to save"
-
-# Separate workflow file for static analysis
