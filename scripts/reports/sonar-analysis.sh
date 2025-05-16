@@ -49,6 +49,8 @@ else
   PR_ARGS="/d:sonar.branch.name=${BRANCH_NAME}"
 fi
 
+# Debug info
+echo "GitHub event: $GITHUB_EVENT_NAME"
 echo "PR arguments: ${PR_ARGS}"
 echo "=========================="
 
