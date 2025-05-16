@@ -281,6 +281,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHS.CohortManager.EndToEndT
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUtils", "..\..\..\..\tests\TestUtils\TestUtils.csproj", "{83DD16A7-B7DF-47A4-9DC7-472D9F09EE35}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteParticipant", "CohortDistributionServices\DeleteParticipant\DeleteParticipant.csproj", "{14514863-3B9D-48C2-9F2B-63D09CCC246A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteParticipantTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\DeleteParticipantTests\DeleteParticipantTests.csproj", "{99505F77-3B4E-4E36-AA70-D373D79835A5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1731,6 +1735,14 @@ Global
 		{83DD16A7-B7DF-47A4-9DC7-472D9F09EE35}.Release|x64.Build.0 = Release|Any CPU
 		{83DD16A7-B7DF-47A4-9DC7-472D9F09EE35}.Release|x86.ActiveCfg = Release|Any CPU
 		{83DD16A7-B7DF-47A4-9DC7-472D9F09EE35}.Release|x86.Build.0 = Release|Any CPU
+		{14514863-3B9D-48C2-9F2B-63D09CCC246A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14514863-3B9D-48C2-9F2B-63D09CCC246A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14514863-3B9D-48C2-9F2B-63D09CCC246A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14514863-3B9D-48C2-9F2B-63D09CCC246A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99505F77-3B4E-4E36-AA70-D373D79835A5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99505F77-3B4E-4E36-AA70-D373D79835A5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99505F77-3B4E-4E36-AA70-D373D79835A5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99505F77-3B4E-4E36-AA70-D373D79835A5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

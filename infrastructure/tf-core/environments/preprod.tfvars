@@ -451,6 +451,22 @@ function_apps = {
       ]
     }
 
+    DeleteParticipant = {
+      name_suffix            = "delete-participant"
+      function_endpoint_name = "DeleteParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
+        }
+      ]
+    }
+
     MarkParticipantAsEligible = {
       name_suffix            = "mark-participant-as-eligible"
       function_endpoint_name = "markParticipantAsEligible"
