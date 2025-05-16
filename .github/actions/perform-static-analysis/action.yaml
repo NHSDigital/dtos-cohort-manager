@@ -14,6 +14,10 @@ inputs:
     description: "Path to coverage reports"
     required: false
     default: "coverage"
+  unit_test_dir:
+    description: "Directory containing the unit tests"
+    required: false
+    default: "tests"
 runs:
   using: "composite"
   steps:
@@ -22,7 +26,6 @@ runs:
       with:
         java-version: 17
         distribution: "zulu"
-
     - name: Install .NET SDKs
       uses: actions/setup-dotnet@v4
       with:
@@ -30,7 +33,6 @@ runs:
           7.0.x
           8.0.x
           9.0.x
-
     - name: Cache SonarQube packages
       uses: actions/cache@v4
       with:
@@ -38,7 +40,6 @@ runs:
         key: ${{ runner.os }}-sonar-${{ hashFiles('**/*.csproj') }}
         restore-keys: |
           ${{ runner.os }}-sonar-
-
     - name: Cache NuGet packages
       uses: actions/cache@v4
       with:
@@ -46,11 +47,9 @@ runs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
-
     - name: Install SonarScanner
       shell: bash
       run: dotnet tool install --global dotnet-sonarscanner
-
     - name: SonarCloud analysis
       shell: bash
       env:
@@ -59,17 +58,19 @@ runs:
       run: |
         # Make the script executable
         chmod +x ${{ github.workspace }}/scripts/reports/sonar-analysis.sh
+        
         # Run the script with all necessary parameters
         ${{ github.workspace }}/scripts/reports/sonar-analysis.sh \
-          "${{ inputs.sonar_project_key }}" \
-          "${{ inputs.sonar_organisation_key }}" \
-          "${{ inputs.sonar_token }}" \
-          "${{ inputs.coverage_path }}" \
-          "${{ github.token }}" \
-          "${{ github.event_name }}" \
-          "${{ github.head_ref }}" \
-          "${{ github.base_ref }}" \
-          "${{ github.event.pull_request.number }}" \
-          "${{ github.repository }}" \
-          "${{ github.ref }}" \
-          "${{ github.sha }}"
+        "${{ inputs.sonar_project_key }}" \
+        "${{ inputs.sonar_organisation_key }}" \
+        "${{ inputs.sonar_token }}" \
+        "${{ inputs.coverage_path }}" \
+        "${{ github.token }}" \
+        "${{ github.event_name }}" \
+        "${{ github.head_ref }}" \
+        "${{ github.base_ref }}" \
+        "${{ github.event.pull_request.number }}" \
+        "${{ github.repository }}" \
+        "${{ github.ref }}" \
+        "${{ github.sha }}" \
+        "${{ inputs.unit_test_dir }}"
