@@ -94,6 +94,7 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\RemoveParticipant\RemoveParticipant.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\GetParticipantReferenceData\GetParticipantReferenceData.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\BlockParticipant\BlockParticipant.csproj" />
   </ItemGroup>
 
   <!-- Demographic Services -->
