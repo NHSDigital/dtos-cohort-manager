@@ -7,7 +7,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Model;
 using Common;
-using Data.Database;
 using NHS.CohortManager.ExceptionService;
 using System.Text.Json;
 using System.Text;
