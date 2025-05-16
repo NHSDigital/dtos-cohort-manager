@@ -8,9 +8,12 @@ public class DataServicesContext : DbContext
     DbSet<LanguageCode> languageCodes { get; set; }
     DbSet<CurrentPosting> currentPostings { get; set; }
     DbSet<ExcludedSMULookup> excludedSMULookups { get; set; }
-    DbSet<ExceptionManagement> exceptionManagements { get; set; }
+    public DbSet<ExceptionManagement> ExceptionManagements { get; set; }
     DbSet<GPPractice> gPPractices { get; set; }
     DbSet<BsSelectRequestAudit> bsSelectRequestAudits {get;set;}
+    public DbSet<ParticipantManagement> ParticipantManagements {get;set;}
+    public DbSet<CohortDistribution> CohortDistributions {get;set;}
+    public DbSet<ParticipantDemographic> ParticipantDemographics {get; set;}
     DbSet<NemsSubscription> nemsSubscriptions {get;set;}
     
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
