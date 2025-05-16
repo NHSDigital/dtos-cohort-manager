@@ -240,12 +240,18 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NemsMeshRetrievalTests", "..\..\..\..\tests\UnitTests\NemsSubscriptionServiceTests\NemsMeshRetrievalTests\NemsMeshRetrievalTests.csproj", "{F2D368CE-F338-42E1-8083-7052F9DAA3F7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReadRulesTests", "..\..\..\..\tests\UnitTests\SharedTests\ReadRulesTests\ReadRulesTests.csproj", "{33B3D8A1-9A11-46B7-B82F-7D2F159404EE}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockParticipant", "ParticipantManagementServices\BlockParticipant\BlockParticipant.csproj", "{B85A6FFC-5B34-4257-B0FB-ABBB2ED69405}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GetParticipantReferenceDataTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\GetParticipantReferenceDataTests\GetParticipantReferenceDataTests.csproj", "{BF97136A-59AA-4468-9F10-B1F91140EE62}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServicesClientTests", "..\..\..\..\tests\UnitTests\SharedTests\DataServicesClientTests\DataServicesClientTests.csproj", "{12A622AE-4A3A-496D-9C66-53437670F810}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EnumHelperTests", "..\..\..\..\tests\UnitTests\SharedTests\EnumHelperTests\EnumHelperTests.csproj", "{D95400BF-9D25-43A0-9BF1-DFB4E2EC41A8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReceiveCaasFileHelperTests", "..\..\..\..\tests\UnitTests\SharedTests\ReceiveCaasFileHelperTests\ReceiveCaasFileHelperTests.csproj", "{2B3B9B2B-D268-44FF-B528-0B94C0002F78}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlockParticipantTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\BlockParticipantTests\BlockParticipantTests.csproj", "{97CC56EE-4F8E-42D8-9B91-DBA046D60B7D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEMSUnSubscription", "DemographicServices\NEMSUnSubscription\NEMSUnSubscription.csproj", "{EF2F725D-4C2A-40AE-BC78-54A4067D2028}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ExceptionHandlerTests", "..\..\..\..\tests\UnitTests\SharedTests\ExceptionHandlerTests\ExceptionHandlerTests.csproj", "{5BA01F80-8404-46E2-995C-8C068A0B68C0}"
 EndProject
