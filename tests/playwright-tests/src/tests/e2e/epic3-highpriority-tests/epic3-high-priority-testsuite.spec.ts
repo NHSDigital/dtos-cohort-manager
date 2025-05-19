@@ -146,7 +146,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  testWithAmended.only('@DTOSS-5405-01 @Implement Validate Amend fields reason for removal as invalid "RPI" and date of death present', async ({ request, testData }) => {
+  testWithAmended('@DTOSS-5405-01 @Implement Validate Amend fields reason for removal as invalid "RPI" and date of death present', async ({ request, testData }) => {
     await test.step(`When ADD participant is processed via storage`, async () => {
       await processFileViaStorage(testData.runTimeParquetFileAdd);
     });
