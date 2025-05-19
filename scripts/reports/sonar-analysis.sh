@@ -41,7 +41,7 @@ dotnet sonarscanner begin \
 /o:"${SONAR_ORGANISATION_KEY}" \
 /d:sonar.token="${SONAR_TOKEN}" \
 /d:sonar.host.url="https://sonarcloud.io" \
-/d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/coverage.opencover.xml" \
+/d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/**/*.xml" \
 /d:sonar.python.version="3.8" \
 /d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
 /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts" \
@@ -63,16 +63,6 @@ dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
   --logger "trx;LogFileName=TestResults.trx" \
   --collect:"XPlat Code Coverage;Format=opencover" \
   --verbosity normal
-
-# Look for OpenCover XML files and copy to standard location
-OPENCOVER_FILE=$(find "${COVERAGE_PATH}" -name "coverage.opencover.xml" | head -n 1)
-if [ -n "$OPENCOVER_FILE" ]; then
-  echo "Found OpenCover file: ${OPENCOVER_FILE}"
-  cp "${OPENCOVER_FILE}" "${COVERAGE_PATH}/coverage.opencover.xml"
-  echo "Copied to ${COVERAGE_PATH}/coverage.opencover.xml"
-else
-  echo "No OpenCover file found in ${COVERAGE_PATH}"
-fi
 
 # End SonarScanner
 dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
