@@ -53,7 +53,7 @@ dotnet sonarscanner begin \
 /o:"${SONAR_ORGANISATION_KEY}" \
 /d:sonar.token="${SONAR_TOKEN}" \
 /d:sonar.host.url="https://sonarcloud.io" \
-/d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/**/*.xml" \
+/d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/coverage.xml" \
 /d:sonar.python.version="3.8" \
 /d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
 /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts" \
@@ -92,67 +92,62 @@ echo "Finding and copying coverage files to SonarCloud expected locations..."
 echo "All XML files found:"
 find "${COVERAGE_PATH}" -name "*.xml" -type f -exec ls -lh {} \;
 
-# Find coverage files generated in subdirectories
-# The coverage files are typically in GUID-named folders under the results directory
-echo "Locating coverage files in GUID subdirectories..."
-
-# Look for cobertura XML files
-COBERTURA_FILE=$(find "${COVERAGE_PATH}" -name "coverage.cobertura.xml" | head -n 1)
-if [ -n "$COBERTURA_FILE" ]; then
-  echo "Found Cobertura file: ${COBERTURA_FILE}"
-  cp "${COBERTURA_FILE}" "${COVERAGE_PATH}/coverage.cobertura.xml"
-  echo "Copied to ${COVERAGE_PATH}/coverage.cobertura.xml"
-else
-  echo "No Cobertura file found"
-fi
-
-# Look for regular coverage XML files (might be named differently)
-COVERAGE_XML=$(find "${COVERAGE_PATH}" -name "*.xml" -not -name "coverage.cobertura.xml" -not -name "TestResults.xml" | head -n 1)
-if [ -n "$COVERAGE_XML" ]; then
-  echo "Found coverage XML file: ${COVERAGE_XML}"
-  cp "${COVERAGE_XML}" "${COVERAGE_PATH}/coverage.xml"
+# Look for OpenCover XML files and copy to standard location
+OPENCOVER_FILE=$(find "${COVERAGE_PATH}" -name "coverage.opencover.xml" | head -n 1)
+if [ -n "$OPENCOVER_FILE" ]; then
+  echo "Found OpenCover file: ${OPENCOVER_FILE}"
+  cp "${OPENCOVER_FILE}" "${COVERAGE_PATH}/coverage.xml"
   echo "Copied to ${COVERAGE_PATH}/coverage.xml"
 else
-  echo "No coverage XML file found"
+  echo "No OpenCover file found, looking for any XML..."
+  
+  # Fallback to any XML file if no specific format found
+  ANY_XML=$(find "${COVERAGE_PATH}" -name "*.xml" -not -name "TestResults.xml" | head -n 1)
+  if [ -n "$ANY_XML" ]; then
+    echo "Found XML file: ${ANY_XML}"
+    cp "${ANY_XML}" "${COVERAGE_PATH}/coverage.xml"
+    echo "Copied to ${COVERAGE_PATH}/coverage.xml"
+  else
+    echo "No suitable XML coverage file found"
+  fi
 fi
 
-# Check if the coverage files now exist at expected locations
-echo "Checking if SonarCloud expected paths exist after copying:"
-[ -f "${COVERAGE_PATH}/coverage.xml" ] && echo "VSCoverage file exists: ${COVERAGE_PATH}/coverage.xml" || echo "VSCoverage file MISSING: ${COVERAGE_PATH}/coverage.xml"
-[ -f "${COVERAGE_PATH}/coverage.cobertura.xml" ] && echo "Cobertura file exists: ${COVERAGE_PATH}/coverage.cobertura.xml" || echo "Cobertura file MISSING: ${COVERAGE_PATH}/coverage.cobertura.xml"
+# Check if the coverage files now exist
+echo "Checking if coverage file exists at expected path:"
+[ -f "${COVERAGE_PATH}/coverage.xml" ] && echo "Coverage file exists: ${COVERAGE_PATH}/coverage.xml" || echo "Coverage file MISSING: ${COVERAGE_PATH}/coverage.xml"
 
-# After copying coverage files, before ending SonarScanner
-echo "===== DETAILED COVERAGE FILE INFORMATION ====="
-echo "Complete listing of all XML files in ${COVERAGE_PATH}:"
-find "${COVERAGE_PATH}" -name "*.xml" -type f -exec ls -lh {} \; | tee coverage_files.log
-
-echo "Content sample of coverage.cobertura.xml (if exists):"
-if [ -f "${COVERAGE_PATH}/coverage.cobertura.xml" ]; then
-  head -n 20 "${COVERAGE_PATH}/coverage.cobertura.xml"
-  echo "File size: $(du -h ${COVERAGE_PATH}/coverage.cobertura.xml | cut -f1)"
-  echo "Check if it's a valid XML file:"
-  xmllint --noout "${COVERAGE_PATH}/coverage.cobertura.xml" && echo "Valid XML" || echo "Invalid XML"
-else
-  echo "File does not exist"
-fi
-
-echo "Content sample of coverage.xml (if exists):"
+# Fix any XML issues
+echo "Fixing potential XML issues..."
 if [ -f "${COVERAGE_PATH}/coverage.xml" ]; then
-  head -n 20 "${COVERAGE_PATH}/coverage.xml"
-  echo "File size: $(du -h ${COVERAGE_PATH}/coverage.xml | cut -f1)"
-  echo "Check if it's a valid XML file:"
-  xmllint --noout "${COVERAGE_PATH}/coverage.xml" && echo "Valid XML" || echo "Invalid XML"
-else
-  echo "File does not exist"
+  # Create a backup
+  cp "${COVERAGE_PATH}/coverage.xml" "${COVERAGE_PATH}/coverage.xml.bak"
+  
+  # Fix common XML issues - remove BOM and invalid characters
+  # This uses 'sed' to remove the BOM marker if present
+  sed -i '1s/^\xEF\xBB\xBF//' "${COVERAGE_PATH}/coverage.xml" || true
+  
+  # Only keep valid XML characters
+  tr -cd '\11\12\15\40-\176' < "${COVERAGE_PATH}/coverage.xml.bak" > "${COVERAGE_PATH}/coverage.xml.tmp" || true
+  mv "${COVERAGE_PATH}/coverage.xml.tmp" "${COVERAGE_PATH}/coverage.xml" || true
+  
+  # Verify if fixed
+  echo "Checking if XML is now valid:"
+  xmllint --noout "${COVERAGE_PATH}/coverage.xml" && echo "✅ XML is now valid" || echo "❌ XML still has issues - continuing anyway"
 fi
 
-# Capture verbose SonarScanner output 
-echo "Ending SonarScanner analysis with full debug output..."
-dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}" /d:sonar.verbose=true | tee sonar_full_output.log
-grep -i "coverage\|cobertura\|opencover\|vscoverage" sonar_full_output.log || echo "No coverage-related terms found in logs"
+# Log coverage file info
+echo "===== COVERAGE FILE DETAILS ====="
+echo "Coverage file details:"
+ls -lh "${COVERAGE_PATH}/coverage.xml" || echo "File not found"
+echo "First 20 lines of coverage file:"
+head -n 20 "${COVERAGE_PATH}/coverage.xml" || echo "Cannot display file content"
 
-# End SonarScanner
+# End SonarScanner - REMOVED the duplicate command and the verbose parameter
 echo "Ending SonarScanner analysis..."
-dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}" | tee sonar_output.log
+
+# Check for coverage mentions in output
+echo "Checking for coverage mentions in SonarScanner output:"
+grep -i "coverage\|parsing\|report" sonar_output.log || echo "No coverage-related terms found in logs"
 
 echo "Analysis complete."
