@@ -46,16 +46,6 @@ mkdir -p "$COVERAGE_PATH"
 echo "Restoring .NET dependencies..."
 find . -name "*.sln" -exec dotnet restore {} \;
 
-# Show explicit SonarCloud coverage paths to verify configuration
-OPENCOVER_PATH="${COVERAGE_PATH}/*.xml"
-VSCOVERAGE_PATH="${COVERAGE_PATH}/coverage.xml"
-COBERTURA_PATH="${COVERAGE_PATH}/coverage.cobertura.xml"
-
-echo "SonarCloud will look for coverage at these paths:"
-echo "OpenCover: $OPENCOVER_PATH"
-echo "VSCoverage: $VSCOVERAGE_PATH"
-echo "Cobertura: $COBERTURA_PATH"
-
 # Begin SonarScanner with coverage configuration and PR information
 echo "Starting SonarScanner..."
 dotnet sonarscanner begin \
@@ -63,16 +53,15 @@ dotnet sonarscanner begin \
 /o:"${SONAR_ORGANISATION_KEY}" \
 /d:sonar.token="${SONAR_TOKEN}" \
 /d:sonar.host.url="https://sonarcloud.io" \
-/d:sonar.cs.opencover.reportsPaths="${OPENCOVER_PATH}" \
-/d:sonar.cs.vscoveragexml.reportsPaths="${VSCOVERAGE_PATH}" \
-/d:sonar.cs.cobertura.reportsPaths="${COBERTURA_PATH}" \
+/d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/*.xml" \
+/d:sonar.cs.vscoveragexml.reportsPaths="${COVERAGE_PATH}/coverage.xml" \
+/d:sonar.cs.cobertura.reportsPaths="${COVERAGE_PATH}/coverage.cobertura.xml" \
 /d:sonar.python.version="3.8" \
 /d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
 /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts" \
 /d:sonar.tests="tests" \
 /d:sonar.test.inclusions="**/*.spec.ts,**/*.test.ts,**/tests/**/*.ts" \
 /d:sonar.verbose=true \
-/d:sonar.log.level=DEBUG \
 /d:sonar.scm.provider=git \
 /d:sonar.scm.revision=${GITHUB_SHA} \
 /d:sonar.scanner.scanAll=true \
@@ -90,57 +79,52 @@ dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
 --collect:"XPlat Code Coverage" \
 --verbosity normal
 
-# Debug coverage files after test run
-echo "===== COVERAGE FILE VERIFICATION ====="
-echo "Checking coverage files after test run..."
-find "${COVERAGE_PATH}" -type f -name "*.xml" | sort
-echo "Coverage file details:"
-find "${COVERAGE_PATH}" -type f -name "*.xml" -exec ls -lh {} \;
+# Debug coverage files and directories after test run
+echo "===== COVERAGE PATH CONTENT ====="
+echo "Listing all directories in ${COVERAGE_PATH}:"
+find "${COVERAGE_PATH}" -type d | sort
 
-# Look for coverage XML files specifically
-echo "Looking for coverage report formats..."
-find "${COVERAGE_PATH}" -type f -name "*coverage*.xml" | sort
+echo "Listing all files in ${COVERAGE_PATH} recursively:"
+find "${COVERAGE_PATH}" -type f | sort
 
-# Check content of XML files to verify they contain coverage data
-echo "Verifying coverage file content (first 10 lines):"
-find "${COVERAGE_PATH}" -type f -name "*coverage*.xml" -exec sh -c "echo '=== {} ==='; head -n 10 {}" \;
+# Find and copy coverage files to expected locations
+echo "Finding and copying coverage files to SonarCloud expected locations..."
 
-# Check if SonarCloud expected files exist
-echo "Checking if SonarCloud expected paths exist:"
+# Find all XML files and show their file sizes
+echo "All XML files found:"
+find "${COVERAGE_PATH}" -name "*.xml" -type f -exec ls -lh {} \;
+
+# Find coverage files generated in subdirectories
+# The coverage files are typically in GUID-named folders under the results directory
+echo "Locating coverage files in GUID subdirectories..."
+
+# Look for cobertura XML files
+COBERTURA_FILE=$(find "${COVERAGE_PATH}" -name "coverage.cobertura.xml" | head -n 1)
+if [ -n "$COBERTURA_FILE" ]; then
+  echo "Found Cobertura file: ${COBERTURA_FILE}"
+  cp "${COBERTURA_FILE}" "${COVERAGE_PATH}/coverage.cobertura.xml"
+  echo "Copied to ${COVERAGE_PATH}/coverage.cobertura.xml"
+else
+  echo "No Cobertura file found"
+fi
+
+# Look for regular coverage XML files (might be named differently)
+COVERAGE_XML=$(find "${COVERAGE_PATH}" -name "*.xml" -not -name "coverage.cobertura.xml" -not -name "TestResults.xml" | head -n 1)
+if [ -n "$COVERAGE_XML" ]; then
+  echo "Found coverage XML file: ${COVERAGE_XML}"
+  cp "${COVERAGE_XML}" "${COVERAGE_PATH}/coverage.xml"
+  echo "Copied to ${COVERAGE_PATH}/coverage.xml"
+else
+  echo "No coverage XML file found"
+fi
+
+# Check if the coverage files now exist at expected locations
+echo "Checking if SonarCloud expected paths exist after copying:"
 [ -f "${COVERAGE_PATH}/coverage.xml" ] && echo "VSCoverage file exists: ${COVERAGE_PATH}/coverage.xml" || echo "VSCoverage file MISSING: ${COVERAGE_PATH}/coverage.xml"
 [ -f "${COVERAGE_PATH}/coverage.cobertura.xml" ] && echo "Cobertura file exists: ${COVERAGE_PATH}/coverage.cobertura.xml" || echo "Cobertura file MISSING: ${COVERAGE_PATH}/coverage.cobertura.xml"
-echo "OpenCover files:"
-find "${COVERAGE_PATH}" -type f -name "*.xml" | grep -i opencover || echo "No OpenCover files found"
-echo "===============================
-
-# Rename coverage files to match SonarCloud expected paths if needed
-echo "Renaming coverage files to match expected paths..."
-for xml_file in $(find "${COVERAGE_PATH}" -name "*coverage*.xml"); do
-  if [ ! -f "${COVERAGE_PATH}/coverage.xml" ] && [[ "$xml_file" == *coverage*.xml ]]; then
-    echo "Copying $xml_file to ${COVERAGE_PATH}/coverage.xml for VSCoverage report"
-    cp "$xml_file" "${COVERAGE_PATH}/coverage.xml"
-  fi
-  if [ ! -f "${COVERAGE_PATH}/coverage.cobertura.xml" ] && [[ "$xml_file" == *cobertura*.xml ]]; then
-    echo "Copying $xml_file to ${COVERAGE_PATH}/coverage.cobertura.xml for Cobertura report"
-    cp "$xml_file" "${COVERAGE_PATH}/coverage.cobertura.xml"
-  fi
-done
-
-# Check coverage files again after renaming
-echo "Coverage files after renaming:"
-find "${COVERAGE_PATH}" -type f -name "*.xml" | sort
 
 # End SonarScanner
-echo "Ending SonarScanner analysis (with file verification)..."
-dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}" | tee sonar_end_output.log
-
-# Check SonarScanner logs for coverage imports
-echo "===== CHECKING SONARSCANNER LOGS FOR COVERAGE ====="
-grep -i "coverage" sonar_end_output.log || echo "No coverage mentions in logs"
-grep -i "parse" sonar_end_output.log || echo "No parsing mentions in logs"
-grep -i "import" sonar_end_output.log || echo "No import mentions in logs"
-grep -i "error" sonar_end_output.log || echo "No errors found in logs"
-grep -i "warn" sonar_end_output.log || echo "No warnings found in logs"
-echo "===============================
+echo "Ending SonarScanner analysis..."
+dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
 
 echo "Analysis complete."
