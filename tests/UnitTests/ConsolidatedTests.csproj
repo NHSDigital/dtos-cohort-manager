@@ -118,6 +118,7 @@
   <!-- Exception Handling -->
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ExceptionHandling\CreateException\CreateException.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ExceptionHandling\UpdateException\UpdateException.csproj" />
   </ItemGroup>
 
   <!-- CAAS Integration -->
