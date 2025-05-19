@@ -1,0 +1,81 @@
+name: Analysis stage
+
+on:
+  workflow_call:
+    inputs:
+      unit_test_dir:
+        description: Directory containing the unit tests
+        required: true
+        type: string
+      build_datetime:
+        description: Build datetime
+        required: true
+        type: string
+      build_timestamp:
+        description: Build timestamp
+        required: true
+        type: string
+      build_epoch:
+        description: Build epoch
+        required: true
+        type: string
+      nodejs_version:
+        description: Node.js version
+        required: true
+        type: string
+      python_version:
+        description: Python version
+        required: true
+        type: string
+      terraform_version:
+        description: Terraform version
+        required: true
+        type: string
+      version:
+        description: Version of the software
+        required: true
+        type: string
+
+jobs:
+  download-test-coverage:
+    name: Download test coverage
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: test-coverage-report
+          path: coverage
+          
+  perform-static-analysis:
+    name: Perform static analysis
+    needs: [download-test-coverage]
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+      pull-requests: read
+    timeout-minutes: 15
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+          fetch-depth: 0 # Full history for more accurate reporting
+      - name: Download coverage report
+        uses: actions/download-artifact@v4
+        with:
+          name: test-coverage-report
+          path: coverage
+      - name: Perform static analysis
+        uses: ./.github/actions/perform-static-analysis
+        with:
+          sonar_organisation_key: ${{ vars.SONAR_ORGANISATION_KEY }}
+          sonar_project_key: ${{ vars.SONAR_PROJECT_KEY }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          coverage_path: "coverage"
