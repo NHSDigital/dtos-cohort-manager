@@ -12,6 +12,7 @@ public class DataServicesContext : DbContext
     DbSet<GPPractice> gPPractices { get; set; }
     DbSet<BsSelectRequestAudit> bsSelectRequestAudits {get;set;}
     DbSet<NemsSubscription> nemsSubscriptions {get;set;}
+    public DbSet<ParticipantManagement> ParticipantManagements {get; set;}
     
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
