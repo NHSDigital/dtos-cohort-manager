@@ -17,7 +17,7 @@ inputs:
   unit_test_dir:
     description: "Directory containing the unit tests"
     required: false
-    default: "tests"
+    default: "tests/UnitTests"
 runs:
   using: "composite"
   steps:

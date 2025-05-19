@@ -14,7 +14,7 @@ GITHUB_EVENT_PULL_REQUEST_NUMBER="$9"
 GITHUB_REPOSITORY="${10}"
 GITHUB_REF="${11}"
 GITHUB_SHA="${12}"
-UNIT_TEST_DIR="${13:-tests}"
+UNIT_TEST_DIR="${13:-tests/UnitTests}"
 
 # Debug information about environment
 echo "===== DEBUG INFORMATION ====="
