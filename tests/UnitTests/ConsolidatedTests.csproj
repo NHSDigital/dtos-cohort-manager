@@ -23,13 +23,13 @@
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
     <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
     <PackageReference Include="FluentAssertions" Version="6.12.2" />
-    
+
     <!-- Azure Functions Packages -->
     <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.2.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.13.0" />
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.37" />
-    
+
     <!-- Other Dependencies -->
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -112,6 +112,7 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\CreateCohortDistribution\CreateCohortDistribution.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\AddCohortDistributionData\AddCohortDistributionData.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\DeleteParticipant\DeleteParticipant.csproj" />
   </ItemGroup>
 
   <!-- Exception Handling -->
