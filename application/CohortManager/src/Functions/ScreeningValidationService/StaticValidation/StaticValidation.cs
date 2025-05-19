@@ -25,9 +25,9 @@ public class StaticValidation
     private readonly StaticValidationConfig _config;
 
     public StaticValidation(
-        ILogger<StaticValidation> logger, 
-        IExceptionHandler handleException, 
-        ICreateResponse createResponse, 
+        ILogger<StaticValidation> logger,
+        IExceptionHandler handleException,
+        ICreateResponse createResponse,
         IReadRules readRules,
         ICallFunction callFunction,
         IOptions<StaticValidationConfig> staticValidationConfig)
@@ -66,13 +66,13 @@ public class StaticValidation
             };
 
             var re = new RulesEngine.RulesEngine(rules, reSettings);
-
+            Console.WriteLine(participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate);
             var ruleParameters = new[] {
                 new RuleParameter("participant", participantCsvRecord.Participant),
             };
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-             if (re.GetAllRegisteredWorkflowNames().Contains(participantCsvRecord.Participant.RecordType))
+            if (re.GetAllRegisteredWorkflowNames().Contains(participantCsvRecord.Participant.RecordType))
             {
                 _logger.LogInformation("Executing workflow {RecordType}", participantCsvRecord.Participant.RecordType);
                 var ActionResults = await re.ExecuteAllRulesAsync(participantCsvRecord.Participant.RecordType, ruleParameters);

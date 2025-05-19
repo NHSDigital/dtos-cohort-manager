@@ -10,7 +10,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 {
     private readonly DbContext _context;
     private readonly ILogger<DataServiceAccessor<TEntity>> _logger;
-    public DataServiceAccessor(DbContext context, ILogger<DataServiceAccessor<TEntity>> logger)
+    public DataServiceAccessor(DataServicesContext context, ILogger<DataServiceAccessor<TEntity>> logger)
     {
         _context = context;
         _logger = logger;
@@ -62,7 +62,8 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
         var strategy = _context.Database.CreateExecutionStrategy();
 
         await strategy.ExecuteAsync(
-            async () => {
+            async () =>
+            {
                 using var transaction = await _context.Database.BeginTransactionAsync();
                 var result = await _context.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync(predicate);
 
@@ -71,8 +72,8 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
                     return;
                 }
                 _context.Set<TEntity>().Remove(result);
-                rowsEffected =  await _context.SaveChangesAsync();
-                if(rowsEffected > 1)
+                rowsEffected = await _context.SaveChangesAsync();
+                if (rowsEffected > 1)
                 {
                     await transaction.RollbackAsync();
                     return;
@@ -83,12 +84,12 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
             }
         );
 
-        if(rowsEffected > 1)
+        if (rowsEffected > 1)
         {
             _logger.LogError("There was an error while trying to deleted despite a record being found");
             throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
         }
-        else if(rowsEffected == 0)
+        else if (rowsEffected == 0)
         {
             return false;
         }
@@ -105,7 +106,8 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 
 
         TEntity? dbEntity = await strategy.ExecuteAsync(
-            async () => {
+            async () =>
+            {
                 using var transaction = await _context.Database.BeginTransactionAsync();
 
                 var existingEntity = await _context.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync(predicate);
@@ -115,9 +117,9 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
                     return null;
                 }
                 _context.Update(entity);
-                rowsEffected  = await _context.SaveChangesAsync();
+                rowsEffected = await _context.SaveChangesAsync();
 
-                if(rowsEffected == 0)
+                if (rowsEffected == 0)
                 {
                     await transaction.RollbackAsync();
                     return existingEntity;
@@ -134,17 +136,17 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
             }
         );
 
-        if(rowsEffected == 0 && dbEntity == null)
+        if (rowsEffected == 0 && dbEntity == null)
         {
             _logger.LogWarning("Entity to be updated not found");
             return null;
         }
-        else if(rowsEffected == 0 && dbEntity != null)
+        else if (rowsEffected == 0 && dbEntity != null)
         {
             _logger.LogError("Records where found to be updated but the update failed");
             throw new MultipleRecordsFoundException("Records where found to be updated but the update failed");
         }
-        else if(rowsEffected > 1)
+        else if (rowsEffected > 1)
         {
             _logger.LogError("Multiple Records were updated by PUT request, Changes have been Rolled-back");
             throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");

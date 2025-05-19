@@ -26,12 +26,12 @@ public class AddParticipantFunction
     private readonly AddParticipantConfig _config;
 
     public AddParticipantFunction(
-        ILogger<AddParticipantFunction> logger, 
-        ICallFunction callFunction, 
-        ICreateResponse createResponse, 
-        ICheckDemographic checkDemographic, 
-        ICreateParticipant createParticipant, 
-        IExceptionHandler handleException, 
+        ILogger<AddParticipantFunction> logger,
+        ICallFunction callFunction,
+        ICreateResponse createResponse,
+        ICheckDemographic checkDemographic,
+        ICreateParticipant createParticipant,
+        IExceptionHandler handleException,
         ICohortDistributionHandler cohortDistributionHandler,
         IOptions<AddParticipantConfig> addParticipantConfig
         )
@@ -73,6 +73,7 @@ public class AddParticipantFunction
             };
 
             // Validation
+            /*
             participantCsvRecord.Participant.ExceptionFlag = "N";
             participant.ExceptionFlag = "N";
             var response = await ValidateData(participantCsvRecord);
@@ -87,7 +88,8 @@ public class AddParticipantFunction
             {
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
                 participant.ExceptionFlag = "Y";
-            }
+            }*/
+
 
             // Add participant to database
             var json = JsonSerializer.Serialize(participantCsvRecord);
