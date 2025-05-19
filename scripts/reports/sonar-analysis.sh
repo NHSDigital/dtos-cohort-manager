@@ -53,9 +53,7 @@ dotnet sonarscanner begin \
 /o:"${SONAR_ORGANISATION_KEY}" \
 /d:sonar.token="${SONAR_TOKEN}" \
 /d:sonar.host.url="https://sonarcloud.io" \
-/d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/*.xml" \
-/d:sonar.cs.vscoveragexml.reportsPaths="${COVERAGE_PATH}/coverage.xml" \
-/d:sonar.cs.cobertura.reportsPaths="${COVERAGE_PATH}/coverage.cobertura.xml" \
+/d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/**/*.xml" \
 /d:sonar.python.version="3.8" \
 /d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
 /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts" \
@@ -74,10 +72,10 @@ find . -name "*.sln" -exec dotnet build {} --no-restore \;
 # Run consolidated tests to generate coverage
 echo "Running consolidated tests to generate coverage..."
 dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
---results-directory "${COVERAGE_PATH}" \
---logger "trx;LogFileName=TestResults.trx" \
---collect:"XPlat Code Coverage" \
---verbosity normal
+  --results-directory "${COVERAGE_PATH}" \
+  --logger "trx;LogFileName=TestResults.trx" \
+  --collect:"XPlat Code Coverage;Format=opencover" \
+  --verbosity normal
 
 # Debug coverage files and directories after test run
 echo "===== COVERAGE PATH CONTENT ====="
