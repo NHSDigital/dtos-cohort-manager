@@ -123,6 +123,36 @@ echo "Checking if SonarCloud expected paths exist after copying:"
 [ -f "${COVERAGE_PATH}/coverage.xml" ] && echo "VSCoverage file exists: ${COVERAGE_PATH}/coverage.xml" || echo "VSCoverage file MISSING: ${COVERAGE_PATH}/coverage.xml"
 [ -f "${COVERAGE_PATH}/coverage.cobertura.xml" ] && echo "Cobertura file exists: ${COVERAGE_PATH}/coverage.cobertura.xml" || echo "Cobertura file MISSING: ${COVERAGE_PATH}/coverage.cobertura.xml"
 
+# After copying coverage files, before ending SonarScanner
+echo "===== DETAILED COVERAGE FILE INFORMATION ====="
+echo "Complete listing of all XML files in ${COVERAGE_PATH}:"
+find "${COVERAGE_PATH}" -name "*.xml" -type f -exec ls -lh {} \; | tee coverage_files.log
+
+echo "Content sample of coverage.cobertura.xml (if exists):"
+if [ -f "${COVERAGE_PATH}/coverage.cobertura.xml" ]; then
+  head -n 20 "${COVERAGE_PATH}/coverage.cobertura.xml"
+  echo "File size: $(du -h ${COVERAGE_PATH}/coverage.cobertura.xml | cut -f1)"
+  echo "Check if it's a valid XML file:"
+  xmllint --noout "${COVERAGE_PATH}/coverage.cobertura.xml" && echo "Valid XML" || echo "Invalid XML"
+else
+  echo "File does not exist"
+fi
+
+echo "Content sample of coverage.xml (if exists):"
+if [ -f "${COVERAGE_PATH}/coverage.xml" ]; then
+  head -n 20 "${COVERAGE_PATH}/coverage.xml"
+  echo "File size: $(du -h ${COVERAGE_PATH}/coverage.xml | cut -f1)"
+  echo "Check if it's a valid XML file:"
+  xmllint --noout "${COVERAGE_PATH}/coverage.xml" && echo "Valid XML" || echo "Invalid XML"
+else
+  echo "File does not exist"
+fi
+
+# Capture verbose SonarScanner output 
+echo "Ending SonarScanner analysis with full debug output..."
+dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}" /d:sonar.verbose=true | tee sonar_full_output.log
+grep -i "coverage\|cobertura\|opencover\|vscoverage" sonar_full_output.log || echo "No coverage-related terms found in logs"
+
 # End SonarScanner
 echo "Ending SonarScanner analysis..."
 dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
