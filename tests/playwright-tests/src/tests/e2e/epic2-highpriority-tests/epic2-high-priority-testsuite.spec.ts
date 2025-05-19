@@ -90,7 +90,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
-    test('@DTOSS-4321-01 Validate Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name ADD0_-_CAAS_BREAST_SCREENING_COHORT.parquet', {
+    test('@DTOSS-4321-01 Validate Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet', {
       annotation: {
         type: 'Requirement',
         description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
