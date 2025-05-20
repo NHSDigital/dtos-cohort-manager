@@ -196,14 +196,17 @@ app_service_plan = {
 }
 
 container_app_environments = {
-  db-management = {}
+  instances = {}
+    db-management = {}
 }
 
 container_apps = {
-  db-management = {
-    container_app_environment_key = "db-management"
-    docker_env_tag                = "development"
-    docker_image                  = "cohort-manager-database-db-migration"
+  apps = {
+    db-management = {
+      container_app_environment_key = "db-management"
+      docker_env_tag                = "development"
+      docker_image                  = "cohort-manager-database-db-migration"
+    }
   }
 }
 
