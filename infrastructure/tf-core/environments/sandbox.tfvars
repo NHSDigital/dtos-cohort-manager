@@ -47,12 +47,12 @@ regions = {
         cidr_newbits = 8
         cidr_offset  = 5
       }
-      aci = {
+      container-app-db-management = {
         cidr_newbits               = 8
         cidr_offset                = 6
-        delegation_name            = "Microsoft.ContainerInstanceDelegation"
-        service_delegation_name    = "Microsoft.ContainerInstance/containerGroups"
-        service_delegation_actions = []
+        delegation_name            = "Microsoft.App/environments"
+        service_delegation_name    = "Microsoft.App/environments"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
       }
     }
   }
@@ -192,6 +192,20 @@ app_service_plan = {
         }
       }
     }
+  }
+}
+
+container_app_environments = {
+  db-management = {
+    name_suffix = "container-app-env"
+  }
+}
+
+container_apps = {
+  apps = {
+    container_app_environment_key = "db-management"
+    docker_env_tag                = "development"
+    docker_image                  = "cohort-manager-database-db-migration"
   }
 }
 
@@ -1361,7 +1375,6 @@ key_vault = {
 }
 
 sqlserver = {
-  sql_uai_name                         = "dtos-cohort-manager-sql-adm"
   sql_admin_group_name                 = "sqlsvr_cohman_sbx_uks_admin"
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30

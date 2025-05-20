@@ -65,3 +65,10 @@ data "azurerm_user_assigned_identity" "acr_mi" {
   name                = var.function_apps.acr_mi_name
   resource_group_name = var.function_apps.acr_rg_name
 }
+
+data "azurerm_user_assigned_identity" "db-management" {
+  for_each = var.regions
+
+  name                = "mi-cohort-manager-db-management-${var.environment}"
+  resource_group_name = azurerm_resource_group.core[each.value.region].name
+}
