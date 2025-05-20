@@ -47,6 +47,13 @@ regions = {
         cidr_newbits = 8
         cidr_offset  = 5
       }
+      aci = {
+        cidr_newbits               = 8
+        cidr_offset                = 6
+        delegation_name            = "Microsoft.ContainerInstance/containerGroups"
+        service_delegation_name    = "Microsoft.ContainerInstance/containerGroups"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+      }
     }
   }
 }
@@ -403,6 +410,27 @@ function_apps = {
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
       }
+    }
+
+    BlockParticipant = {
+      name_suffix            = "block-participant"
+      function_endpoint_name = "BlockParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        }
+      ]
     }
 
     MarkParticipantAsEligible = {
