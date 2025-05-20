@@ -69,6 +69,7 @@ services:
       - batchDivisionFactor=5
       - UpdateQueueName=update-participant-queue
       - ScreeningLkpDataServiceURL=http://screening-lkp-data-service:8996/api/ScreeningLkpDataService
+      - maxNumberOfChecks=50
 
   # Participant Management Service
   add-participant:
@@ -276,6 +277,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ExceptionHandling/UpdateException/Dockerfile
+    ports:
+      - 7070:7070
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
