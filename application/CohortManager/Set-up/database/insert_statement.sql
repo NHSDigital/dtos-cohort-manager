@@ -50,7 +50,7 @@ INSERT INTO [dbo].[GENE_CODE_LKP]
 		('PTEN','PTEN'),
 		('STK11','STK11');
 
-INSERT INTO [dbo].[EXCLUDED_SMU_LKP] VALUES
+INSERT INTO [dbo].[EXCLUDED_SMU_LKP] (GP_PRACTICE_CODE)
     ('A91151'),
     ('A91168'),
     ('A91169'),
@@ -195,7 +195,9 @@ INSERT INTO [dbo].[CURRENT_POSTING_LKP] ([POSTING], [IN_USE], [INCLUDED_IN_COHOR
 	('YN', 'Y', 'Y', 'ENGLAND'),
 	('YW', 'Y', 'Y', 'ENGLAND');
 
-INSERT INTO [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] VALUES
+-- SONAR FIX NEEDED: Add column names here
+-- Original: INSERT INTO [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] VALUES
+INSERT INTO [dbo].[BS_SELECT_OUTCODE_MAPPING_LKP] (column1, column2, column3, ...)
 	('AL1', 'ELD', '1', '2024-11-20 21:15:02', '2024-11-20 21:15:02', 'From PostgreSQL'),
 	('AL10', 'ELD', '1', '2024-11-20 21:15:02', '2024-11-20 21:15:02', 'From PostgreSQL'),
 	('AL2', 'ELD', '1', '2024-11-20 21:15:02', '2024-11-20 21:15:02', 'From PostgreSQL'),
@@ -10569,7 +10571,7 @@ select 3008257,N'Y03221',22,NULL,NULL,132017578,'2025-02-03 12:42:17.974 +00:00'
 
 set identity_insert [GP_PRACTICES] off;
 
-INSERT INTO [dbo].[LANGUAGE_CODES] VALUES
+INSERT INTO [dbo].[LANGUAGE_CODES] (LANGUAGE_CODE, LANGUAGE_DESCRIPTION)
     ('aa', 'Afar'),
     ('ab', 'Abkhazian'),
     ('ae', 'Avestan'),

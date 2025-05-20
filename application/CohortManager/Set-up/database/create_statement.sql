@@ -367,6 +367,7 @@ IF NOT EXISTS
           AND TABLE_NAME = 'CURRENT_POSTING_LKP'
 )
 
+BEGIN
 CREATE TABLE CURRENT_POSTING_LKP
 (
     POSTING VARCHAR(4) PRIMARY KEY,
@@ -374,6 +375,7 @@ CREATE TABLE CURRENT_POSTING_LKP
     INCLUDED_IN_COHORT VARCHAR(1),
     POSTING_CATEGORY VARCHAR(10)
 );
+END
 
 /*==============================================================*/
 /* Table: LANGUAGE_CODES                                        */
@@ -386,11 +388,13 @@ IF NOT EXISTS
           AND TABLE_NAME = 'LANGUAGE_CODES'
 )
 
+BEGIN
 CREATE TABLE LANGUAGE_CODES
 (
     LANGUAGE_CODE VARCHAR(2) PRIMARY KEY,
     LANGUAGE_DESCRIPTION VARCHAR(100)
 );
+END
 
 /*==============================================================*/
 /* Table: BSO_ORGANISATIONS Table                               */
