@@ -76,7 +76,13 @@ public class StaticValidation
             {
                 _logger.LogInformation("Executing workflow {RecordType}", participantCsvRecord.Participant.RecordType);
                 var ActionResults = await re.ExecuteAllRulesAsync(participantCsvRecord.Participant.RecordType, ruleParameters);
+
                 resultList.AddRange(ActionResults);
+
+                if (participantCsvRecord.Participant.RecordType == "StaticCohortRecord")
+                {
+                    resultList = ActionResults;
+                }
             }
 
             var validationErrors = resultList.Where(x => !x.IsSuccess);

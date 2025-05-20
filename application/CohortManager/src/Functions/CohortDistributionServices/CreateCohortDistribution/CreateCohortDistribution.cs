@@ -72,9 +72,12 @@ public class CreateCohortDistribution
                 }
             }
             // Validation
-            participantData.ExceptionFlag = 0;
+            var participant = new Participant(participantData);
 
-            var response = await _CohortDistributionHelper.ValidateStaticeData(new Participant(participantData), basicParticipantCsvRecord.FileName);
+            participant.RecordType = "StaticCohortRecord";
+            participant.ExceptionFlag = "0";
+
+            var response = await _CohortDistributionHelper.ValidateStaticeData(participant, basicParticipantCsvRecord.FileName);
             if (response.IsFatal)
             {
                 _logger.LogError("A fatal Rule was violated, so the record cannot be added to the database");
