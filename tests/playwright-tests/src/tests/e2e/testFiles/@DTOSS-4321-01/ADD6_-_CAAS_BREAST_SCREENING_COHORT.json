@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "4527563688",
+        "NhsNumber": "9994669834",
         "RuleId": -2146233088,
         "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
@@ -11,7 +11,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "7335805996",
+        "NhsNumber": "9994592416",
         "RuleId": -2146233088,
         "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
@@ -19,7 +19,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "7093375219",
+        "NhsNumber": "9994531689",
         "RuleId": -2146233088,
         "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
@@ -27,7 +27,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "7635643460",
+        "NhsNumber": "9994356925",
         "RuleId": -2146233088,
         "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
@@ -35,7 +35,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "4785733349",
+        "NhsNumber": "9994245929",
         "RuleId": -2146233088,
         "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
@@ -43,7 +43,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "4144498484",
+        "NhsNumber": "9994161628",
         "RuleId": -2146233088,
         "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
@@ -54,7 +54,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 100,
-      "nhs_number": 4527563688,
+      "nhs_number": 9994669834,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "A81630",
       "primary_care_effective_from_date": "18/03/2018",
@@ -94,7 +94,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 101,
-      "nhs_number": 7335805996,
+      "nhs_number": 9994592416,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "A81631",
       "primary_care_effective_from_date": "20030318",
@@ -134,7 +134,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 102,
-      "nhs_number": 7093375219,
+      "nhs_number": 9994531689,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "A81632",
       "primary_care_effective_from_date": "20030318",
@@ -174,7 +174,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 103,
-      "nhs_number": 7635643460,
+      "nhs_number": 9994356925,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "A81633",
       "primary_care_effective_from_date": "20030318",
@@ -214,7 +214,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 104,
-      "nhs_number": 4785733349,
+      "nhs_number": 9994245929,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "A81634",
       "primary_care_effective_from_date": "20030318",
@@ -254,7 +254,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 105,
-      "nhs_number": 4144498484,
+      "nhs_number": 9994161628,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "A81618",
       "primary_care_effective_from_date": "20030318",
@@ -292,11 +292,14 @@
     }
   ],
   "nhsNumbers": [
-    "4527563688",
-    "7335805996",
-    "7093375219",
-    "7635643460",
-    "4785733349",
-    "4144498484"
+    "9994669834",
+    "9994592416",
+    "9994531689",
+    "9994356925",
+    "9994245929",
+    "9994161628"
   ]
 }
+
+
+
