@@ -104,12 +104,12 @@ public class LookupValidationTests
         string[] possiblePaths = new[]
         {
             // Relative paths with different nesting depths
+            Path.Combine("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
-            
             
             // Try with the ScreeningValidationService root directory
             Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService", filename),
