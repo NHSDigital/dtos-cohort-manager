@@ -23,7 +23,7 @@ locals {
 module "container-app-worker" {
   for_each = local.container_apps_map
 
-  source = "../../../modules/dtos-devops-templates/infrastructure/modules/container-app"
+  source = "../../../dtos-devops-templates/infrastructure/modules/container-app"
 
   name                         = "${module.regions_config[each.value.region].names.container-app}-${lower(each.value.name_suffix)}"
   resource_group_name          = azurerm_resource_group.core[each.value.region].name
