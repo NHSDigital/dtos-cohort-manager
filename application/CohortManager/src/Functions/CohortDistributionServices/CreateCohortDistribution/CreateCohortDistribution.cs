@@ -123,7 +123,12 @@ public class CreateCohortDistribution
 
     private async Task LogAndFlagException(CreateCohortDistributionRequestBody basicParticipantCsvRecord, CohortDistributionParticipant participantData, string errorMessage)
     {
-        await _exceptionHandler.CreateRecordValidationExceptionLog(participantData.NhsNumber, basicParticipantCsvRecord.FileName, errorMessage, participantData.ScreeningName, JsonSerializer.Serialize(participantData));
+        await _exceptionHandler.CreateRecordValidationExceptionLog(
+            participantData.NhsNumber,
+            basicParticipantCsvRecord.FileName ?? string.Empty,
+            errorMessage,
+            participantData.ScreeningName ?? string.Empty,
+            JsonSerializer.Serialize(participantData));
 
         var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
         participantMangement.ExceptionFlag = 1;
