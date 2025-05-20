@@ -30,7 +30,7 @@ module "container-app-worker" {
   container_app_environment_id = module.container-app-environment[each.value.container_app_environment_key].id
   docker_image                 = "${data.azurerm_container_registry.acr.login_server}/${each.value.docker_image}:${each.value.docker_env_tag}"
   environment_variables = {
-    "DtOsDatabaseConnectionString" = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
+    # "DtOsDatabaseConnectionString" = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
     "SQL_IDENTITY_CLIENT_ID"       = data.azurerm_user_assigned_identity.db-management[each.value.region].client_id
   }
   is_web_app = each.value.is_web_app
