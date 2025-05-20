@@ -26,6 +26,15 @@ locals {
   }
 }
 
+
+output "container_app_environments_object_list" {
+  # Outputs for debugging
+  value = local.container_app_environments_object_list
+}
+output "container_app_environments_map" {
+  value = local.container_app_environments_map
+}
+
 module "container-app-environment" {
   for_each = local.container_app_environments_map
 
