@@ -3,7 +3,7 @@ locals {
   # We cannot nest for loops inside a map, so first iterate all permutations of both as a list of objects...
   container_apps_object_list = flatten([
     for region in keys(var.regions) : [
-      for container_app, config in var.container_apps.instances : merge(
+      for container_app, config in var.container_apps.apps : merge(
         {
           region        = region        # 1st iterator
           container_app = container_app # 2nd iterator
