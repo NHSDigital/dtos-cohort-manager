@@ -29,11 +29,13 @@ public class ValidationExceptionData : IValidationExceptionData
         _gpPracticeDataServiceClient = gpPracticeDataServiceClient;
     }
 
-    public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty)
+    public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty, ExceptionCategory exceptionCategory)
     {
+        var category = (int)exceptionCategory;
+
         var exceptions = todayOnly
-            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated.Value.Date == DateTime.Today)
-            : await _validationExceptionDataServiceClient.GetAll();
+            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated.Value.Date == DateTime.Today && x.Category.Value == category)
+            : await _validationExceptionDataServiceClient.GetByFilter(x => x.Category.Value == category);
 
         var exceptionList = exceptions.Select(s => s.ToValidationException());
 
