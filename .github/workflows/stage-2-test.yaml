@@ -127,7 +127,7 @@ jobs:
           set -eo pipefail
           mkdir "TestResults"
           echo -e "\nRunning consolidated tests from:\n${UNIT_TEST_DIR}/ConsolidatedTests.csproj"
-          dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" --results-directory "TestResults" --logger "${LOGGER_FORMAT};LogFileName=ConsolidatedTests.${LOGGER_FORMAT}" --collect:"XPlat Code Coverage" --verbosity quiet
+          dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" --results-directory "TestResults" --logger "${LOGGER_FORMAT};LogFileName=ConsolidatedTests.${LOGGER_FORMAT}" --collect:"XPlat Code Coverage;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*,**/scripts/**/*,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*,**/obj/**/*,**/Properties/**/*,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" --verbosity quiet
       - name: Upload test results as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -174,7 +174,7 @@ jobs:
           find "${UNIT_TEST_DIR}/${{ matrix.scope }}" -name '*.csproj' | while read -r file; do
             echo -e "\nRunning unit tests for:\n${file}"
             base=$(basename "$file" .csproj)
-            dotnet test "${file}" --results-directory "TestResults" --logger "${LOGGER_FORMAT};LogFileName=${base}.${LOGGER_FORMAT}" --collect:"XPlat Code Coverage" --verbosity quiet
+            dotnet test "${file}" --results-directory "TestResults" --logger "${LOGGER_FORMAT};LogFileName=${base}.${LOGGER_FORMAT}" --collect:"XPlat Code Coverage;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*,**/scripts/**/*,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*,**/obj/**/*,**/Properties/**/*,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" --verbosity quiet
           done
       - name: Upload test results as artifact
         uses: actions/upload-artifact@v4
