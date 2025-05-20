@@ -34,6 +34,15 @@ output "container_app_environments_object_list" {
 output "container_app_environments_map" {
   value = local.container_app_environments_map
 }
+output "container_app_environments" {
+  # Outputs for debugging
+  value = var.container_app_environments
+}
+output "container_app_environments_instances" {
+  # Outputs for debugging
+  value = var.container_app_environments.instances
+}
+
 
 module "container-app-environment" {
   for_each = local.container_app_environments_map
