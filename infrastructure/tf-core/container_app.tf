@@ -20,18 +20,18 @@ locals {
 }
 
 
-# module "container-app-worker" {
-#   for_each = local.container_apps_map
+module "container-app-worker" {
+  for_each = local.container_apps_map
 
-#   source = "../../../dtos-devops-templates/infrastructure/modules/container-app"
+  source = "../../../dtos-devops-templates/infrastructure/modules/container-app"
 
-#   name                         = "${module.regions_config[each.value.region].names.container-app}-${lower(each.key)}"
-#   resource_group_name          = azurerm_resource_group.core[each.value.region].name
-#   container_app_environment_id = module.container-app-environment[each.value.container_app_environment_key].id
-#   docker_image                 = "${data.azurerm_container_registry.acr.login_server}/${each.value.docker_image}:${each.value.docker_env_tag}"
-#   environment_variables = {
-#     "DtOsDatabaseConnectionString" = "Server=${module.regions_config[each.value.region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
-#     "SQL_IDENTITY_CLIENT_ID"       = data.azurerm_user_assigned_identity.db-management[each.value.region].client_id
-#   }
-#   is_web_app = each.value.is_web_app
-# }
+  name                         = "${module.regions_config[each.value.region].names.container-app}-${lower(each.key)}"
+  resource_group_name          = azurerm_resource_group.core[each.value.region].name
+  container_app_environment_id = module.container-app-environment[each.value.container_app_environment_key].id
+  docker_image                 = "${data.azurerm_container_registry.acr.login_server}/${each.value.docker_image}:${each.value.docker_env_tag}"
+  environment_variables = {
+    "DtOsDatabaseConnectionString" = "Server=${module.regions_config[each.value.region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
+    "SQL_IDENTITY_CLIENT_ID"       = data.azurerm_user_assigned_identity.db-management[each.value.region].client_id
+  }
+  is_web_app = each.value.is_web_app
+}
