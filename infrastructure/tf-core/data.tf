@@ -70,5 +70,5 @@ data "azurerm_user_assigned_identity" "db-management" {
   for_each = var.regions
 
   name                = "mi-cohort-manager-db-management-${var.environment}"
-  resource_group_name = azurerm_resource_group.core[each.value.region].name
+  resource_group_name  = "${module.regions_config[each.key].names.resource-group}"
 }
