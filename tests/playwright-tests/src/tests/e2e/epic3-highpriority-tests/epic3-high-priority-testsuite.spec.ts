@@ -167,7 +167,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
   testWithAmended('@DTOSS-5565-01 @P1 Validation - Not possible to determine BSO dummy practice code for subject',{
     annotation: {
       type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5565',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
     },
   }, async ({ request, testData }) => {
     await test.step(`When ADD participant is processed via storage`, async () => {
@@ -190,7 +190,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
   testWithAmended('@DTOSS-5566-01 @P1 Validation - Not possible to determine BSO dummy practice code for subject - scenario 2',{
     annotation: {
       type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5566',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
     },
   }, async ({ request, testData }) => {
     await test.step(`When ADD participant is processed via storage`, async () => {
