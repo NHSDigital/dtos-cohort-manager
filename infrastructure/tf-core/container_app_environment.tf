@@ -54,7 +54,7 @@ module "container-app-environment" {
     azurerm.dns = azurerm
   }
 
-  name                       = "${module.regions_config[each.value.region].names.container-app-env}-${lower(each.key)}"
+  name                       = "${module.regions_config[each.value.region].names.container-app-environment}-${lower(each.value.container_app_environment)}"
   resource_group_name        = azurerm_resource_group.core[each.value.region].name
 
   log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
