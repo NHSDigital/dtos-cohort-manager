@@ -92,13 +92,7 @@ public class CreateCohortDistribution
             {
                 var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
                 _logger.LogInformation(errorMessage);
-                await _exceptionHandler.CreateRecordValidationExceptionLog(participantData.NhsNumber, basicParticipantCsvRecord.FileName, errorMessage, participantData.ScreeningName, JsonSerializer.Serialize(participantData));
-
-                var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
-                participantMangement.ExceptionFlag = 1;
-
-                bool excpetionFlagUpdated = await _participantManagementClient.Update(participantMangement);
-                if (!excpetionFlagUpdated) throw new IOException("Failed to update exception flag");
+                await LogAndFlagException(basicParticipantCsvRecord, participantData, errorMessage);
 
                 if (!ignoreParticipantExceptions) return;
             }
@@ -125,6 +119,17 @@ public class CreateCohortDistribution
             await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, basicParticipantCsvRecord.NhsNumber, basicParticipantCsvRecord.FileName, "", JsonSerializer.Serialize(basicParticipantCsvRecord.ErrorRecord) ?? "N/A");
             throw;
         }
+    }
+
+    private async Task LogAndFlagException(CreateCohortDistributionRequestBody basicParticipantCsvRecord, CohortDistributionParticipant participantData, string errorMessage)
+    {
+        await _exceptionHandler.CreateRecordValidationExceptionLog(participantData.NhsNumber, basicParticipantCsvRecord.FileName, errorMessage, participantData.ScreeningName, JsonSerializer.Serialize(participantData));
+
+        var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
+        participantMangement.ExceptionFlag = 1;
+
+        bool excpetionFlagUpdated = await _participantManagementClient.Update(participantMangement);
+        if (!excpetionFlagUpdated) throw new IOException("Failed to update exception flag");
     }
 
     private async Task HandleErrorResponseAsync(string errorMessage, CohortDistributionParticipant cohortDistributionParticipant, string fileName)
