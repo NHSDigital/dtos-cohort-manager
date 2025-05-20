@@ -36,9 +36,9 @@ module "container-app-environment" {
     azurerm.dns = azurerm
   }
 
-  name                       = "${module.regions_config[each.value.region].names.container-app-env}-${lower(each.value.name_suffix)}"
+  name                       = "${module.regions_config[each.value.region].names.container-app-env}-${lower(each.key)}"
   resource_group_name        = azurerm_resource_group.core[each.value.region].name
   log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
-  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-container-app-${lower(each.value.name_suffix)}"].id
+  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-container-app-${lower(each.key)}"].id
   private_dns_zone_rg_name   = [data.terraform_remote_state.hub.outputs.private_dns_zones["${each.key}-container_app"].id]
 }

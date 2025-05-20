@@ -160,9 +160,8 @@ variable "container_app_environments" {
   description = "Configuration for the container app environments"
   default     = {}
   type = object({
-    instances = map(object({
-      name_suffix = optional(string)
-    }))
+    instances = optional(map(object({
+    })), {})
   })
 }
 
@@ -170,13 +169,13 @@ variable "container_apps" {
   description = "Configuration for the container apps"
   default     = {}
   type = object({
-    apps = map(object({
+    apps = optional(map(object({
       name_suffix                   = optional(string)
       container_app_environment_key = optional(string)
-      docker_env_tag                = string
-      docker_image                  = string
+      docker_env_tag                = optional(string)
+      docker_image                  = optional(string)
       is_web_app                    = optional(bool, false)
-    }))
+    })), {})
   })
 }
 

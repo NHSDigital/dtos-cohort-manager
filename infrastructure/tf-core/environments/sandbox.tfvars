@@ -196,13 +196,11 @@ app_service_plan = {
 }
 
 container_app_environments = {
-  db-management = {
-    name_suffix = "container-app-env"
-  }
+  db-management = {}
 }
 
 container_apps = {
-  apps = {
+  db-management = {
     container_app_environment_key = "db-management"
     docker_env_tag                = "development"
     docker_image                  = "cohort-manager-database-db-migration"
