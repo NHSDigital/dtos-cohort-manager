@@ -44,7 +44,28 @@ dotnet sonarscanner begin \
 /d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/**/*.xml" \
 /d:sonar.python.version="3.8" \
 /d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
-/d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts" \
+/d:sonar.coverage.exclusions="\
+**/*Tests.cs,\
+**/Tests/**/*.cs,\
+**/test/**/*.ts,\
+**/tests/**/*.ts,\
+**/*.spec.ts,\
+**/*.test.ts,\
+**/Program.cs,\
+**/Model/**/*.cs,\
+**/Set-up/**/*,\
+**/scripts/**/*,\
+**/HealthCheckFunction.cs,\
+**/*Config.cs,\
+**/bin/**/*,\
+**/obj/**/*,\
+**/Properties/**/*,\
+**/*.generated.cs,\
+**/*.Designer.cs,\
+**/*.g.cs,\
+**/*.GlobalUsings.g.cs,\
+**/*.AssemblyInfo.cs\
+" \
 /d:sonar.tests="tests" \
 /d:sonar.test.inclusions="**/*.spec.ts,**/*.test.ts,**/tests/**/*.ts" \
 /d:sonar.verbose=true \
