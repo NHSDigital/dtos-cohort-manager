@@ -1,5 +1,4 @@
 name: Analysis stage
-
 on:
   workflow_call:
     inputs:
@@ -35,26 +34,9 @@ on:
         description: Version of the software
         required: true
         type: string
-
 jobs:
-  download-test-coverage:
-    name: Download test coverage
-    runs-on: ubuntu-latest
-    timeout-minutes: 2
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-      - name: Download coverage report
-        uses: actions/download-artifact@v4
-        with:
-          name: test-coverage-report
-          path: coverage
-          
   perform-static-analysis:
     name: Perform static analysis
-    needs: [download-test-coverage]
     runs-on: ubuntu-latest
     permissions:
       id-token: write
@@ -66,12 +48,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
-          fetch-depth: 0 # Full history for more accurate reporting
-      - name: Download coverage report
-        uses: actions/download-artifact@v4
-        with:
-          name: test-coverage-report
-          path: coverage
+          fetch-depth: 0
       - name: Perform static analysis
         uses: ./.github/actions/perform-static-analysis
         with:
@@ -79,3 +56,4 @@ jobs:
           sonar_project_key: ${{ vars.SONAR_PROJECT_KEY }}
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           coverage_path: "coverage"
+          unit_test_dir: ${{ inputs.unit_test_dir }} # Added unit_test_dir parameter

@@ -14,6 +14,7 @@ GITHUB_EVENT_PULL_REQUEST_NUMBER="$9"
 GITHUB_REPOSITORY="${10}"
 GITHUB_REF="${11}"
 GITHUB_SHA="${12}"
+UNIT_TEST_DIR="${13:-tests/UnitTests}"
 
 # Get PR information for SonarCloud
 if [[ "$GITHUB_EVENT_NAME" == "pull_request" || "$GITHUB_EVENT_NAME" == "pull_request_target" ]]; then
@@ -24,40 +25,44 @@ if [[ "$GITHUB_EVENT_NAME" == "pull_request" || "$GITHUB_EVENT_NAME" == "pull_re
   PR_ARGS="/d:sonar.pullrequest.key=${PR_KEY} /d:sonar.pullrequest.branch=${PR_BRANCH} /d:sonar.pullrequest.base=${PR_BASE} /d:sonar.pullrequest.github.repository=${GITHUB_REPOSITORY}"
 else
   BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-  if [[ "$BRANCH_NAME" != "main" && "$BRANCH_NAME" != "master" ]]; then
-    echo "Running analysis for branch ${BRANCH_NAME}"
-    PR_ARGS="/d:sonar.branch.name=${BRANCH_NAME}"
-  else
-    echo "Running analysis for main branch"
-    PR_ARGS=""
-  fi
+  echo "Running analysis for branch ${BRANCH_NAME}"
+  PR_ARGS="/d:sonar.branch.name=${BRANCH_NAME}"
 fi
 
-# Debug info
-echo "GitHub event: $GITHUB_EVENT_NAME"
-echo "PR arguments: ${PR_ARGS}"
+# Ensure coverage directory exists
+mkdir -p "$COVERAGE_PATH"
 
 # Restore solution dependencies
 find . -name "*.sln" -exec dotnet restore {} \;
 
 # Begin SonarScanner with coverage configuration and PR information
 dotnet sonarscanner begin \
-  /k:"${SONAR_PROJECT_KEY}" \
-  /o:"${SONAR_ORGANISATION_KEY}" \
-  /d:sonar.token="${SONAR_TOKEN}" \
-  /d:sonar.host.url="https://sonarcloud.io" \
-  /d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/*.xml" \
-  /d:sonar.cs.cobertura.reportsPaths="${COVERAGE_PATH}/cobertura.xml" \
-  /d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts" \
-  /d:sonar.tests="tests" \
-  /d:sonar.test.inclusions="**/*.spec.ts,**/*.test.ts,**/tests/**/*.ts" \
-  /d:sonar.verbose=true \
-  /d:sonar.scm.provider=git \
-  /d:sonar.scm.revision=${GITHUB_SHA} \
-  ${PR_ARGS}
+/k:"${SONAR_PROJECT_KEY}" \
+/o:"${SONAR_ORGANISATION_KEY}" \
+/d:sonar.token="${SONAR_TOKEN}" \
+/d:sonar.host.url="https://sonarcloud.io" \
+/d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/**/*.xml" \
+/d:sonar.python.version="3.8" \
+/d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
+/d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts" \
+/d:sonar.tests="tests" \
+/d:sonar.test.inclusions="**/*.spec.ts,**/*.test.ts,**/tests/**/*.ts" \
+/d:sonar.verbose=true \
+/d:sonar.scm.provider=git \
+/d:sonar.scm.revision=${GITHUB_SHA} \
+/d:sonar.scanner.scanAll=true \
+${PR_ARGS}
 
 # Build all solutions
 find . -name "*.sln" -exec dotnet build {} --no-restore \;
+
+# Run consolidated tests to generate coverage
+# This is critical - tests must run between SonarScanner begin and end commands
+dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
+  --results-directory "${COVERAGE_PATH}" \
+  --logger "trx;LogFileName=TestResults.trx" \
+  --collect:"XPlat Code Coverage;Format=opencover" \
+  --verbosity normal
 
 # End SonarScanner
 dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
