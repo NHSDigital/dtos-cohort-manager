@@ -8,6 +8,11 @@ on:
         required: true
         type: string
         default: development
+      commit_sha:
+        description: Enter the DevOps Templates commit SHA to use ('main' if none)
+        required: true
+        type: string
+        default: main
       build_all_images:
         description: Build all images defined in compose files
         required: false
@@ -31,7 +36,7 @@ jobs:
           ref: 'main' # We ensure it's the main branch.
 
       - name: "Call Reusable Build Images Workflow"
-        uses: NHSDigital/dtos-devops-templates/.github/workflows/stage-3-build-images.yaml@DTOSS-8936-manual-image-rebuild-process
+        uses: NHSDigital/dtos-devops-templates/.github/workflows/stage-3-build-images.yaml
         with:
           docker_compose_file: application/CohortManager/compose.yaml
           excluded_containers_csv_list: azurite,azurite-setup,sql-edge,db-setup
@@ -39,4 +44,5 @@ jobs:
           function_app_source_code_path: application/CohortManager/src
           project_name: cohort-manager
           build_all_services: ${{ github.event.inputs.build_all_services }}
+          commit_sha: ${{ inputs.commit_sha }}
         secrets: inherit
