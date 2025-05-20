@@ -69,6 +69,7 @@ services:
       - batchDivisionFactor=5
       - UpdateQueueName=update-participant-queue
       - ScreeningLkpDataServiceURL=http://screening-lkp-data-service:8996/api/ScreeningLkpDataService
+      - maxNumberOfChecks=50
 
   # Participant Management Service
   add-participant:
