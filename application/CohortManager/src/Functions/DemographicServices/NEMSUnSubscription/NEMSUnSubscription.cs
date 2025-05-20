@@ -15,15 +15,9 @@ using NHS.Screening.NEMSUnSubscription;
 
 public class NEMSUnSubscription
 {
-    private const string TableName = "NemsSubscriptionTable";
     protected readonly TableClient _tableClient;
     protected readonly HttpClient _httpClient;
-
     private readonly ILogger<NEMSUnSubscription> _logger;
-
-    private readonly ICreateResponse _createResponse;
-    private readonly IExceptionHandler _handleException;
-     private readonly NEMSUnSubscriptionConfig _config;
 
     private readonly INemsSubscriptionService _nemsSubscriptionService;
 
@@ -38,23 +32,19 @@ public class NEMSUnSubscription
     public NEMSUnSubscription(ILogger<NEMSUnSubscription> logger,
     //IDataServiceClient<NemsSubscription> nemsSubscriptionClient, /* To Do Later */
     IHttpClientFactory httpClientFactory,
-    IExceptionHandler handleException,
-    ICreateResponse createResponse ,
     IOptions<NEMSUnSubscriptionConfig> nemsUnSubscriptionConfig,
-    ICallFunction callFunction,
     INemsSubscriptionService nemsSubscriptionService)
     {
         _logger = logger;
         _httpClient = httpClientFactory.CreateClient();
-        _handleException = handleException;
-        _createResponse = createResponse;
-        _config = nemsUnSubscriptionConfig.Value;
         _nemsSubscriptionService = nemsSubscriptionService;
 
     }
     // Constructor for dependency injection (testability)
-    public NEMSUnSubscription(TableClient tableClient, HttpClient httpClient)
+    public NEMSUnSubscription(ILogger<NEMSUnSubscription> logger, NemsSubscriptionService nemsSubscriptionService, TableClient tableClient, HttpClient httpClient)
     {
+        _logger = logger;
+        _nemsSubscriptionService = nemsSubscriptionService;
         _tableClient = tableClient;
         _httpClient = httpClient;
     }

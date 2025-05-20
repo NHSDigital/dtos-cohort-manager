@@ -17,15 +17,13 @@ public class AddCohortDistributionTests
 {
     private readonly CreateCohortDistributionData _createCohortDistributionData;
     private readonly Guid _requestId = Guid.NewGuid();
-
-    private readonly Mock<ILogger<CreateCohortDistributionData>> _loggerMock = new();
     private List<CohortDistribution> _cohortDistributionList;
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceClient = new();
     private readonly Mock<IDataServiceClient<BsSelectRequestAudit>> _bsSelectRequestAuditDataServiceClient = new();
 
     public AddCohortDistributionTests()
     {
-        _createCohortDistributionData = new CreateCohortDistributionData(_loggerMock.Object, _cohortDistributionDataServiceClient.Object, _bsSelectRequestAuditDataServiceClient.Object);
+        _createCohortDistributionData = new CreateCohortDistributionData(_cohortDistributionDataServiceClient.Object, _bsSelectRequestAuditDataServiceClient.Object);
     }
 
     [TestMethod]

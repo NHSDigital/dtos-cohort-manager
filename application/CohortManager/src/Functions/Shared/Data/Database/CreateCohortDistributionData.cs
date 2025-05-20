@@ -14,15 +14,13 @@ using NHS.CohortManager.Shared.Utilities;
 
 public class CreateCohortDistributionData : ICreateCohortDistributionData
 {
-    private readonly ILogger<CreateCohortDistributionData> _logger;
 
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataServiceClient;
 
     private readonly IDataServiceClient<BsSelectRequestAudit> _bsSelectRequestAuditDataServiceClient;
 
-    public CreateCohortDistributionData(ILogger<CreateCohortDistributionData> logger, IDataServiceClient<CohortDistribution> cohortDistributionDataServiceClient, IDataServiceClient<BsSelectRequestAudit> bsSelectRequestAuditDataServiceClient)
+    public CreateCohortDistributionData(IDataServiceClient<CohortDistribution> cohortDistributionDataServiceClient, IDataServiceClient<BsSelectRequestAudit> bsSelectRequestAuditDataServiceClient)
     {
-        _logger = logger;
         _cohortDistributionDataServiceClient = cohortDistributionDataServiceClient;
         _bsSelectRequestAuditDataServiceClient = bsSelectRequestAuditDataServiceClient;
     }

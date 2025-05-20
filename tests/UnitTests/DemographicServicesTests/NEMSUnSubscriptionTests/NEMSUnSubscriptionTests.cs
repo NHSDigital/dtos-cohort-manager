@@ -18,11 +18,8 @@ using Microsoft.Extensions.Options;
     public class NEMSUnSubscriptionTests : DatabaseTestBaseSetup<NEMSUnSubscription>
     {
         private Mock<INemsSubscriptionService> _nemsSubscriptionServiceMock;
-        private Mock<ICreateResponse> _createResponseMock;
-        private Mock<ICallFunction> _callFunctionMock;
 
         private HttpRequestData _request;
-        private HttpResponseData _response;
         private static IHttpClientFactory CreateHttpClientFactory()
         {
             var mockFactory = new Mock<IHttpClientFactory>();
@@ -35,13 +32,10 @@ using Microsoft.Extensions.Options;
             return new NEMSUnSubscription(
                 _loggerMock.Object,
                 CreateHttpClientFactory(),
-                new Mock<IExceptionHandler>().Object,
-                _createResponseMock.Object,
                 Options.Create(new NEMSUnSubscriptionConfig
                 {
                     NemsDeleteEndpoint = "http://localhost/delete"  //WIP , would change once we get the actual endpoints
                 }),
-                _callFunctionMock.Object,
                 nemsService
             );
 }
@@ -51,13 +45,10 @@ using Microsoft.Extensions.Options;
                 new NEMSUnSubscription(
                     logger,
                     CreateHttpClientFactory(),
-                    new Mock<IExceptionHandler>().Object,
-                    createResponse,
                     Options.Create(new NEMSUnSubscriptionConfig
                     {
                         NemsDeleteEndpoint = "http://localhost/delete" //WIP , would change once we get the actual endpoints
                     }),
-                    new Mock<ICallFunction>().Object,
                     new Mock<INemsSubscriptionService>().Object
                 )
         )
@@ -69,7 +60,6 @@ using Microsoft.Extensions.Options;
         {
             _nemsSubscriptionServiceMock = new Mock<INemsSubscriptionService>();
             _createResponseMock = CreateHttpResponseMock();
-            _callFunctionMock = new Mock<ICallFunction>();
 
             var requestBody = JsonSerializer.Serialize(new UnsubscriptionRequest { NhsNumber = "1234567890" });
             _request = SetupRequest(requestBody).Object;
