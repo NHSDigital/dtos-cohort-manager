@@ -50,9 +50,9 @@ regions = {
       aci = {
         cidr_newbits               = 8
         cidr_offset                = 6
-        delegation_name            = "Microsoft.ContainerInstance/containerGroups"
+        delegation_name            = "Microsoft.ContainerInstanceDelegation"
         service_delegation_name    = "Microsoft.ContainerInstance/containerGroups"
-        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+        service_delegation_actions = []
       }
     }
   }
