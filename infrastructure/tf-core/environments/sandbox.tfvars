@@ -197,7 +197,9 @@ app_service_plan = {
 
 container_app_environments = {
   instances = {}
-    db-management = {}
+    db-management = {
+      zone_redundancy_enabled = false
+    }
 }
 
 container_apps = {

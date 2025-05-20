@@ -161,6 +161,7 @@ variable "container_app_environments" {
   default     = {}
   type = object({
     instances = optional(map(object({
+      ingress_enabled = optional(bool, false)
     })), {})
   })
 }
