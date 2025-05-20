@@ -35,7 +35,7 @@ public class ValidationExceptionDataTests
 
     #region GetAllExceptions
     [TestMethod]
-    public async Task GetAllExceptions_TodaysExceptionsOnly_ReturnsTodaysNboExceptions() // yes
+    public async Task GetAllExceptions_TodaysExceptionsOnly_ReturnsTodaysNboExceptions()
     {
         // Arrange
         var filteredList = _exceptionList.Where(w => w.DateCreated == DateTime.Today && w.Category == (int)_exceptionCategory).ToList();
@@ -59,7 +59,7 @@ public class ValidationExceptionDataTests
     [DataRow(null)]
     [DataRow(ExceptionSort.DateCreatedNewest)]
     [TestMethod]
-    public async Task GetAllExceptions_NoOrderByPropertyOrSortByDateCreatedNewest_ReturnsAllExceptionsInDateDescendingOrder(ExceptionSort? orderByProperty) // yes
+    public async Task GetAllExceptions_NoOrderByPropertyOrSortByDateCreatedNewest_ReturnsAllExceptionsInDateDescendingOrder(ExceptionSort? orderByProperty)
     {
         // Arrange
         var filteredList = _exceptionList.Where(w => w.Category == (int)_exceptionCategory).ToList();
@@ -125,8 +125,7 @@ public class ValidationExceptionDataTests
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(2);
         result[0].ServiceNowId.Should().Be(null);
-        result[1].ServiceNowId.Should().Be(null);
-        result[2].ServiceNowId.Should().Be("ServiceNow2");
+        result[1].ServiceNowId.Should().Be("ServiceNow2");
     }
     #endregion
 
@@ -137,7 +136,7 @@ public class ValidationExceptionDataTests
     [TestMethod]
     public async Task GetExceptionById_ValidExceptionId_ReturnsExpectedException(int exceptionId)
     {
-        //arrange
+        // Arrange
         _validationExceptionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new ExceptionManagement() { ExceptionId = exceptionId, NhsNumber = "123456789" });
         _demographicDataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic());
         _gpPracticeDataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<GPPractice, bool>>>())).ReturnsAsync(new GPPractice());
