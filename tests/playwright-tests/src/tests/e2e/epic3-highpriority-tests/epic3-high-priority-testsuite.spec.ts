@@ -5,6 +5,7 @@ import { expect, test, testWithAmended } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
 import { processFileViaStorage, validateSqlDatabaseFromAPI } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
+import { calledEndpointsOrder, fetchApiResponse } from '../../../api/apiHelper';
 
 
 test.describe('@regression @e2e @epic3-high-priority Tests', () => {
@@ -182,7 +183,44 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       await genericValidations(response);
     });
 
+  });
+
+  test('@DTOSS-5348-01  - Orchestration triggered via file upload and cohort record verified', async ({ request, testData }) => {
+
+    await test.step('When eligible participant data file is uploaded to storage', async () => {
+      calledEndpointsOrder.length = 0;
+      await processFileViaStorage(testData.runTimeParquetFile);
+    });
+
+    await test.step('Wait for orchestration to complete', async () => {
+      await new Promise(res => setTimeout(res, 30000));
+    });
+
+    await test.step('Verify orchestration called services in correct order', async () => {
+      console.log('calledEndpointsOrder after orchestration:', calledEndpointsOrder);
+
+      const endpoints = [
+      'api/CohortDistributionDataService',
+      'api/ParticipantManagementDataService',
+      'api/ExceptionManagementDataService',
+      'api/ParticipantDemographicDataService'
+      ];
+
+      for (const endpoint of endpoints) {
+        await fetchApiResponse(endpoint, request);
+      }
+
+      const expectedOrder = endpoints;
+      const actualOrder = calledEndpointsOrder;
+
+      expect(actualOrder).toEqual(expectedOrder);
+
+    });
+
+    await test.step('Then participant record is added to cohort distribution table', async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+    });
 
   });
-});
 
+});

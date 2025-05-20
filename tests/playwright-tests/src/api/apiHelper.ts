@@ -16,6 +16,7 @@ const PARTICIPANT_DEMOGRAPHIC_SERVICE = config.participantDemographicDataService
 const NHS_NUMBER_KEY = config.nhsNumberKey;
 const NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC = config.nhsNumberKeyExceptionDemographic;
 const IGNORE_VALIDATION_KEY = config.ignoreValidationKey;
+export const calledEndpointsOrder: string[] = [];
 
 let waitTime = initialWaitTime;
 let response: APIResponse;
@@ -53,6 +54,9 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
 }
 
 export async function fetchApiResponse(endpoint: string, request: any): Promise<APIResponse> {
+
+  calledEndpointsOrder.push(endpoint);
+
   if (endpoint.includes(COHORT_DISTRIBUTION_SERVICE)) {
     return await request.get(`${endpointCohortDistributionDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(PARTICIPANT_MANAGEMENT_SERVICE)) {
