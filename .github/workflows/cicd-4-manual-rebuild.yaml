@@ -46,5 +46,6 @@ jobs:
       environment_tag: ${{ needs.checkout-and-prepare.outputs.environment_tag }}
       function_app_source_code_path: application/CohortManager/src
       project_name: cohort-manager
+      commit_sha: feat/DTOSS-8958-Update-Stage-3-Build-Definition
       #build_all_services: ${{ needs.checkout-and-prepare.outputs.build_all_images }}
     secrets: inherit
