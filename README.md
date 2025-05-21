@@ -14,14 +14,12 @@ A service for identifying and managing cohorts of citizens. Users can select ind
     - [Configuration](#configuration)
   - [Usage](#usage)
     - [Testing](#testing)
-  - [Design](#design)
-    - [Diagrams](#diagrams)
-    - [Modularity](#modularity)
   - [Contributing](#contributing)
   - [Contacts](#contacts)
   - [Licence](#licence)
 
 ## Set-up
+
 ### 1. Prerequisites
 
 - Visual Studio Code
@@ -41,11 +39,7 @@ To easily install the required extensions and settings/configuration for VS Code
 
 On the top toolbar of Visual Studio Code go to *Code > Settings > Profiles > Import Profile > click on Select File...* and select the file **NHS_DToS.code-profile**
 
-### 2. Azure Functions Core Tools
-
-Azure Function Core Tools lets you develop and test your functions on your local computer. To install, press `ctrl/ command + shift + P` and enter `Azure Functions: Install or Update Azure Functions Core Tools`
-
-### 3. Azure Data Studio & Storage Explorer
+### 2. Azure Data Studio & Storage Explorer
 
 Azure Data Studio & Storage Explorer are the GUI tools we are using to manually interact with the database & Azure Storage respectively.
 
@@ -56,7 +50,7 @@ Use the **Intel Chip/ x64** installer if you have and Intel Chip in your Mac. Ot
 
 *Note: to check which version you are using, you can click on the Apple icon of your machine > About this Mac and a new window will appear. You can see the Chip your machine. Intel will have Intel in it, Apple Silicon will have something like Apple M1.*
 
-### 4. Download Docker/ Podman
+### 3. Download Docker/ Podman
 
 If you are on Windows, install Docker Engine using [these instructions](https://medium.com/@rom.bruyere/docker-and-wsl2-without-docker-desktop-f529d15d9398)
 
@@ -71,6 +65,12 @@ podman machine stop
 podman machine set --cpus=6 --memory=12288 --disk-size=125
 podman machine start
 ```
+
+### 4. Optional: Azure Functions Core Tools
+
+Install only if you plan on running the functions outside of docker/ podman 
+
+Azure Function Core Tools lets you develop and test your functions on your local computer. To install, press `ctrl/ command + shift + P` and enter `Azure Functions: Install or Update Azure Functions Core Tools`
 
 ### Configuration
 
