@@ -7,11 +7,8 @@ using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using Azure.Data.Tables;
-using Azure;
 using Model;
 using Common;
-using Microsoft.Extensions.Options;
-using NHS.Screening.NEMSUnSubscription;
 
 public class NEMSUnSubscription
 {
@@ -32,13 +29,11 @@ public class NEMSUnSubscription
     {
         _logger = logger;
         _httpClient = httpClientFactory.CreateClient();
-       
         _createResponse = createResponse;
-       
         _nemsSubscriptionService = nemsSubscriptionService;
 
     }
-    
+
     // Constructor for dependency injection (testability)
     public NEMSUnSubscription(TableClient tableClient, HttpClient httpClient)
     {
