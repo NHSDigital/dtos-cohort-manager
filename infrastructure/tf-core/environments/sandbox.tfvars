@@ -1172,7 +1172,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        RetrievePdsParticipantURL = ""
       }
     }
 
@@ -1247,6 +1247,19 @@ function_apps = {
       env_vars_static = {
         MeshCertName = "MeshCert"
       }
+    }
+
+    UpdateException = {
+      name_suffix            = "update-exception"
+      function_endpoint_name = "UpdateException"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionManagementDataServiceURL"
+          function_app_key = "ExceptionManagementDataService"
+        }
+      ]
     }
   }
 }

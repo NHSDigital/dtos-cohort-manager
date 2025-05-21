@@ -1,5 +1,5 @@
 import { getRecordsFromExceptionService } from '../../../api/dataService/exceptionService';
-import { getRecordsFromBsSelectRetrieveCohort } from '../../../api/distributionService/bsSelectService';
+import { getRecordsFromBsSelectRetrieveAudit, getRecordsFromBsSelectRetrieveCohort } from '../../../api/distributionService/bsSelectService';
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
 import { expect, test, testWithAmended } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
@@ -109,8 +109,91 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  testWithAmended('@DTOSS-5407-01 @Implement Validate Amend fields reason for removal as invalid and date of death present', async ({ request, testData }) => {
+  testWithAmended('@DTOSS-5407-01 @Implement Validate Amend fields reason for removal as invalid "RFR" and date of death present', async ({ request, testData }) => {
 
+
+    await test.step(`When ADD participant is processed via storage`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAdd);
+    });
+
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    });
+
+    await test.step(`Then the record should end up in exception management`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
+  });
+
+  testWithAmended('@DTOSS-5406-01 @Implement Validate Amend fields reason for removal as invalid "RDI" and date of death present', async ({ request, testData }) => {
+    await test.step(`When ADD participant is processed via storage`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAdd);
+    });
+
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    });
+
+    await test.step(`Then the record should end up in exception management`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
+  });
+
+  testWithAmended('@DTOSS-5405-01 @Implement Validate Amend fields reason for removal as invalid "RPI" and date of death present', async ({ request, testData }) => {
+    await test.step(`When ADD participant is processed via storage`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAdd);
+    });
+
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    });
+
+    await test.step(`Then the record should end up in exception management`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
+  });
+
+  testWithAmended('@DTOSS-5565-01 @P1 Validation - Not possible to determine BSO dummy practice code for subject',{
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
+    },
+  }, async ({ request, testData }) => {
+    await test.step(`When ADD participant is processed via storage`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAdd);
+    });
+
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    });
+
+    await test.step(`Then the record should end up in exception management`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
+  });
+
+  testWithAmended('@DTOSS-5566-01 @P1 Validation - Not possible to determine BSO dummy practice code for subject - scenario 2',{
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
+    },
+  }, async ({ request, testData }) => {
     await test.step(`When ADD participant is processed via storage`, async () => {
       await processFileViaStorage(testData.runTimeParquetFileAdd);
     });
@@ -181,6 +264,42 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       );
       await genericValidations(response);
     });
+
+
+  });
+
+  test('@DTOSS-5563-01 - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
+    annotation: [{
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5563',
+    }, {
+      type: 'Defect',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6118',
+    },]
+  }, async ({ request, testData }) => {
+
+    await test.step('And ADD participant is processed with IsExtracted = 0', async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+
+    });
+
+    await test.step('When Retrieve Cohort BS Select API returns no records with status 204, with RowCount as empty', async () => {
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: ``, screeningServiceId: 1 });
+      const genericValidations = composeValidators(
+        expectStatus(204),
+        validateResponseByStatus()
+      );
+      await genericValidations(response);
+    });
+
+    await test.step('Then BS_SELECT_REQUEST_AUDIT should have an entry for 204', async () => {
+      const response = await getRecordsFromBsSelectRetrieveAudit(request)
+      const firstRecord = response.data.find(() => true);
+      expect(firstRecord?.StatusCode).toBe("204");
+    });
+
+  });
+});
 
   });
 

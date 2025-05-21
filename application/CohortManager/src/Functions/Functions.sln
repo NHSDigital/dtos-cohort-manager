@@ -1,5 +1,4 @@
-﻿
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -280,6 +279,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHS.CohortManager.EndToEndTests", "..\..\..\..\tests\e2e-tests\NHS.CohortManager.EndToEndTests\NHS.CohortManager.EndToEndTests.csproj", "{D67EFEAC-3462-4F8B-ACB0-CF6F24D8F5DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUtils", "..\..\..\..\tests\TestUtils\TestUtils.csproj", "{83DD16A7-B7DF-47A4-9DC7-472D9F09EE35}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateException", "ExceptionHandling\UpdateException\UpdateException.csproj", "{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateExceptionTests", "..\..\..\..\tests\UnitTests\ExceptionHandlingTests\UpdateExceptionTests\UpdateExceptionTests.csproj", "{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1731,6 +1734,30 @@ Global
 		{83DD16A7-B7DF-47A4-9DC7-472D9F09EE35}.Release|x64.Build.0 = Release|Any CPU
 		{83DD16A7-B7DF-47A4-9DC7-472D9F09EE35}.Release|x86.ActiveCfg = Release|Any CPU
 		{83DD16A7-B7DF-47A4-9DC7-472D9F09EE35}.Release|x86.Build.0 = Release|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Debug|x64.Build.0 = Debug|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Debug|x86.Build.0 = Debug|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Release|x64.ActiveCfg = Release|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Release|x64.Build.0 = Release|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Release|x86.ActiveCfg = Release|Any CPU
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6}.Release|x86.Build.0 = Release|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Debug|x64.Build.0 = Debug|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Debug|x86.Build.0 = Debug|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Release|x64.ActiveCfg = Release|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Release|x64.Build.0 = Release|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Release|x86.ActiveCfg = Release|Any CPU
+		{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1807,5 +1834,6 @@ Global
 		{3E4AAF8E-EB14-46C2-9DF8-2A5734E8F2CD} = {0DDB5B2A-AD97-BFD6-A081-43D49FE0B20F}
 		{21CEB638-C25E-4ABB-84BE-659819A8C9F7} = {0DDB5B2A-AD97-BFD6-A081-43D49FE0B20F}
 		{C0728070-DB44-492D-BDCD-B65FE5FC286A} = {0DDB5B2A-AD97-BFD6-A081-43D49FE0B20F}
+		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6} = {055277D8-0B3B-A388-B9E2-0CA913C660FF}
 	EndGlobalSection
 EndGlobal
