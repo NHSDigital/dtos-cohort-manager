@@ -1,9 +1,11 @@
 namespace AddBatchFromQueue;
 
+using System.Text.Json;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
+using Model;
 
 public class MessageHandling : IMessageHandling
 {
@@ -24,7 +26,8 @@ public class MessageHandling : IMessageHandling
             Body = args.Message.Body.ToString(),
             Subject = args.Message.Subject,
             EnqueuedTime = args.Message.EnqueuedTime,
-            SequenceNumber = args.Message.SequenceNumber
+            SequenceNumber = args.Message.SequenceNumber,
+            IsCompleted = false
         };
 
         lock (lockObj)
@@ -42,25 +45,28 @@ public class MessageHandling : IMessageHandling
     // handle any errors when receiving messages
     public Task ErrorHandler(ProcessErrorEventArgs args)
     {
+        _logger.LogError(args.Exception, args.Exception.Message);
         return Task.CompletedTask;
     }
 
-    public async Task CleanUpDeferredMessages(ServiceBusReceiver receiver, string queueName, string connectionString)
+    public async Task CleanUpMessages(ServiceBusReceiver receiver, string queueName, string connectionString)
     {
-        var adminClient = new ServiceBusAdministrationClient(connectionString);
-        var runtimeProperties = await adminClient.GetQueueRuntimePropertiesAsync(queueName);
-
         try
         {
-            _logger.LogWarning($"GetMessagesFromQueueActivity started at: {DateTime.Now}");
-            var messagesInQueue = runtimeProperties.Value.ActiveMessageCount;
+            _logger.LogWarning($"cleaning up messages started at: {DateTime.Now}");
 
-            for (int i = 0; i < messagesInQueue; i++)
+
+            foreach (var message in _messageStore.ListOfAllValues)
             {
-                ServiceBusReceivedMessage peeked = await receiver.PeekMessageAsync();
+                if (message.IsCompleted)
+                {
+                    continue;
+                }
+
+                ServiceBusReceivedMessage peeked = await receiver.PeekMessageAsync(message.SequenceNumber);
                 if (peeked == null)
                 {
-                    return;
+                    continue;
                 }
 
                 if (peeked.State == ServiceBusMessageState.Deferred)
@@ -69,8 +75,18 @@ public class MessageHandling : IMessageHandling
                     var deferredMessage = await receiver.ReceiveDeferredMessageAsync(peeked.SequenceNumber);
                     if (deferredMessage != null)
                     {
-                        await receiver.DeadLetterMessageAsync(deferredMessage, "Manually dead-lettering deferred msg");
-                        _logger.LogWarning($"Dead-lettered deferred message with Seq #{peeked.SequenceNumber}");
+                        var messageBody = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(deferredMessage.Body);
+                        if (messageBody != null || messageBody.retryCount < 5)
+                        {
+                            messageBody.retryCount++;
+                            await receiver.CompleteMessageAsync(deferredMessage);
+                            await SendMessage(connectionString, queueName, JsonSerializer.Serialize(messageBody));
+                        }
+                        else
+                        {
+                            await receiver.DeadLetterMessageAsync(deferredMessage, "Manually dead-lettering deferred msg");
+                            _logger.LogWarning($"Dead-lettered deferred message with Seq #{deferredMessage.SequenceNumber}");
+                        }
                     }
                 }
             }
@@ -79,5 +95,23 @@ public class MessageHandling : IMessageHandling
         {
             _logger.LogError(ex, ex.Message);
         }
+    }
+    private async Task SendMessage(string queueConnectionString, string queueName, string record)
+    {
+        await using var client = new ServiceBusClient(queueConnectionString);
+        ServiceBusSender sender = client.CreateSender(queueName);
+
+        // Create a message batch
+        using ServiceBusMessageBatch messageBatch = await sender.CreateMessageBatchAsync();
+
+        ServiceBusMessage message = new ServiceBusMessage(record);
+        if (!messageBatch.TryAddMessage(message))
+        {
+            throw new Exception($"The message is too large to fit in the batch.");
+        }
+
+        await sender.SendMessagesAsync(messageBatch);
+        _logger.LogWarning("sent message back to queue");
+
     }
 }

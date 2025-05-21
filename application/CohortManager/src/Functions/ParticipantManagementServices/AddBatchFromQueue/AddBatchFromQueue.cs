@@ -53,21 +53,27 @@ public class AddBatchFromQueue
         {
             _logger.LogInformation($"DrainServiceBusQueue started at: {DateTime.Now}");
 
-            var listOfAllValues = await context.CallActivityAsync<List<SerializableMessage>>(
+            var ListOfAllValuesFromQueue = await context.CallActivityAsync<List<SerializableMessage>>(
                   nameof(GetMessagesFromQueueActivity)
               );
 
-            if (listOfAllValues.Count == 0)
+            if (ListOfAllValuesFromQueue.Count == 0)
             {
-                _logger.LogWarning("no items to process from the ProcessItems Activity");
+                _logger.LogWarning("no items to process from the queue Activity or in store");
                 return;
             }
 
-            foreach (var message in listOfAllValues)
+            int processedRecords = 0;
+            foreach (var message in ListOfAllValuesFromQueue)
             {
-                /*await context.CallActivityAsync(
-                    nameof(AlwaysFails)
-                );*/
+                if (processedRecords == 5)
+                {
+                    await context.CallActivityAsync(
+                        nameof(AlwaysFails)
+                    );
+                    Console.WriteLine("yes");
+                }
+
                 try
                 {
                     string jsonFromQueue = message.Body;
@@ -85,7 +91,6 @@ public class AddBatchFromQueue
                         // this sends a record to the dead letter queue on error
                         await context.CallActivityAsync(nameof(DeadLetterItemAsync), message.SequenceNumber);
                     }
-
                     // we only want to add non null items to the database and log error records to the database this handled by validation 
                     else
                     {
@@ -93,6 +98,9 @@ public class AddBatchFromQueue
                         participants.Add(ValidatedParticipantCsvRecord!.Participant.ToParticipantManagement());
 
                         await context.CallActivityAsync(nameof(completeMessageAsync), message.SequenceNumber);
+
+                        var messageFromQueue = _messageStore.ListOfAllValues.Where(x => x.MessageId == message.MessageId).FirstOrDefault();
+                        messageFromQueue.IsCompleted = true;
                     }
                 }
                 catch (Exception ex)
@@ -101,20 +109,8 @@ public class AddBatchFromQueue
                     // send error messages to the dead letter queue
                     await context.CallActivityAsync(nameof(DeadLetterItemAsync), message.SequenceNumber);
                 }
+                processedRecords++;
             }
-
-            var addAllRecordsToCohortQueue = await context.CallActivityAsync<bool>(
-                nameof(AddItemsToDatabase), participants
-            );
-
-            if (addAllRecordsToCohortQueue)
-            {
-                await context.CallActivityAsync<bool>(
-                    nameof(AddItemsToCohortQueue), participantsData
-                );
-            }
-
-
         }
         catch (Exception ex)
         {
@@ -122,13 +118,27 @@ public class AddBatchFromQueue
         }
         finally
         {
+            var addAllRecordsToCohortQueue = false;
+            if (participants.Any())
+            {
+                addAllRecordsToCohortQueue = await context.CallActivityAsync<bool>(
+                    nameof(AddItemsToDatabase), participants
+                );
+            }
+
+            if (addAllRecordsToCohortQueue && participantsData.Any())
+            {
+                await context.CallActivityAsync<bool>(
+                    nameof(AddItemsToCohortQueue), participantsData
+                );
+            }
+
             // dispose of all lists and variables from memory because they are no longer needed
             if (_messageStore.ListOfAllValues != null)
             {
+                await _messageHandling.CleanUpMessages(receiver, queueName, connectionString);
                 _messageStore.ListOfAllValues.Clear();
             }
-
-            await _messageHandling.CleanUpDeferredMessages(receiver, queueName, connectionString);
             await receiver.CloseAsync();
             await client.DisposeAsync();
         }
@@ -145,7 +155,9 @@ public class AddBatchFromQueue
     {
         var serviceBusProcessorOptions = new ServiceBusProcessorOptions()
         {
-            ReceiveMode = ServiceBusReceiveMode.PeekLock
+            ReceiveMode = ServiceBusReceiveMode.PeekLock,
+            MaxAutoLockRenewalDuration = TimeSpan.FromMinutes(5) // lock message for 5 mins
+
         };
         var client = new ServiceBusClient(connectionString);
         var receiver = client.CreateReceiver(queueName);
@@ -174,7 +186,7 @@ public class AddBatchFromQueue
             await processor.StartProcessingAsync();
 
             // Wait until all messages received or timeout
-            //var timeout = Task.Delay(TimeSpan.FromMinutes(1));
+            //var timeout = Task.Delay(TimeSpan.FromMinutes(0));
             var completed = await Task.WhenAny(_messageStore.AllMessagesReceived.Task);
 
             if (completed == _messageStore.AllMessagesReceived.Task)
@@ -184,10 +196,7 @@ public class AddBatchFromQueue
             }
             else
             {
-
                 _logger.LogWarning("Timed out before all messages received.");
-
-
                 return new List<SerializableMessage>();
             }
         }

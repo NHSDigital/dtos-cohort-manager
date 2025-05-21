@@ -7,4 +7,5 @@ public class SerializableMessage
     public string Subject { get; set; }
     public long SequenceNumber { get; set; }
     public DateTimeOffset EnqueuedTime { get; set; }
+    public bool IsCompleted { get; set; }
 }
