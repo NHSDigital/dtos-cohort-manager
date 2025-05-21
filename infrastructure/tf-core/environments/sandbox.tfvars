@@ -206,6 +206,7 @@ container_apps = {
       container_app_environment_key = "db-management"
       docker_env_tag                = "development"
       docker_image                  = "cohort-manager-database-db-migration"
+      container_registry_use_mi     = true
     }
   }
 }
