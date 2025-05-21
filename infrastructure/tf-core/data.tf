@@ -69,6 +69,6 @@ data "azurerm_user_assigned_identity" "acr_mi" {
 data "azurerm_user_assigned_identity" "db-management" {
   for_each = var.regions
 
-  name                = "mi-cohort-manager-db-management-${var.environment}"
+  name                = "mi-cohort-manager-db-management-${lower(var.environment)}"
   resource_group_name  = "${module.regions_config[each.key].names.resource-group}"
 }
