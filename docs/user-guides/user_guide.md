@@ -27,6 +27,8 @@ docker compose up # Run the functions
 
 >**Note:** This will take a while the first time
 
+You should run `docker system prune` every once in a while to clear up unused docker objects that take up space
+
 Other useful commands:
 
 ```bash
