@@ -8,9 +8,8 @@ A service for identifying and managing cohorts of citizens. Users can select ind
 
 ## Table of Contents
 
-- [Repository Template](#repository-template)
-  - [Table of Contents](#table-of-contents)
-  - [Setup](#setup)
+- [Cohort Manager](#repository-template)
+  - [Set-up](#Set-up)
     - [Prerequisites](#prerequisites)
     - [Configuration](#configuration)
   - [Usage](#usage)
@@ -85,13 +84,13 @@ After a successful installation, please follow this [User Guide](./docs/user-gui
 
 ### Testing
 
-There are `make` tasks for you to configure to run your tests. Run `make test` to see how they work. You should be able to use the same entry points for local development as in your CI pipeline.
+Unit tests can be run from the Functions directory with `dotnet test`
 
-[Functions Testing Guide using Playwright Test Framework](tests/playwright-tests/README.md)
+To run the end-to-end tests, follow the [instructions in the playwright-tests directory](tests/playwright-tests/README.md)
 
 ## Contributing
 
-[Contributing](CONTRIBUTING.md)
+To contribute, follow the instructions in the [contributing.md](CONTRIBUTING.md)
 
 ## Contacts
 

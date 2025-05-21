@@ -12,9 +12,7 @@ Several vscode tasks have been made for common docker operations for Windows and
 
 You can also download the "Tasks" extension in vscode to quickly run these task from the status bar.
 
-> **Note:** Pressing ctrl/ cmd + shift + B will build the application automatically in vscode
-
-To build and run the application manually in the terminal, run the following commands in the application/CohortManager directory:\
+To build and run the application manually in the terminal **(not reccomended**), run the following commands in the application/CohortManager directory:\
 If you are on Mac, you will need to replace `docker` with `podman`
 
 ```bash
@@ -66,9 +64,9 @@ Or, to run the whole application `docker compose --profile "*" up`
 
 There is a script in `application/CohortManager/Set-up/azurite` that alllows you to send sample files to azurite.
 
-Before your run the script you must download the sample files from confluence (you can see which files you need to download by running the command without arguments) run the following command: `pip install azure-storage-blob python-dotenv`
+Before you run the script you must install the dependencies by running the following command: `pip install azure-storage-blob python-dotenv`
 
-Run the file without arguments (`pyhton send-sample-file.py`) to see the help page
+Run the file without arguments (`python send_sample_file.py`) to see the full instructions
 
 ### Set-up Azure Storage Explorer
 
