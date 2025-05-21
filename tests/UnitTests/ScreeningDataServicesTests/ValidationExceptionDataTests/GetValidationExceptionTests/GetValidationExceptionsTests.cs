@@ -55,7 +55,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
     {
         // Arrange
         var exceptionId = 0;
-        _validationDataMock.Setup(s => s.GetAllExceptions(false, ExceptionSort.DateCreated, _exceptionCategory)).ReturnsAsync(_exceptionList);
+        _validationDataMock.Setup(s => s.GetAllExceptions(false, null, _exceptionCategory)).ReturnsAsync(_exceptionList);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), It.IsAny<string>())).Returns(exceptionId);
         SetupRequestWithQueryParams([]);
 
@@ -65,7 +65,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _validationDataMock.Verify(v => v.GetAllExceptions(false, ExceptionSort.DateCreated, _exceptionCategory), Times.Once);
+        _validationDataMock.Verify(v => v.GetAllExceptions(false, null, _exceptionCategory), Times.Once);
     }
 
     [TestMethod]
@@ -109,7 +109,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         var exceptionId = 0;
 
 
-        _validationDataMock.Setup(s => s.GetAllExceptions(false, ExceptionSort.DateCreated, _exceptionCategory))
+        _validationDataMock.Setup(s => s.GetAllExceptions(false, null, _exceptionCategory))
                         .ReturnsAsync(new List<ValidationException>());
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "exceptionId"))
                             .Returns(0);
@@ -122,9 +122,6 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
             It.Is<string>(key => key == "todayOnly"),
             It.IsAny<bool>()))
             .Returns(false);
-
-        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "orderByProperty"))
-                            .Returns((int)ExceptionSort.DateCreated);
 
         _mockHttpResponseData.StatusCode = HttpStatusCode.NoContent;
 
@@ -143,7 +140,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
-        _validationDataMock.Verify(v => v.GetAllExceptions(false, ExceptionSort.DateCreated, _exceptionCategory), Times.Once);
+        _validationDataMock.Verify(v => v.GetAllExceptions(false, null, _exceptionCategory), Times.Once);
     }
 
     [TestMethod]
@@ -153,7 +150,7 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         var exceptionId = 0;
 
         // Simulate exception thrown from GetAllExceptions
-        _validationDataMock.Setup(s => s.GetAllExceptions(false, ExceptionSort.DateCreated, _exceptionCategory))
+        _validationDataMock.Setup(s => s.GetAllExceptions(false, null, _exceptionCategory))
                         .ThrowsAsync(new Exception("Simulated failure"));
 
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "exceptionId"))
@@ -167,9 +164,6 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
             It.Is<string>(key => key == "todayOnly"),
             It.IsAny<bool>()))
             .Returns(false);
-
-        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "orderByProperty"))
-                            .Returns((int)ExceptionSort.DateCreated);
 
         // Setup the mock response with expected error status code
         _mockHttpResponseData.StatusCode = HttpStatusCode.InternalServerError;
@@ -189,6 +183,6 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-        _validationDataMock.Verify(v => v.GetAllExceptions(false, ExceptionSort.DateCreated, _exceptionCategory), Times.Once);
+        _validationDataMock.Verify(v => v.GetAllExceptions(false, null, _exceptionCategory), Times.Once);
     }
 }
