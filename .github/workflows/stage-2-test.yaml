@@ -133,8 +133,8 @@ jobs:
             --collect:"XPlat Code Coverage" \
             /p:CollectCoverage=true \
             /p:CoverletOutputFormat=cobertura \
-            /p:Include=\"**/*.cs" \
-            /p:Exclude=\"**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/*Config.cs,**/HealthCheckFunction.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs\" \
+            /p:Include="**/*.cs" \
+            /p:Exclude="**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/*Config.cs,**/HealthCheckFunction.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
             --verbosity quiet
       - name: Upload test results as artifact
         uses: actions/upload-artifact@v4
@@ -188,8 +188,8 @@ jobs:
               --collect:"XPlat Code Coverage" \
               /p:CollectCoverage=true \
               /p:CoverletOutputFormat=cobertura \
-              /p:Include=\"**/*.cs" \
-              /p:Exclude=\"**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/*Config.cs,**/HealthCheckFunction.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs\" \
+              /p:Include="**/*.cs" \
+              /p:Exclude="**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/*Config.cs,**/HealthCheckFunction.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
               --verbosity quiet
           done
       - name: Upload test results as artifact
