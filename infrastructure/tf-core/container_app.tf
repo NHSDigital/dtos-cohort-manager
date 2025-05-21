@@ -25,7 +25,7 @@ module "container-app-worker" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/container-app"
 
-  name                         = "${module.regions_config[each.value.region].names.container-app}-${lower(each.key)}"
+  name                         = "ca-${lower(each.key)}-${each.value.region}"
   resource_group_name          = azurerm_resource_group.core[each.value.region].name
   container_app_environment_id = module.container-app-environment["${each.value.container_app_environment_key}-${each.value.region}"].id
   docker_image                 = "${data.azurerm_container_registry.acr.login_server}/${each.value.docker_image}:${each.value.docker_env_tag}"
