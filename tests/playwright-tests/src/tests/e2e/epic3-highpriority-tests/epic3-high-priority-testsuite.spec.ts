@@ -1,7 +1,7 @@
 import { getRecordsFromExceptionService } from '../../../api/dataService/exceptionService';
 import { getRecordsFromBsSelectRetrieveAudit, getRecordsFromBsSelectRetrieveCohort } from '../../../api/distributionService/bsSelectService';
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
-import { expect, test, testWithAmended } from '../../fixtures/test-fixtures';
+import { expect, test, testWithAmended, testWithAmended2 } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
 import { processFileViaStorage, validateSqlDatabaseFromAPI } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
@@ -208,6 +208,38 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     await test.step(`Then the record should end up in exception management`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
+  });
+
+  testWithAmended2('@DTOSS-5568-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)',{
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
+    },
+  }, async ({ request, testData }) => {
+    await test.step(`When ADD participant is processed via storage`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAdd);
+    });
+
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    });
+
+    await test.step(`Then the record should end up in exception management`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
+
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend2);
+    });
+
+    await test.step(`Then the record should end up in exception management`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend2);
+    });
+
   });
 
   test('@DTOSS-5560-01 - BS Select - Records are received where IsExtracted is set to 0', {
