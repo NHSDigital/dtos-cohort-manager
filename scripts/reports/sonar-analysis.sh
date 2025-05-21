@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-
 # Get input parameters
 SONAR_PROJECT_KEY="$1"
 SONAR_ORGANISATION_KEY="$2"
@@ -47,21 +46,19 @@ dotnet sonarscanner begin \
   /d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/**/*.xml" \
   /d:sonar.python.version="3.8" \
   /d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
-  /d:sonar.coverage.inclusions="**/*.cs,**/*.ts" \
+  /d:sonar.coverage.inclusions="**/*.cs" \
   /d:sonar.coverage.exclusions="\
 **/*Tests.cs,\
 **/Tests/**/*.cs,\
-**/*.spec.ts,\
-**/*.test.ts,\
 **/Program.cs,\
 **/Model/**/*.cs,\
-**/Set-up/**/*,\
-**/scripts/**/*,\
+**/Set-up/**/*.cs,\
+**/scripts/**/*.cs,\
 **/*Config.cs,\
 **/HealthCheckFunction.cs,\
-**/bin/**/*,\
-**/obj/**/*,\
-**/Properties/**/*,\
+**/bin/**/*.cs,\
+**/obj/**/*.cs,\
+**/Properties/**/*.cs,\
 **/*.generated.cs,\
 **/*.Designer.cs,\
 **/*.g.cs,\
@@ -84,7 +81,7 @@ find . -name "*.sln" -exec dotnet build {} --no-restore \;
 dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
   --results-directory "${COVERAGE_PATH}" \
   --logger "trx;LogFileName=TestResults.trx" \
-  --collect:"XPlat Code Coverage;Format=opencover;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*,**/scripts/**/*,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*,**/obj/**/*,**/Properties/**/*,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
+  --collect:"XPlat Code Coverage;Format=opencover;Include=**/*.cs;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*.cs,**/scripts/**/*.cs,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*.cs,**/obj/**/*.cs,**/Properties/**/*.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
   --verbosity normal
 
 # Run frontend tests to generate lcov coverage
