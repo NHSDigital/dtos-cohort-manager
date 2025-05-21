@@ -132,18 +132,8 @@ jobs:
           npm ci
           echo "Running frontend tests with coverage..."
           npm run test:unit:coverage
-          
-          # Create TestResults directory at repo root
           mkdir -p "${GITHUB_WORKSPACE}/TestResults"
-          
-          # Copy lcov.info to TestResults
-          echo "Copying lcov.info to TestResults directory..."
           cp coverage/lcov.info "${GITHUB_WORKSPACE}/TestResults/lcov.info"
-          
-          # Log file location to verify
-          echo "Frontend test coverage generated at:"
-          echo "- ${GITHUB_WORKSPACE}/TestResults/lcov.info"
-          echo "- $(pwd)/coverage/lcov.info"
       - name: Upload frontend test results
         uses: actions/upload-artifact@v4
         with:
@@ -182,11 +172,7 @@ jobs:
           set -eo pipefail
           mkdir -p "TestResults"
           echo -e "\nRunning consolidated tests from:\n${UNIT_TEST_DIR}/ConsolidatedTests.csproj"
-          dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
-            --results-directory "TestResults" \
-            --logger "${LOGGER_FORMAT};LogFileName=ConsolidatedTests.${LOGGER_FORMAT}" \
-            --collect:"XPlat Code Coverage;Format=opencover;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*,**/scripts/**/*,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*,**/obj/**/*,**/Properties/**/*,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
-            --verbosity quiet
+          dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" --results-directory "TestResults" --logger "${LOGGER_FORMAT};LogFileName=ConsolidatedTests.${LOGGER_FORMAT}" --collect:"XPlat Code Coverage;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*,**/scripts/**/*,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*,**/obj/**/*,**/Properties/**/*,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" --verbosity quiet
       - name: Upload test results as artifact
         uses: actions/upload-artifact@v4
         with:
@@ -233,11 +219,7 @@ jobs:
           find "${UNIT_TEST_DIR}/${{ matrix.scope }}" -name '*.csproj' | while read -r file; do
             echo -e "\nRunning unit tests for:\n${file}"
             base=$(basename "$file" .csproj)
-            dotnet test "${file}" \
-              --results-directory "TestResults" \
-              --logger "${LOGGER_FORMAT};LogFileName=${base}.${LOGGER_FORMAT}" \
-              --collect:"XPlat Code Coverage;Format=opencover;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*,**/scripts/**/*,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*,**/obj/**/*,**/Properties/**/*,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
-              --verbosity quiet
+            dotnet test "${file}" --results-directory "TestResults" --logger "${LOGGER_FORMAT};LogFileName=${base}.${LOGGER_FORMAT}" --collect:"XPlat Code Coverage;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*,**/scripts/**/*,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*,**/obj/**/*,**/Properties/**/*,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" --verbosity quiet
           done
       - name: Upload test results as artifact
         uses: actions/upload-artifact@v4
@@ -250,6 +232,7 @@ jobs:
   aggregate-test-results:
     name: Aggregate results and report
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     needs: [test-unit, test-consolidated, frontend-tests, check-consolidated-tests]
     if: always() && (needs.check-consolidated-tests.outputs.has-consolidated-tests == 'true' || needs.unit-test-scope.outputs.test-matrix != '[]')
     permissions:
@@ -278,34 +261,35 @@ jobs:
           # Process backend coverage
           if [[ "${{ needs.check-consolidated-tests.outputs.has-consolidated-tests }}" == "true" ]]; then
             echo "Using consolidated test coverage report"
-            find aggregated-results -name "*.xml" -exec cp {} coverage/backend.xml \;
+            find aggregated-results -name "*.xml" -type f -exec cp {} coverage/backend.xml \;
           else
             echo "Collating multiple coverage reports"
             dotnet tool install --global dotnet-coverage
             dotnet coverage merge aggregated-results/**/*.xml -o coverage/backend.xml -f opencover
           fi
           
-          # Check for frontend coverage
-          if [[ "${{ needs.check-consolidated-tests.outputs.has-frontend }}" == "true" ]]; then
-            echo "Processing frontend coverage report"
-            # Find all lcov.info files and use the first one found (or create empty if none)
-            LCOV_FILES=$(find aggregated-results -name "lcov.info")
-            if [ -n "$LCOV_FILES" ]; then
-              echo "Found frontend coverage file(s)"
-              # Copy the first lcov file found
-              cp $(echo "$LCOV_FILES" | head -n 1) coverage/lcov.info
-            else
-              echo "No frontend coverage file found, creating empty placeholder"
-              echo "" > coverage/lcov.info
-            fi
+          # Process frontend coverage
+          echo "Processing frontend coverage report"
+          LCOV_FILE=$(find aggregated-results -name "lcov.info" -type f | head -n 1)
+          if [ -n "$LCOV_FILE" ]; then
+            echo "Found frontend coverage file: $LCOV_FILE"
+            
+            # Simple path fix: Just set the base directory to the repo root 
+            # when running reportgenerator so it can find the files
+            cp "$LCOV_FILE" coverage/lcov.info
           else
-            echo "No frontend tests, creating empty lcov file"
+            echo "No frontend coverage file found, creating empty placeholder"
             echo "" > coverage/lcov.info
           fi
           
-          # Create merged reports in different formats
+          # Run reportgenerator with the basedir set to the frontend directory
           echo "Generating merged coverage reports"
-          reportgenerator "-reports:coverage/backend.xml;coverage/lcov.info" "-targetdir:coverage/merged" "-reporttypes:Cobertura;Html"
+          reportgenerator \
+            "-reports:coverage/backend.xml;coverage/lcov.info" \
+            "-targetdir:coverage/merged" \
+            "-reporttypes:Cobertura;Html" \
+            "-basedir:${GITHUB_WORKSPACE}" \
+            "-verbosity:Info"
           
           # Copy final report for test reporter
           cp coverage/merged/Cobertura.xml coverage/cobertura.xml
