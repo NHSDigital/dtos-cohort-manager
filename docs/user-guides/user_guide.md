@@ -1,4 +1,4 @@
-## Running the Application
+# Running the Application
 
 The docker compose has now been split into 4 files due to the size of the application being too large to build in one go. There are now 4 files:
 
@@ -12,7 +12,7 @@ Several vscode tasks have been made for common docker operations for Windows and
 
 You can also download the "Tasks" extension in vscode to quickly run these task from the status bar.
 
-To build and run the application manually in the terminal **(not reccomended**), run the following commands in the application/CohortManager directory:\
+To build and run the application manually in the terminal **(not recommended**), run the following commands in the application/CohortManager directory:\
 If you are on Mac, you will need to replace `docker` with `podman`
 
 ```bash

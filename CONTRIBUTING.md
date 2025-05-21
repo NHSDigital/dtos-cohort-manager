@@ -17,12 +17,13 @@
 - Pull request names should follow the same conventional commits standard as commits
 - Write a bullet point description of the changes made in your PR
 - Add a link to the ticket in the context section as well as any other context \
- you think would be helpfult for reviewers to know
+ you think would be helpful for reviewers to know
 - PR comments are to be marked resolved by the reviewer, not the author
 
- ## Making A New Function
+## Making A New Function
+
 1. Write the function & tests
 2. Add [XML docs](https://learn.microsoft.com/en-us/dotnet/csharp/language-reference/xmldoc/)
-3. Create a dockerfile and add to the relevant compose file
+3. Create a Dockerfile and add to the relevant compose file
 4. Add a health check
-4. Update terraform (or ask the platform team to do it)
+5. Update Terraform (or ask the platform team to do it)

@@ -8,8 +8,8 @@ A service for identifying and managing cohorts of citizens. Users can select ind
 
 ## Table of Contents
 
-- [Cohort Manager](#repository-template)
-  - [Set-up](#Set-up)
+- [Cohort Manager](#cohort-manager)
+  - [Set-up](#set-up)
     - [Prerequisites](#prerequisites)
     - [Configuration](#configuration)
   - [Usage](#usage)
@@ -20,7 +20,7 @@ A service for identifying and managing cohorts of citizens. Users can select ind
 
 ## Set-up
 
-### 1. Prerequisites
+### Prerequisites
 
 - Visual Studio Code
 - Git
@@ -68,7 +68,7 @@ podman machine start
 
 ### 4. Optional: Azure Functions Core Tools
 
-Install only if you plan on running the functions outside of docker/ podman 
+Install only if you plan on running the functions outside of Docker/ Podman 
 
 Azure Function Core Tools lets you develop and test your functions on your local computer. To install, press `ctrl/ command + shift + P` and enter `Azure Functions: Install or Update Azure Functions Core Tools`
 
