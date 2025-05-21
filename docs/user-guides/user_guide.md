@@ -1,4 +1,6 @@
-# Running the Application
+# User Guide
+
+## Running the Application
 
 The docker compose has now been split into 4 files due to the size of the application being too large to build in one go. There are now 4 files:
 

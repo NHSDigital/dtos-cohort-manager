@@ -68,7 +68,7 @@ podman machine start
 
 ### 4. Optional: Azure Functions Core Tools
 
-Install only if you plan on running the functions outside of Docker/ Podman 
+Install only if you plan on running the functions outside of Docker/ Podman
 
 Azure Function Core Tools lets you develop and test your functions on your local computer. To install, press `ctrl/ command + shift + P` and enter `Azure Functions: Install or Update Azure Functions Core Tools`
 
