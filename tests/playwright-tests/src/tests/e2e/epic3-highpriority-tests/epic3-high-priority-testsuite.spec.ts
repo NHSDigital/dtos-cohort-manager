@@ -300,7 +300,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5348-01  @Orchestration triggered via file upload and cohort record verified', async ({ request, testData }) => {
+  test('@DTOSS-5348-01  @AddParticipant Verify all Functions Called', async ({ request, testData }) => {
 
     await test.step('When eligible participant data file is uploaded to storage', async () => {
       calledEndpointsOrder.length = 0;
