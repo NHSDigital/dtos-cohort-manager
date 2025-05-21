@@ -15,43 +15,30 @@ using NHS.Screening.NEMSUnSubscription;
 
 public class NEMSUnSubscription
 {
-    private const string TableName = "NemsSubscriptionTable";
     protected readonly TableClient _tableClient;
     protected readonly HttpClient _httpClient;
 
     private readonly ILogger<NEMSUnSubscription> _logger;
 
     private readonly ICreateResponse _createResponse;
-    private readonly IExceptionHandler _handleException;
-     private readonly NEMSUnSubscriptionConfig _config;
 
     private readonly INemsSubscriptionService _nemsSubscriptionService;
-
-
-    protected virtual async Task<HttpResponseData> HandleNotFoundAsync(HttpRequestData req, string message)
-    {
-        var response = req.CreateResponse(HttpStatusCode.NotFound);
-        await response.WriteStringAsync(message);
-        return response;
-    }
 
     public NEMSUnSubscription(ILogger<NEMSUnSubscription> logger,
     //IDataServiceClient<NemsSubscription> nemsSubscriptionClient, /* To Do Later */
     IHttpClientFactory httpClientFactory,
-    IExceptionHandler handleException,
-    ICreateResponse createResponse ,
-    IOptions<NEMSUnSubscriptionConfig> nemsUnSubscriptionConfig,
-    ICallFunction callFunction,
+    ICreateResponse createResponse,
     INemsSubscriptionService nemsSubscriptionService)
     {
         _logger = logger;
         _httpClient = httpClientFactory.CreateClient();
-        _handleException = handleException;
+       
         _createResponse = createResponse;
-        _config = nemsUnSubscriptionConfig.Value;
+       
         _nemsSubscriptionService = nemsSubscriptionService;
 
     }
+    
     // Constructor for dependency injection (testability)
     public NEMSUnSubscription(TableClient tableClient, HttpClient httpClient)
     {
@@ -61,8 +48,7 @@ public class NEMSUnSubscription
 
     [Function("NEMSUnsubscribe")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req,
-        FunctionContext executionContext)
+        [HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
     {
         _logger.LogInformation("Received unsubscribe request");
 
@@ -70,46 +56,43 @@ public class NEMSUnSubscription
 
         if (string.IsNullOrWhiteSpace(requestBody))
         {
-            var badRequestResponse = req.CreateResponse(HttpStatusCode.BadRequest);
-            await badRequestResponse.WriteStringAsync("Request body is empty.");
-            return badRequestResponse;
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Request body is empty.");
         }
 
         var request = JsonSerializer.Deserialize<UnsubscriptionRequest>(requestBody);
 
         if (request == null || string.IsNullOrEmpty(request.NhsNumber))
         {
-            var badRequest = req.CreateResponse(HttpStatusCode.BadRequest);
-            await badRequest.WriteStringAsync("Invalid or missing NHS number.");
-            return badRequest;
+            _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Request body is empty.");
         }
 
-        string nhsNumber = request.NhsNumber;
-        string? subscriptionId = await _nemsSubscriptionService.LookupSubscriptionIdAsync(nhsNumber);
+        var nhsNumber = request!.NhsNumber;
+        var subscriptionId = await _nemsSubscriptionService.LookupSubscriptionIdAsync(nhsNumber);
 
         if (string.IsNullOrEmpty(subscriptionId))
         {
             _logger.LogWarning("No subscription record found.");
-            var notFoundResponse = req.CreateResponse(HttpStatusCode.NotFound);
-            await notFoundResponse.WriteStringAsync("No subscription record found.");
-            return notFoundResponse;
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No subscription record found.");
         }
 
-        bool isDeletedFromNems = await _nemsSubscriptionService.DeleteSubscriptionFromNems(subscriptionId);
+        var isDeletedFromNems = await _nemsSubscriptionService.DeleteSubscriptionFromNems(subscriptionId);
 
         if (!isDeletedFromNems)
         {
             _logger.LogError("Failed to delete subscription from NEMS.");
-            var badGatewayResponse = req.CreateResponse(HttpStatusCode.BadGateway);
-            await badGatewayResponse.WriteStringAsync("Failed to delete subscription from NEMS.");
-            return badGatewayResponse;
+            _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to delete subscription from NEMS.");
         }
 
-        await _nemsSubscriptionService.DeleteSubscriptionFromTableAsync(nhsNumber);
-        _logger.LogInformation("Subscription deleted successfully.");
+        var unsubscribed = await _nemsSubscriptionService.DeleteSubscriptionFromTableAsync(nhsNumber);
+        if (!unsubscribed)
+        {
+            _logger.LogError("Failed to unsubscribe from NEMS.");
+            _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to unsubscribe from NEMS.");
+        }
 
-        var successResponse = req.CreateResponse(HttpStatusCode.OK);
-        await successResponse.WriteStringAsync("Successfully unsubscribed.");
-        return successResponse;
+        _logger.LogInformation("Subscription deleted successfully.");
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Successfully unsubscribed.");
+
     }
 }
