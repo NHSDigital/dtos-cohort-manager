@@ -28,7 +28,7 @@ module "container-app-worker" {
   name                         = "ca-${lower(each.key)}"
   resource_group_name          = azurerm_resource_group.core[each.value.region].name
   container_app_environment_id = module.container-app-environment["${each.value.container_app_environment_key}-${each.value.region}"].id
-  user_assigned_identity_ids   = [data.azurerm_user_assigned_identity[each.value.region].id]
+  user_assigned_identity_ids   = [data.azurerm_user_assigned_identity.db-management[each.value.region].id]
 
   acr_server                   = data.azurerm_container_registry.acr.login_server
   acr_mi_id                    = each.value.container_registry_use_mi ? data.azurerm_user_assigned_identity.acr_mi.id : null
