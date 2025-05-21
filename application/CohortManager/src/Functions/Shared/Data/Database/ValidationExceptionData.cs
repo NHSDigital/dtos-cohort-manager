@@ -5,6 +5,7 @@ using System.Data;
 using System.Threading.Tasks;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Model;
 using Model.Enums;
 
@@ -28,21 +29,17 @@ public class ValidationExceptionData : IValidationExceptionData
         _gpPracticeDataServiceClient = gpPracticeDataServiceClient;
     }
 
-    public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty)
+    public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty, ExceptionCategory exceptionCategory)
     {
+        var category = (int)exceptionCategory;
+
         var exceptions = todayOnly
-            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated.Value.Date == DateTime.Today)
-            : await _validationExceptionDataServiceClient.GetAll();
+            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated.Value.Date == DateTime.Today && x.Category.Value == category)
+            : await _validationExceptionDataServiceClient.GetByFilter(x => x.Category.Value == category);
 
         var exceptionList = exceptions.Select(s => s.ToValidationException());
-        var propertyName = GetPropertyName(orderByProperty);
 
-        if (propertyName == nameof(ValidationException.DateCreated))
-        {
-            return exceptionList.OrderByDescending(o => o.DateCreated).ToList();
-        }
-
-        return exceptionList.OrderBy(o => o.GetType().GetProperty(propertyName).GetValue(o)).ToList();
+        return SortExceptions(orderByProperty, exceptionList);
     }
 
     public async Task<ValidationException> GetExceptionById(int exceptionId)
@@ -153,16 +150,28 @@ public class ValidationExceptionData : IValidationExceptionData
         throw new ArgumentNullException(nameof(datetime), "Failed to parse null datetime");
     }
 
-    private static string GetPropertyName(ExceptionSort? orderByProperty)
+    private static List<ValidationException> SortExceptions(ExceptionSort? sortBy, IEnumerable<ValidationException> list)
     {
-        return orderByProperty switch
+        return sortBy switch
         {
-            ExceptionSort.ExceptionId => nameof(ValidationException.ExceptionId),
-            ExceptionSort.NhsNumber => nameof(ValidationException.NhsNumber),
-            ExceptionSort.DateCreated => nameof(ValidationException.DateCreated),
-            ExceptionSort.RuleDescription => nameof(ValidationException.RuleDescription),
-            _ => nameof(ValidationException.DateCreated)
+            // Sort by date created, oldest first
+            ExceptionSort.DateCreatedOldest => list.OrderBy(x => x.DateCreated).ToList(),
+
+            // Sort by date created, newest first
+            ExceptionSort.DateCreatedNewest => list.OrderByDescending(x => x.DateCreated).ToList(),
+
+            // Sort by exception status raised, then by date created
+            ExceptionSort.ExceptionStatusRaised => list
+                .OrderByDescending(x => !x.ServiceNowId.IsNullOrEmpty())
+                .ThenByDescending(x => x.DateCreated).ToList(),
+
+            // Sort by exception status not raised, then by date created
+            ExceptionSort.ExceptionStatusNotRaised => list
+                .OrderByDescending(x => x.ServiceNowId.IsNullOrEmpty())
+                .ThenByDescending(x => x.DateCreated).ToList(),
+
+            // By default sort by date created, newest first
+            _ => list.OrderByDescending(x => x.DateCreated).ToList()
         };
     }
-
 }

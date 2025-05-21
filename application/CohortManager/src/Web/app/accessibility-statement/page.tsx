@@ -56,12 +56,13 @@ export default async function Page() {
           </p>
           <h2>Reporting accessibility problems with this website</h2>
           <p>
-            We're always looking to improve the accessibility of this website.
-            If you find any problems not listed on this page or think we're not
-            meeting accessibility requirements, please contact{" "}
+            We&apos;re always looking to improve the accessibility of this
+            website. If you find any problems not listed on this page or think
+            we&apos;re not meeting accessibility requirements, please contact{" "}
             <a href="mailto:england.digitalscreening@nhs.net">
               england.digitalscreening@nhs.net
-            </a>. This helps us improve.
+            </a>
+            . This helps us improve.
           </p>
           <h2>Enforcement procedure</h2>
           <p>
@@ -69,7 +70,8 @@ export default async function Page() {
             response,{" "}
             <a href="https://www.equalityadvisoryservice.com/">
               contact the Equality Advisory and Support Service (EASS)
-            </a>.
+            </a>
+            .
           </p>
           <p>
             The Equality and Human Rights Commission (EHRC) is responsible for
@@ -77,7 +79,8 @@ export default async function Page() {
             <a href="https://www.legislation.gov.uk/uksi/2018/952/contents/made">
               Public Sector Bodies (Websites and Mobile Applications) (No. 2)
               Accessibility Regulations 2018 on legislation.gov.uk
-            </a> (the "accessibility regulations").
+            </a>{" "}
+            (the &quot;accessibility regulations&quot;).
           </p>
           <h2>Technical information about this website&apos;s accessibility</h2>
           <p>
@@ -85,12 +88,13 @@ export default async function Page() {
             <a href="http://www.w3.org/TR/WCAG21/">
               Web Content Accessibility Guidelines (WCAG) version 2.1 AA
               standard
-            </a>.
+            </a>
+            .
           </p>
           <h2>Preparation of this accessibility statement</h2>
           <p>This statement was prepared on 2 December 2024.</p>
           <p>
-            This website's accessibility will be reviewed on a regular and
+            This website&apos;s accessibility will be reviewed on a regular and
             continuous basis.
           </p>
         </div>
