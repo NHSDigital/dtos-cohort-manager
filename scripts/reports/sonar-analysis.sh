@@ -32,6 +32,9 @@ fi
 # Ensure coverage directory exists
 mkdir -p "$COVERAGE_PATH"
 
+# Store absolute path to coverage directory
+COVERAGE_FULL_PATH="$(pwd)/${COVERAGE_PATH}"
+
 # Restore solution dependencies
 find . -name "*.sln" -exec dotnet restore {} \;
 
@@ -82,17 +85,16 @@ dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
 # Run frontend tests to generate lcov coverage
 echo "Running frontend tests to generate coverage"
 if [ -d "application/CohortManager/src/Web" ]; then
-  cd application/CohortManager/src/Web
-  npm ci
-  npm run test:unit:coverage
-  # Copy lcov.info to the expected location for SonarCloud
-  mkdir -p ../../../"${COVERAGE_PATH}"
-  cp coverage/lcov.info ../../../"${COVERAGE_PATH}"/lcov.info
-  cd ../../../
+  (
+    cd application/CohortManager/src/Web || exit 1
+    npm ci
+    npm run test:unit:coverage
+    mkdir -p "${COVERAGE_FULL_PATH}"
+    cp coverage/lcov.info "${COVERAGE_FULL_PATH}/lcov.info"
+  )
   echo "Frontend test coverage generated at ${COVERAGE_PATH}/lcov.info"
 else
   echo "Frontend directory not found, skipping frontend tests"
 fi
-
 # End SonarScanner
 dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
