@@ -18,15 +18,15 @@ UNIT_TEST_DIR="${13:-tests/UnitTests}"
 
 # Get PR information for SonarCloud
 if [[ "$GITHUB_EVENT_NAME" == "pull_request" || "$GITHUB_EVENT_NAME" == "pull_request_target" ]]; then
-PR_BRANCH="$GITHUB_HEAD_REF"
-PR_BASE="$GITHUB_BASE_REF"
-PR_KEY="$GITHUB_EVENT_PULL_REQUEST_NUMBER"
-echo "Running analysis for PR #${PR_KEY} from ${PR_BRANCH} into ${PR_BASE}"
-PR_ARGS="/d:sonar.pullrequest.key=${PR_KEY} /d:sonar.pullrequest.branch=${PR_BRANCH} /d:sonar.pullrequest.base=${PR_BASE} /d:sonar.pullrequest.github.repository=${GITHUB_REPOSITORY}"
+  PR_BRANCH="$GITHUB_HEAD_REF"
+  PR_BASE="$GITHUB_BASE_REF"
+  PR_KEY="$GITHUB_EVENT_PULL_REQUEST_NUMBER"
+  echo "Running analysis for PR #${PR_KEY} from ${PR_BRANCH} into ${PR_BASE}"
+  PR_ARGS="/d:sonar.pullrequest.key=${PR_KEY} /d:sonar.pullrequest.branch=${PR_BRANCH} /d:sonar.pullrequest.base=${PR_BASE} /d:sonar.pullrequest.github.repository=${GITHUB_REPOSITORY}"
 else
-BRANCH_NAME="${GITHUB_REF#refs/heads/}"
-echo "Running analysis for branch ${BRANCH_NAME}"
-PR_ARGS="/d:sonar.branch.name=${BRANCH_NAME}"
+  BRANCH_NAME="${GITHUB_REF#refs/heads/}"
+  echo "Running analysis for branch ${BRANCH_NAME}"
+  PR_ARGS="/d:sonar.branch.name=${BRANCH_NAME}"
 fi
 
 # Ensure coverage directory exists
@@ -40,36 +40,41 @@ find . -name "*.sln" -exec dotnet restore {} \;
 
 # Begin SonarScanner with coverage configuration and PR information
 dotnet sonarscanner begin \
-/k:"${SONAR_PROJECT_KEY}" \
-/o:"${SONAR_ORGANISATION_KEY}" \
-/d:sonar.token="${SONAR_TOKEN}" \
-/d:sonar.host.url="https://sonarcloud.io" \
-/d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/**/*.xml" \
-/d:sonar.python.version="3.8" \
-/d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
-/d:sonar.coverage.inclusions="**/*.cs,**/*.ts" \
-/d:sonar.coverage.exclusions="\
+  /k:"${SONAR_PROJECT_KEY}" \
+  /o:"${SONAR_ORGANISATION_KEY}" \
+  /d:sonar.token="${SONAR_TOKEN}" \
+  /d:sonar.host.url="https://sonarcloud.io" \
+  /d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/**/*.xml" \
+  /d:sonar.python.version="3.8" \
+  /d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
+  /d:sonar.coverage.inclusions="**/*.cs,**/*.ts" \
+  /d:sonar.coverage.exclusions="\
 **/*Tests.cs,\
 **/Tests/**/*.cs,\
 **/*.spec.ts,\
 **/*.test.ts,\
 **/Program.cs,\
 **/Model/**/*.cs,\
+**/Set-up/**/*,\
+**/scripts/**/*,\
 **/*Config.cs,\
 **/HealthCheckFunction.cs,\
+**/bin/**/*,\
+**/obj/**/*,\
+**/Properties/**/*,\
 **/*.generated.cs,\
 **/*.Designer.cs,\
 **/*.g.cs,\
 **/*.GlobalUsings.g.cs,\
 **/*.AssemblyInfo.cs\
 " \
-/d:sonar.tests="tests" \
-/d:sonar.test.inclusions="**/*.spec.ts,**/*.test.ts,**/tests/**/*.ts" \
-/d:sonar.verbose=true \
-/d:sonar.scm.provider=git \
-/d:sonar.scm.revision=${GITHUB_SHA} \
-/d:sonar.scanner.scanAll=true \
-${PR_ARGS}
+  /d:sonar.tests="tests" \
+  /d:sonar.test.inclusions="**/*.spec.ts,**/*.test.ts,**/tests/**/*.ts" \
+  /d:sonar.verbose=true \
+  /d:sonar.scm.provider=git \
+  /d:sonar.scm.revision=${GITHUB_SHA} \
+  /d:sonar.scanner.scanAll=true \
+  ${PR_ARGS}
 
 # Build all solutions
 find . -name "*.sln" -exec dotnet build {} --no-restore \;
@@ -77,10 +82,10 @@ find . -name "*.sln" -exec dotnet build {} --no-restore \;
 # Run consolidated tests to generate coverage
 # This is critical - tests must run between SonarScanner begin and end commands
 dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
---results-directory "${COVERAGE_PATH}" \
---logger "trx;LogFileName=TestResults.trx" \
---collect:"XPlat Code Coverage;Format=opencover" \
---verbosity normal
+  --results-directory "${COVERAGE_PATH}" \
+  --logger "trx;LogFileName=TestResults.trx" \
+  --collect:"XPlat Code Coverage;Format=opencover;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*,**/scripts/**/*,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*,**/obj/**/*,**/Properties/**/*,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
+  --verbosity normal
 
 # Run frontend tests to generate lcov coverage
 echo "Running frontend tests to generate coverage"
@@ -96,5 +101,6 @@ if [ -d "application/CohortManager/src/Web" ]; then
 else
   echo "Frontend directory not found, skipping frontend tests"
 fi
+
 # End SonarScanner
 dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
