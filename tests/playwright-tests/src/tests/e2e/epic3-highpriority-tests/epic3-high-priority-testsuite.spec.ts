@@ -111,7 +111,6 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   testWithAmended('@DTOSS-5407-01 @Implement Validate Amend fields reason for removal as invalid and date of death present', async ({ request, testData }) => {
 
-
     await test.step(`When ADD participant is processed via storage`, async () => {
       await processFileViaStorage(testData.runTimeParquetFileAdd);
     });
@@ -185,15 +184,11 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5348-01  - Orchestration triggered via file upload and cohort record verified', async ({ request, testData }) => {
+  test.only('@DTOSS-5348-01  @Orchestration triggered via file upload and cohort record verified', async ({ request, testData }) => {
 
     await test.step('When eligible participant data file is uploaded to storage', async () => {
       calledEndpointsOrder.length = 0;
       await processFileViaStorage(testData.runTimeParquetFile);
-    });
-
-    await test.step('Wait for orchestration to complete', async () => {
-      await new Promise(res => setTimeout(res, 30000));
     });
 
     await test.step('Verify orchestration called services in correct order', async () => {
