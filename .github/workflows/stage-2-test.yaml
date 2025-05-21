@@ -55,6 +55,7 @@ jobs:
     timeout-minutes: 2
     outputs:
       has-consolidated-tests: ${{ steps.check.outputs.has-consolidated-tests }}
+      has-frontend: ${{ steps.check-fe.outputs.has-frontend }}
     env:
       UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
     steps:
@@ -71,6 +72,16 @@ jobs:
           else
             echo "No ConsolidatedTests.csproj found - using matrix approach"
             echo "has-consolidated-tests=false" >> "${GITHUB_OUTPUT}"
+          fi
+      - name: Check for frontend
+        id: check-fe
+        run: |
+          if [ -d "application/CohortManager/src/Web" ]; then
+            echo "Found frontend directory - will run frontend tests"
+            echo "has-frontend=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "No frontend directory found - skipping frontend tests"
+            echo "has-frontend=false" >> "${GITHUB_OUTPUT}"
           fi
 
   unit-test-scope:
@@ -96,6 +107,50 @@ jobs:
           test_matrix_json=$(jq -c -n '$ARGS.positional' --args "${test_matrix[@]}")
           echo "Unit test scopes: ${test_matrix_json}"
           echo "test-matrix=${test_matrix_json}" >> "${GITHUB_OUTPUT}"
+
+  frontend-tests:
+    name: Frontend Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [check-consolidated-tests]
+    if: needs.check-consolidated-tests.outputs.has-frontend == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.nodejs_version }}
+          cache: 'npm'
+          cache-dependency-path: 'application/CohortManager/src/Web/package-lock.json'
+      - name: Run frontend tests
+        run: |
+          cd application/CohortManager/src/Web
+          echo "Installing frontend dependencies..."
+          npm ci
+          echo "Running frontend tests with coverage..."
+          npm run test:unit:coverage
+          
+          # Create TestResults directory at repo root
+          mkdir -p "${GITHUB_WORKSPACE}/TestResults"
+          
+          # Copy lcov.info to TestResults
+          echo "Copying lcov.info to TestResults directory..."
+          cp coverage/lcov.info "${GITHUB_WORKSPACE}/TestResults/lcov.info"
+          
+          # Log file location to verify
+          echo "Frontend test coverage generated at:"
+          echo "- ${GITHUB_WORKSPACE}/TestResults/lcov.info"
+          echo "- $(pwd)/coverage/lcov.info"
+      - name: Upload frontend test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-frontend
+          path: |
+            application/CohortManager/src/Web/coverage/lcov.info
+            TestResults/lcov.info
 
   test-consolidated:
     name: Run consolidated tests
@@ -125,16 +180,12 @@ jobs:
       - name: Run consolidated test suite
         run: |
           set -eo pipefail
-          mkdir "TestResults"
+          mkdir -p "TestResults"
           echo -e "\nRunning consolidated tests from:\n${UNIT_TEST_DIR}/ConsolidatedTests.csproj"
           dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
             --results-directory "TestResults" \
             --logger "${LOGGER_FORMAT};LogFileName=ConsolidatedTests.${LOGGER_FORMAT}" \
-            --collect:"XPlat Code Coverage" \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=cobertura \
-            /p:Include=\"**/*.cs\" \
-            /p:Exclude=\"**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/*Config.cs,**/HealthCheckFunction.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs\" \
+            --collect:"XPlat Code Coverage;Format=opencover;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*,**/scripts/**/*,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*,**/obj/**/*,**/Properties/**/*,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
             --verbosity quiet
       - name: Upload test results as artifact
         uses: actions/upload-artifact@v4
@@ -142,7 +193,7 @@ jobs:
           name: test-results-consolidated
           path: |
             TestResults/**/*.${{ inputs.unit_test_logger_format }}
-            TestResults/**/coverage.cobertura.xml
+            TestResults/**/*.xml
 
   test-unit:
     name: Unit tests
@@ -178,18 +229,14 @@ jobs:
         continue-on-error: true
         run: |
           set -eo pipefail
-          mkdir "TestResults"
+          mkdir -p "TestResults"
           find "${UNIT_TEST_DIR}/${{ matrix.scope }}" -name '*.csproj' | while read -r file; do
             echo -e "\nRunning unit tests for:\n${file}"
             base=$(basename "$file" .csproj)
             dotnet test "${file}" \
               --results-directory "TestResults" \
               --logger "${LOGGER_FORMAT};LogFileName=${base}.${LOGGER_FORMAT}" \
-              --collect:"XPlat Code Coverage" \
-              /p:CollectCoverage=true \
-              /p:CoverletOutputFormat=cobertura \
-              /p:Include=\"**/*.cs\" \
-              /p:Exclude=\"**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/*Config.cs,**/HealthCheckFunction.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs\" \
+              --collect:"XPlat Code Coverage;Format=opencover;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*,**/scripts/**/*,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*,**/obj/**/*,**/Properties/**/*,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
               --verbosity quiet
           done
       - name: Upload test results as artifact
@@ -198,12 +245,12 @@ jobs:
           name: test-results-${{ matrix.scope }}
           path: |
             TestResults/**/*.${{ inputs.unit_test_logger_format }}
-            TestResults/**/coverage.cobertura.xml
+            TestResults/**/*.xml
 
   aggregate-test-results:
     name: Aggregate results and report
     runs-on: ubuntu-latest
-    needs: [test-unit, test-consolidated, check-consolidated-tests]
+    needs: [test-unit, test-consolidated, frontend-tests, check-consolidated-tests]
     if: always() && (needs.check-consolidated-tests.outputs.has-consolidated-tests == 'true' || needs.unit-test-scope.outputs.test-matrix != '[]')
     permissions:
       pull-requests: write
@@ -216,6 +263,9 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      - name: Install reportgenerator
+        run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
       - name: Download all test results
         uses: actions/download-artifact@v4
         with:
@@ -223,22 +273,51 @@ jobs:
       - name: Process coverage reports
         continue-on-error: true
         run: |
-          mkdir coverage
+          mkdir -p coverage
+          
+          # Process backend coverage
           if [[ "${{ needs.check-consolidated-tests.outputs.has-consolidated-tests }}" == "true" ]]; then
             echo "Using consolidated test coverage report"
-            find aggregated-results -name "coverage.cobertura.xml" -exec cp {} coverage/cobertura.xml \;
-            cp coverage/cobertura.xml coverage/vscoverage.xml
+            find aggregated-results -name "*.xml" -exec cp {} coverage/backend.xml \;
           else
             echo "Collating multiple coverage reports"
             dotnet tool install --global dotnet-coverage
-            dotnet coverage merge aggregated-results/**/*.cobertura.xml -o coverage/vscoverage.xml -f xml
-            dotnet coverage merge aggregated-results/**/*.cobertura.xml -o coverage/cobertura.xml -f cobertura
+            dotnet coverage merge aggregated-results/**/*.xml -o coverage/backend.xml -f opencover
           fi
+          
+          # Check for frontend coverage
+          if [[ "${{ needs.check-consolidated-tests.outputs.has-frontend }}" == "true" ]]; then
+            echo "Processing frontend coverage report"
+            # Find all lcov.info files and use the first one found (or create empty if none)
+            LCOV_FILES=$(find aggregated-results -name "lcov.info")
+            if [ -n "$LCOV_FILES" ]; then
+              echo "Found frontend coverage file(s)"
+              # Copy the first lcov file found
+              cp $(echo "$LCOV_FILES" | head -n 1) coverage/lcov.info
+            else
+              echo "No frontend coverage file found, creating empty placeholder"
+              echo "" > coverage/lcov.info
+            fi
+          else
+            echo "No frontend tests, creating empty lcov file"
+            echo "" > coverage/lcov.info
+          fi
+          
+          # Create merged reports in different formats
+          echo "Generating merged coverage reports"
+          reportgenerator "-reports:coverage/backend.xml;coverage/lcov.info" "-targetdir:coverage/merged" "-reporttypes:Cobertura;Html"
+          
+          # Copy final report for test reporter
+          cp coverage/merged/Cobertura.xml coverage/cobertura.xml
+          cp coverage/backend.xml coverage/vscoverage.xml
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
         with:
           name: test-coverage-report
-          path: coverage/*.xml
+          path: |
+            coverage/*.xml
+            coverage/*.info
+            coverage/merged/**/*
       - name: Report results
         uses: bibipkins/dotnet-test-reporter@v1.5.3
         with:
