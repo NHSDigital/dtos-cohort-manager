@@ -48,7 +48,7 @@ regions = {
         cidr_offset  = 5
       }
       container-app-db-management = {
-        cidr_newbits               = 8
+        cidr_newbits               = 7
         cidr_offset                = 6
         delegation_name            = "Microsoft.App/environments"
         service_delegation_name    = "Microsoft.App/environments"
