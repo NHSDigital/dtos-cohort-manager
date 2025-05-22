@@ -186,8 +186,8 @@ public class AddBatchFromQueue
             await processor.StartProcessingAsync();
 
             // Wait until all messages received or timeout
-            //var timeout = Task.Delay(TimeSpan.FromMinutes(0));
-            var completed = await Task.WhenAny(_messageStore.AllMessagesReceived.Task);
+            var timeout = Task.Delay(TimeSpan.FromMinutes(5));
+            var completed = await Task.WhenAny(_messageStore.AllMessagesReceived.Task, timeout);
 
             if (completed == _messageStore.AllMessagesReceived.Task)
             {
