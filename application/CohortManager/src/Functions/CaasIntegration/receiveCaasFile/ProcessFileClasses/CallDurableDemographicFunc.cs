@@ -117,7 +117,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
             {
                 if (!Enum.TryParse(data.RuntimeStatus, out WorkFlowStatus workFlowStatus))
                 {
-                    _logger.LogError(response);
+                    _logger.LogError("There was an error parsing the RuntimeStatus: {Response}", response);
                 }
                 return workFlowStatus;
             }
