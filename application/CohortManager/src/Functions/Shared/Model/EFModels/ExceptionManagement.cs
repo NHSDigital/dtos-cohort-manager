@@ -73,7 +73,8 @@ public class ExceptionManagement
             ScreeningName = ScreeningName,
             ExceptionDate = ExceptionDate,
             CohortName = CohortName,
-            Fatal = IsFatal
+            Fatal = IsFatal,
+            ServiceNowId = ServiceNowId
         };
     }
 
@@ -94,7 +95,8 @@ public class ExceptionManagement
             ScreeningName = validationException.ScreeningName,
             ExceptionDate = validationException.ExceptionDate ?? DateTime.Now,
             CohortName = validationException.CohortName,
-            IsFatal = short.TryParse(input, out short result) ? result : new short()
+            IsFatal = short.TryParse(input, out short result) ? result : new short(),
+            ServiceNowId = ServiceNowId
         };
     }
 }
