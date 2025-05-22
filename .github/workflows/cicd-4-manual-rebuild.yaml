@@ -50,7 +50,7 @@ jobs:
       run: |
         set -euo
 
-        export "COMPOSE_DIR=docker/tmp"
+        COMPOSE_DIR=${GITHUB_WORKSPACE}/docker/
 
         mkdir -p $COMPOSE_DIR
         mkdir -p $COMPOSE_DIR/web
@@ -70,7 +70,7 @@ jobs:
           echo "  $svc:" >> "$COMPOSE_FILE"
           echo "    image: ${svc}:alpine" >> "$COMPOSE_FILE"
           echo "    build:" >> "$COMPOSE_FILE"
-          echo "      context: ${COMPOSE_DIR}/${svc}" >> "$COMPOSE_FILE"
+          echo "      context: ./docker/${svc}" >> "$COMPOSE_FILE"
           echo "      dockerfile: Dockerfile" >> "$COMPOSE_FILE"
         done
 
