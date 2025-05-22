@@ -9,6 +9,9 @@ using System.Text.Json;
 using Model;
 using Common;
 using DataServices.Client;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
+using Microsoft.OpenApi.Models;
 
 public class UpdateException
 {
@@ -27,6 +30,35 @@ public class UpdateException
     }
 
     [Function("UpdateException")]
+    [OpenApiOperation(operationId: "UpdateExceptionRecord",
+        Summary = "Updates an exception record with ServiceNow information",
+        Description = "Updates an existing exception record with ServiceNow ticket number and timestamp",
+        Visibility = OpenApiVisibilityType.Important)]
+    [OpenApiRequestBody(
+        contentType: "application/json",
+        bodyType: typeof(UpdateExceptionRequest),
+        Description = "The exception update request containing ServiceNow number",
+        Required = true)]
+    [OpenApiResponseWithBody(
+        statusCode: HttpStatusCode.OK,
+        contentType: "application/json",
+        bodyType: typeof(string),
+        Description = "Successfully updated the exception record")]
+    [OpenApiResponseWithBody(
+        statusCode: HttpStatusCode.BadRequest,
+        contentType: "application/json",
+        bodyType: typeof(string),
+        Description = "Invalid ExceptionId provided.")]
+    [OpenApiResponseWithBody(
+        statusCode: HttpStatusCode.NoContent,
+        contentType: "application/json",
+        bodyType: typeof(string),
+        Description = "No exception found with the supplied exception id")]
+    [OpenApiResponseWithBody(
+        statusCode: HttpStatusCode.InternalServerError,
+        contentType: "application/json",
+        bodyType: typeof(string),
+        Description = "Internal server error occurred")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "put")] HttpRequestData req)
     {
         _logger.LogInformation("Processing request to update ServiceNow number in exception management table.");
@@ -72,6 +104,7 @@ public class UpdateException
         {
             _logger.LogError(ex, "An unexpected error occurred.");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            //return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "", new ErrorResponse { Message = "An unexpected error occurred", Details = ex.Message });
         }
     }
 
@@ -102,3 +135,4 @@ public class UpdateException
         exceptionData.ServiceNowCreatedDate = DateTime.Now;
     }
 }
+

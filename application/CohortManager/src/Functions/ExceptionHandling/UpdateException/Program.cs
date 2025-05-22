@@ -6,6 +6,8 @@ using DataServices.Client;
 using HealthChecks.Extensions;
 using Model;
 using NHS.Screening.UpdateException;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Abstractions;
+using Microsoft.Azure.Functions.Worker.Extensions.OpenApi;
 
 var host = new HostBuilder()
     .AddConfiguration<UpdateExceptionConfig>(out UpdateExceptionConfig config)
@@ -15,6 +17,7 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
+        services.AddSingleton<IOpenApiHttpTriggerContext, OpenApiHttpTriggerContext>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         // Register health checks
         services.AddBasicHealthCheck("UpdateException");
