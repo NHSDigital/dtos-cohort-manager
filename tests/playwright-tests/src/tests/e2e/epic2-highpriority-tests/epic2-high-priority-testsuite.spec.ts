@@ -90,6 +90,17 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
+    test('@DTOSS-4321-01 Validate Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
+      },
+    }, async ({ request, testData }) => {
+      await test.step(`Then Exception table should have expected rule id and description for 6 ADD participants`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
+
   }); // End of ADD Tests
 
   test.describe('AMENDED Tests', () => {
@@ -178,6 +189,23 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
       });
     });
+
+    testWithAmended('@DTOSS-4322-01 Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED6_-_CAAS_BREAST_SCREENING_COHORT.parquet', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
+      },
+    }, async ({ request, testData }) => {
+      await test.step(`Given 6 ADD participants are processed to cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+      await test.step(`And 6 ADD participants are AMENDED with invalid effective date `, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+      await test.step(`Then Exception table should have expected rule id and description for 6 AMENDED participants`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+    })
   });
 
 });
