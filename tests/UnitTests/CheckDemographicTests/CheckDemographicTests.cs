@@ -6,23 +6,21 @@ using Model;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-
 [TestClass]
 public class CheckDemographicTests
 {
-
-    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private readonly CheckDemographic _checkDemographic;
 
     public CheckDemographicTests()
     {
-        _checkDemographic = new CheckDemographic(_callFunction.Object);
+        _checkDemographic = new CheckDemographic(_httpClientFunction.Object);
     }
 
     [TestMethod]
     public async Task GetDemographicAsync_ValidInput_ReturnDemographic()
     {
-        //Arrange
+        // Arrange
         var uri = "test-uri.com/get";
         var nhsNumber = "1234567890";
 
@@ -32,15 +30,13 @@ public class CheckDemographicTests
             NhsNumber = nhsNumber
         };
 
-        _callFunction.Setup(x => x.SendGet(It.IsAny<string>()))
-            .ReturnsAsync(JsonSerializer.Serialize(demographic))
-            .Verifiable();
+        _httpClientFunction.Setup(x => x.SendGet(It.IsAny<string>()))
+            .ReturnsAsync(JsonSerializer.Serialize(demographic));
 
-
-        //Act
+        // Act
         var result = await _checkDemographic.GetDemographicAsync(nhsNumber, uri);
 
-        //Assert
+        // Assert
         Assert.AreEqual(nhsNumber, result.NhsNumber);
         Assert.AreEqual(demographic.FirstName, result.FirstName);
     }

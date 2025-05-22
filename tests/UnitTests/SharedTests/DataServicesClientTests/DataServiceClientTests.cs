@@ -15,7 +15,7 @@ public class DataServiceClientTests
     private readonly Mock<ILogger<DataServiceClient<ParticipantDemographic>>> _mockLogger = new();
     private readonly DataServiceResolver _dataServiceResolver;
 
-    private readonly Mock<ICallFunction> _mockCallFunction = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
 
     private const string baseUrl = "testUrl";
 
@@ -29,8 +29,8 @@ public class DataServiceClientTests
     public async Task GetAll_GetAllItems_ReturnsArray()
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendGet(It.IsAny<string>())).ReturnsAsync("[]");
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendGet(It.IsAny<string>())).ReturnsAsync("[]");
 
         //act
         var result = await dataServiceClient.GetAll();
@@ -38,15 +38,15 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeEmpty();
-        _mockCallFunction.Verify(i => i.SendGet(baseUrl), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendGet(baseUrl), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
     public async Task Update_SendsUpdateRequest_ReturnsTrue()
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendPut(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "[]"));
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendPut(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
         var participant = new ParticipantDemographic
         {
@@ -58,15 +58,15 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeTrue();
-        _mockCallFunction.Verify(i => i.SendPut(baseUrl + "/" + "123", It.IsAny<string>()), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendPut(baseUrl + "/" + "123", It.IsAny<string>()), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
     public async Task Update_SendsUpdateRequest_ReturnsFalse()
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendPut(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(MockHelpers.CreateMockHttpResponseData(HttpStatusCode.NotFound, "[]"));
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendPut(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.NotFound });
 
         var participant = new ParticipantDemographic
         {
@@ -78,15 +78,15 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeFalse();
-        _mockCallFunction.Verify(i => i.SendPut(baseUrl + "/" + "123", It.IsAny<string>()), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendPut(baseUrl + "/" + "123", It.IsAny<string>()), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
     public async Task GetByFilter_SendsGetByFilterRequest_ReturnsArray()
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync("[]");
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync("[]");
 
         var participant = new ParticipantDemographic
         {
@@ -98,15 +98,15 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeEmpty();
-        _mockCallFunction.Verify(i => i.SendGet(baseUrl, It.IsAny<Dictionary<string, string>>()), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendGet(baseUrl, It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
     public async Task GetSingleByFilter_SendsValidRequest_ReturnsParticipantDemographic()
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync("{}");
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync("{}");
 
         var participant = new ParticipantDemographic
         {
@@ -118,15 +118,15 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeAssignableTo<ParticipantDemographic>();
-        _mockCallFunction.Verify(i => i.SendGet(baseUrl, It.IsAny<Dictionary<string, string>>()), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendGet(baseUrl, It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
     public async Task GetSingle_SendsGetSingleRequest_ReturnsParticipantDemographic()
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendGet(It.IsAny<string>())).ReturnsAsync("{}");
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendGet(It.IsAny<string>())).ReturnsAsync("{}");
 
         var participant = new ParticipantDemographic
         {
@@ -138,15 +138,15 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeAssignableTo<ParticipantDemographic>();
-        _mockCallFunction.Verify(i => i.SendGet(baseUrl + "/" + "123"), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendGet(baseUrl + "/" + "123"), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
     public async Task GetSingle_SendsBadSingleRequest_ReturnsNull()
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendGet(It.IsAny<string>())).Throws(MockHelpers.CreateMockWebException(HttpStatusCode.NotFound));
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendGet(It.IsAny<string>())).Throws(MockHelpers.CreateMockWebException(HttpStatusCode.NotFound));
 
 
         //act
@@ -154,8 +154,8 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeNull();
-        _mockCallFunction.Verify(i => i.SendGet(baseUrl + "/" + "123"), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendGet(baseUrl + "/" + "123"), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
     [DataRow(true)]
@@ -163,8 +163,8 @@ public class DataServiceClientTests
     public async Task Delete_SendsDeleteRequest_ReturnsBoolean(bool response)
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendDelete(It.IsAny<string>())).ReturnsAsync(response);
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendDelete(It.IsAny<string>())).ReturnsAsync(response);
 
 
         //act
@@ -172,15 +172,15 @@ public class DataServiceClientTests
 
         //assert
         result.Should().Be(response);
-        _mockCallFunction.Verify(i => i.SendDelete(baseUrl + "/" + "123"), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendDelete(baseUrl + "/" + "123"), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
     public async Task AddRange_SendsAddRange_ReturnsTrue()
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK));
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
         var participants = new List<ParticipantDemographic>{
             new ParticipantDemographic{ParticipantId = 123},
@@ -192,15 +192,15 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeTrue();
-        _mockCallFunction.Verify(i => i.SendPost(baseUrl, It.IsAny<string>()), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendPost(baseUrl, It.IsAny<string>()), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
     public async Task AddRange_CallReturns500_ReturnsFalse()
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(MockHelpers.CreateMockHttpResponseData(HttpStatusCode.InternalServerError));
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
 
         var participants = new List<ParticipantDemographic>{
             new ParticipantDemographic{ParticipantId = 123},
@@ -212,15 +212,15 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeFalse();
-        _mockCallFunction.Verify(i => i.SendPost(baseUrl, It.IsAny<string>()), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendPost(baseUrl, It.IsAny<string>()), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
     public async Task Add_SendsAddSingle_ReturnsTrue()
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK));
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
         var participant = new ParticipantDemographic { ParticipantId = 123 };
 
@@ -229,15 +229,15 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeTrue();
-        _mockCallFunction.Verify(i => i.SendPost(baseUrl, It.IsAny<string>()), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendPost(baseUrl, It.IsAny<string>()), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
     [TestMethod]
     public async Task Add_CallReturns500_ReturnsFalse()
     {
         //arrange
-        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _mockCallFunction.Object);
-        _mockCallFunction.Setup(i => i.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(MockHelpers.CreateMockHttpResponseData(HttpStatusCode.InternalServerError));
+        DataServiceClient<ParticipantDemographic> dataServiceClient = new DataServiceClient<ParticipantDemographic>(_mockLogger.Object, _dataServiceResolver, _httpClientFunction.Object);
+        _httpClientFunction.Setup(i => i.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
 
         var participant = new ParticipantDemographic { ParticipantId = 123 };
 
@@ -246,8 +246,8 @@ public class DataServiceClientTests
 
         //assert
         result.Should().BeFalse();
-        _mockCallFunction.Verify(i => i.SendPost(baseUrl, It.IsAny<string>()), Times.Once);
-        _mockCallFunction.VerifyNoOtherCalls();
+        _httpClientFunction.Verify(i => i.SendPost(baseUrl, It.IsAny<string>()), Times.Once);
+        _httpClientFunction.VerifyNoOtherCalls();
     }
 
 }

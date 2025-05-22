@@ -25,6 +25,7 @@ var host = new HostBuilder()
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

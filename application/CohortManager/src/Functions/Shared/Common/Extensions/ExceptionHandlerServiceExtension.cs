@@ -9,7 +9,7 @@ public static class ExceptionHandlerServiceExtension
         return hostBuilder.ConfigureServices(_ =>
         {
             _.AddSingleton<IExceptionHandler, ExceptionHandler>();
-            _.AddSingleton<ICallFunction, CallFunction>();
+            _.AddTransient<IHttpClientFunction, HttpClientFunction>();
         });
     }
 
