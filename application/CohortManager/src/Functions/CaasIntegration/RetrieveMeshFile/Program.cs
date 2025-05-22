@@ -20,7 +20,7 @@ try
 {
     var host = new HostBuilder();
 
-    X509Certificate2 cohortManagerPrivateKey = null;
+    X509Certificate2 cohortManagerPrivateKey = null!;
     X509Certificate2Collection meshCerts = [];
 
     host.AddConfiguration<RetrieveMeshFileConfig>(out RetrieveMeshFileConfig config);
@@ -45,7 +45,7 @@ try
         logger.LogInformation("Pulling Mesh Certificate from local File");
         cohortManagerPrivateKey = new X509Certificate2(config.MeshKeyName, config.MeshKeyPassphrase);
 
-        string certsString = File.ReadAllText(config.ServerSideCerts);
+        string certsString = await File.ReadAllTextAsync(config.ServerSideCerts);
         meshCerts = CertificateHelper.GetCertificatesFromString(certsString);
     }
 
@@ -55,7 +55,8 @@ try
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services
-            .AddMeshClient(_ => {
+            .AddMeshClient(_ =>
+            {
                 _.MeshApiBaseUrl = config.MeshApiBaseUrl;
                 _.BypassServerCertificateValidation = config.BypassServerCertificateValidation ?? false;
             })
