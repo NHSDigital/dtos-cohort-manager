@@ -300,7 +300,12 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5348-01  @AddParticipant Verify all Functions Called', async ({ request, testData }) => {
+  test('@DTOSS-5348-01  @AddParticipant Verify all Functions Called', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5348',
+    },
+  }, async ({ request, testData }) => {
 
     await test.step('When eligible participant data file is uploaded to storage', async () => {
       calledEndpointsOrder.length = 0;
