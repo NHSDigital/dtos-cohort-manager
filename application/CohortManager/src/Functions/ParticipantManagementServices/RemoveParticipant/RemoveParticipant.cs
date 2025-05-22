@@ -15,7 +15,7 @@ public class RemoveParticipant
 {
     private readonly ILogger<RemoveParticipant> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _handleException;
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
     private readonly RemoveParticipantConfig _config;
@@ -23,14 +23,14 @@ public class RemoveParticipant
     public RemoveParticipant(
         ILogger<RemoveParticipant> logger,
         ICreateResponse createResponse,
-        ICallFunction callFunction,
+        IHttpClientFunction httpClientFunction,
         IExceptionHandler handleException,
         ICohortDistributionHandler cohortDistributionHandler,
         IOptions<RemoveParticipantConfig> removeParticipantConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _handleException = handleException;
         _cohortDistributionHandler = cohortDistributionHandler;
         _config = removeParticipantConfig.Value;
@@ -103,7 +103,7 @@ public class RemoveParticipant
     private async Task<bool> MarkParticipantAsIneligible(ParticipantCsvRecord participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
-        var ineligibleResponse = await _callFunction.SendPost(_config.markParticipantAsIneligible, json);
+        var ineligibleResponse = await _httpClientFunction.SendPost(_config.markParticipantAsIneligible, json);
 
         if (ineligibleResponse.StatusCode != HttpStatusCode.OK)
         {
