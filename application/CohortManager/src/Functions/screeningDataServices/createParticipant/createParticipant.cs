@@ -106,8 +106,8 @@ public class CreateParticipant
         }
         catch (Exception ex)
         {
-            _logger.LogInformation(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: REDACTED", ex.Message);
-            return null;
+            _logger.LogError(ex, "Lookup validation failed.\nMessage: {Message}\nParticipant: REDACTED", ex.Message);
+            throw new HttpRequestException("Lookup validation failed", ex);
         }
     }
 }

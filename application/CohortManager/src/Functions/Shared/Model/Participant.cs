@@ -24,7 +24,7 @@ public class Participant
         ReasonForRemovalEffectiveFromDate = pm.ReasonForRemovalDate.ToString();
         BusinessRuleVersion = pm.BusinessRuleVersion;
         ExceptionFlag = pm.ExceptionFlag.ToString();
-        BlockedFlag = pm.ExceptionFlag.ToString();
+        BlockedFlag = pm.BlockedFlag.ToString();
         RecordInsertDateTime = pm.RecordInsertDateTime.ToString();
         RecordUpdateDateTime = pm.RecordUpdateDateTime.ToString();
 
