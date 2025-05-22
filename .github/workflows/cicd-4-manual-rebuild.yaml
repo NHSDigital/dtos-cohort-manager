@@ -49,17 +49,37 @@ jobs:
       run: |
         set -euo
 
-        cat <<EOF > sample-compose.yaml
+        mkdir -p $GITHUB_WORKSPACE/tmp
+        mkdir -p $GITHUB_WORKSPACE/tmp/web
+        mkdir -p $GITHUB_WORKSPACE/tmp/cache
+        mkdir -p $GITHUB_WORKSPACE/tmp/db
+
+        echo -e "FROM nginx:alpine" > $GITHUB_WORKSPACE/tmp/web/Dockerfile
+        echo -e "FROM redis:alpine" > $GITHUB_WORKSPACE/tmp/cache/Dockerfile
+        echo -e "FROM postgres:15-alpine" > $GITHUB_WORKSPACE/tmp/db/Dockerfile
+
+        COMPOSE_FILE="${GITHUB_WORKSPACE}/tmp/sample-compose.yaml"
+
+        cat <<EOF > "$COMPOSE_FILE"
         version: '3.8'
         services:
           web:
             image: nginx:alpine
+            build:
+              context: ./tmp/web
+              dockerfile: Dockerfile
           cache:
             image: redis:alpine
+            build:
+              context: ./tmp/cache
+              dockerfile: Dockerfile
           db:
             image: postgres:15-alpine
+            build:
+              context: ./tmp/db
+              dockerfile: Dockerfile
         EOF
-        echo "compose_file=sample-compose.yaml" >> $GITHUB_OUTPUT
+        echo "compose_file=$COMPOSE_FILE" >> $GITHUB_OUTPUT
 
   manual-build-and-push-images:
     needs: [checkout-and-prepare, prepare-docker-samples]
@@ -76,6 +96,7 @@ jobs:
       function_app_source_code_path: application/CohortManager/src
       project_name: dtoss-8958-test
       commit_sha: feat/DTOSS-8958-Update-Stage-3-Build-Definition
+      changed_folders: ./tmp
     secrets: inherit
 
   cleanup-sample-images:
