@@ -16,10 +16,9 @@ on:
         description: Build all images defined in compose files
         required: true
         type: choice
-        default: 'false'
         options:
-          - 'true'
-          - 'false'
+          - true
+          - false
 
 jobs:
   manual-build-and-push-images:
