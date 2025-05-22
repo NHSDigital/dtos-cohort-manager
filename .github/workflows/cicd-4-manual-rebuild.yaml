@@ -36,6 +36,7 @@ jobs:
     needs: checkout-and-prepare
     runs-on: ubuntu-latest
     outputs:
+      docker_compose_dir: ${{ steps.generate-compose.outputs.compose_dir }}
       docker_compose_file: ${{ steps.generate-compose.outputs.compose_file }}
     steps:
     - name: Pull sample images
@@ -49,36 +50,33 @@ jobs:
       run: |
         set -euo
 
-        mkdir -p $GITHUB_WORKSPACE/tmp
-        mkdir -p $GITHUB_WORKSPACE/tmp/web
-        mkdir -p $GITHUB_WORKSPACE/tmp/cache
-        mkdir -p $GITHUB_WORKSPACE/tmp/db
+        export "COMPOSE_DIR=./docker/tmp"
 
-        echo -e "FROM nginx:alpine" > $GITHUB_WORKSPACE/tmp/web/Dockerfile
-        echo -e "FROM redis:alpine" > $GITHUB_WORKSPACE/tmp/cache/Dockerfile
-        echo -e "FROM postgres:15-alpine" > $GITHUB_WORKSPACE/tmp/db/Dockerfile
 
-        COMPOSE_FILE="${GITHUB_WORKSPACE}/tmp/sample-compose.yaml"
+        mkdir -p $COMPOSE_DIR
+        mkdir -p $COMPOSE_DIR/web
+        mkdir -p $COMPOSE_DIR/cache
+        mkdir -p $COMPOSE_DIR/db
 
-        cat <<EOF > "$COMPOSE_FILE"
-        version: '3.8'
-        services:
-          web:
-            image: nginx:alpine
-            build:
-              context: ./tmp/web
-              dockerfile: Dockerfile
-          cache:
-            image: redis:alpine
-            build:
-              context: ./tmp/cache
-              dockerfile: Dockerfile
-          db:
-            image: postgres:15-alpine
-            build:
-              context: ./tmp/db
-              dockerfile: Dockerfile
-        EOF
+        echo -e "FROM nginx:alpine" > ${COMPOSE_DIR}/web/Dockerfile
+        echo -e "FROM redis:alpine" > ${COMPOSE_DIR}/cache/Dockerfile
+        echo -e "FROM postgres:15-alpine" > ${COMPOSE_DIR}/db/Dockerfile
+
+        COMPOSE_FILE="${COMPOSE_DIR}/sample-compose.yaml"
+
+        echo "version: '3.8'" > "$COMPOSE_FILE"
+        echo "services:" >> "$COMPOSE_FILE"
+
+        for svc in web cache db; do
+          echo "  $svc:" >> "$COMPOSE_FILE"
+          echo "    image: ${svc}:alpine" >> "$COMPOSE_FILE"
+          echo "    build:" >> "$COMPOSE_FILE"
+          echo "      context: ${COMPOSE_DIR}/${svc}" >> "$COMPOSE_FILE"
+          echo "      dockerfile: Dockerfile" >> "$COMPOSE_FILE"
+        done
+
+        echo "Generated Docker Compose file at: $COMPOSE_FILE"
+        echo "compose_dir=$COMPOSE_DIR" >> $GITHUB_OUTPUT
         echo "compose_file=$COMPOSE_FILE" >> $GITHUB_OUTPUT
 
   manual-build-and-push-images:
@@ -96,7 +94,8 @@ jobs:
       function_app_source_code_path: application/CohortManager/src
       project_name: dtoss-8958-test
       commit_sha: feat/DTOSS-8958-Update-Stage-3-Build-Definition
-      changed_folders: ./tmp
+      changed_folders: ${{ needs.prepare-docker-samples.outputs.docker_compose_dir }}
+      devops_templates_path: ${{ needs.prepare-docker-samples.outputs.docker_compose_dir }}
     secrets: inherit
 
   cleanup-sample-images:
