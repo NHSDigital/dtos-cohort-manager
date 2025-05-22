@@ -55,7 +55,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
         {
             var response = await _httpClientFunction.SendPost(DemographicFunctionURI, JsonSerializer.Serialize(participants));
 
-            responseContent = response.Headers.Location?.ToString();
+            responseContent = response.Headers.Location?.ToString() ?? string.Empty;
 
             // this is not retrying the function if it fails but checking if it has done yet.
             var retryPolicy = Policy
