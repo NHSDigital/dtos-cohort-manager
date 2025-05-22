@@ -15,7 +15,11 @@ on:
       build_all_images:
         description: Build all images defined in compose files
         required: true
-        type: boolean
+        type: choice
+        default: 'false'
+        options:
+          - 'true'
+          - 'false'
 
 jobs:
   manual-build-and-push-images:
