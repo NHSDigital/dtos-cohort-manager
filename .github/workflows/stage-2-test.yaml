@@ -125,16 +125,20 @@ jobs:
       - name: Run consolidated test suite
         run: |
           set -eo pipefail
-          mkdir "TestResults"
+          mkdir -p "TestResults"
           echo -e "\nRunning consolidated tests from:\n${UNIT_TEST_DIR}/ConsolidatedTests.csproj"
-          dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" --results-directory "TestResults" --logger "${LOGGER_FORMAT};LogFileName=ConsolidatedTests.${LOGGER_FORMAT}" --collect:"XPlat Code Coverage" --verbosity quiet
+          dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
+            --results-directory "TestResults" \
+            --logger "${LOGGER_FORMAT};LogFileName=ConsolidatedTests.${LOGGER_FORMAT}" \
+            --collect:"XPlat Code Coverage;Format=opencover;Include=**/*.cs;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*.cs,**/scripts/**/*.cs,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*.cs,**/obj/**/*.cs,**/Properties/**/*.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
+            --verbosity quiet
       - name: Upload test results as artifact
         uses: actions/upload-artifact@v4
         with:
           name: test-results-consolidated
           path: |
             TestResults/**/*.${{ inputs.unit_test_logger_format }}
-            TestResults/**/coverage.cobertura.xml
+            TestResults/**/coverage.opencover.xml
 
   test-unit:
     name: Unit tests
@@ -170,11 +174,15 @@ jobs:
         continue-on-error: true
         run: |
           set -eo pipefail
-          mkdir "TestResults"
+          mkdir -p "TestResults"
           find "${UNIT_TEST_DIR}/${{ matrix.scope }}" -name '*.csproj' | while read -r file; do
             echo -e "\nRunning unit tests for:\n${file}"
             base=$(basename "$file" .csproj)
-            dotnet test "${file}" --results-directory "TestResults" --logger "${LOGGER_FORMAT};LogFileName=${base}.${LOGGER_FORMAT}" --collect:"XPlat Code Coverage" --verbosity quiet
+            dotnet test "${file}" \
+              --results-directory "TestResults" \
+              --logger "${LOGGER_FORMAT};LogFileName=${base}.${LOGGER_FORMAT}" \
+              --collect:"XPlat Code Coverage;Format=opencover;Include=**/*.cs;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*.cs,**/scripts/**/*.cs,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*.cs,**/obj/**/*.cs,**/Properties/**/*.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
+              --verbosity quiet
           done
       - name: Upload test results as artifact
         uses: actions/upload-artifact@v4
@@ -182,7 +190,7 @@ jobs:
           name: test-results-${{ matrix.scope }}
           path: |
             TestResults/**/*.${{ inputs.unit_test_logger_format }}
-            TestResults/**/coverage.cobertura.xml
+            TestResults/**/coverage.opencover.xml
 
   aggregate-test-results:
     name: Aggregate results and report
@@ -207,16 +215,20 @@ jobs:
       - name: Process coverage reports
         continue-on-error: true
         run: |
-          mkdir coverage
+          mkdir -p coverage
           if [[ "${{ needs.check-consolidated-tests.outputs.has-consolidated-tests }}" == "true" ]]; then
             echo "Using consolidated test coverage report"
-            find aggregated-results -name "coverage.cobertura.xml" -exec cp {} coverage/cobertura.xml \;
-            cp coverage/cobertura.xml coverage/vscoverage.xml
+            find aggregated-results -name "coverage.opencover.xml" -exec cp {} coverage/opencover.xml \;
+            # Convert to other formats as needed
+            dotnet tool install --global dotnet-reportgenerator-globaltool
+            reportgenerator "-reports:coverage/opencover.xml" "-targetdir:coverage" "-reporttypes:Cobertura"
           else
             echo "Collating multiple coverage reports"
             dotnet tool install --global dotnet-coverage
-            dotnet coverage merge aggregated-results/**/*.cobertura.xml -o coverage/vscoverage.xml -f xml
-            dotnet coverage merge aggregated-results/**/*.cobertura.xml -o coverage/cobertura.xml -f cobertura
+            dotnet coverage merge aggregated-results/**/*.opencover.xml -o coverage/opencover.xml -f opencover
+            # Convert to other formats as needed
+            dotnet tool install --global dotnet-reportgenerator-globaltool
+            reportgenerator "-reports:coverage/opencover.xml" "-targetdir:coverage" "-reporttypes:Cobertura"
           fi
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
@@ -230,7 +242,7 @@ jobs:
           comment-title: Unit Test Results
           results-path: aggregated-results/**/*.${{ inputs.unit_test_logger_format }}
           coverage-type: cobertura
-          coverage-path: coverage/cobertura.xml
+          coverage-path: coverage/Cobertura.xml
           # coverage-threshold: 50
 
   test-lint:
