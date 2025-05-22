@@ -3,7 +3,6 @@ name: cohort-manager
 services:
   # CaaS Integration Service
 
-
   retrieve-mesh-file:
     container_name: retrieve-mesh-file
     image: cohort-manager-retrieve-mesh-file
@@ -22,6 +21,25 @@ services:
       - MeshKeyName=meshpfx.pfx
       - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
       - ASPNETCORE_URLS=http://*:7059
+
+  nems-mesh-retrieval:
+    container_name: nems-mesh-retrieval
+    image: cohort-manager-nems-mesh-retrieval
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: NemsSubscriptionService/NemsMeshRetrieval/Dockerfile
+    profiles: [non-essential]
+    environment:
+      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
+      - nemsmeshfolder_STORAGE=${AZURITE_CONNECTION_STRING}
+      - MeshApiBaseUrl=https://localhost:8700/messageexchange
+      - BSSMailBox=X26ABC1
+      - MeshPassword=${MESHPASSWORD}
+      - MeshSharedKey=${MESHSHAREDKEY}
+      - MeshKeyName=meshpfx.pfx
+      - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
+      - ASPNETCORE_URLS=http://*:7058
 
   receive-caas-file:
     container_name: receive-caas-file
@@ -51,6 +69,7 @@ services:
       - batchDivisionFactor=5
       - UpdateQueueName=update-participant-queue
       - ScreeningLkpDataServiceURL=http://screening-lkp-data-service:8996/api/ScreeningLkpDataService
+      - maxNumberOfChecks=50
 
   # Participant Management Service
   add-participant:
@@ -75,6 +94,20 @@ services:
       - CohortDistributionServiceURL=http://create-cohort-distribution:7082/api/CreateCohortDistribution
       - CohortQueueName=cohort-distribution-queue
       - AddQueueName=add-participant-queue
+
+  block-participant:
+    container_name: block-participant
+    image: cohort-manager-block-participant
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/BlockParticipant/Dockerfile
+    environment: 
+      - ASPNETCORE_URLS=http://*:7026
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - DemographicURIGet=http://demographic-data-management:7076/api/DemographicDataFunction
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
   remove-participant:
     container_name: remove-participant
@@ -237,6 +270,18 @@ services:
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
       - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
 
+  update-exception:
+    container_name: update-exception
+    image: cohort-manager-update-exception
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: ExceptionHandling/UpdateException/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7070
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
+
   get-validation-exceptions:
     container_name: get-validation-exceptions
     image: cohort-manager-get-validation-exceptions
@@ -329,6 +374,32 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsParticipantURL=https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient
 
+  nems-subscribe:
+    container_name: nems-subscribe
+    image: cohort-manager-nems-subscribe
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/NEMSSubscribe/Dockerfile
+    profiles: [not-implemented]
+    environment:
+      - ASPNETCORE_URLS=http://*:9081
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+
+  nems-unsubscribe:
+    container_name: nems-unsubscribe
+    image: cohort-manager-nems-unsubscribe
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: DemographicServices/NEMSUnSubscription/Dockerfile
+    profiles: [not-implemented]
+    environment:
+      - ASPNETCORE_URLS=http://*:9082
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
   durable-demographic-function:
     container_name: durable-demographic-function
     image: cohort-manager-durable-demographic-function
@@ -345,7 +416,7 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - AcceptableLatencyThresholdMs=500
 
-   # UI
+    # UI
   web:
     container_name: web
     build:
