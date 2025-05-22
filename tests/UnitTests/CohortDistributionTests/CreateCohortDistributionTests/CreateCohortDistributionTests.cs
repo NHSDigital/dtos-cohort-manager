@@ -308,6 +308,7 @@ public class CreateCohortDistributionTests
         _exceptionHandler.Verify(x => x.CreateSystemExceptionLog(
             It.IsAny<Exception>(),
             It.IsAny<Participant>(),
+            It.IsAny<string>(),
             It.IsAny<string>()),
             Times.Once);
     }
