@@ -12,11 +12,10 @@ on:
           - development
           - nft
           - integration
-      # build_all_images:
-      #   description: Build all images defined in compose files
-      #   required: false
-      #   type: boolean
-      #   default: false
+      build_all_images:
+        description: Build all images defined in compose files
+        required: false
+        type: boolean
 
 jobs:
   manual-build-and-push-images:
