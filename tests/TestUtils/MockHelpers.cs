@@ -41,7 +41,7 @@ public static class MockHelpers
     {
         Mock<HttpWebResponse> mockWebResponse = new();
         mockWebResponse.Setup(i => i.StatusCode).Returns(httpStatusCode);
-        var webException  = new WebException(ErrorMessage,null, WebExceptionStatus.UnknownError,mockWebResponse.Object);
+        var webException = new WebException(ErrorMessage, null, WebExceptionStatus.UnknownError, mockWebResponse.Object);
         return webException;
     }
 
@@ -50,7 +50,7 @@ public static class MockHelpers
         var context = new Mock<FunctionContext>();
         var requestData = new Mock<HttpRequestData>(context.Object);
 
-        if(!string.IsNullOrEmpty(body))
+        if (!string.IsNullOrEmpty(body))
         {
             var bodyForHttpRequest = GetBodyForHttpRequest(body);
             requestData.Setup(context => context.Body).Returns(bodyForHttpRequest);
@@ -65,7 +65,8 @@ public static class MockHelpers
 
     public static async Task<TEntity> GetResponseBodyAsObject<TEntity>(HttpResponseData httpResponseData)
     {
-        using (var reader = new StreamReader(httpResponseData.Body)){
+        using (var reader = new StreamReader(httpResponseData.Body))
+        {
             var result = await reader.ReadToEndAsync();
             return JsonSerializer.Deserialize<TEntity>(result);
         }
@@ -93,7 +94,7 @@ public static class MockHelpers
         return memoryStream;
     }
 
-    private static Stream GenerateStreamFromString(string s)
+    private static MemoryStream GenerateStreamFromString(string s)
     {
         var stream = new MemoryStream();
         var writer = new StreamWriter(stream);

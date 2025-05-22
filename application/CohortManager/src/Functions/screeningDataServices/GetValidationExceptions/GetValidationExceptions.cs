@@ -1,6 +1,5 @@
 namespace NHS.CohortManager.ScreeningDataServices;
 
-using System.Linq.Dynamic.Core;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -50,7 +49,7 @@ public class GetValidationExceptions
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
         var todaysExceptions = _httpParserHelper.GetQueryParameterAsBool(req, "todayOnly");
-        var orderByProperty = (ExceptionSort)_httpParserHelper.GetQueryParameterAsInt(req, "orderByProperty");
+        var orderByProperty = GetExceptionSort(req, "orderByProperty");
         var exceptionCategory = GetExceptionCategory(req);
 
         try
@@ -88,6 +87,16 @@ public class GetValidationExceptions
         }
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById)
         );
+    }
+
+    private static ExceptionSort? GetExceptionSort(HttpRequestData req, string key)
+    {
+        ExceptionSort? defaultExceptionSort = null;
+        var queryString = req.Query[key];
+
+        if (string.IsNullOrEmpty(queryString)) return defaultExceptionSort;
+
+        return int.TryParse(queryString, out int value) ? (ExceptionSort)value : defaultExceptionSort;
     }
 
     /// <summary>
