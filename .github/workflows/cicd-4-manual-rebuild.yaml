@@ -50,7 +50,7 @@ jobs:
       run: |
         set -euo
 
-        COMPOSE_DIR=${GITHUB_WORKSPACE}/docker/
+        COMPOSE_DIR=${GITHUB_WORKSPACE}/docker
 
         mkdir -p $COMPOSE_DIR
         mkdir -p $COMPOSE_DIR/web
@@ -74,6 +74,7 @@ jobs:
           echo "      dockerfile: Dockerfile" >> "$COMPOSE_FILE"
         done
 
+        echo "COMPOSE_DIR: $COMPOSE_DIR"
         echo "Generated Docker Compose file at: $COMPOSE_FILE"
         echo "compose_dir=$COMPOSE_DIR" >> $GITHUB_OUTPUT
         echo "compose_file=$COMPOSE_FILE" >> $GITHUB_OUTPUT
