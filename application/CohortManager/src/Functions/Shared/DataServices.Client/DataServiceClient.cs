@@ -139,7 +139,7 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
     public async Task<bool> Update(TEntity entity)
     {
         var jsonString = JsonSerializer.Serialize<TEntity>(entity);
-        var key = _keyInfo.GetValue(entity).ToString();
+        var key = _keyInfo.GetValue(entity).ToString() ?? string.Empty;
 
         if (string.IsNullOrEmpty(jsonString))
         {

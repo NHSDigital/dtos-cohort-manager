@@ -301,7 +301,7 @@ public class ExceptionHandler : IExceptionHandler
     /// <param name="screeningName"></param>
     /// <param name="errorRecord"></param>
     /// <returns></returns>
-    private ValidationException CreateDefaultSystemValidationException(string nhsNumber, Exception exception, string fileName, string screeningName, string errorRecord, string category = "")
+    private static ValidationException CreateDefaultSystemValidationException(string nhsNumber, Exception exception, string fileName, string screeningName, string errorRecord, string category = "")
     {
         int categoryToSendToDB = (int)ExceptionCategory.Non;
         if (string.IsNullOrEmpty(category))
