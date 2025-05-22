@@ -238,6 +238,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "retrieveMeshFileTest", "..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateDatesTests", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\ValidateDates\ValidateDatesTests.csproj", "{52686A46-A547-403E-8883-C61C0006AB43}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DurrableAddParticpant", "ParticipantManagementServices\DurrableAddParticpant\DurrableAddParticpant.csproj", "{C49E7025-F3F5-4CE5-9AD5-5A9B373C3945}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBatchFromQueue", "ParticipantManagementServices\AddBatchFromQueue\AddBatchFromQueue.csproj", "{763CA251-4728-4612-A0A0-CC9B30BA5748}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AddBatchFromQueue", "AddBatchFromQueue", "{4D0F365C-7EAC-5495-50DD-206B70E69E79}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DurrableAddBatchFromQueue", "DurrableAddBatchFromQueue", "{17EED99B-47E8-3B2C-56B6-0F21FA6A3F43}"
+EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddBatchToQueueTest", "..\..\..\..\tests\UnitTests\CaasIntegrationTests\AddBatchToQueueTest\AddBatchToQueueTest.csproj", "{DB6FDF7A-032F-4F37-BD73-89DDB245483D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NemsMeshRetrievalTests", "..\..\..\..\tests\UnitTests\NemsSubscriptionServiceTests\NemsMeshRetrievalTests\NemsMeshRetrievalTests.csproj", "{F2D368CE-F338-42E1-8083-7052F9DAA3F7}"
