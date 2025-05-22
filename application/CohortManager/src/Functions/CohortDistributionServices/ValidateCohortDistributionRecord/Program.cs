@@ -20,11 +20,13 @@ var host = new HostBuilder()
         services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
+        services.AddSingleton<ICallFunction, CallFunction>();
         // Register health checks
         services.AddDatabaseHealthCheck("ValidateCohortDistributionRecord");
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
