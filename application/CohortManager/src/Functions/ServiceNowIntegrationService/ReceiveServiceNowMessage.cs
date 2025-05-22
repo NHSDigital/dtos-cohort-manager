@@ -24,7 +24,7 @@ public class ReceiveServiceNowMessage
     {
         _logger.LogInformation("ReceiveServiceNowMessage function processed a request.");
         string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-        _logger.LogInformation(requestBody); // or log it
+        _logger.LogInformation(requestBody);
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }
