@@ -73,6 +73,7 @@ jobs:
       docker_compose_file: ${{ needs.prepare-docker-samples.outputs.docker_compose_file }}
       excluded_containers_csv_list: azurite,azurite-setup,sql-edge,db-setup
       environment_tag: ${{ needs.checkout-and-prepare.outputs.environment_tag }}
+      function_app_source_code_path: ""
       project_name: dtoss-8958-test
       commit_sha: feat/DTOSS-8958-Update-Stage-3-Build-Definition
     secrets: inherit
