@@ -1,9 +1,10 @@
 namespace NHS.CohortManager.ScreeningValidationService;
 
-using System.Text.RegularExpressions;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
+using Common;
+
 public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
 {
     private readonly ILogger<DataLookupFacadeBreastScreening> _logger;
@@ -53,9 +54,9 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
     /// <returns>bool, whether or not the outcode code exists in the DB.<returns>
     public bool ValidateOutcode(string postcode)
     {
-        var outcode = ParseOutcode(postcode);
+        var outcode = ValidationHelper.ParseOutcode(postcode);
         _logger.LogInformation("Validating Outcode: {Outcode}", outcode);
-        var result = _outcodeClient.GetSingle(outcode);
+        var result = _outcodeClient.GetSingle(outcode).Result;
 
         return result != null;
     }
@@ -121,20 +122,5 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
         }
         var result = _currentPostingClient.GetSingle(currentPosting).Result;
         return result.PostingCategory;
-    }
-    //TODO: needs moving to shared temp fix for parallel run.
-    private static string ParseOutcode(string postcode)
-    {
-        string pattern = @"^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
-
-        Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
-        if (!match.Success)
-        {
-            return null;
-        }
-
-        string outcode = match.Groups[1].Value;
-
-        return outcode;
     }
 }

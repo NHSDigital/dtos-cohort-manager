@@ -13,7 +13,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 2f8731f9c7d6b9d53b7044979e381377b2c85bcd
+      ref: 9673ee4ef9770e80d0714c3966a699414b7b43c7
       endpoint: NHSDigital
 
 variables:
@@ -22,7 +22,7 @@ variables:
   - name: TF_DIRECTORY
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
   - name: TF_VERSION
-    value: 1.9.2
+    value: 1.11.4
   - name: TF_PLAN_ARTIFACT
     value: tf_plan_audit_PRE
   - name: ENVIRONMENT

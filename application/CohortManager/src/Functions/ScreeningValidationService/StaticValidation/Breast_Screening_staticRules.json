@@ -3,7 +3,7 @@
     "WorkflowName": "Common",
     "Rules": [
       {
-        "RuleName": "9.NhsNumber.Fatal",
+        "RuleName": "9.NhsNumber.CaaS.Fatal",
         "Expression": "Regex.IsMatch(participant.NhsNumber, \"^\\\\d{10}$\")",
         "Actions": {
           "OnFailure": {
@@ -15,7 +15,7 @@
         }
       },
       {
-        "RuleName": "57.SupersededByNhsNumber.NonFatal",
+        "RuleName": "57.SupersededByNhsNumber.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.SupersededByNhsNumber) OR Regex.IsMatch(participant.SupersededByNhsNumber, \"^\\\\d{10}$\")",
         "Actions": {
           "OnFailure": {
@@ -27,7 +27,7 @@
         }
       },
       {
-        "RuleName": "8.RecordType.NonFatal",
+        "RuleName": "8.RecordType.CaaS.NonFatal",
         "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed",
         "Actions": {
           "OnFailure": {
@@ -39,7 +39,7 @@
         }
       },
       {
-        "RuleName": "14.ReasonForRemoval.NonFatal",
+        "RuleName": "14.ReasonForRemoval.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) OR new string[] {\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"LDN\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)",
         "Actions": {
           "OnFailure": {
@@ -51,8 +51,8 @@
         }
       },
       {
-        "RuleName": "30.Postcode.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR Regex.IsMatch(participant.Postcode, \"^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$\", RegexOptions.IgnoreCase)",
+        "RuleName": "30.Postcode.NBO.NonFatal",
+        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR ValidationHelper.ValidatePostcode(participant.Postcode)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -63,7 +63,7 @@
         }
       },
       {
-        "RuleName": "3.PrimaryCareProviderAndReasonForRemoval.NonFatal",
+        "RuleName": "3.PrimaryCareProviderAndReasonForRemoval.NBO.NonFatal",
         "Expression": "(string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR (!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval))",
         "Actions": {
           "OnFailure": {
@@ -75,7 +75,7 @@
         }
       },
       {
-        "RuleName": "17.DateOfBirth.NonFatal",
+        "RuleName": "17.DateOfBirth.NBO.NonFatal",
         "Expression": "!(string.IsNullOrEmpty(participant.DateOfBirth) || !ValidationHelper.ValidatePastDate(participant.DateOfBirth))",
         "Actions": {
           "OnFailure": {
@@ -87,7 +87,7 @@
         }
       },
       {
-        "RuleName": "39.FamilyName.NonFatal",
+        "RuleName": "39.FamilyName.NBO.NonFatal",
         "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FamilyName))",
         "Actions": {
           "OnFailure": {
@@ -99,7 +99,7 @@
         }
       },
       {
-        "RuleName": "40.FirstName.NonFatal",
+        "RuleName": "40.FirstName.NBO.NonFatal",
         "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FirstName))",
         "Actions": {
           "OnFailure": {
@@ -111,7 +111,7 @@
         }
       },
       {
-        "RuleName": "42.GPPracticeCode.NonFatal",
+        "RuleName": "42.GPPracticeCode.NBO.NonFatal",
         "Expression": "participant.RecordType != Actions.New OR !string.IsNullOrEmpty(participant.PrimaryCareProvider)",
         "Actions": {
           "OnFailure": {
@@ -123,7 +123,7 @@
         }
       },
       {
-        "RuleName": "19.ReasonForRemovalEffectiveFromDate.NonFatal",
+        "RuleName": "19.ReasonForRemovalEffectiveFromDate.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.ReasonForRemovalEffectiveFromDate)",
         "Actions": {
           "OnFailure": {
@@ -135,31 +135,31 @@
         }
       },
       {
-        "RuleName": "100.PrimaryCareProviderEffectiveFromDate.NonFatal",
+        "RuleName": "100.PrimaryCareProviderEffectiveFromDate.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.PrimaryCareProviderEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.PrimaryCareProviderEffectiveFromDate)"
       },
       {
-        "RuleName": "101.CurrentPostingEffectiveFromDate.NonFatal",
+        "RuleName": "101.CurrentPostingEffectiveFromDate.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.CurrentPostingEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.CurrentPostingEffectiveFromDate)"
       },
       {
-        "RuleName": "102.UsualAddressEffectiveFromDate.NonFatal",
+        "RuleName": "102.UsualAddressEffectiveFromDate.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.UsualAddressEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.UsualAddressEffectiveFromDate)"
       },
       {
-        "RuleName": "103.TelephoneNumberEffectiveFromDate.NonFatal",
+        "RuleName": "103.TelephoneNumberEffectiveFromDate.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.TelephoneNumberEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.TelephoneNumberEffectiveFromDate)"
       },
       {
-        "RuleName": "104.MobileNumberEffectiveFromDate.NonFatal",
+        "RuleName": "104.MobileNumberEffectiveFromDate.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.MobileNumberEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.MobileNumberEffectiveFromDate)"
       },
       {
-        "RuleName": "105.EmailAddressEffectiveFromDate.NonFatal",
+        "RuleName": "105.EmailAddressEffectiveFromDate.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.EmailAddressEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.EmailAddressEffectiveFromDate)"
       },
       {
-        "RuleName": "18.DateOfDeath.NonFatal",
+        "RuleName": "18.DateOfDeath.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.DateOfDeath) OR ValidationHelper.ValidatePastDate(participant.DateOfDeath)",
         "Actions": {
           "OnFailure": {
@@ -171,7 +171,7 @@
         }
       },
       {
-        "RuleName": "47.NewParticipantWithRemovalOrDeath.NonFatal",
+        "RuleName": "47.NewParticipantWithRemovalOrDeath.NBO.NonFatal",
         "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))",
         "Actions": {
           "OnFailure": {
@@ -183,7 +183,7 @@
         }
       },
       {
-        "RuleName": "49.InterpreterCheck.NonFatal",
+        "RuleName": "49.InterpreterCheck.NBO.NonFatal",
         "Expression": "int.Parse(participant.IsInterpreterRequired) != 0 OR int.Parse(participant.IsInterpreterRequired) != 1",
         "Actions": {
           "OnFailure": {
@@ -195,7 +195,7 @@
         }
       },
       {
-        "RuleName": "61.InvalidFlag.NonFatal",
+        "RuleName": "61.InvalidFlag.NBO.NonFatal",
         "Expression": "participant.InvalidFlag == \"1\" OR participant.InvalidFlag == \"0\"",
         "Actions": {
           "OnFailure": {
@@ -207,7 +207,7 @@
         }
       },
       {
-        "RuleName": "62.ValidateReasonForRemoval.NonFatal",
+        "RuleName": "62.ValidateReasonForRemoval.NBO.NonFatal",
         "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))",
         "Actions": {
           "OnFailure": {
@@ -219,7 +219,7 @@
         }
       },
       {
-        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NonFatal",
+        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NBO.NonFatal",
         "LocalParams": [
           {
             "Name": "currentPosting",
@@ -241,7 +241,7 @@
         }
       },
       {
-        "RuleName": "94.EligibilityFlag.NonFatal",
+        "RuleName": "94.EligibilityFlag.CaaS.NonFatal",
         "LocalParams": [
           {
             "Name": "newRecordType",
@@ -284,7 +284,7 @@
   "WorkflowName": "ADD",
   "Rules": [
     {
-      "RuleName": "71.NewParticipantWithNoAddress.NonFatal",
+      "RuleName": "71.NewParticipantWithNoAddress.NBO.NonFatal",
       "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))",
         "Actions": {
           "OnFailure": {
@@ -301,7 +301,7 @@
     "WorkflowName": "AMENDED",
     "Rules": [
       {
-        "RuleName": "66.DeathStatus.NonFatal",
+        "RuleName": "66.DeathStatus.NBO.NonFatal",
         "LocalParams": [
           {
             "Name": "IsUpdateRequest",

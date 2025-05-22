@@ -92,7 +92,7 @@ public class CreateCohortDistribution
             {
                 var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
                 _logger.LogInformation(errorMessage);
-                await _exceptionHandler.CreateRecordValidationExceptionLog(participantData.NhsNumber, basicParticipantCsvRecord.FileName, errorMessage, serviceProvider, JsonSerializer.Serialize(participantData));
+                await _exceptionHandler.CreateRecordValidationExceptionLog(participantData.NhsNumber, basicParticipantCsvRecord.FileName, errorMessage, participantData.ScreeningName, JsonSerializer.Serialize(participantData));
 
                 var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
                 participantMangement.ExceptionFlag = 1;
@@ -100,7 +100,7 @@ public class CreateCohortDistribution
                 bool excpetionFlagUpdated = await _participantManagementClient.Update(participantMangement);
                 if (!excpetionFlagUpdated) throw new IOException("Failed to update exception flag");
 
-                return;
+                if (!ignoreParticipantExceptions) return;
             }
             _logger.LogInformation("Validation has passed or exceptions are ignored, the record with participant id: {ParticipantId} will be added to the database", participantData.ParticipantId);
 

@@ -17,13 +17,16 @@ public class EndToEndFileUploadService
     private readonly ILogger<EndToEndFileUploadService> _logger;
     private readonly AppSettings _appSettings;
     private readonly BlobStorageHelper _blobStorageHelper;
+
+    private readonly ParquetHelper _parquethelper;
     private readonly SqlConnectionWithAuthentication _sqlConnectionWithAuthentication;
 
-    public EndToEndFileUploadService(ILogger<EndToEndFileUploadService> logger, AppSettings appSettings, BlobStorageHelper blobStorageHelper)
+    public EndToEndFileUploadService(ILogger<EndToEndFileUploadService> logger, AppSettings appSettings, BlobStorageHelper blobStorageHelper, ParquetHelper parquetHelper)
     {
         _logger = logger;
         _appSettings = appSettings;
         _blobStorageHelper = blobStorageHelper;
+        _parquethelper = parquetHelper;
 
         // Read from appsettings.json
         string connectionString = _appSettings.ConnectionStrings.DtOsDatabaseConnectionString;
@@ -59,6 +62,10 @@ public class EndToEndFileUploadService
                 await DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
                     "DELETE FROM EXCEPTION_MANAGEMENT WHERE NHS_Number = @nhsNumber",
                     new SqlParameter("@nhsNumber", nhsNumber));
+
+                await DatabaseHelper.ExecuteNonQueryAsync(_sqlConnectionWithAuthentication,
+                     "DELETE FROM EXCEPTION_MANAGEMENT WHERE FILE_NAME = @fileName",
+                     new SqlParameter("@fileName", "Exception_1B8F53_-_CAAS_BREAST_screening_'@.parquet"));
             }
 
             _logger.LogInformation("Database cleanup completed successfully.");
@@ -70,12 +77,34 @@ public class EndToEndFileUploadService
         }
     }
 
+
+    public async Task ValidateParquetFileAgainstDatabaseAsync(string filePath, string tableName)
+    {
+        try
+        {
+            _logger.LogInformation("Starting Parquet file validation for file: {FilePath}", filePath);
+
+            // Call the method from ParquetHelperService, passing in the logger
+            await ParquetHelper.VerifyParquetValuesMatchDbValuesAsync(
+                filePath,
+                _sqlConnectionWithAuthentication,
+                tableName,
+                _logger);
+
+            _logger.LogInformation("Parquet file validation completed successfully for file: {FilePath}", filePath);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred during Parquet file validation for file: {FilePath}", filePath);
+            throw;
+        }
+    }
     public List<string> ExtractNhsNumbersFromParquet(string filePath)
     {
         _logger.LogInformation("Extracting NHS numbers from Parquet file: {FilePath}", filePath);
 
         // Hypothetical helper that parses the Parquet file and returns NHS numbers
-        var nhsNumbers = ParquetHelperService.ExtractNhsNumbersFromParquet(filePath);
+        var nhsNumbers = ParquetHelper.ExtractNhsNumbersFromParquet(filePath);
 
         _logger.LogInformation("Extracted {Count} NHS numbers from the Parquet file.", nhsNumbers.Count);
         return nhsNumbers;
@@ -173,17 +202,43 @@ public class EndToEndFileUploadService
     }
 
 
-    public async Task VerifyFieldUpdateAsync(string tableName, string nhsNumber, string fieldName, string expectedValue)
+    public async Task VerifyFieldUpdateAsync(string tableName, string fieldName, string expectedValue, string? nhsNumber = null, string? fileName = null)
     {
+        if (nhsNumber == null && fileName == null)
+        {
+            throw new ArgumentException("Either nhsNumber or fileName must be provided");
+        }
+
         Func<Task> act = async () =>
         {
-            var result = await DatabaseValidationHelper.VerifyFieldUpdateAsync(_sqlConnectionWithAuthentication, tableName, nhsNumber, fieldName, expectedValue, _logger);
+            bool result;
+
+            // If NHS number is provided, use that for verification (priority)
+            if (nhsNumber != null)
+            {
+                result = await DatabaseValidationHelper.VerifyFieldUpdateAsync(
+                    _sqlConnectionWithAuthentication,
+                    tableName,
+                    nhsNumber,
+                    fieldName,
+                    expectedValue,
+                    _logger);
+            }
+            // Otherwise use file name for verification
+            else
+            {
+                result = await DatabaseValidationHelper.VerifyFieldUpdateByFileNameAsync(
+                    _sqlConnectionWithAuthentication,
+                    tableName,
+                    fileName!,
+                    fieldName,
+                    expectedValue,
+                    _logger);
+            }
+
             result.Should().BeTrue();
         };
 
         await act.Should().NotThrowAfterAsync(TimeSpan.FromMinutes(2), TimeSpan.FromSeconds(5));
-
     }
-
-
 }

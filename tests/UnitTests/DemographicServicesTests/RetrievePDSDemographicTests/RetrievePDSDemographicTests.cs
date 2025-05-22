@@ -1,13 +1,8 @@
 namespace NHS.CohortManager.Tests.UnitTests.DemographicServicesTests;
 
 using System.Net;
-using System.Text.Json;
 using Common;
-using Data.Database;
-using DataServices.Client;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
-using Microsoft.Extensions.DependencyInjection;
+using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
@@ -17,71 +12,133 @@ using NHS.CohortManager.Tests.TestUtils;
 using NHS.Screening.RetrievePDSDemographic;
 
 [TestClass]
-public class RetrievePdsDemographicTests
+public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemographic>
 {
-    private readonly Mock<ILogger<RetrievePdsDemographic>> _logger = new();
-    private readonly Mock<ICreateResponse> _createResponse = new();
-    private Mock<ICallFunction> _callFunction = new();
-    private readonly Mock<FunctionContext> _context = new();
-    private Mock<HttpRequestData> _request;
-    private readonly Mock<HttpWebResponse> _webResponse = new();
-    private readonly ServiceCollection _serviceCollection = new();
-    private readonly Participant _participant;
-    private readonly SetupRequest _setupRequest = new();
-    private readonly Mock<IDataServiceClient<ParticipantDemographic>> _participantDemographic = new();
-    private readonly Mock<IOptions<RetrievePDSDemographicConfig>> _config = new();
+    private static readonly Mock<IHttpClientFunction> _httpClientFunction = new();
+    private static readonly Mock<IOptions<RetrievePDSDemographicConfig>> _config = new();
+    private static readonly Mock<IFhirPatientDemographicMapper> _fhirPatientDemographicMapperMock = new();
+    private readonly string _validNhsNumber = "3112728165";
 
-    private RetrievePdsDemographic _retrievePdsDemographic;
-    public RetrievePdsDemographicTests()
+    public RetrievePdsDemographicTests() : base((conn, logger, transaction, command, response) =>
+    new RetrievePdsDemographic(
+        logger,
+        response,
+        _httpClientFunction.Object,
+        _fhirPatientDemographicMapperMock.Object,
+        _config.Object))
+    {
+        CreateHttpResponseMock();
+    }
+
+    [TestInitialize]
+    public void TestInitialize()
     {
         var testConfig = new RetrievePDSDemographicConfig
         {
-            ParticipantDemographicDataServiceURL = "ParticipantDemographicDataServiceURL"
+            RetrievePdsParticipantURL = "RetrievePdsParticipantURL"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
 
-        _request = new Mock<HttpRequestData>(_context.Object);
-        var serviceProvider = _serviceCollection.BuildServiceProvider();
-        _context.SetupProperty(c => c.InstanceServices, serviceProvider);
-         _retrievePdsDemographic = new RetrievePdsDemographic(_logger.Object, _createResponse.Object, _callFunction.Object, _config.Object);
+        _httpClientFunction.Reset();
+        _fhirPatientDemographicMapperMock.Reset();
 
-        Environment.SetEnvironmentVariable("RetrievePdsDemographicURI", "RetrievePdsDemographicURI");
+        _service = new RetrievePdsDemographic(
+            _loggerMock.Object,
+            _createResponseMock.Object,
+            _httpClientFunction.Object,
+            _fhirPatientDemographicMapperMock.Object,
+            _config.Object);
 
-        _participant = new Participant()
-        {
-            FirstName = "Joe",
-            FamilyName = "Bloggs",
-            NhsNumber = "11111111111111111",
-            RecordType = Actions.New
-        };
-
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), ""))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                return response;
-            });
-
-        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
-            {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "text/plain; charset=utf-8");
-                return response;
-            });
-
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
+        _request = SetupRequest(string.Empty);
     }
+
+    [DataRow("")]
+    [DataRow(null)]
+    [DataRow("0000000000")]
     [TestMethod]
-
-    public async Task Run_Always_ReturnsOk()
+    public async Task Run_InvalidNhsNumber_ReturnsBadRequest(string invalidNhsNumber)
     {
-        HttpStatusCode expectedStatus = HttpStatusCode.OK;
+        // Arrange
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", invalidNhsNumber } });
 
-        HttpStatusCode actualStatus = HttpStatusCode.OK;
+        // Act
+        var result = await _service.Run(_request.Object);
 
-        Assert.AreEqual(expectedStatus, actualStatus);
+        // Assert
+        _httpClientFunction.Verify(x => x.SendPdsGet(It.IsAny<string>()), Times.Never());
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ValidNhsNumberExistsInPds_ReturnsOk()
+    {
+        // Arrange
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
+        _httpClientFunction.Setup(x => x.SendPdsGet(It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+        _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirJson(It.IsAny<string>())).Returns(new PdsDemographic());
+
+        // Act
+        var result = await _service.Run(_request.Object);
+
+        // Assert
+        _httpClientFunction.Verify(x => x.SendPdsGet(It.IsAny<string>()), Times.Once());
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Once());
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ValidNhsNumberDoesNotExistInPds_ReturnsNotFound()
+    {
+        // Arrange
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
+        _httpClientFunction.Setup(x => x.SendPdsGet(It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
+        // Act
+        var result = await _service.Run(_request.Object);
+
+        // Assert
+        _httpClientFunction.Verify(x => x.SendPdsGet(It.IsAny<string>()), Times.Once());
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
+        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ValidNhsNumberOtherRequestError_ReturnsInternalServerError()
+    {
+        // Arrange
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
+        _httpClientFunction.Setup(x => x.SendPdsGet(It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
+
+        // Act
+        var result = await _service.Run(_request.Object);
+
+        // Assert
+        _httpClientFunction.Verify(x => x.SendPdsGet(It.IsAny<string>()), Times.Once());
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ValidNhsNumberRequestThrowsException_ReturnsInternalServerError()
+    {
+        // Arrange
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
+        _httpClientFunction.Setup(x => x.SendPdsGet(It.IsAny<string>())).Throws(new Exception("There was an error"));
+
+        // Act
+        var result = await _service.Run(_request.Object);
+
+        // Assert
+        _httpClientFunction.Verify(x => x.SendPdsGet(It.IsAny<string>()), Times.Once());
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
+        _loggerMock.Verify(x => x.Log(
+            It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("There has been an error fetching PDS participant data")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 }

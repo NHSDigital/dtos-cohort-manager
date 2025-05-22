@@ -1,4 +1,4 @@
-# Cohort Manager UI
+# Cohort Manager Web
 
 > Note: This repository will shortly be getting merged together with [https://github.com/NHSDigital/dtos-cohort-manager](https://github.com/NHSDigital/dtos-cohort-manager), which is why it doesn't use the repository template.
 
@@ -18,7 +18,6 @@ Create a `.env` file which should override environment variables required to run
 
 ```text
 # Default
-NEXT_PUBLIC_BASE_URL=https://localhost:3000
 SERVICE_NAME="Cohort Manager"
 
 # Next Auth
@@ -74,7 +73,7 @@ To run unit tests, use the following command:
 npm run test:unit
 ```
 
-This will execute all unit tests and provide a summary of the tests results.
+This will execute all unit tests and provide a summary of the test results.
 
 #### Running unit tests in watch mode
 

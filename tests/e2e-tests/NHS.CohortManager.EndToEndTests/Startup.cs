@@ -29,7 +29,7 @@ internal static class Startup
         // Load configuration from appsettings.json
         var configuration = new ConfigurationBuilder()
             .SetBasePath(AppContext.BaseDirectory)
-            .AddJsonFile("Config/appsettings.json", optional: false, reloadOnChange: true)
+            .AddJsonFile("Config/appsettings-example.json", optional: false, reloadOnChange: true)
             //settings in the local file would override those in the base file
             .AddJsonFile("Config/appsettings-local.json", optional: true, reloadOnChange: true)
             .Build();
@@ -47,6 +47,7 @@ internal static class Startup
             return new Azure.Storage.Blobs.BlobServiceClient(connectionString);
         });
         services.AddSingleton<BlobStorageHelper>();
+        services.AddScoped<ParquetHelper>();
         services.AddSingleton(sp => sp.GetRequiredService<IOptions<AppSettings>>().Value);
         services.AddTransient<EndToEndFileUploadService>();
 

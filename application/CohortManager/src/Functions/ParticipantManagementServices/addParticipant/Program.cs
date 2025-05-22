@@ -9,20 +9,16 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddSingleton<ICohortDistributionHandler, CohortDistributionHandler>();
-        services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
-        {
-            client.BaseAddress = new Uri(config.DemographicURIGet);
-        });
         // Register health checks
         services.AddBlobStorageHealthCheck("addParticipant");
     })
     .AddAzureQueues()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
