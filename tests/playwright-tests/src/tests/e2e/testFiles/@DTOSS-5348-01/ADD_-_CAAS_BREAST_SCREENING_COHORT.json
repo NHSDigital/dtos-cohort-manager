@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 99981364232,
+        "NHSNumber": 9992728167,
         "expectedCount": 1
       }
     },
@@ -11,21 +11,21 @@
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "RecordType": "ADD",
-        "NHSNumber": 99981364232,
+        "NHSNumber": 9992728167,
         "expectedCount": 1
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": 99981364232,
+        "NhsNumber": 9992728167,
         "expectedCount": 1
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 99981364232,
+        "NhsNumber": 9992728167,
         "expectedCount": 0
       }
     }
@@ -35,7 +35,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 99981364232,
+      "nhs_number": 9992728167,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20230318",
@@ -73,6 +73,6 @@
     }
   ],
   "nhsNumbers": [
-    "99981364232"
+    "9992728167"
   ]
 }
