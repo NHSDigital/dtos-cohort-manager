@@ -21,66 +21,14 @@ jobs:
       environment_tag: ${{ steps.set-values.outputs.environment_tag }}
       build_all_images: ${{ steps.set-values.outputs.build_all_images }}
     steps:
-      # - name: Checkout source code
-      #   uses: actions/checkout@v4
-      #   with:
-      #     submodules: 'true'
-      #     ref: main
       - name: Set output values
         id: set-values
         run: |
           echo "environment_tag=${{ inputs.environment_tag }}" >> $GITHUB_OUTPUT
           echo "build_all_images=${{ inputs.build_all_images == 'true' }}" >> $GITHUB_OUTPUT
 
-  prepare-docker-samples:
-    needs: checkout-and-prepare
-    runs-on: ubuntu-latest
-    outputs:
-      docker_compose_dir: ${{ steps.generate-compose.outputs.compose_dir }}
-      docker_compose_file: ${{ steps.generate-compose.outputs.compose_file }}
-    steps:
-    - name: Pull sample images
-      run: |
-        docker pull nginx:alpine
-        docker pull redis:alpine
-        docker pull postgres:15-alpine
-
-    - name: Generate docker-compose.yaml
-      id: generate-compose
-      run: |
-        set -euo
-
-        COMPOSE_DIR=${GITHUB_WORKSPACE}/tmp-docker
-
-        mkdir -p $COMPOSE_DIR
-        mkdir -p $COMPOSE_DIR/web
-        mkdir -p $COMPOSE_DIR/cache
-        mkdir -p $COMPOSE_DIR/db
-
-        echo -e "FROM nginx:alpine" > ${COMPOSE_DIR}/web/Dockerfile
-        echo -e "FROM redis:alpine" > ${COMPOSE_DIR}/cache/Dockerfile
-        echo -e "FROM postgres:15-alpine" > ${COMPOSE_DIR}/db/Dockerfile
-
-        COMPOSE_FILE="${COMPOSE_DIR}/sample-compose.yaml"
-
-        echo "version: '3.8'" > "$COMPOSE_FILE"
-        echo "services:" >> "$COMPOSE_FILE"
-
-        for svc in web cache db; do
-          echo "  $svc:" >> "$COMPOSE_FILE"
-          echo "    image: ${svc}:alpine" >> "$COMPOSE_FILE"
-          echo "    build:" >> "$COMPOSE_FILE"
-          echo "      context: ./docker/${svc}" >> "$COMPOSE_FILE"
-          echo "      dockerfile: Dockerfile" >> "$COMPOSE_FILE"
-        done
-
-        echo "COMPOSE_DIR: $COMPOSE_DIR"
-        echo "Compose file at: $COMPOSE_FILE"
-        echo "compose_dir=$COMPOSE_DIR" >> $GITHUB_OUTPUT
-        echo "compose_file=$COMPOSE_FILE" >> $GITHUB_OUTPUT
-
   manual-build-and-push-images:
-    needs: [checkout-and-prepare, prepare-docker-samples]
+    needs: [checkout-and-prepare]
     uses: NHSDigital/dtos-devops-templates/.github/workflows/stage-3-build-images.yaml@feat/DTOSS-8958-Update-Stage-3-Build-Definition
     permissions:
       contents: read
@@ -93,20 +41,5 @@ jobs:
       function_app_source_code_path: application/CohortManager/src
       project_name: dtoss-8958-test
       commit_sha: feat/DTOSS-8958-Update-Stage-3-Build-Definition
-      docker_compose_file: ${{ needs.prepare-docker-samples.outputs.docker_compose_file }}
-      changed_folders: ${{ needs.prepare-docker-samples.outputs.docker_compose_dir }}
-      compose_work_dir: ${{ needs.prepare-docker-samples.outputs.docker_compose_dir }}
-      devops_templates_path: templates
+      docker_compose_file: application/CohortManager/compose.yaml
     secrets: inherit
-
-  cleanup-sample-images:
-    needs: manual-build-and-push-images
-    runs-on: ubuntu-latest
-    if: always()
-    steps:
-      - name: Remove sample images
-        run: |
-          for image in nginx:alpine redis:alpine postgres:15-alpine; do
-            docker rmi $image || echo "Image $image not found or already removed"
-          done
-
