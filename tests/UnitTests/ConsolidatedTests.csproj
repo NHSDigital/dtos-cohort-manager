@@ -112,6 +112,7 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\CreateCohortDistribution\CreateCohortDistribution.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\AddCohortDistributionData\AddCohortDistributionData.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\DeleteParticipant\DeleteParticipant.csproj" />
   </ItemGroup>
 
   <!-- Exception Handling -->
