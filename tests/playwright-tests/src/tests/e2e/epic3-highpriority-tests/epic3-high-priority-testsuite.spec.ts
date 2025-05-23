@@ -5,11 +5,8 @@ import { expect, test, testWithAmended, testWithTwoAmendments } from '../../fixt
 import { TestHooks } from '../../hooks/test-hooks';
 import { processFileViaStorage, validateSqlDatabaseFromAPI } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
-import { calledEndpointsOrder, fetchApiResponse, setLogger, validateApiResponse } from '../../../api/apiHelper';
-import { checkBlobExists, waitForBlob } from '../../../storage/azureStorage';
+import { checkBlobExists } from '../../../storage/azureStorage';
 import path from 'path';
-import { BlobServiceClient } from '@azure/storage-blob';
-import { config } from '../../../config/env'
 
 test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
@@ -407,9 +404,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
   }, async ({ request, testData }) => {
 
     await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
-
       await processFileViaStorage(testData.runTimeParquetFile);
-
     });
 
     await test.step('Verify ProcessCaasFile data file', async () => {
