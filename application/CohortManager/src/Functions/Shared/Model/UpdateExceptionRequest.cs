@@ -11,15 +11,3 @@ public class UpdateExceptionRequest
     [OpenApiProperty(Description = "ServiceNow ticket number (optional)")]
     public string? ServiceNowNumber { get; set; }
 }
-
-public class ErrorResponse
-{
-    [OpenApiProperty(Description = "Error message")]
-    public string Message { get; set; }
-
-    [OpenApiProperty(Description = "Optional error details")]
-    public string? Details { get; set; }
-
-    [OpenApiProperty(Description = "Timestamp of the error")]
-    public DateTime Timestamp { get; set; } = DateTime.UtcNow;
-}
