@@ -600,8 +600,7 @@ public class LookupValidationTests
     #region Validate BSO Code (Rule 54)
     [TestMethod]
     [DataRow("RPR", "", "", Actions.Amended)]
-    [DataRow("RDR", "ZZZPCP", "", Actions.Amended)]
-
+    [DataRow("RDR", "", "", Actions.Amended)]
     public async Task Run_AmendedRFRParticipantHasInvalidPostcodeAndGpPractice_ThrowsException(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
     {
         // Arrange
