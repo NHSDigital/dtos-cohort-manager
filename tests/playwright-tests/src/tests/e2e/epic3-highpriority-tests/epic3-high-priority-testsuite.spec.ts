@@ -396,7 +396,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test.only('@DTOSS-5348-01 @AddParticipant Verify all Functions Called', {
+  test('@DTOSS-5348-01 @AddParticipant Verify all Functions Called', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5348',
