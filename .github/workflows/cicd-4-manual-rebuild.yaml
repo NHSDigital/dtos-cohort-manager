@@ -50,7 +50,7 @@ jobs:
       run: |
         set -euo
 
-        COMPOSE_DIR=${GITHUB_WORKSPACE}/docker
+        COMPOSE_DIR=.docker
 
         mkdir -p $COMPOSE_DIR
         mkdir -p $COMPOSE_DIR/web
@@ -95,7 +95,7 @@ jobs:
       commit_sha: feat/DTOSS-8958-Update-Stage-3-Build-Definition
       docker_compose_file: ${{ needs.prepare-docker-samples.outputs.docker_compose_file }}
       changed_folders: ${{ needs.prepare-docker-samples.outputs.docker_compose_dir }}
-      devops_templates_path: ${{ needs.prepare-docker-samples.outputs.docker_compose_dir }}
+      devops_templates_path: templates
     secrets: inherit
 
   cleanup-sample-images:
