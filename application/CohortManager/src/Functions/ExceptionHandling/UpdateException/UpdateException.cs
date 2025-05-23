@@ -30,10 +30,17 @@ public class UpdateException
     }
 
     [Function("UpdateException")]
+    //[OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, In = OpenApiSecurityLocationType.Header, Name = "x-functions-key")]
     [OpenApiOperation(operationId: "UpdateExceptionRecord",
         Summary = "Updates an exception record with ServiceNow information",
         Description = "Updates an existing exception record with ServiceNow ticket number and timestamp",
         Visibility = OpenApiVisibilityType.Important)]
+    /*[OpenApiParameter(
+        name: "x-functions-key",
+        In = ParameterLocation.Header,
+        Required = true,
+        Type = typeof(string),
+        Description = "Function authorization key")]*/
     [OpenApiRequestBody(
         contentType: "application/json",
         bodyType: typeof(UpdateExceptionRequest),
@@ -59,6 +66,11 @@ public class UpdateException
         contentType: "application/json",
         bodyType: typeof(string),
         Description = "Internal server error occurred")]
+    /*[OpenApiResponseWithBody(
+    statusCode: HttpStatusCode.Unauthorized,
+    contentType: "application/json",
+    bodyType: typeof(string),
+    Description = "Invalid or missing function key")]*/
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "put")] HttpRequestData req)
     {
         _logger.LogInformation("Processing request to update ServiceNow number in exception management table.");
