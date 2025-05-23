@@ -50,7 +50,7 @@ jobs:
       run: |
         set -euo
 
-        COMPOSE_DIR=tmp-docker
+        COMPOSE_DIR=${GITHUB_WORKSPACE}/tmp-docker
 
         mkdir -p $COMPOSE_DIR
         mkdir -p $COMPOSE_DIR/web
