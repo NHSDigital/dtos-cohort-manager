@@ -28,7 +28,6 @@ public class DeleteParticipantTests
     private readonly DeleteParticipantRequestBody _requestBody;
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionClientMock = new();
-    private readonly Mock<IOptions<DeleteParticipantConfig>> _config = new();
 
     public DeleteParticipantTests()
     {
@@ -42,15 +41,8 @@ public class DeleteParticipantTests
 
         _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
 
-        var testConfig = new DeleteParticipantConfig
-        {
-            CohortDistributionDataServiceUrl = "test",
-        };
-
-        _config.Setup(c => c.Value).Returns(testConfig);
-
         _sut = new DeleteParticipant(_createResponse.Object, _logger.Object, _cohortDistributionClientMock.Object,
-                                            _exceptionHandler.Object, _config.Object);
+                                            _exceptionHandler.Object);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>

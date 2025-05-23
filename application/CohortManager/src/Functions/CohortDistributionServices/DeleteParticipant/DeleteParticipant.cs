@@ -9,8 +9,6 @@ using Model;
 using System.Text;
 using System.Text.Json;
 using DataServices.Client;
-using Microsoft.Extensions.Options;
-using NHS.Screening.DeleteParticipant;
 
 public class DeleteParticipant
 {
@@ -18,18 +16,15 @@ public class DeleteParticipant
     private readonly ILogger<DeleteParticipant> _logger;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
-    private readonly DeleteParticipantConfig _config;
 
     public DeleteParticipant(ICreateResponse createResponse, ILogger<DeleteParticipant> logger,
                                 IDataServiceClient<CohortDistribution> cohortDistributionClient,
-                                IExceptionHandler exceptionHandler,
-                                IOptions<DeleteParticipantConfig> DeleteParticipantConfig)
+                                IExceptionHandler exceptionHandler)
     {
         _createResponse = createResponse;
         _logger = logger;
         _exceptionHandler = exceptionHandler;
         _cohortDistributionClient = cohortDistributionClient;
-        _config = DeleteParticipantConfig.Value;
     }
 
     [Function("DeleteParticipant")]
@@ -48,13 +43,19 @@ public class DeleteParticipant
             }
 
             requestBody = JsonSerializer.Deserialize<DeleteParticipantRequestBody>(requestBodyJson);
-            NhsNumber= long.Parse(requestBody.NhsNumber);
+            if (requestBody == null)
+            {
+                _logger.LogError("Request body is null");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+
+            NhsNumber = long.Parse(requestBody.NhsNumber!);
             FamilyName = requestBody.FamilyName;
             DateOfBirth = requestBody.DateOfBirth;
 
             if (string.IsNullOrEmpty(NhsNumber.ToString()) || string.IsNullOrEmpty(FamilyName) || !requestBody.DateOfBirth.HasValue)
             {
-                _logger.LogError("Invalid request body");
+                _logger.LogError("Please ensure that all parameters are not null or empty");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
@@ -62,7 +63,7 @@ public class DeleteParticipant
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError(ex, "Serialization failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
