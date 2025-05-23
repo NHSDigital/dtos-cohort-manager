@@ -1,7 +1,7 @@
 import { getRecordsFromExceptionService } from '../../../api/dataService/exceptionService';
 import { getRecordsFromBsSelectRetrieveAudit, getRecordsFromBsSelectRetrieveCohort } from '../../../api/distributionService/bsSelectService';
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
-import { expect, test, testWithAmended, testWithAmended2 } from '../../fixtures/test-fixtures';
+import { expect, test, testWithAmended, testWithTwoAmendments } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
 import { processFileViaStorage, validateSqlDatabaseFromAPI } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
@@ -210,7 +210,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  testWithAmended2('@DTOSS-5568-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)',{
+  testWithTwoAmendments('@DTOSS-5568-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)',{
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
@@ -233,16 +233,16 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
 
     await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend2);
+      await processFileViaStorage(testData.runTimeParquetFileSecondAmend);
     });
 
     await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend2);
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseSecondAmend);
     });
 
   });
 
-  testWithAmended2('@DTOSS-5569-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)',{
+  testWithTwoAmendments('@DTOSS-5569-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)',{
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
@@ -265,16 +265,16 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
 
     await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend2);
+      await processFileViaStorage(testData.runTimeParquetFileSecondAmend);
     });
 
     await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend2);
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseSecondAmend);
     });
 
   });
 
-  testWithAmended2('@DTOSS-5570-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)',{
+  testWithTwoAmendments('@DTOSS-5570-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)',{
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
@@ -297,11 +297,11 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
 
     await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend2);
+      await processFileViaStorage(testData.runTimeParquetFileSecondAmend);
     });
 
     await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend2);
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseSecondAmend);
     });
 
   });

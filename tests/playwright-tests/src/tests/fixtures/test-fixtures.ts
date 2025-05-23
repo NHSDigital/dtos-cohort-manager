@@ -31,7 +31,7 @@ interface TestDataWithAmended {
   runTimeParquetFileAmend: string;
 }
 
-interface TestDataWithAmended2 {
+interface TestDataWithTwoAmendments {
   checkInDatabaseAdd: any[];
   nhsNumbers: string[];
   parquetFile: string | undefined;
@@ -46,12 +46,12 @@ interface TestDataWithAmended2 {
   testFilesPathAmend?: string;
   runTimeParquetFileAmend: string;
 
-  checkInDatabaseAmend2: any[];
-  nhsNumberAmend2: string[];
-  parquetFileAmend2: string | undefined;
-  inputParticipantRecordAmend2?: Record<string, any>;
-  testFilesPathAmend2?: string;
-  runTimeParquetFileAmend2: string;
+  checkInDatabaseSecondAmend: any[];
+  nhsNumberSecondAmend: string[];
+  parquetFileSecondAmend: string | undefined;
+  inputParticipantRecordSecondAmend?: Record<string, any>;
+  testFilesPathSecondAmend?: string;
+  runTimeParquetFileSecondAmend: string;
 }
 
 export const test = base.extend<{
@@ -88,8 +88,6 @@ export const test = base.extend<{
       inputParticipantRecord,
       testFilesPath
     };
-
-
 
     await use(testData);
   },
@@ -148,10 +146,10 @@ export const testWithAmended = base.extend<{
   },
 });
 
-export const testWithAmended2 = base.extend<{
-  testData: TestDataWithAmended2;
+export const testWithTwoAmendments = base.extend<{
+  testData: TestDataWithTwoAmendments;
 }>({
-  testData: async ({ request }, use, testInfo) => {  // Changed from request: _ to request
+  testData: async ({ request }, use, testInfo) => {
     const [checkInDatabaseAdd, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] =
       await getTestData(testInfo.title, "ADD", true);
 
@@ -180,22 +178,21 @@ export const testWithAmended2 = base.extend<{
       );
     }
 
-    const [checkInDatabaseAmend2, nhsNumberAmend2, parquetFileAmend2, inputParticipantRecordAmend2, testFilesPathAmend2] =
+    const [checkInDatabaseSecondAmend, nhsNumberSecondAmend, parquetFileSecondAmend, inputParticipantRecordSecondAmend, testFilesPathSecondAmend] =
       await getTestData(testInfo.title, "AMENDED2", true);
 
-    let runTimeParquetFileAmend2: string = "";
-    // Fix this line - changed from parquetFileAmend to parquetFileAmend2
-    if (!parquetFileAmend2) {
-      runTimeParquetFileAmend2 = await createParquetFromJson(
-        nhsNumberAmend2,
-        inputParticipantRecordAmend2!,
-        testFilesPathAmend2!,
+    let runTimeParquetFileSecondAmend: string = "";
+    if (!parquetFileSecondAmend) {
+      runTimeParquetFileSecondAmend = await createParquetFromJson(
+        nhsNumberSecondAmend,
+        inputParticipantRecordSecondAmend!,
+        testFilesPathSecondAmend!,
         "AMENDED2",
         false
       );
     }
 
-    const testDataWithAmended2: TestDataWithAmended2 = {
+    const testDataWithTwoAmendments: TestDataWithTwoAmendments = {
       checkInDatabaseAdd,
       nhsNumbers,
       parquetFile,
@@ -210,15 +207,15 @@ export const testWithAmended2 = base.extend<{
       testFilesPathAmend,
       runTimeParquetFileAmend,
 
-      checkInDatabaseAmend2,
-      nhsNumberAmend2,
-      parquetFileAmend2,
-      inputParticipantRecordAmend2,
-      testFilesPathAmend2,
-      runTimeParquetFileAmend2
+      checkInDatabaseSecondAmend,
+      nhsNumberSecondAmend,
+      parquetFileSecondAmend,
+      inputParticipantRecordSecondAmend,
+      testFilesPathSecondAmend,
+      runTimeParquetFileSecondAmend
     };
 
-    await use(testDataWithAmended2);
+    await use(testDataWithTwoAmendments);
   },
 });
 
