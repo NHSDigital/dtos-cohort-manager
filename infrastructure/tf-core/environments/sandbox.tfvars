@@ -200,7 +200,7 @@ container_app_environments = {
   }
 }
 
-container_apps = {
+container_app_jobs = {
   apps = {
     db-management = {
       container_app_environment_key = "db-management"

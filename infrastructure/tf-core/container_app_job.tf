@@ -1,29 +1,29 @@
 locals {
   # There are multiple App Service Plans and possibly multiple regions.
   # We cannot nest for loops inside a map, so first iterate all permutations of both as a list of objects...
-  container_apps_object_list = flatten([
+  container_app_jobs_object_list = flatten([
     for region in keys(var.regions) : [
-      for container_app, config in var.container_apps.apps : merge(
+      for container_app_job, config in var.container_app_jobs.apps : merge(
         {
-          region        = region        # 1st iterator
-          container_app = container_app # 2nd iterator
+          region            = region            # 1st iterator
+          container_app_job = container_app_job # 2nd iterator
         },
-        config # the rest of the key/value pairs for a specific container_app
+        config # the rest of the key/value pairs for a specific container_app_job
       )
     ]
   ])
 
   # ...then project the list of objects into a map with unique keys (combining the iterators), for consumption by a for_each meta argument
-  container_apps_map = {
-    for object in local.container_apps_object_list : "${object.container_app}-${object.region}" => object
+  container_app_jobs_map = {
+    for object in local.container_app_jobs_object_list : "${object.container_app_job}-${object.region}" => object
   }
 }
 
 
-module "container-app-worker" {
-  for_each = local.container_apps_map
+module "container-app-job" {
+  for_each = local.container_app_jobs_map
 
-  source = "../../../dtos-devops-templates/infrastructure/modules/container-app"
+  source = "../../../dtos-devops-templates/infrastructure/modules/container-app-job"
 
   name                         = "ca-${lower(each.key)}"
   resource_group_name          = azurerm_resource_group.core[each.value.region].name
@@ -38,5 +38,8 @@ module "container-app-worker" {
     "DtOsDatabaseConnectionString" = "Server=${module.regions_config[each.value.region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
     "SQL_IDENTITY_CLIENT_ID"       = data.azurerm_user_assigned_identity.db-management[each.value.region].client_id
   }
-  is_web_app = each.value.is_web_app
+
+  log_analytics_workspace_id                                = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_container_app_job_enabled_logs = local.monitor_diagnostic_setting_container_app_job_enabled_logs
+  monitor_diagnostic_setting_container_app_job_metrics      = local.monitor_diagnostic_setting_container_app_job_metrics
 }
