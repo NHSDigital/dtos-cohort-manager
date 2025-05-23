@@ -41,5 +41,5 @@ jobs:
       function_app_source_code_path: application/CohortManager/src
       project_name: dtoss-8958-test
       commit_sha: feat/DTOSS-8958-Update-Stage-3-Build-Definition
-      docker_compose_file: application/CohortManager/compose.yaml
+      docker_compose_file: ./compose.yaml
     secrets: inherit
