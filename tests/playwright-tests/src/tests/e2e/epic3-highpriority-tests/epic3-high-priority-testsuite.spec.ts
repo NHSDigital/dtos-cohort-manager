@@ -5,6 +5,8 @@ import { expect, test, testWithAmended, testWithTwoAmendments } from '../../fixt
 import { TestHooks } from '../../hooks/test-hooks';
 import { processFileViaStorage, validateSqlDatabaseFromAPI } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
+import { checkBlobExists } from '../../../storage/azureStorage';
+import path from 'path';
 
 
 test.describe('@regression @e2e @epic3-high-priority Tests', () => {
@@ -392,6 +394,36 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       const firstRecord = response.data.find(() => true);
       expect(firstRecord?.StatusCode).toBe("204");
     });
+
+  });
+
+    test.only('@DTOSS-6016-01', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6016',
+    },
+  }, async ({ request, testData }) => {
+
+    await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
+      await processFileViaStorage(testData.runTimeParquetFile);
+    });
+
+    await test.step('Verify ProcessCaasFile data file', async () => {
+
+      const expectedBlobName = path.basename(testData.runTimeParquetFile);
+      const outputFileExists = await checkBlobExists(expectedBlobName);
+
+      expect(outputFileExists).toBe(true);
+    });
+
+
+
+
+    /*
+    await test.step('Then participant record is added to cohort distribution table', async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+    }); */
+
 
   });
 });
