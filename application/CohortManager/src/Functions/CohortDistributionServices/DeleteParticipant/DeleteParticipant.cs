@@ -90,7 +90,7 @@ public class DeleteParticipant
         catch (Exception ex)
         {
             _logger.LogError(ex, "Delete participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber.ToString(), "", "", JsonSerializer.Serialize(requestBody) ?? "N/A");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, requestBody.NhsNumber?.ToString() ?? "N/A", "", "", JsonSerializer.Serialize(requestBody) ?? "N/A");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
