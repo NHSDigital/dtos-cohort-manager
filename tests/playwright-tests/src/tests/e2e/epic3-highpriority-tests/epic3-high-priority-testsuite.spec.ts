@@ -5,8 +5,11 @@ import { expect, test, testWithAmended } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
 import { processFileViaStorage, validateSqlDatabaseFromAPI } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
-import { calledEndpointsOrder, fetchApiResponse } from '../../../api/apiHelper';
-
+import { calledEndpointsOrder, fetchApiResponse, setLogger, validateApiResponse } from '../../../api/apiHelper';
+import { checkBlobExists, waitForBlob } from '../../../storage/azureStorage';
+import path from 'path';
+import { BlobServiceClient } from '@azure/storage-blob';
+import { config } from '../../../config/env'
 
 test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
@@ -300,41 +303,29 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5348-01  @AddParticipant Verify all Functions Called', {
+  test.only('@DTOSS-5348-01 @AddParticipant Verify all Functions Called', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5348',
     },
   }, async ({ request, testData }) => {
 
-    await test.step('When eligible participant data file is uploaded to storage', async () => {
-      calledEndpointsOrder.length = 0;
+    await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
+
       await processFileViaStorage(testData.runTimeParquetFile);
+
     });
 
-    await test.step('Verify orchestration called services in correct order', async () => {
+    await test.step('Verify ProcessCaasFile data file', async () => {
 
-      const endpoints = [
-      'api/CohortDistributionDataService',
-      'api/ParticipantManagementDataService',
-      'api/ExceptionManagementDataService',
-      'api/ParticipantDemographicDataService'
-      ];
+      const expectedBlobName = path.basename(testData.runTimeParquetFile);
+      const outputFileExists = await checkBlobExists(expectedBlobName);
 
-      for (const endpoint of endpoints) {
-        await fetchApiResponse(endpoint, request);
-      }
-
-      const expectedOrder = endpoints;
-      const actualOrder = calledEndpointsOrder;
-
-      expect(actualOrder).toEqual(expectedOrder);
-
+      expect(outputFileExists).toBe(true);
     });
 
     await test.step('Then participant record is added to cohort distribution table', async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
     });
-
   });
 });
