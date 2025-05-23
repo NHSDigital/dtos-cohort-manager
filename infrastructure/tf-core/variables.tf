@@ -166,6 +166,21 @@ variable "container_app_environments" {
   })
 }
 
+variable "container_apps" {
+  description = "Configuration for the container app jobs"
+  default     = {}
+  type = object({
+    apps = optional(map(object({
+      name_suffix                   = optional(string)
+      container_app_environment_key = optional(string)
+      docker_env_tag                = optional(string)
+      docker_image                  = optional(string)
+      is_web_app                    = optional(bool, false)
+      container_registry_use_mi     = optional(bool, false)
+    })), {})
+  })
+}
+
 variable "container_app_jobs" {
   description = "Configuration for the container app jobs"
   default     = {}
