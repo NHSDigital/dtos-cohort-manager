@@ -64,6 +64,7 @@ services:
       - AllowDeleteRecords=true
       - AddQueueName=add-participant-queue
       - BatchSize=3500
+      - maxNumberOfChecks=50
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - recordThresholdForBatching=3
       - batchDivisionFactor=5
