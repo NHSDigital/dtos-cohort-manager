@@ -38,8 +38,4 @@ module "container-app-job" {
     "DtOsDatabaseConnectionString" = "Server=${module.regions_config[each.value.region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
     "SQL_IDENTITY_CLIENT_ID"       = data.azurerm_user_assigned_identity.db-management[each.value.region].client_id
   }
-
-  log_analytics_workspace_id                                = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
-  monitor_diagnostic_setting_container_app_job_enabled_logs = local.monitor_diagnostic_setting_container_app_job_enabled_logs
-  monitor_diagnostic_setting_container_app_job_metrics      = local.monitor_diagnostic_setting_container_app_job_metrics
 }
