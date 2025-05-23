@@ -33,7 +33,7 @@ public class DeleteParticipant
         long NhsNumber;
         string? FamilyName;
         DateTime? DateOfBirth;
-        DeleteParticipantRequestBody requestBody;
+        DeleteParticipantRequestBody? requestBody;
         try
         {
             string requestBodyJson;
