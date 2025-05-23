@@ -15,10 +15,15 @@ on:
       build_all_images:
         description: Build all images defined in compose files
         required: true
-        type: choice
-        options:
-          - false
-          - true
+        type: boolean
+        default: false
+      # build_all_images:
+      #   description: Build all images defined in compose files
+      #   required: true
+      #   type:
+      #   options:
+      #     - false
+      #     - true
 
 jobs:
   echo_input:
