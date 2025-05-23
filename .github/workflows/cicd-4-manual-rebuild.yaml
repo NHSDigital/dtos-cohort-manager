@@ -12,24 +12,8 @@ on:
           - development
           - nft
           - integration
-      build_all_images:
-        description: Build all images defined in compose files
-        required: true
-        type: boolean
-        default: false
-      # build_all_images:
-      #   description: Build all images defined in compose files
-      #   required: true
-      #   type:
-      #   options:
-      #     - false
-      #     - true
 
 jobs:
-  # echo_input:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - run: echo "Boolean input was ${{ github.event.inputs.build_all_images }}"
   manual-build-and-push-images:
     name: Manual Build and Push all images
     uses: NHSDigital/dtos-devops-templates/.github/workflows/stage-3-build-images.yaml@DTOSS-8936-manual-image-rebuild-process
@@ -39,5 +23,5 @@ jobs:
       environment_tag: ${{ github.event.inputs.environment_tag }}
       function_app_source_code_path: application/CohortManager/src
       project_name: cohort-manager
-      build_all_images: ${{ github.event.inputs.build_all_images }}
+      build_all_images: true
     secrets: inherit
