@@ -108,7 +108,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
         description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
       },
     }, async ({ request, testData }) => {
-      await test.step(`Then Exception table should have RuleId as 100 & RuleDescription as `, async () => {
+      await test.step(`Then Exception table should have RuleId as 100 & RuleDescription as PrimaryCareProviderEffectiveFromDate`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
     })
