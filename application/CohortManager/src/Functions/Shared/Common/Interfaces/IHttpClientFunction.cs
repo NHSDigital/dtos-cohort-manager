@@ -34,6 +34,24 @@ public interface IHttpClientFunction
     Task<HttpResponseMessage> SendPdsGet(string url);
 
     /// <summary>
+    /// Sends an HTTP POST request to the specified NEMS URL with the provided subscription JSON, headers, and authorization tokens.
+    /// </summary>
+    /// <param name="subscriptionJson">The body of the request in JSON format. This represents the subscription details to be sent.</param>
+    /// <param name="spineAccessToken">The authorization token to be included in the request headers for Bearer authentication.</param>
+    /// <param name="fromAsid">The ASID (Application Service Identifier) of the sender, used for the request headers.</param>
+    /// <param name="toAsid">The ASID (Application Service Identifier) of the receiver, used for the request headers.</param>
+    /// <param name="url">URL to be used in request.</param>
+    /// <remarks>
+    /// This method sends a POST request to the specified NEMS endpoint with a JSON body and the necessary authorization headers.
+    /// The request headers include:
+    /// - <c>Authorization</c> with a Bearer token,
+    /// - <c>fromASID</c> and <c>toASID</c> to specify the sender and receiver ASID values,
+    /// - <c>Interaction-ID</c> to specify the interaction ID of the subscription creation process.
+     /// This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. Currently it's just a basic structure.
+    /// </remarks>
+    Task<HttpResponseMessage> PostNemsGet(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid);
+
+    /// <summary>
     /// Performs a PUT request using HttpClient.
     /// </summary>
     /// <param name="url">URL to be used in request.</param>

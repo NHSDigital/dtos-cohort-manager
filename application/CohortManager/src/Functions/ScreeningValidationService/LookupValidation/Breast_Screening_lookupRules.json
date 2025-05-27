@@ -5,6 +5,10 @@
       {
         "Name": "ValidCurrentPosting",
         "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
+      },
+      {
+        "Name": "ValidPrimaryCareProvider",
+        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
       }
     ],
     "Rules": [
@@ -21,8 +25,8 @@
         }
       },
       {
-        "RuleName": "36.ValidatePrimaryCareProvider.BSSelect.NonFatal",
-        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.primaryCareProvider)",
+        "RuleName": "3601.ValidatePrimaryCareProvider.BSSelect.NonFatal",
+        "Expression": "ValidPrimaryCareProvider",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -33,18 +37,22 @@
         }
       },
       {
-        "RuleName": "3645.CurrentPostingAndPrimaryProvider.BSSelect.NonFatal",
+        "RuleName": "3602.CurrentPostingAndPrimaryProvider.BSSelect.NonFatal",
         "LocalParams": [
           {
-            "Name": "ValidPostingCategory",
-            "Expression": "dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
-          },
-          {
-            "Name": "InvalidPrimaryCareProvider",
-            "Expression": "!string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+            "Name": "EnglishPostingCategory",
+            "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\""
           }
         ],
-        "Expression": "!(ValidPostingCategory AND InvalidPrimaryCareProvider)"
+        "Expression": "!((EnglishPostingCategory || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting)) && !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid primary care provider GP practice code\""
+            }
+          }
+        }
       },
       {
         "RuleName": "58.CurrentPosting.NBO.NonFatal",

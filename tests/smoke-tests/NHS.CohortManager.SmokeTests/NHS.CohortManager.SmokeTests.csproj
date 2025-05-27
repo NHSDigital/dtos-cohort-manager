@@ -1,7 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+    <ProjectGuid>{C9DF7FA2-2489-4CF7-A152-BB86916F81F6}</ProjectGuid>
+        <TargetFramework>net8.0</TargetFramework>
         <RootNamespace>NHS.CohortManager.SmokeTests</RootNamespace>
         <LangVersion>latest</LangVersion>
         <ImplicitUsings>enable</ImplicitUsings>

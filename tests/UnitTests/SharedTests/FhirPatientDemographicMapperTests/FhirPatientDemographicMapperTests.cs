@@ -36,7 +36,35 @@ public class FhirParserHelperTests
 
     private string LoadTestJson(string filename)
     {
-        return File.ReadAllText($"../../../PatientMocks/{filename}.json");
+        // Add .json extension if not already present
+        string filenameWithExtension = filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase)
+            ? filename
+            : $"{filename}.json";
+
+        // Get the directory of the currently executing assembly
+        string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        string assemblyDirectory = Path.GetDirectoryName(assemblyLocation) ?? string.Empty;
+
+        // Try the original path first
+        string originalPath = Path.Combine(assemblyDirectory, "../../../PatientMocks", filenameWithExtension);
+        if (File.Exists(originalPath))
+        {
+            return File.ReadAllText(originalPath);
+        }
+
+        // Try the alternative path
+        string alternativePath = Path.Combine(assemblyDirectory, "../../../SharedTests/FhirPatientDemographicMapperTests/PatientMocks", filenameWithExtension);
+        if (File.Exists(alternativePath))
+        {
+            return File.ReadAllText(alternativePath);
+        }
+
+        // If neither exists, throw a descriptive exception
+        string errorMessage = $"Could not find JSON file '{filename}' in either:\n" +
+                              $" - {Path.GetDirectoryName(originalPath)}\n" +
+                              $" - {Path.GetDirectoryName(alternativePath)}";
+
+        throw new FileNotFoundException(errorMessage, filenameWithExtension);
     }
 
     [TestMethod]

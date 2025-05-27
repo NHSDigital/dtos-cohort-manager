@@ -8,6 +8,7 @@ locals {
   rbac_roles_storage = [
     "Storage Account Contributor",
     "Storage Blob Data Owner",
+    "Storage Table Data Contributor",
     "Storage Queue Data Contributor"
   ]
 

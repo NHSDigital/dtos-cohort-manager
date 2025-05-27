@@ -1,12 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <ProjectGuid>{D67EFEAC-3462-4F8B-ACB0-CF6F24D8F5DF}</ProjectGuid>
   <RootNamespace>NHS.CohortManager.EndToEndTests</RootNamespace>
   <AssemblyName>NHS.CohortManager.EndToEndTests</AssemblyName>
 </PropertyGroup>
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
+    <ProjectGuid>{D67EFEAC-3462-4F8B-ACB0-CF6F24D8F5DF}</ProjectGuid>
+    <TargetFramework>net8.0</TargetFramework>
     <NoWarn>NU5100;CS8618;CS8604;CS8605;CS8601;CS8604;CS8602;CS8625;CS8632</NoWarn>
     <IsTestProject>true</IsTestProject>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>

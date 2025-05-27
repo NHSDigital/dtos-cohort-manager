@@ -82,6 +82,34 @@ public class HttpClientFunction : IHttpClientFunction
         }
     }
 
+    public async Task<HttpResponseMessage> PostNemsGet(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid)
+    {
+        using var client = _factory.CreateClient();
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        var request = new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Content = new StringContent(subscriptionJson, Encoding.UTF8, "application/fhir+json")
+        };
+
+        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", spineAccessToken);
+        request.Headers.Add("fromASID", fromAsid);
+        request.Headers.Add("toASID", toAsid);
+        request.Headers.Add("Interaction-ID", "urn:nhs:names:services:nems:CreateSubscription");
+
+        try
+        {
+            var response = await client.SendAsync(request);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
+            throw;
+        }
+    }
+
     public async Task<HttpResponseMessage> SendPut(string url, string data)
     {
         using var client = _factory.CreateClient();

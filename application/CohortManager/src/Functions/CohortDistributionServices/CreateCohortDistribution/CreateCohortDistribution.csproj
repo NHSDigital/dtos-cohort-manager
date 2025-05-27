@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+    <ProjectGuid>{0C75ED16-52B1-4DAA-957B-01BF1E16F004}</ProjectGuid>
         <TargetFramework>net8.0</TargetFramework>
         <AzureFunctionsVersion>v4</AzureFunctionsVersion>
         <OutputType>Exe</OutputType>

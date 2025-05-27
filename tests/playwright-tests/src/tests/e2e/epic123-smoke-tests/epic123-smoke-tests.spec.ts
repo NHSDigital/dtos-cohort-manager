@@ -59,32 +59,33 @@ testWithAmended('@DTOSS-6407-01 @smoke @e2e @ds Verify file upload handles Empty
   });
 });
 
+
 test.describe.parallel('Exception Tests', () => {
-test('@DTOSS-6406-01 @smoke @e2e @ds Verify file upload handles invalid GP Practice Code Exception', async ({ request, testData }) => {
-  await test.step(`Given database does not contain record that will be processed`, async () => {
-    await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
+  test('@DTOSS-6406-01 @smoke @e2e @ds Verify file upload handles invalid GP Practice Code Exception', async ({ request, testData }) => {
+    await test.step(`Given database does not contain record that will be processed`, async () => {
+      await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
+    });
+
+    await test.step(`When ADD participant is processed via storage`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFile);
+    });
+
+    await test.step(`Then the Exception table should contain the details for the NHS Number`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+    });
   });
 
-  await test.step(`When ADD participant is processed via storage`, async () => {
-    await processFileViaStorage(testData.runTimeParquetFile);
-  });
+  test('@DTOSS-7960-01 @smoke @e2e @ds Verify GP Practice Code Exception flag in participant management set to 1', async ({ request, testData }) => {
+    await test.step(`Given database does not contain records that will be processed`, async () => {
+      await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
+    });
 
-  await test.step(`Then the Exception table should contain the details for the NHS Number`, async () => {
-    await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-  });
-});
+    await test.step(`When participants are processed via storage`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFile);
+    });
 
-test('@DTOSS-7960-01 @smoke @e2e @ds Verify GP Practice Code Exception flag in participant management set to 1', async ({ request, testData }) => {
-  await test.step(`Given database does not contain records that will be processed`, async () => {
-    await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
+    await test.step(`Then records should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+    });
   });
-
-  await test.step(`When participants are processed via storage`, async () => {
-    await processFileViaStorage(testData.runTimeParquetFile);
-  });
-
-  await test.step(`Then records should be updated in the cohort`, async () => {
-    await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-  });
-});
 });

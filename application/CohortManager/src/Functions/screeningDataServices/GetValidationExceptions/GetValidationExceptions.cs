@@ -1,6 +1,5 @@
 namespace NHS.CohortManager.ScreeningDataServices;
 
-using System.Linq.Dynamic.Core;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -10,6 +9,7 @@ using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Model;
 using Model.Enums;
 
@@ -49,7 +49,8 @@ public class GetValidationExceptions
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
         var todaysExceptions = _httpParserHelper.GetQueryParameterAsBool(req, "todayOnly");
-        var orderByProperty = (ExceptionSort)_httpParserHelper.GetQueryParameterAsInt(req, "orderByProperty");
+        var orderByProperty = GetExceptionSort(req, "orderByProperty");
+        var exceptionCategory = GetExceptionCategory(req);
 
         try
         {
@@ -58,7 +59,7 @@ public class GetValidationExceptions
                 return await GetExceptionById(req, exceptionId);
             }
 
-            var exceptions = await _validationData.GetAllExceptions(todaysExceptions, orderByProperty);
+            var exceptions = await _validationData.GetAllExceptions(todaysExceptions, orderByProperty, exceptionCategory);
 
             if (exceptions.Count == 0)
             {
@@ -86,5 +87,34 @@ public class GetValidationExceptions
         }
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById)
         );
+    }
+
+    private static ExceptionSort? GetExceptionSort(HttpRequestData req, string key)
+    {
+        ExceptionSort? defaultExceptionSort = null;
+        var queryString = req.Query[key];
+
+        if (string.IsNullOrEmpty(queryString)) return defaultExceptionSort;
+
+        return int.TryParse(queryString, out int value) ? (ExceptionSort)value : defaultExceptionSort;
+    }
+
+    /// <summary>
+    /// Parses exceptionCategory query parameter if it exists. If not it will default to ExceptionCategory.NBO.
+    /// Note: The default behaviour of this API is to only return exceptions categorised as NBO.
+    /// </summary>
+    /// <param name="req">The request data</param>
+    /// <returns>ExceptionCategory</returns>
+    private static ExceptionCategory GetExceptionCategory(HttpRequestData req)
+    {
+        var defaultCategory = ExceptionCategory.NBO;
+        var queryString = req.Query["exceptionCategory"];
+
+        if (queryString.IsNullOrEmpty())
+        {
+            return defaultCategory;
+        }
+
+        return int.TryParse(queryString, out int value) ? (ExceptionCategory)value : defaultCategory;
     }
 }

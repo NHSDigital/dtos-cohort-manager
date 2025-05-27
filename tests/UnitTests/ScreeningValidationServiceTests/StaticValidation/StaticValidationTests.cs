@@ -49,8 +49,9 @@ public class StaticValidationTests
                 CreatedException = true
             })).Verifiable();
 
-        var json = File.ReadAllText("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation/Breast_Screening_staticRules.json");
-        _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>())).Returns(Task.FromResult<string>(json));
+        // Get the rules file from either of two possible locations
+        string rulesJson = GetRulesFile("Breast_Screening_staticRules.json");
+        _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>())).Returns(Task.FromResult<string>(rulesJson));
 
         var testConfig = new StaticValidationConfig
         {
@@ -82,6 +83,43 @@ public class StaticValidationTests
             FileName = "test",
             Participant = new Participant()
         };
+    }
+
+    // Helper method to find the rules file in either location
+    private string GetRulesFile(string filename)
+    {
+        // Try the original path first
+        try
+        {
+            string originalPath = "../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation/" + filename;
+            string fullOriginalPath = Path.GetFullPath(originalPath);
+            if (File.Exists(fullOriginalPath))
+            {
+                return File.ReadAllText(fullOriginalPath);
+            }
+        }
+        catch
+        {
+            // Ignore any errors and try the alternative path
+        }
+
+        // Try the alternative path
+        try
+        {
+            string alternativePath = "../../../../../application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation/" + filename;
+            string fullAlternativePath = Path.GetFullPath(alternativePath);
+            if (File.Exists(fullAlternativePath))
+            {
+                return File.ReadAllText(fullAlternativePath);
+            }
+        }
+        catch
+        {
+            // Ignore any errors
+        }
+
+        // If we get here, we couldn't find the file - throw a descriptive exception
+        throw new FileNotFoundException($"Could not find rules file: {filename} in either of the expected locations.");
     }
 
     [TestMethod]

@@ -1,0 +1,86 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+pool:
+  #vmImage: ubuntu-latest
+  name: private-pool-dev-uks
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 9673ee4ef9770e80d0714c3966a699414b7b43c7
+      endpoint: NHSDigital
+
+parameters:
+  - name: pipelineAction
+    displayName: 'Pipeline Action'
+    type: string
+    values:
+      - 'PlanOnly'
+      - 'Apply'
+      - 'Destroy'
+    default: 'Apply'
+
+variables:
+  - group: SBX_audit_backend
+  - group: DEV_hub_backend_remote_state
+  - name: TF_DIRECTORY
+    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
+  - name: TF_VERSION
+    value: 1.11.4
+  - name: TF_PLAN_ARTIFACT
+    value: tf_plan_audit_SANDBOX
+  - name: ENVIRONMENT
+    value: sandbox
+
+stages:
+  - stage: terraform_plan
+    displayName: Terraform Plan
+    condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
+    variables:
+      tfVarsFile: environments/$(ENVIRONMENT).tfvars
+    jobs:
+      - job: init_and_plan
+        displayName: Init, plan, store artifact
+        steps:
+          - checkout: self
+          - checkout: dtos-devops-templates
+          - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+
+  - stage: terraform_apply
+    displayName: Terraform Apply
+    dependsOn: [terraform_plan]
+    condition: and(eq('${{ parameters.pipelineAction }}', 'Apply'), eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
+    jobs:
+      - deployment: terraform_apply
+        displayName: Init, get plan artifact, apply
+        environment: $(ENVIRONMENT)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - checkout: dtos-devops-templates
+                - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+
+  - stage: terraform_destroy
+    displayName: Terraform Destroy
+    condition: and(eq('${{ parameters.pipelineAction }}', 'Destroy'), eq(variables['Build.Reason'], 'Manual'))
+    variables:
+      tfVarsFile: environments/$(ENVIRONMENT).tfvars
+    jobs:
+      - deployment: terraform_destroy
+        displayName: Terraform Destroy
+        environment: $(ENVIRONMENT)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - checkout: dtos-devops-templates
+                - template: .azuredevops/templates/steps/tf_destroy.yaml@dtos-devops-templates

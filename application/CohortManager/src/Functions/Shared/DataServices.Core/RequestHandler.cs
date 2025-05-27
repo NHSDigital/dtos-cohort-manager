@@ -129,24 +129,32 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     private async Task<HttpResponseData> GetById(HttpRequestData req, string keyValue)
     {
-        if(!_authConfig.CanGetById(req))
+        try
         {
-            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
+            if(!_authConfig.CanGetById(req))
+            {
+                return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
+            }
+
+            var keyPredicate = CreateGetByKeyExpression(keyValue);
+            var result = await _dataServiceAccessor.GetSingle(keyPredicate);
+
+            if(result == null)
+            {
+                return CreateErrorResponse(req,"No Data Found",HttpStatusCode.NotFound);
+            }
+
+
+            return CreateHttpResponse(req,new DataServiceResponse<string>
+            {
+                JsonData = JsonSerializer.Serialize(result)
+            });
         }
-
-        var keyPredicate = CreateGetByKeyExpression(keyValue);
-        var result = await _dataServiceAccessor.GetSingle(keyPredicate);
-
-        if(result == null)
+        catch (Exception ex)
         {
-            return CreateErrorResponse(req,"No Data Found",HttpStatusCode.NotFound);
+            _logger.LogError(ex, "An unexpected error occurred while trying to get data");
+            return CreateErrorResponse(req, "Failed to get Record", HttpStatusCode.InternalServerError);
         }
-
-
-        return CreateHttpResponse(req,new DataServiceResponse<string>
-        {
-            JsonData = JsonSerializer.Serialize(result)
-        });
 
     }
 
