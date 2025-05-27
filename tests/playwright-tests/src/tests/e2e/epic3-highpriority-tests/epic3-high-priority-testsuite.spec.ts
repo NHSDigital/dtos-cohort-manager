@@ -5,8 +5,7 @@ import { expect, test, testWithAmended, testWithTwoAmendments } from '../../fixt
 import { TestHooks } from '../../hooks/test-hooks';
 import { cleanupDatabaseFromAPI, processFileViaStorage, validateRecordNotInDatabase, validateSqlDatabaseFromAPI, verifyBlobExists } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
-import { checkBlobExists } from '../../../storage/azureStorage';
-import path from 'path';
+
 
 test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
@@ -396,7 +395,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test.only('@DTOSS-6016-01 - Should Not Distribute Participant Data When Postcode is Missing', {
+  test('@DTOSS-6016-01 - Should Not Distribute Participant Data When Postcode is Missing', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6016',
