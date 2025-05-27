@@ -4,7 +4,15 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9995446588",
-        "RuleId": 36,
+        "RuleId": 3601,
+        "RuleDescription": "Invalid primary care provider GP practice code"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9995446588",
+        "RuleId": 3602,
         "RuleDescription": "Invalid primary care provider GP practice code"
       }
     }
