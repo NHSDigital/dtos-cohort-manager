@@ -3,7 +3,7 @@ import { getRecordsFromBsSelectRetrieveAudit, getRecordsFromBsSelectRetrieveCoho
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
 import { expect, test, testWithAmended, testWithTwoAmendments } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
-import { processFileViaStorage, validateSqlDatabaseFromAPI } from "../../steps/steps";
+import { processFileViaStorage, validateRecordNotInDatabase, validateSqlDatabaseFromAPI, verifyBlobExists } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 import { checkBlobExists } from '../../../storage/azureStorage';
 import path from 'path';
@@ -397,7 +397,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-    test.only('@DTOSS-6016-01', {
+  test('@DTOSS-6016-01 - Should Not Distribute Participant Data When Postcode is Missing', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6016',
@@ -408,22 +408,11 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       await processFileViaStorage(testData.runTimeParquetFile);
     });
 
-    await test.step('Verify ProcessCaasFile data file', async () => {
+    await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFile);
 
-      const expectedBlobName = path.basename(testData.runTimeParquetFile);
-      const outputFileExists = await checkBlobExists(expectedBlobName);
-
-      expect(outputFileExists).toBe(true);
+    await test.step('Then participant record is rejected due to missing postcode', async () => {
+      await validateRecordNotInDatabase(request, testData.checkInDatabase);
     });
-
-
-
-
-    /*
-    await test.step('Then participant record is added to cohort distribution table', async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-    }); */
-
 
   });
 });
