@@ -30,22 +30,27 @@ public class ServiceNowIntegrationTests
 
         var configValues = new Dictionary<string, string>
         {
-            { "ServiceNow:UpdateEndpoint", "https://example.com/api/now/table/CohortCaseUpdate" },
-            { "ServiceNow:AccessToken", "dummy-token" }
+            { "ServiceNowBaseUrl", "https://example.com" },
+            { "Profile", "ebz" },
+            { "Definition", "CohortCaseUpdate" },
+            { "AccessToken", "dummy-token" }
         };
 
         _configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(configValues)
             .Build();
+
+        // Set environment variables for testing
+        Environment.SetEnvironmentVariable("ServiceNowBaseUrl", "https://example.com");
+        Environment.SetEnvironmentVariable("Profile", "ebz");
+        Environment.SetEnvironmentVariable("Definition", "CohortCaseUpdate");
+        Environment.SetEnvironmentVariable("AccessToken", "dummy-token");
     }
 
     [TestMethod]
     public async Task SendServiceNowMessage_ShouldReturnSuccess_WhenValidRequestIsMade()
     {
         // Arrange
-        Environment.SetEnvironmentVariable("UpdateEndpoint", "https://example.com/api/now/table/CohortCaseUpdate");
-        Environment.SetEnvironmentVariable("AccessToken", "dummy-token");
-
         var expectedResponse = new HttpResponseMessage(HttpStatusCode.OK)
         {
             Content = new StringContent("{ \"result\": \"success\" }", Encoding.UTF8, "application/json")
@@ -57,7 +62,7 @@ public class ServiceNowIntegrationTests
                 "SendAsync",
                 ItExpr.Is<HttpRequestMessage>(req =>
                     req.Method == HttpMethod.Put &&
-                    req.RequestUri.ToString().Contains("/123") &&
+                    req.RequestUri.ToString().Contains("/ebz/CohortCaseUpdate/123") &&
                     req.Headers.Authorization.Scheme == "Bearer" &&
                     req.Headers.Authorization.Parameter == "dummy-token"),
                 ItExpr.IsAny<CancellationToken>())
@@ -81,35 +86,30 @@ public class ServiceNowIntegrationTests
             ItExpr.IsAny<CancellationToken>());
     }
 
-[TestMethod]
-[ExpectedException(typeof(HttpRequestException))]
-public async Task SendServiceNowMessage_ShouldThrowException_WhenRequestFails()
-{
-    // Arrange
-    Environment.SetEnvironmentVariable("UpdateEndpoint", "https://example.com/api/now/table/CohortCaseUpdate");
-    Environment.SetEnvironmentVariable("AccessToken", "dummy-token");
-
-    var failedResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized)
+    [TestMethod]
+    [ExpectedException(typeof(HttpRequestException))]
+    public async Task SendServiceNowMessage_ShouldThrowException_WhenRequestFails()
     {
-        Content = new StringContent("Unauthorized")
-    };
+        // Arrange
+        var failedResponse = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("Bad Request")
+        };
 
-    _mockHttpMessageHandler
-        .Protected()
-        .Setup<Task<HttpResponseMessage>>(
-            "SendAsync",
-            ItExpr.IsAny<HttpRequestMessage>(),
-            ItExpr.IsAny<CancellationToken>())
-        .ReturnsAsync(failedResponse)
-        .Verifiable();
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(failedResponse)
+            .Verifiable();
 
-    var service = new ServiceNowIntegration(_httpClient, _configuration, _mockLogger.Object);
+        var service = new ServiceNowIntegration(_httpClient, _configuration, _mockLogger.Object);
 
-    // Act
-    await service.SendServiceNowMessage("123", "Should fail");
+        // Act
+        await service.SendServiceNowMessage("123", "Should fail");
 
-    // Assert – handled by ExpectedException
+        // Assert – handled by ExpectedException
+    }
 }
-
-}
-

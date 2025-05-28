@@ -27,11 +27,17 @@ public class ServiceNowIntegration
         _accessToken = Environment.GetEnvironmentVariable("AccessToken");
     }
 
+
     public async Task<HttpResponseMessage> SendServiceNowMessage(string sysId, string workNotes, int state = 1)
     {
         try
         {
-            var url = $"{_updateEndpoint}/{sysId}";
+            var baseUrl = Environment.GetEnvironmentVariable("ServiceNowBaseUrl");
+            var profile = Environment.GetEnvironmentVariable("Profile");
+            var definition = Environment.GetEnvironmentVariable("Definition");
+            var accessToken = Environment.GetEnvironmentVariable("AccessToken");
+
+            var url = $"{baseUrl}/api/x_nhsd_intstation/nhs_integration/{profile}/{definition}/{sysId}";
 
             var payload = new
             {
@@ -42,25 +48,27 @@ public class ServiceNowIntegration
             var json = JsonSerializer.Serialize(payload);
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-
             _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
+            _logger.LogInformation("Sending PUT request to: {Url}", url);
 
-            _logger.LogInformation("Sending PUT request to ServiceNow for sys_id: {SysId} at URL: {Url}", sysId, url);
-
+             _logger.LogInformation("Calling ServiceNow URL: {Url}", url);
 
             var response = await _httpClient.PutAsync(url, content);
 
+            var responseBody = await response.Content.ReadAsStringAsync();
+            _logger.LogInformation("Response: {Code} - {Body}", response.StatusCode, responseBody);
+
             response.EnsureSuccessStatusCode();
 
-            _logger.LogInformation("Successfully updated ServiceNow case: {SysId}", sysId);
             return response;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to update ServiceNow case with sys_id: {SysId}", sysId);
+            _logger.LogError(ex, "Failed to update ServiceNow case");
             throw;
         }
     }
+
 }
