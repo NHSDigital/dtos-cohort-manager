@@ -57,7 +57,7 @@ public class UnblockParticipantTests
         var request = _setupRequest.Setup("");
         var queryParams = new NameValueCollection
         {
-            { "NhsNumber", "8253303483"}, //Random NHS number created using https://data-gorilla.uk/en/healthcare/nhs-number/ (No PII used)
+            { "NhsNumber", "9102108194"},
             { "ScreeningId", "1"},
             { "DateOfBirth", "01/01/2000"},
             { "LastName", "Smith"}
@@ -82,7 +82,7 @@ public class UnblockParticipantTests
         var request = _setupRequest.Setup("");
         var queryParams = new NameValueCollection
         {
-            { "NhsNumber", "8253303483"}, //Random NHS number created using https://data-gorilla.uk/en/healthcare/nhs-number/ (No PII used)
+            { "NhsNumber", "9102108194"},
             { "ScreeningId", "1"},
             { "DateOfBirth", "01/01/2000"},
             { "LastName", "Smith"}
@@ -114,7 +114,7 @@ public class UnblockParticipantTests
         var request = _setupRequest.Setup("");
         var queryParams = new NameValueCollection
         {
-            { "NhsNumber", "8253303483"}, //Random NHS number created using https://data-gorilla.uk/en/healthcare/nhs-number/ (No PII used)
+            { "NhsNumber", "9102108194"},
             { "ScreeningId", "1"},
             { "DateOfBirth", "01/01/2000"},
             { "LastName", "Smith"}
@@ -147,7 +147,7 @@ public class UnblockParticipantTests
         var request = _setupRequest.Setup("");
         var queryParams = new NameValueCollection
         {
-            { "NhsNumber", "8253303483"}, //Random NHS number created using https://data-gorilla.uk/en/healthcare/nhs-number/ (No PII used)
+            { "NhsNumber", "9102108194"},
             { "ScreeningId", "1"},
             { "DateOfBirth", "01/01/2000"},
             { "LastName", "Smith"}
@@ -181,7 +181,7 @@ public class UnblockParticipantTests
         var request = _setupRequest.Setup("");
         var queryParams = new NameValueCollection
         {
-            { "NhsNumber", "8253303483"}, //Random NHS number created using https://data-gorilla.uk/en/healthcare/nhs-number/ (No PII used)
+            { "NhsNumber", "9102108194"},
             { "ScreeningId", "1"},
             { "DateOfBirth", "01/01/2000"},
             { "LastName", "Smith"}
