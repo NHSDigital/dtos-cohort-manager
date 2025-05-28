@@ -70,6 +70,8 @@ services:
       - UpdateQueueName=update-participant-queue
       - ScreeningLkpDataServiceURL=http://screening-lkp-data-service:8996/api/ScreeningLkpDataService
       - maxNumberOfChecks=50
+      - inboundBlobName=inbound
+      - fileExceptions=file-exceptions
 
   # Participant Management Service
   add-participant:
@@ -299,21 +301,6 @@ services:
       - AcceptableLatencyThresholdMs=500
 
   # Screening Validation Service
-  file-validation:
-    container_name: file-validation
-    image: cohort-manager-file-validation
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: ScreeningValidationService/FileValidation/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7073
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - inboundBlobName=inbound
-      - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
-      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - fileExceptions=file-exceptions
-
   static-validation:
     container_name: static-validation
     image: cohort-manager-static-validation
