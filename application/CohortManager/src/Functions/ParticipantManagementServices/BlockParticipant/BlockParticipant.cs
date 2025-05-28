@@ -40,9 +40,9 @@ public class BlockParticipant
         public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
         {
             _logger.LogInformation("Block Participant Called");
-            long? nhsNumberLong;
+            long nhsNumberLong;
             string? nhsNumber, dateOfBirth, familyName;
-            short screeningId;
+            long screeningId;
 
             nhsNumber = req.Query["NhsNumber"];
             nhsNumberLong = long.Parse(nhsNumber);

@@ -18,3 +18,15 @@ export const getRecordsFromBsSelectRetrieveAudit = (
 ): Promise<ApiResponse> => {
   return apiClient.get(request, `${config.endpointBsSelectRetrieveCohortRequestAudit}${config.routeBsSelectRetrieveCohortRequestAudit}`, params);
 };
+
+export const BlockParticipant = (
+  request: APIRequestContext,
+  payload: {
+    NhsNumber: string;
+    FamilyName: string;
+    DateOfBirth: string;
+  }
+): Promise<ApiResponse> => {
+  const endpoint = `${config.endpointBsSelectBlockParticipant}${config.routeBsSelectBlockParticipant}`;
+  return apiClient.post(request, endpoint, payload);
+};

@@ -5,6 +5,7 @@ using DataServices.Client;
 using NHS.Screening.BlockParticipant;
 using Model;
 using HealthChecks.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
 var host = new HostBuilder()
     .AddConfiguration<BlockParticipantConfig>(out BlockParticipantConfig config)
@@ -16,6 +17,9 @@ var host = new HostBuilder()
     .ConfigureServices(services => {
         // Register health checks
         services.AddBasicHealthCheck("CheckParticipantExists");
+        services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddSingleton<IExceptionHandler, ExceptionHandler>();
+
     })
     .Build();
 
