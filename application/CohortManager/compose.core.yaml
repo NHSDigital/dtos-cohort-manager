@@ -145,48 +145,6 @@ services:
       - CohortQueueName=cohort-distribution-queue
       - UpdateQueueName=update-participant-queue
 
-  update-participant-from-screening-provider:
-    container_name: update-participant-from-screening-provider
-    image: cohort-manager-update-participant-from-screening-provider
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/UpdateParticipantFromScreeningProvider/Dockerfile
-    profiles: [bi-analytics]
-    environment:
-      - ASPNETCORE_URLS=http://*:8001
-      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
-      - GeneCodeLkpUrl=http://gene-code-lkp-data-service:7991/api/GeneCodeLkpDataService
-      - HigherRiskReferralReasonLkpUrl=http://higher-risk-referral-reason-lkp-data-service:7992/api/HigherRiskReferralReasonLkpDataService
-      - topicEndpoint=${EVENTGRID_URL}
-      - topicKey=${EVENTGRID_KEY}
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-
-  check-participant-exists:
-    container_name: check-participant-exists
-    image: cohort-manager-check-participant-exists
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/CheckParticipantExists/Dockerfile
-    profiles: [bi-analytics]
-    environment:
-      - ASPNETCORE_URLS=http://*:8002
-      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
-
-  get-participant-reference-data:
-    container_name: get-participant-reference-data
-    image: cohort-manager-get-participant-reference-data
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/GetParticipantReferenceData/Dockerfile
-    profiles: [bi-analytics]
-    environment:
-      - ASPNETCORE_URLS=http://*:7999
-      - HigherRiskReferralReasonLkpDataServiceUrl=http://higher-risk-referral-reason-lkp-data-service:7992/api/HigherRiskReferralReasonLkpDataService
-      - GeneCodeLkpDataServiceUrl=http://gene-code-lkp-data-service:7991/api/GeneCodeLkpDataService
-
   # Screening Data Service
   create-participant:
     container_name: create-participant
