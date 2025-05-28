@@ -34,7 +34,7 @@ stages:
           serviceConnection: $(SERVICE_CONNECTION)
           targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
           resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
-          jobName: ca-db-management-uksouth
+          jobName: $(DATABASE_MANAGEMENT_JOB_NAME)
 
 - stage: deploy_image_stage
   displayName: Deploy images
