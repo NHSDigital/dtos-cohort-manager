@@ -43,9 +43,15 @@ public class CreateCohortDistribution
     [Function(nameof(CreateCohortDistribution))]
     public async Task RunAsync([QueueTrigger("%CohortQueueName%", Connection = "AzureWebJobsStorage")] CreateCohortDistributionRequestBody basicParticipantCsvRecord)
     {
+        if (basicParticipantCsvRecord == null)
+        {
+            _logger.LogError("Received null queue message");
+            return;
+        }
+
         if (string.IsNullOrWhiteSpace(basicParticipantCsvRecord.ScreeningService) || string.IsNullOrWhiteSpace(basicParticipantCsvRecord.NhsNumber))
         {
-            await HandleErrorResponseAsync("One or more of the required parameters is missing.", null, basicParticipantCsvRecord.FileName);
+            await HandleErrorResponseAsync("One or more of the required parameters is missing.", null, basicParticipantCsvRecord.FileName ?? "unknown");
             return;
         }
 
@@ -93,21 +99,23 @@ public class CreateCohortDistribution
         var participantData = await _CohortDistributionHelper.RetrieveParticipantDataAsync(basicParticipantCsvRecord);
         if (participantData == null || string.IsNullOrEmpty(participantData.ScreeningServiceId))
         {
-            await HandleErrorResponseAsync("Participant data returned from database is missing required fields", participantData, basicParticipantCsvRecord.FileName);
+            await HandleErrorResponseAsync("Participant data returned from database is missing required fields", participantData, basicParticipantCsvRecord.FileName ?? "unknown");
             return null;
         }
         return participantData;
     }
 
-    private async Task<string> ProcessServiceProviderAsync(CreateCohortDistributionRequestBody basicParticipantCsvRecord, CohortDistributionParticipant participantData)
+    private async Task<string?> ProcessServiceProviderAsync(CreateCohortDistributionRequestBody basicParticipantCsvRecord, CohortDistributionParticipant participantData)
     {
+        ArgumentNullException.ThrowIfNull(basicParticipantCsvRecord);
+        ArgumentNullException.ThrowIfNull(participantData);
         var serviceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
         if (!string.IsNullOrEmpty(participantData.Postcode))
         {
-            serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningAcronym, participantData.Postcode, JsonSerializer.Serialize(participantData));
+            serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(basicParticipantCsvRecord.NhsNumber, participantData.ScreeningAcronym ?? throw new InvalidOperationException("ScreeningAcronym is required"), participantData.Postcode, JsonSerializer.Serialize(participantData));
             if (serviceProvider == null)
             {
-                await HandleErrorResponseAsync("Could not get Postcode in Cohort distribution", participantData, basicParticipantCsvRecord.FileName);
+                await HandleErrorResponseAsync("Could not get Postcode in Cohort distribution", participantData, basicParticipantCsvRecord.FileName ?? "unknown");
                 return null;
             }
         }
@@ -123,7 +131,7 @@ public class CreateCohortDistribution
         if (participantHasException && !ignoreParticipantExceptions)
         {
             await HandleErrorResponseAsync($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it",
-                                        participantData, basicParticipantCsvRecord.FileName);
+                                        participantData, basicParticipantCsvRecord.FileName ?? "unknown");
             return false;
         }
         // Validation
