@@ -1,3 +1,5 @@
+namespace NHS.Screening.RetrieveCohortDistribution;
+
 using System.ComponentModel.DataAnnotations;
 
 public class RetrieveCohortDistributionConfig

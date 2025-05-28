@@ -1,3 +1,5 @@
+namespace NHS.Screening.RetrieveCohortRequestAudit;
+
 using System.ComponentModel.DataAnnotations;
 
 public class RetrieveCohortRequestAuditConfig
