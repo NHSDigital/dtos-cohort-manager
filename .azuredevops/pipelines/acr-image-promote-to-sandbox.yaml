@@ -29,9 +29,12 @@ stages:
     steps:
       - checkout: self
       - checkout: dtos-devops-templates
-      - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
+      - template: .azuredevops/templates/steps/app-container-job-start.yaml@dtos-devops-templates
         parameters:
           serviceConnection: $(SERVICE_CONNECTION)
+          targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+          resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
+          jobName: ca-db-management-uksouth
 
 - stage: deploy_image_stage
   displayName: Deploy images
