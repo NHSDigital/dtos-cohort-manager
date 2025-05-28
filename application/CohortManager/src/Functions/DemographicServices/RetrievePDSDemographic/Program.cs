@@ -10,14 +10,13 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        services.AddHttpClient();
-        services.AddScoped<IHttpClientFunction, HttpClientFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
         services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();
         // Register health checks
         services.AddBasicHealthCheck("RetrievePdsDemographic");
     })
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
