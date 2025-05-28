@@ -419,4 +419,24 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
     });
   });
+
+  test('@DTOSS-5221-01 @Test', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5221',
+    },
+  }, async ({ request, testData }) => {
+
+    await test.step(`When the file is uploaded with an invalid language code`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFile);
+    });
+
+    await test.step(`Then the record should appear in the exception service`, async () => {
+    const response = await getRecordsFromExceptionService(request);
+
+    expect(response.status).not.toBe(204);
+  });
+
+  });
+
 });
