@@ -40,9 +40,8 @@ public class UnblockParticipant
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         _logger.LogInformation("Unblock Participant Called");
-        long? nhsNumberLong;
+        long nhsNumberLong, screeningId;
         string? nhsNumber, dateOfBirth, familyName;
-        short screeningId;
 
         nhsNumber = req.Query["NhsNumber"];
         nhsNumberLong = long.Parse(nhsNumber);
