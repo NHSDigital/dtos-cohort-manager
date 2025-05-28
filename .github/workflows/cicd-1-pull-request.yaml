@@ -121,7 +121,7 @@ jobs:
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     with:
       docker_compose_file: application/CohortManager/compose.yaml
-      excluded_containers_csv_list: azurite,azurite-setup,sql-edge,db-setup
+      excluded_containers_csv_list: azurite,azurite-setup,sql-edge,db-setup,sql-server
       environment_tag: ${{ needs.metadata.outputs.environment_tag }}
       function_app_source_code_path: application/CohortManager/src
       project_name: cohort-manager
