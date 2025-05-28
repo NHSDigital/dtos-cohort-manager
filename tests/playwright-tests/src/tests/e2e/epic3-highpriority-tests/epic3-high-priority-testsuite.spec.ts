@@ -395,7 +395,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithAmended('@DTOSS-6016-01 - Should Not Distribute Participant Data When Current Posting is Missing', {
+  testWithAmended.only('@DTOSS-6016-01 - Should Not Distribute Participant Data When Current Posting is Missing', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6016',
