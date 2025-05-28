@@ -5,6 +5,11 @@
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9995512882,
         "ExceptionFlag": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-7960-01",
+        "requirementJiraId": "DTOSS-?",
+        "additionalTags": "@smoke @e2e Tests Verify GP Practice Code Exception flag in participant management set to 1"
       }
     }
   ],

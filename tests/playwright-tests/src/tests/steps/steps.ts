@@ -66,6 +66,40 @@ export function getCheckInDataBaseValidations(scenarioFolderName: string
 
 }
 
+export function getConsolidatedAllTestData(
+  scenarioFolderName: string,
+  recordType: string = "ADD"
+) {
+  const scenarioFolders = scenarioFolderName.split("|").map(name => name.trim());
+  let testFilesPath: string = "";
+  let allValidations: any[] = [];
+  let allInputParticipantRecords: any[] = [];
+  let allNhsNumbers: any[] = [];
+
+  scenarioFolders.forEach(folder => {
+    testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder.substring(0, 14)}/`);
+    const jsonFiles = fs.readdirSync(testFilesPath).filter(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
+    jsonFiles.forEach(jsonFile => {
+      const srcPath = path.join(testFilesPath, jsonFile);
+      const parsedData: InputData = JSON.parse(fs.readFileSync(srcPath, 'utf-8'));
+      allValidations = allValidations.concat(parsedData.validations);
+      allNhsNumbers = allNhsNumbers.concat(parsedData.nhsNumbers);
+      if (Array.isArray(parsedData.inputParticipantRecord)) {
+        allInputParticipantRecords = allInputParticipantRecords.concat(parsedData.inputParticipantRecord);
+      } else if (parsedData.inputParticipantRecord) {
+        allInputParticipantRecords.push(parsedData.inputParticipantRecord);
+      }
+    });
+  });
+
+  return {
+    validations: allValidations,
+    inputParticipantRecords: allInputParticipantRecords,
+    nhsNumbers: allNhsNumbers,
+    testFilesPath
+  };
+}
+
 export async function getApiTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<any> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
     console.info('🏃‍♂️‍➡️\tRunning test For: ', scenarioFolderName);
