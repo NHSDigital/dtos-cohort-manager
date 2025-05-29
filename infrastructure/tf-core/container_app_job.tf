@@ -24,8 +24,10 @@ module "container-app-job" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/container-app-job"
 
-  name                         = "ca-${lower(each.key)}"
-  resource_group_name          = azurerm_resource_group.core[each.value.region].name
+  name                = "ca-${lower(each.key)}"
+  resource_group_name = azurerm_resource_group.core[each.value.region].name
+  location            = each.value.region
+
   container_app_environment_id = module.container-app-environment["${each.value.container_app_environment_key}-${each.value.region}"].id
   user_assigned_identity_ids   = [data.azurerm_user_assigned_identity.db-management[each.value.region].id]
 
