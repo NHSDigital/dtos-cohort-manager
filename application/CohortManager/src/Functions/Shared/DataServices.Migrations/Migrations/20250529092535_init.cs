@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace DataServices.Database.Migrations
+namespace DataServices.Migrations.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSetup : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -23,15 +23,15 @@ namespace DataServices.Database.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     PARTICIPANT_ID = table.Column<long>(type: "bigint", nullable: false),
                     NHS_NUMBER = table.Column<long>(type: "bigint", nullable: false),
-                    SUPERSEDED_NHS_NUMBER = table.Column<long>(type: "bigint", nullable: false),
-                    PRIMARY_CARE_PROVIDER = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    PRIMARY_CARE_PROVIDER_FROM_DT = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    SUPERSEDED_NHS_NUMBER = table.Column<long>(type: "bigint", nullable: true),
+                    PRIMARY_CARE_PROVIDER = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
+                    PRIMARY_CARE_PROVIDER_FROM_DT = table.Column<DateTime>(type: "datetime", nullable: true),
                     NAME_PREFIX = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: true),
                     GIVEN_NAME = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     OTHER_GIVEN_NAME = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     FAMILY_NAME = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     PREVIOUS_FAMILY_NAME = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    DATE_OF_BIRTH = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DATE_OF_BIRTH = table.Column<DateTime>(type: "datetime", nullable: true),
                     GENDER = table.Column<short>(type: "smallint", nullable: false),
                     ADDRESS_LINE_1 = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     ADDRESS_LINE_2 = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
@@ -39,23 +39,23 @@ namespace DataServices.Database.Migrations
                     ADDRESS_LINE_4 = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     ADDRESS_LINE_5 = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     POST_CODE = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    USUAL_ADDRESS_FROM_DT = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    USUAL_ADDRESS_FROM_DT = table.Column<DateTime>(type: "datetime", nullable: true),
                     CURRENT_POSTING = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    CURRENT_POSTING_FROM_DT = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DATE_OF_DEATH = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    CURRENT_POSTING_FROM_DT = table.Column<DateTime>(type: "datetime", nullable: true),
+                    DATE_OF_DEATH = table.Column<DateTime>(type: "datetime", nullable: true),
                     TELEPHONE_NUMBER_HOME = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: true),
-                    TELEPHONE_NUMBER_HOME_FROM_DT = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    TELEPHONE_NUMBER_HOME_FROM_DT = table.Column<DateTime>(type: "datetime", nullable: true),
                     TELEPHONE_NUMBER_MOB = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: true),
-                    TELEPHONE_NUMBER_MOB_FROM_DT = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    TELEPHONE_NUMBER_MOB_FROM_DT = table.Column<DateTime>(type: "datetime", nullable: true),
                     EMAIL_ADDRESS_HOME = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    EMAIL_ADDRESS_HOME_FROM_DT = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    EMAIL_ADDRESS_HOME_FROM_DT = table.Column<DateTime>(type: "datetime", nullable: true),
                     PREFERRED_LANGUAGE = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: true),
                     INTERPRETER_REQUIRED = table.Column<short>(type: "smallint", nullable: false),
                     REASON_FOR_REMOVAL = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    REASON_FOR_REMOVAL_FROM_DT = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    REASON_FOR_REMOVAL_FROM_DT = table.Column<DateTime>(type: "datetime", nullable: true),
                     IS_EXTRACTED = table.Column<short>(type: "smallint", nullable: false),
-                    RECORD_INSERT_DATETIME = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RECORD_UPDATE_DATETIME = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RECORD_INSERT_DATETIME = table.Column<DateTime>(type: "datetime", nullable: true),
+                    RECORD_UPDATE_DATETIME = table.Column<DateTime>(type: "datetime", nullable: true),
                     REQUEST_ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
@@ -72,8 +72,8 @@ namespace DataServices.Database.Migrations
                     BSO = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     COUNTRY_CATEGORY = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AUDIT_ID = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    AUDIT_CREATED_TIMESTAMP = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AUDIT_LAST_MODIFIED_TIMESTAMP = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AUDIT_CREATED_TIMESTAMP = table.Column<DateTime>(type: "datetime", nullable: false),
+                    AUDIT_LAST_MODIFIED_TIMESTAMP = table.Column<DateTime>(type: "datetime", nullable: false),
                     AUDIT_TEXT = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -89,8 +89,8 @@ namespace DataServices.Database.Migrations
                     OUTCODE = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BSO = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     AUDIT_ID = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    AUDIT_CREATED_TIMESTAMP = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AUDIT_LAST_MODIFIED_TIMESTAMP = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AUDIT_CREATED_TIMESTAMP = table.Column<DateTime>(type: "datetime", nullable: false),
+                    AUDIT_LAST_MODIFIED_TIMESTAMP = table.Column<DateTime>(type: "datetime", nullable: false),
                     AUDIT_TEXT = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -105,7 +105,7 @@ namespace DataServices.Database.Migrations
                 {
                     REQUEST_ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     STATUS_CODE = table.Column<string>(type: "nvarchar(3)", maxLength: 3, nullable: false),
-                    CREATED_DATETIME = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    CREATED_DATETIME = table.Column<DateTime>(type: "datetime", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -137,6 +137,7 @@ namespace DataServices.Database.Migrations
                     FOA_MAX_OFFSET = table.Column<byte>(type: "tinyint", nullable: false),
                     BSO_RECALL_INTERVAL = table.Column<byte>(type: "tinyint", nullable: false),
                     ADDRESS_LINE_1 = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: true),
+                    ADDRESS_LINE_2 = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: true),
                     ADDRESS_LINE_3 = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: true),
                     ADDRESS_LINE_4 = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: true),
                     ADDRESS_LINE_5 = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: true),
@@ -202,7 +203,9 @@ namespace DataServices.Database.Migrations
                     SCREENING_NAME = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     EXCEPTION_DATE = table.Column<DateTime>(type: "datetime", nullable: true),
                     COHORT_NAME = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    IS_FATAL = table.Column<short>(type: "smallint", nullable: true)
+                    IS_FATAL = table.Column<short>(type: "smallint", nullable: true),
+                    SERVICENOW_ID = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
+                    SERVICENOW_CREATED_DATE = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -272,9 +275,9 @@ namespace DataServices.Database.Migrations
                     ADDRESS_LINE_5 = table.Column<string>(type: "nvarchar(35)", maxLength: 35, nullable: true),
                     POSTCODE = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: true),
                     TELEPHONE_NUMBER = table.Column<string>(type: "nvarchar(12)", maxLength: 12, nullable: true),
-                    OPEN_DATE = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CLOSE_DATE = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    FAILSAFE_DATE = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    OPEN_DATE = table.Column<DateTime>(type: "datetime", nullable: true),
+                    CLOSE_DATE = table.Column<DateTime>(type: "datetime", nullable: true),
+                    FAILSAFE_DATE = table.Column<DateTime>(type: "datetime", nullable: true),
                     STATUS_CODE = table.Column<string>(type: "nvarchar(1)", maxLength: 1, nullable: false),
                     LAST_UPDATED_DATE_TIME = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     ACTIONED = table.Column<bool>(type: "bit", nullable: false),
@@ -312,6 +315,21 @@ namespace DataServices.Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_LANGUAGE_CODES", x => x.LANGUAGE_CODE);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "NEMS_SUBSCRIPTION",
+                schema: "dbo",
+                columns: table => new
+                {
+                    SUBSCRIPTION_ID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    NHS_NUMBER = table.Column<long>(type: "bigint", nullable: false),
+                    RECORD_INSERT_DATETIME = table.Column<DateTime>(type: "datetime", nullable: true),
+                    RECORD_UPDATE_DATETIME = table.Column<DateTime>(type: "datetime", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_NEMS_SUBSCRIPTION", x => x.SUBSCRIPTION_ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -353,8 +371,8 @@ namespace DataServices.Database.Migrations
                     PREFERRED_LANGUAGE = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     INTERPRETER_REQUIRED = table.Column<short>(type: "smallint", nullable: true),
                     INVALID_FLAG = table.Column<short>(type: "smallint", nullable: true),
-                    RECORD_INSERT_DATETIME = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RECORD_UPDATE_DATETIME = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    RECORD_INSERT_DATETIME = table.Column<DateTime>(type: "datetime", nullable: true),
+                    RECORD_UPDATE_DATETIME = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -373,22 +391,23 @@ namespace DataServices.Database.Migrations
                     RECORD_TYPE = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
                     ELIGIBILITY_FLAG = table.Column<short>(type: "smallint", nullable: false),
                     REASON_FOR_REMOVAL = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
-                    REASON_FOR_REMOVAL_FROM_DT = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    REASON_FOR_REMOVAL_FROM_DT = table.Column<DateTime>(type: "datetime", nullable: true),
                     BUSINESS_RULE_VERSION = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     EXCEPTION_FLAG = table.Column<short>(type: "smallint", nullable: false),
-                    RECORD_INSERT_DATETIME = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    RECORD_UPDATE_DATETIME = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    NEXT_TEST_DUE_DATE = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    RECORD_INSERT_DATETIME = table.Column<DateTime>(type: "datetime", nullable: true),
+                    BLOCKED_FLAG = table.Column<short>(type: "smallint", nullable: false),
+                    RECORD_UPDATE_DATETIME = table.Column<DateTime>(type: "datetime", nullable: true),
+                    NEXT_TEST_DUE_DATE = table.Column<DateTime>(type: "datetime", nullable: true),
                     NEXT_TEST_DUE_DATE_CALC_METHOD = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PARTICIPANT_SCREENING_STATUS = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     SCREENING_CEASED_REASON = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IS_HIGHER_RISK = table.Column<short>(type: "smallint", nullable: true),
                     IS_HIGHER_RISK_ACTIVE = table.Column<short>(type: "smallint", nullable: true),
-                    HIGHER_RISK_NEXT_TEST_DUE_DATE = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    HIGHER_RISK_NEXT_TEST_DUE_DATE = table.Column<DateTime>(type: "datetime", nullable: true),
                     HIGHER_RISK_REFERRAL_REASON_ID = table.Column<int>(type: "int", nullable: true),
-                    DATE_IRRADIATED = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    DATE_IRRADIATED = table.Column<DateTime>(type: "datetime", nullable: true),
                     GENE_CODE_ID = table.Column<int>(type: "int", nullable: true),
-                    SRC_SYSTEM_PROCESSED_DATETIME = table.Column<DateTime>(type: "datetime2", nullable: true)
+                    SRC_SYSTEM_PROCESSED_DATETIME = table.Column<DateTime>(type: "datetime", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -490,6 +509,10 @@ namespace DataServices.Database.Migrations
 
             migrationBuilder.DropTable(
                 name: "LANGUAGE_CODES",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
+                name: "NEMS_SUBSCRIPTION",
                 schema: "dbo");
 
             migrationBuilder.DropTable(

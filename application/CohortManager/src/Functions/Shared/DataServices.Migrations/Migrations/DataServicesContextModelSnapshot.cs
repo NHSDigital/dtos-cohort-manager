@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DataServices.Database.Migrations
+namespace DataServices.Migrations.Migrations
 {
     [DbContext(typeof(DataServicesContext))]
     partial class DataServicesContextModelSnapshot : ModelSnapshot
@@ -590,6 +590,15 @@ namespace DataServices.Database.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("SCREENING_NAME");
 
+                    b.Property<DateTime?>("ServiceNowCreatedDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("SERVICENOW_CREATED_DATE");
+
+                    b.Property<string>("ServiceNowId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("SERVICENOW_ID");
+
                     b.HasKey("ExceptionId");
 
                     b.HasIndex(new[] { "NhsNumber", "ScreeningName" }, "IX_EXCEPTIONMGMT_NHSNUM_SCREENINGNAME");
@@ -813,8 +822,9 @@ namespace DataServices.Database.Migrations
 
             modelBuilder.Entity("Model.NemsSubscription", b =>
                 {
-                    b.Property<long>("SubscriptionId")
-                        .HasColumnType("bigint")
+                    b.Property<Guid>("SubscriptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("SUBSCRIPTION_ID");
 
                     b.Property<long>("NhsNumber")
@@ -831,7 +841,7 @@ namespace DataServices.Database.Migrations
 
                     b.HasKey("SubscriptionId");
 
-                    b.ToTable("nemsSubscriptions");
+                    b.ToTable("NEMS_SUBSCRIPTION", "dbo");
                 });
 
             modelBuilder.Entity("Model.ParticipantDemographic", b =>

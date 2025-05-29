@@ -43,11 +43,11 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<ParticipantManagement>()
             .ToTable("PARTICIPANT_MANAGEMENT", "dbo")
-            .HasIndex(i => new {i.NHSNumber,i.ScreeningId}, "ix_PARTICIPANT_MANAGEMENT_screening_nhs");
+            .HasIndex(i => new { i.NHSNumber, i.ScreeningId }, "ix_PARTICIPANT_MANAGEMENT_screening_nhs");
 
         modelBuilder.Entity<ParticipantDemographic>()
             .ToTable("PARTICIPANT_DEMOGRAPHIC", "dbo")
-            .HasIndex(i => new {i.NhsNumber},"Index_PARTICIPANT_DEMOGRAPHIC_NhsNumber");
+            .HasIndex(i => new { i.NhsNumber }, "Index_PARTICIPANT_DEMOGRAPHIC_NhsNumber");
 
         modelBuilder.Entity<GeneCodeLkp>()
             .ToTable("GENE_CODE_LKP", "dbo");
@@ -58,25 +58,28 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<ExceptionManagement>()
             .ToTable("EXCEPTION_MANAGEMENT", "dbo")
-            .HasIndex(i => new{i.NhsNumber,i.ScreeningName},"IX_EXCEPTIONMGMT_NHSNUM_SCREENINGNAME");
+            .HasIndex(i => new { i.NhsNumber, i.ScreeningName }, "IX_EXCEPTIONMGMT_NHSNUM_SCREENINGNAME");
 
         modelBuilder.Entity<GPPractice>()
             .ToTable("GP_PRACTICES", "dbo");
 
         modelBuilder.Entity<CohortDistribution>()
             .ToTable("BS_COHORT_DISTRIBUTION", "dbo")
-            .HasIndex(c => new{c.NHSNumber},"IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
+            .HasIndex(c => new { c.NHSNumber }, "IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
 
         modelBuilder.Entity<BsSelectRequestAudit>()
-            .ToTable("BS_SELECT_REQUEST_AUDIT","dbo");
+            .ToTable("BS_SELECT_REQUEST_AUDIT", "dbo");
 
         modelBuilder.Entity<ScreeningLkp>()
             .ToTable("SCREENING_LKP", "dbo");
 
         modelBuilder.Entity<BsoOrganisation>()
-            .ToTable("BSO_ORGANISATIONS","dbo");
+            .ToTable("BSO_ORGANISATIONS", "dbo");
 
         modelBuilder.Entity<GenderMaster>()
-            .ToTable("GENDER_MASTER","dbo");
+            .ToTable("GENDER_MASTER", "dbo");
+
+        modelBuilder.Entity<NemsSubscription>()
+            .ToTable("NEMS_SUBSCRIPTION", "dbo");
     }
 }

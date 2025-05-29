@@ -9,11 +9,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace DataServices.Database.Migrations
+namespace DataServices.Migrations.Migrations
 {
     [DbContext(typeof(DataServicesContext))]
-    [Migration("20250403115219_nullableSuperceededByNHSNumber")]
-    partial class nullableSuperceededByNHSNumber
+    [Migration("20250529092535_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,7 +32,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("GP_PRACTICE_CODE");
 
                     b.Property<DateTime>("AuditCreatedTimeStamp")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("AUDIT_CREATED_TIMESTAMP");
 
                     b.Property<decimal>("AuditId")
@@ -40,7 +40,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("AUDIT_ID");
 
                     b.Property<DateTime>("AuditLastUpdatedTimeStamp")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("AUDIT_LAST_MODIFIED_TIMESTAMP");
 
                     b.Property<string>("AuditText")
@@ -70,7 +70,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("OUTCODE");
 
                     b.Property<DateTime>("AuditCreatedTimeStamp")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("AUDIT_CREATED_TIMESTAMP");
 
                     b.Property<decimal>("AuditId")
@@ -78,7 +78,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("AUDIT_ID");
 
                     b.Property<DateTime>("AuditLastModifiedTimeStamp")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("AUDIT_LAST_MODIFIED_TIMESTAMP");
 
                     b.Property<string>("AuditText")
@@ -104,7 +104,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("REQUEST_ID");
 
                     b.Property<DateTime>("CreatedDateTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("CREATED_DATETIME");
 
                     b.Property<string>("StatusCode")
@@ -368,15 +368,15 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("CURRENT_POSTING");
 
                     b.Property<DateTime?>("CurrentPostingFromDt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("CURRENT_POSTING_FROM_DT");
 
                     b.Property<DateTime?>("DateOfBirth")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("DATE_OF_BIRTH");
 
                     b.Property<DateTime?>("DateOfDeath")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("DATE_OF_DEATH");
 
                     b.Property<string>("EmailAddressHome")
@@ -385,7 +385,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("EMAIL_ADDRESS_HOME");
 
                     b.Property<DateTime?>("EmailAddressHomeFromDt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("EMAIL_ADDRESS_HOME_FROM_DT");
 
                     b.Property<string>("FamilyName")
@@ -449,7 +449,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("PRIMARY_CARE_PROVIDER");
 
                     b.Property<DateTime?>("PrimaryCareProviderDate")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("PRIMARY_CARE_PROVIDER_FROM_DT");
 
                     b.Property<string>("ReasonForRemoval")
@@ -458,15 +458,15 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("REASON_FOR_REMOVAL");
 
                     b.Property<DateTime?>("ReasonForRemovalDate")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("REASON_FOR_REMOVAL_FROM_DT");
 
                     b.Property<DateTime?>("RecordInsertDateTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("RECORD_INSERT_DATETIME");
 
                     b.Property<DateTime?>("RecordUpdateDateTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("RECORD_UPDATE_DATETIME");
 
                     b.Property<Guid>("RequestId")
@@ -483,7 +483,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("TELEPHONE_NUMBER_HOME");
 
                     b.Property<DateTime?>("TelephoneNumberHomeFromDt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("TELEPHONE_NUMBER_HOME_FROM_DT");
 
                     b.Property<string>("TelephoneNumberMob")
@@ -492,11 +492,11 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("TELEPHONE_NUMBER_MOB");
 
                     b.Property<DateTime?>("TelephoneNumberMobFromDt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("TELEPHONE_NUMBER_MOB_FROM_DT");
 
                     b.Property<DateTime?>("UsualAddressFromDt")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("USUAL_ADDRESS_FROM_DT");
 
                     b.HasKey("CohortDistributionId");
@@ -593,6 +593,15 @@ namespace DataServices.Database.Migrations
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("SCREENING_NAME");
 
+                    b.Property<DateTime?>("ServiceNowCreatedDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("SERVICENOW_CREATED_DATE");
+
+                    b.Property<string>("ServiceNowId")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("SERVICENOW_ID");
+
                     b.HasKey("ExceptionId");
 
                     b.HasIndex(new[] { "NhsNumber", "ScreeningName" }, "IX_EXCEPTIONMGMT_NHSNUM_SCREENINGNAME");
@@ -654,11 +663,11 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("BSO_ORGANISATION_ID");
 
                     b.Property<DateTime?>("CloseDate")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("CLOSE_DATE");
 
                     b.Property<DateTime?>("FailsafeDate")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("FAILSAFE_DATE");
 
                     b.Property<string>("GPPracticeCode")
@@ -689,7 +698,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("LAST_UPDATED_DATE_TIME");
 
                     b.Property<DateTime?>("OpenDate")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("OPEN_DATE");
 
                     b.Property<string>("Outcode")
@@ -814,6 +823,30 @@ namespace DataServices.Database.Migrations
                     b.ToTable("LANGUAGE_CODES", "dbo");
                 });
 
+            modelBuilder.Entity("Model.NemsSubscription", b =>
+                {
+                    b.Property<Guid>("SubscriptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("SUBSCRIPTION_ID");
+
+                    b.Property<long>("NhsNumber")
+                        .HasColumnType("bigint")
+                        .HasColumnName("NHS_NUMBER");
+
+                    b.Property<DateTime?>("RecordInsertDateTime")
+                        .HasColumnType("datetime")
+                        .HasColumnName("RECORD_INSERT_DATETIME");
+
+                    b.Property<DateTime?>("RecordUpdateDateTime")
+                        .HasColumnType("datetime")
+                        .HasColumnName("RECORD_UPDATE_DATETIME");
+
+                    b.HasKey("SubscriptionId");
+
+                    b.ToTable("NEMS_SUBSCRIPTION", "dbo");
+                });
+
             modelBuilder.Entity("Model.ParticipantDemographic", b =>
                 {
                     b.Property<long>("ParticipantId")
@@ -928,11 +961,11 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("PRIMARY_CARE_PROVIDER_FROM_DT");
 
                     b.Property<DateTime?>("RecordInsertDateTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("RECORD_INSERT_DATETIME");
 
                     b.Property<DateTime?>("RecordUpdateDateTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("RECORD_UPDATE_DATETIME");
 
                     b.Property<long?>("SupersededByNhsNumber")
@@ -975,13 +1008,17 @@ namespace DataServices.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ParticipantId"));
 
+                    b.Property<short>("BlockedFlag")
+                        .HasColumnType("smallint")
+                        .HasColumnName("BLOCKED_FLAG");
+
                     b.Property<string>("BusinessRuleVersion")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("BUSINESS_RULE_VERSION");
 
                     b.Property<DateTime?>("DateIrradiated")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("DATE_IRRADIATED");
 
                     b.Property<short>("EligibilityFlag")
@@ -997,7 +1034,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("GENE_CODE_ID");
 
                     b.Property<DateTime?>("HigherRiskNextTestDueDate")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("HIGHER_RISK_NEXT_TEST_DUE_DATE");
 
                     b.Property<int?>("HigherRiskReferralReasonId")
@@ -1017,7 +1054,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("NHS_NUMBER");
 
                     b.Property<DateTime?>("NextTestDueDate")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("NEXT_TEST_DUE_DATE");
 
                     b.Property<string>("NextTestDueDateCalcMethod")
@@ -1034,11 +1071,11 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("REASON_FOR_REMOVAL");
 
                     b.Property<DateTime?>("ReasonForRemovalDate")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("REASON_FOR_REMOVAL_FROM_DT");
 
                     b.Property<DateTime?>("RecordInsertDateTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("RECORD_INSERT_DATETIME");
 
                     b.Property<string>("RecordType")
@@ -1048,7 +1085,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("RECORD_TYPE");
 
                     b.Property<DateTime?>("RecordUpdateDateTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("RECORD_UPDATE_DATETIME");
 
                     b.Property<string>("ScreeningCeasedReason")
@@ -1060,7 +1097,7 @@ namespace DataServices.Database.Migrations
                         .HasColumnName("SCREENING_ID");
 
                     b.Property<DateTime?>("SrcSysProcessedDateTime")
-                        .HasColumnType("datetime2")
+                        .HasColumnType("datetime")
                         .HasColumnName("SRC_SYSTEM_PROCESSED_DATETIME");
 
                     b.HasKey("ParticipantId");
