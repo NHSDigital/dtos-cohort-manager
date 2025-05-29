@@ -19,7 +19,6 @@ public class DurableDemographicFunction
     private readonly ILogger<DurableDemographicFunction> _logger;
     private readonly ICreateResponse _createResponse;
 
-
     public DurableDemographicFunction(IDataServiceClient<ParticipantDemographic> dataServiceClient, ILogger<DurableDemographicFunction> logger, ICreateResponse createResponse)
     {
         _participantDemographic = dataServiceClient;
@@ -123,7 +122,7 @@ public class DurableDemographicFunction
     [Function("DurableDemographicFunction_HttpStart")]
     public async Task<HttpResponseData> HttpStart(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
-        [DurableClient] DurableTaskClient client,
+        [DurableClient(TaskHub = "DurableDemographicTaskHub")] DurableTaskClient client,
         FunctionContext executionContext)
     {
         try
@@ -153,7 +152,7 @@ public class DurableDemographicFunction
     [Function("GetOrchestrationStatus")]
     public async Task<HttpResponseData> GetOrchestrationStatus(
     [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req,
-    [DurableClient] DurableTaskClient client)
+    [DurableClient()] DurableTaskClient client)
     {
         var instanceId = "";
         var status = "";
