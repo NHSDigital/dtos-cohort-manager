@@ -3,7 +3,7 @@ import { getRecordsFromBsSelectRetrieveAudit, getRecordsFromBsSelectRetrieveCoho
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
 import { expect, test, testWithAmended, testWithTwoAmendments } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
-import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } from "../../steps/steps";
+import { processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 
 
@@ -425,6 +425,16 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
       const firstRecord = response.data.find(() => true);
       expect(firstRecord?.CurrentPosting).toBe('CH');
+    });
+
+    await test.step('And there should be transformation exceptions rule trigger for AMENDED participant', async () => {
+      const records = await getRecordsFromExceptionService(request);
+
+      const genericValidations = composeValidators(
+        expectStatus(204),
+        validateResponseByStatus()
+      );
+      await genericValidations(records);
     });
   });
 
