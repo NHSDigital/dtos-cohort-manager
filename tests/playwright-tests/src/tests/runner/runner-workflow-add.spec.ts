@@ -19,7 +19,7 @@ test.afterAll(async () => {
 });
 
 addData.validations.forEach((validations) => {
-  test(`@runner-workflow-add ${validations.meta?.additionalTags}`, {
+  test(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
     annotation: [
       { type: 'TestId', description: validations.meta?.testJiraId ?? '' },
       { type: 'RequirementId', description: validations.meta?.requirementJiraId ?? '' },
