@@ -3,7 +3,7 @@
         {
             "validations": {
                 "apiEndpoint": "api/ExceptionManagementDataService",
-                "NhsNumber": "1111122326",
+                "NhsNumber": "9990069646",
                 "RuleId": 100,
                 "RuleDescription": "PrimaryCareProviderEffectiveFromDate"
             }
@@ -11,7 +11,7 @@
         {
             "validations": {
                 "apiEndpoint": "api/ExceptionManagementDataService",
-                "NhsNumber": "1111122342",
+                "NhsNumber": "9990162573",
                 "RuleId": 100,
                 "RuleDescription": "PrimaryCareProviderEffectiveFromDate"
             }
@@ -19,7 +19,7 @@
         {
             "validations": {
                 "apiEndpoint": "api/ExceptionManagementDataService",
-                "NhsNumber": "1111122350",
+                "NhsNumber": "9990201897",
                 "RuleId": 100,
                 "RuleDescription": "PrimaryCareProviderEffectiveFromDate"
             }
@@ -32,7 +32,7 @@
             "record_type": "AMENDED",
             "change_time_stamp": 20240524000000,
             "serial_change_number": 1,
-            "nhs_number": 1111122326,
+            "nhs_number": 9990069646,
             "superseded_by_nhs_number": null,
             "primary_care_provider": "E85121",
             "primary_care_effective_from_date": "20261113",
@@ -72,7 +72,7 @@
             "record_type": "AMENDED",
             "change_time_stamp": 20240524000000,
             "serial_change_number": 2,
-            "nhs_number": 1111122342,
+            "nhs_number": 9990162573,
             "superseded_by_nhs_number": null,
             "primary_care_provider": "E85121",
             "primary_care_effective_from_date": "20261201",
@@ -112,7 +112,7 @@
             "record_type": "AMENDED",
             "change_time_stamp": 20240524000000,
             "serial_change_number": 3,
-            "nhs_number": 1111122350,
+            "nhs_number": 9990201897,
             "superseded_by_nhs_number": null,
             "primary_care_provider": "E85121",
             "primary_care_effective_from_date": "20260101",
@@ -150,8 +150,8 @@
         }
     ],
     "nhsNumbers": [
-        "1111122326",
-        "1111122342",
-        "1111122350"
+        "9990069646",
+        "9990162573",
+        "9990201897"
     ]
 }
