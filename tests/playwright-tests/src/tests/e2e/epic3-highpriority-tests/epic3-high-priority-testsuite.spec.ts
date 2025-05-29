@@ -419,4 +419,18 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
     });
   });
+
+  test('@DTOSS-5539-01 @Implement Validation for Eligibility Flag for Add set to true', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3656',
+    },
+  }, async ({ request, testData }) => {
+
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+    });
+
+  });
+
 });
