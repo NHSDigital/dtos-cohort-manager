@@ -1,5 +1,5 @@
-import { test, APIRequestContext } from "@playwright/test";
-import { uploadToLocalStorage } from "../../storage/azureStorage";
+import { test, APIRequestContext, expect } from "@playwright/test";
+import { checkBlobExists, uploadToLocalStorage } from "../../storage/azureStorage";
 import { InputData } from "../../interface/InputData";
 import { config } from "../../config/env";
 import * as fs from 'fs';
@@ -75,5 +75,13 @@ export async function getApiTestData(scenarioFolderName: string, recordType: str
     const inputParticipantRecord: Record<string, any> = parsedData.inputParticipantRecord;
     const nhsNumbers: string[] = parsedData.nhsNumbers;
     return [parsedData.validations, inputParticipantRecord, nhsNumbers, testFilesPath];
+  });
+}
+
+export async function verifyBlobExists(stepName: string, filePath: string) {
+  await test.step(stepName, async () => {
+    const expectedBlobName = path.basename(filePath);
+    const outputFileExists = await checkBlobExists(expectedBlobName);
+    expect(outputFileExists).toBe(true);
   });
 }
