@@ -52,7 +52,6 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
       - ASPNETCORE_URLS=http://*:7060
-      - FileValidationURL=http://file-validation:7073/api/FileValidation
       - PMSAddParticipant=http://add-participant:7062/api/addParticipant
       - PMSRemoveParticipant=http://remove-participant:7063/api/RemoveParticipant
       - PMSUpdateParticipant=http://update-participant:7065/api/updateParticipant
