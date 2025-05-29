@@ -3,7 +3,7 @@ import { getRecordsFromBsSelectRetrieveAudit, getRecordsFromBsSelectRetrieveCoho
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
 import { expect, test, testWithAmended, testWithTwoAmendments } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
-import { cleanupDatabaseFromAPI, getParticipantFromApi, processFileViaStorage, validateRecordNotInDatabase, validateSqlDatabaseFromAPI, verifyBlobExists } from "../../steps/steps";
+import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 
 
@@ -395,7 +395,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithAmended.only('@DTOSS-6016-01 - Should Not Distribute Participant Data When Current Posting is Missing', {
+  testWithAmended.only('@DTOSS-6016-01 - Should Not Amend Participant Data When Current Posting is Missing', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6016',
@@ -416,10 +416,16 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       await processFileViaStorage(testData.runTimeParquetFileAmend);
     });
 
-    await test.step('Then participant record should NOT be updated due to missing Current Posting', async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
+    await test.step('Then the current posting should not be amended', async () => {
+      const response = await getRecordsFromCohortDistributionService(request);
 
+      if (!response || !Array.isArray(response.data)) {
+        throw new Error('No data returned from cohort distribution service');
+      }
+
+      const firstRecord = response.data.find(() => true);
+      expect(firstRecord?.CurrentPosting).toBe('CH');
+    });
   });
 
   test('@DTOSS-5348-01 @AddParticipant Verify all Functions Called', {
