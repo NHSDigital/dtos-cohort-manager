@@ -431,7 +431,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       const records = await getRecordsFromExceptionService(request);
 
       const genericValidations = composeValidators(
-        expectStatus(204),
+        expectStatus(200),
         validateResponseByStatus()
       );
       await genericValidations(records);
