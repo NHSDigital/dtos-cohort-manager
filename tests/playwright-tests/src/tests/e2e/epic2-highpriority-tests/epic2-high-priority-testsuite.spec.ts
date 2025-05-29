@@ -113,6 +113,17 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
+    test('@DTOSS-4328-01 ?', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
+      },
+    }, async ({ request, testData }) => {
+      await test.step(`Then Exception table should have RuleId as 100 & RuleDescription as PrimaryCareProviderEffectiveFromDate`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
+
   }); // End of ADD Tests
 
   test.describe('AMENDED Tests', () => {
