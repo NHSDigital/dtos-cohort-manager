@@ -28,7 +28,7 @@ test.afterAll(async () => {
 
 amendData.validations.forEach((validations) => {
 
-  test(`@runner-workflow-amend ${JSON.stringify(validations)}`, {
+  test(`@runner-workflow-amend ${validations.meta?.additionalTags}`, {
     annotation: [{
       type: 'TestId',
       description: validations.meta?.testJiraId ?? '',
