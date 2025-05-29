@@ -100,6 +100,7 @@ app_service_plan = {
   os_type                  = "Linux"
   sku_name                 = "P3v3"
   vnet_integration_enabled = true
+  zone_balancing_enabled   = true
 
   autoscale = {
     scaling_rule = {

@@ -37,6 +37,7 @@ module "app-service-plan" {
   wildcard_ssl_cert_pfx_blob_key_vault_secret_name  = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.certificates[each.value.wildcard_ssl_cert_key].key_vault_certificate[each.value.region].pfx_blob_secret_name : null
   wildcard_ssl_cert_pfx_password                    = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.certificates[each.value.wildcard_ssl_cert_key].key_vault_certificate[each.value.region].pfx_password : null
   wildcard_ssl_cert_key_vault_id                    = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.key_vault[each.value.region].key_vault_id : null
+  zone_balancing_enabled                            = each.value.zone_balancing_enabled
 
   tags = var.tags
 
