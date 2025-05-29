@@ -10,14 +10,14 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Text;
 using Moq.Protected;
-using NHS.CohortManager.ServiceNowIntegrationService;
+using NHS.CohortManager.ServiceNowMessageService;
 
 [TestClass]
-public class ServiceNowIntegrationTests
+public class ServiceNowMessageTests
 {
     private Mock<HttpMessageHandler> _mockHttpMessageHandler;
     private HttpClient _httpClient;
-    private Mock<ILogger<ServiceNowIntegration>> _mockLogger;
+    private Mock<ILogger<ServiceNowMessage>> _mockLogger;
     private IConfiguration _configuration;
 
     [TestInitialize]
@@ -26,7 +26,7 @@ public class ServiceNowIntegrationTests
         _mockHttpMessageHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
         _httpClient = new HttpClient(_mockHttpMessageHandler.Object);
 
-        _mockLogger = new Mock<ILogger<ServiceNowIntegration>>();
+        _mockLogger = new Mock<ILogger<ServiceNowMessage>>();
 
         var configValues = new Dictionary<string, string>
         {
@@ -69,7 +69,7 @@ public class ServiceNowIntegrationTests
             .ReturnsAsync(expectedResponse)
             .Verifiable();
 
-        var service = new ServiceNowIntegration(_httpClient, _configuration, _mockLogger.Object);
+        var service = new ServiceNowMessage(_httpClient, _configuration, _mockLogger.Object);
 
         // Act
         var result = await service.SendServiceNowMessage("123", "Work notes test");
@@ -105,7 +105,7 @@ public class ServiceNowIntegrationTests
             .ReturnsAsync(failedResponse)
             .Verifiable();
 
-        var service = new ServiceNowIntegration(_httpClient, _configuration, _mockLogger.Object);
+        var service = new ServiceNowMessage(_httpClient, _configuration, _mockLogger.Object);
 
         // Act
         await service.SendServiceNowMessage("123", "Should fail");

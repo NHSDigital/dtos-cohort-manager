@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.ServiceNowIntegrationService;
+namespace NHS.CohortManager.ServiceNowMessageService;
 
 using System.ComponentModel.DataAnnotations;
 

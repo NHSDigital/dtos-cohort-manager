@@ -4,14 +4,14 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using NHS.CohortManager.ServiceNowIntegrationService;
+using NHS.CohortManager.ServiceNowMessageService;
 
 public class SendServiceNowMessageFunction
 {
-    private readonly ServiceNowIntegration _serviceNow;
+    private readonly ServiceNowMessage _serviceNow;
     private readonly ILogger _logger;
 
-    public SendServiceNowMessageFunction(ServiceNowIntegration serviceNow, ILoggerFactory loggerFactory)
+    public SendServiceNowMessageFunction(ServiceNowMessage serviceNow, ILoggerFactory loggerFactory)
     {
         _serviceNow = serviceNow;
         _logger = loggerFactory.CreateLogger<SendServiceNowMessageFunction>();

@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.ServiceNowIntegrationService;
+namespace NHS.CohortManager.ServiceNowMessageService;
 
 using System;
 using System.Net.Http;
@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 
-public class ServiceNowIntegration
+public class ServiceNowMessage
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<ServiceNowIntegration> _logger;
+    private readonly ILogger<ServiceNowMessage> _logger;
     private readonly string _updateEndpoint;
     private readonly string _accessToken;
 
-    public ServiceNowIntegration(HttpClient httpClient, IConfiguration configuration, ILogger<ServiceNowIntegration> logger)
+    public ServiceNowMessage(HttpClient httpClient, IConfiguration configuration, ILogger<ServiceNowMessage> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
