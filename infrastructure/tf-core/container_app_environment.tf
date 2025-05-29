@@ -3,6 +3,11 @@ module "container-app-environment" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/container-app-environment"
 
+  providers = {
+    azurerm     = azurerm
+    azurerm.dns = azurerm
+  }
+
   name                = "${module.regions_config[each.value.region].names.container-app-environment}-${lower(each.value.container_app_environment)}"
   resource_group_name = azurerm_resource_group.core[each.value.region].name
   location            = each.value.region
