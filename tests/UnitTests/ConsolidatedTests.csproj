@@ -89,10 +89,7 @@
   <!-- Participant Management Services -->
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\updateParticipant\updateParticipant.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\CheckParticipantExists\CheckParticipantExists.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\UpdateParticipantFromScreeningProvider\UpdateParticipantFromScreeningProvider.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\RemoveParticipant\RemoveParticipant.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\GetParticipantReferenceData\GetParticipantReferenceData.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\BlockParticipant\BlockParticipant.csproj" />
   </ItemGroup>

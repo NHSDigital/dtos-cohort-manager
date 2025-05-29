@@ -29,29 +29,12 @@ public class DemographicDataFunction
     [Function("DemographicDataFunction")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        return await Main(req, false);
-    }
-
-    /// <summary>
-    /// Gets filtered demographic data from the demographic data service,
-    /// this endpoint is used by the external BI product
-    /// </summary>
-    /// <param name="Id">The NHS number to get the demographic data for.</param>
-    /// <returns>JSON response containing the Primary Care Provider & Preferred Language</returns>
-    [Function("DemographicDataFunctionExternal")]
-    public async Task<HttpResponseData> RunExternal([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
-    {
-        return await Main(req, true);
-    }
-
-    private async Task<HttpResponseData> Main(HttpRequestData req, bool externalRequest)
-    {
         try
         {
 
-            if(req.Query["Id"] == null)
+            if (req.Query["Id"] == null)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest,req,"No NHS Number Provided");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "No NHS Number Provided");
             }
             string NHSNumber = req.Query["Id"]!;
 
@@ -65,13 +48,6 @@ public class DemographicDataFunction
             }
 
             var data = JsonSerializer.Serialize(demographicData);
-
-            // Filters out unnecessary data for use in the BI product
-            if (externalRequest)
-            {
-                var filteredData = JsonSerializer.Deserialize<FilteredDemographicData>(data);
-                data = JsonSerializer.Serialize(filteredData);
-            }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, data);
         }
