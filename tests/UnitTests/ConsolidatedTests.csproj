@@ -76,7 +76,7 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\BsSelectGpPractice\BsSelectGpPractice.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\CurrentPostingDataService\CurrentPosting.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\NemsSubscriptionDataService\NemsSubscriptionDataService.csproj" />
-    <ProjectReference Include="../../../application/CohortManager/src/Functions/SendServiceNowMessage/SendServiceNowMessage.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\SendServiceNowMessage\SendServiceNowMessage.csproj" />
   </ItemGroup>
 
   <!-- Screening Validation Services -->
