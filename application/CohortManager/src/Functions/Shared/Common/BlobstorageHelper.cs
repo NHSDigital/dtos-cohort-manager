@@ -14,7 +14,7 @@ public class BlobStorageHelper : IBlobStorageHelper
     {
         _logger = logger;
     }
-    public async Task<bool> CopyFileAsync(string connectionString, string fileName, string containerName)
+    public async Task CopyFileToPoisonAsync(string connectionString, string fileName, string containerName)
     {
         var sourceBlobServiceClient = new BlobServiceClient(connectionString);
         var sourceContainerClient = sourceBlobServiceClient.GetBlobContainerClient(containerName);
@@ -33,19 +33,16 @@ public class BlobStorageHelper : IBlobStorageHelper
             await sourceBlobLease.AcquireAsync(BlobLeaseClient.InfiniteLeaseDuration);
 
             var copyOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
-            await copyOperation.WaitForCompletionAsync();
         }
         catch (RequestFailedException ex)
         {
             _logger.LogError(ex, "There has been a problem while copying the file: {Message}", ex.Message);
-            return false;
+            throw;
         }
         finally
         {
             await sourceBlobLease.ReleaseAsync();
         }
-
-        return true;
     }
 
     public async Task<bool> UploadFileToBlobStorage(string connectionString, string containerName, BlobFile blobFile, bool overwrite = false)
