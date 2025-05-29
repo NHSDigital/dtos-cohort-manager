@@ -9,7 +9,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-6407-01",
-        "requirementJiraId": "DTOSS-?",
+        "requirementJiraId": "DTOSS-6256",
         "additionalTags": "@smoke @e2e Tests Verify file upload and cohort distribution process for AMENDED record type with invalid date of birth"
       }
     }

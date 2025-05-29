@@ -19,7 +19,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-6256-01",
-        "requirementJiraId": "DTOSS-?",
+        "requirementJiraId": "DTOSS-5389",
         "additionalTags": "@smoke @e2e Tests Verify file upload and cohort distribution process for ADD and check details of NHS participant record"
       }
     },
@@ -30,7 +30,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-6256-01",
-        "requirementJiraId": "DTOSS-?",
+        "requirementJiraId": "DTOSS-5389",
         "additionalTags": "@smoke @e2e Tests Verify file upload and cohort distribution process for ADD and check NHS Number"
       }
     },
@@ -42,7 +42,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-6256-01",
-        "requirementJiraId": "DTOSS-?",
+        "requirementJiraId": "DTOSS-5389",
         "additionalTags": "@smoke @e2e Tests Verify file upload and cohort distribution process for ADD and check NHS Number, Primary Care Provider"
       }
     }
