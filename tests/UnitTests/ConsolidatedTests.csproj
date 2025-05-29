@@ -1,0 +1,142 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <ProjectGuid>{5C61489E-9430-470C-BC0F-786965C35010}</ProjectGuid>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <!-- Disable implicit file inclusion -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <!-- NuGet Package References -->
+  <ItemGroup>
+    <!-- Testing Packages -->
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.72" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <PackageReference Include="FluentAssertions" Version="6.12.2" />
+
+    <!-- Azure Functions Packages -->
+    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.2.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.13.0" />
+    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.37" />
+
+    <!-- Other Dependencies -->
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.3" />
+  </ItemGroup>
+
+  <!-- Global Using Statements -->
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+  <!-- Compile Files -->
+  <ItemGroup>
+    <Compile Include="**\*.cs"
+      Exclude="**/bin/**;**/obj/**;**/*.AssemblyInfo.cs;**/*.GlobalUsings.g.cs;**/*AssemblyAttributes.cs" />
+  </ItemGroup>
+
+  <!-- Project References -->
+  <ItemGroup>
+    <!-- Shared Projects -->
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Model\Model.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Data\Data.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Utilities\Utilities.csproj" />
+    <ProjectReference Include="..\TestUtils\TestUtils.csproj" />
+    <ProjectReference Include="..\..\DataServices.Client\DataServices.Client.csproj" />
+    <ProjectReference Include="../../application/CohortManager/src/Functions/Shared/DataServices.Client/DataServices.Client.csproj" />
+  </ItemGroup>
+
+  <!-- Screening Data Services -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\updateParticipantDetails\updateParticipantDetails.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\createParticipant\createParticipant.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\markParticipantAsEligible\markParticipantAsEligible.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\GetValidationExceptions\GetValidationExceptions.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\markParticipantAsIneligible\markParticipantAsIneligible.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\ScreeningLkpDataService\ScreeningLkpDataService.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\CohortDistributionDataService\CohortDistributionDataService.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\ExceptionManagementDataService\ExceptionManagementDataService.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\ExcludedSMULookupDataService\ExcludedSMULookupDataServices.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\BsSelectOutCode\BsSelectOutCode.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\BsSelectGpPractice\BsSelectGpPractice.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\CurrentPostingDataService\CurrentPosting.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\NemsSubscriptionDataService\NemsSubscriptionDataService.csproj" />
+  </ItemGroup>
+
+  <!-- Screening Validation Services -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\RemoveValidationException\RemoveValidationException.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\LookupValidation\LookupValidation.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\StaticValidation\StaticValidation.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\FileValidation\FileValidation.csproj" />
+  </ItemGroup>
+
+  <!-- Participant Management Services -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\updateParticipant\updateParticipant.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\CheckParticipantExists\CheckParticipantExists.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\UpdateParticipantFromScreeningProvider\UpdateParticipantFromScreeningProvider.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\RemoveParticipant\RemoveParticipant.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\GetParticipantReferenceData\GetParticipantReferenceData.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\BlockParticipant\BlockParticipant.csproj" />
+  </ItemGroup>
+
+  <!-- Demographic Services -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDataManagementFunction\DemographicDataManagementFunction.csproj" />
+  </ItemGroup>
+
+  <!-- Cohort Distribution Services -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\TransformDataService\TransformDataService.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\ValidateCohortDistributionRecord\ValidateCohortDistributionRecord.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\RetrieveParticipantData\RetrieveParticipantData.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\CreateCohortDistribution\CreateCohortDistribution.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\AddCohortDistributionData\AddCohortDistributionData.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\DeleteParticipant\DeleteParticipant.csproj" />
+  </ItemGroup>
+
+  <!-- Exception Handling -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ExceptionHandling\CreateException\CreateException.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ExceptionHandling\UpdateException\UpdateException.csproj" />
+  </ItemGroup>
+
+  <!-- CAAS Integration -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CaasIntegration\receiveCaasFile\receiveCaasFile.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CaasIntegration\RetrieveMeshFile\RetrieveMeshFile.csproj" />
+  </ItemGroup>
+
+  <!-- NEMS Services -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\NemsMeshRetrieval\NemsMeshRetrieval.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSSubscribe\NEMSSubscribe.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSUnSubscription\NEMSUnSubscription.csproj" />
+  </ItemGroup>
+
+  <!-- Content files to be copied to output directory -->
+  <ItemGroup>
+    <None Update="**\*.json;**\*.parquet" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

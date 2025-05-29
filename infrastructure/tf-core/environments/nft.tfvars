@@ -36,6 +36,17 @@ regions = {
         cidr_newbits = 8
         cidr_offset  = 3
       }
+      webapps = {
+        cidr_newbits               = 8
+        cidr_offset                = 4
+        delegation_name            = "Microsoft.Web/serverFarms"
+        service_delegation_name    = "Microsoft.Web/serverFarms"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+      }
+      pep-dmz = {
+        cidr_newbits = 8
+        cidr_offset  = 5
+      }
     }
   }
 }
@@ -155,12 +166,12 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_min = "1"
-          capacity_max = "4"
-          capacity_def = "2"
+          capacity_max = "1"
+          capacity_def = "1"
 
           inc_threshold   = 5
           dec_threshold   = 5
-          inc_scale_value = 4
+          inc_scale_value = 1
 
           dec_scale_type  = "ChangeCount"
           dec_scale_value = 1
@@ -179,8 +190,6 @@ function_apps = {
   acr_name    = "acrukshubdevcohman"
   acr_rg_name = "rg-hub-dev-uks-cohman"
 
-  app_insights_name                      = "appi-nft-uks-cohman"
-  app_insights_rg_name                   = "rg-cohman-nft-uks-audit"
   app_service_logs_disk_quota_mb         = 35
   app_service_logs_retention_period_days = 7
 
@@ -395,6 +404,43 @@ function_apps = {
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
       }
+    }
+
+    BlockParticipant = {
+      name_suffix            = "block-participant"
+      function_endpoint_name = "BlockParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        }
+      ]
+    }
+
+    DeleteParticipant = {
+      name_suffix            = "delete-participant"
+      function_endpoint_name = "DeleteParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
+        }
+      ]
     }
 
     MarkParticipantAsEligible = {
@@ -1161,6 +1207,57 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        RetrievePdsParticipantURL = ""
+      }
+    }
+
+    NemsSubscriptionDataService = {
+      name_suffix            = "nems-subscription-data-service"
+      function_endpoint_name = "NemsSubscriptionDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
+    }
+
+    NemsSubscribe = {
+      name_suffix            = "nems-subscribe"
+      function_endpoint_name = "NemsSubscribe"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "RetrievePdsDemographicURL"
+          function_app_key = "RetrievePDSDemographic"
+        }
+      ]
+    }
+
+    NemsUnsubscribe = {
+      name_suffix            = "nems-unsubscribe"
+      function_endpoint_name = "NemsUnsubscribe"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
         },
         {
           env_var_name     = "ParticipantDemographicDataServiceURL"
@@ -1168,10 +1265,96 @@ function_apps = {
         }
       ]
     }
+
+    NemsMeshRetrieval = {
+      name_suffix                  = "nems-mesh-retrieval"
+      function_endpoint_name       = "NemsMeshRetrieval"
+      app_service_plan_key         = "RetrieveMeshFile"
+      key_vault_url                = "KeyVaultConnectionString"
+      storage_account_env_var_name = "nemsmeshfolder_STORAGE"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "FileValidationURL"
+          function_app_key = "FileValidation"
+        }
+      ]
+      env_vars_static = {
+        MeshCertName = "MeshCert"
+      }
+    }
+
+    UpdateException = {
+      name_suffix            = "update-exception"
+      function_endpoint_name = "UpdateException"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionManagementDataServiceURL"
+          function_app_key = "ExceptionManagementDataService"
+        }
+      ]
+    }
   }
 }
 
 function_app_slots = []
+
+linux_web_app = {
+  acr_mi_name = "dtos-cohort-manager-acr-push"
+  acr_name    = "acrukshubdevcohman"
+  acr_rg_name = "rg-hub-dev-uks-cohman"
+
+  always_on = true
+
+  cont_registry_use_mi = true
+
+  docker_CI_enable  = "true"
+  docker_env_tag    = "nft"
+  docker_img_prefix = "cohort-manager"
+
+  enable_appsrv_storage    = "false"
+  ftps_state               = "Disabled"
+  https_only               = true
+  remote_debugging_enabled = false
+  worker_32bit             = false
+  # storage_name             = "webappstor"
+  # storage_type             = "AzureBlob"
+  # share_name               = "webapp"
+
+  linux_web_app_config = {
+
+    FrontEndUi = {
+      name_suffix          = "web"
+      app_service_plan_key = "DefaultPlan"
+      env_vars = {
+        static = {
+          AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
+          AUTH_CIS2_CLIENT_ID  = "5789849932.cohort-manager-ui-dev.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
+          AUTH_TRUST_HOST      = "true"
+          SERVICE_NAME         = "Cohort Manager"
+        }
+        from_key_vault = {
+          # env_var_name          = "key_vault_secret_name"
+          AUTH_CIS2_CLIENT_SECRET = "auth-cis2-client-secret"
+          COHORT_MANAGER_USERS    = "cohort-manager-users"
+          NEXTAUTH_SECRET         = "nextauth-secret"
+        }
+        local_urls = {
+          # %s becomes the environment and region prefix (e.g. dev-uks)
+          EXCEPTIONS_API_URL = "https://%s-get-validation-exceptions.azurewebsites.net"
+          NEXTAUTH_URL       = "https://%s-web.azurewebsites.net/api/auth"
+        }
+      }
+    }
+  }
+}
+
+linux_web_app_slots = []
 
 key_vault = {
   disk_encryption   = true
@@ -1215,7 +1398,7 @@ storage_accounts = {
     name_suffix                             = "fnappstor"
     account_tier                            = "Standard"
     replication_type                        = "LRS"
-    public_network_access_enabled           = true
+    public_network_access_enabled           = false
     blob_properties_delete_retention_policy = 7
     blob_properties_versioning_enabled      = false
     containers                              = {}

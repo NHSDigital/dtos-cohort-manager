@@ -13,6 +13,7 @@
   </ItemGroup>
 
   <PropertyGroup>
+    <ProjectGuid>{38C444A6-1643-4655-91E1-ABA199E4C84B}</ProjectGuid>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>

@@ -2,7 +2,7 @@ import * as dotenv from 'dotenv';
 import * as path from 'path';
 
 const env = process.env.NODE_ENV ?? 'dev';
-if(process.env.Is_CloudEnvironment){}else{
+if (process.env.Is_CloudEnvironment) { } else {
   dotenv.config({ path: path.resolve(__dirname, `../../../../application/CohortManager/.env`) });
 }
 
@@ -15,6 +15,7 @@ const endpointParticipantDemographicDataService = process.env.ENDPOINT_PARTICIPA
 const endpointExceptionManagementDataService = process.env.ENDPOINT_EXCEPTION_MANAGEMENT_DATA_SERVICE ?? '';
 const endpointBsSelectRetrieveCohortDistributionData = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '';
 const endpointBsSelectRetrieveCohortRequestAudit = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_REQUEST_AUDIT ?? '';
+const endpointBsSelectDeleteParticipant = process.env.ENDPOINT_BS_SELECT_DELETE_PARTICIPANT ?? '';
 
 export const config = {
   baseURL,
@@ -26,15 +27,17 @@ export const config = {
   endpointParticipantDemographicDataService,
   endpointBsSelectRetrieveCohortDistributionData: endpointBsSelectRetrieveCohortDistributionData,
   endpointBsSelectRetrieveCohortRequestAudit: endpointBsSelectRetrieveCohortRequestAudit,
+  endpointBsSelectDeleteParticipant: endpointBsSelectDeleteParticipant,
   routeBsSelectRetrieveCohortDistributionData: 'api/RetrieveCohortDistributionData',
   routeBsSelectRetrieveCohortRequestAudit: 'api/RetrieveCohortRequestAudit',
+  routeBsSelectDeleteParticipant: 'api/DeleteParticipant',
   cohortDistributionService: 'CohortDistributionDataService',
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',
   participantDemographicDataService: 'ParticipantDemographicDataService',
-  e2eTestFilesPath:'e2e/testFiles',
-  apiTestFilesPath:'api/testFiles',
-  apiRetry: 8,
+  e2eTestFilesPath: 'e2e/testFiles',
+  apiTestFilesPath: 'api/testFiles',
+  apiRetry: 10,
   apiWaitTime: 5000,
   nhsNumberKey: 'NHSNumber',
   nhsNumberKeyExceptionDemographic: 'NhsNumber',
