@@ -1,4 +1,4 @@
-namespace NHS.Screening.RetrieveCohortRequestAudit;
+namespace NHS.CohortManager.CohortDistributionDataServices;
 
 using System.ComponentModel.DataAnnotations;
 
