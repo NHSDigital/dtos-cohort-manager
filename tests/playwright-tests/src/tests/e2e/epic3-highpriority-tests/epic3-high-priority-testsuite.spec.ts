@@ -395,7 +395,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithAmended.only('@DTOSS-6016-01 - Should Not Amend Participant Data When Current Posting is Missing', {
+  testWithAmended('@DTOSS-6016-01 - Should Not Amend Participant Data When Current Posting is Missing', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6016',
@@ -423,8 +423,8 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
         throw new Error('No data returned from cohort distribution service');
       }
 
-      const firstRecord = response.data.find(() => true);
-      expect(firstRecord?.CurrentPosting).toBe('CH');
+        const firstRecord = response.data.find(() => true);
+        expect(firstRecord?.CurrentPosting).toBe('CH');
     });
 
     await test.step('And there should be transformation exceptions rule trigger for AMENDED participant', async () => {
@@ -435,7 +435,9 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
         validateResponseByStatus()
       );
       await genericValidations(records);
+
     });
+
   });
 
   test('@DTOSS-5348-01 @AddParticipant Verify all Functions Called', {

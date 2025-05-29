@@ -3,8 +3,15 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "GivenName": "AMENDEDTest",
         "NHSNumber": 9694116414
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": 9694116414,
+        "RuleId": 53,
+        "RuleDescription": "Current posting and Primary Care provider contain incompatible values"
       }
     }
   ],

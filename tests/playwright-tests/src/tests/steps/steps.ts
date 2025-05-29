@@ -85,13 +85,3 @@ export async function verifyBlobExists(stepName: string, filePath: string) {
     expect(outputFileExists).toBe(true);
   });
 }
-
-export async function validateRecordNotInDatabase(request: APIRequestContext, validations: any) {
-  return test.step(`Validate record is NOT present in the database`, async () => {
-    const status = await validateApiResponse(validations, request);
-    if (status) {
-      throw new Error(`❌ Record should have been rejected but was found in the database.`);
-    }
-  });
-}
-
