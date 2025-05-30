@@ -63,7 +63,7 @@ dotnet sonarscanner begin \
 **/*.Designer.cs,\
 **/*.g.cs,\
 **/*.GlobalUsings.g.cs,\
-**/Migrations/*.cs,\
+**/Migrations/**,\
 **/*.AssemblyInfo.cs\
 " \
   /d:sonar.tests="tests" \
