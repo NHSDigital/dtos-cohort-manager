@@ -16,12 +16,22 @@
         "EmailAddressHome": "bturneux0@soup.io",
         "PreferredLanguage": "en",
         "InterpreterRequired": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-6256-01",
+        "requirementJiraId": "DTOSS-5389",
+        "additionalTags": "@smoke @e2e Tests Verify file upload and cohort distribution process for ADD and check details of NHS participant record"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9995081229
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-6256-01",
+        "requirementJiraId": "DTOSS-5389",
+        "additionalTags": "@smoke @e2e Tests Verify file upload and cohort distribution process for ADD and check NHS Number"
       }
     },
     {
@@ -29,6 +39,11 @@
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9995081229,
         "PrimaryCareProvider": "E85121"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-6256-01",
+        "requirementJiraId": "DTOSS-5389",
+        "additionalTags": "@smoke @e2e Tests Verify file upload and cohort distribution process for ADD and check NHS Number, Primary Care Provider"
       }
     }
   ],
