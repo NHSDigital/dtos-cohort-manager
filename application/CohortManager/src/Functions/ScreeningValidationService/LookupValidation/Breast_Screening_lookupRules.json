@@ -14,7 +14,7 @@
     "Rules": [
       {
         "RuleName": "12.BlockedParticipant.BSSelect.Fatal",
-        "Expression": "existingParticipant.BlockedFlag != \"1\"",
+        "Expression": "newParticipant.BlockedFlag != \"1\"",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
