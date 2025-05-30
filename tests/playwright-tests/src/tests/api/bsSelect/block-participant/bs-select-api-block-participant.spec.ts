@@ -1,11 +1,7 @@
-import { test, expect, APIRequestContext } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { createParquetFromJson } from '../../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../../steps/steps';
-import { checkMappingsByIndex } from '../../../../api/apiHelper';
-import { BlockParticipant, getRecordsFromBsSelectRetrieveCohort } from '../../../../api/distributionService/bsSelectService'
-import { composeValidators, expectStatus, validateResponseByStatus } from '../../../../api/responseValidators';
-import { QueryParams } from '../../../../api/core/types';
-import { config } from '../../../../config/env';
+import { BlockParticipant} from '../../../../api/distributionService/bsSelectService'
 import { getRecordsFromParticipantManagementService } from '../../../../api/distributionService/participantService';
 
 
@@ -27,28 +23,22 @@ test.describe.serial(' @api Positive - Block Participant called', async () => {
       await validateSqlDatabaseFromAPI(request, checkInDatabase);
     });
 
-
     // Call the block participant function
-    // Check it returns 200 
-      await test.step(`When BlockParticipant function is invoked`, async () => {
-          const blockPayload = {
-              NhsNumber: nhsNumbers[0],
-              FamilyName: inputParticipantRecord[0].family_name,
-              DateOfBirth: `${inputParticipantRecord[0].date_of_birth}`
-          };
+    await test.step(`When BlockParticipant function is invoked`, async () => {
+      const blockPayload = {
+        NhsNumber: nhsNumbers[0],
+        FamilyName: inputParticipantRecord[0].family_name,
+        DateOfBirth: inputParticipantRecord[0].date_of_birth
+      };
     
-    // Check that the participant blocked flag is set to 1.
-          const response = await BlockParticipant(request, blockPayload);
-        })
-
-
-    await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
-      const response = await getRecordsFromParticipantManagementService(request);
-
-      //Extend custom assertions
-      expect(response.data[0].BlockedFlag).toBe(1);
+      const response = await BlockParticipant(request, blockPayload);
     })
 
+    // Assert that the participant's blocked flag is set to 1 in participant management table.
+    await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
+      const response = await getRecordsFromParticipantManagementService(request);
+      expect(response.data[0].BlockedFlag).toBe(1);
+    })
 
   });
 })
