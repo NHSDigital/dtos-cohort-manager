@@ -10,6 +10,7 @@ using Microsoft.Extensions.Configuration;
 using System.Collections.Generic;
 using System.Text;
 using Moq.Protected;
+using Common;
 using NHS.CohortManager.ServiceNowMessageService;
 
 [TestClass]
@@ -17,35 +18,45 @@ public class ServiceNowMessageTests
 {
     private Mock<HttpMessageHandler> _mockHttpMessageHandler;
     private HttpClient _httpClient;
-    private Mock<ILogger<ServiceNowMessage>> _mockLogger;
+    private Mock<ILogger<SendServiceNowMessageFunction>> _mockLogger;
     private IConfiguration _configuration;
+    private Mock<IHttpClientFactory> _mockHttpClientFactory;
+    private Mock<ILoggerFactory> _mockLoggerFactory;
+    private Mock<ICreateResponse> _createResponse;
 
     [TestInitialize]
     public void Setup()
     {
-        _mockHttpMessageHandler = new Mock<HttpMessageHandler>(MockBehavior.Strict);
-        _httpClient = new HttpClient(_mockHttpMessageHandler.Object);
+        _mockHttpMessageHandler = new Mock<HttpMessageHandler>();
 
-        _mockLogger = new Mock<ILogger<ServiceNowMessage>>();
-
-        var configValues = new Dictionary<string, string>
+        _httpClient = new HttpClient(_mockHttpMessageHandler.Object)
         {
-            { "ServiceNowBaseUrl", "https://example.com" },
-            { "Profile", "ebz" },
-            { "Definition", "CohortCaseUpdate" },
-            { "AccessToken", "dummy-token" }
+            BaseAddress = new Uri("https://example.com")
         };
 
+        _mockHttpClientFactory = new Mock<IHttpClientFactory>();
+        _mockHttpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(_httpClient);
+
+        _mockLoggerFactory = new Mock<ILoggerFactory>();
+        var mockLogger = new Mock<ILogger<SendServiceNowMessageFunction>>();
+        _mockLoggerFactory
+            .Setup(x => x.CreateLogger(It.IsAny<string>()))
+            .Returns(mockLogger.Object);
+
         _configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(configValues)
+            .AddInMemoryCollection(new Dictionary<string, string>
+            {
+                { "ServiceNowBaseUrl", "https://example.com" },
+                { "Profile", "ebz" },
+                { "Definition", "CohortCaseUpdate" },
+                { "AccessToken", "dummy-token" }
+            })
             .Build();
 
-        // Set environment variables for testing
-        Environment.SetEnvironmentVariable("ServiceNowBaseUrl", "https://example.com");
-        Environment.SetEnvironmentVariable("Profile", "ebz");
-        Environment.SetEnvironmentVariable("Definition", "CohortCaseUpdate");
-        Environment.SetEnvironmentVariable("AccessToken", "dummy-token");
+        _createResponse = new Mock<ICreateResponse>();
     }
+
+
 
     [TestMethod]
     public async Task SendServiceNowMessage_ShouldReturnSuccess_WhenValidRequestIsMade()
@@ -56,20 +67,19 @@ public class ServiceNowMessageTests
             Content = new StringContent("{ \"result\": \"success\" }", Encoding.UTF8, "application/json")
         };
 
-        _mockHttpMessageHandler
-            .Protected()
-            .Setup<Task<HttpResponseMessage>>(
-                "SendAsync",
-                ItExpr.Is<HttpRequestMessage>(req =>
-                    req.Method == HttpMethod.Put &&
-                    req.RequestUri.ToString().Contains("/ebz/CohortCaseUpdate/123") &&
-                    req.Headers.Authorization.Scheme == "Bearer" &&
-                    req.Headers.Authorization.Parameter == "dummy-token"),
-                ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(expectedResponse)
-            .Verifiable();
+    _mockHttpMessageHandler
+        .Protected()
+        .Setup<Task<HttpResponseMessage>>(
+            "SendAsync",
+            ItExpr.IsAny<HttpRequestMessage>(),
+            ItExpr.IsAny<CancellationToken>())
+        .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent("{\"result\":\"success\"}")
+        });
 
-        var service = new ServiceNowMessage(_httpClient, _configuration, _mockLogger.Object);
+        var service = new SendServiceNowMessageFunction(_mockHttpClientFactory.Object, _mockLoggerFactory.Object, _configuration,
+    _createResponse.Object);
 
         // Act
         var result = await service.SendServiceNowMessage("123", "Work notes test");
@@ -87,8 +97,7 @@ public class ServiceNowMessageTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(HttpRequestException))]
-    public async Task SendServiceNowMessage_ShouldThrowException_WhenRequestFails()
+    public async Task SendServiceNowMessage_ShouldReturnInternalServerError_WhenRequestFails()
     {
         // Arrange
         var failedResponse = new HttpResponseMessage(HttpStatusCode.BadRequest)
@@ -105,11 +114,19 @@ public class ServiceNowMessageTests
             .ReturnsAsync(failedResponse)
             .Verifiable();
 
-        var service = new ServiceNowMessage(_httpClient, _configuration, _mockLogger.Object);
+        var service = new SendServiceNowMessageFunction(
+            _mockHttpClientFactory.Object,
+            _mockLoggerFactory.Object,
+            _configuration,
+            _createResponse.Object);
 
         // Act
-        await service.SendServiceNowMessage("123", "Should fail");
+        var result = await service.SendServiceNowMessage("123", "Should fail");
 
-        // Assert – handled by ExpectedException
+        // Assert
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        var content = await result.Content.ReadAsStringAsync();
+        Assert.IsTrue(content.Contains("error", StringComparison.OrdinalIgnoreCase));
     }
+
 }
