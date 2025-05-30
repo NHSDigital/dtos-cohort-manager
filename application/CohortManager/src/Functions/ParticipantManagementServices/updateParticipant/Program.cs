@@ -10,19 +10,15 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddSingleton<ICohortDistributionHandler, CohortDistributionHandler>();
-        services.AddHttpClient<ICheckDemographic, CheckDemographic>(client =>
-        {
-            client.BaseAddress = new Uri(config.DemographicURIGet);
-        });
         // Register health checks
         services.AddBasicHealthCheck("updateParticipant");
     })
     .AddAzureQueues()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

@@ -15,8 +15,8 @@ public class CohortDistributionParticipant
     {
         RequestId = cohortDistribution!.RequestId.ToString();
         NhsNumber = cohortDistribution.NHSNumber.ToString();
-        SupersededByNhsNumber = cohortDistribution.SupersededNHSNumber.ToString();
-        PrimaryCareProvider = cohortDistribution.PrimaryCareProvider;
+        SupersededByNhsNumber = cohortDistribution.SupersededNHSNumber.ToString() ?? null;
+        PrimaryCareProvider = cohortDistribution.PrimaryCareProvider ?? null;
         PrimaryCareProviderEffectiveFromDate = MappingUtilities.FormatDateTime(cohortDistribution.PrimaryCareProviderDate);
         NamePrefix = cohortDistribution.NamePrefix;
         FirstName = cohortDistribution.GivenName;
@@ -104,8 +104,8 @@ public class CohortDistributionParticipant
         {
             RequestId = GetRequestId(),
             NHSNumber = long.Parse(NhsNumber),
-            SupersededNHSNumber = long.TryParse(SupersededByNhsNumber, out var supNhsNum) ? supNhsNum : 0,
-            PrimaryCareProvider = PrimaryCareProvider ?? string.Empty,
+            SupersededNHSNumber = long.TryParse(SupersededByNhsNumber, out var supNhsNum) ? supNhsNum : null,
+            PrimaryCareProvider = PrimaryCareProvider ?? null,
             PrimaryCareProviderDate = MappingUtilities.ParseDates(PrimaryCareProviderEffectiveFromDate),
             NamePrefix = NamePrefix,
             GivenName = FirstName,

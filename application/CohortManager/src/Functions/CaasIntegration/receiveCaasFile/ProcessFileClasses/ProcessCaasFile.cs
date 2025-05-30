@@ -9,12 +9,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Model;
+using Model.Enums;
 
 public class ProcessCaasFile : IProcessCaasFile
 {
     private readonly ILogger<ProcessCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
-    private readonly ICheckDemographic _checkDemographic;
+    private readonly ICallDurableDemographicFunc _callDurableDemographicFunc;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
@@ -30,7 +31,6 @@ public class ProcessCaasFile : IProcessCaasFile
 
     public ProcessCaasFile(
         ILogger<ProcessCaasFile> logger,
-        ICheckDemographic checkDemographic,
         ICreateBasicParticipantData createBasicParticipantData,
         IAddBatchToQueue addBatchToQueue,
         IReceiveCaasFileHelper receiveCaasFileHelper,
@@ -39,11 +39,11 @@ public class ProcessCaasFile : IProcessCaasFile
         IRecordsProcessedTracker recordsProcessedTracker,
         IValidateDates validateDates,
         ICallFunction callFunction,
+        ICallDurableDemographicFunc callDurableDemographicFunc,
         IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig
     )
     {
         _logger = logger;
-        _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
         _addBatchToQueue = addBatchToQueue;
         _receiveCaasFileHelper = receiveCaasFileHelper;
@@ -52,6 +52,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
         _callFunction = callFunction;
+        _callDurableDemographicFunc = callDurableDemographicFunc;
         _config = receiveCaasFileConfig.Value;
 
         DemographicURI = _config.DemographicURI;
@@ -88,7 +89,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
             if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
             {
-                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed in for participant {participant} and file {name}"), participant, name);
+                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed in for participant {participant} and file {name}"), participant, name, nameof(ExceptionCategory.CaaS));
                 return; // skip current participant
             }
 
@@ -107,7 +108,7 @@ public class ProcessCaasFile : IProcessCaasFile
             await AddRecordToBatch(participant, currentBatch, name);
         });
 
-        if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI))
+        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI))
         {
             await AddBatchToQueue(currentBatch, name);
         }

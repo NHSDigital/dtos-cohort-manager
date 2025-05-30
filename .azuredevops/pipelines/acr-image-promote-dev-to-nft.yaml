@@ -9,21 +9,11 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: b27ec9f8be6e667ee4073c8436dadb55b9fe99c7
+      ref: ac0aaf63e6d27820912918e2ecd23feec518ce51
       endpoint: NHSDigital
 
 variables:
   - group: DEV_hub_backend_remote_state
-  - name: destEnvironmentShortName
-    value: nft
-  - name: sourceRegistry
-    value: acrukshubdevcohman
-  - name: selectImageTag
-    value: development
-  - name: destRegistry
-    value: acrukshubdevcohman
-  - name: addImageTag
-    value: nft
 
 stages:
 - stage: db_changes_stage
@@ -33,11 +23,15 @@ stages:
     pool:
       name: private-pool-dev-uks
     displayName: Apply database changes
+    variables:
+      - group: NFT_core_backend
+      - group: NFT_image_pipelines
     steps:
       - checkout: self
+      - checkout: dtos-devops-templates
       - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-nft
+          serviceConnection: $(SERVICE_CONNECTION)
 
 - stage: re_tag_stage
   displayName: ACR re-tag
@@ -47,14 +41,11 @@ stages:
       name: private-pool-prod-uks
     displayName: Update/copy Docker images with new tag
     variables:
-      SRC_REGISTRY: $(sourceRegistry)
-      DEST_REGISTRY: $(destRegistry)
-      SELECT_IMAGE_TAG: $(selectImageTag)
-      ADD_IMAGE_TAG: $(addImageTag)
+      - group: NFT_image_pipelines
     steps:
       - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-nft
+          serviceConnection: $(SERVICE_CONNECTION)
 
 - stage: deploy_image_stage
   displayName: Deploy images
@@ -64,15 +55,12 @@ stages:
       name: private-pool-dev-uks
     displayName: Deploy Docker images to function apps
     variables:
-      DEST_REGISTRY: $(destRegistry)
-      ADD_IMAGE_TAG: $(addImageTag)
-      FUNCTION_NAME_PREFIX: $(destEnvironmentShortName)-uks
-      FUNCTION_RESOURCE_GROUP: rg-cohort-manager-$(destEnvironmentShortName)-uks
-      PROJECT_NAME: cohort-manager
+      - group: NFT_core_backend
+      - group: NFT_image_pipelines
     steps:
       - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
         parameters:
-          serviceConnection: sc-cohort-manager-nft
+          serviceConnection: $(SERVICE_CONNECTION)
 
 - stage: post_deployment_tests_stage
   displayName: Post-deployment tests
@@ -83,14 +71,12 @@ stages:
     displayName: Run post-deployment tests
     pool:
       name: private-pool-dev-uks
-    variables:
-      AppSettings.ConnectionStrings.DtOsDatabaseConnectionString: $(DTOS_DATABASE_CONNECTION_STRING)
-      AppSettings.CloudFileStorageConnectionString: $(CAASFOLDER_STORAGE_CONNECTION_STRING)
-      AppSettings.ManagedIdentityClientId: $(MANAGED_IDENTITY_CLIENT_ID)
-      AppSettings.IsCloudEnvironment: $(Is_CloudEnvironment)
+
     steps:
-    - template: .azuredevops/templates/steps/run-post-deployment-tests.yaml@dtos-devops-templates
+    - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
       parameters:
-        serviceConnection: sc-cohort-manager-nft
-        testProjectDirectory: 'tests/smoke-tests/NHS.CohortManager.SmokeTests'
-        testProjectName: 'NHS.CohortManager.SmokeTests'
+        serviceConnection: $(SERVICE_CONNECTION)
+        testProjectDirectory: 'tests/playwright-tests'
+        testfileDirectory: 'src/tests/e2e/testFiles'
+        testProjectName: 'tests'
+

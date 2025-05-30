@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <ProjectGuid>{23BDCBF0-1E94-49C3-AEFC-38074EAEF3BB}</ProjectGuid>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -63,6 +64,7 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningDataServices\MarkParticipantAsEligible\MarkParticipantAsEligible.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningDataServices\MarkParticipantAsIneligible\MarkParticipantAsIneligible.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningDataServices\NemsSubscriptionDataService\NemsSubscriptionDataService.csproj"
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\LookupValidation\LookupValidation.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CreateException\CreateException.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />

@@ -3,7 +3,7 @@
     "WorkflowName": "Common",
     "Rules": [
       {
-        "RuleName": "35.TooManyDemographicsFieldsChanged.NonFatal",
+        "RuleName": "35.TooManyDemographicsFieldsChanged.NBO.NonFatal",
         "LocalParams": [
           {
             "Name": "NewDateOfBirth",
@@ -17,7 +17,7 @@
         "Expression": "existingParticipant.ParticipantId == null || ((newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.FamilyName == existingParticipant.FamilyName AND NewDateOfBirth == ExistingDateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND NewDateOfBirth == ExistingDateOfBirth))"
       },
       {
-        "RuleName": "54.ValidateBsoCode.NonFatal",
+        "RuleName": "54.ValidateBsoCode.NBO.NonFatal",
         "LocalParams": [
           {
             "Name": "reasonForRemoval",
@@ -29,11 +29,11 @@
           },
           {
             "Name": "postcode",
-            "Expression": "string.IsNullOrEmpty(newParticipant.Postcode) OR dbLookup.ValidateOutcode(newParticipant.Postcode)"
+            "Expression": "string.IsNullOrEmpty(newParticipant.Postcode) OR !dbLookup.ValidateOutcode(newParticipant.Postcode)"
           },
           {
             "Name": "primaryCareProvider",
-            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) OR newParticipant.PrimaryCareProvider.StartsWith(\"ZZZ\") OR dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+            "Expression": "string.IsNullOrEmpty(existingParticipant.PrimaryCareProvider) OR !existingParticipant.PrimaryCareProvider.StartsWith(\"ZZZ\") OR !dbLookup.CheckIfPrimaryCareProviderExists(existingParticipant.PrimaryCareProvider)"
           }
         ],
         "Expression": "!(recordType AND reasonForRemoval AND postcode AND primaryCareProvider)"
@@ -44,7 +44,7 @@
     "WorkflowName": "AMENDED",
     "Rules": [
       {
-        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal",
+        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.ParticipantLocationRemainingOutsideOfCohort.NonFatal",
         "LocalParams": [
           {
             "Name": "ExistingParticipantInDMS",
