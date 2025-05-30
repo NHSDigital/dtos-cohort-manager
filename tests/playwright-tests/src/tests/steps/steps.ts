@@ -77,19 +77,27 @@ export function getConsolidatedAllTestData(
   let allNhsNumbers: any[] = [];
 
   scenarioFolders.forEach(folder => {
-    testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder.substring(0, 14)}/`);
-    const jsonFiles = fs.readdirSync(testFilesPath).filter(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
-    jsonFiles.forEach(jsonFile => {
-      const srcPath = path.join(testFilesPath, jsonFile);
-      const parsedData: InputData = JSON.parse(fs.readFileSync(srcPath, 'utf-8'));
-      allValidations = allValidations.concat(parsedData.validations);
-      allNhsNumbers = allNhsNumbers.concat(parsedData.nhsNumbers);
-      if (Array.isArray(parsedData.inputParticipantRecord)) {
-        allInputParticipantRecords = allInputParticipantRecords.concat(parsedData.inputParticipantRecord);
-      } else if (parsedData.inputParticipantRecord) {
-        allInputParticipantRecords.push(parsedData.inputParticipantRecord);
-      }
-    });
+    try {
+      testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder.substring(0, 14)}/`);
+      const jsonFiles = fs.readdirSync(testFilesPath).filter(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
+      jsonFiles.forEach(jsonFile => {
+        const srcPath = path.join(testFilesPath, jsonFile);
+        try {
+          const parsedData: InputData = JSON.parse(fs.readFileSync(srcPath, 'utf-8'));
+          allValidations = allValidations.concat(parsedData.validations);
+          allNhsNumbers = allNhsNumbers.concat(parsedData.nhsNumbers);
+          if (Array.isArray(parsedData.inputParticipantRecord)) {
+            allInputParticipantRecords = allInputParticipantRecords.concat(parsedData.inputParticipantRecord);
+          } else if (parsedData.inputParticipantRecord) {
+            allInputParticipantRecords.push(parsedData.inputParticipantRecord);
+          }
+        } catch (jsonErr) {
+          console.error(`Failed to parse JSON file: ${srcPath}`, jsonErr);
+        }
+      });
+    } catch (fsErr) {
+      console.error(`Failed to read directory: ${testFilesPath}`, fsErr);
+    }
   });
 
   return {
