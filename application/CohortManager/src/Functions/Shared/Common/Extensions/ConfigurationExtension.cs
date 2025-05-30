@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 
 public static class ConfigurationExtension
 {
-    private static List<string> _emptyList = new List<string>();
     public static IHostBuilder AddConfiguration<T>(this IHostBuilder hostBuilder, string? keyVaultUrl = null) where T: class
     {
         var configuration = CreateConfiguration(keyVaultUrl);
@@ -20,14 +19,14 @@ public static class ConfigurationExtension
     {
         var configuration = CreateConfiguration(keyVaultUrl);
 
-        config = configuration.Get<T>();
+        config = configuration.Get<T>()!;
         return BuildIOptionsDependency<T>(hostBuilder,configuration);
     }
 
     public static T GetConfiguration<T>(string? keyVaultUrl = null, List<string>? configFilePaths = null) where T: class
     {
         var configuration = CreateConfiguration(keyVaultUrl, configFilePaths);
-        return configuration.Get<T>();
+        return configuration.Get<T>()!;
 
     }
 

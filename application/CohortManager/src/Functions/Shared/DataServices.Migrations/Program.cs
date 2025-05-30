@@ -19,21 +19,22 @@ using Model.Enums;
 
 public class Program
 {
+    protected Program() {}
     public static int Main(string[] args)
     {
         List<string> configFiles = new List<string> { "appsettings.json" }; // Only used for local
 
-        var config = ConfigurationExtension.GetConfiguration<DatabaseConfig>(null,configFiles);
+        var config = ConfigurationExtension.GetConfiguration<DatabaseConfig>(null, configFiles);
         using var host = CreateHostBuilder(config).Build();
 
         var migrationsApplied = ApplyMigrations(host);
-        if(migrationsApplied == ExitCodes.FAILURE)
+        if (migrationsApplied == ExitCodes.FAILURE)
         {
             return ExitCodes.FAILURE;
         }
 
         var seedDataLoaded = SeedData(host).Result;
-        if(seedDataLoaded == ExitCodes.FAILURE)
+        if (seedDataLoaded == ExitCodes.FAILURE)
         {
             return ExitCodes.FAILURE;
         }
