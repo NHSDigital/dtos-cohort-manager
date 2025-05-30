@@ -277,6 +277,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteParticipant", "Cohort
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteParticipantTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\DeleteParticipantTests\DeleteParticipantTests.csproj", "{914EFF81-2434-4335-A532-438CDCDE371D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnblockParticipant", "ParticipantManagementServices\UnblockParticipant\UnblockParticipant.csproj", "{15E520D2-CF16-4E72-802B-BE3CBBA125C7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1691,6 +1693,18 @@ Global
 		{914EFF81-2434-4335-A532-438CDCDE371D}.Release|x64.Build.0 = Release|Any CPU
 		{914EFF81-2434-4335-A532-438CDCDE371D}.Release|x86.ActiveCfg = Release|Any CPU
 		{914EFF81-2434-4335-A532-438CDCDE371D}.Release|x86.Build.0 = Release|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Debug|x64.Build.0 = Debug|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Debug|x86.Build.0 = Debug|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Release|x64.ActiveCfg = Release|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Release|x64.Build.0 = Release|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Release|x86.ActiveCfg = Release|Any CPU
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1766,5 +1780,6 @@ Global
 		{C0728070-DB44-492D-BDCD-B65FE5FC286A} = {0DDB5B2A-AD97-BFD6-A081-43D49FE0B20F}
 		{5F0DAA07-D15F-460B-9FDA-B10AABD144C6} = {055277D8-0B3B-A388-B9E2-0CA913C660FF}
 		{68293DEC-C32E-4CD0-ADD0-EDF273017584} = {72FBAE8E-5F64-9545-D6D4-8F59D0E91151}
+		{15E520D2-CF16-4E72-802B-BE3CBBA125C7} = {19500E0D-AAAB-6F02-E24F-82619ACA2290}
 	EndGlobalSection
 EndGlobal
