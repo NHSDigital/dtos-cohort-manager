@@ -6,7 +6,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class NemsSubscription
 {
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.None)]
     [Column("SUBSCRIPTION_ID", TypeName = "uniqueidentifier")]
     public Guid SubscriptionId { get; set; }
 

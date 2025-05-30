@@ -19,11 +19,18 @@ public static class ConfigurationExtension
     {
         var configuration = CreateConfiguration(keyVaultUrl);
 
-        config = configuration.Get<T>();
+        config = configuration.Get<T>()!;
         return BuildIOptionsDependency<T>(hostBuilder,configuration);
     }
 
-    private static IConfiguration CreateConfiguration(string? keyVaultUrl = null)
+    public static T GetConfiguration<T>(string? keyVaultUrl = null, List<string>? configFilePaths = null) where T: class
+    {
+        var configuration = CreateConfiguration(keyVaultUrl, configFilePaths);
+        return configuration.Get<T>()!;
+
+    }
+
+    private static IConfiguration CreateConfiguration(string? keyVaultUrl = null, List<string>? configFilePaths = null)
     {
 
         var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -41,6 +48,14 @@ public static class ConfigurationExtension
                 logger.LogError(ex, "Unable to add Azure KeyVault");
             }
         }
+        if(configFilePaths != null)
+        {
+            foreach(var configFile in configFilePaths)
+            {
+                configBuilder.AddJsonFile(configFile,true);
+            }
+        }
+
         configBuilder.AddEnvironmentVariables();
         return configBuilder.Build();
     }
