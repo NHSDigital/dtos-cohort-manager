@@ -46,6 +46,9 @@ dotnet sonarscanner begin \
   /d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/**/*.xml" \
   /d:sonar.python.version="3.8" \
   /d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
+  /d:sonar.exclusions="\
+**/Migrations/**\
+  " \
   /d:sonar.coverage.inclusions="**/*.cs" \
   /d:sonar.coverage.exclusions="\
 **/*Tests.cs,\
