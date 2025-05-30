@@ -2,10 +2,10 @@ using Common;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NHS.Screening.RemoveParticipant;
+using NHS.Screening.UnblockParticipant;
 
 var host = new HostBuilder()
-    .AddConfiguration<RemoveParticipantConfig>(out RemoveParticipantConfig config)
+    .AddConfiguration<UnblockParticipantConfig>(out UnblockParticipantConfig config)
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
@@ -14,7 +14,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         services.AddSingleton<ICohortDistributionHandler, CohortDistributionHandler>();
         // Register health checks
-        services.AddBasicHealthCheck("RemoveParticipant");
+        services.AddBasicHealthCheck("UnblockParticipant");
     })
     .AddAzureQueues()
     .AddExceptionHandler()
