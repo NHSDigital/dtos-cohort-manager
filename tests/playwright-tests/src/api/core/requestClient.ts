@@ -19,7 +19,15 @@ export const parseResponse = async <T>(response: any): Promise<ApiResponse<T>> =
   const headers = response.headers();
 
   let data = null;
-  if (status === 200) data = await response.json();
+  if (status === 200) {
+    try {
+      data = await response.json();
+    }
+
+    catch {
+      data = await response.text();
+    }
+  }
 
 
   return {

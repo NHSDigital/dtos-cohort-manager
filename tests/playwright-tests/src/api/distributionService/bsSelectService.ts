@@ -28,5 +28,5 @@ export const BlockParticipant = (
   }
 ): Promise<ApiResponse> => {
   const endpoint = `${config.endpointBsSelectBlockParticipant}${config.routeBsSelectBlockParticipant}`;
-  return apiClient.post(request, endpoint, payload);
+  return apiClient.postWithQuery(request, endpoint, payload);
 };
