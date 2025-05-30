@@ -426,6 +426,27 @@ function_apps = {
       ]
     }
 
+    UnblockParticipant = {
+      name_suffix            = "unblock-participant"
+      function_endpoint_name = "unBlockParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        }
+      ]
+    }
+
     DeleteParticipant = {
       name_suffix            = "delete-participant"
       function_endpoint_name = "DeleteParticipant"
