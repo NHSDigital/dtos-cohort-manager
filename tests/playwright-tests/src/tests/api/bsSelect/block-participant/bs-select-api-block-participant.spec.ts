@@ -11,7 +11,7 @@ import { getRecordsFromParticipantManagementService } from '../../../../api/dist
 
 test.describe.serial(' @api Positive - Block Participant called', async () => {
 
-  test.only('@DTOSS-XXXX-01 200 @smoke @api - @TC1_SIT Verify the ability to block a participant', async ({ request }, testInfo) => {
+  test.only('@DTOSS-7694-01 200 @smoke @api - @TC1_SIT Verify the ability to block a participant', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
 
@@ -34,7 +34,7 @@ test.describe.serial(' @api Positive - Block Participant called', async () => {
           const blockPayload = {
               NhsNumber: nhsNumbers[0],
               FamilyName: inputParticipantRecord[0].family_name,
-              DateOfBirth: `${inputParticipantRecord[0].date_of_birth.slice(0, 4)}-${inputParticipantRecord[0].date_of_birth.slice(4, 6)}-${inputParticipantRecord[0].date_of_birth.slice(6, 8)}`
+              DateOfBirth: `${inputParticipantRecord[0].date_of_birth}`
           };
     
     // Check that the participant blocked flag is set to 1.
@@ -46,7 +46,7 @@ test.describe.serial(' @api Positive - Block Participant called', async () => {
       const response = await getRecordsFromParticipantManagementService(request);
 
       //Extend custom assertions
-      expect(response.data.BlockedFlag).toBe("1");
+      expect(response.data[0].BlockedFlag).toBe(1);
     })
 
 
