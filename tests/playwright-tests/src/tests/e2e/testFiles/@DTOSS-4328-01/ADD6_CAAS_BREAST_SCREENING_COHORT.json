@@ -4,78 +4,48 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9991449272",
-        "RuleId": 101,
-        "RuleDescription": "CurrentPostingEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4328-01",
-        "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Tests Validations_BusinessEffectiveDate_CurrentPostingBusiness_InvalidDates"
+        "RuleId": -2146233088,
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9991536566",
-        "RuleId": 101,
-        "RuleDescription": "CurrentPostingEffectieFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4328-01",
-        "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Tests Validations_BusinessEffectiveDate_CurrentPostingBusiness_InvalidDates"
+        "RuleId": -2146233088,
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9991640959",
-        "RuleId": 101,
-        "RuleDescription": "CurrentPostingEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4328-01",
-        "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Tests Validations_BusinessEffectiveDate_CurrentPostingBusiness_InvalidDates"
+        "RuleId": -2146233088,
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9991742468",
-        "RuleId": 101,
-        "RuleDescription": "CurrentPostingEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4328-01",
-        "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Tests Validations_BusinessEffectiveDate_CurrentPostingBusiness_InvalidDates"
+        "RuleId": -2146233088,
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9991845666",
-        "RuleId": 101,
-        "RuleDescription": "CurrentPostingEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4328-01",
-        "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Tests Validations_BusinessEffectiveDate_CurrentPostingBusiness_InvalidDates"
+        "RuleId": -2146233088,
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9991932887",
-        "RuleId": 101,
-        "RuleDescription": "CurrentPostingEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4328-01",
-        "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Tests Validations_BusinessEffectiveDate_CurrentPostingBusiness_InvalidDates"
+        "RuleId": -2146233088,
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD6_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
     }
   ],
