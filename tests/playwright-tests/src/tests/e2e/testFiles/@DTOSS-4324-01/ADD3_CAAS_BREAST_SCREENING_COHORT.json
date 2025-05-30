@@ -10,7 +10,6 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "RecordType": "ADD",
         "NHSNumber": 9990162573,
         "expectedCount": 1
       }
@@ -18,7 +17,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": 9990201897,
+        "NHSNumber": 9990201897,
         "expectedCount": 1
       }
     }
