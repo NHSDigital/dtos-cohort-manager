@@ -46,6 +46,10 @@ regions = {
         cidr_newbits = 8
         cidr_offset  = 5
       }
+      container-app-db-management = {
+        cidr_newbits               = 7
+        cidr_offset                = 6
+      }
     }
   }
 }
@@ -202,6 +206,25 @@ app_service_plan = {
           dec_scale_value = 1
         }
       }
+    }
+  }
+}
+
+container_app_environments = {
+  instances = {
+    db-management = {
+      zone_redundancy_enabled = false
+    }
+  }
+}
+
+container_app_jobs = {
+  apps = {
+    db-management = {
+      container_app_environment_key = "db-management"
+      docker_env_tag                = "development"
+      docker_image                  = "cohort-manager-database-db-migration"
+      container_registry_use_mi     = true
     }
   }
 }
@@ -1372,7 +1395,6 @@ key_vault = {
 }
 
 sqlserver = {
-  sql_uai_name                         = "dtos-cohort-manager-sql-adm"
   sql_admin_group_name                 = "sqlsvr_cohman_preprod_uks_admin"
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
