@@ -220,4 +220,20 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     })
   });
 
-});
+   testWithAmended('@DTOSS-4329-01 @Validation Current Posting Business Effective From Date is in correct format', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
+      },
+    }, async ({ request, testData }) => {
+      await test.step(`Given 7 ADD participants are processed to cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+      await test.step(`And 7 ADD participants are AMENDED with invalid effective date `, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+      await test.step(`Then Exception table should have expected rule id and description for 7 AMENDED participants`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+    })
+  });
