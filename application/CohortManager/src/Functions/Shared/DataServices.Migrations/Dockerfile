@@ -1,8 +1,9 @@
-FROM mcr.microsoft.com/dotnet/sdk:9.0 AS installer-env
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 
 COPY ./Shared /Shared
-RUN cd /Shared/DataServices.Migrations && dotnet restore
-RUN cd /Shared/DataServices.Migrations && dotnet publish -o /out
+WORKDIR /Shared/DataServices.Migrations
+RUN dotnet restore
+RUN dotnet publish -o /out
 WORKDIR /out
 
 ENTRYPOINT ["dotnet", "DataServices.Migrations.dll"]
