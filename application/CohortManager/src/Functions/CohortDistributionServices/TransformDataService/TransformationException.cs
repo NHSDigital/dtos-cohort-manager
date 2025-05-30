@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.CohortDistribution;
+namespace NHS.CohortManager.CohortDistributionService;
 
 public class TransformationException : Exception
 {

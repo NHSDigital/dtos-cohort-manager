@@ -1,4 +1,5 @@
-namespace NHS.CohortManager.CohortDistribution;
+namespace NHS.CohortManager.CohortDistributionService;
+
 public interface ITransformDataLookupFacade
 {
     bool ValidateOutcode(string postcode);
