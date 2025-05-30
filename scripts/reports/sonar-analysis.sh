@@ -1,6 +1,5 @@
 #!/bin/bash
 set -e
-
 # Get input parameters
 SONAR_PROJECT_KEY="$1"
 SONAR_ORGANISATION_KEY="$2"
@@ -32,26 +31,47 @@ fi
 # Ensure coverage directory exists
 mkdir -p "$COVERAGE_PATH"
 
+# Store absolute path to coverage directory
+COVERAGE_FULL_PATH="$(pwd)/${COVERAGE_PATH}"
+
 # Restore solution dependencies
 find . -name "*.sln" -exec dotnet restore {} \;
 
 # Begin SonarScanner with coverage configuration and PR information
 dotnet sonarscanner begin \
-/k:"${SONAR_PROJECT_KEY}" \
-/o:"${SONAR_ORGANISATION_KEY}" \
-/d:sonar.token="${SONAR_TOKEN}" \
-/d:sonar.host.url="https://sonarcloud.io" \
-/d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/**/*.xml" \
-/d:sonar.python.version="3.8" \
-/d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
-/d:sonar.coverage.exclusions="**/*Tests.cs,**/Tests/**/*.cs,**/test/**/*.ts,**/tests/**/*.ts,**/*.spec.ts,**/*.test.ts" \
-/d:sonar.tests="tests" \
-/d:sonar.test.inclusions="**/*.spec.ts,**/*.test.ts,**/tests/**/*.ts" \
-/d:sonar.verbose=true \
-/d:sonar.scm.provider=git \
-/d:sonar.scm.revision=${GITHUB_SHA} \
-/d:sonar.scanner.scanAll=true \
-${PR_ARGS}
+  /k:"${SONAR_PROJECT_KEY}" \
+  /o:"${SONAR_ORGANISATION_KEY}" \
+  /d:sonar.token="${SONAR_TOKEN}" \
+  /d:sonar.host.url="https://sonarcloud.io" \
+  /d:sonar.cs.opencover.reportsPaths="${COVERAGE_PATH}/**/*.xml" \
+  /d:sonar.python.version="3.8" \
+  /d:sonar.typescript.lcov.reportPaths="${COVERAGE_PATH}/lcov.info" \
+  /d:sonar.coverage.inclusions="**/*.cs" \
+  /d:sonar.coverage.exclusions="\
+**/*Tests.cs,\
+**/Tests/**/*.cs,\
+**/Program.cs,\
+**/Model/**/*.cs,\
+**/Set-up/**/*.cs,\
+**/scripts/**/*.cs,\
+**/*Config.cs,\
+**/HealthCheckFunction.cs,\
+**/bin/**/*.cs,\
+**/obj/**/*.cs,\
+**/Properties/**/*.cs,\
+**/*.generated.cs,\
+**/*.Designer.cs,\
+**/*.g.cs,\
+**/*.GlobalUsings.g.cs,\
+**/*.AssemblyInfo.cs\
+" \
+  /d:sonar.tests="tests" \
+  /d:sonar.test.inclusions="**/*.spec.ts,**/*.test.ts,**/tests/**/*.ts" \
+  /d:sonar.verbose=true \
+  /d:sonar.scm.provider=git \
+  /d:sonar.scm.revision=${GITHUB_SHA} \
+  /d:sonar.scanner.scanAll=true \
+  ${PR_ARGS}
 
 # Build all solutions
 find . -name "*.sln" -exec dotnet build {} --no-restore \;
@@ -61,8 +81,23 @@ find . -name "*.sln" -exec dotnet build {} --no-restore \;
 dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
   --results-directory "${COVERAGE_PATH}" \
   --logger "trx;LogFileName=TestResults.trx" \
-  --collect:"XPlat Code Coverage;Format=opencover" \
+  --collect:"XPlat Code Coverage;Format=opencover;Include=**/*.cs;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*.cs,**/scripts/**/*.cs,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*.cs,**/obj/**/*.cs,**/Properties/**/*.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
   --verbosity normal
+
+# Run frontend tests to generate lcov coverage
+echo "Running frontend tests to generate coverage"
+if [ -d "application/CohortManager/src/Web" ]; then
+  (
+    cd application/CohortManager/src/Web || exit 1
+    npm ci
+    npm run test:unit:coverage
+    mkdir -p "${COVERAGE_FULL_PATH}"
+    cp coverage/lcov.info "${COVERAGE_FULL_PATH}/lcov.info"
+  )
+  echo "Frontend test coverage generated at ${COVERAGE_PATH}/lcov.info"
+else
+  echo "Frontend directory not found, skipping frontend tests"
+fi
 
 # End SonarScanner
 dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"

@@ -31,6 +31,29 @@ interface TestDataWithAmended {
   runTimeParquetFileAmend: string;
 }
 
+interface TestDataWithTwoAmendments {
+  checkInDatabaseAdd: any[];
+  nhsNumbers: string[];
+  parquetFile: string | undefined;
+  inputParticipantRecord?: Record<string, any>;
+  testFilesPath?: string;
+  runTimeParquetFileAdd: string;
+
+  checkInDatabaseAmend: any[];
+  nhsNumberAmend: string[];
+  parquetFileAmend: string | undefined;
+  inputParticipantRecordAmend?: Record<string, any>;
+  testFilesPathAmend?: string;
+  runTimeParquetFileAmend: string;
+
+  checkInDatabaseSecondAmend: any[];
+  nhsNumberSecondAmend: string[];
+  parquetFileSecondAmend: string | undefined;
+  inputParticipantRecordSecondAmend?: Record<string, any>;
+  testFilesPathSecondAmend?: string;
+  runTimeParquetFileSecondAmend: string;
+}
+
 export const test = base.extend<{
   testData: TestData;
 }>({
@@ -65,8 +88,6 @@ export const test = base.extend<{
       inputParticipantRecord,
       testFilesPath
     };
-
-
 
     await use(testData);
   },
@@ -122,6 +143,79 @@ export const testWithAmended = base.extend<{
     };
 
     await use(testDataWithAmended);
+  },
+});
+
+export const testWithTwoAmendments = base.extend<{
+  testData: TestDataWithTwoAmendments;
+}>({
+  testData: async ({ request }, use, testInfo) => {
+    const [checkInDatabaseAdd, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] =
+      await getTestData(testInfo.title, "ADD", true);
+
+    let runTimeParquetFileAdd: string = "";
+    if (!parquetFile) {
+      runTimeParquetFileAdd = await createParquetFromJson(
+        nhsNumbers,
+        inputParticipantRecord!,
+        testFilesPath!,
+        "ADD",
+        false
+      );
+    }
+
+    const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend, inputParticipantRecordAmend, testFilesPathAmend] =
+      await getTestData(testInfo.title, "AMENDED", true);
+
+    let runTimeParquetFileAmend: string = "";
+    if (!parquetFileAmend) {
+      runTimeParquetFileAmend = await createParquetFromJson(
+        nhsNumberAmend,
+        inputParticipantRecordAmend!,
+        testFilesPathAmend!,
+        "AMENDED",
+        false
+      );
+    }
+
+    const [checkInDatabaseSecondAmend, nhsNumberSecondAmend, parquetFileSecondAmend, inputParticipantRecordSecondAmend, testFilesPathSecondAmend] =
+      await getTestData(testInfo.title, "AMENDED2", true);
+
+    let runTimeParquetFileSecondAmend: string = "";
+    if (!parquetFileSecondAmend) {
+      runTimeParquetFileSecondAmend = await createParquetFromJson(
+        nhsNumberSecondAmend,
+        inputParticipantRecordSecondAmend!,
+        testFilesPathSecondAmend!,
+        "AMENDED2",
+        false
+      );
+    }
+
+    const testDataWithTwoAmendments: TestDataWithTwoAmendments = {
+      checkInDatabaseAdd,
+      nhsNumbers,
+      parquetFile,
+      inputParticipantRecord,
+      testFilesPath,
+      runTimeParquetFileAdd,
+
+      checkInDatabaseAmend,
+      nhsNumberAmend,
+      parquetFileAmend,
+      inputParticipantRecordAmend,
+      testFilesPathAmend,
+      runTimeParquetFileAmend,
+
+      checkInDatabaseSecondAmend,
+      nhsNumberSecondAmend,
+      parquetFileSecondAmend,
+      inputParticipantRecordSecondAmend,
+      testFilesPathSecondAmend,
+      runTimeParquetFileSecondAmend
+    };
+
+    await use(testDataWithTwoAmendments);
   },
 });
 
