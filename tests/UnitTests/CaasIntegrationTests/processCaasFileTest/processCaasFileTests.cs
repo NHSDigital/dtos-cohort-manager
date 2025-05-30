@@ -72,7 +72,7 @@ public class ProcessCaasFileTests
             new ParticipantsParquetMap { NhsNumber = 9876543210 }
         };
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(
@@ -110,7 +110,7 @@ public class ProcessCaasFileTests
         };
 
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(It.IsAny<ParticipantsParquetMap>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -143,7 +143,7 @@ public class ProcessCaasFileTests
             new ParticipantsParquetMap { NhsNumber = 1 }
         };
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(
@@ -173,7 +173,7 @@ public class ProcessCaasFileTests
             new ParticipantsParquetMap { NhsNumber = 1234567890 }
         };
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(
