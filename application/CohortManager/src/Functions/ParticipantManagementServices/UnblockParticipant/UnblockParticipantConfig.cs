@@ -1,4 +1,4 @@
-namespace NHS.Screening.UnBlockParticipant;
+namespace NHS.Screening.UnblockParticipant;
 
 using System.ComponentModel.DataAnnotations;
 
