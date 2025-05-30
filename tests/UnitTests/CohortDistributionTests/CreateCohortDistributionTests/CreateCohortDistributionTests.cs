@@ -140,6 +140,7 @@ public class CreateCohortDistributionTests
             .Verify(x => x.CreateSystemExceptionLog(
                 It.Is<Exception>(ex => ex.Message == "One or more of the required parameters is missing."),
                 It.IsAny<Participant>(),
+                It.IsAny<string>(),
                 It.IsAny<string>()));
         
         _azureQueueStorageHelper
@@ -168,6 +169,7 @@ public class CreateCohortDistributionTests
             .Verify(x => x.CreateSystemExceptionLog(
                 It.Is<Exception>(ex => ex.Message.Contains("Create Cohort Distribution failed")),
                 It.IsAny<Participant>(),
+                It.IsAny<string>(),
                 It.IsAny<string>()));
 
         _azureQueueStorageHelper
@@ -204,6 +206,7 @@ public class CreateCohortDistributionTests
             .Verify(x => x.CreateSystemExceptionLog(
                 It.Is<Exception>(ex => ex.Message.Contains("Create Cohort Distribution failed")),
                 It.IsAny<Participant>(),
+                It.IsAny<string>(),
                 It.IsAny<string>()));
 
         _azureQueueStorageHelper
@@ -249,6 +252,7 @@ public class CreateCohortDistributionTests
             .Verify(x => x.CreateSystemExceptionLog(
                 It.Is<Exception>(ex => ex.Message.Contains("Create Cohort Distribution failed")),
                 It.IsAny<Participant>(),
+                It.IsAny<string>(),
                 It.IsAny<string>()));
 
         _azureQueueStorageHelper
@@ -305,6 +309,7 @@ public class CreateCohortDistributionTests
             .Verify(x => x.CreateSystemExceptionLog(
                 It.Is<Exception>(ex => ex.Message.Contains("Failed to add the participant")),
                 It.IsAny<Participant>(),
+                It.IsAny<string>(),
                 It.IsAny<string>()));
             _callFunction
                 .Verify(call => call.SendPost("AddCohortDistributionURL", It.IsAny<string>()), Times.Once());
@@ -315,6 +320,7 @@ public class CreateCohortDistributionTests
                 .Verify(x => x.CreateSystemExceptionLog(
                     It.Is<Exception>(ex => ex.Message.Contains("Unable to add to cohort distribution")),
                     It.IsAny<Participant>(),
+                    It.IsAny<string>(),
                     It.IsAny<string>()));
             _callFunction
                 .Verify(call => call.SendPost("AddCohortDistributionURL", It.IsAny<string>()), Times.Never());
@@ -357,6 +363,7 @@ public class CreateCohortDistributionTests
             .Verify(x => x.CreateSystemExceptionLog(
                 It.Is<Exception>(ex => ex.Message.Contains("triggered a validation rule, so will not be added to cohort distribution")),
                 It.IsAny<Participant>(),
+                It.IsAny<string>(),
                 It.IsAny<string>()));
 
         _participantManagementClientMock
