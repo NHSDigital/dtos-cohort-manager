@@ -3,10 +3,9 @@ import { getRecordsFromBsSelectRetrieveAudit, getRecordsFromBsSelectRetrieveCoho
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
 import { expect, test, testWithAmended, testWithTwoAmendments } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
-import { processFileViaStorage, validateSqlDatabaseFromAPI } from "../../steps/steps";
+import { processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
-import { checkBlobExists } from '../../../storage/azureStorage';
-import path from 'path';
+
 
 test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
@@ -396,6 +395,51 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
+  testWithAmended('@DTOSS-6016-01 - Should Not Amend Participant Data When Current Posting is Missing', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6016',
+    },
+  }, async ({ request, testData }) => {
+
+    await test.step(`When ADD participant is processed via storage`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAdd);
+    });
+
+    await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    });
+
+    await test.step('Then the current posting should not be amended', async () => {
+      const response = await getRecordsFromCohortDistributionService(request);
+
+      if (!response || !Array.isArray(response.data)) {
+        throw new Error('No data returned from cohort distribution service');
+      }
+
+        const firstRecord = response.data.find(() => true);
+        expect(firstRecord?.CurrentPosting).toBe('CH');
+    });
+
+    await test.step('And there should be transformation exceptions rule trigger for AMENDED participant', async () => {
+      const records = await getRecordsFromExceptionService(request);
+
+      const genericValidations = composeValidators(
+        expectStatus(200),
+        validateResponseByStatus()
+      );
+      await genericValidations(records);
+
+    });
+
+  });
+
   test('@DTOSS-5348-01 @AddParticipant Verify all Functions Called', {
     annotation: {
       type: 'Requirement',
@@ -407,18 +451,26 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       await processFileViaStorage(testData.runTimeParquetFile);
     });
 
-    await test.step('Verify ProcessCaasFile data file', async () => {
-
-      const expectedBlobName = path.basename(testData.runTimeParquetFile);
-      const outputFileExists = await checkBlobExists(expectedBlobName);
-
-      expect(outputFileExists).toBe(true);
-    });
+    await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFile);
 
     await test.step('Then participant record is added to cohort distribution table', async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
     });
   });
+
+  test('@DTOSS-5539-01 @Implement Validation for Eligibility Flag for Add set to true', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3656',
+    },
+  }, async ({ request, testData }) => {
+
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+    });
+
+  });
+
 
   test.only('@DTOSS-5221-01 @Invalid Preferred language Exist', {
     annotation: {
