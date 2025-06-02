@@ -2,6 +2,7 @@ namespace AddBatchFromQueue;
 
 
 using System.Text.Json;
+using Azure.Messaging.ServiceBus;
 using Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -37,34 +38,44 @@ public class AddBatchFromQueueHelper : IAddBatchFromQueueHelper
         _config = config.Value;
     }
 
-    public async Task<ParticipantCsvRecord?> GetDemoGraphicData(string jsonFromQueue)
+    public async Task<List<SerializableMessage>?> GetDemoGraphicData(List<SerializableMessage> serializableMessages)
     {
-        var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(jsonFromQueue);
-
-        try
+        foreach (var message in serializableMessages)
         {
-            // Get demographic data
-            var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, _config.DemographicURIGet);
-            if (demographicData == null)
+            var basicParticipantCsvRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(message.Body);
+
+            try
             {
-                _logger.LogInformation("demographic function failed");
-                await _handleException.CreateSystemExceptionLog(new Exception("demographic function failed"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                // Get demographic data
+                var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, _config.DemographicURIGet);
+                if (demographicData == null)
+                {
+                    _logger.LogInformation("demographic function failed");
+                    await _handleException.CreateSystemExceptionLog(new Exception("demographic function failed"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+
+
+                    await AddMessageToDeadLetterQueue(_config.QueueConnectionString, _config.QueueName, message.SequenceNumber);
+                    _logger.LogWarning("Participant removed from set of participants because demographic data was null.");
+                    serializableMessages.Remove(message);
+
+                    continue;
+                }
+
+                var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
+                var participantCsvRecord = new ParticipantCsvRecord
+                {
+                    Participant = participant,
+                    FileName = basicParticipantCsvRecord.FileName,
+                };
+                message.Body = JsonSerializer.Serialize(participantCsvRecord);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
                 return null;
             }
-
-            var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
-            var participantCsvRecord = new ParticipantCsvRecord
-            {
-                Participant = participant,
-                FileName = basicParticipantCsvRecord.FileName,
-            };
-            return participantCsvRecord;
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-            return null;
-        }
+        return serializableMessages;
     }
 
     /// <summary>
@@ -72,26 +83,36 @@ public class AddBatchFromQueueHelper : IAddBatchFromQueueHelper
     /// </summary>
     /// <param name="jsonFromQueue"></param>
     /// <returns></returns>
-    public async Task<ParticipantCsvRecord?> ValidateMessageFromQueue(ParticipantCsvRecord participantCsvRecord)
+    public async Task<List<SerializableMessage>?> ValidateMessageFromQueue(List<SerializableMessage> serializableMessages)
     {
-        Participant participant;
+
+        ParticipantCsvRecord participantCsvRecord = new ParticipantCsvRecord();
         try
         {
-            participant = participantCsvRecord.Participant;
-            //validate record and set EligibilityFlag 
-            (participantCsvRecord, participant) = await _validateRecord.ValidateData(participantCsvRecord, participant);
-            if (participantCsvRecord == null || participant == null)
+            foreach (var serializableMessage in serializableMessages)
             {
-                return null;
+                participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(serializableMessage.Body)!;
+                // current paricipant
+                var participant = participantCsvRecord.Participant;
+                //validate record and set EligibilityFlag 
+                (participantCsvRecord, participant) = await _validateRecord.ValidateData(participantCsvRecord, participant);
+                if (participantCsvRecord == null || participant == null)
+                {
+                    await AddMessageToDeadLetterQueue(_config.QueueConnectionString, _config.QueueName, serializableMessage.SequenceNumber);
+                    _logger.LogWarning("Participant removed from set of participants because validation failed. See database for more details");
+                    serializableMessages.Remove(serializableMessage);
+
+                    continue;
+                }
+
+                participant.EligibilityFlag = "1";
+                var participantJson = JsonSerializer.Serialize(participant);
+
+                participantCsvRecord.Participant = participant;
+
+                serializableMessage.Body = JsonSerializer.Serialize(participantCsvRecord);
+                _logger.LogInformation("Participant ready for creation");
             }
-
-            participant.EligibilityFlag = "1";
-            var participantJson = JsonSerializer.Serialize(participant);
-
-            participantCsvRecord.Participant = participant;
-
-            _logger.LogInformation("Participant ready for creation");
-            return participantCsvRecord;
         }
         catch (Exception ex)
         {
@@ -99,6 +120,7 @@ public class AddBatchFromQueueHelper : IAddBatchFromQueueHelper
             await _handleException.CreateSystemExceptionLog(ex, participantCsvRecord.Participant, participantCsvRecord.FileName);
             return null;
         }
+        return serializableMessages;
     }
 
     public async Task AddAllCohortRecordsToQueue(List<ParticipantCsvRecord> participantsData)
@@ -112,6 +134,23 @@ public class AddBatchFromQueueHelper : IAddBatchFromQueueHelper
                 await _handleException.CreateSystemExceptionLog(new Exception("participant failed to send to Cohort Distribution Service"), ParticipantCsvRecord.Participant, ParticipantCsvRecord.FileName);
                 return;
             }
+        }
+    }
+
+    private async Task AddMessageToDeadLetterQueue(string connectionString, string queueName, long sequenceNumber)
+    {
+        var client = new ServiceBusClient(connectionString);
+        var receiver = client.CreateReceiver(queueName);
+        try
+        {
+            _logger.LogWarning($"now dead lettering message with sequence number {sequenceNumber}");
+            var fullMessage = await receiver.ReceiveDeferredMessageAsync(sequenceNumber);
+            await receiver.DeadLetterMessageAsync(fullMessage);
+        }
+        finally
+        {
+            await client.DisposeAsync();
+            await receiver.DisposeAsync();
         }
     }
 }

@@ -1,6 +1,9 @@
 namespace AddBatchFromQueue;
 
 using System;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+using System.Text.Json;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using DataServices.Client;
@@ -9,7 +12,6 @@ using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 using Model;
-using OpenTelemetry.Trace;
 
 public class AddBatchFromQueue
 {
@@ -38,6 +40,8 @@ public class AddBatchFromQueue
 
         connectionString = Environment.GetEnvironmentVariable("QueueConnectionString")!;
         queueName = Environment.GetEnvironmentVariable("QueueName")!;
+
+        _logger.LogWarning(System.Diagnostics.Process.GetCurrentProcess().Id.ToString());
     }
 
     [Function(nameof(AddBatchFromQueueOrchestrator))]
@@ -49,6 +53,7 @@ public class AddBatchFromQueue
 
         var participants = new List<ParticipantManagement>();
         var participantsData = new List<ParticipantCsvRecord>();
+
         try
         {
             _logger.LogInformation($"DrainServiceBusQueue started at: {DateTime.Now}");
@@ -63,53 +68,26 @@ public class AddBatchFromQueue
                 return;
             }
 
-            int processedRecords = 0;
-            foreach (var message in ListOfAllValuesFromQueue)
+            var chunks = ListOfAllValuesFromQueue.Chunk(500).ToList();
+            // process in batches of chunk size provided
+            foreach (var chunk in chunks)
             {
-                if (processedRecords == 5)
+                var participantsWithDetails = await context.CallActivityAsync<List<SerializableMessage>>(nameof(GetDemoGraphicData), chunk);
+
+                var ValidatedParticipantCsvRecords = await context.CallActivityAsync<List<SerializableMessage>>(nameof(ValidateMessage), participantsWithDetails!);
+
+                var participantsToAddToDatabase = await context.CallActivityAsync<participantObjectList>(nameof(ProcessChunk), ValidatedParticipantCsvRecords!);
+
+
+                //add current batch to database and cohort queue  process current batch 
+                var tasks = new List<Task>()
                 {
-                    await context.CallActivityAsync(
-                        nameof(AlwaysFails)
-                    );
-                    Console.WriteLine("yes");
-                }
+                    context.CallActivityAsync<bool>(nameof(AddItemsToDatabase), participantsToAddToDatabase.ParticipantManagementRecords),
+                    context.CallActivityAsync<bool>(nameof(AddItemsToCohortQueue), participantsToAddToDatabase.ParticipantCsvRecords)
+                };
 
-                try
-                {
-                    string jsonFromQueue = message.Body;
-                    _logger.LogInformation($"Processing message: {jsonFromQueue}");
 
-                    var participantCsvRecord = await context.CallActivityAsync<ParticipantCsvRecord>(
-                       nameof(GetDemoGraphicData), jsonFromQueue);
-
-                    var ValidatedParticipantCsvRecord = await context.CallActivityAsync<ParticipantCsvRecord>(
-                       nameof(ValidateMessage), participantCsvRecord!);
-
-                    if (ValidatedParticipantCsvRecord == null)
-                    {
-                        _logger.LogError("The result of validating a record was null, see errors in database for more details. Will still process any other records");
-                        // this sends a record to the dead letter queue on error
-                        await context.CallActivityAsync(nameof(DeadLetterItemAsync), message.SequenceNumber);
-                    }
-                    // we only want to add non null items to the database and log error records to the database this handled by validation 
-                    else
-                    {
-                        participantsData.Add(ValidatedParticipantCsvRecord!);
-                        participants.Add(ValidatedParticipantCsvRecord!.Participant.ToParticipantManagement());
-
-                        await context.CallActivityAsync(nameof(completeMessageAsync), message.SequenceNumber);
-
-                        var messageFromQueue = _messageStore.ListOfAllValues.Where(x => x.MessageId == message.MessageId).FirstOrDefault();
-                        messageFromQueue.IsCompleted = true;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to process message");
-                    // send error messages to the dead letter queue
-                    await context.CallActivityAsync(nameof(DeadLetterItemAsync), message.SequenceNumber);
-                }
-                processedRecords++;
+                await Task.WhenAll(tasks);
             }
         }
         catch (Exception ex)
@@ -118,36 +96,56 @@ public class AddBatchFromQueue
         }
         finally
         {
-            var addAllRecordsToCohortQueue = false;
-            if (participants.Any())
-            {
-                addAllRecordsToCohortQueue = await context.CallActivityAsync<bool>(
-                    nameof(AddItemsToDatabase), participants
-                );
-            }
-
-            if (addAllRecordsToCohortQueue && participantsData.Any())
-            {
-                await context.CallActivityAsync<bool>(
-                    nameof(AddItemsToCohortQueue), participantsData
-                );
-            }
-
-            // dispose of all lists and variables from memory because they are no longer needed
+            // when the batch is finished processing we need to make sure we can start a new batch form the service buss queue
+            //await _messageHandling.CleanUpMessages(receiver, queueName, connectionString);
+            _messageStore.processingCurrentBatch = false;
             if (_messageStore.ListOfAllValues != null)
             {
-                await _messageHandling.CleanUpMessages(receiver, queueName, connectionString);
                 _messageStore.ListOfAllValues.Clear();
             }
+            await _messageHandling.CleanUpDeferredMessages(receiver, queueName, connectionString);
             await receiver.CloseAsync();
             await client.DisposeAsync();
         }
     }
 
-    [Function(nameof(AlwaysFails))]
-    public void AlwaysFails([ActivityTrigger] FunctionContext functionContext)
+    [Function(nameof(ProcessChunk))]
+    public async Task<participantObjectList> ProcessChunk([ActivityTrigger] List<SerializableMessage> ValidatedParticipantCsvRecords)
     {
-        throw new Exception("testing always fails retry");
+        var client = new ServiceBusClient(connectionString);
+        var receiver = client.CreateReceiver(queueName);
+
+        try
+        {
+            var participantsData = new ConcurrentQueue<ParticipantCsvRecord>();
+            var participants = new ConcurrentQueue<ParticipantManagement>();
+
+            var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+            await Parallel.ForEachAsync(ValidatedParticipantCsvRecords, options, async (messageFromQueue, cancellationToken) =>
+            {
+                var fullMessage = await receiver.ReceiveDeferredMessageAsync(messageFromQueue.SequenceNumber);
+
+                var validatedMessageFromQueue = JsonSerializer.Deserialize<ParticipantCsvRecord>(messageFromQueue.Body);
+                participantsData.Enqueue(validatedMessageFromQueue!);
+                participants.Enqueue(validatedMessageFromQueue!.Participant.ToParticipantManagement());
+
+
+                _logger.LogWarning($"now completing message with sequence number {messageFromQueue.SequenceNumber}");
+                await receiver.CompleteMessageAsync(fullMessage);
+                _messageStore.ListOfAllValues.Remove(messageFromQueue);
+            });
+
+            return new participantObjectList()
+            {
+                ParticipantCsvRecords = participantsData.ToList(),
+                ParticipantManagementRecords = participants.ToList()
+            };
+        }
+        finally
+        {
+            await client.DisposeAsync();
+            await receiver.DisposeAsync();
+        }
     }
 
     [Function(nameof(GetMessagesFromQueueActivity))]
@@ -156,8 +154,9 @@ public class AddBatchFromQueue
         var serviceBusProcessorOptions = new ServiceBusProcessorOptions()
         {
             ReceiveMode = ServiceBusReceiveMode.PeekLock,
-            MaxAutoLockRenewalDuration = TimeSpan.FromMinutes(5) // lock message for 5 mins
-
+            AutoCompleteMessages = false,
+            PrefetchCount = 0,
+            MaxConcurrentCalls = 1,
         };
         var client = new ServiceBusClient(connectionString);
         var receiver = client.CreateReceiver(queueName);
@@ -168,14 +167,18 @@ public class AddBatchFromQueue
         try
         {
             _logger.LogWarning($"GetMessagesFromQueueActivity started at: {DateTime.Now}");
-            _messageStore.ExpectedMessageCount = runtimeProperties.Value.ActiveMessageCount;
 
-            if (_messageStore.ExpectedMessageCount == 0)
+            var itemsOnQueue = runtimeProperties.Value.ActiveMessageCount;
+            if (itemsOnQueue == 0)
             {
                 _logger.LogWarning("nothing to process");
                 await processor.StopProcessingAsync();
                 return new List<SerializableMessage>();
             }
+
+            //get a batch from the service buss queue
+            _messageStore.ExpectedMessageCount = runtimeProperties.Value.ActiveMessageCount;
+
 
             _messageStore.ListOfAllValues = new List<SerializableMessage>();
             _messageStore.AllMessagesReceived = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
@@ -184,6 +187,8 @@ public class AddBatchFromQueue
             processor.ProcessErrorAsync += _messageHandling.ErrorHandler;
 
             await processor.StartProcessingAsync();
+            _messageStore.processingCurrentBatch = true;
+
 
             // Wait until all messages received or timeout
             var timeout = Task.Delay(TimeSpan.FromMinutes(5));
@@ -196,8 +201,8 @@ public class AddBatchFromQueue
             }
             else
             {
-                _logger.LogWarning("Timed out before all messages received.");
-                return new List<SerializableMessage>();
+                _logger.LogWarning("Timed out before all messages received. processing what is in current batch");
+                return _messageStore.ListOfAllValues;
             }
         }
         catch (Exception ex)
@@ -216,67 +221,42 @@ public class AddBatchFromQueue
     }
 
     [Function(nameof(GetDemoGraphicData))]
-    public async Task<ParticipantCsvRecord?> GetDemoGraphicData([ActivityTrigger] string jsonFromQueue)
+    public async Task<List<SerializableMessage>?> GetDemoGraphicData([ActivityTrigger] List<SerializableMessage> serializableMessages)
     {
-        return await _addBatchFromQueueHelper.GetDemoGraphicData(jsonFromQueue);
+        return await _addBatchFromQueueHelper.GetDemoGraphicData(serializableMessages);
     }
 
     [Function(nameof(ValidateMessage))]
-    public async Task<ParticipantCsvRecord?> ValidateMessage([ActivityTrigger] ParticipantCsvRecord participantCsvRecord)
+    public async Task<List<SerializableMessage>?> ValidateMessage([ActivityTrigger] List<SerializableMessage> serializableMessages)
     {
-        return await _addBatchFromQueueHelper.ValidateMessageFromQueue(participantCsvRecord);
+        return await _addBatchFromQueueHelper.ValidateMessageFromQueue(serializableMessages);
     }
 
 
     [Function(nameof(AddItemsToDatabase))]
     public async Task<bool> AddItemsToDatabase([ActivityTrigger] List<ParticipantManagement> participants)
     {
-        _logger.LogWarning($"sent messages from the queue to database");
-        return await _participantManagementClient.AddRange(participants); ;
+        if (participants.Any())
+        {
+            _logger.LogWarning($"sent messages from the queue to database");
+            return await _participantManagementClient.AddRange(participants); ;
+        }
+        _logger.LogWarning($"no participants to add");
+        return false;
     }
 
     [Function(nameof(AddItemsToCohortQueue))]
     public async Task<bool> AddItemsToCohortQueue([ActivityTrigger] List<ParticipantCsvRecord> participants)
     {
-        await _addBatchFromQueueHelper.AddAllCohortRecordsToQueue(participants);
-        _logger.LogWarning($"sent messages from the queue to cohort");
-
-        return true;
-    }
-
-    [Function(nameof(DeadLetterItemAsync))]
-    public async Task DeadLetterItemAsync([ActivityTrigger] long sequenceNumber)
-    {
-        var client = new ServiceBusClient(connectionString);
-        var receiver = client.CreateReceiver(queueName);
-        try
+        if (participants.Any())
         {
-            var fullMessage = await receiver.ReceiveDeferredMessageAsync(sequenceNumber);
-            await receiver.DeadLetterMessageAsync(fullMessage);
-        }
-        finally
-        {
-            await client.DisposeAsync();
-            await receiver.DisposeAsync();
-        }
-    }
+            await _addBatchFromQueueHelper.AddAllCohortRecordsToQueue(participants);
+            _logger.LogWarning($"sent messages from the queue to cohort");
 
-    [Function(nameof(completeMessageAsync))]
-    public async Task completeMessageAsync([ActivityTrigger] long sequenceNumber)
-    {
-        var client = new ServiceBusClient(connectionString);
-        var receiver = client.CreateReceiver(queueName);
+            return true;
+        }
 
-        try
-        {
-            var fullMessage = await receiver.ReceiveDeferredMessageAsync(sequenceNumber);
-            await receiver.CompleteMessageAsync(fullMessage);
-        }
-        finally
-        {
-            await client.DisposeAsync();
-            await receiver.DisposeAsync();
-        }
+        return false;
     }
 
     [Function("add_batch_timer_start")]
@@ -284,7 +264,16 @@ public class AddBatchFromQueue
       [TimerTrigger("* * * * *")] TimerInfo myTimer,
       [DurableClient(TaskHub = "BatchProcessorTaskHub")] DurableTaskClient client)
     {
-        string instanceId = await client.ScheduleNewOrchestrationInstanceAsync(nameof(AddBatchFromQueueOrchestrator));
+        _logger.LogWarning("add_batch_timer_start function triggered");
+        // if there is not a batch currently processing then schedule a new batch to run
+        if (!_messageStore.processingCurrentBatch)
+        {
+            var instanceId = await client.ScheduleNewOrchestrationInstanceAsync(nameof(AddBatchFromQueueOrchestrator));
+        }
+        else
+        {
+            _logger.LogWarning("no new Scheduled Orchestration Instance created because an old batch is currently processing");
+        }
     }
 }
 

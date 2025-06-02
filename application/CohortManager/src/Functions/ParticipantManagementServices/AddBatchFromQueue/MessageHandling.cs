@@ -33,12 +33,13 @@ public class MessageHandling : IMessageHandling
         lock (lockObj)
         {
             _messageStore.ListOfAllValues.Add(message);
-
+            // could set a time threshold instead and not defer the messages on the queue
             if (_messageStore.ListOfAllValues.Count >= _messageStore.ExpectedMessageCount)
             {
                 _messageStore.AllMessagesReceived.TrySetResult(true);
             }
         }
+        _logger.LogWarning("adding message to in memory list", args.Message.SequenceNumber);
         await args.DeferMessageAsync(args.Message);
     }
 
@@ -54,8 +55,6 @@ public class MessageHandling : IMessageHandling
         try
         {
             _logger.LogWarning($"cleaning up messages started at: {DateTime.Now}");
-
-
             foreach (var message in _messageStore.ListOfAllValues)
             {
                 if (message.IsCompleted)
@@ -90,12 +89,53 @@ public class MessageHandling : IMessageHandling
                     }
                 }
             }
+            _logger.LogWarning($"cleaning up messages finished: {DateTime.Now}");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
         }
     }
+    public async Task CleanUpDeferredMessages(ServiceBusReceiver receiver, string queueName, string connectionString)
+    {
+        var adminClient = new ServiceBusAdministrationClient(connectionString);
+        var runtimeProperties = await adminClient.GetQueueRuntimePropertiesAsync(queueName);
+
+        try
+        {
+            _logger.LogWarning($"GetMessagesFromQueueActivity started at: {DateTime.Now}");
+            var messagesInQueue = runtimeProperties.Value.ActiveMessageCount;
+
+            for (int i = 0; i < messagesInQueue; i++)
+            {
+                ServiceBusReceivedMessage serviceBusMessage = await receiver.PeekMessageAsync();
+                if (serviceBusMessage == null)
+                {
+                    return;
+                }
+
+                if (serviceBusMessage != null)
+                {
+                    if (serviceBusMessage.State == ServiceBusMessageState.Deferred)
+                    {
+                        var fullMessage = await receiver.ReceiveDeferredMessageAsync(serviceBusMessage.SequenceNumber);
+                        await receiver.CompleteMessageAsync(fullMessage);
+
+                        //await receiver.DeadLetterMessageAsync(serviceBusMessage, "Manually dead-lettering deferred msg");
+                        _logger.LogWarning($"Dead-lettered deferred message with Seq #{serviceBusMessage.SequenceNumber}");
+
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, ex.Message);
+        }
+    }
+
+
+
     private async Task SendMessage(string queueConnectionString, string queueName, string record)
     {
         await using var client = new ServiceBusClient(queueConnectionString);
