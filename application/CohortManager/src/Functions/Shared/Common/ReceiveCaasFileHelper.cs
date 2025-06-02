@@ -21,7 +21,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         _logger = logger;
     }
 
-    public Participant MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
+    public Participant? MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
     {
 
         try
