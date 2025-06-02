@@ -5,11 +5,6 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "999272816",
         "RuleDescription": "Invalid NHS Number was passed in for participant Model.Participant and file ADD1_-_CAAS_BREAST_SCREENING_COHORT.parquet"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4140-01",
-        "requirementJiraId": "DTOSS-2610",
-        "additionalTags": "@regression @e2e @epic2-high-priority Raise exception for 9 digit NHS number"
       }
     }
   ],

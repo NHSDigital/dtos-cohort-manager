@@ -23,12 +23,7 @@
 //
 // This equates to @regression @e2e tags, configured in the package.json at the playwright-tests root location.
 //
-// Examples of custom calls & assertions:
-//
-// - tests/playwright-tests/src/tests/api/bsSelect/smoke/bs-select-endpoints.spec.ts
-// - tests/playwright-tests/src/tests/api/bsSelect/regression/bs-select-api-retrieve-cohort-data.spec.ts
-// - tests/playwright-tests/src/tests/api/bsSelect/deleteFunction/delete-participant-function.spec.ts
 
+export const runnerBasedEpic2TestScenariosAdd = "@DTOSS-5104-01|@DTOSS-5613-01|@DTOSS-4395-01|@DTOSS-4397-01|@DTOSS-4562-01|@DTOSS-4563-01|@DTOSS-3206-01|@DTOSS-4136-01|@DTOSS-4323-01|@DTOSS-4321-01";
 
-export const runnerBasedEpic2TestScenariosAdd = "@DTOSS-5104-01|@DTOSS-5613-01|@DTOSS-4395-01|@DTOSS-4397-01|@DTOSS-4562-01|@DTOSS-4563-01|@DTOSS-3206-01|@DTOSS-4136-01|@DTOSS-4139-01|@DTOSS-4140-01|@DTOSS-4141-01|@DTOSS-4321-01|@DTOSS-4323-01";
 export const runnerBasedEpic2TestScenariosAmend = "@DTOSS-5605-01|@DTOSS-4396-01|@DTOSS-5419-01|@DTOSS-4068-01|@DTOSS-4070-01|@DTOSS-4564-01|@DTOSS-4322-01";

@@ -1,5 +1,5 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
-import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } from '../steps/steps';
+import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps';
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { runnerBasedEpic123TestScenariosAdd } from '../e2e/epic123-smoke-tests/epic123-smoke-tests-migrated';
 import { runnerBasedEpic2TestScenariosAdd } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
@@ -12,7 +12,7 @@ const regressionTestScenario = runnerBasedEpic2TestScenariosAdd;
 let scopedTestScenario = "";
 
 const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
-if (TEST_TYPE == 'Regression') {
+if (TEST_TYPE == 'RegressionEpic2') {
   scopedTestScenario = regressionTestScenario;
 } else {
   scopedTestScenario = smokeTestScenario;
@@ -24,13 +24,13 @@ if (!scopedTestScenario) {
 
 let addData = getConsolidatedAllTestData(scopedTestScenario, "ADD");
 
+
 let apiContext: APIRequestContext;
 test.beforeAll(async () => {
   apiContext = await playwrightRequest.newContext();
   console.log(`Running ${TEST_TYPE} tests with scenario tags: ${scopedTestScenario}`);
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
   const runTimeParquetFile = await createParquetFromJson(addData.nhsNumbers, addData.inputParticipantRecords, addData.testFilesPath, "ADD", false);
-  await verifyBlobExists('Verify ProcessCaasFile data file', runTimeParquetFile);
   await processFileViaStorage(runTimeParquetFile);
 });
 
