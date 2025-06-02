@@ -213,7 +213,8 @@ public class ProcessCaasFileTests
         var task = (Task)updateParticipant.Invoke(processCaasFile, arguments);
         await task;
 
-        //_callDurableFunc.Verify(sendDemographic => sendDemographic.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()), Times.Never);
+
+        _databaseClientParticipantMock.Verify(x => x.Update(It.IsAny<ParticipantDemographic>()), Times.Never);
 
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Warning),
                It.IsAny<EventId>(),
