@@ -503,4 +503,49 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
+  test.only('@DTOSS-5223-01-Preferred Language Validation New Participant', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5223',
+    },
+  }, async ({ request, testData }) => {
+
+    await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
+        await processFileViaStorage(testData.runTimeParquetFile);
+    });
+
+    await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFile);
+
+    await test.step(`Then the record should appear in the participants demographic table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+    });
+  });
+
+  testWithAmended('@DTOSS-5222-01-Preferred Language Amended Participant', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5222',
+    },
+  }, async ({ request, testData }) => {
+
+    await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+    });
+
+    await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+    await test.step(`Then ADD record should be updated in the participants demographic table`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    });
+
+    await test.step(`Then the record should appear in the participants demographic table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
+  });
 });
+
+
