@@ -5,6 +5,11 @@
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9992728167,
         "InvalidFlag": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4396-01",
+        "requirementJiraId": "DTOSS-3129",
+        "additionalTags": "@regression @e2e @epic2-high-priority validate invalid flag set to true for AMENDED"
       }
     }
   ],

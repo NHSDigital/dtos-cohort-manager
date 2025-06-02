@@ -1,11 +1,15 @@
 {
   "validations": [
     {
-        "validations": {
+      "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9992728167,
-        "EmailAddressHome":"bturneux0@soup.io"
-
+        "NHSNumber": 9992728167,
+        "EmailAddressHome": "bturneux0@soup.io"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4564-01",
+        "requirementJiraId": "DTOSS-2709",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate an audit trail of all changes including timestamp. Amend fields - date of birth,Address,Address line 1,Address line 2,Address line 3,post code,SupersededNHSNumber,RecordInsertDateTime,RecordUpdateDateTime,E-mail address (Home)"
       }
     }
   ],

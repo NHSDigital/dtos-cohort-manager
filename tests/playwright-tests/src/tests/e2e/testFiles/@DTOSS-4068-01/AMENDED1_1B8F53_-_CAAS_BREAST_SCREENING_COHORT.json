@@ -3,12 +3,16 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9992728167,
-        "DateOfBirth":"1971-01-01T00:00:00",
-        "DateOfDeath":"2021-02-01T00:00:00",
-        "TelephoneNumberHome":"016199999990",
+        "NHSNumber": 9992728167,
+        "DateOfBirth": "1971-01-01T00:00:00",
+        "DateOfDeath": "2021-02-01T00:00:00",
+        "TelephoneNumberHome": "016199999990",
         "expectedCount": 2
-
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4068-01",
+        "requirementJiraId": "DTOSS-2756",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate record updated when amendments are made to date of death"
       }
     }
   ],

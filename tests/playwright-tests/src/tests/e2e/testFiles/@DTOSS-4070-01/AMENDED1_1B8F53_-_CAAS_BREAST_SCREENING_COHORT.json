@@ -3,13 +3,17 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9992728167,
-        "DateOfBirth":"1971-01-01T00:00:00",
-        "TelephoneNumberHome":"016199999990",
-        "ReasonForRemoval":"DEA",
-        "ReasonForRemovalDate":"2020-02-01T00:00:00",
+        "NHSNumber": 9992728167,
+        "DateOfBirth": "1971-01-01T00:00:00",
+        "TelephoneNumberHome": "016199999990",
+        "ReasonForRemoval": "DEA",
+        "ReasonForRemovalDate": "2020-02-01T00:00:00",
         "expectedCount": 2
-
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4070-01",
+        "requirementJiraId": "DTOSS-2756",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate Amend fields - Reason for Removal,Reason for Removal Business Effective From Date,E-mail address (Home)"
       }
     }
   ],

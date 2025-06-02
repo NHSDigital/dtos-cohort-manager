@@ -1,10 +1,15 @@
 {
   "validations": [
     {
-        "validations": {
+      "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber":"",
-        "RuleDescription":"Invalid NHS Number was passed in for participant Model.Participant and file ADD1_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "NhsNumber": "",
+        "RuleDescription": "Invalid NHS Number was passed in for participant Model.Participant and file ADD1_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4141-01",
+        "requirementJiraId": "DTOSS-2610",
+        "additionalTags": "@regression @e2e @epic2-high-priority Raise exception for invalid NHS number"
       }
     }
   ],
