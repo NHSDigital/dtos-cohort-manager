@@ -10,28 +10,30 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 using NHS.CohortManager.ServiceNowMessageService.Models;
+using Microsoft.Extensions.Options;
 using Common;
 
 public class SendServiceNowMessageFunction
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger _logger;
-    private readonly IConfiguration _configuration;
+    private readonly SendServiceNowMsgConfig _config;
     private readonly ICreateResponse _createResponse;
 
-    public SendServiceNowMessageFunction(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, IConfiguration configuration, ICreateResponse createResponse)
+    public SendServiceNowMessageFunction(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, IOptions<SendServiceNowMsgConfig> sendServiceNowMsgConfig, ICreateResponse createResponse)
     {
         _httpClient = httpClientFactory.CreateClient();
         _logger = loggerFactory.CreateLogger<SendServiceNowMessageFunction>();
-        _configuration = configuration;
+        _config = sendServiceNowMsgConfig.Value;
         _createResponse = createResponse;
     }
 
     [Function("SendServiceNowMessage")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "servicenow/{sysId}")] HttpRequestData req,
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "servicenow/{baseUrl}/{profile}/{sysId}")] HttpRequestData req,
+        string baseUrl,
+        string profile,
         string sysId)
     {
         try
@@ -45,28 +47,27 @@ public class SendServiceNowMessageFunction
 
             }
 
-            var result = await SendServiceNowMessage(sysId, input.WorkNotes, input.State);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, await result.Content.ReadAsStringAsync());
+            var result = await SendServiceNowMessage(baseUrl, profile, sysId, input.WorkNotes, input.State);
+            var response = await SendServiceNowMessage(baseUrl, profile, sysId, input.WorkNotes, input.State);
+            var responseBody = await response.Content.ReadAsStringAsync();
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, responseBody);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error occurred while sending message to ServiceNow.");
-            var errorResponse = req.CreateResponse(HttpStatusCode.InternalServerError);
-            await errorResponse.WriteStringAsync("ServiceNow update failed.");
-            return errorResponse;
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "ServiceNow update failed.");
         }
     }
 
-    public async Task<HttpResponseMessage> SendServiceNowMessage(string sysId, string workNotes, int state = 1)
+    private async Task<HttpResponseMessage> SendServiceNowMessage(string baseUrl, string profile, string sysId, string workNotes, int state)
     {
         try
         {
-            var baseUrl = _configuration["ServiceNowBaseUrl"];
-            var profile = _configuration["Profile"];
-            var definition = _configuration["Definition"];
-            var accessToken = _configuration["AccessToken"];
+            var definition = _config.Definition;
+            var accessToken = _config.AccessToken;
+            var endPointPath = _config.EndpointPath;
 
-            var url = $"{baseUrl}/api/x_nhsd_intstation/nhs_integration/{profile}/{definition}/{sysId}";
+            var url = $"https://{baseUrl}/{endPointPath}/{profile}/{definition}/{sysId}";
 
             var payload = new
             {

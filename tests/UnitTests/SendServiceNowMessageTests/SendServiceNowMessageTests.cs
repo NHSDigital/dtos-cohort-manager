@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Text;
 using Moq.Protected;
@@ -20,6 +21,7 @@ public class ServiceNowMessageTests
     private HttpClient _httpClient;
     private Mock<ILogger<SendServiceNowMessageFunction>> _mockLogger;
     private IConfiguration _configuration;
+     private readonly SendServiceNowMsgConfig _config;
     private Mock<IHttpClientFactory> _mockHttpClientFactory;
     private Mock<ILoggerFactory> _mockLoggerFactory;
     private Mock<ICreateResponse> _createResponse;
@@ -43,19 +45,22 @@ public class ServiceNowMessageTests
             .Setup(x => x.CreateLogger(It.IsAny<string>()))
             .Returns(mockLogger.Object);
 
-        _configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string>
-            {
-                { "ServiceNowBaseUrl", "https://example.com" },
-                { "Profile", "ebz" },
-                { "Definition", "CohortCaseUpdate" },
-                { "AccessToken", "dummy-token" }
-            })
-            .Build();
+        var config = new SendServiceNowMsgConfig
+        {
+            ServiceNowBaseUrl = "https://example.com",
+            Profile = "ebz",
+            Definition = "CohortCaseUpdate",
+            AccessToken = "dummy-token",
+            UpdateEndpoint = "api/x_nhsd_intstation/nhs_integration"
+        };
+
+        var mockOptions = new Mock<IOptions<SendServiceNowMsgConfig>>();
+        mockOptions.Setup(opt => opt.Value).Returns(config);
+
+
 
         _createResponse = new Mock<ICreateResponse>();
     }
-
 
 
     [TestMethod]
@@ -67,22 +72,48 @@ public class ServiceNowMessageTests
             Content = new StringContent("{ \"result\": \"success\" }", Encoding.UTF8, "application/json")
         };
 
-    _mockHttpMessageHandler
-        .Protected()
-        .Setup<Task<HttpResponseMessage>>(
-            "SendAsync",
-            ItExpr.IsAny<HttpRequestMessage>(),
-            ItExpr.IsAny<CancellationToken>())
-        .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+        _mockHttpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>())
+            .ReturnsAsync(expectedResponse)
+            .Verifiable();
+
+        var config = new SendServiceNowMsgConfig
         {
-            Content = new StringContent("{\"result\":\"success\"}")
+            ServiceNowBaseUrl = "https://example.com",
+            Profile = "ebz",
+            Definition = "CohortCaseUpdate",
+            AccessToken = "dummy-token",
+            UpdateEndpoint = "api/x_nhsd_intstation/nhs_integration"
+        };
+
+        var mockOptions = new Mock<IOptions<SendServiceNowMsgConfig>>();
+        mockOptions.Setup(opt => opt.Value).Returns(config);
+
+        var service = new SendServiceNowMessageFunction(
+            _mockHttpClientFactory.Object,
+            _mockLoggerFactory.Object,
+            mockOptions.Object,
+            _createResponse.Object);
+
+        var methodInfo = typeof(SendServiceNowMessageFunction)
+            .GetMethod("SendServiceNowMessage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        Assert.IsNotNull(methodInfo, "Failed to find SendServiceNowMessage method via reflection.");
+
+        var task = (Task<HttpResponseMessage>)methodInfo.Invoke(service, new object[]
+        {
+            "https://dev-servicenow-url",
+            "dev-profile",
+            "123",
+            "Work notes test",
+            1
         });
 
-        var service = new SendServiceNowMessageFunction(_mockHttpClientFactory.Object, _mockLoggerFactory.Object, _configuration,
-    _createResponse.Object);
-
-        // Act
-        var result = await service.SendServiceNowMessage("123", "Work notes test");
+        var result = await task;
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -95,6 +126,7 @@ public class ServiceNowMessageTests
             ItExpr.IsAny<HttpRequestMessage>(),
             ItExpr.IsAny<CancellationToken>());
     }
+
 
     [TestMethod]
     public async Task SendServiceNowMessage_ShouldReturnInternalServerError_WhenRequestFails()
@@ -114,19 +146,47 @@ public class ServiceNowMessageTests
             .ReturnsAsync(failedResponse)
             .Verifiable();
 
+        var config = new SendServiceNowMsgConfig
+        {
+            ServiceNowBaseUrl = "https://example.com",
+            Profile = "ebz",
+            Definition = "CohortCaseUpdate",
+            AccessToken = "dummy-token",
+            UpdateEndpoint = "api/x_nhsd_intstation/nhs_integration"
+        };
+
+        var mockOptions = new Mock<IOptions<SendServiceNowMsgConfig>>();
+        mockOptions.Setup(opt => opt.Value).Returns(config);
+
         var service = new SendServiceNowMessageFunction(
             _mockHttpClientFactory.Object,
             _mockLoggerFactory.Object,
-            _configuration,
+            mockOptions.Object,
             _createResponse.Object);
 
-        // Act
-        var result = await service.SendServiceNowMessage("123", "Should fail");
+        // Use reflection to access private method
+        var methodInfo = typeof(SendServiceNowMessageFunction)
+            .GetMethod("SendServiceNowMessage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        Assert.IsNotNull(methodInfo, "Failed to find SendServiceNowMessage method via reflection");
+
+        var task = (Task<HttpResponseMessage>)methodInfo.Invoke(service, new object[]
+        {
+            "https://dummy-servicenow-url",
+            "dummy-profile-id",
+            "123",
+            "Should fail",
+            1
+        });
+
+        var result = await task;
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+
         var content = await result.Content.ReadAsStringAsync();
         Assert.IsTrue(content.Contains("error", StringComparison.OrdinalIgnoreCase));
     }
+
 
 }
