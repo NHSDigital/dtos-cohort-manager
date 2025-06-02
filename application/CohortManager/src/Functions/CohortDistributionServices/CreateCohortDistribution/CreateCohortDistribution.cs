@@ -72,7 +72,7 @@ public class CreateCohortDistribution
                                                                                             JsonSerializer.Serialize(participantData));
                 if (serviceProvider == null)
                 {
-                    await HandleExceptionAsync("Could not get Postcode in Cohort distribution", participantData, basicParticipantCsvRecord.FileName);
+                    await HandleExceptionAsync("Could not allocate participant to service provider from postcode", participantData, basicParticipantCsvRecord.FileName);
                     return;
                 }
             }
