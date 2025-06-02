@@ -30,7 +30,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  testWithAmended('@DTOSS-5596-01 - Transformation - does not trigger removal logic when Reason for Removal is NOT - RDR, RDI, RPR', {
+  testWithAmended('@DTOSS-5596-01 @custom-logic - Transformation - does not trigger removal logic when Reason for Removal is NOT - RDR, RDI, RPR', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4771',
@@ -68,25 +68,6 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  testWithAmended('@DTOSS-5801-01 @Implement Validate Amend fields reason for removal as DEA and date of death empty', async ({ request, testData }) => {
-
-
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
 
   testWithAmended('@DTOSS-5589-01 @Implement Validate Amend fields reason for removal as null and date of death present', async ({ request, testData }) => {
 
@@ -107,6 +88,8 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
   });
+
+
 
   testWithAmended('@DTOSS-5407-01 @Implement Validate Amend fields reason for removal as invalid "RFR" and date of death present', async ({ request, testData }) => {
 

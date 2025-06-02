@@ -2,16 +2,32 @@ import { test, request as playwrightRequest, APIRequestContext } from '@playwrig
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps';
 import { runnerBasedEpic123TestScenariosAddAmend } from '../e2e/epic123-smoke-tests/epic123-smoke-tests-migrated';
+import { runnerBasedEpic3TestScenariosAmend } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
 
 // Test Scenario Tags
 const smokeTestScenario = runnerBasedEpic123TestScenariosAddAmend;
+const regressionTestScenario = runnerBasedEpic3TestScenariosAmend;
 
+// Tets to run based on TEST_TYPE environment variable
+let scopedTestScenario = "";
 
-let addData = getConsolidatedAllTestData(smokeTestScenario, "ADD");
-let amendData = getConsolidatedAllTestData(smokeTestScenario, "AMENDED");
+const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
+if (TEST_TYPE == 'Regression') {
+  scopedTestScenario = regressionTestScenario;
+} else {
+  scopedTestScenario = smokeTestScenario;
+}
+
+if (!scopedTestScenario) {
+  throw new Error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");
+} else {
+  console.log(`Running ${TEST_TYPE} tests with scenario tags: ${scopedTestScenario}`);
+}
+
+let addData = getConsolidatedAllTestData(scopedTestScenario, "ADD");
+let amendData = getConsolidatedAllTestData(scopedTestScenario, "AMENDED");
 
 let apiContext: APIRequestContext;
-
 test.beforeAll(async () => {
   apiContext = await playwrightRequest.newContext();
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
