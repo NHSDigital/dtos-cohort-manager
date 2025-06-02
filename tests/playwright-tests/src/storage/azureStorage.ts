@@ -20,3 +20,18 @@ export async function uploadToLocalStorage(filePath: string): Promise<void> {
     console.error('Error uploading file to Azure Blob Storage:', error);
   }
 }
+
+export async function checkBlobExists(blobName: string): Promise<boolean> {
+  const blobServiceClient = BlobServiceClient.fromConnectionString(config.azureConnectionString);
+  const containerClient = blobServiceClient.getContainerClient(config.containerName);
+  const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+
+  try {
+    return await blockBlobClient.exists();
+  } catch (error) {
+    console.error(`Error checking blob existence: ${blobName}`, error);
+    return false;
+  }
+}
+
+

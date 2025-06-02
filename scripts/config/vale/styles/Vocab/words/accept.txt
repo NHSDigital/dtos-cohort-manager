@@ -6,6 +6,7 @@ Grype
 OAuth
 Octokit
 Podman
+Dockerfile
 Python
 Syft
 Terraform

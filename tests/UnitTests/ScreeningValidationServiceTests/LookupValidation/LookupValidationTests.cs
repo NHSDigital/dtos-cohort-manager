@@ -736,7 +736,7 @@ public class LookupValidationTests
     {
         // Arrange
         SetupRules("LookupRules");
-        _requestBody.NewParticipant.BlockedFlag = "1";
+        _requestBody.ExistingParticipant.BlockedFlag = "1";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 

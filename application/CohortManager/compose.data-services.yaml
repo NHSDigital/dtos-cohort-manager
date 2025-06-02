@@ -116,7 +116,7 @@ services:
     container_name: gene-code-lkp-data-service
     image: cohort-manager-gene-code-lkp-data-service
     networks: [cohman-network]
-    profiles: [bi-analytics]
+    profiles: [not-implemented]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/GeneCodeLkpDataService/Dockerfile
@@ -132,7 +132,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/HigherRiskReferralReasonLkpDataService/Dockerfile
-    profiles: [bi-analytics]
+    profiles: [not-implemented]
     environment:
       - ASPNETCORE_URLS=http://*:7992
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
