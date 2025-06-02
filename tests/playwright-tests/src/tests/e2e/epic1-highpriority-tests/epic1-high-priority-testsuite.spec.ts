@@ -11,7 +11,7 @@ test.describe('@regression @e2e @epic1-high-priority participant ADD process', (
       await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
     });
 
-    await test.step(`When ADD participants are   processed via storage`, async () => {
+    await test.step(`When  ADD participants are   processed via storage`, async () => {
       await processFileViaStorage(testData.runTimeParquetFile);
     });
 
