@@ -17,15 +17,13 @@ namespace Common.Tests
     public class ReceiveCaasFileHelperTests
     {
         private Mock<ILogger<ReceiveCaasFileHelper>> _mockLogger;
-        private Mock<ICallFunction> _mockCallFunction;
         private ReceiveCaasFileHelper _helper;
 
         [TestInitialize]
         public void Setup()
         {
             _mockLogger = new Mock<ILogger<ReceiveCaasFileHelper>>();
-            _mockCallFunction = new Mock<ICallFunction>();
-            _helper = new ReceiveCaasFileHelper(_mockLogger.Object, _mockCallFunction.Object);
+            _helper = new ReceiveCaasFileHelper(_mockLogger.Object);
         }
 
     [TestMethod]
@@ -39,7 +37,7 @@ namespace Common.Tests
         };
 
         // Act
-        var result = await _helper.MapParticipant(rec, "scr123", "SCRName", "file.txt");
+        var result = _helper.MapParticipant(rec, "scr123", "SCRName", "file.txt");
 
         // Assert
         Assert.IsNotNull(result);
