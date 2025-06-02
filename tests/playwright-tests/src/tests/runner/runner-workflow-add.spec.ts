@@ -17,14 +17,15 @@ if (TEST_TYPE == 'Regression') {
   scopedTestScenario = smokeTestScenario;
 }
 
-let apiContext: APIRequestContext;
 if (!scopedTestScenario) {
   throw new Error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");
 } else {
   console.log(`Running ${TEST_TYPE} tests with scenario tags: ${scopedTestScenario}`);
 }
+
 let addData = getConsolidatedAllTestData(scopedTestScenario, "ADD");
 
+let apiContext: APIRequestContext;
 test.beforeAll(async () => {
   apiContext = await playwrightRequest.newContext();
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
