@@ -7,7 +7,7 @@ import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromA
 test.describe('@regression @e2e @epic1-high-priority participant ADD process', () => {
 
   test.beforeEach(async ({ request, testData }) => {
-    await test.step(`Given database does not   contain ADD records that will be processed `, async () => {
+    await test.step(`Given database does not contain ADD records that will be processed `, async () => {
       await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
     });
 
