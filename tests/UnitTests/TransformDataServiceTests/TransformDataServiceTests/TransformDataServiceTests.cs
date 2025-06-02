@@ -3,7 +3,7 @@ namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using NHS.CohortManager.CohortDistribution;
+using NHS.CohortManager.CohortDistributionService;
 using NHS.CohortManager.Tests.TestUtils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
