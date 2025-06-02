@@ -10,7 +10,7 @@
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9995262320,
-        "preferredLanguage": "fr"
+        "preferredLanguage": "en"
       }
     }
   ],
@@ -50,7 +50,7 @@
       "mobile_telephone_effective_from_date": "20240501",
       "email_address": "bturneux0@soup.io",
       "email_address_effective_from_date": null,
-      "preferred_language": "fr",
+      "preferred_language": "en",
       "is_interpreter_required": false,
       "invalid_flag": false,
       "eligibility": true
