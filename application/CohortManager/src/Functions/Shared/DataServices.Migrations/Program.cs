@@ -19,7 +19,8 @@ using Model.Enums;
 
 public class Program
 {
-    protected Program() {}
+    private static readonly string[] TokenScopes = new[] { "https://database.windows.net/.default" };
+    protected Program() { }
     public static int Main(string[] args)
     {
         List<string> configFiles = new List<string> { "appsettings.json" }; // Only used for local
@@ -55,7 +56,7 @@ public class Program
                     if(config.SQL_IDENTITY_CLIENT_ID is not null)
                     {
                         var credential = new ManagedIdentityCredential(config.SQL_IDENTITY_CLIENT_ID );
-                        var token = credential.GetToken(new Azure.Core.TokenRequestContext(new[] { "https://database.windows.net/.default" }));
+                        var token = credential.GetToken(new Azure.Core.TokenRequestContext(TokenScopes));
                         connection.AccessToken = token.Token;
                     }
 
@@ -93,7 +94,7 @@ public class Program
         }
         catch (Exception ex)
         {
-            logger.LogError($"Migration Failed: {ex.Message}");
+            logger.LogError(ex,"Migration Failed");
             return ExitCodes.FAILURE;
         }
     }
@@ -102,7 +103,7 @@ public class Program
     {
         using var scope = host.Services.CreateScope();
 
-        var dbContext = scope.ServiceProvider.GetRequiredService<DataServicesContext>();
+        //var dbContext = scope.ServiceProvider.GetRequiredService<DataServicesContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         var SeedDataLoader = scope.ServiceProvider.GetRequiredService<ISeedDataLoader>();
         try
@@ -126,36 +127,6 @@ public class Program
         }
         return ExitCodes.SUCCESS;
 
-    }
-
-    static int ExtractData(IHost host)
-    {
-        using var scope = host.Services.CreateScope();
-            var dbContext = scope.ServiceProvider.GetRequiredService<DataServicesContext>();
-            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-
-        ExtractDataofType<BsoOrganisation>(dbContext);
-        ExtractDataofType<BsSelectGpPractice>(dbContext);
-        ExtractDataofType<BsSelectOutCode>(dbContext);
-        ExtractDataofType<CurrentPosting>(dbContext);
-        ExtractDataofType<ExcludedSMULookup>(dbContext);
-        ExtractDataofType<GenderMaster>(dbContext);
-        ExtractDataofType<GeneCodeLkp>(dbContext);
-        ExtractDataofType<GPPractice>(dbContext);
-        ExtractDataofType<HigherRiskReferralReasonLkp>(dbContext);
-        ExtractDataofType<LanguageCode>(dbContext);
-        ExtractDataofType<ScreeningLkp>(dbContext);
-
-        return 0;
-    }
-
-    public static bool ExtractDataofType<TEntity>(DbContext context) where TEntity : class
-    {
-        var data = context.Set<TEntity>().ToList();
-        var jsonString = JsonSerializer.Serialize(data);
-
-        File.WriteAllText($"{typeof(TEntity).Name}.json", jsonString);
-        return true;
     }
 
 }
