@@ -133,12 +133,14 @@ public class ProcessCaasFile : IProcessCaasFile
         switch (participant.RecordType?.Trim())
         {
             case Actions.New:
-                var updateResult = await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
-                if (!updateResult)
-                {
-                    currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
-                }
+                var DemographicUpdated = await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+                if (DemographicUpdated)
+                {
+                    break;
+                }
+
+                currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 break;
             case Actions.Amended:
                 await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
@@ -186,7 +188,7 @@ public class ProcessCaasFile : IProcessCaasFile
 
             if (participant != null)
             {
-                var updated = await _participantDemographic.Update(participant);
+                var updated = await _participantDemographic.Update(basicParticipantCsvRecord.participant.ToParticipantDemographic());
 
                 _logger.LogInformation(updated ? "updating old Demographic record was successful" : "updating old Demographic record was not successful");
                 return updated;
