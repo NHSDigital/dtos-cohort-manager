@@ -1,3 +1,5 @@
+namespace NHS.CohortManager.CohortDistributionDataServices;
+
 using System.ComponentModel.DataAnnotations;
 
 public class RetrieveCohortDistributionConfig
