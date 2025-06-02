@@ -11,7 +11,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   TestHooks.setupAllTestHooks();
 
-  test('@DTOSS-6326-01 - Transformation - Invalid Flag triggers Reason for Removal logic - should apply correct transformations when invalidFlag is true', {
+  test('@DTOSS-6326-01 @custom-logic - Transformation - Invalid Flag triggers Reason for Removal logic - should apply correct transformations when invalidFlag is true', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5396',
@@ -306,7 +306,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5560-01 - BS Select - Records are received where IsExtracted is set to 0', {
+  test('@DTOSS-5560-01 @custom-logic - BS Select - Records are received where IsExtracted is set to 0', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3650',
@@ -329,7 +329,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  test('@DTOSS-5584-01 - BS Select - 204 if IsExtracted is set to 1', {
+  test('@DTOSS-5584-01 @custom-logic - BS Select - 204 if IsExtracted is set to 1', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3714',
@@ -363,7 +363,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5563-01 - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
+  test('@DTOSS-5563-01 @custom-logic - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
     annotation: [{
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5563',
@@ -395,7 +395,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithAmended('@DTOSS-6016-01 - Should Not Amend Participant Data When Current Posting is Missing', {
+  testWithAmended('@DTOSS-6016-01 @custom-logic - Should Not Amend Participant Data When Current Posting is Missing', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6016',
@@ -440,7 +440,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5348-01 @AddParticipant Verify all Functions Called', {
+  test('@DTOSS-5348-01 @custom-logic @AddParticipant Verify all Functions Called', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5348',
@@ -456,19 +456,6 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     await test.step('Then participant record is added to cohort distribution table', async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
     });
-  });
-
-  test('@DTOSS-5539-01 @Implement Validation for Eligibility Flag for Add set to true', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3656',
-    },
-  }, async ({ request, testData }) => {
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-    });
-
   });
 
 });
