@@ -31,8 +31,7 @@ public class BlobStorageHelper : IBlobStorageHelper
         try
         {
             await sourceBlobLease.AcquireAsync(BlobLeaseClient.InfiniteLeaseDuration);
-
-            var copyOperation = await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
+            await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
         }
         catch (RequestFailedException ex)
         {

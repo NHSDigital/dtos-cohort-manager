@@ -16,14 +16,12 @@ using NHS.Screening.ReceiveCaasFile;
 public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 {
     private readonly ILogger<ReceiveCaasFileHelper> _logger;
-    private readonly ICallFunction _callFunction;
-    public ReceiveCaasFileHelper(ILogger<ReceiveCaasFileHelper> logger, ICallFunction callFunction)
+    public ReceiveCaasFileHelper(ILogger<ReceiveCaasFileHelper> logger)
     {
         _logger = logger;
-        _callFunction = callFunction;
     }
 
-    public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
+    public Participant MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
     {
 
         try

@@ -178,7 +178,7 @@ public class ReceiveCaasFileTests
             .Verifiable();
         _mockIReceiveCaasFileHelper
             .Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(Task.FromResult<Participant?>(_participant));
+            .Returns(_participant);
 
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
@@ -289,7 +289,7 @@ public class ReceiveCaasFileTests
         };
 
         _mockScreeningLkpClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>())).ReturnsAsync(screeningLkp);
-        _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult<Participant?>(_participant));
+        _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(_participant);
 
         var batchSize = 1;
         Environment.SetEnvironmentVariable("BatchSize", batchSize.ToString());

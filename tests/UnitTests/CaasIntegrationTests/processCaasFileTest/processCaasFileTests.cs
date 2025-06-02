@@ -80,7 +80,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
+            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
 
         _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>())).ReturnsAsync(true);
 
@@ -114,7 +114,7 @@ public class ProcessCaasFileTests
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(It.IsAny<ParticipantsParquetMap>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended });
+            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended });
 
         _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ReturnsAsync(true);
@@ -151,7 +151,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "InvalidNHS", RecordType = Actions.New });
+            .Returns(new Participant { NhsNumber = "InvalidNHS", RecordType = Actions.New });
 
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
@@ -181,7 +181,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
+            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
 
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
