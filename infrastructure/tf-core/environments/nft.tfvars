@@ -48,8 +48,8 @@ regions = {
         cidr_offset  = 5
       }
       container-app-db-management = {
-        cidr_newbits               = 7
-        cidr_offset                = 6
+        cidr_newbits = 7
+        cidr_offset  = 6
       }
     }
   }
