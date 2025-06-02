@@ -369,7 +369,7 @@ services:
       dockerfile: ServiceNowIntegrationService/SendServiceNowMessage/Dockerfile
     profiles: [not-implemented]
     environment:
-      - ASPNETCORE_URLS=http://*:9082
+      - ASPNETCORE_URLS=http://*:9092
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
   durable-demographic-function:
