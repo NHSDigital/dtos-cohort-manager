@@ -35,10 +35,10 @@ public class SeedDataLoader : ISeedDataLoader
             return true;
         }
 
-        var jsonData = File.ReadAllText(filePath);
+        var jsonData = await File.ReadAllTextAsync(filePath);
         var data = JsonSerializer.Deserialize<List<TEntity>>(jsonData);
 
-        if (data == null || !data.Any())
+        if (data == null || data.Count == 0)
         {
             return true;
         }
@@ -60,7 +60,7 @@ public class SeedDataLoader : ISeedDataLoader
         return true;
     }
 
-    private bool IsValidTableName(string tableName)
+    private static bool IsValidTableName(string tableName)
     {
         return Regex.IsMatch(tableName, @"^[a-zA-Z0-9_]+$",RegexOptions.None, TimeSpan.FromSeconds(10));
     }

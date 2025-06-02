@@ -81,7 +81,7 @@ public class Program
             logger.LogInformation("Applying Migrations...");
             dbContext.Database.Migrate();
             var remainingMigrations = dbContext.Database.GetPendingMigrations().ToList();
-            if (remainingMigrations.Any())
+            if (remainingMigrations.Count != 0)
             {
                 Console.WriteLine("Some migrations were not applied.");
                 return ExitCodes.FAILURE;
@@ -103,7 +103,6 @@ public class Program
     {
         using var scope = host.Services.CreateScope();
 
-        //var dbContext = scope.ServiceProvider.GetRequiredService<DataServicesContext>();
         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
         var SeedDataLoader = scope.ServiceProvider.GetRequiredService<ISeedDataLoader>();
         try
