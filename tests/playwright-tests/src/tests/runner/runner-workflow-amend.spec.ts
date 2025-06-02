@@ -1,7 +1,7 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps';
-import { runnerBasedEpic123TestScenariosAddAmend } from '../e2e/epic123-smoke-tests/epic123-smoke-tests-migrated.spec';
+import { runnerBasedEpic123TestScenariosAddAmend } from '../e2e/epic123-smoke-tests/epic123-smoke-tests-migrated';
 
 // Test Scenario Tags
 const smokeTestScenario = runnerBasedEpic123TestScenariosAddAmend;
