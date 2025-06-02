@@ -45,8 +45,7 @@
 
   <!-- Compile Files -->
   <ItemGroup>
-    <Compile Include="**\*.cs"
-      Exclude="**/bin/**;**/obj/**;**/*.AssemblyInfo.cs;**/*.GlobalUsings.g.cs;**/*AssemblyAttributes.cs" />
+    <Compile Include="**\*.cs" Exclude="**/bin/**;**/obj/**;**/*.AssemblyInfo.cs;**/*.GlobalUsings.g.cs;**/*AssemblyAttributes.cs" />
   </ItemGroup>
 
   <!-- Project References -->
@@ -129,6 +128,11 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\NemsMeshRetrieval\NemsMeshRetrieval.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSSubscribe\NEMSSubscribe.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSUnSubscription\NEMSUnSubscription.csproj" />
+  </ItemGroup>
+
+    <!-- Send Service Now Message Services -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegrationService\SendServiceNowMessage\SendServiceNowMessage.csproj" />
   </ItemGroup>
 
   <!-- Content files to be copied to output directory -->
