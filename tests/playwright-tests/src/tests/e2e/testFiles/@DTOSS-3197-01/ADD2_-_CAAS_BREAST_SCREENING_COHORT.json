@@ -10,7 +10,7 @@
         "testJiraId": "@DTOSS-3197-01",
         "requirementJiraId": "DTOSS-3518",
         "additionalTags": "@regression @e2e @epic1-high-priority Verify ADD records is processed without any Exception"
-      }
+         }
     },
     {
       "validations": {
