@@ -11,6 +11,7 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
 
+
   <!-- NuGet Package References -->
   <ItemGroup>
     <!-- Testing Packages -->
@@ -65,9 +66,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\updateParticipantDetails\updateParticipantDetails.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\createParticipant\createParticipant.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\markParticipantAsEligible\markParticipantAsEligible.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\GetValidationExceptions\GetValidationExceptions.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\markParticipantAsIneligible\markParticipantAsIneligible.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\ScreeningLkpDataService\ScreeningLkpDataService.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\CohortDistributionDataService\CohortDistributionDataService.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\ExceptionManagementDataService\ExceptionManagementDataService.csproj" />
