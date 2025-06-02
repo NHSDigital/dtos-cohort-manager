@@ -16,6 +16,11 @@
         "EmailAddressHome": "bturneux0@soup.io",
         "PreferredLanguage": "en",
         "InterpreterRequired": 0
+      },
+       "meta": {
+        "testJiraId": "@DTOSS-3744-01",
+        "requirementJiraId": "DTOSS-3517",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify a file is uploaded to storage successfully"
       }
     },{
       "validations": {
@@ -33,6 +38,11 @@
         "EmailAddressHome": "bturneux0@soup.io",
         "PreferredLanguage": "en",
         "InterpreterRequired": 0
+      },
+       "meta": {
+        "testJiraId": "@DTOSS-3744-01",
+        "requirementJiraId": "DTOSS-3517",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify a file is uploaded to storage successfully"
       }
     }
   ],

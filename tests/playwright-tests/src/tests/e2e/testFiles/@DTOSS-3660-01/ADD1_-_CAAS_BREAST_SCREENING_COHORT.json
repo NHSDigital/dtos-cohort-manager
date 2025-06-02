@@ -5,6 +5,11 @@
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9998116538,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3660-01",
+        "requirementJiraId": "DTOSS-2712",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify Successful Data Processing and Storage in Cohort Manager for Add"
       }
     },
     {
@@ -13,6 +18,11 @@
         "RecordType": "ADD",
         "NHSNumber": 9998116538,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3660-01",
+        "requirementJiraId": "DTOSS-2712",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify Successful Data Processing and Storage in Cohort Manager for Add"
       }
     },
     {
@@ -20,6 +30,11 @@
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9998116538,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3660-01",
+        "requirementJiraId": "DTOSS-2712",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify Successful Data Processing and Storage in Cohort Manager for Add"
       }
     },
     {
@@ -27,6 +42,11 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9998116538",
         "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3660-01",
+        "requirementJiraId": "DTOSS-2712",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify Successful Data Processing and Storage in Cohort Manager for Add"
       }
     }
   ],
