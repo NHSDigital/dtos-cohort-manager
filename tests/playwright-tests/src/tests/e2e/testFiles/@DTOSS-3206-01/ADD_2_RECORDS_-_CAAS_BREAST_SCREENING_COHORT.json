@@ -8,7 +8,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3206-01",
         "requirementJiraId": "DTOSS-2756",
-        "additionalTags": "@regression @e2e @epic2-high-priority validate that the system raises exception when new participant is being added with duplicate NHS number"
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate participant is added in 9994878999 in Participant Management table"
       }
     },
     {
@@ -20,7 +20,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3206-01",
         "requirementJiraId": "DTOSS-2756",
-        "additionalTags": "@regression @e2e @epic2-high-priority validate that the system raises exception when new participant is being added with duplicate NHS number"
+        "additionalTags": "@regression @e2e @epic2-high-priority validate that the system raises exception when new participant is being added with duplicate NHS number for participant 9994878999 in Exception Management table"
       }
     }
   ],

@@ -9,7 +9,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4562-01",
         "requirementJiraId": "DTOSS-2757",
-        "additionalTags": "@regression @e2e @epic2-high-priority validate when participant record is created, ELIGIBILITY_FLAG is set to TRUE"
+        "additionalTags": "@regression @e2e @epic2-high-priority validate when participant record is created, ELIGIBILITY_FLAG is set to TRUE in Participant Management table"
       }
     },
     {
@@ -20,7 +20,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4562-01",
         "requirementJiraId": "DTOSS-2757",
-        "additionalTags": "@regression @e2e @epic2-high-priority validate when participant record is created, ELIGIBILITY_FLAG is set to TRUE"
+        "additionalTags": "@regression @e2e @epic2-high-priority validate when participant record is created for ELIGIBILITY_FLAG is set to TRUE in cohort distribution table"
       }
     }
   ],
