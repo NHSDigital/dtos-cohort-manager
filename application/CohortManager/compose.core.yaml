@@ -360,9 +360,9 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
 
-  send-service-now-message:
-    container_name: send-service-now-message
-    image: cohort-manager-send-service-now-message
+  send-servicenow-message:
+    container_name: send-servicenow-message
+    image: cohort-manager-send-servicenow-message
     networks: [cohman-network]
     build:
       context: ./src/Functions/
