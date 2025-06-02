@@ -1,12 +1,14 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps';
+import { runnerBasedEpic123TestScenariosAddAmend } from '../e2e/epic123-smoke-tests/epic123-smoke-tests-migrated.spec';
 
-const epic123SmokeTests = "@DTOSS-6257-01|@DTOSS-6407-01";
+// Test Scenario Tags
+const smokeTestScenario = runnerBasedEpic123TestScenariosAddAmend;
 
 
-let addData = getConsolidatedAllTestData(epic123SmokeTests, "ADD");
-let amendData = getConsolidatedAllTestData(epic123SmokeTests, "AMENDED");
+let addData = getConsolidatedAllTestData(smokeTestScenario, "ADD");
+let amendData = getConsolidatedAllTestData(smokeTestScenario, "AMENDED");
 
 let apiContext: APIRequestContext;
 
