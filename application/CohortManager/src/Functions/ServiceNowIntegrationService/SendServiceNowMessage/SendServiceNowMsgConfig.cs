@@ -11,7 +11,7 @@ public class SendServiceNowMsgConfig
 
     public string ServiceNowBaseUrl { get; set; }
     public string Profile { get; set; }
-    public string Definition { get; set; } = "CohortCaseUpdate";
+    public string Definition { get; set; }
 
-    public string EndpointPath { get; set; } = "api/x_nhsd_intstation/nhs_integration";
+    public string EndpointPath { get; set; }
 }
