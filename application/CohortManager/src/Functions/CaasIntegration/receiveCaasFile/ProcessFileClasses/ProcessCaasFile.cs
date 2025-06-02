@@ -133,15 +133,15 @@ public class ProcessCaasFile : IProcessCaasFile
         switch (participant.RecordType?.Trim())
         {
             case Actions.New:
-                await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
-
-                currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                var updateResult = await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
+                if (!updateResult)
+                {
+                    currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                }
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Amended:
-                await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
-
-                currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
 
                 break;
@@ -172,7 +172,7 @@ public class ProcessCaasFile : IProcessCaasFile
         currentBatch = null;
     }
 
-    private async Task DeleteOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
+    private async Task<bool> UpdateOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
     {
         try
         {
@@ -186,14 +186,15 @@ public class ProcessCaasFile : IProcessCaasFile
 
             if (participant != null)
             {
-                var deleted = await _participantDemographic.Delete(participant.ParticipantId.ToString());
+                var updated = await _participantDemographic.Update(participant);
 
-                _logger.LogInformation(deleted ? "Deleting old Demographic record was successful" : "Deleting old Demographic record was not successful");
-                return;
+                _logger.LogInformation(updated ? "updating old Demographic record was successful" : "updating old Demographic record was not successful");
+                return updated;
             }
             else
             {
-                _logger.LogWarning("The participant could not be found, when trying to delete old Participant. This could prevent updates from being applied");
+                _logger.LogWarning("The participant could not be found, when trying to update old Participant");
+                return false;
             }
         }
         catch (Exception ex)
@@ -201,6 +202,7 @@ public class ProcessCaasFile : IProcessCaasFile
             _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await CreateError(basicParticipantCsvRecord.participant, name);
         }
+        return false;
     }
 
     private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
