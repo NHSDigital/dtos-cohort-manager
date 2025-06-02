@@ -440,22 +440,4 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5348-01 @custom-logic @AddParticipant Verify all Functions Called', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5348',
-    },
-  }, async ({ request, testData }) => {
-
-    await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
-      await processFileViaStorage(testData.runTimeParquetFile);
-    });
-
-    await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFile);
-
-    await test.step('Then participant record is added to cohort distribution table', async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-    });
-  });
-
 });

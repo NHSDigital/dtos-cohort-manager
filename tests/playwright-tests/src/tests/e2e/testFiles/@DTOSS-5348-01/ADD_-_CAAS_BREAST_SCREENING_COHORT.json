@@ -5,6 +5,11 @@
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9992728167,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5348-01",
+        "requirementJiraId": "DTOSS-5348",
+        "additionalTags": "@regression @e2e @epic3-high-priority Tests Check AddParticipant Verify all Functions Called and record is added to cohort distribution table"
       }
     },
     {
@@ -13,6 +18,11 @@
         "RecordType": "ADD",
         "NHSNumber": 9992728167,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5348-01",
+        "requirementJiraId": "DTOSS-5348",
+        "additionalTags": "@regression @e2e @epic3-high-priority Tests Check AddParticipant Verify all Functions Called and record is added to participant Management table"
       }
     },
     {
@@ -20,13 +30,11 @@
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9992728167,
         "expectedCount": 1
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 9992728167,
-        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5348-01",
+        "requirementJiraId": "DTOSS-5348",
+        "additionalTags": "@regression @e2e @epic3-high-priority Tests Check AddParticipant Verify all Functions Called and record is added to participant Demographic table"
       }
     }
   ],

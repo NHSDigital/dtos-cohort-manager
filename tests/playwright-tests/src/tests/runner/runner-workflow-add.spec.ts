@@ -1,5 +1,5 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
-import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps';
+import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } from '../steps/steps';
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { runnerBasedEpic3TestScenariosAdd } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
 
@@ -29,6 +29,7 @@ test.beforeAll(async () => {
   apiContext = await playwrightRequest.newContext();
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
   const runTimeParquetFile = await createParquetFromJson(addData.nhsNumbers, addData.inputParticipantRecords, addData.testFilesPath, "ADD", false);
+  await verifyBlobExists('Verify ProcessCaasFile data file', runTimeParquetFile);
   await processFileViaStorage(runTimeParquetFile);
 });
 
