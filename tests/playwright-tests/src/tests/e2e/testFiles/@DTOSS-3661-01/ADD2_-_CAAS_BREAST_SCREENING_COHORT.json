@@ -5,6 +5,11 @@
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9997559762,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3661-01",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Confirm NHS Number Count Integrity Across Participant Tables After Processing for ADD record"
       }
     },
     {
@@ -12,6 +17,11 @@
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9997559762,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3661-01",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Confirm NHS Number Count Integrity Across Participant Tables After Processing for ADD record"
       }
     },
     {
@@ -19,6 +29,11 @@
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9997559762,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3661-01",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Confirm NHS Number Count Integrity Across Participant Tables After Processing for ADD record"
       }
     },
     {
@@ -26,6 +41,11 @@
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9997659104,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3661-01",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Confirm NHS Number Count Integrity Across Participant Tables After Processing for ADD record"
       }
     },
     {
@@ -33,6 +53,11 @@
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9997659104,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3661-01",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Confirm NHS Number Count Integrity Across Participant Tables After Processing for ADD record"
       }
     },
     {
@@ -40,6 +65,11 @@
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9997659104,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3661-01",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Confirm NHS Number Count Integrity Across Participant Tables After Processing for ADD record"
       }
     }
   ],

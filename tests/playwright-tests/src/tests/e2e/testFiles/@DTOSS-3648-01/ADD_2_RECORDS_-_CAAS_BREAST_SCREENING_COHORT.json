@@ -4,12 +4,22 @@
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9994787284
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3648-01",
+        "requirementJiraId": "DTOSS-3520",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify file upload into participants table for ADD, validate NHS_ID's are stored both on Participant_Management and Participant_Demographic tables"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9994787284
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3648-01",
+        "requirementJiraId": "DTOSS-3520",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify file upload into participants table for ADD, validate NHS_ID's are stored both on Participant_Management and Participant_Demographic tables"
       }
     }
   ],
