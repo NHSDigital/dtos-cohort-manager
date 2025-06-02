@@ -118,9 +118,6 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7063
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - DemographicURIGet=http://demographic-data-management:7076/api/DemographicDataFunction
-      - RemoveCohortDistributionURL=http://durable-demographic-function:7079/api/RemoveCohortDistributionData
       - CohortQueueName=cohort-distribution-queue
 
   update-participant:

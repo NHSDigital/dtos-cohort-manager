@@ -9,7 +9,6 @@ using Model;
 using Moq;
 using NHS.CohortManager.ParticipantManagementService;
 using NHS.CohortManager.Tests.TestUtils;
-using NHS.Screening.RemoveParticipant;
 
 [TestClass]
 public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
@@ -19,17 +18,13 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     private static readonly Mock<IExceptionHandler> _handleException = new();
     private static readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new();
     private static readonly BasicParticipantCsvRecord _participantCsvRecord = new();
-    private static readonly Mock<IOptions<RemoveParticipantConfig>> _config = new();
-    private ParticipantManagement _participantManagement = new();
 
     public RemoveParticipantTests() : base((conn, logger, transaction, command, response) =>
     new RemoveParticipant(
         logger,
         response,
-        _httpClientFunction.Object,
         _handleException.Object,
         _cohortDistributionHandler.Object,
-        _config.Object,
         _participantManagementClient.Object))
     {
         CreateHttpResponseMock();
@@ -38,22 +33,13 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     [TestInitialize]
     public void TestInitialize()
     {
-        var testConfig = new RemoveParticipantConfig
-        {
-            DemographicURIGet = "DemographicURIGet"
-        };
-
-        _config.Setup(c => c.Value).Returns(testConfig);
-
         _httpClientFunction.Reset();
         _cohortDistributionHandler.Reset();
         _service = new RemoveParticipant(
             _loggerMock.Object,
             _createResponseMock.Object,
-            _httpClientFunction.Object,
             _handleException.Object,
             _cohortDistributionHandler.Object,
-            _config.Object,
             _participantManagementClient.Object);
         _participantCsvRecord.FileName = "TestFile";
         _participantCsvRecord.participant = new Participant() { NhsNumber = "1234567890", ScreeningId = "1", RecordType = Actions.Removed };

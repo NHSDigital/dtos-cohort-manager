@@ -7,36 +7,28 @@ using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Model;
 using DataServices.Client;
-using NHS.Screening.RemoveParticipant;
 
 public class RemoveParticipant
 {
     private readonly ILogger<RemoveParticipant> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _handleException;
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
-    private readonly RemoveParticipantConfig _config;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
 
     public RemoveParticipant(
         ILogger<RemoveParticipant> logger,
         ICreateResponse createResponse,
-        IHttpClientFunction httpClientFunction,
         IExceptionHandler handleException,
         ICohortDistributionHandler cohortDistributionHandler,
-        IOptions<RemoveParticipantConfig> removeParticipantConfig,
         IDataServiceClient<ParticipantManagement> participantManagementClient)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _httpClientFunction = httpClientFunction;
         _handleException = handleException;
         _cohortDistributionHandler = cohortDistributionHandler;
-        _config = removeParticipantConfig.Value;
         _participantManagementClient = participantManagementClient;
     }
 

@@ -322,16 +322,6 @@ function_apps = {
       name_suffix            = "remove-participant"
       function_endpoint_name = "RemoveParticipant"
       app_service_plan_key   = "DefaultPlan"
-      app_urls = [
-        {
-          env_var_name     = "DemographicURIGet"
-          function_app_key = "DemographicDataManagement"
-        },
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
     }
 
     UpdateParticipant = {
