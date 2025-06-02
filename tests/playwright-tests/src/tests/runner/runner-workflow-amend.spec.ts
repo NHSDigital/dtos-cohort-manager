@@ -12,7 +12,7 @@ const regressionTestScenario = runnerBasedEpic2TestScenariosAmend;
 let scopedTestScenario = "";
 
 const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
-if (TEST_TYPE == 'Regression') {
+if (TEST_TYPE == 'RegressionEpic2') {
   scopedTestScenario = regressionTestScenario;
 } else {
   scopedTestScenario = smokeTestScenario;
