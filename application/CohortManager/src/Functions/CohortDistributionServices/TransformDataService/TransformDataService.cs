@@ -27,20 +27,17 @@ public class TransformDataService
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
-    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
     public TransformDataService(
         ICreateResponse createResponse,
         IExceptionHandler exceptionHandler,
         ILogger<TransformDataService> logger,
-        ITransformReasonForRemoval transformReasonForRemoval,
-        IDataServiceClient<CohortDistribution> cohortDistributionClient
+        ITransformReasonForRemoval transformReasonForRemoval
     )
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _logger = logger;
         _transformReasonForRemoval = transformReasonForRemoval;
-        _cohortDistributionClient = cohortDistributionClient;
     }
 
     [Function("TransformDataService")]
