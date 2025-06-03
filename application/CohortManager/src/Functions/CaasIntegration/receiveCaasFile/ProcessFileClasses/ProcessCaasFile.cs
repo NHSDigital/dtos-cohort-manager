@@ -132,10 +132,11 @@ public class ProcessCaasFile : IProcessCaasFile
         // take note: we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
         switch (participant.RecordType?.Trim())
         {
+
             case Actions.New:
-                var DemographicUpdated = await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
+                var DemographicRecordUpdated = await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
-                if (DemographicUpdated)
+                if (DemographicRecordUpdated)
                 {
                     break;
                 }
@@ -143,9 +144,12 @@ public class ProcessCaasFile : IProcessCaasFile
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 break;
             case Actions.Amended:
-                await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
+                if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
+                {
+                    await CreateError(participant, fileName);
+                    break;
+                }
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
-
                 break;
             case Actions.Removed:
                 currentBatch.DeleteRecords.Enqueue(basicParticipantCsvRecord);
@@ -190,7 +194,7 @@ public class ProcessCaasFile : IProcessCaasFile
             {
                 var updated = await _participantDemographic.Update(basicParticipantCsvRecord.participant.ToParticipantDemographic());
 
-                _logger.LogInformation(updated ? "updating old Demographic record was successful" : "updating old Demographic record was not successful");
+                _logger.LogWarning(updated ? "updating old Demographic record was successful" : "updating old Demographic record was not successful");
                 return updated;
             }
             else
