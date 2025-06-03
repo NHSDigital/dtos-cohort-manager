@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9992728167,
+        "NHSNumber": 9999261388,
         "expectedCount": 1
       },
       "meta": {
@@ -16,7 +16,7 @@
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "RecordType": "ADD",
-        "NHSNumber": 9992728167,
+        "NHSNumber": 9999261388,
         "expectedCount": 1
       },
       "meta": {
@@ -28,7 +28,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": 9992728167,
+        "NhsNumber": 9999261388,
         "expectedCount": 1
       },
       "meta": {
@@ -43,7 +43,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 9992728167,
+      "nhs_number": 9999261388,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20230318",
@@ -81,6 +81,6 @@
     }
   ],
   "nhsNumbers": [
-    "9992728167"
+    "9999261388"
   ]
 }

@@ -69,104 +69,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
   });
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  testWithAmended('@DTOSS-5406-01 @Implement Validate Amend fields reason for removal as invalid "RDI" and date of death present', async ({ request, testData }) => {
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
-  testWithAmended('@DTOSS-5405-01 @Implement Validate Amend fields reason for removal as invalid "RPI" and date of death present', async ({ request, testData }) => {
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
-  testWithAmended('@DTOSS-5565-01 @P1 Validation - Not possible to determine BSO dummy practice code for subject', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
-    },
-  }, async ({ request, testData }) => {
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
-  testWithAmended('@DTOSS-5566-01 @P1 Validation - Not possible to determine BSO dummy practice code for subject - scenario 2', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
-    },
-  }, async ({ request, testData }) => {
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
-  testWithTwoAmendments('@DTOSS-5568-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)', {
+  testWithTwoAmendments('@DTOSS-5568-01 @not-runner-based @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
@@ -198,7 +101,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithTwoAmendments('@DTOSS-5569-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)', {
+  testWithTwoAmendments('@DTOSS-5569-01 @not-runner-based @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
@@ -230,7 +133,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithTwoAmendments('@DTOSS-5570-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)', {
+  testWithTwoAmendments('@DTOSS-5570-01 @not-runner-based @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
@@ -396,39 +299,17 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-
-  test('@DTOSS-5223-01-Preferred Language Validation New Participant', {
+  testWithAmended('@DTOSS-5566-01 @P1 Validation - Not possible to determine BSO dummy practice code for subject - scenario 2', {
     annotation: {
       type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5223',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
     },
   }, async ({ request, testData }) => {
-
-    await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
-      await processFileViaStorage(testData.runTimeParquetFile);
-    });
-
-    await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFile);
-
-    await test.step(`Then the record should appear in the participants demographic table`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-    });
-  });
-
-  testWithAmended('@DTOSS-5222-01-Preferred Language Amended Participant', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5222',
-    },
-  }, async ({ request, testData }) => {
-
-    await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
+    await test.step(`When ADD participant is processed via storage`, async () => {
       await processFileViaStorage(testData.runTimeParquetFileAdd);
     });
 
-    await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
-
-    await test.step(`Then ADD record should be updated in the participants demographic table`, async () => {
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
     });
 
@@ -436,7 +317,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       await processFileViaStorage(testData.runTimeParquetFileAmend);
     });
 
-    await test.step(`Then the record should appear in the participants demographic table`, async () => {
+    await test.step(`Then the record should end up in exception management`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
   });
