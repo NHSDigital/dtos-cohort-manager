@@ -118,6 +118,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7063
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
+      - UpdateParticipant=http://update-participant-details:7069/api/updateParticipantDetails
       - CohortQueueName=cohort-distribution-queue
 
   update-participant:

@@ -346,6 +346,12 @@ function_apps = {
       name_suffix            = "remove-participant"
       function_endpoint_name = "RemoveParticipant"
       app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "UpdateParticipant"
+          function_app_key = "UpdateParticipantDetails"
+        }
+      ]
     }
 
     UpdateParticipant = {

@@ -2,12 +2,11 @@ using Common;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using DataServices.Core;
-using DataServices.Database;
+using NHS.Screening.RemoveParticipant;
 
 var host = new HostBuilder()
+.AddConfiguration<RemoveParticipantConfig>(out RemoveParticipantConfig config)
     .ConfigureFunctionsWorkerDefaults()
-    .AddDataServicesHandler<DataServicesContext>()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();

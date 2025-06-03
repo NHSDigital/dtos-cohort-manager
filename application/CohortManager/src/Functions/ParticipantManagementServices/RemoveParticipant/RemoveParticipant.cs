@@ -7,29 +7,33 @@ using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
-using DataServices.Client;
+using NHS.Screening.RemoveParticipant;
 
 public class RemoveParticipant
 {
     private readonly ILogger<RemoveParticipant> _logger;
     private readonly ICreateResponse _createResponse;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _handleException;
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
-    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
+    private readonly RemoveParticipantConfig _config;
 
     public RemoveParticipant(
         ILogger<RemoveParticipant> logger,
         ICreateResponse createResponse,
+        IHttpClientFunction httpClientFunction,
         IExceptionHandler handleException,
         ICohortDistributionHandler cohortDistributionHandler,
-        IDataServiceClient<ParticipantManagement> participantManagementClient)
+        IOptions<RemoveParticipantConfig> removeParticipantConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
+        _httpClientFunction = httpClientFunction;
         _handleException = handleException;
         _cohortDistributionHandler = cohortDistributionHandler;
-        _participantManagementClient = participantManagementClient;
+        _config = removeParticipantConfig.Value;
     }
 
     [Function("RemoveParticipant")]
@@ -58,8 +62,8 @@ public class RemoveParticipant
                 Participant = basicParticipantCsvRecord.participant,
                 FileName = basicParticipantCsvRecord.FileName,
             };
-
-            var ineligibleResponse = await MarkParticipantAsIneligible(participantCsvRecord);
+            participantCsvRecord.Participant.EligibilityFlag = EligibilityFlag.Ineligible; //Mark Participant As Ineligible
+            var ineligibleResponse = await UpdateParticipant(participantCsvRecord);
 
             if (!ineligibleResponse)
             {
@@ -96,34 +100,16 @@ public class RemoveParticipant
         return true;
     }
 
-    private async Task<bool> MarkParticipantAsIneligible(ParticipantCsvRecord participantCsvRecord)
+    private async Task<bool> UpdateParticipant(ParticipantCsvRecord participantCsvRecord)
     {
-        long nhsNumber;
-        long screeningId;
-        var updated = false;
-        if (participantCsvRecord.Participant != null)
+        var json = JsonSerializer.Serialize(participantCsvRecord);
+
+        var createResponse = await _httpClientFunction.SendPost(_config.UpdateParticipant, json);
+        if (createResponse.StatusCode == HttpStatusCode.OK)
         {
-            if (!long.TryParse(participantCsvRecord.Participant.NhsNumber, out nhsNumber))
-            {
-                throw new FormatException("Could not parse NhsNumber");
-            }
-            if (!long.TryParse(participantCsvRecord.Participant.ScreeningId, out screeningId))
-            {
-                throw new FormatException("Could not parse ScreeningId");
-            }
-
-            var participantManagementRecord = await _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId);
-            participantManagementRecord.EligibilityFlag = 0;
-
-            updated = await _participantManagementClient.Update(participantManagementRecord);
+            _logger.LogInformation("Participant updated as ineligible.");
+            return true;
         }
-
-        if (!updated)
-        {
-            return false;
-        }
-
-        _logger.LogInformation("Successfully marked participant as Ineligible for NHS Number: REDACTED}");
-        return true;
+        return false;
     }
 }
