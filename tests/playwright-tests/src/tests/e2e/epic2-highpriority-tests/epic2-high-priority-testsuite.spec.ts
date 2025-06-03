@@ -37,6 +37,17 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
+    test('@DTOSS-4330-01 Validate current posting effective date throw exception for future date new participants', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
+      },
+    }, async ({ request, testData }) => {
+      await test.step(`Then Exception table should have RuleId as 101 & RuleDescription as CurrentPostingEffectiveFromDate`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
+
   }); // End of ADD Tests
 
 
