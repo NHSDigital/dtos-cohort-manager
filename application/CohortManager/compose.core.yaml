@@ -360,17 +360,6 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
 
-  send-servicenow-message:
-    container_name: send-servicenow-message
-    image: cohort-manager-send-servicenow-message
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: ServiceNowIntegrationService/SendServiceNowMessage/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:9092
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-
   durable-demographic-function:
     container_name: durable-demographic-function
     image: cohort-manager-durable-demographic-function
