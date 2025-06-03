@@ -157,6 +157,24 @@ services:
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - AcceptableLatencyThresholdMs=500
 
+  #Service Now Integration
+  servicenow-message:
+    container_name: servicenow-message
+    image: cohort-manager-servicenow-message
+    networks: [cohman-network]
+    labels:
+    - "com.nhs.role=non-essential"
+    build:
+      context: ./src/Functions/
+      dockerfile: ServiceNowIntegrationService/SendServiceNowMessage/Dockerfile
+    profiles: [not-implemented]
+    environment:
+      - ASPNETCORE_URLS=http://*:9092
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+
+
+
 
 networks:
   cohman-network:
