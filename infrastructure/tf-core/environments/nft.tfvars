@@ -323,10 +323,6 @@ function_apps = {
           function_app_key = "CreateParticipant"
         },
         {
-          env_var_name     = "DSmarkParticipantAsEligible"
-          function_app_key = "MarkParticipantAsEligible"
-        },
-        {
           env_var_name     = "DemographicURIGet"
           function_app_key = "DemographicDataManagement"
         },
@@ -357,16 +353,8 @@ function_apps = {
       app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
-          env_var_name     = "markParticipantAsIneligible"
-          function_app_key = "MarkParticipantAsIneligible"
-        },
-        {
-          env_var_name     = "DemographicURIGet"
-          function_app_key = "DemographicDataManagement"
-        },
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
+          env_var_name     = "UpdateParticipant"
+          function_app_key = "UpdateParticipantDetails"
         }
       ]
     }
@@ -395,14 +383,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "DSmarkParticipantAsEligible"
-          function_app_key = "MarkParticipantAsEligible"
-        },
-        {
-          env_var_name     = "markParticipantAsIneligible"
-          function_app_key = "MarkParticipantAsIneligible"
         }
       ]
       env_vars_static = {
@@ -470,54 +450,6 @@ function_apps = {
           function_app_key = "CohortDistributionDataService"
         }
       ]
-    }
-
-    MarkParticipantAsEligible = {
-      name_suffix            = "mark-participant-as-eligible"
-      function_endpoint_name = "markParticipantAsEligible"
-      app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls = [
-        {
-          env_var_name     = "LookupValidationURL"
-          function_app_key = "LookupValidation"
-        },
-        {
-          env_var_name     = "ParticipantManagementUrl"
-          function_app_key = "ParticipantManagementDataService"
-        },
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
-      env_vars_static = {
-        AcceptableLatencyThresholdMs = "500"
-      }
-    }
-
-    MarkParticipantAsIneligible = {
-      name_suffix            = "mark-participant-as-ineligible"
-      function_endpoint_name = "markParticipantAsIneligible"
-      app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls = [
-        {
-          env_var_name     = "LookupValidationURL"
-          function_app_key = "LookupValidation"
-        },
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "ParticipantManagementUrl"
-          function_app_key = "ParticipantManagementDataService"
-        }
-      ]
-      env_vars_static = {
-        AcceptableLatencyThresholdMs = "500"
-      }
     }
 
     UpdateParticipantDetails = {

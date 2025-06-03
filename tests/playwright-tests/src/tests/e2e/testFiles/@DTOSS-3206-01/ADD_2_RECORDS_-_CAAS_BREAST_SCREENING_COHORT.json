@@ -4,16 +4,25 @@
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9994878999
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3206-01",
+        "requirementJiraId": "DTOSS-2756",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate participant is added in 9994878999 in Participant Management table"
       }
     },
     {
-        "validations": {
+      "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9994878999",
-        "RuleDescription":"Duplicate Participant was in the file"
+        "RuleDescription": "Duplicate Participant was in the file"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3206-01",
+        "requirementJiraId": "DTOSS-2756",
+        "additionalTags": "@regression @e2e @epic2-high-priority validate that the system raises exception when new participant is being added with duplicate NHS number for participant 9994878999 in Exception Management table"
       }
     }
-
   ],
   "inputParticipantRecord": [
     {

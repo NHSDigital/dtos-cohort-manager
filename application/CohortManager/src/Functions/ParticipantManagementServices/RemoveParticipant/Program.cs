@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using NHS.Screening.RemoveParticipant;
 
 var host = new HostBuilder()
-    .AddConfiguration<RemoveParticipantConfig>(out RemoveParticipantConfig config)
+.AddConfiguration<RemoveParticipantConfig>(out RemoveParticipantConfig config)
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
