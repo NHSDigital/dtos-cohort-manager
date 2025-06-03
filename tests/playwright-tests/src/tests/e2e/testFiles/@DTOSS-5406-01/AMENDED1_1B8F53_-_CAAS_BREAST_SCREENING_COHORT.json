@@ -3,57 +3,55 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber":"9992728167",
-        "RuleId":54,
-        "RuleDescription":"ValidateBsoCode"
+        "NhsNumber": "9996928160",
+        "RuleId": 0,
+        "RuleDescription":"3.ParticipantNotRegisteredToGPWithReasonForRemoval"
       }
-
-      }
-
+    }
   ],
   "inputParticipantRecord": [
     {
       "record_type": "AMENDED",
-      "change_time_stamp": null,
+      "change_time_stamp": "20240524000000",
       "serial_change_number": 1,
-      "nhs_number": 9992728167,
+      "nhs_number": "9996928160",
       "superseded_by_nhs_number": null,
       "primary_care_provider": null,
-      "primary_care_effective_from_date": null,
-      "current_posting": "CH",
-      "current_posting_effective_from_date": "20130319",
-      "name_prefix": "A.ML",
-      "given_name": "NewTest1",
-      "other_given_name": "Test",
-      "family_name": "Adani1",
-      "previous_family_name": "Test2",
-      "date_of_birth": "19710101",
-      "gender": 1,
-      "address_line_1": "247 SpaightSpaightSpTeeeeeeest Road",
-      "address_line_2": "Eastbourne",
-      "address_line_3": "Test",
-      "address_line_4": "Chelmsford",
-      "address_line_5": "United Kingdom",
-      "postcode": "AB43 8FJ",
-      "paf_key": "Z3S4Q5X9",
-      "address_effective_from_date": "20240501",
-      "reason_for_removal": "RDI",
-      "reason_for_removal_effective_from_date": "20200201",
-      "date_of_death": "20210201",
+      "primary_care_effective_from_date": "20100101",
+      "current_posting": "BAA",
+      "current_posting_effective_from_date": "20100101",
+      "name_prefix": "MRS",
+      "given_name": "I am Greggs and I have given limit",
+      "other_given_name": "RFR Rule 3",
+      "family_name": " I am conner and I have given limit",
+      "previous_family_name": " I am conner and I have given limit",
+      "date_of_birth": "19800112",
+      "gender": 2,
+      "address_line_1": "My adress 1 and I have given limit",
+      "address_line_2": "My adress 2 and I have given limit",
+      "address_line_3": "My adress 3 and I have given limit",
+      "address_line_4": "My adress 4 and I have given limit",
+      "address_line_5": "My adress 5 and I have given limit",
+      "postcode": "AB23 1AF",
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20010101",
+      "reason_for_removal": "RDR",
+      "reason_for_removal_effective_from_date":"20230303",
+      "date_of_death": null,
       "death_status": null,
-      "home_telephone_number": "016199999990",
-      "home_telephone_effective_from_date": "20240501",
-      "mobile_telephone_number": "07888888888",
-      "mobile_telephone_effective_from_date": "20240501",
-      "email_address": "bturneux0@soup.io",
-      "email_address_effective_from_date": "20240501",
+      "home_telephone_number": "0161999999001619999990016199900",
+      "home_telephone_effective_from_date": "20010101",
+      "mobile_telephone_number": "0788888888900788888888900788800",
+      "mobile_telephone_effective_from_date": "20010101",
+      "email_address": "abc123@soup.ioabc123@soup.ioabc123@soup.ioabc123@soup.ioabc123@soup.ioabc123abc12@soup.io",
+      "email_address_effective_from_date": "20240101",
       "preferred_language": "en",
-      "is_interpreter_required": false,
+      "is_interpreter_required": true,
       "invalid_flag": false,
       "eligibility": true
     }
   ],
   "nhsNumbers": [
-    "9992728167"
+    "9996928160"
   ]
 }
