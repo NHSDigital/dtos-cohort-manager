@@ -39,6 +39,11 @@ public class SendServiceNowMessageFunction
         try
         {
             var requestBody = await req.ReadAsStringAsync();
+
+            if (string.IsNullOrWhiteSpace(requestBody))
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Request body is missing or empty.");
+            }
             var input = JsonSerializer.Deserialize<ServiceNowRequestModel>(requestBody);
 
             if (input is null || string.IsNullOrWhiteSpace(input.WorkNotes))
