@@ -8,7 +8,7 @@ pool:
   name: private-pool-dev-uks
 
 schedules:
-- cron: "0 8 * * *" # Run at 8:00 AM UTC
+- cron: "0 7 * * *" # Run at 8:00 AM UTC
   displayName: "Scale_Peak"
   branches:
     include:
@@ -45,7 +45,7 @@ stages:
   jobs:
   - job: ScaleUpDatabaseJob
     displayName: 'Azure CLI - Scale Up'
-    condition: and(succeeded(), eq(variables['Build.CronSchedule'], 'Scale_Peak'))
+    condition: and(succeeded(), eq(variables['Build.CronSchedule.DisplayName'], 'Scale_Peak'))
     steps:
     - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
       parameters:
@@ -57,7 +57,7 @@ stages:
 
   - job: ScaleDownDatabaseJob
     displayName: 'Azure CLI - Scale Down'
-    condition: and(succeeded(), eq(variables['Build.CronSchedule'], 'Scale_OffPeak'))
+    condition: and(succeeded(), eq(variables['Build.CronSchedule.DisplayName'], 'Scale_OffPeak'))
     steps:
     - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
       parameters:
