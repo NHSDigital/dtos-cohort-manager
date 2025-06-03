@@ -37,7 +37,7 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     {
         var testConfig = new RemoveParticipantConfig
         {
-            updateParticipant = "updateParticipant"
+            UpdateParticipant = "UpdateParticipant"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
