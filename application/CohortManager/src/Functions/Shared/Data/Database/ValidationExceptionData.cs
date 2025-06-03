@@ -139,7 +139,7 @@ public class ValidationExceptionData : IValidationExceptionData
         throw new ArgumentNullException(nameof(datetime), "Failed to parse null datetime");
     }
 
-    private static List<ValidationException> SortExceptions(ExceptionSort? sortBy, IEnumerable<ValidationException> list)
+    private static List<ValidationException?> SortExceptions(ExceptionSort? sortBy, IEnumerable<ValidationException?> list)
     {
         return sortBy switch
         {
