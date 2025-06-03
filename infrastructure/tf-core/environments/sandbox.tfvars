@@ -451,7 +451,7 @@ function_apps = {
         }
       ]
     }
-    
+
     UpdateParticipantDetails = {
       name_suffix            = "update-participant-details"
       function_endpoint_name = "updateParticipantDetails"
