@@ -12,7 +12,7 @@ using System.Collections.Generic;
 using System.Text;
 using Moq.Protected;
 using Common;
-using NHS.CohortManager.ServiceNowMessageService;
+using NHS.CohortManager.ServiceNowIntegrationService.ServiceNowMessageService;
 
 [TestClass]
 public class ServiceNowMessageTests

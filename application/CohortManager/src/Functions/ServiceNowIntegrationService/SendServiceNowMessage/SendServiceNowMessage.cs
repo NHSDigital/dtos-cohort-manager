@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.ServiceNowMessageService;
+namespace NHS.CohortManager.ServiceNowIntegrationService.ServiceNowMessageService;
 
 using System;
 using System.Net;
@@ -67,11 +67,7 @@ public class SendServiceNowMessageFunction
     {
         try
         {
-            var definition = _config.Definition;
-            var accessToken = _config.AccessToken;
-            var endPointPath = _config.EndpointPath;
-
-            var url = $"https://{baseUrl}/{endPointPath}/{profile}/{definition}/{sysId}";
+            var url = $"https://{baseUrl}/{_config.EndpointPath}/{profile}/{_config.Definition}/{sysId}";
 
             var payload = new
             {
@@ -83,7 +79,7 @@ public class SendServiceNowMessageFunction
             var content = new StringContent(json, Encoding.UTF8, "application/json");
 
             _httpClient.DefaultRequestHeaders.Clear();
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _config.AccessToken);
 
             _logger.LogInformation("Sending PUT request to: {Url}", url);
 
