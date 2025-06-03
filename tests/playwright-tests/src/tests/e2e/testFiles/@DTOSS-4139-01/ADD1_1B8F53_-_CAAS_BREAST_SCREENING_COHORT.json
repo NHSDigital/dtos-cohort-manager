@@ -1,10 +1,10 @@
 {
   "validations": [
     {
-        "validations": {
+      "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber":"99927281679",
-        "RuleDescription":"Invalid NHS Number was passed in for participant Model.Participant and file ADD1_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "NhsNumber": "99927281679",
+        "RuleDescription": "Invalid NHS Number was passed in for participant Model.Participant and file ADD1_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       }
     }
   ],

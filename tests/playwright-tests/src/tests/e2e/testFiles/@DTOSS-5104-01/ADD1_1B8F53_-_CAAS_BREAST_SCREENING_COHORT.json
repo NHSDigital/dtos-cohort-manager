@@ -5,6 +5,11 @@
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9992728167,
         "EligibilityFlag": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5104-01",
+        "requirementJiraId": "DTOSS-4909",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate eligibility flag is always set to true for ADD participant records"
       }
     }
   ],
