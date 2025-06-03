@@ -3,12 +3,16 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9992728167,
-        "DateOfBirth":"1971-01-01T00:00:00",
-        "DateOfDeath":"2021-02-01T00:00:00",
-        "TelephoneNumberHome":"016199999990",
+        "NHSNumber": 9992278269,
+        "DateOfBirth": "1971-01-01T00:00:00",
+        "DateOfDeath": "2021-02-01T00:00:00",
+        "TelephoneNumberHome": "016199999990",
         "expectedCount": 2
-
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4068-01",
+        "requirementJiraId": "DTOSS-2756",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate record updated when amendments are made to date of death"
       }
     }
   ],
@@ -17,7 +21,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9992728167,
+      "nhs_number": 9992278269,
       "superseded_by_nhs_number": null,
       "primary_care_provider": null,
       "primary_care_effective_from_date": null,
@@ -55,6 +59,6 @@
     }
   ],
   "nhsNumbers": [
-    "9992728167"
+    "9992278269"
   ]
 }

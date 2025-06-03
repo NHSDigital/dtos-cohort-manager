@@ -3,21 +3,25 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9992728167,
-        "DateOfBirth":"1971-01-01T00:00:00",
-        "SupersededNHSNumber":9992728167,
-        "EmailAddressHome":"cbturneux0@soup.io",
-        "AddressLine1":"247 SpaightSpaightSpTeeeeeeest Road",
-        "AddressLine2":"Eastbourne",
-        "AddressLine3":"Test",
-        "AddressLine4":"Chelmsford",
-        "AddressLine5":"United Kingdom",
-        "PreferredLanguage":"fr",
+        "NHSNumber": 9992348437,
+        "DateOfBirth": "1971-01-01T00:00:00",
+        "SupersededNHSNumber": 9992348437,
+        "EmailAddressHome": "cbturneux0@soup.io",
+        "AddressLine1": "247 SpaightSpaightSpTeeeeeeest Road",
+        "AddressLine2": "Eastbourne",
+        "AddressLine3": "Test",
+        "AddressLine4": "Chelmsford",
+        "AddressLine5": "United Kingdom",
+        "PreferredLanguage": "fr",
         "RecordInsertDateTime": "PATTERN:yyyy-MM-ddTHH:mm:ss.SSS",
         "RecordUpdateDateTime": "PATTERN:yyyy-MM-ddTHH:mm:ss.SSS",
-        "PostCode":"AB43 8FJ",
+        "PostCode": "AB43 8FJ",
         "expectedCount": 2
-
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4564-01",
+        "requirementJiraId": "DTOSS-2709",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate an audit trail of all changes including timestamp. Amend fields - date of birth,Address,Address line 1,Address line 2,Address line 3,post code,SupersededNHSNumber,RecordInsertDateTime,RecordUpdateDateTime,E-mail address (Home)"
       }
     }
   ],
@@ -26,8 +30,8 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9992728167,
-      "superseded_by_nhs_number": 9992728167,
+      "nhs_number": 9992348437,
+      "superseded_by_nhs_number": 9992348437,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20130319",
       "current_posting": "CH",
@@ -64,6 +68,6 @@
     }
   ],
   "nhsNumbers": [
-    "9992728167"
+    "9992348437"
   ]
 }

@@ -1,17 +1,34 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps';
+import { runnerBasedEpic123TestScenariosAddAmend } from '../e2e/epic123-smoke-tests/epic123-smoke-tests-migrated';
+import { runnerBasedEpic2TestScenariosAmend } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
 
-const epic123SmokeTests = "@DTOSS-6257-01|@DTOSS-6407-01";
+// Test Scenario Tags
+const smokeTestScenario = runnerBasedEpic123TestScenariosAddAmend;
+const regressionTestScenario = runnerBasedEpic2TestScenariosAmend;
 
+// Tets to run based on TEST_TYPE environment variable
+let scopedTestScenario = "";
 
-let addData = getConsolidatedAllTestData(epic123SmokeTests, "ADD");
-let amendData = getConsolidatedAllTestData(epic123SmokeTests, "AMENDED");
+const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
+if (TEST_TYPE == 'RegressionEpic2') {
+  scopedTestScenario = regressionTestScenario;
+} else {
+  scopedTestScenario = smokeTestScenario;
+}
+
+if (!scopedTestScenario) {
+  throw new Error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");
+}
+
+let addData = getConsolidatedAllTestData(scopedTestScenario, "ADD");
+let amendData = getConsolidatedAllTestData(scopedTestScenario, "AMENDED");
 
 let apiContext: APIRequestContext;
-
 test.beforeAll(async () => {
   apiContext = await playwrightRequest.newContext();
+  console.log(`Running ${TEST_TYPE} tests with scenario tags: ${scopedTestScenario}`);
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
   const runTimeParquetFile = await createParquetFromJson(addData.nhsNumbers, addData.inputParticipantRecords, addData.testFilesPath, "ADD", false);
   await processFileViaStorage(runTimeParquetFile);
@@ -40,4 +57,3 @@ amendData.validations.forEach((validations) => {
     await validateSqlDatabaseFromAPI(request, [validations]);
   });
 });
-

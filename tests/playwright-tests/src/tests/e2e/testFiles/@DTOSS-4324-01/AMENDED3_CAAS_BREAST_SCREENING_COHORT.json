@@ -6,6 +6,11 @@
                 "NhsNumber": "9990069646",
                 "RuleId": 100,
                 "RuleDescription": "PrimaryCareProviderEffectiveFromDate"
+            },
+            "meta": {
+                "testJiraId": "@DTOSS-4324-01",
+                "requirementJiraId": "DTOSS-3136",
+                "additionalTags": "@regression @e2e @epic2-high-priority TC_04_PI_Validations_BusinessEffectiveDate_PrimaryCareProvider_Futuredates_Update for participant 9990069646"
             }
         },
         {
@@ -14,6 +19,11 @@
                 "NhsNumber": "9990162573",
                 "RuleId": 100,
                 "RuleDescription": "PrimaryCareProviderEffectiveFromDate"
+            },
+            "meta": {
+                "testJiraId": "@DTOSS-4324-01",
+                "requirementJiraId": "DTOSS-3136",
+                "additionalTags": "@regression @e2e @epic2-high-priority TC_04_PI_Validations_BusinessEffectiveDate_PrimaryCareProvider_Futuredates_Update for participant 9990162573"
             }
         },
         {
@@ -22,11 +32,14 @@
                 "NhsNumber": "9990201897",
                 "RuleId": 100,
                 "RuleDescription": "PrimaryCareProviderEffectiveFromDate"
+            },
+            "meta": {
+                "testJiraId": "@DTOSS-4324-01",
+                "requirementJiraId": "DTOSS-3136",
+                "additionalTags": "@regression @e2e @epic2-high-priority TC_04_PI_Validations_BusinessEffectiveDate_PrimaryCareProvider_Futuredates_Update for participant 9990201897"
             }
         }
-        
     ],
-    
     "inputParticipantRecord": [
         {
             "record_type": "AMENDED",

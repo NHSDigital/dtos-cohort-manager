@@ -4,7 +4,12 @@
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "GivenName": "AMENDEDNewTest1",
-        "NHSNumber": 9995248409
+        "NHSNumber": 9992183330
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5419-01",
+        "requirementJiraId": "DTOSS-2759",
+        "additionalTags": "@regression @e2e @epic2-high-priority validate GP practice codes and reason for removal no exception for Amended when reason empty"
       }
     }
   ],
@@ -13,7 +18,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9995248409,
+      "nhs_number": 9992183330,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "F83043",
       "primary_care_effective_from_date": "20130319",
@@ -51,6 +56,6 @@
     }
   ],
   "nhsNumbers": [
-    "9995248409"
+    "9992183330"
   ]
 }
