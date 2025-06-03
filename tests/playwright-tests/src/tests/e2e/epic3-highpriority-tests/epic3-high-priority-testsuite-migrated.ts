@@ -13,16 +13,15 @@
 // Guidance:
 //
 // - First, try adding new tests using the runner.
-// - If custom calls are needed, use tests\playwright-tests\src\tests\e2e\epic3-highpriority-tests\epic3-high-priority-testsuite.spec.ts
-//  custom assertions for test addition.
+// - If custom calls are needed, use new file for test addition. - tests\playwright-tests\src\tests\e2e\epic3-highpriority-tests\epic3-high-priority-testsuite.spec.ts
 //
 // Test Tags:
 // There is no impact to the test tags. The same tags can be used to trigger these tests.
 // For example, to run regression tests, use:
 //
-//   npm test:regression:e2e
+//   npm run test:regression:e2e:epic3
 //
-// This equates to @regression @e2e tags, configured in the package.json at the playwright-tests root location.
+// This equates to "@epic3-" tags, configured in the package.json at the playwright-tests root location.
 
 
 export const runnerBasedEpic3TestScenariosAdd = "@DTOSS-5539-01|@DTOSS-5348-01|@DTOSS-5223-01";
