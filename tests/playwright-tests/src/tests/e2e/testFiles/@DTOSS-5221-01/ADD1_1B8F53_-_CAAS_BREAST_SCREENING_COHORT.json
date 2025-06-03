@@ -1,9 +1,11 @@
 {
   "validations": [
     {
-     "validations": {
+      "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 9992728167
+        "NhsNumber": "9992728167",
+        "RuleId": 0,
+        "RuleDescription": "Invalid preferred language code"
       }
     }
   ],

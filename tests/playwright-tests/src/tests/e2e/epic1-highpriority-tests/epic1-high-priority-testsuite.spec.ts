@@ -33,7 +33,7 @@ test.describe('@regression @e2e @epic1-high-priority participant ADD process', (
 
   });
 
-  test('@DTOSS-3662-01 Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution', async ({ request, testData }) => {
+  test.only('@DTOSS-3662-01 Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution', async ({ request, testData }) => {
 
     await test.step(`Then participants records should be 1 in both management and demographic tables, the cohort table should have 0 records, and the exception table should have 1 record with an invalid primary care provider GP practice code and rule ID 36`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);

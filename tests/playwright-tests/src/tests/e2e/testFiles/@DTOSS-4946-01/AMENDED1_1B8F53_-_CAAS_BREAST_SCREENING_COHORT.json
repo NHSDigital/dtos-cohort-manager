@@ -2,21 +2,10 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9995262320
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": 9995262320,
-        "preferredLanguage": "vd"
-      }
-    },
-    {
-     "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 9995262320
+        "NhsNumber": "9995262320",
+        "RuleId": 0,
+        "RuleDescription": "Invalid preferred language code"
       }
     }
   ],
@@ -56,7 +45,7 @@
       "mobile_telephone_effective_from_date": "20240501",
       "email_address": "bturneux0@soup.io",
       "email_address_effective_from_date": null,
-      "preferred_language": "vd",
+      "preferred_language": "dm",
       "is_interpreter_required": false,
       "invalid_flag": false,
       "eligibility": true
