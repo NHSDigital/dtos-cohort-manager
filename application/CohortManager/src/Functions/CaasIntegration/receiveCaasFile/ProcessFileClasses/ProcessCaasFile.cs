@@ -5,6 +5,7 @@ using Common;
 using Common.Interfaces;
 using Data.Database;
 using DataServices.Client;
+using Hl7.Fhir.Rest;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.Configuration;
@@ -190,18 +191,19 @@ public class ProcessCaasFile : IProcessCaasFile
 
             var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
 
-            if (participant != null)
-            {
-                var updated = await _participantDemographic.Update(basicParticipantCsvRecord.participant.ToParticipantDemographic());
-
-                _logger.LogWarning(updated ? "updating old Demographic record was successful" : "updating old Demographic record was not successful");
-                return updated;
-            }
-            else
+            if (participant == null)
             {
                 _logger.LogWarning("The participant could not be found, when trying to update old Participant");
                 return false;
             }
+
+            var updated = await _participantDemographic.Update(basicParticipantCsvRecord.participant.ToParticipantDemographic());
+            _logger.Log(
+                updated ? LogLevel.Information : LogLevel.Warning,
+                updated ? "updating old Demographic record was successful" : "updating old Demographic record was not successful"
+            );
+
+            return updated;
         }
         catch (Exception ex)
         {
