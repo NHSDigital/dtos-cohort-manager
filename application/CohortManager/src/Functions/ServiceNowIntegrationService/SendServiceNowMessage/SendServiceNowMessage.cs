@@ -52,7 +52,6 @@ public class SendServiceNowMessageFunction
 
             }
 
-            var result = await SendServiceNowMessage(baseUrl, profile, sysId, input.WorkNotes, input.State);
             var response = await SendServiceNowMessage(baseUrl, profile, sysId, input.WorkNotes, input.State);
             var responseBody = await response.Content.ReadAsStringAsync();
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, responseBody);
@@ -87,7 +86,6 @@ public class SendServiceNowMessageFunction
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
             _logger.LogInformation("Sending PUT request to: {Url}", url);
-            _logger.LogInformation("Calling ServiceNow URL: {Url}", url);
 
             var response = await _httpClient.PutAsync(url, content);
 

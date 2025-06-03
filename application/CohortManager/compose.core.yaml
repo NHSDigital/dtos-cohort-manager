@@ -389,16 +389,16 @@ services:
     networks: [cohman-network]
 
   #Service Now Integration
-  nnems-unsubscribe:
-    container_name: nems-unsubscribe
-    image: cohort-manager-nems-unsubscribe
+  servicenow-message:
+    container_name: servicenow-message
+    image: cohort-manager-servicenow-message
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: DemographicServices/NEMSUnSubscription/Dockerfile
     profiles: [not-implemented]
     environment:
-      - ASPNETCORE_URLS=http://*:9082
+      - ASPNETCORE_URLS=http://*:9092
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
 
