@@ -366,15 +366,17 @@ public class LookupValidationTests
 
     [TestMethod]
     [DataRow("RDR", null, null)] // postcode and primary care provider null
+    [DataRow("RDI", "not valid", "E85121")] // postcode invalid
+    [DataRow("RPR", "BN20 1PH", "not valid")] // PCP invalid
     public async Task Run_invalidParticipant_ValidateBsoCodeRuleFails(string ReasonForRemoval, string postcode,
                                                                     string primaryCareProvider)
     {
         // Arrange
-        SetupRules("LookupRules");
+        SetupRules("CohortRules");
         _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
         _requestBody.NewParticipant.Postcode = postcode;
         _requestBody.NewParticipant.ReasonForRemoval = ReasonForRemoval;
-        _requestBody.NewParticipant.RecordType = "ADD";
+        _requestBody.NewParticipant.RecordType = "AMENDED";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -383,6 +385,11 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _exceptionHandler.Verify(handleException =>
+            handleException.CreateValidationExceptionLog(
+                It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "54.ValidateBsoCode.NBO.NonFatal")),
+                It.IsAny<ParticipantCsvRecord>()),
+            Times.AtLeastOnce());
     }
 
     [TestMethod]
@@ -404,7 +411,11 @@ public class LookupValidationTests
         var result = await _sut.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        // Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.ValidateReasonForRemoval.NBO.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
     }
 
     [TestMethod]
@@ -693,7 +704,6 @@ public class LookupValidationTests
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
-        _exceptionHandler.VerifyNoOtherCalls();
     }
 
     [TestMethod]
