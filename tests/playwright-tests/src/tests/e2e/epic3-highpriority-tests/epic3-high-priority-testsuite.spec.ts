@@ -468,42 +468,10 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     await test.step(`Then ADD record should be updated in the cohort`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
     });
-
   });
 
 
-  test.only('@DTOSS-5221-01 @Invalid Preferred language Exist', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5221',
-    },
-  }, async ({ request, testData }) => {
-
-    await test.step(`When the file is uploaded with an invalid language code`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFile);
-    });
-
-    await test.step('And there should be transformation exceptions rule trigger for invalid language code', async () => {
-      const records = await getRecordsFromExceptionService(request);
-
-      const genericValidations = composeValidators(
-        expectStatus(200),
-        validateResponseByStatus()
-      );
-      await genericValidations(records);
-
-      const hasInvalidLanguageError = records.data((record: { errorMessage: string | string[]; errorField: string; }) =>
-        record.errorMessage.includes('Invalid preferred language') &&
-        record.errorField === 'preferredLanguage'
-      );
-
-      expect(hasInvalidLanguageError).toBeTruthy();
-
-    });
-
-  });
-
-  test.only('@DTOSS-5223-01-Preferred Language Validation New Participant', {
+  test('@DTOSS-5223-01-Preferred Language Validation New Participant', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5223',
@@ -547,5 +515,3 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 });
-
-
