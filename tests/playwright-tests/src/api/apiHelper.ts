@@ -20,7 +20,6 @@ const IGNORE_VALIDATION_KEY = config.ignoreValidationKey;
 let waitTime = initialWaitTime;
 let response: APIResponse;
 
-
 export async function validateApiResponse(validationJson: any, request: any): Promise<boolean> {
   let status = false;
   let endpoint = "";
@@ -53,6 +52,7 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
 }
 
 export async function fetchApiResponse(endpoint: string, request: any): Promise<APIResponse> {
+
   if (endpoint.includes(COHORT_DISTRIBUTION_SERVICE)) {
     return await request.get(`${endpointCohortDistributionDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(PARTICIPANT_MANAGEMENT_SERVICE)) {

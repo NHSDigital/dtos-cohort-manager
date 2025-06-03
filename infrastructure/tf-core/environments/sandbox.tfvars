@@ -1014,47 +1014,6 @@ function_apps = {
       }
     }
 
-    UpdateParticipantFromScreeningProvider = {
-      name_suffix            = "update-participant-from-screening-provider"
-      function_endpoint_name = "UpdateParticipantFromScreeningProvider"
-      app_service_plan_key   = "DefaultPlan"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "ParticipantManagementUrl"
-          function_app_key = "ParticipantManagementDataService"
-        },
-        {
-          env_var_name     = "GeneCodeLkpUrl"
-          function_app_key = "GeneCodeLkpDataService"
-        },
-
-        {
-          env_var_name     = "HigherRiskReferralReasonLkpUrl"
-          function_app_key = "HigherRiskReferralReasonLkpDataService"
-        }
-      ]
-    }
-
-    CheckParticipantExists = {
-      name_suffix            = "check-participant-exists"
-      function_endpoint_name = "CheckParticipantExists"
-      app_service_plan_key   = "DefaultPlan"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "ParticipantManagementUrl"
-          function_app_key = "ParticipantManagementDataService"
-        }
-      ]
-    }
-
     GetParticipantReferenceData = {
       name_suffix            = "get-participant-reference-data"
       function_endpoint_name = "GetParticipantReferenceData"
