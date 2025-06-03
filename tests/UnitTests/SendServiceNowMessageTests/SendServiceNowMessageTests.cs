@@ -51,7 +51,8 @@ public class ServiceNowMessageTests
             Profile = "ebz",
             Definition = "CohortCaseUpdate",
             AccessToken = "dummy-token",
-            UpdateEndpoint = "api/x_nhsd_intstation/nhs_integration"
+            UpdateEndpoint = "api/x_nhsd_intstation/nhs_integration",
+            EndpointPath = "api/x_nhsd_intstation/nhs_integration" //
         };
 
         var mockOptions = new Mock<IOptions<SendServiceNowMsgConfig>>();
@@ -87,7 +88,8 @@ public class ServiceNowMessageTests
             Profile = "ebz",
             Definition = "CohortCaseUpdate",
             AccessToken = "dummy-token",
-            UpdateEndpoint = "api/x_nhsd_intstation/nhs_integration"
+            UpdateEndpoint = "api/x_nhsd_intstation/nhs_integration",
+            EndpointPath = "api/x_nhsd_intstation/nhs_integration" //
         };
 
         var mockOptions = new Mock<IOptions<SendServiceNowMsgConfig>>();
@@ -152,7 +154,8 @@ public class ServiceNowMessageTests
             Profile = "ebz",
             Definition = "CohortCaseUpdate",
             AccessToken = "dummy-token",
-            UpdateEndpoint = "api/x_nhsd_intstation/nhs_integration"
+            UpdateEndpoint = "api/x_nhsd_intstation/nhs_integration",
+            EndpointPath = "api/x_nhsd_intstation/nhs_integration" //
         };
 
         var mockOptions = new Mock<IOptions<SendServiceNowMsgConfig>>();
