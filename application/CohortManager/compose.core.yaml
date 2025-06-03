@@ -393,6 +393,8 @@ services:
     container_name: servicenow-message
     image: cohort-manager-servicenow-message
     networks: [cohman-network]
+    labels:
+    - "com.nhs.role=non-essential"
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegrationService/SendServiceNowMessage/Dockerfile
