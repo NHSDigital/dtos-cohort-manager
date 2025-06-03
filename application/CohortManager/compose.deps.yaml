@@ -23,8 +23,8 @@ services:
     environment:
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
 
-  sql-server:
-    container_name: sql-server
+  db:
+    container_name: db
     networks: [cohman-network]
     image: mcr.microsoft.com/mssql/server
     environment:
@@ -48,9 +48,9 @@ services:
       context: ./src/Functions/
       dockerfile: Shared/DataServices.Migrations/Dockerfile
     depends_on:
-      - sql-server
+      - db
     environment:
-      - DtOsDatabaseConnectionString=Server=sql-server;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - DtOsDatabaseConnectionString=Server=db;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
     cap_add:
       - SYS_PTRACE
     restart: "no"
