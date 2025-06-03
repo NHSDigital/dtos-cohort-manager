@@ -397,7 +397,7 @@ services:
     - "com.nhs.role=non-essential"
     build:
       context: ./src/Functions/
-      dockerfile: ServiceNowIntegrationService/SendServiceNowMessage/Dockerfile
+      dockerfile: ServiceNowIntegrationService/SendServiceNowMessage/DockerFile
     profiles: [not-implemented]
     environment:
       - ASPNETCORE_URLS=http://*:9092
