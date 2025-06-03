@@ -5,5 +5,5 @@ using System.ComponentModel.DataAnnotations;
 public class RemoveParticipantConfig
 {
     [Required]
-    public string UpdateParticipant {get; set;}
+    public required string UpdateParticipant {get; set;}
 }
