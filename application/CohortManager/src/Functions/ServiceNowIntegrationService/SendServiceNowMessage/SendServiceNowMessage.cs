@@ -14,17 +14,17 @@ using NHS.CohortManager.ServiceNowMessageService.Models;
 using Microsoft.Extensions.Options;
 using Common;
 
-public class SendServiceNowMessageFunction
+public class ServiceNowMessageHandler
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger _logger;
     private readonly SendServiceNowMsgConfig _config;
     private readonly ICreateResponse _createResponse;
 
-    public SendServiceNowMessageFunction(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, IOptions<SendServiceNowMsgConfig> sendServiceNowMsgConfig, ICreateResponse createResponse)
+    public ServiceNowMessageHandler(IHttpClientFactory httpClientFactory, ILoggerFactory loggerFactory, IOptions<SendServiceNowMsgConfig> sendServiceNowMsgConfig, ICreateResponse createResponse)
     {
         _httpClient = httpClientFactory.CreateClient();
-        _logger = loggerFactory.CreateLogger<SendServiceNowMessageFunction>();
+        _logger = loggerFactory.CreateLogger<ServiceNowMessageHandler>();
         _config = sendServiceNowMsgConfig.Value;
         _createResponse = createResponse;
     }

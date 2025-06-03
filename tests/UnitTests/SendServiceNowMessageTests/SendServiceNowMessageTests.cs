@@ -19,7 +19,7 @@ public class ServiceNowMessageTests
 {
     private Mock<HttpMessageHandler> _mockHttpMessageHandler;
     private HttpClient _httpClient;
-    private Mock<ILogger<SendServiceNowMessageFunction>> _mockLogger;
+    private Mock<ILogger<ServiceNowMessageHandler>> _mockLogger;
     private IConfiguration _configuration;
      private readonly SendServiceNowMsgConfig _config;
     private Mock<IHttpClientFactory> _mockHttpClientFactory;
@@ -40,7 +40,7 @@ public class ServiceNowMessageTests
         _mockHttpClientFactory.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(_httpClient);
 
         _mockLoggerFactory = new Mock<ILoggerFactory>();
-        var mockLogger = new Mock<ILogger<SendServiceNowMessageFunction>>();
+        var mockLogger = new Mock<ILogger<ServiceNowMessageHandler>>();
         _mockLoggerFactory
             .Setup(x => x.CreateLogger(It.IsAny<string>()))
             .Returns(mockLogger.Object);
@@ -95,13 +95,13 @@ public class ServiceNowMessageTests
         var mockOptions = new Mock<IOptions<SendServiceNowMsgConfig>>();
         mockOptions.Setup(opt => opt.Value).Returns(config);
 
-        var service = new SendServiceNowMessageFunction(
+        var service = new ServiceNowMessageHandler(
             _mockHttpClientFactory.Object,
             _mockLoggerFactory.Object,
             mockOptions.Object,
             _createResponse.Object);
 
-        var methodInfo = typeof(SendServiceNowMessageFunction)
+        var methodInfo = typeof(ServiceNowMessageHandler)
             .GetMethod("SendServiceNowMessage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         Assert.IsNotNull(methodInfo, "Failed to find SendServiceNowMessage method via reflection.");
@@ -161,14 +161,14 @@ public class ServiceNowMessageTests
         var mockOptions = new Mock<IOptions<SendServiceNowMsgConfig>>();
         mockOptions.Setup(opt => opt.Value).Returns(config);
 
-        var service = new SendServiceNowMessageFunction(
+        var service = new ServiceNowMessageHandler(
             _mockHttpClientFactory.Object,
             _mockLoggerFactory.Object,
             mockOptions.Object,
             _createResponse.Object);
 
         // Use reflection to access private method
-        var methodInfo = typeof(SendServiceNowMessageFunction)
+        var methodInfo = typeof(ServiceNowMessageHandler)
             .GetMethod("SendServiceNowMessage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
 
         Assert.IsNotNull(methodInfo, "Failed to find SendServiceNowMessage method via reflection");

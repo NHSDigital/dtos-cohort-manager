@@ -5,12 +5,12 @@ using Microsoft.Extensions.Hosting;
 using NHS.CohortManager.ServiceNowIntegrationService.ServiceNowMessageService;
 
 var host = new HostBuilder()
+    .AddConfiguration<SendServiceNowMsgConfig>(out SendServiceNowMsgConfig config)
     .ConfigureFunctionsWebApplication()
-    .ConfigureServices((context, services) =>
+    .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddHttpClient<SendServiceNowMessageFunction>();
-        services.Configure<SendServiceNowMsgConfig>(context.Configuration);
+        services.AddHttpClient<ServiceNowMessageHandler>();
 
     })
     .Build();
