@@ -98,17 +98,6 @@ public class AddParticipantFunction
             }
             _logger.LogInformation("Participant created");
 
-            // Mark participant as eligible
-            var participantJson = JsonSerializer.Serialize(participant);
-            var eligibleResponse = await _httpClientFunction.SendPost(_config.DSmarkParticipantAsEligible, participantJson);
-
-            if (eligibleResponse.StatusCode != HttpStatusCode.OK)
-            {
-                await _handleException.CreateSystemExceptionLog(new Exception("There was an error while marking participant as eligible {eligibleResponse}"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
-                return;
-            }
-            _logger.LogInformation("Participant marked as eligible at {Datetime}", DateTime.UtcNow);
-
             // Send to cohort distribution
             var cohortDistResponse = await _cohortDistributionHandler.SendToCohortDistributionService(participant.NhsNumber, participant.ScreeningId, participant.RecordType, basicParticipantCsvRecord.FileName, participant);
             if (!cohortDistResponse)

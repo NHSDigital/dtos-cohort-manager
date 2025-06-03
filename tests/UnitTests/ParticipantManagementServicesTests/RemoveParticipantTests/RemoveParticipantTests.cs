@@ -37,8 +37,7 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     {
         var testConfig = new RemoveParticipantConfig
         {
-            DemographicURIGet = "DemographicURIGet",
-            markParticipantAsIneligible = "markParticipantAsIneligible"
+            UpdateParticipant = "UpdateParticipant"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -83,7 +82,6 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _httpClientFunction.Verify(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()), Times.Once);
         _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Never);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
@@ -99,7 +97,6 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _httpClientFunction.Verify(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()), Times.Once);
         _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Never);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
@@ -109,35 +106,14 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     {
         // Arrange
         SetupValidRequest();
-        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
         _cohortDistributionHandler.Setup(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>())).Returns(Task.FromResult(false));
 
         // Act
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _httpClientFunction.Verify(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()), Times.Once);
-        _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Once);
+        _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Never);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_MarkParticipantAsIneligibleAndSendToCohortDistributionServiceBothSucceed_ReturnsOk()
-    {
-        // Arrange
-        SetupValidRequest();
-        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
-        _cohortDistributionHandler.Setup(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>())).Returns(Task.FromResult(true));
-
-        // Act
-        var result = await _service.Run(_request.Object);
-
-        // Assert
-        _httpClientFunction.Verify(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()), Times.Once);
-        _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Once);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     private void SetupValidRequest()
