@@ -198,11 +198,13 @@ public class ProcessCaasFile : IProcessCaasFile
             }
 
             var updated = await _participantDemographic.Update(basicParticipantCsvRecord.participant.ToParticipantDemographic());
-            _logger.Log(
-                updated ? LogLevel.Information : LogLevel.Warning,
-                updated ? "updating old Demographic record was successful" : "updating old Demographic record was not successful"
-            );
+            if (updated)
+            {
+                _logger.LogInformation("updating old Demographic record was successful");
+                return updated;
+            }
 
+            _logger.LogError("updating old Demographic record was not successful");
             return updated;
         }
         catch (Exception ex)
