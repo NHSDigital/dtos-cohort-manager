@@ -5,6 +5,7 @@ using Common;
 using Common.Interfaces;
 using Data.Database;
 using DataServices.Client;
+using Hl7.Fhir.Rest;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.Configuration;
@@ -133,18 +134,24 @@ public class ProcessCaasFile : IProcessCaasFile
         // take note: we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
         switch (participant.RecordType?.Trim())
         {
+
             case Actions.New:
-                await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
+                var DemographicRecordUpdated = await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
+                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+                if (DemographicRecordUpdated)
+                {
+                    break;
+                }
 
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
-                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Amended:
-                await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
-
-                currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
+                {
+                    await CreateError(participant, fileName);
+                    break;
+                }
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
-
                 break;
             case Actions.Removed:
                 currentBatch.DeleteRecords.Enqueue(basicParticipantCsvRecord);
@@ -173,7 +180,7 @@ public class ProcessCaasFile : IProcessCaasFile
         currentBatch = null;
     }
 
-    private async Task DeleteOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
+    private async Task<bool> UpdateOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
     {
         try
         {
@@ -185,23 +192,31 @@ public class ProcessCaasFile : IProcessCaasFile
 
             var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
 
-            if (participant != null)
+            if (participant == null)
             {
-                var deleted = await _participantDemographic.Delete(participant.ParticipantId.ToString());
+                _logger.LogWarning("The participant could not be found, when trying to update old Participant");
+                return false;
+            }
 
-                _logger.LogInformation(deleted ? "Deleting old Demographic record was successful" : "Deleting old Demographic record was not successful");
-                return;
-            }
-            else
+            var participantForUpdate = basicParticipantCsvRecord.participant.ToParticipantDemographic();
+            participantForUpdate.ParticipantId = participant.ParticipantId;
+
+            var updated = await _participantDemographic.Update(participantForUpdate);
+            if (updated)
             {
-                _logger.LogWarning("The participant could not be found, when trying to delete old Participant. This could prevent updates from being applied");
+                _logger.LogInformation("updating old Demographic record was successful");
+                return updated;
             }
+
+            _logger.LogError("updating old Demographic record was not successful");
+            return updated;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await CreateError(basicParticipantCsvRecord.participant, name);
         }
+        return false;
     }
 
     private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)

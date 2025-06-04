@@ -3,20 +3,23 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber":"9992728167",
-        "RuleId":3,
-        "RuleDescription":"GP practice code and Reason for Removal fields contain incompatible values"
+        "NhsNumber": "9991742468",
+        "RuleId": 3,
+        "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5589-01",
+        "requirementJiraId": "DTOSS-4608",
+        "additionalTags": "@regression @e2e @epic3-high-priority Tests Validate Amend fields reason for removal as null and date of death present"
       }
-
-      }
-
+    }
   ],
   "inputParticipantRecord": [
     {
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9992728167,
+      "nhs_number": 9991742468,
       "superseded_by_nhs_number": null,
       "primary_care_provider": null,
       "primary_care_effective_from_date": null,
@@ -54,6 +57,6 @@
     }
   ],
   "nhsNumbers": [
-    "9992728167"
+    "9991742468"
   ]
 }

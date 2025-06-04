@@ -74,12 +74,6 @@ public class UpdateParticipantFunction
                 return;
             }
 
-            if (!await UpdateEligibility(participantCsvRecord))
-            {
-                await HandleExceptions("Failed to update elegibility flag", basicParticipantCsvRecord);
-                return;
-            }
-
             if (!await SendToCohortDistribution(participant, participantCsvRecord.FileName))
             {
                 await HandleExceptions("Failed to send record to cohort distribution", basicParticipantCsvRecord);
@@ -116,29 +110,6 @@ public class UpdateParticipantFunction
 
         var createResponse = await _httpClientFunction.SendPost(_config.UpdateParticipant, json);
         if (createResponse.StatusCode == HttpStatusCode.OK)
-        {
-            _logger.LogInformation("Participant updated.");
-            return true;
-        }
-        return false;
-    }
-
-    private async Task<bool> UpdateEligibility(ParticipantCsvRecord participantCsvRecord)
-    {
-        HttpResponseMessage eligibilityResponse;
-
-        if (participantCsvRecord.Participant.EligibilityFlag == EligibilityFlag.Eligible)
-        {
-            var participantJson = JsonSerializer.Serialize(participantCsvRecord.Participant);
-            eligibilityResponse = await _httpClientFunction.SendPost(_config.DSmarkParticipantAsEligible, participantJson);
-        }
-        else
-        {
-            var participantJson = JsonSerializer.Serialize(participantCsvRecord);
-            eligibilityResponse = await _httpClientFunction.SendPost(_config.markParticipantAsIneligible, participantJson);
-        }
-
-        if (eligibilityResponse.StatusCode == HttpStatusCode.OK)
         {
             _logger.LogInformation("Participant updated.");
             return true;
