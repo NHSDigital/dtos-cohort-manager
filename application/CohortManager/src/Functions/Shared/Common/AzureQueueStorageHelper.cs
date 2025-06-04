@@ -4,6 +4,7 @@ namespace Common;
 using System.Text;
 using System.Text.Json;
 using Azure.Storage.Queues;
+using Azure.Storage.Queues.Models;
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -34,5 +35,14 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
             _logger.LogError(ex, "There was an error while putting item on queue for queue: {queueName}", queueName);
             return false;
         }
+    }
+
+    public async Task<int> GetNumberOfItemsInQueue(string queueName)
+    {
+        var _queueClient = _queueClientFactory.CreateClient(queueName);
+        await _queueClient.CreateIfNotExistsAsync();
+
+        QueueProperties properties = await _queueClient.GetPropertiesAsync();
+        return properties.ApproximateMessagesCount;
     }
 }
