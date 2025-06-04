@@ -30,6 +30,7 @@ public class TransformDataServiceTests
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<ITransformReasonForRemoval> _transformReasonForRemoval = new();
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceClient = new();
+    private readonly Mock<ITransformDataLookupFacade> _transformLookups = new();
 
     public TransformDataServiceTests()
     {
@@ -63,7 +64,9 @@ public class TransformDataServiceTests
             .Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
             .ReturnsAsync([databaseParticipant]);
 
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval.Object, _cohortDistributionDataServiceClient.Object);
+        _transformLookups.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
+
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval.Object, _cohortDistributionDataServiceClient.Object, _transformLookups.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {

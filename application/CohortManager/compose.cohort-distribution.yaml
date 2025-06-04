@@ -60,6 +60,7 @@ services:
       - BsSelectGpPracticeUrl=http://bs-select-gp-practice-data-service:7998/api/BsSelectGpPracticeDataService/
       - CohortDistributionDataServiceUrl=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - LanguageCodeUrl=http://language-code-data-service:7997/api/LanguageCodeDataService
       - AcceptableLatencyThresholdMs=500
 
   allocate-service-provider:
