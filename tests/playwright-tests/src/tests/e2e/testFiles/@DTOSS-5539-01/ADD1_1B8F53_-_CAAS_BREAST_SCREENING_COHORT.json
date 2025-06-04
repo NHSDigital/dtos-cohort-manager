@@ -1,11 +1,14 @@
 {
   "validations": [
     {
-        "validations": {
+      "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9992728167
-
-
+        "NHSNumber": 9992728167
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5539-01",
+        "requirementJiraId": "DTOSS-3656",
+        "additionalTags": "@regression @e2e @epic3-high-priority Tests Check Validation for Eligibility Flag for Add set to true and record is updated in cohort table"
       }
     }
   ],

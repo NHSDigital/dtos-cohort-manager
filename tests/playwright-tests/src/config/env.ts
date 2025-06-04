@@ -37,7 +37,7 @@ export const config = {
   participantDemographicDataService: 'ParticipantDemographicDataService',
   e2eTestFilesPath: 'e2e/testFiles',
   apiTestFilesPath: 'api/testFiles',
-  apiRetry: 10,
+  apiRetry: 8,
   apiWaitTime: 5000,
   nhsNumberKey: 'NHSNumber',
   nhsNumberKeyExceptionDemographic: 'NhsNumber',
