@@ -197,7 +197,10 @@ public class ProcessCaasFile : IProcessCaasFile
                 return false;
             }
 
-            var updated = await _participantDemographic.Update(basicParticipantCsvRecord.participant.ToParticipantDemographic());
+            var participantForUpdate = basicParticipantCsvRecord.participant.ToParticipantDemographic();
+            participantForUpdate.ParticipantId = participant.ParticipantId;
+
+            var updated = await _participantDemographic.Update(participantForUpdate);
             if (updated)
             {
                 _logger.LogInformation("updating old Demographic record was successful");
