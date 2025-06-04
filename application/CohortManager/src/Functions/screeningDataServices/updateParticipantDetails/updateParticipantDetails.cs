@@ -81,7 +81,12 @@ public class UpdateParticipantDetails
 
             reqParticipant.ParticipantId = existingParticipantData.ParticipantId.ToString();
             reqParticipant.RecordUpdateDateTime = DateTime.Now.ToString();
-            var isAdded = await _participantManagementClient.Update(reqParticipant.ToParticipantManagement());
+            var ParticipantManagementRecord = reqParticipant.ToParticipantManagement();
+
+            //Mark Participant as Eligible/Ineligible
+            ParticipantManagementRecord.EligibilityFlag = (short)(reqParticipant.EligibilityFlag == EligibilityFlag.Eligible ? 1 : 0);
+
+            var isAdded = await _participantManagementClient.Update(ParticipantManagementRecord);
 
             if (isAdded)
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);

@@ -23,10 +23,10 @@ services:
     environment:
       - AZURITE_CONNECTION_STRING=${AZURITE_CONNECTION_STRING}
 
-  mssql:
+  db:
     container_name: db
-    image: mcr.microsoft.com/mssql/server:2022-latest
     networks: [cohman-network]
+    image: mcr.microsoft.com/mssql/server
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=${PASSWORD}
@@ -35,23 +35,25 @@ services:
     ports:
       - "1433:1433"
     healthcheck:
-      test: /opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P "${PASSWORD}" -Q "SELECT 1" || exit 1
-      interval: 10s
-      timeout: 3s
-      retries: 10
-      start_period: 10s
+      test: [ "CMD-SHELL", "curl -v --silent 127.0.0.1:1433 --stderr - | grep -q 'Empty reply from server'" ]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
 
-  db-setup:
-    container_name: db-setup
-    build: ./Set-up/database
+  db-migration:
+    container_name: db-migration
     networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: Shared/DataServices.Migrations/Dockerfile
     depends_on:
-      mssql:
-        condition: service_healthy
+      - db
     environment:
-      - PASSWORD=${PASSWORD}
-      - DB_NAME=${DB_NAME}
-      - HOSTNAME=db
+      - DtOsDatabaseConnectionString=Server=db;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+    cap_add:
+      - SYS_PTRACE
+    restart: "no"
 
 networks:
   cohman-network:

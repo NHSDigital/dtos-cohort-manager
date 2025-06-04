@@ -74,6 +74,7 @@ public class CreateParticipant
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
 
             var ParticipantManagementRecord = participantCsvRecord.Participant.ToParticipantManagement();
+            ParticipantManagementRecord.ExceptionFlag = 1; // Mark Participant as Eligible
             var participantCreated = await _participantManagementClient.Add(ParticipantManagementRecord);
 
             if (participantCreated)
