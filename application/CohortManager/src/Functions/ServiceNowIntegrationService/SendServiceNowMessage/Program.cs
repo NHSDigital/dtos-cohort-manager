@@ -7,7 +7,7 @@ using NHS.CohortManager.ServiceNowIntegrationService;
 
 
 var host = new HostBuilder()
-    .AddConfiguration<SendServiceNowMsgConfig>(out SendServiceNowMsgConfig config)
+    .AddConfiguration<SendServiceNowMsgConfig>()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {

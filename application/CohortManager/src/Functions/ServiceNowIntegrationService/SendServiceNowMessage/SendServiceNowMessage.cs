@@ -51,7 +51,7 @@ public class ServiceNowMessageHandler
 
                 var input = JsonSerializer.Deserialize<ServiceNowRequestModel>(requestBody);
 
-                if (string.IsNullOrWhiteSpace(input.WorkNotes))
+                if (string.IsNullOrWhiteSpace(input!.WorkNotes))
                 {
                     return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid request payload");
                 }
