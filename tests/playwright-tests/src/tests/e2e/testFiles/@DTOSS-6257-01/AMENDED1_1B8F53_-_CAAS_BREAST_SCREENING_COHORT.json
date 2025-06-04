@@ -5,6 +5,11 @@
         "apiEndpoint": "api/CohortDistributionDataService",
         "GivenName": "AMENDEDNewTest1",
         "NHSNumber": 9995248409
+      },
+      "meta": {
+        "testJiraId": "DTOSS-6257-01",
+        "requirementJiraId": "DTOSS-6256",
+        "additionalTags": "@smoke @e2e Tests Verify file upload and cohort distribution process for ADD followed by AMENDED records for given name change to AMENDEDNewTest1"
       }
     }
   ],
