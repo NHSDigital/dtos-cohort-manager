@@ -11,7 +11,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   TestHooks.setupAllTestHooks();
 
-  test('@DTOSS-6326-01 - Transformation - Invalid Flag triggers Reason for Removal logic - should apply correct transformations when invalidFlag is true', {
+  test('@DTOSS-6326-01 @not-runner-based - Transformation - Invalid Flag triggers Reason for Removal logic - should apply correct transformations when invalidFlag is true', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5396',
@@ -30,7 +30,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  testWithAmended('@DTOSS-5596-01 - Transformation - does not trigger removal logic when Reason for Removal is NOT - RDR, RDI, RPR', {
+  testWithAmended('@DTOSS-5596-01 @not-runner-based - Transformation - does not trigger removal logic when Reason for Removal is NOT - RDR, RDI, RPR', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4771',
@@ -68,149 +68,8 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  testWithAmended('@DTOSS-5801-01 @Implement Validate Amend fields reason for removal as DEA and date of death empty', async ({ request, testData }) => {
 
-
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
-  testWithAmended('@DTOSS-5589-01 @Implement Validate Amend fields reason for removal as null and date of death present', async ({ request, testData }) => {
-
-
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
-  testWithAmended('@DTOSS-5407-01 @Implement Validate Amend fields reason for removal as invalid "RFR" and date of death present', async ({ request, testData }) => {
-
-
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
-  testWithAmended('@DTOSS-5406-01 @Implement Validate Amend fields reason for removal as invalid "RDI" and date of death present', async ({ request, testData }) => {
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
-  testWithAmended('@DTOSS-5405-01 @Implement Validate Amend fields reason for removal as invalid "RPI" and date of death present', async ({ request, testData }) => {
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
-  testWithAmended('@DTOSS-5565-01 @P1 Validation - Not possible to determine BSO dummy practice code for subject',{
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
-    },
-  }, async ({ request, testData }) => {
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
-  testWithAmended('@DTOSS-5566-01 @P1 Validation - Not possible to determine BSO dummy practice code for subject - scenario 2',{
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
-    },
-  }, async ({ request, testData }) => {
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
-  testWithTwoAmendments('@DTOSS-5568-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)',{
+  testWithTwoAmendments('@DTOSS-5568-01 @not-runner-based @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
@@ -242,7 +101,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithTwoAmendments('@DTOSS-5569-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)',{
+  testWithTwoAmendments('@DTOSS-5569-01 @not-runner-based @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
@@ -274,7 +133,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithTwoAmendments('@DTOSS-5570-01 @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)',{
+  testWithTwoAmendments('@DTOSS-5570-01 @not-runner-based @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
@@ -306,7 +165,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5560-01 - BS Select - Records are received where IsExtracted is set to 0', {
+  test('@DTOSS-5560-01 @not-runner-based - BS Select - Records are received where IsExtracted is set to 0', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3650',
@@ -329,7 +188,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  test('@DTOSS-5584-01 - BS Select - 204 if IsExtracted is set to 1', {
+  test('@DTOSS-5584-01 @not-runner-based - BS Select - 204 if IsExtracted is set to 1', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3714',
@@ -363,7 +222,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5563-01 - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
+  test('@DTOSS-5563-01 @not-runner-based - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
     annotation: [{
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5563',
@@ -395,7 +254,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithAmended('@DTOSS-6016-01 - Should Not Amend Participant Data When Current Posting is Missing', {
+  testWithAmended('@DTOSS-6016-01 @not-runner-based - Should Not Amend Participant Data When Current Posting is Missing', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6016',
@@ -423,8 +282,8 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
         throw new Error('No data returned from cohort distribution service');
       }
 
-        const firstRecord = response.data.find(() => true);
-        expect(firstRecord?.CurrentPosting).toBe('CH');
+      const firstRecord = response.data.find(() => true);
+      expect(firstRecord?.CurrentPosting).toBe('CH');
     });
 
     await test.step('And there should be transformation exceptions rule trigger for AMENDED participant', async () => {
@@ -440,35 +299,27 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5348-01 @AddParticipant Verify all Functions Called', {
+  testWithAmended('@DTOSS-5566-01 @P1 Validation - Not possible to determine BSO dummy practice code for subject - scenario 2', {
     annotation: {
       type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5348',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
     },
   }, async ({ request, testData }) => {
-
-    await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
-      await processFileViaStorage(testData.runTimeParquetFile);
+    await test.step(`When ADD participant is processed via storage`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAdd);
     });
-
-    await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFile);
-
-    await test.step('Then participant record is added to cohort distribution table', async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-    });
-  });
-
-  test('@DTOSS-5539-01 @Implement Validation for Eligibility Flag for Add set to true', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3656',
-    },
-  }, async ({ request, testData }) => {
 
     await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
     });
 
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    });
+
+    await test.step(`Then the record should end up in exception management`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
   });
 
 });
