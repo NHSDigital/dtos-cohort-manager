@@ -1,4 +1,4 @@
-name: cohort-manager-pipeline
+name: cohort-manager
 services:
   db-migration:
     container_name: db-migration
