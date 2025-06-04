@@ -8,4 +8,3 @@ export const getRecordsFromExceptionService = (
 ): Promise<ApiResponse> => {
   return apiClient.get(request, `${config.endpointExceptionManagementDataService}api/${config.exceptionManagementService}`);
 };
-
