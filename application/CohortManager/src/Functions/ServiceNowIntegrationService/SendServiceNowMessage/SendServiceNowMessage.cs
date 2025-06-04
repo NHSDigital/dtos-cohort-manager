@@ -33,6 +33,18 @@ public class ServiceNowMessageHandler
             _createResponse = createResponse;
         }
 
+        /// <summary>
+        /// Azure Function that handles HTTP POST requests to send a message to ServiceNow.
+        /// </summary>
+        /// <param name="req">The HTTP request data containing the ServiceNow work notes in the request body.</param>
+        /// <param name="baseUrl">The base URL of the ServiceNow instance (e.g., "dev12345.service-now.com").</param>
+        /// <param name="profile">The profile or environment identifier used to construct the endpoint path.</param>
+        /// <param name="sysId">The unique system identifier for the ServiceNow record to be updated.</param>
+        /// <returns>
+        /// An <see cref="HttpResponseData"/> object containing the status and result of the operation.
+        /// Returns 200 OK on success, 400 Bad Request if the request is invalid, or 500 Internal Server Error if an exception occurs.
+        /// </returns>
+
         [Function("SendServiceNowMessage")]
         public async Task<HttpResponseData> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "servicenow/{baseUrl}/{profile}/{sysId}")] HttpRequestData req,
