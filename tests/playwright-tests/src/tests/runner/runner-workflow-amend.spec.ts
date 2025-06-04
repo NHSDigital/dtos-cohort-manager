@@ -13,7 +13,7 @@ const regressionEpic1TestScenario = runnerBasedEpic1TestScenariosAmend;
 const regressionEpic2TestScenario = runnerBasedEpic2TestScenariosAmend;
 const regressionEpic3TestScenario = runnerBasedEpic3TestScenariosAmend;
 
-// Tets to run based on TEST_TYPE environment variable
+// Tests to run based on TEST_TYPE environment variable
 let scopedTestScenario = "";
 
 const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
@@ -54,7 +54,7 @@ test.afterAll(async () => {
 
 amendData.validations.forEach((validations) => {
 
-  test.only(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
+  test(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
     annotation: [{
       type: 'TestId',
       description: validations.meta?.testJiraId ?? '',
