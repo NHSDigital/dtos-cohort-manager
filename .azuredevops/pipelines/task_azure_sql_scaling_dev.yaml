@@ -32,24 +32,41 @@ resources:
       ref: feat/dtoss-8108-azure-sql-scaling
       endpoint: NHSDigital
 
+parameters:
+- name: manualOverride
+  displayName: Manual Override
+  type: boolean
+  default: false
+  values:
+  - true
+  - false
+
 variables:
-  resourceGroupName: 'rg-cohman-dev-uks'
-  serverName: 'sqlsvr-cohman-dev-uks'
-  databaseName: 'DToSDB'
-  skuOffPeak: 'S1'
-  skuPeak: 'S2'
-  serviceConnection: sc-cohort-manager-dev
+- group: DEV_core_backend
+- name: resourceGroupName
+  value: 'rg-cohman-dev-uks'
+- name: serverName
+  value: 'sqlsvr-cohman-dev-uks'
+- name: databaseName
+  value: 'DToSDB'
+- name: skuOffPeak
+  value: 'S1'
+- name: skuPeak
+  value: 'S2'
+- name: serviceConnection
+  value: sc-cohort-manager-dev
 
 stages:
 - stage: ScaleDatabase
   jobs:
   - job: ScaleUpDatabaseJob
     displayName: 'Azure CLI - Scale Up'
-    condition: and(succeeded(), eq(variables['Build.CronSchedule.DisplayName'], 'Scale_Peak'))
+    condition: and(succeeded(), eq((variables['Build.CronSchedule.DisplayName'], 'Scale_Peak') or eq(variables['manualOverride'], 'true'))
     steps:
     - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
       parameters:
         serviceConnection: $(serviceConnection)
+        subscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
         resourceGroupName: $(resourceGroupName)
         serverName: $(serverName)
         databaseName: $(databaseName)
@@ -57,11 +74,12 @@ stages:
 
   - job: ScaleDownDatabaseJob
     displayName: 'Azure CLI - Scale Down'
-    condition: and(succeeded(), eq(variables['Build.CronSchedule.DisplayName'], 'Scale_OffPeak'))
+    condition: and(succeeded(), eq(variables['Build.CronSchedule.DisplayName'], 'Scale_OffPeak') or eq(variables['manualOverride'], 'true'))
     steps:
     - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
       parameters:
         serviceConnection: $(serviceConnection)
+        subscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
         resourceGroupName: $(resourceGroupName)
         serverName: $(serverName)
         databaseName: $(databaseName)
