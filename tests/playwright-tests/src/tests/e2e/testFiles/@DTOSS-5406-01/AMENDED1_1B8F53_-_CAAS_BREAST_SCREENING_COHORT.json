@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9996928160",
+        "NhsNumber": "9998620007",
         "RuleId": 0,
         "RuleDescription":"3.ParticipantNotRegisteredToGPWithReasonForRemoval"
       }
@@ -14,7 +14,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": "20240524000000",
       "serial_change_number": 1,
-      "nhs_number": "9996928160",
+      "nhs_number": "9998620007",
       "superseded_by_nhs_number": null,
       "primary_care_provider": null,
       "primary_care_effective_from_date": "20100101",
@@ -52,6 +52,6 @@
     }
   ],
   "nhsNumbers": [
-    "9996928160"
+    "9998620007"
   ]
 }
