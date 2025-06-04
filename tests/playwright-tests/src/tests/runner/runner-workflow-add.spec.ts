@@ -8,6 +8,7 @@ import { runnerBasedEpic3TestScenariosAdd } from '../e2e/epic3-highpriority-test
 
 // Test Scenario Tags
 const smokeTestScenario = runnerBasedEpic123TestScenariosAdd;
+const regressionEpic1TestScenario = runnerBasedEpic1TestScenariosAdd;
 const regressionEpic2TestScenario = runnerBasedEpic2TestScenariosAdd;
 const regressionEpic3TestScenario = runnerBasedEpic3TestScenariosAdd;
 
@@ -16,7 +17,7 @@ let scopedTestScenario = "";
 
 const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
 if (TEST_TYPE == 'RegressionEpic1') {
-  scopedTestScenario = runnerBasedEpic1TestScenariosAdd;
+  scopedTestScenario = regressionEpic1TestScenario;
 } else if (TEST_TYPE == 'RegressionEpic2') {
   scopedTestScenario = regressionEpic2TestScenario;
 } else if (TEST_TYPE == 'RegressionEpic3') {
