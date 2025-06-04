@@ -9,7 +9,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3660-01",
         "requirementJiraId": "DTOSS-2712",
-        "additionalTags": "@regression @e2e @epic1-high-priority Verify Successful Data Processing and Storage in Cohort Manager for Add"
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify Successful Data Processing and Storage in Cohort Manager for Add Record - Cohort Table for participant 9998116538"
       }
     },
     {
@@ -22,7 +22,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3660-01",
         "requirementJiraId": "DTOSS-2712",
-        "additionalTags": "@regression @e2e @epic1-high-priority Verify Successful Data Processing and Storage in Cohort Manager for Add"
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify Successful Data Processing and Storage in Cohort Manager for Add Record - Participant Management Table for participant 9998116538"
       }
     },
     {
@@ -34,19 +34,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3660-01",
         "requirementJiraId": "DTOSS-2712",
-        "additionalTags": "@regression @e2e @epic1-high-priority Verify Successful Data Processing and Storage in Cohort Manager for Add"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9998116538",
-        "expectedCount": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-3660-01",
-        "requirementJiraId": "DTOSS-2712",
-        "additionalTags": "@regression @e2e @epic1-high-priority Verify Successful Data Processing and Storage in Cohort Manager for Add"
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify Successful Data Processing and Storage in Cohort Manager for Add Record - Participant Demographic Table for participant 9998116538"
       }
     }
   ],

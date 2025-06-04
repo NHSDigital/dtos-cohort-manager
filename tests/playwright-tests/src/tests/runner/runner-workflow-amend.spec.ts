@@ -1,17 +1,41 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps';
+// import { runnerBasedEpic123TestScenariosAddAmend } from '../e2e/epic123-smoke-tests/epic123-smoke-tests-migrated';
+import {runnerBasedEpic1TestScenariosAmend} from '../e2e/epic1-highpriority-tests/epic1-high-priority-testsuite-migrated';
+// import { runnerBasedEpic2TestScenariosAmend } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
+// import { runnerBasedEpic3TestScenariosAmend } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
 
-const epic123SmokeTests = "@DTOSS-6257-01|@DTOSS-6407-01";
+// Test Scenario Tags
+// const smokeTestScenario = runnerBasedEpic123TestScenariosAddAmend;
+// const regressionEpic2TestScenario = runnerBasedEpic2TestScenariosAmend;
+// const regressionEpic3TestScenario = runnerBasedEpic3TestScenariosAmend;
 
+// Tests to run based on TEST_TYPE environment variable
+let scopedTestScenario = "";
 
-let addData = getConsolidatedAllTestData(epic123SmokeTests, "ADD");
-let amendData = getConsolidatedAllTestData(epic123SmokeTests, "AMENDED");
+const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
+if (TEST_TYPE == 'RegressionEpic1') {
+  scopedTestScenario = runnerBasedEpic1TestScenariosAmend;
+} else if (TEST_TYPE == 'RegressionEpic2') {
+  // scopedTestScenario = regressionEpic2TestScenario;
+} else if (TEST_TYPE == 'RegressionEpic3') {
+  // scopedTestScenario = regressionEpic3TestScenario;
+} else {
+  // scopedTestScenario = smokeTestScenario;
+}
+
+if (!scopedTestScenario) {
+  throw new Error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");
+}
+
+let addData = getConsolidatedAllTestData(scopedTestScenario, "ADD");
+let amendData = getConsolidatedAllTestData(scopedTestScenario, "AMENDED");
 
 let apiContext: APIRequestContext;
-
 test.beforeAll(async () => {
   apiContext = await playwrightRequest.newContext();
+  console.log(`Running ${TEST_TYPE} tests with scenario tags: ${scopedTestScenario}`);
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
   const runTimeParquetFile = await createParquetFromJson(addData.nhsNumbers, addData.inputParticipantRecords, addData.testFilesPath, "ADD", false);
   await processFileViaStorage(runTimeParquetFile);
@@ -28,7 +52,7 @@ test.afterAll(async () => {
 
 amendData.validations.forEach((validations) => {
 
-  test(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
+  test.only(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
     annotation: [{
       type: 'TestId',
       description: validations.meta?.testJiraId ?? '',
@@ -40,4 +64,3 @@ amendData.validations.forEach((validations) => {
     await validateSqlDatabaseFromAPI(request, [validations]);
   });
 });
-

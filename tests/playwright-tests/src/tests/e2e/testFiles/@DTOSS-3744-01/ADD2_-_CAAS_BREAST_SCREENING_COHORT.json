@@ -20,7 +20,7 @@
        "meta": {
         "testJiraId": "@DTOSS-3744-01",
         "requirementJiraId": "DTOSS-3517",
-        "additionalTags": "@regression @e2e @epic1-high-priority Verify a file is uploaded to storage successfully"
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify a file is uploaded to storage successfully and participant is stored on Cohort_Distribution table for NHS Number 9998380197"
       }
     },{
       "validations": {
@@ -42,7 +42,7 @@
        "meta": {
         "testJiraId": "@DTOSS-3744-01",
         "requirementJiraId": "DTOSS-3517",
-        "additionalTags": "@regression @e2e @epic1-high-priority Verify a file is uploaded to storage successfully"
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify a file is uploaded to storage successfully and participant is stored on Cohort_Distribution table for NHS Number 9998595983"
       }
     }
   ],
