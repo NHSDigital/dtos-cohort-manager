@@ -389,16 +389,14 @@ services:
     networks: [cohman-network]
 
     #Service Now Integration
-  servicenow-message:
-    container_name: servicenow-message
-    image: cohort-manager-servicenow-message
+  send-servicenow-message:
+    container_name: send-servicenow-message
+    image: cohort-manager-send-servicenow-message
     networks: [cohman-network]
-    labels:
-    - "com.nhs.role=non-essential"
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegrationService/SendServiceNowMessage/DockerFile
-    profiles: [not-implemented]
+    profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:9092
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException

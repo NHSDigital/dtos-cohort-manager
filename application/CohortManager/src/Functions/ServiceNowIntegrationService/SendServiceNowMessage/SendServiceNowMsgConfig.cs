@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.ServiceNowIntegrationService.ServiceNowMessageService;
+namespace NHS.CohortManager.ServiceNowIntegrationService;
 
 using System.ComponentModel.DataAnnotations;
 
@@ -17,3 +17,4 @@ public class SendServiceNowMsgConfig
     [Required]
     public required string EndpointPath { get; set; }
 }
+
