@@ -122,7 +122,7 @@ app_service_plan = {
       inc_threshold       = 20
       inc_scale_direction = "Increase"
       inc_scale_type      = "ExactCount"
-      inc_scale_value     = 12
+      inc_scale_value     = 4
       inc_scale_cooldown  = "PT10M"
 
       dec_operator        = "LessThan"
