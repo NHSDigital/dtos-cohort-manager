@@ -3,13 +3,16 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber":"9992728167",
-        "RuleId":3,
-        "RuleDescription":"Participant was transformed as transform rule: OtherDateOfDeathDoesNotExist was executed"
+        "NhsNumber": "9992728167",
+        "RuleId": 3,
+        "RuleDescription": "Participant was transformed as transform rule: OtherDateOfDeathDoesNotExist was executed"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5801-01",
+        "requirementJiraId": "DTOSS-4616",
+        "additionalTags": "@regression @e2e @epic3-high-priority Tests Check Amend fields reason for removal as DEA and date of death empty"
       }
-
-      }
-
+    }
   ],
   "inputParticipantRecord": [
     {

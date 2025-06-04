@@ -3,17 +3,21 @@ import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps';
 import { runnerBasedEpic123TestScenariosAddAmend } from '../e2e/epic123-smoke-tests/epic123-smoke-tests-migrated';
 import { runnerBasedEpic2TestScenariosAmend } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
+import { runnerBasedEpic3TestScenariosAmend } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
 
 // Test Scenario Tags
 const smokeTestScenario = runnerBasedEpic123TestScenariosAddAmend;
-const regressionTestScenario = runnerBasedEpic2TestScenariosAmend;
+const regressionEpic2TestScenario = runnerBasedEpic2TestScenariosAmend;
+const regressionEpic3TestScenario = runnerBasedEpic3TestScenariosAmend;
 
 // Tets to run based on TEST_TYPE environment variable
 let scopedTestScenario = "";
 
 const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
 if (TEST_TYPE == 'RegressionEpic2') {
-  scopedTestScenario = regressionTestScenario;
+  scopedTestScenario = regressionEpic2TestScenario;
+} else if (TEST_TYPE == 'RegressionEpic3') {
+  scopedTestScenario = regressionEpic3TestScenario;
 } else {
   scopedTestScenario = smokeTestScenario;
 }
