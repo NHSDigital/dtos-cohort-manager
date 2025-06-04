@@ -53,31 +53,48 @@ public class RetrieveCohortDistributionData
     [Function(nameof(RetrieveCohortDistributionData))]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        var requestId = req.Query["requestId"];
-        int rowCount = _httpParserHelper.GetQueryParameterAsInt(req, "rowCount");
         var cohortDistributionParticipants = new List<CohortDistributionParticipantDto>();
-
         try
         {
-            if (!string.IsNullOrEmpty(requestId))
+
+            if (string.IsNullOrEmpty(req.Query["rowCount"]) || !int.TryParse(req.Query["rowCount"], out int rowCount))
             {
-                var audit = await _createCohortDistributionData.GetNextCohortRequestAudit(requestId);
-                if (audit != null)
-                {
-                    Guid requestIdFromDatabase = audit.RequestId;
-                    cohortDistributionParticipants = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestIdFromDatabase);
-                }
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
-            if (cohortDistributionParticipants.Count == 0)
+            //If no requestID is provided we send back a batch of unextracted participants
+            if (string.IsNullOrEmpty(req.Query["requestId"]))
             {
                 cohortDistributionParticipants = await _createCohortDistributionData
-                .GetUnextractedCohortDistributionParticipants(rowCount);
+                    .GetUnextractedCohortDistributionParticipants(rowCount);
+
+                return CreateResponse(cohortDistributionParticipants, req);
             }
 
-            return cohortDistributionParticipants.Count == 0
-                ? _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req)
-                : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(cohortDistributionParticipants));
+            if (Guid.TryParse(req.Query["requestId"], out Guid requestId))
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+
+
+            var nextBatch = await _createCohortDistributionData.GetNextCohortRequestAudit(requestId);
+
+            if (nextBatch != null)
+            {
+                Guid requestIdFromDatabase = nextBatch.RequestId;
+                cohortDistributionParticipants = await _createCohortDistributionData.GetCohortDistributionParticipantsByRequestId(requestIdFromDatabase);
+                return CreateResponse(cohortDistributionParticipants, req);
+            }
+
+            cohortDistributionParticipants = await _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
+
+            return CreateResponse(cohortDistributionParticipants, req);
+
+        }
+        catch (KeyNotFoundException keyNotFoundException)
+        {
+            _logger.LogWarning(keyNotFoundException, "RequestId not found in the database");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
@@ -87,17 +104,11 @@ public class RetrieveCohortDistributionData
         }
     }
 
-    private async Task<List<CohortDistributionParticipantDto>> GetCohortDistributionParticipantsByRequestId(string requestId)
+    private HttpResponseData CreateResponse(List<CohortDistributionParticipantDto> participantDtos, HttpRequestData req)
     {
-        var isGuidParsed = Guid.TryParse(requestId, out Guid parsedRequestId);
-        if (!isGuidParsed)
-        {
-            return new List<CohortDistributionParticipantDto>();
-        }
-
-        var recordToReturn = new CohortDistributionParticipant();
-        var CohortDistributionList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.RequestId == parsedRequestId);
-
-        return CreateCohortDistributionParticipantDTO.CohortDistributionParticipantDto(CohortDistributionList.ToList());
+        return participantDtos.Count == 0
+            ? _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req)
+            : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(participantDtos));
     }
+
 }
