@@ -15,7 +15,7 @@ public class RemoveParticipant
 {
     private readonly ILogger<RemoveParticipant> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _handleException;
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
     private readonly RemoveParticipantConfig _config;
@@ -23,14 +23,14 @@ public class RemoveParticipant
     public RemoveParticipant(
         ILogger<RemoveParticipant> logger,
         ICreateResponse createResponse,
-        ICallFunction callFunction,
+        IHttpClientFunction httpClientFunction,
         IExceptionHandler handleException,
         ICohortDistributionHandler cohortDistributionHandler,
         IOptions<RemoveParticipantConfig> removeParticipantConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _handleException = handleException;
         _cohortDistributionHandler = cohortDistributionHandler;
         _config = removeParticipantConfig.Value;
@@ -62,12 +62,12 @@ public class RemoveParticipant
                 Participant = basicParticipantCsvRecord.participant,
                 FileName = basicParticipantCsvRecord.FileName,
             };
-
-            var ineligibleResponse = await MarkParticipantAsIneligible(participantCsvRecord);
+            participantCsvRecord.Participant.EligibilityFlag = EligibilityFlag.Ineligible; //Mark Participant As Ineligible
+            var ineligibleResponse = await UpdateParticipant(participantCsvRecord);
 
             if (!ineligibleResponse)
             {
-                _logger.LogInformation("MarkParticipantAsIneligible request has failed.");
+                _logger.LogInformation("Marking Participant As Ineligible request has failed.");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
@@ -100,15 +100,16 @@ public class RemoveParticipant
         return true;
     }
 
-    private async Task<bool> MarkParticipantAsIneligible(ParticipantCsvRecord participantCsvRecord)
+    private async Task<bool> UpdateParticipant(ParticipantCsvRecord participantCsvRecord)
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
-        var ineligibleResponse = await _callFunction.SendPost(_config.markParticipantAsIneligible, json);
 
-        if (ineligibleResponse.StatusCode != HttpStatusCode.OK)
+        var createResponse = await _httpClientFunction.SendPost(_config.UpdateParticipant, json);
+        if (createResponse.StatusCode == HttpStatusCode.OK)
         {
-            return false;
+            _logger.LogInformation("Participant updated as ineligible.");
+            return true;
         }
-        return true;
+        return false;
     }
 }

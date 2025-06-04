@@ -1,16 +1,12 @@
 namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
 
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Common;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
-using NHS.CohortManager.Tests.TestUtils;
 using updateParticipant;
-using RulesEngine.Models;
 using Microsoft.Extensions.Options;
 using NHS.Screening.UpdateParticipant;
 
@@ -18,8 +14,7 @@ using NHS.Screening.UpdateParticipant;
 public class UpdateParticipantTests
 {
     private readonly Mock<ILogger<UpdateParticipantFunction>> _logger = new();
-    private readonly Mock<ICallFunction> _callFunctionMock = new();
-    private readonly Mock<HttpWebResponse> _webResponse = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly CreateParticipant _createParticipant = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
@@ -34,16 +29,14 @@ public class UpdateParticipantTests
         {
             DemographicURIGet = "DemographicURIGet",
             UpdateParticipant = "UpdateParticipant",
-            StaticValidationURL = "StaticValidationURL",
-            DSmarkParticipantAsEligible = "DSmarkParticipantAsEligible",
-            markParticipantAsIneligible = "markParticipantAsIneligible"
+            StaticValidationURL = "StaticValidationURL"
         };
 
         var validationResponse = new ValidationExceptionLog { IsFatal = false, CreatedException = false };
         _config.Setup(c => c.Value).Returns(testConfig);
 
-        _callFunctionMock
-            .Setup(call => call.GetResponseText(It.IsAny<HttpWebResponse>()))
+        _httpClientFunction
+            .Setup(call => call.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync(JsonSerializer.Serialize(validationResponse));
 
         _request.FileName = "test.csv";
@@ -54,23 +47,16 @@ public class UpdateParticipantTests
             EligibilityFlag = EligibilityFlag.Eligible
         };
 
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-
-        _callFunctionMock
+        _httpClientFunction
             .Setup(call => call.SendPost("UpdateParticipant", It.IsAny<string>()))
-            .ReturnsAsync(_webResponse.Object);
-        _callFunctionMock
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        _httpClientFunction
             .Setup(call => call.SendPost("StaticValidationURL", It.IsAny<string>()))
-            .ReturnsAsync(_webResponse.Object);
-        _callFunctionMock
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        _httpClientFunction
             .Setup(call => call.SendPost("CohortDistributionServiceURL", It.IsAny<string>()))
-            .ReturnsAsync(_webResponse.Object);
-        _callFunctionMock
-            .Setup(call => call.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()))
-            .ReturnsAsync(_webResponse.Object);
-        _callFunctionMock
-            .Setup(call => call.SendPost("markParticipantAsIneligible", It.IsAny<string>()))
-            .ReturnsAsync(_webResponse.Object);
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+
 
         _checkDemographic
             .Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
@@ -99,7 +85,7 @@ public class UpdateParticipantTests
     public async Task Run_ParticipantEligible_MarkAsEligibleAndSendToCohortDistribution()
     {
         // Arrange
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
+        var sut = new UpdateParticipantFunction(_logger.Object, _httpClientFunction.Object,
                                                 _checkDemographic.Object, _createParticipant,
                                                 _handleException.Object, _cohortDistributionHandler.Object,
                                                 _config.Object);
@@ -108,10 +94,8 @@ public class UpdateParticipantTests
         await sut.Run(JsonSerializer.Serialize(_request));
 
         // Assert
-        _callFunctionMock
+        _httpClientFunction
             .Verify(x => x.SendPost("UpdateParticipant", It.IsAny<string>()));
-        _callFunctionMock
-            .Verify(x => x.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()));
 
         _cohortDistributionHandler
             .Verify(call => call.SendToCohortDistributionService(
@@ -127,7 +111,7 @@ public class UpdateParticipantTests
     {
         // Arrange
         _request.Participant.EligibilityFlag = EligibilityFlag.Ineligible;
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
+        var sut = new UpdateParticipantFunction(_logger.Object, _httpClientFunction.Object,
                                                 _checkDemographic.Object, _createParticipant,
                                                 _handleException.Object, _cohortDistributionHandler.Object,
                                                 _config.Object);
@@ -136,10 +120,8 @@ public class UpdateParticipantTests
         await sut.Run(JsonSerializer.Serialize(_request));
 
         // Assert
-        _callFunctionMock
+        _httpClientFunction
             .Verify(x => x.SendPost("UpdateParticipant", It.IsAny<string>()));
-        _callFunctionMock
-            .Verify(x => x.SendPost("markParticipantAsIneligible", It.IsAny<string>()));
 
         _cohortDistributionHandler
             .Verify(call => call.SendToCohortDistributionService(
@@ -156,11 +138,11 @@ public class UpdateParticipantTests
         // Arrange
         var validationResponse = new ValidationExceptionLog { IsFatal = true, CreatedException = true };
 
-        _callFunctionMock
-            .Setup(call => call.GetResponseText(It.IsAny<HttpWebResponse>()))
+        _httpClientFunction
+            .Setup(call => call.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync(JsonSerializer.Serialize(validationResponse));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
+        var sut = new UpdateParticipantFunction(_logger.Object, _httpClientFunction.Object,
                                                 _checkDemographic.Object, _createParticipant,
                                                 _handleException.Object, _cohortDistributionHandler.Object,
                                                 _config.Object);
@@ -183,11 +165,11 @@ public class UpdateParticipantTests
         // Arrange
         var validationResponse = new ValidationExceptionLog { IsFatal = false, CreatedException = true };
 
-        _callFunctionMock
-            .Setup(call => call.GetResponseText(It.IsAny<HttpWebResponse>()))
+        _httpClientFunction
+            .Setup(call => call.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync(JsonSerializer.Serialize(validationResponse));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
+        var sut = new UpdateParticipantFunction(_logger.Object, _httpClientFunction.Object,
                                                 _checkDemographic.Object, _createParticipant,
                                                 _handleException.Object, _cohortDistributionHandler.Object,
                                                 _config.Object);
@@ -196,7 +178,7 @@ public class UpdateParticipantTests
         await sut.Run(JsonSerializer.Serialize(_request));
 
         // Assert
-        _callFunctionMock
+        _httpClientFunction
             .Verify(call => call.SendPost(
                 "UpdateParticipant",
                 It.Is<string>(x => x.Contains(@"""ExceptionFlag"":""Y"""))),
@@ -207,13 +189,11 @@ public class UpdateParticipantTests
     public async Task Run_ParticipantUpdateFails_CreateExcpetion()
     {
         // Arrange
-        _webResponse.Setup(x => x.StatusCode).Returns(HttpStatusCode.InternalServerError);
-
-        _callFunctionMock
+        _httpClientFunction
             .Setup(call => call.SendPost("UpdateParticipant", It.IsAny<string>()))
-            .ReturnsAsync(_webResponse.Object);
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
+        var sut = new UpdateParticipantFunction(_logger.Object, _httpClientFunction.Object,
                                                 _checkDemographic.Object, _createParticipant,
                                                 _handleException.Object, _cohortDistributionHandler.Object,
                                                 _config.Object);
@@ -237,7 +217,7 @@ public class UpdateParticipantTests
             .Setup(call => call.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
             .Throws(new WebException("Demographic data not found"));
 
-        var sut = new UpdateParticipantFunction(_logger.Object, _callFunctionMock.Object,
+        var sut = new UpdateParticipantFunction(_logger.Object, _httpClientFunction.Object,
                                         _checkDemographic.Object, _createParticipant,
                                         _handleException.Object, _cohortDistributionHandler.Object,
                                         _config.Object);

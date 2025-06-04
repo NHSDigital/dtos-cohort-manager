@@ -104,12 +104,12 @@ public class LookupValidationTests
         string[] possiblePaths = new[]
         {
             // Relative paths with different nesting depths
+            Path.Combine("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
-            
             
             // Try with the ScreeningValidationService root directory
             Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService", filename),
@@ -600,8 +600,7 @@ public class LookupValidationTests
     #region Validate BSO Code (Rule 54)
     [TestMethod]
     [DataRow("RPR", "", "", Actions.Amended)]
-    [DataRow("RDR", "ZZZPCP", "", Actions.Amended)]
-
+    [DataRow("RDR", "", "", Actions.Amended)]
     public async Task Run_AmendedRFRParticipantHasInvalidPostcodeAndGpPractice_ThrowsException(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
     {
         // Arrange
@@ -737,7 +736,7 @@ public class LookupValidationTests
     {
         // Arrange
         SetupRules("LookupRules");
-        _requestBody.NewParticipant.BlockedFlag = "1";
+        _requestBody.ExistingParticipant.BlockedFlag = "1";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 

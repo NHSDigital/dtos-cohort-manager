@@ -9,7 +9,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 9ebaa0958ce826d44bdba77c25bf0a697e1f441c
+      ref: 093557aee9d7ffb803106db24f51b7a5ef6f7f50
       endpoint: NHSDigital
 
 variables:
@@ -29,9 +29,12 @@ stages:
     steps:
       - checkout: self
       - checkout: dtos-devops-templates
-      - template: .azuredevops/templates/steps/apply-database-changes.yaml@dtos-devops-templates
+      - template: .azuredevops/templates/steps/app-container-job-start.yaml@dtos-devops-templates
         parameters:
           serviceConnection: $(SERVICE_CONNECTION)
+          targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+          resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
+          jobName: $(DATABASE_MANAGEMENT_JOB_NAME)
 
 - stage: deploy_image_stage
   displayName: Deploy images
