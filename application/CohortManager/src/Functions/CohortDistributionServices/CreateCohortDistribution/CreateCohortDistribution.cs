@@ -106,8 +106,8 @@ public class CreateCohortDistribution
                 var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
                 participantMangement.ExceptionFlag = 1;
 
-                var excpetionFlagUpdated = await _participantManagementClient.Update(participantMangement);
-                if (!excpetionFlagUpdated)
+                var exceptionFlagUpdated = await _participantManagementClient.Update(participantMangement);
+                if (!exceptionFlagUpdated)
                 {
                     throw new IOException("Failed to update exception flag");
                 }
