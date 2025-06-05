@@ -79,7 +79,6 @@ public class CreateCohortDistribution
 
             // Check if participant has exceptions
             bool ignoreParticipantExceptions = _config.IgnoreParticipantExceptions;
-            System.Console.WriteLine("ignore exceptions value: " + ignoreParticipantExceptions);
             _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", ignoreParticipantExceptions);
 
             bool participantHasException = participantData.ExceptionFlag == 1;
