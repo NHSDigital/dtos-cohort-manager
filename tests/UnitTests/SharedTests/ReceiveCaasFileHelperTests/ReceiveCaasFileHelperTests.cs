@@ -1,15 +1,7 @@
-using System;
-using System.Net;
-using System.Reflection;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using Common;
 using Model;
 using Model.Enums;
-using NHS.Screening.ReceiveCaasFile;
 
 namespace Common.Tests
 {
