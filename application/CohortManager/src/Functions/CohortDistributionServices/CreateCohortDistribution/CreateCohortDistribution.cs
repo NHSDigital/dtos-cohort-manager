@@ -113,7 +113,6 @@ public class CreateCohortDistribution
                     throw new IOException("Failed to update exception flag");
                 }
 
-                _logger.LogInformation("ignore exceptions value: " + ignoreParticipantExceptions);
                 if (!ignoreParticipantExceptions)
                 {
                     return;

@@ -4,11 +4,11 @@ services:
   retrieve-cohort-distribution-data:
     container_name: retrieve-cohort-distribution-data
     image: cohort-manager-retrieve-cohort-distribution-data
-    networks: [ cohman-network ]
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveCohortDistribution/Dockerfile
-    profiles: [ bs-select ]
+    profiles: [bs-select]
     environment:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -21,11 +21,11 @@ services:
   retrieve-cohort-request-audit:
     container_name: retrieve-cohort-request-audit
     image: cohort-manager-retrieve-cohort-request-audit
-    networks: [ cohman-network ]
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveCohortRequestAudit/Dockerfile
-    profiles: [ bs-select ]
+    profiles: [bs-select]
     environment:
       - ASPNETCORE_URLS=http://*:7086
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -36,7 +36,7 @@ services:
   transform-data-service:
     container_name: transform-data-service
     image: cohort-manager-transform-data-service
-    networks: [ cohman-network ]
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/TransformDataService/Dockerfile
@@ -52,7 +52,7 @@ services:
   allocate-service-provider:
     container_name: allocate-service-provider
     image: cohort-manager-allocate-service-provider
-    networks: [ cohman-network ]
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
@@ -63,7 +63,7 @@ services:
   create-cohort-distribution:
     container_name: create-cohort-distribution
     image: cohort-manager-create-cohort-distribution
-    networks: [ cohman-network ]
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/CreateCohortDistribution/Dockerfile
@@ -87,7 +87,7 @@ services:
   retrieve-participant-data:
     container_name: retrieve-participant-data
     image: cohort-manager-retrieve-participant-data
-    networks: [ cohman-network ]
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveParticipantData/Dockerfile
@@ -101,7 +101,7 @@ services:
   remove-validation-exception-data:
     container_name: remove-validation-exception-data
     image: cohort-manager-remove-validation-exception-data
-    networks: [ cohman-network ]
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ScreeningValidationService/RemoveValidationException/Dockerfile
@@ -116,7 +116,7 @@ services:
   delete-participant:
     container_name: delete-participant
     image: cohort-manager-delete-participant
-    networks: [ cohman-network ]
+    networks: [cohman-network]
     ports:
       - "7087:7087"
     build:
