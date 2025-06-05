@@ -105,7 +105,6 @@ public class CreateCohortDistribution
                 bool excpetionFlagUpdated = await _participantManagementClient.Update(participantMangement);
                 if (!excpetionFlagUpdated) throw new IOException("Failed to update exception flag");
                 
-                System.Console.WriteLine("ignore exceptions value: " + ignoreParticipantExceptions);
                 if (!ignoreParticipantExceptions) return;
             }
             _logger.LogInformation("Validation has passed or exceptions are ignored, the record with participant id: {ParticipantId} will be added to the database", participantData.ParticipantId);
