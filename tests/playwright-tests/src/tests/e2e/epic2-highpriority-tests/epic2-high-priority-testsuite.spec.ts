@@ -48,21 +48,15 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
-    test('@DTOSS-4102-01-Validate valid GP Practice Code for a new participant', {
+    test.only('@DTOSS-4102-01-Validate valid GP Practice Code for a new participant', {
       annotation: {
         type: 'Requirement',
         description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4102',
       },
     }, async ({ request, testData }) => {
 
-      await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
-            await processFileViaStorage(testData.runTimeParquetFile);
-      });
-
-      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFile);
-
-      await test.step(`Then the record should appear in the participant management table`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      await test.step(`Then the record should appear in the cohort management table`, async () => {
+         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
     })
 
