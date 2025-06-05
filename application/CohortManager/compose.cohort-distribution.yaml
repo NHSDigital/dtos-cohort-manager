@@ -118,7 +118,7 @@ services:
     image: cohort-manager-delete-participant
     networks: [cohman-network]
     ports:
-      - "7087:7087"
+    - "7087:7087"
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/DeleteParticipant/Dockerfile
