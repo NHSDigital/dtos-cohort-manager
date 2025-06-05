@@ -26,8 +26,8 @@ if (!scopedTestScenario) {
   throw new Error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");
 }
 
-let addData = getConsolidatedAllTestData("@DTOSS-5388-01", "ADD");
-let amendData = getConsolidatedAllTestData("@DTOSS-5388-01", "AMENDED");
+let addData = getConsolidatedAllTestData(scopedTestScenario, "ADD");
+let amendData = getConsolidatedAllTestData(scopedTestScenario, "AMENDED");
 
 let apiContext: APIRequestContext;
 test.beforeAll(async () => {
