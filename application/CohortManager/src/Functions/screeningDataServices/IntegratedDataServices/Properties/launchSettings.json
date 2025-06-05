@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "CreateCohortDistribution": {
+    "BsSelectGpPractice": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7059",
+      "commandLineArgs": "--port 7084",
       "launchBrowser": false
     }
   }
