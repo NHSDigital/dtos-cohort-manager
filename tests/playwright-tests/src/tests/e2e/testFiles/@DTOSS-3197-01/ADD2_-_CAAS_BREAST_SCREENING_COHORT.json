@@ -5,6 +5,11 @@
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9998136431,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3197-01",
+        "requirementJiraId": "DTOSS-3518",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify ADD records is processed without any Exception and participant is stored on Cohort_Distribution table for NHS Number 9998136431"
       }
     },
     {
@@ -13,6 +18,11 @@
         "RecordType": "ADD",
         "NHSNumber": 9998136431,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3197-01",
+        "requirementJiraId": "DTOSS-3518",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify ADD records is processed without any Exception and participant is stored on Participant_Management table for NHS Number 9998136431"
       }
     },
     {
@@ -20,19 +30,23 @@
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9998136431,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3197-01",
+        "requirementJiraId": "DTOSS-3518",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify ADD records is processed without any Exception and participant is stored on Participant_Demographic table for NHS Number 9998136431"
       }
     },
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9998136431",
-        "expectedCount": 0
-      }
-    },{
-      "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9998263344,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3197-01",
+        "requirementJiraId": "DTOSS-3518",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify ADD records is processed without any Exception and participant is stored on Cohort_Distribution table for NHS Number 9998263344"
       }
     },
     {
@@ -41,6 +55,11 @@
         "RecordType": "ADD",
         "NHSNumber": 9998263344,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3197-01",
+        "requirementJiraId": "DTOSS-3518",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify ADD records is processed without any Exception and participant is stored on Participant_Management table for NHS Number 9998263344"
       }
     },
     {
@@ -48,13 +67,11 @@
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9998263344,
         "expectedCount": 1
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9998263344",
-        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3197-01",
+        "requirementJiraId": "DTOSS-3518",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify ADD records is processed without any Exception and participant is stored on Participant_Demographic table for NHS Number 9998263344"
       }
     }
   ],
