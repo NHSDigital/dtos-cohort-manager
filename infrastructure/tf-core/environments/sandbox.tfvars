@@ -252,10 +252,6 @@ function_apps = {
           function_app_key = "CreateException"
         },
         {
-          env_var_name     = "FileValidationURL"
-          function_app_key = "FileValidation"
-        },
-        {
           env_var_name     = "PMSAddParticipant"
           function_app_key = "AddParticipant"
         },
@@ -274,6 +270,16 @@ function_apps = {
         {
           env_var_name     = "ScreeningLkpDataServiceURL"
           function_app_key = "ScreeningLkpDataService"
+        }
+      ],
+      storage_containers = [
+        {
+          env_var_name   = "inboundBlobName"
+          container_name = "inbound"
+        },
+        {
+          env_var_name   = "fileExceptions"
+          container_name = "inbound-poison"
         }
       ]
       env_vars_static = {
