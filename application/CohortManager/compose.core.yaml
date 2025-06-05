@@ -352,7 +352,7 @@ services:
     networks: [cohman-network]
     build:
       context: ./src/Functions/
-      dockerfile: ServiceNowIntegrationService/SendServiceNowMessage/DockerFile
+      dockerfile: ServiceNowIntegrationService/SendServiceNowMessage/Dockerfile
     profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:9092
