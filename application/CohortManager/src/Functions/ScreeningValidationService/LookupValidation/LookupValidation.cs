@@ -88,6 +88,13 @@ public class LookupValidation
                 resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             }
 
+            if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
+            {
+                _logger.LogInformation("Executing workflow {RecordType}", newParticipant.RecordType);
+                var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
+                resultList.AddRange(ActionResults);
+            }
+
             // Validation rules are logically reversed
             var validationErrors = resultList.Where(x => !x.IsSuccess);
 
