@@ -28,11 +28,7 @@ paths = [
   '''application/CohortManager/spikes/AzureLocalSimulators/DTOS-2460_Event_Grid_Spike/templates/Azure Sql Template/template.json''',
   '''application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile/receiveCaasFile.csproj''',
   '''tests/CaasIntegrationTests/receiveCaasFileTest/receiveCaasFileTest.csproj''',
-  '''tests/IntegrationTests/integration.csproj''',
-  '''application/CohortManager/src/Functions/Shared/Model/Model.csproj''',
-  '''tests/smoke-tests/dtos-cohort-manager-smoke-tests/''',
-'''tests/e2e-tests/NHS.CohortManager.EndToEndTests/NHS.CohortManager.EndToEndTests.csproj''',
-'''tests/e2e-tests/dtos-cohort-manager-e2e-tests/dtos_cohort_manager_e2e_tests.csproj'''
+  '''application/CohortManager/src/Functions/Shared/Model/Model.csproj'''
 ]
 
 
