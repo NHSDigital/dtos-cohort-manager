@@ -4,12 +4,22 @@
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9995262320
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3217-01",
+        "requirementJiraId": "DTOSS-3518",
+        "additionalTags": "@regression @e2e @epic1-high-priority Check Add for - Verify AMENDED records reach the participant tables in Participant Management Table for NHS Number 9995262320"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9995262320
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3217-01",
+        "requirementJiraId": "DTOSS-3518",
+        "additionalTags": "@regression @e2e @epic1-high-priority Check Add for - Verify AMENDED records reach the participant tables in Participant Demographic Table for NHS Number 9995262320"
       }
     }
   ],
