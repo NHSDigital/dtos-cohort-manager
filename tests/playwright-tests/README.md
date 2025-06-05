@@ -12,7 +12,7 @@
 
 ```bash
 
-# Navigate to    test framework
+# Navigate to test framework
 cd ../dtos-cohort-manager/tests/playwright-tests
 # Install dependencies
 npm install
