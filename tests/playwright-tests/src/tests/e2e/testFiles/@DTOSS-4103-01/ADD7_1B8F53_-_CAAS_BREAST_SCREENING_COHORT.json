@@ -3,50 +3,57 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NHSNumber": 9995262320,
-        "primary_care_provider": "G82141"
+        "NhsNumber": "9992728167",
+        "RuleId": 3601,
+        "RuleDescription": "Invalid primary care provider GP practice code"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 9991742468,
-        "primary_care_provider": "G62627"
+        "NhsNumber": "9995262320",
+        "RuleId": 3601,
+        "RuleDescription": "Invalid primary care provider GP practice code"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 9991932887,
-        "primary_care_provider": "zzz"
+        "NhsNumber": "9991742468",
+        "RuleId": 3601,
+        "RuleDescription": "Invalid primary care provider GP practice code"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 9991845666,
-        "primary_care_provider": "GPCODE"
+        "NhsNumber": "9991845666",
+        "RuleId": 3601,
+        "RuleDescription": "Invalid primary care provider GP practice code"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 9998380197,
-        "primary_care_provider": "1234567"
+        "NhsNumber": "9998380197",
+        "RuleId": 3601,
+        "RuleDescription": "Invalid primary care provider GP practice code"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 9998380197,
-        "primary_care_provider": "WS$!1"
+        "NhsNumber": "9992332484",
+        "RuleId": 3601,
+        "RuleDescription": "Invalid primary care provider GP practice code"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 9998380197,
-        "primary_care_provider": ""
+        "NhsNumber": "9992278269",
+        "RuleId": 3601,
+        "RuleDescription": "Invalid primary care provider GP practice code"
       }
     }
   ],
@@ -55,14 +62,14 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9995262320,
+      "nhs_number": 9992728167,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": "F83043",
+      "primary_care_provider": "G82 141",
       "primary_care_effective_from_date": "20130319",
       "current_posting": "CH",
       "current_posting_effective_from_date": "20130319",
       "name_prefix": "A.ML",
-      "given_name": "Test1",
+      "given_name": "NewTest1",
       "other_given_name": "Test",
       "family_name": "Adani1",
       "previous_family_name": "Test2",
@@ -75,7 +82,7 @@
       "address_line_5": "United Kingdom",
       "postcode": "AB43 8FJ",
       "paf_key": "Z3S4Q5X9",
-      "address_effective_from_date": null,
+      "address_effective_from_date": "20240501",
       "reason_for_removal": null,
       "reason_for_removal_effective_from_date": null,
       "date_of_death": null,
@@ -85,7 +92,7 @@
       "mobile_telephone_number": "07888888888",
       "mobile_telephone_effective_from_date": "20240501",
       "email_address": "bturneux0@soup.io",
-      "email_address_effective_from_date": null,
+      "email_address_effective_from_date": "20240501",
       "preferred_language": "en",
       "is_interpreter_required": false,
       "invalid_flag": false,
@@ -95,16 +102,16 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9991742468,
+      "nhs_number": 9995262320,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": "Y03412",
+      "primary_care_provider": "G62627",
       "primary_care_effective_from_date": "20130319",
       "current_posting": "CH",
       "current_posting_effective_from_date": "20130319",
       "name_prefix": "A.ML",
-      "given_name": "Test2",
+      "given_name": "NewTest1",
       "other_given_name": "Test",
-      "family_name": "Adani2",
+      "family_name": "Adani1",
       "previous_family_name": "Test2",
       "date_of_birth": "19700101",
       "gender": 1,
@@ -115,7 +122,7 @@
       "address_line_5": "United Kingdom",
       "postcode": "AB43 8FJ",
       "paf_key": "Z3S4Q5X9",
-      "address_effective_from_date": null,
+      "address_effective_from_date": "20240501",
       "reason_for_removal": null,
       "reason_for_removal_effective_from_date": null,
       "date_of_death": null,
@@ -125,7 +132,7 @@
       "mobile_telephone_number": "07888888888",
       "mobile_telephone_effective_from_date": "20240501",
       "email_address": "bturneux0@soup.io",
-      "email_address_effective_from_date": null,
+      "email_address_effective_from_date": "20240501",
       "preferred_language": "en",
       "is_interpreter_required": false,
       "invalid_flag": false,
@@ -137,7 +144,7 @@
       "serial_change_number": 1,
       "nhs_number": 9991932887,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": "K84047",
+      "primary_care_provider": "zzz",
       "primary_care_effective_from_date": "20130319",
       "current_posting": "CH",
       "current_posting_effective_from_date": "20130319",
@@ -177,7 +184,7 @@
       "serial_change_number": 1,
       "nhs_number": 9991845666,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": "J81049",
+      "primary_care_provider": "1234567",
       "primary_care_effective_from_date": "20130319",
       "current_posting": "CH",
       "current_posting_effective_from_date": "20130319",
@@ -217,15 +224,15 @@
       "serial_change_number": 1,
       "nhs_number": 9998380197,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": "M91642",
+      "primary_care_provider": "GPCODE",
       "primary_care_effective_from_date": "20130319",
       "current_posting": "CH",
       "current_posting_effective_from_date": "20130319",
       "name_prefix": "A.ML",
-      "given_name": "Test5",
+      "given_name": "NewTest1",
       "other_given_name": "Test",
-      "family_name": "Adani5",
-      "previous_family_name": "Test2",
+      "family_name": "Adani1",
+      "previous_family_name": "Test5",
       "date_of_birth": "19700101",
       "gender": 1,
       "address_line_1": "247 SpaightSpaightSpTeeeeeeest Road",
@@ -235,7 +242,7 @@
       "address_line_5": "United Kingdom",
       "postcode": "AB43 8FJ",
       "paf_key": "Z3S4Q5X9",
-      "address_effective_from_date": null,
+      "address_effective_from_date": "20240501",
       "reason_for_removal": null,
       "reason_for_removal_effective_from_date": null,
       "date_of_death": null,
@@ -245,7 +252,87 @@
       "mobile_telephone_number": "07888888888",
       "mobile_telephone_effective_from_date": "20240501",
       "email_address": "bturneux0@soup.io",
-      "email_address_effective_from_date": null,
+      "email_address_effective_from_date": "20240501",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    },
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 1,
+      "nhs_number": 9992332484,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "WS$ !1",
+      "primary_care_effective_from_date": "20130319",
+      "current_posting": "CH",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "A.ML",
+      "given_name": "NewTest1",
+      "other_given_name": "Test",
+      "family_name": "Adani1",
+      "previous_family_name": "Test6",
+      "date_of_birth": "19700101",
+      "gender": 1,
+      "address_line_1": "247 SpaightSpaightSpTeeeeeeest Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "Test",
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AB43 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20240501",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "01619999999",
+      "home_telephone_effective_from_date": "20240501",
+      "mobile_telephone_number": "07888888888",
+      "mobile_telephone_effective_from_date": "20240501",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20240501",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    },
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 1,
+      "nhs_number": 9992278269,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "''",
+      "primary_care_effective_from_date": "20130319",
+      "current_posting": "CH",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "A.ML",
+      "given_name": "NewTest1",
+      "other_given_name": "Test",
+      "family_name": "Adani1",
+      "previous_family_name": "Test7",
+      "date_of_birth": "19700101",
+      "gender": 1,
+      "address_line_1": "247 SpaightSpaightSpTeeeeeeest Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "Test",
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AB43 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20240501",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "01619999999",
+      "home_telephone_effective_from_date": "20240501",
+      "mobile_telephone_number": "07888888888",
+      "mobile_telephone_effective_from_date": "20240501",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20240501",
       "preferred_language": "en",
       "is_interpreter_required": false,
       "invalid_flag": false,
@@ -253,10 +340,12 @@
     }
   ],
   "nhsNumbers": [
+    "9992728167",
     "9995262320",
     "9991742468",
-    "9991932887",
     "9991845666",
-    "9998380197"
+    "9998380197",
+    "9992332484",
+    "9992278269"
   ]
 }
