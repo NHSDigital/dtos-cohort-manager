@@ -72,7 +72,7 @@ public class ProcessCaasFileTests
             new ParticipantsParquetMap { NhsNumber = 9876543210 }
         };
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(
@@ -80,7 +80,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
+            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
 
         _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>())).ReturnsAsync(true);
 
@@ -110,11 +110,11 @@ public class ProcessCaasFileTests
         };
 
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(It.IsAny<ParticipantsParquetMap>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended });
+            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended });
 
         _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ReturnsAsync(true);
@@ -143,7 +143,7 @@ public class ProcessCaasFileTests
             new ParticipantsParquetMap { NhsNumber = 1 }
         };
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(
@@ -151,7 +151,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "InvalidNHS", RecordType = Actions.New });
+            .Returns(new Participant { NhsNumber = "InvalidNHS", RecordType = Actions.New });
 
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
@@ -173,7 +173,7 @@ public class ProcessCaasFileTests
             new ParticipantsParquetMap { NhsNumber = 1234567890 }
         };
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(
@@ -181,7 +181,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
+            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
 
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
