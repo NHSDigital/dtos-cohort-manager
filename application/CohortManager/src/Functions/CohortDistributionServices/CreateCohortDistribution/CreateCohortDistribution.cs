@@ -99,12 +99,12 @@ public class CreateCohortDistribution
                 var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
                 await HandleExceptionAsync(errorMessage, participantData, basicParticipantCsvRecord.FileName);
 
-                var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
-                participantMangement.ExceptionFlag = 1;
+                var participantManagement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
+                participantManagement.ExceptionFlag = 1;
 
-                bool excpetionFlagUpdated = await _participantManagementClient.Update(participantMangement);
-                if (!excpetionFlagUpdated) throw new IOException("Failed to update exception flag");
-                
+                bool exceptionFlagUpdated = await _participantManagementClient.Update(participantManagement);
+                if (!exceptionFlagUpdated) throw new IOException("Failed to update exception flag");
+
                 if (!ignoreParticipantExceptions) return;
             }
             _logger.LogInformation("Validation has passed or exceptions are ignored, the record with participant id: {ParticipantId} will be added to the database", participantData.ParticipantId);
@@ -126,7 +126,7 @@ public class CreateCohortDistribution
         {
             var errorMessage = $"Create Cohort Distribution failed .\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
             await HandleExceptionAsync(errorMessage,
-                                    new CohortDistributionParticipant {NhsNumber = basicParticipantCsvRecord.NhsNumber},
+                                    new CohortDistributionParticipant { NhsNumber = basicParticipantCsvRecord.NhsNumber },
                                     basicParticipantCsvRecord.FileName);
             throw;
         }
@@ -165,8 +165,12 @@ public class CreateCohortDistribution
                                                 .FirstOrDefault();
 
         if (latestParticipant != null)
+        {
             return new CohortDistributionParticipant(latestParticipant);
-        else 
+        }
+        else
+        {
             return new CohortDistributionParticipant();
+        }
     }
 }
