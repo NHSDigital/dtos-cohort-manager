@@ -16,14 +16,12 @@ using NHS.Screening.ReceiveCaasFile;
 public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 {
     private readonly ILogger<ReceiveCaasFileHelper> _logger;
-    private readonly ICallFunction _callFunction;
-    public ReceiveCaasFileHelper(ILogger<ReceiveCaasFileHelper> logger, ICallFunction callFunction)
+    public ReceiveCaasFileHelper(ILogger<ReceiveCaasFileHelper> logger)
     {
         _logger = logger;
-        _callFunction = callFunction;
     }
 
-    public async Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
+    public Participant? MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name)
     {
 
         try
@@ -75,7 +73,6 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unable to create object .\nMessage:{ExMessage}\nStack Trace: {ExStackTrace}", ex.Message, ex.StackTrace);
-            await InsertValidationErrorIntoDatabase(name, JsonSerializer.Serialize(new Participant()));
             return null;
         }
     }
@@ -89,24 +86,6 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
         return boolValue.Value ? "1" : "0";
     }
 
-    public async Task InsertValidationErrorIntoDatabase(string fileName, string errorRecord)
-    {
-        var fileValidationURL = GetUrlFromEnvironment("FileValidationURL");
-        var json = JsonSerializer.Serialize(new ValidationException()
-        {
-            FileName = fileName,
-            ErrorRecord = errorRecord,
-            Category = (int)ExceptionCategory.CaaS
-        });
-
-        var result = await _callFunction.SendPost(fileValidationURL, json);
-        if (result.StatusCode != HttpStatusCode.OK)
-        {
-            _logger.LogError("An error occurred while saving or moving the failed file: {FileName}.", fileName);
-        }
-        _logger.LogInformation("File failed checks and has been moved to the poison blob storage");
-    }
-
     public string GetUrlFromEnvironment(string key)
     {
         var url = Environment.GetEnvironmentVariable(key);
@@ -116,19 +95,5 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
             throw new InvalidOperationException("Environment variable is not set.");
         }
         return url;
-    }
-
-
-    public async Task<bool> CheckFileName(string name, FileNameParser fileNameParser, string errorMessage)
-    {
-        _logger.LogInformation("loading file from blob {name}", name);
-
-        // make sure that that file name is valid
-        if (!fileNameParser.IsValid)
-        {
-            await InsertValidationErrorIntoDatabase(name, errorMessage);
-            return false;
-        }
-        return true;
     }
 }

@@ -1,10 +1,10 @@
-namespace NHS.CohortManager.ScreeningValidationService;
+namespace NHS.CohortManager.ServiceNowIntegrationService;
 
-using System.Net;
-using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Threading.Tasks;
+using HealthChecks.Extensions;
 
 public class HealthCheckFunction
 {
@@ -18,15 +18,6 @@ public class HealthCheckFunction
     [Function("health")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        var healthReport = await _healthCheckService.CheckHealthAsync();
-
-        var response = req.CreateResponse(healthReport.Status == HealthStatus.Healthy ? HttpStatusCode.OK : HttpStatusCode.ServiceUnavailable);
-        await response.WriteAsJsonAsync(new
-        {
-            status = healthReport.Status.ToString(),
-            details = healthReport.Entries
-        });
-
-        return response;
+        return await HealthCheckServiceExtensions.CreateHealthCheckResponseAsync(req, _healthCheckService);
     }
 }

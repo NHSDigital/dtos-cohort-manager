@@ -21,9 +21,9 @@ public class ReceiveCaasFileConfig
     public bool AllowDeleteRecords { get; set; }
     [Required]
     public int maxNumberOfChecks { get; set; }
-
     [Required]
     public string caasfolder_STORAGE { get; set; }
-
+    [Required]
+    public string inboundBlobName { get; set; }
     public string GetOrchestrationStatusURL { get; set; }
 }

@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using DataServices.Client;
 using HealthChecks.Extensions;
 using Model;
-using NHS.CohortManager.CohortDistribution;
+using NHS.CohortManager.CohortDistributionService;
 
 var hostBuilder = new HostBuilder();
 
