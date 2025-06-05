@@ -123,7 +123,10 @@ public class CreateCohortDistribution
 
             // Transformation
             var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData, previousCohortDistributionRecord);
-            if (transformedParticipant == null) return;
+            if (transformedParticipant == null)
+            {
+                return;
+            }
 
             // Add to cohort distribution table
             if (!await AddCohortDistribution(transformedParticipant))
@@ -175,11 +178,15 @@ public class CreateCohortDistribution
 
         if (latestParticipant != null)
         {
+
             return new CohortDistributionParticipant(latestParticipant);
         }
         else
         {
-            return new CohortDistributionParticipant();
+            var participantToReturn = new CohortDistributionParticipant();
+            participantToReturn.NhsNumber = "0";
+
+            return participantToReturn;
         }
     }
 }

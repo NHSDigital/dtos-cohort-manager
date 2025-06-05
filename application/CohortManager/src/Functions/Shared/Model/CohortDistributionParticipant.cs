@@ -103,7 +103,7 @@ public class CohortDistributionParticipant
         var cohortDis = new CohortDistribution()
         {
             RequestId = GetRequestId(),
-            NHSNumber = long.Parse(NhsNumber ?? "0"),
+            NHSNumber = long.Parse(NhsNumber),
             SupersededNHSNumber = long.TryParse(SupersededByNhsNumber, out var supNhsNum) ? supNhsNum : null,
             PrimaryCareProvider = PrimaryCareProvider ?? null,
             PrimaryCareProviderDate = MappingUtilities.ParseDates(PrimaryCareProviderEffectiveFromDate),
