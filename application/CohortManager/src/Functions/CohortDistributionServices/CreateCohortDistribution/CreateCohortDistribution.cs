@@ -14,7 +14,6 @@ using Microsoft.Extensions.Options;
 public class CreateCohortDistribution
 {
     private readonly ILogger<CreateCohortDistribution> _logger;
-    private readonly ICallFunction _callFunction;
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
@@ -24,7 +23,6 @@ public class CreateCohortDistribution
 
     public CreateCohortDistribution(
         ILogger<CreateCohortDistribution> logger,
-        ICallFunction callFunction,
         ICohortDistributionHelper CohortDistributionHelper,
         IExceptionHandler exceptionHandler,
         IAzureQueueStorageHelper azureQueueStorageHelper,
@@ -33,7 +31,6 @@ public class CreateCohortDistribution
         IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
     {
         _logger = logger;
-        _callFunction = callFunction;
         _CohortDistributionHelper = CohortDistributionHelper;
         _exceptionHandler = exceptionHandler;
         _azureQueueStorageHelper = azureQueueStorageHelper;
@@ -95,13 +92,13 @@ public class CreateCohortDistribution
 
             // Validation
             participantData.RecordType = basicParticipantCsvRecord.RecordType;
-            var validationResponse = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.FileName, participantData, previousCohortDistributionRecord);
+            var validationResponse = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.FileName!, participantData, previousCohortDistributionRecord);
 
             // Update participant exception flag
             if (validationResponse.CreatedException)
             {
                 var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
-                await HandleExceptionAsync(errorMessage, participantData, basicParticipantCsvRecord.FileName);
+                await HandleExceptionAsync(errorMessage, participantData, basicParticipantCsvRecord.FileName!);
 
                 var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
                 participantMangement.ExceptionFlag = 1;
@@ -140,7 +137,7 @@ public class CreateCohortDistribution
             var errorMessage = $"Create Cohort Distribution failed .\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
             await HandleExceptionAsync(errorMessage,
                                     new CohortDistributionParticipant { NhsNumber = basicParticipantCsvRecord.NhsNumber },
-                                    basicParticipantCsvRecord.FileName);
+                                    basicParticipantCsvRecord.FileName!);
             throw;
         }
     }
