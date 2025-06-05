@@ -316,6 +316,7 @@ services:
       - ASPNETCORE_URLS=http://*:9082
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+
   durable-demographic-function:
     container_name: durable-demographic-function
     image: cohort-manager-durable-demographic-function
@@ -343,6 +344,20 @@ services:
     ports:
       - "3000:3000"
     networks: [cohman-network]
+
+    #Service Now Integration
+  send-servicenow-message:
+    container_name: send-servicenow-message
+    image: cohort-manager-send-servicenow-message
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: ServiceNowIntegrationService/SendServiceNowMessage/DockerFile
+    profiles: [non-essential]
+    environment:
+      - ASPNETCORE_URLS=http://*:9092
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
 
 networks:
   cohman-network:
