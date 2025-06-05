@@ -411,7 +411,6 @@ public class LookupValidationTests
         var result = await _sut.RunAsync(_request.Object);
 
         // Assert
-        // Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.ValidateReasonForRemoval.NBO.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
