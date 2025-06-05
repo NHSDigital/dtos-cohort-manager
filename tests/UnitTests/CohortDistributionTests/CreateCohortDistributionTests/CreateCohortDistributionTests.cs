@@ -101,6 +101,11 @@ public class CreateCohortDistributionTests
     {
         // Arrange
         _cohortDistributionClientMock.Setup(x => x.Add(It.IsAny<CohortDistribution>())).ReturnsAsync(true);
+        _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>(), It.IsAny<CohortDistributionParticipant>()))
+        .ReturnsAsync(new CohortDistributionParticipant()
+        {
+            NhsNumber = "1"
+        });
 
         // Act
         await _sut.RunAsync(_requestBody);
@@ -274,6 +279,13 @@ public class CreateCohortDistributionTests
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
             .ReturnsAsync(new ParticipantManagement() { ExceptionFlag = 1 });
 
+        _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>(), It.IsAny<CohortDistributionParticipant>()))
+       .ReturnsAsync(new CohortDistributionParticipant()
+       {
+           NhsNumber = "1"
+       });
+
+
         _sut = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object,
                             _exceptionHandler.Object, _azureQueueStorageHelper.Object,
                             _participantManagementClientMock.Object, _cohortDistributionClientMock.Object,
@@ -325,6 +337,13 @@ public class CreateCohortDistributionTests
             AllocateScreeningProviderURL = "AllocateScreeningProviderURL",
             RetrieveParticipantDataURL = "RetrieveParticipantDataUR"
         };
+
+        _cohortDistributionHelper.Setup(x => x.TransformParticipantAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>(), It.IsAny<CohortDistributionParticipant>()))
+       .ReturnsAsync(new CohortDistributionParticipant()
+       {
+           NhsNumber = "1"
+       });
+
 
         _config.Setup(c => c.Value).Returns(testConfig);
 
