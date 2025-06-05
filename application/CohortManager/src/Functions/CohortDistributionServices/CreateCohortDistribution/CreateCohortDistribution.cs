@@ -86,7 +86,6 @@ public class CreateCohortDistribution
             // Check if participant has exceptions
             var ignoreParticipantExceptions = _config.IgnoreParticipantExceptions;
             _logger.LogInformation("ignore exceptions value: " + ignoreParticipantExceptions);
-            _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", ignoreParticipantExceptions);
 
             var participantHasException = participantData.ExceptionFlag == 1;
             if (participantHasException && !ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
@@ -129,7 +128,6 @@ public class CreateCohortDistribution
             // Add to cohort distribution table
             if (!await AddCohortDistribution(transformedParticipant))
             {
-                await HandleExceptionAsync("Failed to add the participant to the Cohort Distribution table", transformedParticipant, basicParticipantCsvRecord.FileName);
                 await HandleExceptionAsync("Failed to add the participant to the Cohort Distribution table", transformedParticipant, basicParticipantCsvRecord.FileName);
                 return;
             }
