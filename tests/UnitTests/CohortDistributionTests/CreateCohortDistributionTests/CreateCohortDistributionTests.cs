@@ -362,6 +362,5 @@ public class CreateCohortDistributionTests
         {
             _cohortDistributionClientMock.Verify(x => x.Add(It.IsAny<CohortDistribution>()), Times.Never());
         }
-
     }
 }
