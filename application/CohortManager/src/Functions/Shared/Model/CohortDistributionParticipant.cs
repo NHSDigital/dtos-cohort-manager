@@ -100,10 +100,10 @@ public class CohortDistributionParticipant
 
     public CohortDistribution ToCohortDistribution()
     {
-        return new CohortDistribution
+        var cohortDis = new CohortDistribution()
         {
             RequestId = GetRequestId(),
-            NHSNumber = long.Parse(NhsNumber),
+            NHSNumber = long.Parse(NhsNumber ?? "0"),
             SupersededNHSNumber = long.TryParse(SupersededByNhsNumber, out var supNhsNum) ? supNhsNum : null,
             PrimaryCareProvider = PrimaryCareProvider ?? null,
             PrimaryCareProviderDate = MappingUtilities.ParseDates(PrimaryCareProviderEffectiveFromDate),
@@ -139,6 +139,7 @@ public class CohortDistributionParticipant
             CurrentPostingFromDt = MappingUtilities.ParseDates(CurrentPostingEffectiveFromDate),
             ParticipantId = long.TryParse(ParticipantId, out var partId) ? partId : 0
         };
+        return cohortDis;
     }
 
     private Guid GetRequestId()

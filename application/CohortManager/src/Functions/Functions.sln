@@ -159,8 +159,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToPa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\CohortDistributionDataTests\CohortDistributionDataTests.csproj", "{B2C19C52-9270-4D1A-975A-D403AA996A8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddCohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\AddCohortDistributionDataTests\AddCohortDistributionDataTests.csproj", "{8051889E-E202-43D2-A88F-7607338ADF04}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAuditTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\RetrieveCohortRequestAuditTests\RetrieveCohortRequestAuditTests.csproj", "{E34BB9AF-B7FE-4B92-9E26-51018F7B87CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveParticipantDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\RetrieveParticipantDataTests\RetrieveParticipantDataTests.csproj", "{B94648B8-FEA9-4004-BA60-18868C7E4662}"
@@ -973,18 +971,6 @@ Global
 		{B2C19C52-9270-4D1A-975A-D403AA996A8D}.Release|x64.Build.0 = Release|Any CPU
 		{B2C19C52-9270-4D1A-975A-D403AA996A8D}.Release|x86.ActiveCfg = Release|Any CPU
 		{B2C19C52-9270-4D1A-975A-D403AA996A8D}.Release|x86.Build.0 = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|x64.Build.0 = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|x86.Build.0 = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|x64.ActiveCfg = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|x64.Build.0 = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|x86.ActiveCfg = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|x86.Build.0 = Release|Any CPU
 		{E34BB9AF-B7FE-4B92-9E26-51018F7B87CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E34BB9AF-B7FE-4B92-9E26-51018F7B87CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E34BB9AF-B7FE-4B92-9E26-51018F7B87CE}.Debug|x64.ActiveCfg = Debug|Any CPU
