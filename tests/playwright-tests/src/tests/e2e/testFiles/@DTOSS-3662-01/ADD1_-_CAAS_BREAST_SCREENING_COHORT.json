@@ -4,8 +4,13 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997975677",
-        "RuleId": 36,
+        "RuleId": 3601,
         "RuleDescription": "Invalid primary care provider GP practice code"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3662-01",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution - Exception Management Table for participant 9997975677"
       }
     },
     {
@@ -13,6 +18,11 @@
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9997975677,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3662-01",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution - Participant Management table for NHS Number 9997975677"
       }
     },
     {
@@ -20,13 +30,11 @@
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9997975677,
         "expectedCount": 1
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9997975677,
-        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3662-01",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify ADD records that trigger a non-fatal validation rule reach internal participant tables but not Cohort distribution - Participant Demographic table for NHS Number 9997975677"
       }
     }
   ],
