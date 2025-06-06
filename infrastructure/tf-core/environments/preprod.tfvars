@@ -728,7 +728,7 @@ function_apps = {
         {
           env_var_name     = "ParticipantManagementUrl"
           function_app_key = "ParticipantManagementDataService"
-        }
+        },
         {
           env_var_name     = "CohortDistributionDataServiceURL"
           function_app_key = "CohortDistributionDataService"
