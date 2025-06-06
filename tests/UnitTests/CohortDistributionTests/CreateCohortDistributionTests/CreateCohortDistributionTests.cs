@@ -20,7 +20,6 @@ using Microsoft.Extensions.Options;
 [TestClass]
 public class CreateCohortDistributionTests
 {
-    private readonly Mock<ICallFunction> _callFunction = new();
     private readonly Mock<ILogger<CreateCohortDistribution>> _logger = new();
     private readonly Mock<ICohortDistributionHelper> _cohortDistributionHelper = new();
     private CreateCohortDistribution _sut;
@@ -86,11 +85,7 @@ public class CreateCohortDistributionTests
             .Setup(x => x.Update(It.IsAny<ParticipantManagement>()))
             .ReturnsAsync(true);
 
-        _callFunction
-            .Setup(call => call.SendPost("AddCohortDistributionURL", It.IsAny<string>()))
-            .ReturnsAsync(_sendToCohortDistributionResponse.Object);
-
-        _sut = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object,
+        _sut = new CreateCohortDistribution(_logger.Object, _cohortDistributionHelper.Object,
                                             _exceptionHandler.Object, _azureQueueStorageHelper.Object,
                                             _participantManagementClientMock.Object, _cohortDistributionClientMock.Object,
                                             _config.Object);
@@ -137,9 +132,6 @@ public class CreateCohortDistributionTests
 
         _azureQueueStorageHelper
             .Verify(x => x.AddItemToQueueAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
-
-        _callFunction
-            .Verify(x => x.SendPost("AddCohortDistributionURL", It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -167,9 +159,6 @@ public class CreateCohortDistributionTests
 
         _azureQueueStorageHelper
             .Verify(x => x.AddItemToQueueAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
-
-        _callFunction
-            .Verify(x => x.SendPost("AddCohortDistributionURL", It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -204,9 +193,6 @@ public class CreateCohortDistributionTests
 
         _azureQueueStorageHelper
             .Verify(x => x.AddItemToQueueAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
-
-        _callFunction
-            .Verify(x => x.SendPost("AddCohortDistributionURL", It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -221,8 +207,7 @@ public class CreateCohortDistributionTests
         await _sut.RunAsync(_requestBody);
 
         // Assert
-        _callFunction
-            .Verify(x => x.SendPost("AddCohortDistributionURL", It.IsAny<string>()), Times.Never);
+        _cohortDistributionClientMock.Verify(x => x.Add(It.IsAny<CohortDistribution>()), Times.Once());
     }
 
     [TestMethod]
@@ -286,7 +271,7 @@ public class CreateCohortDistributionTests
        });
 
 
-        _sut = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object,
+        _sut = new CreateCohortDistribution(_logger.Object, _cohortDistributionHelper.Object,
                             _exceptionHandler.Object, _azureQueueStorageHelper.Object,
                             _participantManagementClientMock.Object, _cohortDistributionClientMock.Object,
                             _config.Object);
@@ -351,7 +336,7 @@ public class CreateCohortDistributionTests
             .Setup(x => x.ValidateCohortDistributionRecordAsync(It.IsAny<string>(), It.IsAny<CohortDistributionParticipant>(), It.IsAny<CohortDistributionParticipant>()))
             .ReturnsAsync(new ValidationExceptionLog { CreatedException = true, IsFatal = false });
 
-        _sut = new CreateCohortDistribution(_logger.Object, _callFunction.Object, _cohortDistributionHelper.Object,
+        _sut = new CreateCohortDistribution(_logger.Object, _cohortDistributionHelper.Object,
                                     _exceptionHandler.Object, _azureQueueStorageHelper.Object,
                                     _participantManagementClientMock.Object, _cohortDistributionClientMock.Object,
                                     _config.Object);
