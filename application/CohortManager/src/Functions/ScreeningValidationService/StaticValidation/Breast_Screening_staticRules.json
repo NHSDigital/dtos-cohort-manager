@@ -1,39 +1,27 @@
 [
   {
-    "WorkflowName": "Common",
+    "WorkflowName": "StaticCohortRecord",
     "Rules": [
       {
-        "RuleName": "9.NhsNumber.CaaS.Fatal",
-        "Expression": "Regex.IsMatch(participant.NhsNumber, \"^\\\\d{10}$\")",
+        "RuleName": "40.FirstName.NBO.NonFatal",
+        "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FirstName))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"NHS ID Invalid\""
+              "Expression": "\"First Name value missing\""
             }
           }
         }
       },
       {
-        "RuleName": "57.SupersededByNhsNumber.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.SupersededByNhsNumber) OR Regex.IsMatch(participant.SupersededByNhsNumber, \"^\\\\d{10}$\")",
+        "RuleName": "42.GPPracticeCode.NBO.NonFatal",
+        "Expression": "participant.RecordType != Actions.New OR !string.IsNullOrEmpty(participant.PrimaryCareProvider)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"Superseded by NHS ID invalid\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "8.RecordType.CaaS.NonFatal",
-        "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Incorrect record type\""
+              "Expression": "\"GP practice code invalid\""
             }
           }
         }
@@ -97,39 +85,68 @@
             }
           }
         }
+      }
+    ]
+  },
+  {
+    "WorkflowName":"Common",
+    "Rules": [
+     {
+        "RuleName": "71.NewParticipantWithNoAddress.NBO.NonFatal",
+        "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))",
+          "Actions": {
+            "OnFailure": {
+              "Name": "OutputExpression",
+                "Context": {
+                  "Expression": "\"Address is missing\""
+            }
+          }
+        } 
       },
       {
-        "RuleName": "40.FirstName.NBO.NonFatal",
-        "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FirstName))",
+        "RuleName": "47.NewParticipantWithRemovalOrDeath.NBO.NonFatal",
+        "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"First Name value missing\""
+              "Expression": "\"Removal fields incompatible with record type\""
             }
           }
         }
       },
       {
-        "RuleName": "42.GPPracticeCode.NBO.NonFatal",
-        "Expression": "participant.RecordType != Actions.New OR !string.IsNullOrEmpty(participant.PrimaryCareProvider)",
+        "RuleName": "57.SupersededByNhsNumber.NBO.NonFatal",
+        "Expression": "string.IsNullOrEmpty(participant.SupersededByNhsNumber) OR Regex.IsMatch(participant.SupersededByNhsNumber, \"^\\\\d{10}$\")",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"GP practice code invalid\""
+              "Expression": "\"Superseded by NHS ID invalid\""
             }
           }
         }
       },
       {
-        "RuleName": "19.ReasonForRemovalEffectiveFromDate.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.ReasonForRemovalEffectiveFromDate)",
+        "RuleName": "9.NhsNumber.CaaS.Fatal",
+        "Expression": "Regex.IsMatch(participant.NhsNumber, \"^\\\\d{10}$\")",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"Reason for removal date invalid\""
+              "Expression": "\"NHS ID Invalid\""
+            }
+          }
+        } 
+      },
+      {
+        "RuleName": "8.RecordType.CaaS.NonFatal",
+        "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Incorrect record type\""
             }
           }
         }
@@ -166,76 +183,6 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Date of death invalid\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "47.NewParticipantWithRemovalOrDeath.NBO.NonFatal",
-        "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Removal fields incompatible with record type\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "49.InterpreterCheck.NBO.NonFatal",
-        "Expression": "int.Parse(participant.IsInterpreterRequired) != 0 OR int.Parse(participant.IsInterpreterRequired) != 1",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Interpreter required does not contain a valid value\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "61.InvalidFlag.NBO.NonFatal",
-        "Expression": "participant.InvalidFlag == \"1\" OR participant.InvalidFlag == \"0\"",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"The Invalid Flag received does not contain a valid value\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "62.ValidateReasonForRemoval.NBO.NonFatal",
-        "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Reason for removal and superseded NHS ID values incompatible\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NBO.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "currentPosting",
-            "Expression": "participant.CurrentPosting"
-          },
-          {
-            "Name": "primaryCareProvider",
-            "Expression": "participant.PrimaryCareProvider"
-          }
-        ],
-        "Expression": "!(string.IsNullOrEmpty(currentPosting) AND !string.IsNullOrEmpty(primaryCareProvider))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Current posting and Primary Care provider contain incompatible values\""
             }
           }
         }
@@ -284,22 +231,34 @@
   "WorkflowName": "ADD",
   "Rules": [
     {
-      "RuleName": "71.NewParticipantWithNoAddress.NBO.NonFatal",
-      "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))",
+      "RuleName": "19.ReasonForRemovalEffectiveFromDate.NBO.NonFatal",
+      "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.ReasonForRemovalEffectiveFromDate)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
-              "Context": {
-                "Expression": "\"Address is missing\""
-            }
+            "Context": {
+            "Expression": "\"Reason for removal date invalid\""
           }
-        } 
+        }
       }
-    ]
+    }
+    ] 
   },
   {
     "WorkflowName": "AMENDED",
     "Rules": [
+      {
+          "RuleName": "19.ReasonForRemovalEffectiveFromDate.NBO.NonFatal",
+          "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.ReasonForRemovalEffectiveFromDate)",
+          "Actions": {
+              "OnFailure": {
+              "Name": "OutputExpression",
+              "Context": {
+                "Expression": "\"Reason for removal date invalid\""
+            }
+          }
+        }
+      },
       {
         "RuleName": "66.DeathStatus.NBO.NonFatal",
         "LocalParams": [
