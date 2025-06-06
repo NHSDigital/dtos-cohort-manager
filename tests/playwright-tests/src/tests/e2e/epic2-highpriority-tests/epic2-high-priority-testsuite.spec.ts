@@ -5,6 +5,8 @@ import { json } from 'stream/consumers';
 import * as fs from 'fs';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 const path = require('path');
+import { createTempDirAndWriteJson, deleteTempDir } from '../../../../src/json/file-utils';
+import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../../src/json/json-updator';
 
 test.describe('@regression @e2e @epic2-high-priority Tests', () => {
 
@@ -91,71 +93,25 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     await test.step(`Given 3 ADD participants are processed to cohort`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
     });
-    await test.step(`And 3 ADD participants are AMENDED with invalid effective date `, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
+
+    await test.step(`And 3 ADD participants are AMENDED with future effective date `, async () => {
+
+      const updatedJson = JSON.parse(JSON.stringify(testData.inputParticipantRecordAmend))
+
+      const dateMap = generateDynamicDateMap();
+
+      const finalJson = replaceDynamicDatesInJson(updatedJson, dateMap);
+
+      const tempFilePath = createTempDirAndWriteJson(finalJson);
+
+      const runTimeParquetFile = await createParquetFromJson(testData.nhsNumberAmend, finalJson, tempFilePath, "AMENDED", false);
+      await processFileViaStorage(runTimeParquetFile);
+      deleteTempDir();
+
     });
     await test.step(`Then Exception table should have expected rule id and description for 3 AMENDED participants`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
-  })
-
-  // **************** dummy test  **********************
-
-  testWithAmended.only('@DTOSS-1111-01 date exception for future date', {
-    annotation: {
-      type: 'Requirement',
-      description: 'test',
-    },
-  }, async ({ request, testData }) => {
-
-
-    await test.step(`Given 1 ADD participants are processed to cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`And 1 ADD participants are AMENDED with future effective date `, async () => {
-
-      const updatedJson = JSON.parse(JSON.stringify(testData.inputParticipantRecordAmend))
-
-      const formattedDate = new Date(Date.now() + 24 * 60 * 60 * 1000)
-        .toISOString()
-        .slice(0, 10)
-        .replace(/-/g, '');
-
-      console.log(`------------------Setting future date in DB ------------------------: ${formattedDate}`);
-
-      for (const record of updatedJson) {
-        if (record.current_posting_effective_from_date?.trim() === 'DYNAMIC_DATE') {
-          record.current_posting_effective_from_date = formattedDate;
-          console.log(`✅ Updated record for NHS Number: ${record.nhs_number}`);
-        }
-      }
-
-      console.log(`✅ Final JSON with future date:\n${JSON.stringify(updatedJson, null, 2)}`);
-
-      const tempDirPath = path.join(process.cwd(), 'temp');
-      const tempFilePath = path.join(tempDirPath, 'temp-data-json.json');
-
-      fs.mkdirSync(tempDirPath, { recursive: true });
-
-      fs.writeFileSync(tempFilePath, JSON.stringify([updatedJson], null, 2), 'utf-8');
-
-      console.log(
-        fs.existsSync(tempFilePath)
-          ? `✅ File saved at: ${tempFilePath}`
-          : '❌ File was not created.'
-      );
-
-      const runTimeParquetFile = await createParquetFromJson(testData.nhsNumberAmend, updatedJson, tempFilePath, "AMENDED", false);
-      await processFileViaStorage(runTimeParquetFile);
-
-    });
-
-    await test.step(`Then Exception table should have expected rule id and description for 1 AMENDED participants`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
 
   });
-
-  ///////// end of test 
 });
