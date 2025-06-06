@@ -1,5 +1,5 @@
-import { test, testWithAmended, expect } from '../../fixtures/test-fixtures';
-import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
+import { test, testWithAmended} from '../../fixtures/test-fixtures';
+import { processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } from '../../steps/steps';
 import { TestHooks } from '../../hooks/test-hooks';
 
 test.describe('@regression @e2e @epic2-high-priority Tests', () => {
@@ -48,8 +48,19 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
-  }); // End of ADD Tests
+    test('@DTOSS-4102-01-Validate valid GP Practice Code for a new participant', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4102',
+      },
+    }, async ({ request, testData }) => {
 
+      await test.step(`Then the record should appear in the cohort management table`, async () => {
+         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
+
+  }); // End of ADD Tests
 
   testWithAmended('@DTOSS-4329-01 Validation current posting effective date throw exception when invalid date format given for update participants', {
       annotation: {
