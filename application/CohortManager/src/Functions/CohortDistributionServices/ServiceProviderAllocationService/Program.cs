@@ -13,6 +13,7 @@ var host = new HostBuilder()
         services.AddBasicHealthCheck("AllocateServiceProviderToParticipantByService");
     })
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

@@ -19,6 +19,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("DemographicDataFunction");
     })
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
