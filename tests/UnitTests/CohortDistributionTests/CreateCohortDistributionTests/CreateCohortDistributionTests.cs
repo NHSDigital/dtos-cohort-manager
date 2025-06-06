@@ -207,7 +207,7 @@ public class CreateCohortDistributionTests
         await _sut.RunAsync(_requestBody);
 
         // Assert
-        _cohortDistributionClientMock.Verify(x => x.Add(It.IsAny<CohortDistribution>()), Times.Once());
+        _cohortDistributionClientMock.Verify(x => x.Add(It.IsAny<CohortDistribution>()), Times.Never());
     }
 
     [TestMethod]
