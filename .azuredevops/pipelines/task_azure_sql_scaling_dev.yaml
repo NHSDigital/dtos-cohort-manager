@@ -1,0 +1,87 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+pool:
+  name: private-pool-dev-uks
+
+schedules:
+- cron: "0 7 * * *" # Run at 8:00 AM UTC
+  displayName: "Scale_Peak"
+  branches:
+    include:
+    - main
+    - feat/dtoss-8108-azure-sql-scaling
+  always: true
+
+- cron: "0 17 * * *" # Run at 5:00 PM UTC
+  displayName: "Scale_OffPeak"
+  branches:
+    include:
+    - main
+    - feat/dtoss-8108-azure-sql-scaling
+  always: true
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: feat/dtoss-8108-azure-sql-scaling
+      endpoint: NHSDigital
+
+parameters:
+- name: manualOverride
+  displayName: Manual Override
+  type: string
+  default: 'false'
+  values:
+  - 'false'
+  - 'Scale_Peak'
+  - 'Scale_OffPeak'
+
+variables:
+- group: DEV_core_backend
+- name: resourceGroupName
+  value: 'rg-cohman-dev-uks'
+- name: serverName
+  value: 'sqlsvr-cohman-dev-uks'
+- name: databaseName
+  value: 'DToSDB'
+- name: skuOffPeak
+  value: 'S1'
+- name: skuPeak
+  value: 'S2'
+- name: serviceConnection
+  value: sc-cohort-manager-dev
+
+stages:
+- stage: ScaleDatabase
+  jobs:
+  - job: ScaleUpDatabaseJob
+    displayName: 'Azure CLI - Scale Up'
+    condition: and(succeeded(), or(eq(variables['Build.CronSchedule.DisplayName'], 'Scale_Peak'), eq('${{ parameters.manualOverride }}', 'Scale_Peak')))
+    steps:
+    - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
+      parameters:
+        serviceConnection: $(serviceConnection)
+        subscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+        resourceGroupName: $(resourceGroupName)
+        serverName: $(serverName)
+        databaseName: $(databaseName)
+        sku: $(skuPeak)
+
+  - job: ScaleDownDatabaseJob
+    displayName: 'Azure CLI - Scale Down'
+    condition: and(succeeded(), or(eq(variables['Build.CronSchedule.DisplayName'], 'Scale_OffPeak'), eq('${{ parameters.manualOverride }}', 'Scale_OffPeak')))
+    steps:
+    - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
+      parameters:
+        serviceConnection: $(serviceConnection)
+        subscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+        resourceGroupName: $(resourceGroupName)
+        serverName: $(serverName)
+        databaseName: $(databaseName)
+        sku: $(skuOffPeak)
