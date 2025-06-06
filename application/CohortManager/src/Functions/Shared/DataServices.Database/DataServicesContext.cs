@@ -20,7 +20,8 @@ public class DataServicesContext : DbContext
     DbSet<BsoOrganisation> bsoOrganisations {get;set;}
     DbSet<GenderMaster> genderMasters {get;set;}
     DbSet<NemsSubscription> nemsSubscriptions {get;set;}
-
+    public DbSet<ParticipantManagement> ParticipantManagements {get; set;}
+    
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
 
