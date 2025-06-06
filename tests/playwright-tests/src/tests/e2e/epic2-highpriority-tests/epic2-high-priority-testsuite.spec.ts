@@ -1,6 +1,12 @@
 import { test, testWithAmended} from '../../fixtures/test-fixtures';
 import { processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
 import { TestHooks } from '../../hooks/test-hooks';
+import { json } from 'stream/consumers';
+import * as fs from 'fs';
+import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
+const path = require('path');
+import { createTempDirAndWriteJson, deleteTempDir } from '../../../../src/json/file-utils';
+import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../../src/json/json-updator';
 
 test.describe('@regression @e2e @epic2-high-priority Tests', () => {
 
@@ -75,23 +81,6 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
   })
   // End of ADD Tests
 
-  testWithAmended('@DTOSS-4329-01 Validation current posting effective date throw exception when invalid date format given for update participants', {
-      annotation: {
-        type: 'Requirement',
-        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
-      },
-    }, async ({ request, testData }) => {
-      await test.step(`Given 3 ADD participants are processed to cohort`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-      });
-      await test.step(`And 3 ADD participants are AMENDED with invalid effective date `, async () => {
-        await processFileViaStorage(testData.runTimeParquetFileAmend);
-      });
-      await test.step(`Then Exception table should have expected rule id and description for 3 AMENDED participants`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-      });
-    });
-
   testWithAmended('@DTOSS-5418-01 @Validate_GP_practice_code_empty_and_reason_for_removal_fields_AMENDED_noException', {
     annotation: {
       type: 'Requirement',
@@ -127,6 +116,54 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     });
 
     await test.step(`Then the record should end up in exception management`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
+
+  });
+
+  testWithAmended('@DTOSS-4329-01 Validation current posting effective date throw exception when invalid date format given for update participants', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
+    },
+  }, async ({ request, testData }) => {
+    await test.step(`Given 3 ADD participants are processed to cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+    await test.step(`And 3 ADD participants are AMENDED with invalid effective date `, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    });
+    await test.step(`Then Exception table should have expected rule id and description for 3 AMENDED participants`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
+  })
+
+  testWithAmended('@DTOSS-4331-01 Validate current posting effective date throw exception for future date amend participants', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
+    },
+  }, async ({ request, testData }) => {
+    await test.step(`Given 3 ADD participants are processed to cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+
+    await test.step(`And 3 ADD participants are AMENDED with future effective date `, async () => {
+
+      const updatedParticipantRecord = JSON.parse(JSON.stringify(testData.inputParticipantRecordAmend))
+
+      const dateMap = generateDynamicDateMap();
+
+      const finalJson = replaceDynamicDatesInJson(updatedParticipantRecord, dateMap);
+
+      const tempFilePath = createTempDirAndWriteJson(finalJson);
+
+      const runTimeParquetFile = await createParquetFromJson(testData.nhsNumberAmend, finalJson, tempFilePath, "AMENDED", false);
+      await processFileViaStorage(runTimeParquetFile);
+      deleteTempDir();
+
+    });
+    await test.step(`Then Exception table should have expected rule id and description for 3 AMENDED participants`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
 
