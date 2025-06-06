@@ -5,6 +5,11 @@
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9998116538,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3217-02",
+        "requirementJiraId": "DTOSS-3518",
+        "additionalTags": "@regression @e2e @epic1-high-priority Check Add for Verify Successful Data Processing and Storage in Cohort Manager for Add Record - Cohort Table for participant 9998116538"
       }
     },
     {
@@ -13,6 +18,11 @@
         "RecordType": "ADD",
         "NHSNumber": 9998116538,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3217-02",
+        "requirementJiraId": "DTOSS-3518",
+        "additionalTags": "@regression @e2e @epic1-high-priority Check Add for Verify Successful Data Processing and Storage in Cohort Manager for Add Record - Participant Management Table for participant 9998116538"
       }
     },
     {
@@ -20,6 +30,11 @@
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9998116538,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3217-02",
+        "requirementJiraId": "DTOSS-3518",
+        "additionalTags": "@regression @e2e @epic1-high-priority Check Add for Verify Successful Data Processing and Storage in Cohort Manager for Add Record - Participant Demographic Table for participant 9998116538"
       }
     }
   ],

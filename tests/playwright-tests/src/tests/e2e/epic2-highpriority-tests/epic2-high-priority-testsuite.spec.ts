@@ -1,5 +1,5 @@
-import { test, testWithAmended, expect } from '../../fixtures/test-fixtures';
-import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
+import { test, testWithAmended} from '../../fixtures/test-fixtures';
+import { processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
 import { TestHooks } from '../../hooks/test-hooks';
 import { json } from 'stream/consumers';
 import * as fs from 'fs';
@@ -43,11 +43,65 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
-  }); // End of ADD Tests
+    test('@DTOSS-4330-01 Validate current posting effective date throw exception for future date new participants', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
+      },
+    }, async ({ request, testData }) => {
+      await test.step(`Then Exception table should have RuleId as 101 & RuleDescription as CurrentPostingEffectiveFromDate`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
 
+    test('@DTOSS-4102-01-Validate valid GP Practice Code for a new participant', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4102',
+      },
+    }, async ({ request, testData }) => {
 
+      await test.step(`Then the record should appear in the cohort management table`, async () => {
+         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
+
+  });
+
+  test('@DTOSS-4103-01-Validate invalid GP Practice Code for a new participant', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4103',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`Then the record should appear in the exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+  })
+  // End of ADD Tests
 
   testWithAmended('@DTOSS-5418-01 @Validate_GP_practice_code_empty_and_reason_for_removal_fields_AMENDED_noException', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-2759',
+    },
+  }, async ({ request, testData }) => {
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    });
+
+    await test.step(`Then the record should not end up in exception management`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
+
+  });
+
+  testWithAmended('@DTOSS-4561-01 @Validate_GP_practice_code_empty_and_reason_for_removal_fields_AMENDED_Exception', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-2759',
