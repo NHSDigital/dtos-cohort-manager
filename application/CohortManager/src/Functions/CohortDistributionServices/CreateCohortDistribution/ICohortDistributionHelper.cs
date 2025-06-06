@@ -9,4 +9,5 @@ public interface ICohortDistributionHelper
     Task<string> AllocateServiceProviderAsync(string nhsNumber, string screeningAcronym, string postCode, string errorRecord);
     Task<CohortDistributionParticipant> TransformParticipantAsync(string serviceProvider, CohortDistributionParticipant participantData, CohortDistributionParticipant existingParticipant);
     Task<ValidationExceptionLog> ValidateCohortDistributionRecordAsync(string fileName, CohortDistributionParticipant requestParticipant, CohortDistributionParticipant existingParticipant);
+    Task<ValidationExceptionLog> ValidateStaticeData(Participant participant, string fileName);
 }
