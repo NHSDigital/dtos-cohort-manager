@@ -86,7 +86,7 @@ public class CreateCohortDistribution
             var participantHasException = participantData.ExceptionFlag == 1;
             if (participantHasException && !ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
             {
-                await HandleExceptionAsync($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it", participantData, basicParticipantCsvRecord.FileName);
+                await HandleExceptionAsync($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it", participantData, basicParticipantCsvRecord.FileName!);
                 return;
             }
 
