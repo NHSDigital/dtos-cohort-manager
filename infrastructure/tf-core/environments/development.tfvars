@@ -245,10 +245,6 @@ function_apps = {
           function_app_key = "CreateException"
         },
         {
-          env_var_name     = "FileValidationURL"
-          function_app_key = "FileValidation"
-        },
-        {
           env_var_name     = "PMSAddParticipant"
           function_app_key = "AddParticipant"
         },
@@ -267,6 +263,16 @@ function_apps = {
         {
           env_var_name     = "ScreeningLkpDataServiceURL"
           function_app_key = "ScreeningLkpDataService"
+        }
+      ],
+      storage_containers = [
+        {
+          env_var_name   = "inboundBlobName"
+          container_name = "inbound"
+        },
+        {
+          env_var_name   = "fileExceptions"
+          container_name = "inbound-poison"
         }
       ]
       env_vars_static = {
@@ -294,10 +300,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "FileValidationURL"
-          function_app_key = "FileValidation"
         }
       ]
       env_vars_static = {
@@ -514,29 +516,6 @@ function_apps = {
       }
     }
 
-    FileValidation = {
-      name_suffix                  = "file-validation"
-      function_endpoint_name       = "FileValidation"
-      app_service_plan_key         = "DefaultPlan"
-      storage_account_env_var_name = "caasfolder_STORAGE"
-      storage_containers = [
-        {
-          env_var_name   = "inboundBlobName"
-          container_name = "inbound"
-        },
-        {
-          env_var_name   = "fileExceptions"
-          container_name = "inbound-poison"
-        }
-      ]
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
-    }
-
     StaticValidation = {
       name_suffix            = "static-validation"
       function_endpoint_name = "StaticValidation"
@@ -728,8 +707,8 @@ function_apps = {
           function_app_key = "CreateException"
         },
         {
-          env_var_name     = "ValidateCohortDistributionRecordURL"
-          function_app_key = "ValidateCohortDistributionRecord"
+          env_var_name     = "LookupValidationURL"
+          function_app_key = "LookupValidation"
         },
         {
           env_var_name     = "ParticipantManagementUrl"
@@ -762,30 +741,6 @@ function_apps = {
         {
           env_var_name     = "DemographicDataFunctionURL"
           function_app_key = "DemographicDataManagement"
-        }
-      ]
-      env_vars_static = {
-        AcceptableLatencyThresholdMs = "500"
-      }
-    }
-
-    ValidateCohortDistributionRecord = {
-      name_suffix            = "validate-cohort-distribution-record"
-      function_endpoint_name = "ValidateCohortDistributionRecord"
-      app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls = [
-        {
-          env_var_name     = "LookupValidationURL"
-          function_app_key = "LookupValidation"
-        },
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "CohortDistributionDataServiceURL"
-          function_app_key = "CohortDistributionDataService"
         }
       ]
       env_vars_static = {
@@ -1169,10 +1124,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "FileValidationURL"
-          function_app_key = "FileValidation"
         }
       ]
       env_vars_static = {

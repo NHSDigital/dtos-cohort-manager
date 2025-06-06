@@ -21,13 +21,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAudit"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveParticipantData", "CohortDistributionServices\RetrieveParticipantData\RetrieveParticipantData.csproj", "{A90C998D-548C-4651-9522-52E0D834071B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateCohortDistributionRecord", "CohortDistributionServices\ValidateCohortDistributionRecord\ValidateCohortDistributionRecord.csproj", "{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ScreeningValidationService", "ScreeningValidationService", "{5FC761BC-1367-9D04-A266-DC07283EDF63}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoveValidationException", "ScreeningValidationService\RemoveValidationException\RemoveValidationException.csproj", "{A30B4310-36FA-4E85-97BB-C29E3056631B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileValidation", "ScreeningValidationService\FileValidation\FileValidation.csproj", "{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticValidation", "ScreeningValidationService\StaticValidation\StaticValidation.csproj", "{266EA730-A743-4889-9A6D-7B0EAE93E7F5}"
 EndProject
@@ -159,8 +155,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToPa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\CohortDistributionDataTests\CohortDistributionDataTests.csproj", "{B2C19C52-9270-4D1A-975A-D403AA996A8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ValidateCohortDistributionRecordTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\ValidateCohortDistributionRecordTests\ValidateCohortDistributionRecordTests.csproj", "{3F3C420B-C7E0-485F-986C-602B3D34B183}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddCohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\AddCohortDistributionDataTests\AddCohortDistributionDataTests.csproj", "{8051889E-E202-43D2-A88F-7607338ADF04}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAuditTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\RetrieveCohortRequestAuditTests\RetrieveCohortRequestAuditTests.csproj", "{E34BB9AF-B7FE-4B92-9E26-51018F7B87CE}"
@@ -242,8 +236,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileNameParserTests", "..\..\..\..\tests\UnitTests\SharedTests\FileNameParserTests\FileNameParserTests.csproj", "{5B21A7B3-0B5C-4036-BB86-6C4629EE2983}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServicesCoreTests", "..\..\..\..\tests\UnitTests\SharedTests\DataServicesCoreTests\DataServicesCoreTests.csproj", "{2423447D-FAF7-4356-BBE1-8B0A9F5DD86E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FileValidationTests", "..\..\..\..\tests\UnitTests\ScreeningValidationServiceTests\FileValidation\FileValidationTests.csproj", "{DA9F0DE8-6812-4423-8BA8-A628B555E08B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StaticValidationTests", "..\..\..\..\tests\UnitTests\ScreeningValidationServiceTests\StaticValidation\StaticValidationTests.csproj", "{64031920-44A4-40BB-90F1-0246C90DA9BB}"
 EndProject
@@ -369,18 +361,6 @@ Global
 		{A90C998D-548C-4651-9522-52E0D834071B}.Release|x64.Build.0 = Release|Any CPU
 		{A90C998D-548C-4651-9522-52E0D834071B}.Release|x86.ActiveCfg = Release|Any CPU
 		{A90C998D-548C-4651-9522-52E0D834071B}.Release|x86.Build.0 = Release|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Debug|x64.Build.0 = Debug|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Debug|x86.Build.0 = Debug|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Release|x64.ActiveCfg = Release|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Release|x64.Build.0 = Release|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Release|x86.ActiveCfg = Release|Any CPU
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D}.Release|x86.Build.0 = Release|Any CPU
 		{A30B4310-36FA-4E85-97BB-C29E3056631B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{A30B4310-36FA-4E85-97BB-C29E3056631B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A30B4310-36FA-4E85-97BB-C29E3056631B}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -393,18 +373,6 @@ Global
 		{A30B4310-36FA-4E85-97BB-C29E3056631B}.Release|x64.Build.0 = Release|Any CPU
 		{A30B4310-36FA-4E85-97BB-C29E3056631B}.Release|x86.ActiveCfg = Release|Any CPU
 		{A30B4310-36FA-4E85-97BB-C29E3056631B}.Release|x86.Build.0 = Release|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Debug|x64.Build.0 = Debug|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Debug|x86.Build.0 = Debug|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Release|Any CPU.Build.0 = Release|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Release|x64.ActiveCfg = Release|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Release|x64.Build.0 = Release|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Release|x86.ActiveCfg = Release|Any CPU
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643}.Release|x86.Build.0 = Release|Any CPU
 		{266EA730-A743-4889-9A6D-7B0EAE93E7F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{266EA730-A743-4889-9A6D-7B0EAE93E7F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{266EA730-A743-4889-9A6D-7B0EAE93E7F5}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -981,18 +949,6 @@ Global
 		{B2C19C52-9270-4D1A-975A-D403AA996A8D}.Release|x64.Build.0 = Release|Any CPU
 		{B2C19C52-9270-4D1A-975A-D403AA996A8D}.Release|x86.ActiveCfg = Release|Any CPU
 		{B2C19C52-9270-4D1A-975A-D403AA996A8D}.Release|x86.Build.0 = Release|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Debug|x64.Build.0 = Debug|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Debug|x86.Build.0 = Debug|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Release|x64.ActiveCfg = Release|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Release|x64.Build.0 = Release|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Release|x86.ActiveCfg = Release|Any CPU
-		{3F3C420B-C7E0-485F-986C-602B3D34B183}.Release|x86.Build.0 = Release|Any CPU
 		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -1485,18 +1441,6 @@ Global
 		{2423447D-FAF7-4356-BBE1-8B0A9F5DD86E}.Release|x64.Build.0 = Release|Any CPU
 		{2423447D-FAF7-4356-BBE1-8B0A9F5DD86E}.Release|x86.ActiveCfg = Release|Any CPU
 		{2423447D-FAF7-4356-BBE1-8B0A9F5DD86E}.Release|x86.Build.0 = Release|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Debug|x64.Build.0 = Debug|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Debug|x86.Build.0 = Debug|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Release|x64.ActiveCfg = Release|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Release|x64.Build.0 = Release|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Release|x86.ActiveCfg = Release|Any CPU
-		{DA9F0DE8-6812-4423-8BA8-A628B555E08B}.Release|x86.Build.0 = Release|Any CPU
 		{64031920-44A4-40BB-90F1-0246C90DA9BB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{64031920-44A4-40BB-90F1-0246C90DA9BB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64031920-44A4-40BB-90F1-0246C90DA9BB}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -1690,9 +1634,7 @@ Global
 		{3297B43E-30A5-4AFD-8E7A-C22D5490DE6C} = {72FBAE8E-5F64-9545-D6D4-8F59D0E91151}
 		{DE951319-03CE-4B94-A186-2B8CFFD46E0B} = {72FBAE8E-5F64-9545-D6D4-8F59D0E91151}
 		{A90C998D-548C-4651-9522-52E0D834071B} = {72FBAE8E-5F64-9545-D6D4-8F59D0E91151}
-		{6586CDD7-7F82-465A-81AB-DCA443AC0E6D} = {72FBAE8E-5F64-9545-D6D4-8F59D0E91151}
 		{A30B4310-36FA-4E85-97BB-C29E3056631B} = {5FC761BC-1367-9D04-A266-DC07283EDF63}
-		{E9DAAAA9-DB75-4A68-AC4A-934668CE2643} = {5FC761BC-1367-9D04-A266-DC07283EDF63}
 		{266EA730-A743-4889-9A6D-7B0EAE93E7F5} = {5FC761BC-1367-9D04-A266-DC07283EDF63}
 		{06EFC221-EAE5-4813-BEFB-D3F652A04AEC} = {5FC761BC-1367-9D04-A266-DC07283EDF63}
 		{AC2DB875-D9CC-1CA8-2A0A-C69D69034BCD} = {4F52FD11-658E-A102-6CD3-7D7C16FFA15B}

@@ -17,15 +17,13 @@ namespace Common.Tests
     public class ReceiveCaasFileHelperTests
     {
         private Mock<ILogger<ReceiveCaasFileHelper>> _mockLogger;
-        private Mock<ICallFunction> _mockCallFunction;
         private ReceiveCaasFileHelper _helper;
 
         [TestInitialize]
         public void Setup()
         {
             _mockLogger = new Mock<ILogger<ReceiveCaasFileHelper>>();
-            _mockCallFunction = new Mock<ICallFunction>();
-            _helper = new ReceiveCaasFileHelper(_mockLogger.Object, _mockCallFunction.Object);
+            _helper = new ReceiveCaasFileHelper(_mockLogger.Object);
         }
 
     [TestMethod]
@@ -39,40 +37,13 @@ namespace Common.Tests
         };
 
         // Act
-        var result = await _helper.MapParticipant(rec, "scr123", "SCRName", "file.txt");
+        var result = _helper.MapParticipant(rec, "scr123", "SCRName", "file.txt");
 
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual("scr123", result.ScreeningId);
         Assert.AreEqual("1", result.EligibilityFlag);
         Assert.AreEqual(Gender.Female, result.Gender);
-    }
-
-
-    [TestMethod]
-    public async Task InsertValidationErrorIntoDatabase_LogsFailureProperly()
-    {
-        // Arrange
-        Environment.SetEnvironmentVariable("FileValidationURL", "http://dummy-url");
-
-        var webResponseMock = new Mock<HttpWebResponse>();
-        var mockResponse = webResponseMock.Object;
-        _mockCallFunction
-            .Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(mockResponse);
-
-        // Act
-        await _helper.InsertValidationErrorIntoDatabase("fail.txt", "record");
-
-        // Assert: verify log captured the filename
-        _mockLogger.Verify(
-            x => x.Log(
-                LogLevel.Error,
-                It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("fail.txt")),
-                It.IsAny<Exception>(),
-                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
     }
 
 
@@ -111,26 +82,5 @@ namespace Common.Tests
             Times.Once);
     }
 
-
-    [TestMethod]
-    public async Task CheckFileName_ReturnsFalse_IfInvalid()
-    {
-        // Arrange
-        var parser = new FileNameParser("testname");
-
-        Environment.SetEnvironmentVariable("FileValidationURL", "http://dummy-url");
-        var mockResponse = new Mock<HttpWebResponse>();
-
-        _mockCallFunction
-            .Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(mockResponse.Object);
-
-        // Act
-        var result = await _helper.CheckFileName("badfile", parser, "error happened");
-
-        // Assert
-        Assert.IsFalse(result);
-        _mockCallFunction.Verify(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-    }
     }
 }
