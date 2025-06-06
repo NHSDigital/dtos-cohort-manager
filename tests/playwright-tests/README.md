@@ -2,21 +2,13 @@
 
 ## Prerequisites
 
-- Local functions environment running
 - Node.js installed
-- Git installed
-- VS Code or any preferred IDE
 - Verify all functions are operational
-
-## Getting Started
-
-- Follow the setup instructions in the docs located at [Local machine setup](../../docs/user-guides/Local_machine_setup.md) to complete the local setup of functions and dependencies
 
 ## Running Playwright Tests
 
 ### Local Execution
 
-- Run tests
 
 ```bash
 

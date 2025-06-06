@@ -72,7 +72,7 @@ public class ProcessCaasFileTests
             new ParticipantsParquetMap { NhsNumber = 9876543210 }
         };
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(
@@ -80,7 +80,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
+            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
 
         _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>())).ReturnsAsync(true);
 
@@ -110,11 +110,11 @@ public class ProcessCaasFileTests
         };
 
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(It.IsAny<ParticipantsParquetMap>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended });
+            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended });
 
         _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ReturnsAsync(true);
@@ -143,7 +143,7 @@ public class ProcessCaasFileTests
             new ParticipantsParquetMap { NhsNumber = 1 }
         };
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(
@@ -151,7 +151,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "InvalidNHS", RecordType = Actions.New });
+            .Returns(new Participant { NhsNumber = "InvalidNHS", RecordType = Actions.New });
 
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
@@ -173,7 +173,7 @@ public class ProcessCaasFileTests
             new ParticipantsParquetMap { NhsNumber = 1234567890 }
         };
         var options = new ParallelOptions();
-        var screeningService = new ScreeningService { ScreeningId = "1", ScreeningName = "Test Screening" };
+        var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(
@@ -181,7 +181,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()))
-            .ReturnsAsync(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
+            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
 
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
@@ -200,7 +200,7 @@ public class ProcessCaasFileTests
         _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
-        var updateParticipant = processCaasFile.GetType().GetMethod("DeleteOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
+        var updateParticipant = processCaasFile.GetType().GetMethod("UpdateOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord()
         {
             FileName = "testFile",
@@ -213,7 +213,8 @@ public class ProcessCaasFileTests
         var task = (Task)updateParticipant.Invoke(processCaasFile, arguments);
         await task;
 
-        _callDurableFunc.Verify(sendDemographic => sendDemographic.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()), Times.Never);
+
+        _databaseClientParticipantMock.Verify(x => x.Update(It.IsAny<ParticipantDemographic>()), Times.Never);
 
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Warning),
                It.IsAny<EventId>(),
@@ -264,10 +265,10 @@ public class ProcessCaasFileTests
 
         _databaseClientParticipantMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).Returns(Task.FromResult(response));
 
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
-                .ThrowsAsync(new Exception("some exception"));
+        _databaseClientParticipantMock.Setup(x => x.Update(It.IsAny<ParticipantDemographic>()))
+            .ThrowsAsync(new Exception("some exception"));
 
-        var updateParticipant = processCaasFile.GetType().GetMethod("DeleteOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
+        var updateParticipant = processCaasFile.GetType().GetMethod("UpdateOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
         var arguments = new object[] { basicParticipantCsvRecord, "TestName" };
 
         // Act
@@ -276,9 +277,9 @@ public class ProcessCaasFileTests
 
         // Assert
         _loggerMock.Verify(x => x.Log(
-            It.Is<LogLevel>(l => l == LogLevel.Information),
+            It.Is<LogLevel>(l => l == LogLevel.Error),
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Deleting old Demographic record was not successful")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Update participant function failed")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);

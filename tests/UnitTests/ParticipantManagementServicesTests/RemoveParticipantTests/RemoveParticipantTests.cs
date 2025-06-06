@@ -13,7 +13,7 @@ using NHS.Screening.RemoveParticipant;
 [TestClass]
 public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
 {
-    private static readonly Mock<ICallFunction> _callFunction = new();
+    private static readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private static readonly Mock<IExceptionHandler> _handleException = new();
     private static readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new();
     private static readonly BasicParticipantCsvRecord _participantCsvRecord = new();
@@ -23,7 +23,7 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     new RemoveParticipant(
         logger,
         response,
-        _callFunction.Object,
+        _httpClientFunction.Object,
         _handleException.Object,
         _cohortDistributionHandler.Object,
         _config.Object))
@@ -37,18 +37,17 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     {
         var testConfig = new RemoveParticipantConfig
         {
-            DemographicURIGet = "DemographicURIGet",
-            markParticipantAsIneligible = "markParticipantAsIneligible"
+            UpdateParticipant = "UpdateParticipant"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
 
-        _callFunction.Reset();
+        _httpClientFunction.Reset();
         _cohortDistributionHandler.Reset();
         _service = new RemoveParticipant(
             _loggerMock.Object,
             _createResponseMock.Object,
-            _callFunction.Object,
+            _httpClientFunction.Object,
             _handleException.Object,
             _cohortDistributionHandler.Object,
             _config.Object);
@@ -76,14 +75,13 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     {
         // Arrange
         SetupValidRequest();
-        var response = SetupResponse(HttpStatusCode.BadRequest);
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>())).ReturnsAsync(response.Object);
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest });
 
         // Act
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _callFunction.Verify(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()), Times.Once);
         _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Never);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
@@ -93,13 +91,12 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     {
         // Arrange
         SetupValidRequest();
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>())).Throws(new Exception("There was an error"));
+        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>())).Throws(new Exception("There was an error"));
 
         // Act
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _callFunction.Verify(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()), Times.Once);
         _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Never);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
@@ -109,47 +106,19 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     {
         // Arrange
         SetupValidRequest();
-        var response = SetupResponse(HttpStatusCode.OK);
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>())).ReturnsAsync(response.Object);
         _cohortDistributionHandler.Setup(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>())).Returns(Task.FromResult(false));
 
         // Act
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _callFunction.Verify(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()), Times.Once);
-        _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Once);
+        _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Never);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_MarkParticipantAsIneligibleAndSendToCohortDistributionServiceBothSucceed_ReturnsOk()
-    {
-        // Arrange
-        SetupValidRequest();
-        var response = SetupResponse(HttpStatusCode.OK);
-        _callFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>())).ReturnsAsync(response.Object);
-        _cohortDistributionHandler.Setup(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>())).Returns(Task.FromResult(true));
-
-        // Act
-        var result = await _service.Run(_request.Object);
-
-        // Assert
-        _callFunction.Verify(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()), Times.Once);
-        _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Once);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     private void SetupValidRequest()
     {
         var participantRecord = JsonSerializer.Serialize(_participantCsvRecord);
         _request = SetupRequest(participantRecord);
-    }
-
-    private static Mock<HttpWebResponse> SetupResponse(HttpStatusCode statusCode)
-    {
-        var response = new Mock<HttpWebResponse>();
-        response.Setup(r => r.StatusCode).Returns(statusCode);
-        return response;
     }
 }

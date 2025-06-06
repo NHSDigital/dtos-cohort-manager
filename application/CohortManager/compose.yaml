@@ -4,3 +4,4 @@ include:
   - compose.data-services.yaml
   - compose.core.yaml
   - compose.cohort-distribution.yaml
+  - compose.pipeline.yaml
