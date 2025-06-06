@@ -198,7 +198,7 @@ container_app_jobs = {
     db-management = {
       container_app_environment_key = "db-management"
       docker_env_tag                = "development"
-      docker_image                  = "cohort-manager-database-db-migration"
+      docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
     }
   }
@@ -692,7 +692,11 @@ function_apps = {
         {
           env_var_name     = "ParticipantManagementUrl"
           function_app_key = "ParticipantManagementDataService"
-        }
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
+        },
       ]
       env_vars_static = {
         CohortQueueName              = "cohort-distribution-queue"
