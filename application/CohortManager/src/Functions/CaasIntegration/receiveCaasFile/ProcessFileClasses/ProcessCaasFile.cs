@@ -3,7 +3,6 @@ namespace NHS.Screening.ReceiveCaasFile;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
-using Data.Database;
 using DataServices.Client;
 using Hl7.Fhir.Rest;
 using Microsoft.Extensions.Logging;
@@ -23,7 +22,7 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
     private readonly IValidateDates _validateDates;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ReceiveCaasFileConfig _config;
     private readonly string DemographicURI;
     private readonly string AddParticipantQueueName;
@@ -39,7 +38,7 @@ public class ProcessCaasFile : IProcessCaasFile
         IDataServiceClient<ParticipantDemographic> participantDemographic,
         IRecordsProcessedTracker recordsProcessedTracker,
         IValidateDates validateDates,
-        ICallFunction callFunction,
+        IHttpClientFunction httpClientFunction,
         ICallDurableDemographicFunc callDurableDemographicFunc,
         IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig
     )
@@ -52,7 +51,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _participantDemographic = participantDemographic;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _callDurableDemographicFunc = callDurableDemographicFunc;
         _config = receiveCaasFileConfig.Value;
 
@@ -228,7 +227,7 @@ public class ProcessCaasFile : IProcessCaasFile
             {
                 _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to RemoveParticipant function.");
                 var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                await _callFunction.SendPost(_config.PMSRemoveParticipant, json);
+                await _httpClientFunction.SendPost(_config.PMSRemoveParticipant, json);
             }
             else
             {
