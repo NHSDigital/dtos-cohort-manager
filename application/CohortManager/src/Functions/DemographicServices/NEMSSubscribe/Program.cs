@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Common;
 using NHS.CohortManager.DemographicServices;
-using Model;
 
 var host = new HostBuilder()
     .AddConfiguration<NEMSSubscribeConfig>(out NEMSSubscribeConfig config)
@@ -14,11 +13,10 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddHttpClient();
-        services.AddScoped<IHttpClientFunction, HttpClientFunction>();
         // Register health checks
         services.AddBasicHealthCheck("NEMSSubscription");
     })
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
