@@ -8,7 +8,7 @@ export const createTempDirAndWriteJson = (jsonData: any[], fileName = 'temp-data
   fs.mkdirSync(tempDirPath, { recursive: true });
   fs.writeFileSync(tempFilePath, JSON.stringify([jsonData], null, 2), 'utf-8');
 
-  console.log(fs.existsSync(tempFilePath)
+  console.info(fs.existsSync(tempFilePath)
     ? `✅ File saved at: ${tempFilePath}`
     : '❌ File was not created.'
   );

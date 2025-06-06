@@ -96,11 +96,11 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
 
     await test.step(`And 3 ADD participants are AMENDED with future effective date `, async () => {
 
-      const updatedJson = JSON.parse(JSON.stringify(testData.inputParticipantRecordAmend))
+      const updatedParticipantRecord = JSON.parse(JSON.stringify(testData.inputParticipantRecordAmend))
 
       const dateMap = generateDynamicDateMap();
 
-      const finalJson = replaceDynamicDatesInJson(updatedJson, dateMap);
+      const finalJson = replaceDynamicDatesInJson(updatedParticipantRecord, dateMap);
 
       const tempFilePath = createTempDirAndWriteJson(finalJson);
 
