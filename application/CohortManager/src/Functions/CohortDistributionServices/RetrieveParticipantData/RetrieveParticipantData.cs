@@ -6,7 +6,6 @@ using Common;
 using System.Net;
 using Microsoft.Extensions.Logging;
 using Model;
-using NHS.CohortManager.CohortDistribution;
 using System.Text;
 using System.Text.Json;
 using DataServices.Client;
