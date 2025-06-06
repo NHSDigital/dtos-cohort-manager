@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.Tests.UnitTests.RetrieveParticipantDataTests;
 
 using System.Net;
-using System.Text;
 using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -10,11 +9,9 @@ using Common;
 using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistributionService;
 using Model;
-using Data.Database;
 using NHS.CohortManager.Tests.TestUtils;
 using DataServices.Client;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Options;
 using NHS.Screening.RetrieveParticipantData;
 
@@ -30,9 +27,9 @@ public class RetrieveParticipantDataTests
     private readonly RetrieveParticipantRequestBody _requestBody;
     private readonly CreateParticipant _createParticipant = new();
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
-    private Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
+    private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
     private readonly Mock<IOptions<RetrieveParticipantDataConfig>> _config = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
 
     public RetrieveParticipantDataTests()
     {
@@ -42,7 +39,7 @@ public class RetrieveParticipantDataTests
             NhsNumber = "1234567890",
             ScreeningService = "1"
         };
-        
+
         _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
 
         var testConfig = new RetrieveParticipantDataConfig
@@ -54,7 +51,7 @@ public class RetrieveParticipantDataTests
         _config.Setup(c => c.Value).Returns(testConfig);
 
         _sut = new RetrieveParticipantData(_createResponse.Object, _logger.Object, _participantManagementClientMock.Object,
-                                            _createParticipant, _exceptionHandler.Object, _callFunction.Object,
+                                            _createParticipant, _exceptionHandler.Object, _httpClientFunction.Object,
                                             _config.Object);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
@@ -107,7 +104,7 @@ public class RetrieveParticipantDataTests
             .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
             .ReturnsAsync(new ParticipantManagement());
 
-        _callFunction
+        _httpClientFunction
             .Setup(x => x.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
             .ThrowsAsync(new Exception("there has been an error")).Verifiable();
 
@@ -142,10 +139,10 @@ public class RetrieveParticipantDataTests
 
         _participantManagementClientMock
             .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-            .ReturnsAsync(new ParticipantManagement {NHSNumber = 1234567890, ScreeningId = 1});
-         _callFunction.Setup(x => x.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(JsonSerializer.Serialize(demographic))
-            .Verifiable();
+            .ReturnsAsync(new ParticipantManagement { NHSNumber = 1234567890, ScreeningId = 1 });
+        _httpClientFunction.Setup(x => x.SendGet(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
+           .ReturnsAsync(JsonSerializer.Serialize(demographic))
+           .Verifiable();
 
         // Act
         var result = await _sut.RunAsync(_request.Object);

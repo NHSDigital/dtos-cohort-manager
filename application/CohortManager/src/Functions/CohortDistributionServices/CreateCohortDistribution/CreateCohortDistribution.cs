@@ -14,7 +14,7 @@ using Microsoft.Extensions.Options;
 public class CreateCohortDistribution
 {
     private readonly ILogger<CreateCohortDistribution> _logger;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
@@ -23,7 +23,7 @@ public class CreateCohortDistribution
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
 
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
-                                    ICallFunction callFunction,
+                                    IHttpClientFunction httpClientFunction,
                                     ICohortDistributionHelper CohortDistributionHelper,
                                     IExceptionHandler exceptionHandler,
                                     IAzureQueueStorageHelper azureQueueStorageHelper,
@@ -32,7 +32,7 @@ public class CreateCohortDistribution
                                     IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
     {
         _logger = logger;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _CohortDistributionHelper = CohortDistributionHelper;
         _exceptionHandler = exceptionHandler;
         _azureQueueStorageHelper = azureQueueStorageHelper;
@@ -99,12 +99,12 @@ public class CreateCohortDistribution
                 var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
                 await HandleExceptionAsync(errorMessage, participantData, basicParticipantCsvRecord.FileName);
 
-                var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
-                participantMangement.ExceptionFlag = 1;
+                var participantManagement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
+                participantManagement.ExceptionFlag = 1;
 
-                bool excpetionFlagUpdated = await _participantManagementClient.Update(participantMangement);
-                if (!excpetionFlagUpdated) throw new IOException("Failed to update exception flag");
-                
+                bool exceptionFlagUpdated = await _participantManagementClient.Update(participantManagement);
+                if (!exceptionFlagUpdated) throw new IOException("Failed to update exception flag");
+
                 if (!ignoreParticipantExceptions) return;
             }
             _logger.LogInformation("Validation has passed or exceptions are ignored, the record with participant id: {ParticipantId} will be added to the database", participantData.ParticipantId);
@@ -126,7 +126,7 @@ public class CreateCohortDistribution
         {
             var errorMessage = $"Create Cohort Distribution failed .\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
             await HandleExceptionAsync(errorMessage,
-                                    new CohortDistributionParticipant {NhsNumber = basicParticipantCsvRecord.NhsNumber},
+                                    new CohortDistributionParticipant { NhsNumber = basicParticipantCsvRecord.NhsNumber },
                                     basicParticipantCsvRecord.FileName);
             throw;
         }
@@ -145,11 +145,11 @@ public class CreateCohortDistribution
         await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, _config.CohortQueueNamePoison);
     }
 
-    private async Task<HttpWebResponse> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
+    private async Task<HttpResponseMessage> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
     {
         transformedParticipant.Extracted = DatabaseHelper.ConvertBoolStringToBoolByType("IsExtractedToBSSelect", DataTypes.Integer).ToString();
         var json = JsonSerializer.Serialize(transformedParticipant);
-        var response = await _callFunction.SendPost(_config.AddCohortDistributionURL, json);
+        var response = await _httpClientFunction.SendPost(_config.AddCohortDistributionURL, json);
 
         _logger.LogInformation("Called {AddCohortDistribution} function", nameof(AddCohortDistribution));
         return response;
@@ -165,8 +165,12 @@ public class CreateCohortDistribution
                                                 .FirstOrDefault();
 
         if (latestParticipant != null)
+        {
             return new CohortDistributionParticipant(latestParticipant);
-        else 
+        }
+        else
+        {
             return new CohortDistributionParticipant();
+        }
     }
 }
