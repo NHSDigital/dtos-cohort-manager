@@ -124,7 +124,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
     private async Task<string> GetResponseAsync(string requestBodyJson, string functionURL)
     {
         var response = await _callFunction.SendPost(functionURL, requestBodyJson);
-        if (response == null) 
+        if (response == null)
         {
             return "";
         }

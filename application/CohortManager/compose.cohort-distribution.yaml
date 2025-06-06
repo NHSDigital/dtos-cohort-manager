@@ -1,19 +1,6 @@
 name: cohort-manager
 
 services:
-  add-cohort-distribution-data:
-    container_name: add-cohort-distribution-data
-    image: cohort-manager-add-cohort-distribution-data
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: CohortDistributionServices/AddCohortDistributionData/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7077
-      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
-
   retrieve-cohort-distribution-data:
     container_name: retrieve-cohort-distribution-data
     image: cohort-manager-retrieve-cohort-distribution-data
@@ -87,7 +74,6 @@ services:
       - AllocateScreeningProviderURL=http://allocate-service-provider:7081/api/AllocateServiceProviderToParticipantByService
       - TransformDataServiceURL=http://transform-data-service:7080/api/TransformDataService
       - RetrieveParticipantDataURL=http://retrieve-participant-data:7083/api/RetrieveParticipantData
-      - AddCohortDistributionURL=http://add-cohort-distribution-data:7077/api/AddCohortDistributionData
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - CohortDistributionDataServiceUrl=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - LookupValidationURL=http://lookup-validation:7075/api/LookupValidation
