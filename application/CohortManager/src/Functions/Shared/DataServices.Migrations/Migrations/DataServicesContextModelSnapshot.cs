@@ -577,6 +577,10 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("NHS_NUMBER");
 
+                    b.Property<DateTime?>("RecordUpdatedDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("RECORD_UPDATED_DATE");
+
                     b.Property<string>("RuleDescription")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("RULE_DESCRIPTION");

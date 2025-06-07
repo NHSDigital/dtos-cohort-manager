@@ -57,6 +57,9 @@ public class ExceptionManagement
     [Column("SERVICENOW_CREATED_DATE", TypeName = "datetime")]
     public DateTime? ServiceNowCreatedDate { get; set; }
 
+    [Column("RECORD_UPDATED_DATE", TypeName = "datetime")]
+    public DateTime? RecordUpdatedDate { get; set; }
+
     public ValidationException ToValidationException()
     {
         return new ValidationException
@@ -74,7 +77,9 @@ public class ExceptionManagement
             ExceptionDate = ExceptionDate,
             CohortName = CohortName,
             Fatal = IsFatal,
-            ServiceNowId = ServiceNowId
+            ServiceNowId = ServiceNowId,
+            ServiceNowCreatedDate = ServiceNowCreatedDate,
+            RecordUpdatedDate = RecordUpdatedDate
         };
     }
 
@@ -96,7 +101,9 @@ public class ExceptionManagement
             ExceptionDate = validationException.ExceptionDate ?? DateTime.Now,
             CohortName = validationException.CohortName,
             IsFatal = short.TryParse(input, out short result) ? result : new short(),
-            ServiceNowId = ServiceNowId
+            ServiceNowId = ServiceNowId,
+            ServiceNowCreatedDate = validationException.ServiceNowCreatedDate ?? DateTime.MinValue,
+            RecordUpdatedDate = validationException.RecordUpdatedDate ?? DateTime.MaxValue
         };
     }
 }
