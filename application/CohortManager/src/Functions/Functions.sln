@@ -7,8 +7,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CohortDistributionServices"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateCohortDistribution", "CohortDistributionServices\CreateCohortDistribution\CreateCohortDistribution.csproj", "{0C75ED16-52B1-4DAA-957B-01BF1E16F004}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddCohortDistributionData", "CohortDistributionServices\AddCohortDistributionData\AddCohortDistributionData.csproj", "{620E15F8-E2D9-42F1-9806-9789BF204413}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TransformDataService", "CohortDistributionServices\TransformDataService\TransformDataService.csproj", "{872FE049-E9E4-4DC1-B0FA-6B1126D7D210}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServiceProviderAllocationService", "ServiceProviderAllocationService", "{3C5782D4-1A2A-2D2D-2650-61D23506D544}"
@@ -155,8 +153,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToPa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\CohortDistributionDataTests\CohortDistributionDataTests.csproj", "{B2C19C52-9270-4D1A-975A-D403AA996A8D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AddCohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\AddCohortDistributionDataTests\AddCohortDistributionDataTests.csproj", "{8051889E-E202-43D2-A88F-7607338ADF04}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortRequestAuditTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\RetrieveCohortRequestAuditTests\RetrieveCohortRequestAuditTests.csproj", "{E34BB9AF-B7FE-4B92-9E26-51018F7B87CE}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveParticipantDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\RetrieveParticipantDataTests\RetrieveParticipantDataTests.csproj", "{B94648B8-FEA9-4004-BA60-18868C7E4662}"
@@ -289,18 +285,6 @@ Global
 		{0C75ED16-52B1-4DAA-957B-01BF1E16F004}.Release|x64.Build.0 = Release|Any CPU
 		{0C75ED16-52B1-4DAA-957B-01BF1E16F004}.Release|x86.ActiveCfg = Release|Any CPU
 		{0C75ED16-52B1-4DAA-957B-01BF1E16F004}.Release|x86.Build.0 = Release|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Debug|x64.Build.0 = Debug|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Debug|x86.Build.0 = Debug|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Release|Any CPU.Build.0 = Release|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Release|x64.ActiveCfg = Release|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Release|x64.Build.0 = Release|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Release|x86.ActiveCfg = Release|Any CPU
-		{620E15F8-E2D9-42F1-9806-9789BF204413}.Release|x86.Build.0 = Release|Any CPU
 		{872FE049-E9E4-4DC1-B0FA-6B1126D7D210}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{872FE049-E9E4-4DC1-B0FA-6B1126D7D210}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{872FE049-E9E4-4DC1-B0FA-6B1126D7D210}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -949,18 +933,6 @@ Global
 		{B2C19C52-9270-4D1A-975A-D403AA996A8D}.Release|x64.Build.0 = Release|Any CPU
 		{B2C19C52-9270-4D1A-975A-D403AA996A8D}.Release|x86.ActiveCfg = Release|Any CPU
 		{B2C19C52-9270-4D1A-975A-D403AA996A8D}.Release|x86.Build.0 = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|x64.Build.0 = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Debug|x86.Build.0 = Debug|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|x64.ActiveCfg = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|x64.Build.0 = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|x86.ActiveCfg = Release|Any CPU
-		{8051889E-E202-43D2-A88F-7607338ADF04}.Release|x86.Build.0 = Release|Any CPU
 		{E34BB9AF-B7FE-4B92-9E26-51018F7B87CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{E34BB9AF-B7FE-4B92-9E26-51018F7B87CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E34BB9AF-B7FE-4B92-9E26-51018F7B87CE}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -1627,7 +1599,6 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{0C75ED16-52B1-4DAA-957B-01BF1E16F004} = {72FBAE8E-5F64-9545-D6D4-8F59D0E91151}
-		{620E15F8-E2D9-42F1-9806-9789BF204413} = {72FBAE8E-5F64-9545-D6D4-8F59D0E91151}
 		{872FE049-E9E4-4DC1-B0FA-6B1126D7D210} = {72FBAE8E-5F64-9545-D6D4-8F59D0E91151}
 		{3C5782D4-1A2A-2D2D-2650-61D23506D544} = {72FBAE8E-5F64-9545-D6D4-8F59D0E91151}
 		{10B3E441-9D4B-4054-9E21-058365ACED68} = {3C5782D4-1A2A-2D2D-2650-61D23506D544}

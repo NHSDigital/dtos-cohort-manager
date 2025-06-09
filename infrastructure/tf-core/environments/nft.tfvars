@@ -601,23 +601,6 @@ function_apps = {
       ]
     }
 
-    AddCohortDistributionData = {
-      name_suffix            = "add-cohort-distribution-data"
-      function_endpoint_name = "AddCohortDistributionData"
-      app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "CohortDistributionDataServiceURL"
-          function_app_key = "CohortDistributionDataService"
-        }
-      ]
-    }
-
     RetrieveCohortDistributionData = {
       name_suffix            = "retrieve-cohort-distribution-data"
       function_endpoint_name = "RetrieveCohortDistributionData"
@@ -704,10 +687,6 @@ function_apps = {
         {
           env_var_name     = "TransformDataServiceURL"
           function_app_key = "TransformDataService"
-        },
-        {
-          env_var_name     = "AddCohortDistributionURL"
-          function_app_key = "AddCohortDistributionData"
         },
         {
           env_var_name     = "ExceptionFunctionURL"
