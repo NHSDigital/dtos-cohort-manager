@@ -93,7 +93,7 @@ public class UpdateBlockedFlag
 
             bool blockFlagUpdated = await _participantManagementClient.Update(participantManagement);
             if (!blockFlagUpdated)
-                await HandleException(new Exception("Failed to update blocked flag"), req);
+                throw new HttpRequestException("Failed to update blocked flag");
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Blocked flag updated successfully");
         }

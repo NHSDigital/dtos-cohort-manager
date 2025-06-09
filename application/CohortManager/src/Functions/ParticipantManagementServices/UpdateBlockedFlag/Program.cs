@@ -2,13 +2,13 @@ using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.Hosting;
 using Common;
 using DataServices.Client;
-using NHS.Screening.UnblockParticipant;
+using NHS.CohortManager.ParticipantManagementService;
 using Model;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 var host = new HostBuilder()
-    .AddConfiguration<UnblockParticipantConfig>(out UnblockParticipantConfig config)
+    .AddConfiguration<UpdateBlockedFlagConfig>(out UpdateBlockedFlagConfig config)
     .ConfigureFunctionsWebApplication()
     .AddDataServicesHandler()
         .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
@@ -16,7 +16,7 @@ var host = new HostBuilder()
         .Build()
     .ConfigureServices(services => {
         // Register health checks
-        services.AddBasicHealthCheck("Unblock Participant");
+        services.AddBasicHealthCheck("Update Blocked Flag");
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IExceptionHandler, ExceptionHandler>();
     })
