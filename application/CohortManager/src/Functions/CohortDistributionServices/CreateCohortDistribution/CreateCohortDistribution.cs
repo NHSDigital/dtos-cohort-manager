@@ -14,7 +14,6 @@ using Microsoft.Extensions.Options;
 public class CreateCohortDistribution
 {
     private readonly ILogger<CreateCohortDistribution> _logger;
-    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
@@ -32,7 +31,6 @@ public class CreateCohortDistribution
                                     IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
     {
         _logger = logger;
-        _httpClientFunction = httpClientFunction;
         _CohortDistributionHelper = CohortDistributionHelper;
         _exceptionHandler = exceptionHandler;
         _azureQueueStorageHelper = azureQueueStorageHelper;
@@ -105,7 +103,7 @@ public class CreateCohortDistribution
                 var participantManagement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
                 participantManagement.ExceptionFlag = 1;
 
-                var exceptionFlagUpdated = await _participantManagementClient.Update(participantMangement);
+                var exceptionFlagUpdated = await _participantManagementClient.Update(participantManagement);
                 if (!exceptionFlagUpdated)
                 {
                     throw new IOException("Failed to update exception flag");
