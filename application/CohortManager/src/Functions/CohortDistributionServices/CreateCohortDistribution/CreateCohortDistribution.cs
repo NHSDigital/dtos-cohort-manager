@@ -21,14 +21,13 @@ public class CreateCohortDistribution
     private readonly CreateCohortDistributionConfig _config;
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
 
-    public CreateCohortDistribution(
-        ILogger<CreateCohortDistribution> logger,
-        ICohortDistributionHelper CohortDistributionHelper,
-        IExceptionHandler exceptionHandler,
-        IAzureQueueStorageHelper azureQueueStorageHelper,
-        IDataServiceClient<ParticipantManagement> participantManagementClient,
-        IDataServiceClient<CohortDistribution> cohortDistributionClient,
-        IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
+    public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
+                                    ICohortDistributionHelper CohortDistributionHelper,
+                                    IExceptionHandler exceptionHandler,
+                                    IAzureQueueStorageHelper azureQueueStorageHelper,
+                                    IDataServiceClient<ParticipantManagement> participantManagementClient,
+                                    IDataServiceClient<CohortDistribution> cohortDistributionClient,
+                                    IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
     {
         _logger = logger;
         _CohortDistributionHelper = CohortDistributionHelper;
@@ -100,10 +99,10 @@ public class CreateCohortDistribution
                 var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
                 await HandleExceptionAsync(errorMessage, participantData, basicParticipantCsvRecord.FileName!);
 
-                var participantMangement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
-                participantMangement.ExceptionFlag = 1;
+                var participantManagement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
+                participantManagement.ExceptionFlag = 1;
 
-                var exceptionFlagUpdated = await _participantManagementClient.Update(participantMangement);
+                var exceptionFlagUpdated = await _participantManagementClient.Update(participantManagement);
                 if (!exceptionFlagUpdated)
                 {
                     throw new IOException("Failed to update exception flag");
@@ -174,7 +173,6 @@ public class CreateCohortDistribution
 
         if (latestParticipant != null)
         {
-
             return new CohortDistributionParticipant(latestParticipant);
         }
         else

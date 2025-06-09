@@ -15,7 +15,6 @@ var host = new HostBuilder()
         .Build()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<ICallFunction, CallFunction>();
