@@ -135,6 +135,8 @@ services:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/UpdateBlockedFlag/Dockerfile
     profiles: [non-essential]
+    ports:
+      - "7027:7027"
     environment: 
       - ASPNETCORE_URLS=http://*:7027
       - AzureWebJobsStorage=UseDevelopmentStorage=true
