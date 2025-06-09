@@ -10,6 +10,7 @@ using Model.Enums;
 using Data.Database;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.WebUtilities;
 
 public class CreateCohortDistribution
 {
@@ -78,6 +79,24 @@ public class CreateCohortDistribution
                     return;
                 }
             }
+            // Validation
+            var participant = new Participant(participantData);
+
+            participant.RecordType = "StaticCohortRecord";
+            participant.ExceptionFlag = "0";
+
+            var response = await _CohortDistributionHelper.ValidateStaticeData(participant, basicParticipantCsvRecord.FileName);
+            if (response.IsFatal)
+            {
+                _logger.LogError("A fatal Rule was violated, so the record cannot be added to the database");
+                await _exceptionHandler.CreateSystemExceptionLog(null, new Participant(participantData), basicParticipantCsvRecord.FileName);
+                return;
+            }
+
+            if (response.CreatedException)
+            {
+                participantData.ExceptionFlag = 1;
+            }
 
             // Check if participant has exceptions
             var ignoreParticipantExceptions = _config.IgnoreParticipantExceptions;
@@ -90,7 +109,6 @@ public class CreateCohortDistribution
                 return;
             }
 
-            // Validation
             participantData.RecordType = basicParticipantCsvRecord.RecordType;
             var validationResponse = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(basicParticipantCsvRecord.FileName!, participantData, previousCohortDistributionRecord);
 

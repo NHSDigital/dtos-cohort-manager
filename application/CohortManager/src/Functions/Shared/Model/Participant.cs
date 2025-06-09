@@ -62,7 +62,7 @@ public class Participant
         PreferredLanguage = cohortDistributionParticipant.PreferredLanguage;
         IsInterpreterRequired = cohortDistributionParticipant.IsInterpreterRequired;
         ReasonForRemoval = cohortDistributionParticipant.ReasonForRemoval;
-        ReasonForRemovalEffectiveFromDate = cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate;
+        ReasonForRemovalEffectiveFromDate = cohortDistributionParticipant.ReasonForRemovalEffectiveFromDate!;
         RecordInsertDateTime = cohortDistributionParticipant.RecordInsertDateTime;
         RecordUpdateDateTime = cohortDistributionParticipant.RecordUpdateDateTime;
         ScreeningAcronym = cohortDistributionParticipant.ScreeningAcronym;
@@ -70,6 +70,7 @@ public class Participant
         ScreeningId = cohortDistributionParticipant.ScreeningServiceId;
         CurrentPosting = cohortDistributionParticipant.CurrentPosting;
         EligibilityFlag = cohortDistributionParticipant.EligibilityFlag;
+        InvalidFlag = cohortDistributionParticipant.InvalidFlag;
     }
 
     public ParticipantDemographic ToParticipantDemographic()

@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.CohortDistributionService;
 
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -11,12 +12,14 @@ using Microsoft.Extensions.Options;
 public class CohortDistributionHelper : ICohortDistributionHelper
 {
     private readonly ICallFunction _callFunction;
+    private readonly IExceptionHandler _handleException;
     private readonly ILogger<CohortDistributionHelper> _logger;
     private readonly CreateCohortDistributionConfig _config;
 
-    public CohortDistributionHelper(ICallFunction callFunction, ILogger<CohortDistributionHelper> logger, IOptions<CreateCohortDistributionConfig> config)
+    public CohortDistributionHelper(ICallFunction callFunction, ILogger<CohortDistributionHelper> logger, IOptions<CreateCohortDistributionConfig> config, IExceptionHandler exceptionHandler)
     {
         _callFunction = callFunction;
+        _handleException = exceptionHandler;
         _logger = logger;
         _config = config.Value;
     }
@@ -119,6 +122,35 @@ public class CohortDistributionHelper : ICohortDistributionHelper
             return JsonSerializer.Deserialize<ValidationExceptionLog>(response);
         }
         return null;
+    }
+
+    public async Task<ValidationExceptionLog> ValidateStaticeData(Participant participant, string fileName)
+    {
+
+        var json = JsonSerializer.Serialize(new ParticipantCsvRecord()
+        {
+            Participant = participant,
+            FileName = fileName
+        });
+
+        if (string.IsNullOrWhiteSpace(participant.ScreeningName))
+        {
+            var errorDescription = $"A record with Nhs Number: {participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
+            await _handleException.CreateRecordValidationExceptionLog(participant.NhsNumber!, fileName, errorDescription, "", JsonSerializer.Serialize(participant));
+
+            return new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = true
+            };
+        }
+
+        var response = await _callFunction.SendPost(Environment.GetEnvironmentVariable("StaticValidationURL")!, json);
+        var responseBodyJson = await _callFunction.GetResponseText(response);
+        var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
+
+        return responseBody!;
+
     }
 
     private async Task<string> GetResponseAsync(string requestBodyJson, string functionURL)

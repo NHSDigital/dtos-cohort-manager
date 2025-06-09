@@ -69,6 +69,7 @@ public class AddParticipantFunction
             };
 
             // Validation
+            
             participantCsvRecord.Participant.ExceptionFlag = "N";
             participant.ExceptionFlag = "N";
             var response = await ValidateData(participantCsvRecord);
@@ -84,6 +85,7 @@ public class AddParticipantFunction
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
                 participant.ExceptionFlag = "Y";
             }
+
 
             // Add participant to database
             var json = JsonSerializer.Serialize(participantCsvRecord);
