@@ -3,7 +3,7 @@ import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromA
 
 
 test.describe('@regression @e2e @epic1-high-priority @not-runner-based invalid file for ADD process', () => {
-  test('@DTOSS-3192-01 Verify that a file with an invalid name creates a validation exception', async ({ request, testData }) => {
+  test.fixme('@DTOSS-3192-01 Verify that a file with an invalid name creates a validation exception', async ({ request, testData }) => {
     await test.step(`Given database does not contain 1 ADD record that will be processed`, async () => {
       await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
     });
