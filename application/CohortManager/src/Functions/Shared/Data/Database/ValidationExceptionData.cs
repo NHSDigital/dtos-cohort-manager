@@ -25,13 +25,17 @@ public class ValidationExceptionData : IValidationExceptionData
         _demographicDataServiceClient = demographicDataServiceClient;
     }
 
-    public async Task<List<ValidationException?>> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty, ExceptionCategory exceptionCategory)
+    public async Task<List<ValidationException>?> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty, ExceptionCategory exceptionCategory)
     {
         var category = (int)exceptionCategory;
 
         var exceptions = todayOnly
-            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated.Value.Date == DateTime.Today && x.Category.Value == category)
-            : await _validationExceptionDataServiceClient.GetByFilter(x => x.Category.Value == category);
+            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated != null &&
+                                                                      x.DateCreated.Value.Date == DateTime.Today &&
+                                                                      x.Category != null &&
+                                                                      x.Category.Value == category)
+            : await _validationExceptionDataServiceClient.GetByFilter(x => x.Category != null &&
+                                                                      x.Category.Value == category);
 
         var exceptionList = exceptions.Select(s => s.ToValidationException());
 
@@ -138,7 +142,7 @@ public class ValidationExceptionData : IValidationExceptionData
         throw new ArgumentNullException(nameof(datetime), "Failed to parse null datetime");
     }
 
-    private static List<ValidationException?> SortExceptions(ExceptionSort? sortBy, IEnumerable<ValidationException?> list)
+    private static List<ValidationException>? SortExceptions(ExceptionSort? sortBy, IEnumerable<ValidationException> list)
     {
         return sortBy switch
         {
