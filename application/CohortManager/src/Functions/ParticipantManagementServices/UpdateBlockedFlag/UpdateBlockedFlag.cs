@@ -85,7 +85,7 @@ public class UpdateBlockedFlag
                 .GetSingleByFilter(i => i.NhsNumber == nhsNumber && i.DateOfBirth == dateOfBirth && i.FamilyName == familyName);
 
             if (participantDemographic == null)
-                throw new NullReferenceException("Could not find participant");
+                throw new KeyNotFoundException("Could not find participant");
 
             // Change blocked flag
             ParticipantManagement participantManagement = await _participantManagementClient.GetSingleByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == 1); // TODO Unhardcode this (Phase 2)
@@ -102,7 +102,7 @@ public class UpdateBlockedFlag
             await HandleException(ex, req);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS Number or missing parameters");
         }
-        catch (NullReferenceException ex)
+        catch (KeyNotFoundException ex)
         {
             await HandleException(ex, req);
             return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");

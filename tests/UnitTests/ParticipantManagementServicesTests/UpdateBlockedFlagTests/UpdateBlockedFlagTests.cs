@@ -104,7 +104,9 @@ public class UpdateBlockedFlagTests
         // Arrange
         var request = _setupRequest.Setup("");
 
-        _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync((ParticipantDemographic?)null);
+        _dsMockParticipantDemographic
+            .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
+            .ReturnsAsync((ParticipantDemographic?)null);
 
         request.Setup(r => r.Query).Returns(queryParams);
 

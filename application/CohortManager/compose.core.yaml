@@ -141,7 +141,7 @@ services:
       - ASPNETCORE_URLS=http://*:7027
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
-      - DemographicURIGet=http://demographic-data-management:7076/api/DemographicDataFunction
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
   # Screening Data Service
