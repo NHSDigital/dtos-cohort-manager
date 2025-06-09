@@ -108,8 +108,7 @@ public class ValidationExceptionData : IValidationExceptionData
             ParticipantPostCode = participantDemographic?.PostCode,
             TelephoneNumberHome = participantDemographic?.TelephoneNumberHome,
             EmailAddressHome = participantDemographic?.EmailAddressHome,
-            PrimaryCareProvider = participantDemographic?.PrimaryCareProvider,
-            GpPracticeCode = participantDemographic?.PrimaryCareProvider
+            PrimaryCareProvider = participantDemographic?.PrimaryCareProvider
         };
 
         if (participantDemographic == null)
