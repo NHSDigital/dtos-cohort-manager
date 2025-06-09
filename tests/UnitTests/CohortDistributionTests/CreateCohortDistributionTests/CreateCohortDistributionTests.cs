@@ -1,6 +1,5 @@
 namespace NHS.CohortManager.Tests.UnitTests.CreateCohortDistributionTests;
 
-using System.Net;
 using Moq;
 using Common;
 using Microsoft.Extensions.Logging;
@@ -191,8 +190,6 @@ public class CreateCohortDistributionTests
     public async Task RunAsync_AddCohortDistributionRequestFails_CreateExceptionAndSendToPoisonQueue()
     {
         // Arrange
-        _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
-
         _cohortDistributionClientMock.Setup(x => x.Add(It.IsAny<CohortDistribution>())).Throws(new Exception("an error happened"));
 
         // Act & Assert

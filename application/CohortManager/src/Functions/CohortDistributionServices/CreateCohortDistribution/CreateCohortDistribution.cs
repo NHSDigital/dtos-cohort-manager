@@ -22,7 +22,6 @@ public class CreateCohortDistribution
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
 
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
-                                    IHttpClientFunction httpClientFunction,
                                     ICohortDistributionHelper CohortDistributionHelper,
                                     IExceptionHandler exceptionHandler,
                                     IAzureQueueStorageHelper azureQueueStorageHelper,
