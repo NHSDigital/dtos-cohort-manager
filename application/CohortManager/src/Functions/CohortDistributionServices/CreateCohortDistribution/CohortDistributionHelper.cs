@@ -10,13 +10,13 @@ using Microsoft.Extensions.Options;
 
 public class CohortDistributionHelper : ICohortDistributionHelper
 {
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ILogger<CohortDistributionHelper> _logger;
     private readonly CreateCohortDistributionConfig _config;
 
-    public CohortDistributionHelper(ICallFunction callFunction, ILogger<CohortDistributionHelper> logger, IOptions<CreateCohortDistributionConfig> config)
+    public CohortDistributionHelper(IHttpClientFunction httpClientFunction, ILogger<CohortDistributionHelper> logger, IOptions<CreateCohortDistributionConfig> config)
     {
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _logger = logger;
         _config = config.Value;
     }
@@ -123,7 +123,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
 
     private async Task<string> GetResponseAsync(string requestBodyJson, string functionURL)
     {
-        var response = await _callFunction.SendPost(functionURL, requestBodyJson);
+        var response = await _httpClientFunction.SendPost(functionURL, requestBodyJson);
         if (response == null)
         {
             return "";
@@ -131,7 +131,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
 
         if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
         {
-            var responseText = await _callFunction.GetResponseText(response);
+            var responseText = await _httpClientFunction.GetResponseText(response);
             if (!string.IsNullOrEmpty(responseText))
             {
                 return responseText;
