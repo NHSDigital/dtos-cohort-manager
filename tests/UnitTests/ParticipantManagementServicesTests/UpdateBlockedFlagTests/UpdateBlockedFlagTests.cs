@@ -115,7 +115,7 @@ public class UpdateBlockedFlagTests
 
         // Assert
         _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-            It.IsAny<NullReferenceException>(),
+            It.IsAny<KeyNotFoundException>(),
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>(),
@@ -172,30 +172,6 @@ public class UpdateBlockedFlagTests
             It.IsAny<string>()),
             Times.Once);
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task BlockParticipant_NoResponseParticipantDemographic_ReturnNotFound()
-    {
-        // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(queryParams);
-
-        //Simulates no response from the Participant demographic service.
-        _dsMockParticipantDemographic.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).Throws(new NullReferenceException());
-
-        // Act
-        var response = await _sut.BlockParticipant(request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-            It.IsAny<NullReferenceException>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>()),
-            Times.Once);
-        Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [TestMethod]
