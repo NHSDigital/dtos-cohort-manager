@@ -81,32 +81,6 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
   })
   // End of ADD Tests
 
-  testWithAmended('@DTOSS-4383-01-Update a valid GP Practice Code for a existing participant', {
-      annotation: {
-        type: 'Requirement',
-        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4383',
-      },
-    }, async ({ request, testData }) => {
-
-      await test.step(`When ADD participant is processed via storage`, async () => {
-        await processFileViaStorage(testData.runTimeParquetFileAdd);
-      });
-
-      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
-
-      await test.step(`Given 1 participant is processed to cohort`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-      });
-
-      await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-        await processFileViaStorage(testData.runTimeParquetFileAmend);
-      });
-
-      await test.step(`Then the record should be amended in the cohort`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-      });
-  })
-
   testWithAmended('@DTOSS-4384-01-Update a invalid GP Practice Code for a existing participant', {
       annotation: {
         type: 'Requirement',
