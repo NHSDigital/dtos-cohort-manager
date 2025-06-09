@@ -18,15 +18,14 @@ using Microsoft.Extensions.Options;
 public class UpdateParticipantDetailsTests
 {
     private readonly ParticipantCsvRecord _participantCsvRecord;
-    private Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
+    private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
     private readonly Mock<ILogger<UpdateParticipantDetails>> _loggerMock = new();
-    private readonly Mock<ICallFunction> _callFunctionMock = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private readonly Mock<CreateResponse> _createResponseMock = new();
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
     private readonly SetupRequest _setupRequest = new();
-    private readonly Mock<HttpWebResponse> _LookupValidationWebResponse = new();
     private readonly Mock<IOptions<UpdateParticipantDetailsConfig>> _config = new();
-    private ValidationExceptionLog _lookupValidationResponseBody = new();
+    private readonly ValidationExceptionLog _lookupValidationResponseBody = new();
 
     public UpdateParticipantDetailsTests()
     {
@@ -38,7 +37,7 @@ public class UpdateParticipantDetailsTests
 
         _participantManagementClientMock
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-            .ReturnsAsync(new ParticipantManagement {NHSNumber = 1, ScreeningId = 1});
+            .ReturnsAsync(new ParticipantManagement { NHSNumber = 1, ScreeningId = 1 });
 
         _participantCsvRecord = new ParticipantCsvRecord
         {
@@ -75,13 +74,9 @@ public class UpdateParticipantDetailsTests
             }
         };
 
-        _LookupValidationWebResponse
-            .Setup(m => m.StatusCode)
-            .Returns(HttpStatusCode.OK);
-
-        _callFunctionMock
+        _httpClientFunction
             .Setup(m => m.SendPost("LookupValidationURL", It.IsAny<string>()))
-            .ReturnsAsync(_LookupValidationWebResponse.Object);
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
         _lookupValidationResponseBody.CreatedException = false;
         _lookupValidationResponseBody.IsFatal = false;
@@ -95,8 +90,8 @@ public class UpdateParticipantDetailsTests
 
         _config.Setup(c => c.Value).Returns(testConfig);
 
-        _callFunctionMock
-            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+        _httpClientFunction
+            .Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync(lookupResponseJson);
     }
 
@@ -108,7 +103,7 @@ public class UpdateParticipantDetailsTests
             _loggerMock.Object,
             _createResponseMock.Object,
             _exceptionHandlerMock.Object,
-            _callFunctionMock.Object,
+            _httpClientFunction.Object,
             _participantManagementClientMock.Object,
             _config.Object
         );
@@ -133,7 +128,7 @@ public class UpdateParticipantDetailsTests
     {
         // Arrange
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object, _config.Object);
+                                                _httpClientFunction.Object, _participantManagementClientMock.Object, _config.Object);
 
         _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = rfrDate;
         var expectedParticipant = _participantCsvRecord.Participant.ToParticipantManagement();
@@ -159,7 +154,7 @@ public class UpdateParticipantDetailsTests
             .Throws(new Exception());
 
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object,
+                                                _httpClientFunction.Object, _participantManagementClientMock.Object,
                                                 _config.Object);
 
         string json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -176,12 +171,12 @@ public class UpdateParticipantDetailsTests
     public async Task Run_LookupValidationFails_ReturnInternalServerError()
     {
         // Arrange
-        _callFunctionMock
-            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+        _httpClientFunction
+            .Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .Throws(new Exception());
 
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object,
+                                                _httpClientFunction.Object, _participantManagementClientMock.Object,
                                                 _config.Object);
 
         string json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -202,12 +197,12 @@ public class UpdateParticipantDetailsTests
         _lookupValidationResponseBody.IsFatal = true;
         string lookupResponseJson = JsonSerializer.Serialize(_lookupValidationResponseBody);
 
-        _callFunctionMock
-            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+        _httpClientFunction
+            .Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync(lookupResponseJson);
 
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object,
+                                                _httpClientFunction.Object, _participantManagementClientMock.Object,
                                                 _config.Object);
 
         string json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -230,19 +225,19 @@ public class UpdateParticipantDetailsTests
         _lookupValidationResponseBody.IsFatal = false;
         string lookupResponseJson = JsonSerializer.Serialize(_lookupValidationResponseBody);
 
-        _callFunctionMock
-            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+        _httpClientFunction
+            .Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync(lookupResponseJson);
 
         var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-                                                _callFunctionMock.Object, _participantManagementClientMock.Object,
+                                                _httpClientFunction.Object, _participantManagementClientMock.Object,
                                                 _config.Object);
 
         string json = JsonSerializer.Serialize(_participantCsvRecord);
         var request = _setupRequest.Setup(json);
 
         // Act
-        var response = await sut.Run(request.Object);
+        await sut.Run(request.Object);
 
         // Assert
         _participantManagementClientMock

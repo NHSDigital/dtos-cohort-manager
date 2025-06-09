@@ -2,16 +2,9 @@ namespace Common;
 
 using Interfaces;
 using Microsoft.Extensions.Logging;
-using System.Text.Json;
 using Model;
-using System.Net;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
 using Model.Enums;
-using System.Threading.Tasks;
-using NHS.Screening.ReceiveCaasFile;
 
 public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
 {
