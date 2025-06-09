@@ -23,6 +23,7 @@ var host = new HostBuilder()
         services.AddBasicHealthCheck("CreateException");
     })
     .AddDatabaseConnection()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

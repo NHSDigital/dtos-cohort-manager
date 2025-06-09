@@ -28,6 +28,7 @@ var host = new HostBuilder()
     .AddAzureQueues()
     .AddDatabaseConnection()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

@@ -17,6 +17,7 @@ var host = new HostBuilder()
         services.AddBasicHealthCheck("StaticValidation");
     })
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
