@@ -92,9 +92,9 @@ stages:
         condition: and(succeeded(), or(eq(variables['Build.CronSchedule.DisplayName'], 'Scale_OffPeak'), eq('${{ parameters.manualOverride }}', 'Scale_OffPeak')))
         dependsOn: SetVariablesJob
         variables:
-          resourceGroupName: $[ dependencies.SetVariablesJob.outputs['resourceGroupName'] ]
-          serverName: $[ dependencies.SetVariablesJob.outputs['serverName'] ]
-          databaseName: $[ dependencies.SetVariablesJob.outputs['databaseName'] ]
+          resourceGroupName: $[ dependencies.SetVariablesJob.outputs['SetVariables.resourceGroupName'] ]
+          serverName: $[ dependencies.SetVariablesJob.outputs['SetVariables.serverName'] ]
+          databaseName: $[ dependencies.SetVariablesJob.outputs['SetVariables.databaseName'] ]
         steps:
         - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
           parameters:
