@@ -1,6 +1,5 @@
 namespace DataServices.Client;
 
-using System.ComponentModel;
 using Common;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -18,11 +17,12 @@ public class DataServiceClientBuilder
 
     public DataServiceClientBuilder AddDataService<TEntity>(string url) where TEntity : class
     {
-        _hostBuilder.ConfigureServices(_ => {
-            _.AddTransient<IDataServiceClient<TEntity>,DataServiceClient<TEntity>>();
+        _hostBuilder.ConfigureServices(_ =>
+        {
+            _.AddTransient<IDataServiceClient<TEntity>, DataServiceClient<TEntity>>();
 
         });
-        AddDataServiceUrl(typeof(TEntity),url);
+        AddDataServiceUrl(typeof(TEntity), url);
 
         return this;
     }
@@ -30,22 +30,24 @@ public class DataServiceClientBuilder
     public DataServiceClientBuilder AddCachedDataService<TEntity>(string url) where TEntity : class
     {
         CacheRequired = true;
-        _hostBuilder.ConfigureServices(_ => {
-            _.AddTransient<IDataServiceClient<TEntity>,DataServiceCacheClient<TEntity>>();
+        _hostBuilder.ConfigureServices(_ =>
+        {
+            _.AddTransient<IDataServiceClient<TEntity>, DataServiceCacheClient<TEntity>>();
 
         });
-        AddDataServiceUrl(typeof(TEntity),url);
+        AddDataServiceUrl(typeof(TEntity), url);
 
         return this;
     }
 
     public DataServiceClientBuilder AddDataServiceStaticCachedClient<TEntity>(string url) where TEntity : class
     {
-        _hostBuilder.ConfigureServices(_ => {
-            _.AddSingleton<IDataServiceClient<TEntity>,DataServiceStaticCachedClient<TEntity>>();
+        _hostBuilder.ConfigureServices(_ =>
+        {
+            _.AddSingleton<IDataServiceClient<TEntity>, DataServiceStaticCachedClient<TEntity>>();
 
         });
-        AddDataServiceUrl(typeof(TEntity),url);
+        AddDataServiceUrl(typeof(TEntity), url);
 
         return this;
     }
@@ -54,23 +56,25 @@ public class DataServiceClientBuilder
     public IHostBuilder Build()
     {
         DataServiceResolver dataServiceResolver = new DataServiceResolver(_dataServiceUrls);
-        _hostBuilder.ConfigureServices(_ =>{
-            if(CacheRequired){
+        _hostBuilder.ConfigureServices(_ =>
+        {
+            if (CacheRequired)
+            {
                 _.AddMemoryCache();
             }
             _.AddSingleton(dataServiceResolver);
-            _.AddSingleton<ICallFunction, CallFunction>();
+            _.AddTransient<IHttpClientFunction, HttpClientFunction>();
         });
         return _hostBuilder;
     }
 
-    private void AddDataServiceUrl(Type type,string url)
+    private void AddDataServiceUrl(Type type, string url)
     {
-        if(string.IsNullOrEmpty(url))
+        if (string.IsNullOrEmpty(url))
         {
-            throw new ArgumentNullException("url",$"No URL was provided when registering DataService of type {type.FullName}");
+            throw new ArgumentNullException("url", $"No URL was provided when registering DataService of type {type.FullName}");
         }
-        _dataServiceUrls.Add(type,url);
+        _dataServiceUrls.Add(type, url);
     }
 
 }
