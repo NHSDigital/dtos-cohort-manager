@@ -1300,8 +1300,7 @@ storage_accounts = {
     blob_properties_versioning_enabled      = false
     containers = {
       file-exceptions = {
-        container_name        = "file-exceptions"
-        container_access_type = "private"
+        container_name = "file-exceptions"
       }
       config = {
         container_name = "config"
@@ -1311,6 +1310,24 @@ storage_accounts = {
       }
       inbound-poison = {
         container_name = "inbound-poison"
+      }
+    }
+  }
+  sqlbackup = {
+    name_suffix                             = "sqlbackup"
+    account_tier                            = "Standard"
+    replication_type                        = "LRS"
+    blob_properties_versioning_enabled      = false
+    containers = {
+      cohman = {
+        container_name = "cohort-manager"
+        immutability_policy = {
+          storage_container_resource_manager_id = "azurerm_storage_container.this.id"
+          immutability_period_in_days           = 1
+          protected_append_writes_all_enabled   = false
+          protected_append_writes_enabled       = false
+          is_locked                             = false
+        }
       }
     }
   }
