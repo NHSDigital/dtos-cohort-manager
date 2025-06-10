@@ -50,6 +50,18 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       },
     }, async ({ request, testData }) => {
       await test.step(`Then Exception table should have RuleId as 101 & RuleDescription as CurrentPostingEffectiveFromDate`, async () => {
+        const updatedParticipantRecord = JSON.parse(JSON.stringify(testData.inputParticipantRecord))
+
+        const dateMap = generateDynamicDateMap();
+
+        const finalJson = replaceDynamicDatesInJson(updatedParticipantRecord, dateMap);
+
+        const tempFilePath = createTempDirAndWriteJson(finalJson);
+
+        const runTimeParquetFile = await createParquetFromJson(testData.nhsNumbers, finalJson, tempFilePath, "AMENDED", false);
+        await processFileViaStorage(runTimeParquetFile);
+        deleteTempDir();
+
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
     })
@@ -62,22 +74,22 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     }, async ({ request, testData }) => {
 
       await test.step(`Then the record should appear in the cohort management table`, async () => {
-         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
     })
 
   });
 
   test('@DTOSS-4103-01-Validate invalid GP Practice Code for a new participant', {
-      annotation: {
-        type: 'Requirement',
-        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4103',
-      },
-    }, async ({ request, testData }) => {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4103',
+    },
+  }, async ({ request, testData }) => {
 
-      await test.step(`Then the record should appear in the exception table`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
+    await test.step(`Then the record should appear in the exception table`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+    });
   })
   // End of ADD Tests
 
