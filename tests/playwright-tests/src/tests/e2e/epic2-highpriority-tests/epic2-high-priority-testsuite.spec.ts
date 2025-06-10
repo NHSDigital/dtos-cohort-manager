@@ -1,10 +1,7 @@
 import { test, testWithAmended} from '../../fixtures/test-fixtures';
 import { processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } from '../../steps/steps';
 import { TestHooks } from '../../hooks/test-hooks';
-import { json } from 'stream/consumers';
-import * as fs from 'fs';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
-const path = require('path');
 import { createTempDirAndWriteJson, deleteTempDir } from '../../../../src/json/file-utils';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../../src/json/json-updator';
 
