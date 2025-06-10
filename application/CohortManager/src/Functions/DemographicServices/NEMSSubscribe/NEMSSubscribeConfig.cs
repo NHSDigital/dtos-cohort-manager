@@ -2,7 +2,7 @@ namespace NHS.CohortManager.DemographicServices;
 
 using System.ComponentModel.DataAnnotations;
 
-public class NEMSSubscribeConfig
+public class ManageNemsSubscriptionConfig
 {
     [Required]
     public string NemsFhirEndpoint { get; set; }

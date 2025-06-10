@@ -6,7 +6,7 @@ using Common;
 using NHS.CohortManager.DemographicServices;
 
 var host = new HostBuilder()
-    .AddConfiguration<NEMSSubscribeConfig>(out NEMSSubscribeConfig config)
+    .AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config)
     .AddDataServicesHandler()
     .Build()
     .ConfigureFunctionsWebApplication()

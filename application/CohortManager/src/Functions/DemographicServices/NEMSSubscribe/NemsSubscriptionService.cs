@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.DemographicServices.NEMSUnSubscription;
+namespace NHS.CohortManager.DemographicServices;
 
 using System;
 using System.Linq;
@@ -11,7 +11,6 @@ using System.Net.Http;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
 using Model;
-using NHS.Screening.NEMSUnSubscription;
 
 public interface INemsSubscriptionService
 {
@@ -74,26 +73,18 @@ public class NemsSubscriptionService : INemsSubscriptionService
         }
     }
 
-    public async Task<bool> DeleteSubscriptionFromTableAsync(string nhsNumber)
+    public async Task<bool> DeleteSubscriptionFromDatabaseAsync(string nhsNumber)
     {
         try
         {
-            _logger.LogInformation("Attempting to delete subscription for NHS number {NhsNumber}", nhsNumber);
-
+            _logger.LogInformation("Attempting to delete subscription for NHS number");
             var deleted = await _nemsSubscriptionClient.Delete(nhsNumber);
 
-            if (deleted)
-            {
-                _logger.LogInformation("Successfully deleted the subscription");
-                return true;
-            }
-
-            _logger.LogError("Failed to delete the subscription");
-            return false;
+            return deleted;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occurred while deleting the subscription for NHS number {NhsNumber}", nhsNumber);
+            _logger.LogError(ex, "Exception occurred while deleting the subscription from database");
             return false;
         }
     }

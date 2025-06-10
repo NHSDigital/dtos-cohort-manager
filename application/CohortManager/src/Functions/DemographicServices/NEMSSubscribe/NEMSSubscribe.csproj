@@ -9,6 +9,7 @@
   </PropertyGroup>
   <ItemGroup>
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    <PackageReference Include="Azure.Data.Tables" Version="12.10.0" />
     <PackageReference Include="Hl7.Fhir.R4" Version="5.11.4" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.2.0" />
@@ -35,5 +36,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\HealthChecks\HealthChecks.csproj" />
     <ProjectReference Include="..\DataServices.Core\DataServices.Core.csproj" />
+    <ProjectReference Include="..\..\Shared\Model\Model.csproj" />
+    <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
 </ItemGroup>
 </Project>

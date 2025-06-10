@@ -49,11 +49,6 @@ public class NEMSUnSubscription
 
         string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
 
-        if (string.IsNullOrWhiteSpace(requestBody))
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Request body is empty.");
-        }
-
         var request = JsonSerializer.Deserialize<UnsubscriptionRequest>(requestBody);
 
         if (request == null || string.IsNullOrEmpty(request.NhsNumber))
@@ -67,7 +62,6 @@ public class NEMSUnSubscription
         if (string.IsNullOrEmpty(subscriptionId))
         {
             _logger.LogWarning("No subscription record found.");
-
             return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No subscription record found.");
         }
 
