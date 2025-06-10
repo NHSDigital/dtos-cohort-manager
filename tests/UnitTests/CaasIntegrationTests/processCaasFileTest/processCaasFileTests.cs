@@ -29,6 +29,8 @@ public class ProcessCaasFileTests
 
     private readonly Mock<IOptions<ReceiveCaasFileConfig>> _config = new();
 
+    private readonly Mock<HttpClientFunction> _httpClientFunction = new();
+
     // Helper method to create an instance of ProcessCaasFile with a given configuration
     private ProcessCaasFile CreateProcessCaasFile(ReceiveCaasFileConfig config)
     {
@@ -42,7 +44,7 @@ public class ProcessCaasFileTests
             _databaseClientParticipantMock.Object,
             _recordsProcessedTrackerMock.Object,
             _validateDates.Object,
-            _callFunction.Object,
+            _httpClientFunction.Object,
             _callDurableFunc.Object,
             _config.Object
         );
