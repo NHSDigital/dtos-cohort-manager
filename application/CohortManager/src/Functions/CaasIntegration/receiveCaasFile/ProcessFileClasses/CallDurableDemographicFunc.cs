@@ -1,7 +1,10 @@
 namespace NHS.Screening.ReceiveCaasFile;
 
+
+using System.Net.Http.Headers;
 using System.Text.Json;
 using Common;
+using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
@@ -10,24 +13,27 @@ using Polly;
 
 public class CallDurableDemographicFunc : ICallDurableDemographicFunc
 {
+
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly ILogger<CallDurableDemographicFunc> _logger;
+    private readonly HttpClient _httpClient;
     private readonly ICopyFailedBatchToBlob _copyFailedBatchToBlob;
     private readonly int _maxNumberOfChecks;
     private TimeSpan _delayBetweenChecks = TimeSpan.FromSeconds(3);
+
     private readonly ReceiveCaasFileConfig _config;
 
-    public CallDurableDemographicFunc(
-        IHttpClientFunction httpClientFunction,
-        ILogger<CallDurableDemographicFunc> logger,
-        ICopyFailedBatchToBlob copyFailedBatchToBlob,
-        IOptions<ReceiveCaasFileConfig> config)
+
+    public CallDurableDemographicFunc(IHttpClientFunction httpClientFunction, ILogger<CallDurableDemographicFunc> logger, HttpClient httpClient, ICopyFailedBatchToBlob copyFailedBatchToBlob, IOptions<ReceiveCaasFileConfig> config)
     {
         _config = config.Value;
         _httpClientFunction = httpClientFunction;
         _logger = logger;
+        _httpClient = httpClient;
         _copyFailedBatchToBlob = copyFailedBatchToBlob;
         _maxNumberOfChecks = _config.maxNumberOfChecks;
+
+        _httpClient.Timeout = TimeSpan.FromSeconds(300);
     }
 
     /// <summary>
@@ -53,10 +59,11 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
 
         try
         {
-            var response = await _httpClientFunction.SendPost(DemographicFunctionURI, JsonSerializer.Serialize(participants));
+            // this seems to be better for memory management
+            var content = JsonSerializer.Serialize(participants);
+            var response = await _httpClientFunction.SendPost(DemographicFunctionURI, content);
 
-            responseContent = response.Headers.Location?.ToString() ?? string.Empty;
-
+            responseContent = response.Headers.Location!.ToString();
             // this is not retrying the function if it fails but checking if it has done yet.
             var retryPolicy = Policy
                 .HandleResult<WorkFlowStatus>(status => status != WorkFlowStatus.Completed && status != WorkFlowStatus.Failed)
@@ -73,12 +80,12 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
 
             if (finalStatus == WorkFlowStatus.Completed)
             {
-                _logger.LogWarning("Durable function completed {FinalStatus}", finalStatus);
+                _logger.LogWarning("Durable function completed {finalStatus}", finalStatus);
                 return true;
             }
             else
             {
-                _logger.LogError("Check limit reached or demographic function failed {FinalStatus}", finalStatus);
+                _logger.LogError("Check limit reached or demographic function failed {finalStatus}", finalStatus);
                 await _copyFailedBatchToBlob.writeBatchToBlob(
                     JsonSerializer.Serialize(participants),
                     new InvalidOperationException("there was an error while adding batch of participants to the demographic table")
@@ -109,15 +116,16 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
     {
         try
         {
-            var response = await _httpClientFunction.SendGet(statusRequestGetUri);
+            using HttpResponseMessage response = await _httpClient.GetAsync(statusRequestGetUri);
+            var jsonResponse = await response.Content.ReadAsStringAsync();
 
-            var data = JsonSerializer.Deserialize<WebhookResponse>(response);
+            var data = JsonSerializer.Deserialize<WebhookResponse>(jsonResponse);
 
             if (data != null)
             {
                 if (!Enum.TryParse(data.RuntimeStatus, out WorkFlowStatus workFlowStatus))
                 {
-                    _logger.LogError("There was an error parsing the RuntimeStatus: {Response}", response);
+                    _logger.LogError(jsonResponse);
                 }
                 return workFlowStatus;
             }
@@ -126,7 +134,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
         //sometimes the webhook can fail for very annoying reasons but the Orchestration data still exists so we can check for its status
         catch (Exception ex)
         {
-            var getOrchestrationStatusURL = _config.GetOrchestrationStatusURL;
+            var getOrchestrationStatusURL = Environment.GetEnvironmentVariable("GetOrchestrationStatusURL");
 
             if (string.IsNullOrWhiteSpace(getOrchestrationStatusURL))
             {
