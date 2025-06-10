@@ -17,13 +17,12 @@ public class ValidationExceptionDataTests
     private readonly List<ExceptionManagement> _exceptionList;
     private readonly Mock<IDataServiceClient<ExceptionManagement>> _validationExceptionDataServiceClient = new();
     private readonly Mock<IDataServiceClient<ParticipantDemographic>> _demographicDataServiceClient = new();
-    private readonly Mock<IDataServiceClient<GPPractice>> _gpPracticeDataServiceClient = new();
     private readonly ValidationExceptionData validationExceptionData;
     private readonly ExceptionCategory _exceptionCategory;
 
     public ValidationExceptionDataTests()
     {
-        validationExceptionData = new ValidationExceptionData(_logger.Object, _validationExceptionDataServiceClient.Object, _demographicDataServiceClient.Object, _gpPracticeDataServiceClient.Object);
+        validationExceptionData = new ValidationExceptionData(_logger.Object, _validationExceptionDataServiceClient.Object, _demographicDataServiceClient.Object);
         _exceptionList = new List<ExceptionManagement>
         {
             new() { ExceptionId = 1, CohortName = "Cohort1", DateCreated = DateTime.Today.AddDays(-2), NhsNumber = "1111111111", RuleDescription = "RuleA", Category = 1, ServiceNowId = "ServiceNow1" },
@@ -139,7 +138,6 @@ public class ValidationExceptionDataTests
         // Arrange
         _validationExceptionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync(new ExceptionManagement() { ExceptionId = exceptionId, NhsNumber = "123456789" });
         _demographicDataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic());
-        _gpPracticeDataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<GPPractice, bool>>>())).ReturnsAsync(new GPPractice());
 
         // Act
         var result = await validationExceptionData.GetExceptionById(exceptionId);
@@ -159,7 +157,6 @@ public class ValidationExceptionDataTests
         // Arrange
         _validationExceptionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).ReturnsAsync((ExceptionManagement)null);
         _demographicDataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync((ParticipantDemographic)null);
-        _gpPracticeDataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<GPPractice, bool>>>())).ReturnsAsync((GPPractice)null);
 
         // Act
         var result = await validationExceptionData.GetExceptionById(exceptionId);
