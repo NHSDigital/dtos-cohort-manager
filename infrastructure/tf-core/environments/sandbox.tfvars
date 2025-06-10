@@ -588,8 +588,8 @@ function_apps = {
           function_app_key = "ExceptionManagementDataService"
         },
         {
-          env_var_name     = "GPPracticeDataServiceURL"
-          function_app_key = "GPPracticeDataService"
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
         }
       ]
       env_vars_static = {
