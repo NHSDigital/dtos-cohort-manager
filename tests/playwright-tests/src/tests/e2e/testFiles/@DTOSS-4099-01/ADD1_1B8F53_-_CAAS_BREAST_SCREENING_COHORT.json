@@ -4,7 +4,8 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9992728167",
-        "RuleId": 71
+        "RuleId": 71,
+        "RuleDescription": "Address is missing"
       }
     }
   ],
@@ -31,7 +32,7 @@
       "address_line_3": "",
       "address_line_4": "",
       "address_line_5": "",
-      "postcode": "",
+      "postcode": "SW18 1AB",
       "paf_key": "Z3S4Q5X9",
       "address_effective_from_date": "20240501",
       "reason_for_removal": null,
