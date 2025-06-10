@@ -8,12 +8,11 @@ pool:
   name: private-pool-dev-uks
 
 schedules:
-  - cron: "0 7 * * *" # Run at 8:00 AM UTC
+  - cron: "0 7 * * *" # Run at 7:00 AM UTC
     displayName: 'Scale_Peak'
     branches:
       include:
       - main
-      - feat/dtoss-8108-azure-sql-scaling
     always: true
 
   - cron: "0 17 * * *" # Run at 5:00 PM UTC
@@ -21,7 +20,6 @@ schedules:
     branches:
       include:
       - main
-      - feat/dtoss-8108-azure-sql-scaling
     always: true
 
 resources:

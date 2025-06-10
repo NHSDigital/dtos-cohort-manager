@@ -5,7 +5,7 @@ trigger: none
 pr: none
 
 pool:
-  name: private-pool-dev-uks
+  name: private-pool-prod-uks
 
 schedules:
   - cron: "0 7 * * *" # Run at 7:00 AM UTC
@@ -42,14 +42,14 @@ parameters:
   - name: Sku_Peak
     displayName: Peak SKU
     type: string
-    default: 'S2'
+    default: 'S12'
   - name: Sku_OffPeak
     displayName: Off-Peak SKU
     type: string
-    default: 'S1'
+    default: 'S9'
 
 variables:
-  - group: DEV_core_backend
+  - group: PRE_core_backend
 
 stages:
   - stage: ScaleDatabase
