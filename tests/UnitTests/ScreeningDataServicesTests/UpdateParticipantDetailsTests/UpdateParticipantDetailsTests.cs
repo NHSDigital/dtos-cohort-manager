@@ -99,11 +99,14 @@ public class UpdateParticipantDetailsTests
     public async Task Run_ValidRequest_UpdateAndReturnOk()
     {
         // Arrange
-        var sut = new UpdateParticipantDetails(_loggerMock.Object, _createResponseMock.Object, _exceptionHandlerMock.Object,
-
-        _httpClientFunction.Object, _participantManagementClientMock.Object,
-                                                _config.Object);
-
+        var sut = new UpdateParticipantDetails(
+            _loggerMock.Object,
+            _createResponseMock.Object,
+            _exceptionHandlerMock.Object,
+            _httpClientFunction.Object,
+            _participantManagementClientMock.Object,
+            _config.Object
+        );
 
         string json = JsonSerializer.Serialize(_participantCsvRecord);
         var request = _setupRequest.Setup(json);
