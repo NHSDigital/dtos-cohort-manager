@@ -4,7 +4,11 @@
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9994878999
-
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5613-01",
+        "requirementJiraId": "DTOSS-4909",
+        "additionalTags": "@regression @e2e @epic2-high-priority when Eligibility Flag is set to true for Add, then only one NHS Numbers should be updated in the cohort"
       }
     }
   ],

@@ -3,7 +3,7 @@ namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 using Moq;
 using Common;
 using Model;
-using NHS.CohortManager.CohortDistribution;
+using NHS.CohortManager.CohortDistributionService;
 using Data.Database;
 using System.Data;
 

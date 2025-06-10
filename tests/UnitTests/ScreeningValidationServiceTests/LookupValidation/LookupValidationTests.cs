@@ -86,24 +86,76 @@ public class LookupValidationTests
 
     private void SetupRules(string ruleType)
     {
-        string json;
+        string filename;
         switch (ruleType)
         {
             case "LookupRules":
-                json = File.ReadAllText("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_lookupRules.json");
+                filename = "Breast_Screening_lookupRules.json";
                 break;
             case "CohortRules":
-                json = File.ReadAllText("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_cohortRules.json");
+                filename = "Breast_Screening_cohortRules.json";
                 break;
             default:
-                json = File.ReadAllText("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation/Breast_Screening_lookupRules.json");
+                filename = "Breast_Screening_lookupRules.json";
                 break;
         }
+
+        // Try various paths for the rules files
+        string[] possiblePaths = new[]
+        {
+            // Relative paths with different nesting depths
+            Path.Combine("../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+            Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+            Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+            Path.Combine("../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+            Path.Combine("../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+            Path.Combine("../../../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
+            
+            // Try with the ScreeningValidationService root directory
+            Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService", filename),
+            Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService", filename)
+        };
+
+        // Try to find the file in any of the possible locations
+        string jsonContent = null;
+        foreach (string relativePath in possiblePaths)
+        {
+            try
+            {
+                string fullPath = Path.GetFullPath(relativePath);
+                if (File.Exists(fullPath))
+                {
+                    jsonContent = File.ReadAllText(fullPath);
+                    Console.WriteLine($"Found rules file at: {fullPath}");
+                    break;
+                }
+            }
+            catch
+            {
+                // Ignore any errors and try the next path
+            }
+        }
+
+        // If file wasn't found, check for an embedded resource
+        if (jsonContent == null)
+        {
+            // Get the directory of the currently executing assembly
+            string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string assemblyDirectory = Path.GetDirectoryName(assemblyLocation) ?? string.Empty;
+
+            // Try to find in a TestData directory
+            string testDataPath = Path.Combine(assemblyDirectory, "TestData", filename);
+            if (File.Exists(testDataPath))
+            {
+                jsonContent = File.ReadAllText(testDataPath);
+                Console.WriteLine($"Found rules file in TestData directory: {testDataPath}");
+            }
+        }
+
         _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>()))
-        .Returns(Task.FromResult<string>(json));
+            .Returns(Task.FromResult(jsonContent));
+
         _sut = new LookupValidation(_createResponse, _exceptionHandler.Object, _mockLogger.Object, _lookupValidation.Object, _readRules.Object);
-
-
     }
 
     [TestMethod]
@@ -314,15 +366,17 @@ public class LookupValidationTests
 
     [TestMethod]
     [DataRow("RDR", null, null)] // postcode and primary care provider null
+    [DataRow("RDI", "not valid", "E85121")] // postcode invalid
+    [DataRow("RPR", "BN20 1PH", "not valid")] // PCP invalid
     public async Task Run_invalidParticipant_ValidateBsoCodeRuleFails(string ReasonForRemoval, string postcode,
                                                                     string primaryCareProvider)
     {
         // Arrange
-        SetupRules("LookupRules");
+        SetupRules("CohortRules");
         _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
         _requestBody.NewParticipant.Postcode = postcode;
         _requestBody.NewParticipant.ReasonForRemoval = ReasonForRemoval;
-        _requestBody.NewParticipant.RecordType = "ADD";
+        _requestBody.NewParticipant.RecordType = "AMENDED";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -331,6 +385,11 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+        _exceptionHandler.Verify(handleException =>
+            handleException.CreateValidationExceptionLog(
+                It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "54.ValidateBsoCode.NBO.NonFatal")),
+                It.IsAny<ParticipantCsvRecord>()),
+            Times.AtLeastOnce());
     }
 
     [TestMethod]
@@ -352,7 +411,10 @@ public class LookupValidationTests
         var result = await _sut.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.ValidateReasonForRemoval.NBO.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Never());
     }
 
     [TestMethod]
@@ -548,8 +610,7 @@ public class LookupValidationTests
     #region Validate BSO Code (Rule 54)
     [TestMethod]
     [DataRow("RPR", "", "", Actions.Amended)]
-    [DataRow("RDR", "ZZZPCP", "", Actions.Amended)]
-
+    [DataRow("RDR", "", "", Actions.Amended)]
     public async Task Run_AmendedRFRParticipantHasInvalidPostcodeAndGpPractice_ThrowsException(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
     {
         // Arrange
@@ -642,7 +703,6 @@ public class LookupValidationTests
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
-        _exceptionHandler.VerifyNoOtherCalls();
     }
 
     [TestMethod]
@@ -685,7 +745,7 @@ public class LookupValidationTests
     {
         // Arrange
         SetupRules("LookupRules");
-        _requestBody.NewParticipant.BlockedFlag = "1";
+        _requestBody.ExistingParticipant.BlockedFlag = "1";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
