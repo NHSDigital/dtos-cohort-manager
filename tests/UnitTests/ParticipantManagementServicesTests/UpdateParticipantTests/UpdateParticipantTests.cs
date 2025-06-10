@@ -29,9 +29,7 @@ public class UpdateParticipantTests
         {
             DemographicURIGet = "DemographicURIGet",
             UpdateParticipant = "UpdateParticipant",
-            StaticValidationURL = "StaticValidationURL",
-            DSmarkParticipantAsEligible = "DSmarkParticipantAsEligible",
-            markParticipantAsIneligible = "markParticipantAsIneligible"
+            StaticValidationURL = "StaticValidationURL"
         };
 
         var validationResponse = new ValidationExceptionLog { IsFatal = false, CreatedException = false };
@@ -58,12 +56,7 @@ public class UpdateParticipantTests
         _httpClientFunction
             .Setup(call => call.SendPost("CohortDistributionServiceURL", It.IsAny<string>()))
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
-        _httpClientFunction
-            .Setup(call => call.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
-        _httpClientFunction
-            .Setup(call => call.SendPost("markParticipantAsIneligible", It.IsAny<string>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+
 
         _checkDemographic
             .Setup(x => x.GetDemographicAsync(It.IsAny<string>(), "DemographicURIGet"))
@@ -103,8 +96,6 @@ public class UpdateParticipantTests
         // Assert
         _httpClientFunction
             .Verify(x => x.SendPost("UpdateParticipant", It.IsAny<string>()));
-        _httpClientFunction
-            .Verify(x => x.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()));
 
         _cohortDistributionHandler
             .Verify(call => call.SendToCohortDistributionService(
@@ -131,8 +122,6 @@ public class UpdateParticipantTests
         // Assert
         _httpClientFunction
             .Verify(x => x.SendPost("UpdateParticipant", It.IsAny<string>()));
-        _httpClientFunction
-            .Verify(x => x.SendPost("markParticipantAsIneligible", It.IsAny<string>()));
 
         _cohortDistributionHandler
             .Verify(call => call.SendToCohortDistributionService(

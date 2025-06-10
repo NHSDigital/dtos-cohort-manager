@@ -57,7 +57,6 @@ public class LookupValidation
 
         try
         {
-            var existingParticipant = requestBody.ExistingParticipant;
             newParticipant = requestBody.NewParticipant;
 
             var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
@@ -76,7 +75,7 @@ public class LookupValidation
 
 
             var ruleParameters = new[] {
-                new RuleParameter("existingParticipant", existingParticipant),
+                new RuleParameter("existingParticipant", requestBody.ExistingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
                 new RuleParameter("dbLookup", _dataLookup)
             };
@@ -100,7 +99,6 @@ public class LookupValidation
 
             if (validationErrors.Any())
             {
-
                 _logger.LogInformation("There was an error in the Validation Rules");
                 var participantCsvRecord = new ParticipantCsvRecord()
                 {
@@ -109,7 +107,6 @@ public class LookupValidation
                 };
                 var exceptionCreated = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(exceptionCreated));
-
             }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
