@@ -1,10 +1,7 @@
 import { test, testWithAmended} from '../../fixtures/test-fixtures';
 import { processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } from '../../steps/steps';
 import { TestHooks } from '../../hooks/test-hooks';
-import { json } from 'stream/consumers';
-import * as fs from 'fs';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
-const path = require('path');
 import { createTempDirAndWriteJson, deleteTempDir } from '../../../../src/json/file-utils';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../../src/json/json-updator';
 
@@ -31,6 +28,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
     })
+  });
 
     test('@DTOSS-4328-01 Validate current posting effective date throw exception when invalid date format given for new participants', {
       annotation: {
@@ -66,8 +64,6 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
-  });
-
   test('@DTOSS-4103-01-Validate invalid GP Practice Code for a new participant', {
       annotation: {
         type: 'Requirement',
@@ -79,6 +75,19 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
   })
+
+  test('@DTOSS-4099-01-Validate missing address lines', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4099',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`Then the record should appear in the exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+  })
+
   // End of ADD Tests
 
   testWithAmended('@DTOSS-4383-01-Update a valid GP Practice Code for a existing participant', {
