@@ -166,5 +166,6 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     await test.step(`Then Exception table should have expected rule id and description for 3 AMENDED participants`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
+
   });
 });
