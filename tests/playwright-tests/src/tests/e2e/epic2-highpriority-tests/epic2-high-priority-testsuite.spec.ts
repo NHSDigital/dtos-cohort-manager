@@ -168,4 +168,15 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     });
 
   });
+  test.only('@DTOSS-6045-01 - Verify participant data meets the 3 conditions to trigger Rule 45',  {
+     annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6045',
+      },
+     }, async ({ request, testData }) => {
+
+    await test.step(`Verify exception in exception table`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+    });
+  });
 });
