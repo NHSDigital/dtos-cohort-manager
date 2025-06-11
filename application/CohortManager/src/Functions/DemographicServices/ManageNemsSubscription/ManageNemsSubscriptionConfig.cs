@@ -6,7 +6,6 @@ public class ManageNemsSubscriptionConfig
 {
     [Required]
     public string NemsFhirEndpoint { get; set; }
-
     [Required]
     public string RetrievePdsDemographicURL { get; set; }
     public string SpineAccessToken { get; set; }
@@ -16,4 +15,5 @@ public class ManageNemsSubscriptionConfig
     public string SubscriptionCriteria { get; set; }
     public string CallbackEndpoint { get; set; }
     public string CallAuthToken { get; set; }
+    public string NemsDeleteEndpoint { get; set; }
 }

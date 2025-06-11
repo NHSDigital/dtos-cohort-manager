@@ -1,15 +1,15 @@
-using DataServices.Client;
+using DataServices.Core;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Common;
 using NHS.CohortManager.DemographicServices;
+using DataServices.Database;
 
 var host = new HostBuilder()
     .AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config)
-    .AddDataServicesHandler()
-    .Build()
     .ConfigureFunctionsWebApplication()
+    .AddDataServicesHandler<DataServicesContext>()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();

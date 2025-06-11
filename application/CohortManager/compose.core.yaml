@@ -277,32 +277,19 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsParticipantURL=https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient
 
-  nems-subscribe:
-    container_name: nems-subscribe
-    image: cohort-manager-nems-subscribe
+  manage-nems-subscription:
+    container_name: manage-nems-subscription
+    image: cohort-manager-manage-nems-subscription
     networks: [cohman-network]
     build:
       context: ./src/Functions/
-      dockerfile: DemographicServices/NEMSSubscribe/Dockerfile
-    profiles: [not-implemented]
+      dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile
+    profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:9081
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
-
-  nems-unsubscribe:
-    container_name: nems-unsubscribe
-    image: cohort-manager-nems-unsubscribe
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: DemographicServices/NEMSUnSubscription/Dockerfile
-    profiles: [not-implemented]
-    environment:
-      - ASPNETCORE_URLS=http://*:9082
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
 
   durable-demographic-function:
     container_name: durable-demographic-function
@@ -320,7 +307,7 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - AcceptableLatencyThresholdMs=500
 
-    # UI
+  # UI
   web:
     container_name: web
     build:
@@ -332,7 +319,7 @@ services:
       - "3000:3000"
     networks: [cohman-network]
 
-    #Service Now Integration
+  # Service Now Integration
   send-servicenow-message:
     container_name: send-servicenow-message
     image: cohort-manager-send-servicenow-message
