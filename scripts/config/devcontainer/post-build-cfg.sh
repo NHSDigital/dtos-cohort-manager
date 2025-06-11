@@ -7,3 +7,4 @@ echo '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc
 source ~/.bashrc
 git config --global --add safe.directory $PWD
 make config
+# let's see
