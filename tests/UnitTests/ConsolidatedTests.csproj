@@ -46,8 +46,7 @@
 
   <!-- Compile Files -->
   <ItemGroup>
-    <Compile Include="**\*.cs"
-      Exclude="**/bin/**;**/obj/**;**/*.AssemblyInfo.cs;**/*.GlobalUsings.g.cs;**/*AssemblyAttributes.cs" />
+    <Compile Include="**\*.cs" Exclude="**/bin/**;**/obj/**;**/*.AssemblyInfo.cs;**/*.GlobalUsings.g.cs;**/*AssemblyAttributes.cs" />
   </ItemGroup>
 
   <!-- Project References -->
@@ -75,6 +74,7 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\BsSelectGpPractice\BsSelectGpPractice.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\CurrentPostingDataService\CurrentPosting.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\NemsSubscriptionDataService\NemsSubscriptionDataService.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\SendServiceNowMessage\SendServiceNowMessage.csproj" />
   </ItemGroup>
 
   <!-- Screening Validation Services -->
@@ -82,7 +82,6 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\RemoveValidationException\RemoveValidationException.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\LookupValidation\LookupValidation.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\StaticValidation\StaticValidation.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\FileValidation\FileValidation.csproj" />
   </ItemGroup>
 
   <!-- Participant Management Services -->
@@ -103,11 +102,9 @@
   <!-- Cohort Distribution Services -->
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\TransformDataService\TransformDataService.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\ValidateCohortDistributionRecord\ValidateCohortDistributionRecord.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\RetrieveParticipantData\RetrieveParticipantData.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\CreateCohortDistribution\CreateCohortDistribution.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\AddCohortDistributionData\AddCohortDistributionData.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\DeleteParticipant\DeleteParticipant.csproj" />
   </ItemGroup>
 
@@ -130,6 +127,15 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSUnSubscription\NEMSUnSubscription.csproj" />
   </ItemGroup>
 
+    <!-- Send Service Now Message Services -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegrationService\SendServiceNowMessage\SendServiceNowMessage.csproj" />
+  </ItemGroup>
+
+      <!-- FileValidation Services -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\FileValidation\FileValidation.csproj" />
+  </ItemGroup>
   <!-- Content files to be copied to output directory -->
   <ItemGroup>
     <None Update="**\*.json;**\*.parquet" CopyToOutputDirectory="PreserveNewest" />

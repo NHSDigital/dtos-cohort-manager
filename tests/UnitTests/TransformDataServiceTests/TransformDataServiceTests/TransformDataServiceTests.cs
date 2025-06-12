@@ -3,7 +3,7 @@ namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using NHS.CohortManager.CohortDistribution;
+using NHS.CohortManager.CohortDistributionService;
 using NHS.CohortManager.Tests.TestUtils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
@@ -31,7 +31,6 @@ public class TransformDataServiceTests
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceClient = new();
     private readonly Mock<ITransformDataLookupFacade> _transformLookups = new();
-
     public TransformDataServiceTests()
     {
         _request = new Mock<HttpRequestData>(_context.Object);
@@ -57,12 +56,9 @@ public class TransformDataServiceTests
         _requestBody = new TransformDataRequestBody()
         {
             Participant = requestParticipant,
+            ExistingParticipant = databaseParticipant,
             ServiceProvider = "1"
         };
-
-        _cohortDistributionDataServiceClient
-            .Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
-            .ReturnsAsync([databaseParticipant]);
 
         _transformLookups.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(true);
         _transformLookups.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns("ELD");
@@ -70,7 +66,7 @@ public class TransformDataServiceTests
 
         _transformReasonForRemoval = new TransformReasonForRemoval(_handleException.Object, _transformLookups.Object);
 
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval, _cohortDistributionDataServiceClient.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
