@@ -88,7 +88,6 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
   })
 
-
   test('@DTOSS-4092-01-Validate null GP Practice Code for a new participant', {
       annotation: {
         type: 'Requirement',
