@@ -35,25 +35,21 @@ public class RetrieveCohortDistributionData
     private readonly ICreateResponse _createResponse;
     private readonly ICreateCohortDistributionData _createCohortDistributionData;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IHttpParserHelper _httpParserHelper;
-
-    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataServiceClient;
 
 
-    public RetrieveCohortDistributionData(ILogger<RetrieveCohortDistributionData> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IHttpParserHelper httpParserHelper, IDataServiceClient<CohortDistribution> cohortDistributionDataServiceClient)
+
+    public RetrieveCohortDistributionData(ILogger<RetrieveCohortDistributionData> logger, ICreateCohortDistributionData createCohortDistributionData, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
     {
         _logger = logger;
         _createCohortDistributionData = createCohortDistributionData;
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
-        _httpParserHelper = httpParserHelper;
-        _cohortDistributionDataServiceClient = cohortDistributionDataServiceClient;
     }
 
     [Function(nameof(RetrieveCohortDistributionData))]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        var cohortDistributionParticipants = new List<CohortDistributionParticipantDto>();
+        List<CohortDistributionParticipantDto> cohortDistributionParticipants;
         try
         {
 
