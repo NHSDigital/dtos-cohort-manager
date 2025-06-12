@@ -1,17 +1,16 @@
 {
   "name": "DToS-Dev-Container-Universal-Ubuntu",
-  "image": "mcr.microsoft.com/devcontainers/base:jammy",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-    "ghcr.io/devcontainers-contrib/features/apt-packages:1": {},
     "ghcr.io/devcontainers-contrib/features/apt-get-packages:1": {},
-    "ghcr.io/devcontainers/features/azure-cli:1": {},
     "ghcr.io/devcontainers/features/github-cli:1": {},
     "ghcr.io/devcontainers/features/terraform:1": {},
     "ghcr.io/devcontainers-contrib/features/asdf-package:1": {},
     "ghcr.io/devcontainers-contrib/features/curl-apt-get:1": {},
     "ghcr.io/devcontainers-contrib/features/npm-package:1": {},
     "ghcr.io/devcontainers/features/dotnet:2": {},
+    "ghcr.io/devcontainers/features/python:1": {},
     "ghcr.io/azure/azure-dev/azd:0": {}
   },
   "postCreateCommand": "bash -i scripts/config/devcontainer/post-build-cfg.sh",
