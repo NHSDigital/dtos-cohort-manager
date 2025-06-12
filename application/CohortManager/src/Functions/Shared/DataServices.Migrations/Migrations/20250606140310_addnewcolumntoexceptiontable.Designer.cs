@@ -4,6 +4,7 @@ using DataServices.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataServices.Migrations.Migrations
 {
     [DbContext(typeof(DataServicesContext))]
-    partial class DataServicesContextModelSnapshot : ModelSnapshot
+    [Migration("20250606140310_addnewcolumntoexceptiontable")]
+    partial class addnewcolumntoexceptiontable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1018,10 +1021,6 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("BUSINESS_RULE_VERSION");
 
-                    b.Property<short>("CeasedFlag")
-                        .HasColumnType("smallint")
-                        .HasColumnName("CEASED_FLAG");
-
                     b.Property<DateTime?>("DateIrradiated")
                         .HasColumnType("datetime")
                         .HasColumnName("DATE_IRRADIATED");
@@ -1092,10 +1091,6 @@ namespace DataServices.Migrations.Migrations
                     b.Property<DateTime?>("RecordUpdateDateTime")
                         .HasColumnType("datetime")
                         .HasColumnName("RECORD_UPDATE_DATETIME");
-
-                    b.Property<short>("ReferralFlag")
-                        .HasColumnType("smallint")
-                        .HasColumnName("REFERRAL_FLAG");
 
                     b.Property<string>("ScreeningCeasedReason")
                         .HasColumnType("nvarchar(max)")
