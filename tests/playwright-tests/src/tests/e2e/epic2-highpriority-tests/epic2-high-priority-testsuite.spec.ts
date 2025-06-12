@@ -240,7 +240,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     });
   });
 
-  testWithAmended.only('@DTOSS-4090-01 Validate existing participant null GP practice code', {
+  testWithAmended('@DTOSS-4090-01 Validate existing participant null GP practice code', {
       annotation: {
         type: 'Requirement',
         description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4090',
