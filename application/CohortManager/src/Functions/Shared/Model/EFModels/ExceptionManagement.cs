@@ -102,7 +102,7 @@ public class ExceptionManagement
             CohortName = validationException.CohortName,
             IsFatal = short.TryParse(input, out short result) ? result : new short(),
             ServiceNowId = ServiceNowId,
-            ServiceNowCreatedDate = validationException.ServiceNowCreatedDate ?? DateTime.MinValue,
+            ServiceNowCreatedDate = validationException.ServiceNowCreatedDate ?? DateTime.MaxValue,
             RecordUpdatedDate = validationException.RecordUpdatedDate ?? DateTime.MaxValue
         };
     }
