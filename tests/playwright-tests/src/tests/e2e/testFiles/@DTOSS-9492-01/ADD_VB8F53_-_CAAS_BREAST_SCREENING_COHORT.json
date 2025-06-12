@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9995518112",
+        "NhsNumber": "9999111114",
         "RuleId": 3602,
         "RuleDescription": "Invalid primary care provider GP practice code"
       }
@@ -11,7 +11,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9995081229",
+        "NhsNumber": "9999111122",
         "RuleId": 3602,
         "RuleDescription": "Invalid primary care provider GP practice code"
       }
@@ -19,7 +19,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9991845666",
+        "NhsNumber": "9999111130",
         "RuleId": 3602,
         "RuleDescription": "Invalid primary care provider GP practice code"
       }
@@ -30,7 +30,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": null,
-      "nhs_number": "9995518112",
+      "nhs_number": "9999111114",
       "superseded_by_nhs_number": null,
       "primary_care_provider": "ZZZ123",
       "primary_care_effective_from_date": "20250520",
@@ -70,7 +70,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": null,
-      "nhs_number": "9995081229",
+      "nhs_number": "9999111122",
       "superseded_by_nhs_number": null,
       "primary_care_provider": "ZZZ123",
       "primary_care_effective_from_date": "20250520",
@@ -110,7 +110,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": null,
-      "nhs_number": "9991845666",
+      "nhs_number": "9999111130",
       "superseded_by_nhs_number": null,
       "primary_care_provider": "ZZZ123",
       "primary_care_effective_from_date": "20250520",
@@ -148,8 +148,8 @@
     }
   ],
   "nhsNumbers": [
-    "9995518112",
-    "9995081229",
-    "9991845666"
+    "9999111114",
+    "9999111122",
+    "9999111130"
   ]
 }
