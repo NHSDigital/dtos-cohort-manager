@@ -67,7 +67,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
   test('@DTOSS-4103-01-Validate invalid GP Practice Code for a new participant', {
       annotation: {
         type: 'Requirement',
-        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4103',
+        description: 'Tests - https://nhsd-jira.adigital.nhs.uk/browse/DTOSS-4103',
       },
     }, async ({ request, testData }) => {
 
@@ -88,6 +88,18 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
   })
 
+
+  test('@DTOSS-4092-01-Validate null GP Practice Code for a new participant', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.adigital.nhs.uk/browse/DTOSS-4092',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`Then the record should appear in the exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+  })
   // End of ADD Tests
 
   testWithAmended('@DTOSS-4384-01-Update a invalid GP Practice Code for a existing participant', {
@@ -254,4 +266,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
       });
   })
+
+
+
 });
