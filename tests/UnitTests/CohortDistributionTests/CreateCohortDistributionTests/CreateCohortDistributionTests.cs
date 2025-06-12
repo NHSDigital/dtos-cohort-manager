@@ -1,18 +1,11 @@
 namespace NHS.CohortManager.Tests.UnitTests.CreateCohortDistributionTests;
 
-using System.Net;
-using System.Text;
-using System.Text.Json;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Common;
 using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistributionService;
-using NHS.CohortManager.Tests.TestUtils;
 using Model;
 using Model.Enums;
-using Data.Database;
 using DataServices.Client;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
@@ -26,13 +19,10 @@ public class CreateCohortDistributionTests
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private readonly CreateCohortDistributionRequestBody _requestBody;
     private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
-    private readonly Mock<HttpWebResponse> _sendToCohortDistributionResponse = new();
     private readonly Mock<IOptions<CreateCohortDistributionConfig>> _config = new();
-    private Mock<HttpRequestData> _request;
-    private readonly SetupRequest _setupRequest = new();
-    private CohortDistributionParticipant _cohortDistributionParticipant;
-    private Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
-    private Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionClientMock = new();
+    private readonly CohortDistributionParticipant _cohortDistributionParticipant;
+    private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
+    private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionClientMock = new();
 
 
     public CreateCohortDistributionTests()
@@ -54,8 +44,6 @@ public class CreateCohortDistributionTests
             NhsNumber = "1234567890",
             ScreeningService = "BSS",
         };
-
-        _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
 
         _cohortDistributionParticipant = new()
         {
@@ -118,7 +106,6 @@ public class CreateCohortDistributionTests
         // Arrange
         _requestBody.NhsNumber = nhsNumber;
         _requestBody.ScreeningService = screeningService;
-        _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
 
         // Act & Assert
         await _sut.RunAsync(_requestBody);
@@ -138,8 +125,6 @@ public class CreateCohortDistributionTests
     public async Task RunAsync_RetrieveParticipantDataRequestFails_CreateExceptionAndSendToPoisonQueue()
     {
         // Arrange
-        _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
-
         _cohortDistributionHelper
             .Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
             .Throws(new Exception("some error"));
@@ -165,15 +150,6 @@ public class CreateCohortDistributionTests
     public async Task RunAsync_AllocateServiceProviderFails_CreateExceptionAndSendToPoisonQueue()
     {
         // Arrange
-        _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
-
-        CohortDistributionParticipant cohortParticipant = new()
-        {
-            ScreeningServiceId = "screeningservice",
-            NhsNumber = "11111111",
-            RecordType = "NEW",
-        };
-
         _cohortDistributionHelper
             .Setup(x => x.AllocateServiceProviderAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .Throws(new Exception("some error"));
@@ -214,8 +190,6 @@ public class CreateCohortDistributionTests
     public async Task RunAsync_AddCohortDistributionRequestFails_CreateExceptionAndSendToPoisonQueue()
     {
         // Arrange
-        _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
-
         _cohortDistributionClientMock.Setup(x => x.Add(It.IsAny<CohortDistribution>())).Throws(new Exception("an error happened"));
 
         // Act & Assert
@@ -257,8 +231,6 @@ public class CreateCohortDistributionTests
         _cohortDistributionHelper
             .Setup(x => x.RetrieveParticipantDataAsync(It.IsAny<CreateCohortDistributionRequestBody>()))
             .ReturnsAsync(_cohortDistributionParticipant);
-
-        _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
 
         _participantManagementClientMock
             .Setup(c => c.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))

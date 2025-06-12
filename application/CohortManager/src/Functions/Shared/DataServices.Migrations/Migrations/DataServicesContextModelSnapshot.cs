@@ -577,6 +577,10 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("NHS_NUMBER");
 
+                    b.Property<DateTime?>("RecordUpdatedDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("RECORD_UPDATED_DATE");
+
                     b.Property<string>("RuleDescription")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("RULE_DESCRIPTION");
@@ -1014,6 +1018,10 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("BUSINESS_RULE_VERSION");
 
+                    b.Property<short>("CeasedFlag")
+                        .HasColumnType("smallint")
+                        .HasColumnName("CEASED_FLAG");
+
                     b.Property<DateTime?>("DateIrradiated")
                         .HasColumnType("datetime")
                         .HasColumnName("DATE_IRRADIATED");
@@ -1084,6 +1092,10 @@ namespace DataServices.Migrations.Migrations
                     b.Property<DateTime?>("RecordUpdateDateTime")
                         .HasColumnType("datetime")
                         .HasColumnName("RECORD_UPDATE_DATETIME");
+
+                    b.Property<short>("ReferralFlag")
+                        .HasColumnType("smallint")
+                        .HasColumnName("REFERRAL_FLAG");
 
                     b.Property<string>("ScreeningCeasedReason")
                         .HasColumnType("nvarchar(max)")
