@@ -4,7 +4,8 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9992728167",
-        "RuleId": 3
+        "RuleId": 3,
+        "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values"
       }
     }
   ],
