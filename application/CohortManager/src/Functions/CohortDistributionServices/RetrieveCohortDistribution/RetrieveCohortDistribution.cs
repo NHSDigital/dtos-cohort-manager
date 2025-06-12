@@ -71,7 +71,7 @@ public class RetrieveCohortDistributionData
                 return CreateResponse(cohortDistributionParticipants, req);
             }
 
-            if (Guid.TryParse(req.Query["requestId"], out Guid requestId))
+            if (!Guid.TryParse(req.Query["requestId"], out Guid requestId))
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
