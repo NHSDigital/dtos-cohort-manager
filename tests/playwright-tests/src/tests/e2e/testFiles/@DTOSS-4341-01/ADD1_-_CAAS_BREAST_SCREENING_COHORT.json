@@ -2,8 +2,8 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993678090",
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9993678090,
         "expectedCount": 1
       },
       "meta": {
