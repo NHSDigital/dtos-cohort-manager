@@ -3,29 +3,29 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9999111149",
-        "RuleId": 3602,
-        "RuleDescription": "Invalid primary care provider GP practice code"
+        "NhsNumber": "9999111181",
+        "RuleId": 3,
+        "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values"
       }
     }
   ],
   "inputParticipantRecord": [
     {
-      "record_type": "AMENDED",
+      "record_type": "ADD",
       "change_time_stamp": null,
-      "serial_change_number": 98,
-      "nhs_number": 9999111149,
+      "serial_change_number": null,
+      "nhs_number": "9999111181",
       "superseded_by_nhs_number": null,
-      "primary_care_provider": "TWA123",
+      "primary_care_provider": "B86019",
       "primary_care_effective_from_date": "20030318",
-      "current_posting": "ENG",
+      "current_posting": "WGA",
       "current_posting_effective_from_date": "20130319",
-      "name_prefix": "BRO",
-      "given_name": "Amend 3062",
+      "name_prefix": "Mrs",
+      "given_name": "9496 test",
       "other_given_name": "OtherGivenName",
       "family_name": "FamiliyName",
       "previous_family_name": "PreviousFamilyName",
-      "date_of_birth": "19710101",
+      "date_of_birth": "19700101",
       "gender": 1,
       "address_line_1": "98 Spaight Road",
       "address_line_2": "Eastbourne",
@@ -39,7 +39,7 @@
       "reason_for_removal_effective_from_date": null,
       "date_of_death": null,
       "death_status": null,
-      "home_telephone_number": "016199999990",
+      "home_telephone_number": "01619999999",
       "home_telephone_effective_from_date": "20200818",
       "mobile_telephone_number": "07888888888",
       "mobile_telephone_effective_from_date": "20200818",
@@ -52,6 +52,6 @@
     }
   ],
   "nhsNumbers": [
-    "9999111149"
+    "9999111181"
   ]
 }
