@@ -10,7 +10,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4344-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Tests Raise exception for invalid format previous usual address business effective from date for participant 9993340189"
+        "additionalTags": "@regression @e2e @epic2-high-priority Tests Raise exception for future date usual address business effective from date for participant 9993340189"
       }
     },
     {
@@ -23,7 +23,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4344-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Tests Raise exception for invalid format previous usual address business effective from date for participant 9993499730"
+        "additionalTags": "@regression @e2e @epic2-high-priority Tests Raise exception for future date usual address business effective from date for participant 9993499730"
       }
     },
     {
@@ -36,7 +36,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4344-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Tests Raise exception for invalid format previous usual address business effective from date for participant 9993866261"
+        "additionalTags": "@regression @e2e @epic2-high-priority Tests Raise exception for future date usual address business effective from date for participant 9993866261"
       }
     }
   ],
