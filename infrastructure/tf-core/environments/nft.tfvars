@@ -202,7 +202,7 @@ container_app_environments = {
 
 container_app_jobs = {
   apps = {
-    db-management = {
+    db-management-2 = {
       container_app_environment_key = "db-management-2"
       docker_env_tag                = "nft"
       docker_image                  = "cohort-manager-db-migration"
