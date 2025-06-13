@@ -147,8 +147,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NEMSUnSubscription", "Demog
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrievePDSDemographic", "DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj", "{C0728070-DB44-492D-BDCD-B65FE5FC286A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "integration", "..\..\..\..\tests\integration\integration.csproj", "{1E626014-8FB1-421B-B46F-31D32E3C52D6}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AllocateServiceProviderToParticipantByServiceTest", "..\..\..\..\tests\UnitTests\CohortDistributionTests\ServiceProviderAllocationServiceTest\AllocateServiceProviderToParticipantByServiceTest.csproj", "{25BEFEE3-C0B7-4F4D-8FA2-4F96F20F70DA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CohortDistributionDataTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\CohortDistributionDataTests\CohortDistributionDataTests.csproj", "{B2C19C52-9270-4D1A-975A-D403AA996A8D}"
@@ -240,10 +238,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CallDurableDemographicFuncTests", "..\..\..\..\tests\UnitTests\CallDurableDemographicFuncTests\CallDurableDemographicFuncTests.csproj", "{15B252F8-7A04-43DB-88A8-C28803B0CCDB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AzureQueueStorageHelperTests", "..\..\..\..\tests\UnitTests\AzureQueueStorageHelperTests\AzureQueueStorageHelperTests.csproj", "{737E0B31-BC51-4EC9-B5E6-538A7024B65A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHS.CohortManager.SmokeTests", "..\..\..\..\tests\smoke-tests\NHS.CohortManager.SmokeTests\NHS.CohortManager.SmokeTests.csproj", "{C9DF7FA2-2489-4CF7-A152-BB86916F81F6}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHS.CohortManager.EndToEndTests", "..\..\..\..\tests\e2e-tests\NHS.CohortManager.EndToEndTests\NHS.CohortManager.EndToEndTests.csproj", "{D67EFEAC-3462-4F8B-ACB0-CF6F24D8F5DF}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestUtils", "..\..\..\..\tests\TestUtils\TestUtils.csproj", "{83DD16A7-B7DF-47A4-9DC7-472D9F09EE35}"
 EndProject
