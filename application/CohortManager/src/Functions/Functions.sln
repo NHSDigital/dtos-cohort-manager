@@ -263,6 +263,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReceiveServiceNowMessage", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendServiceNowMessageTests", "..\..\..\..\tests\UnitTests\SendServiceNowMessageTests\SendServiceNowMessageTests.csproj", "{10EADCB8-DF07-495F-8EBA-5A399962956D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessNemsUpdate", "NemsSubscriptionService\ProcessNemsUpdate\ProcessNemsUpdate.csproj", "{E8736EEA-D736-47AD-A041-2C06543B2623}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessNemsUpdateTests", "..\..\..\..\tests\UnitTests\NemsSubscriptionServiceTests\ProcessNemsUpdateTests\ProcessNemsUpdateTests.csproj", "{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1593,6 +1597,30 @@ Global
 		{10EADCB8-DF07-495F-8EBA-5A399962956D}.Release|x64.Build.0 = Release|Any CPU
 		{10EADCB8-DF07-495F-8EBA-5A399962956D}.Release|x86.ActiveCfg = Release|Any CPU
 		{10EADCB8-DF07-495F-8EBA-5A399962956D}.Release|x86.Build.0 = Release|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Debug|x64.Build.0 = Debug|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Debug|x86.Build.0 = Debug|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Release|x64.ActiveCfg = Release|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Release|x64.Build.0 = Release|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Release|x86.ActiveCfg = Release|Any CPU
+		{E8736EEA-D736-47AD-A041-2C06543B2623}.Release|x86.Build.0 = Release|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Debug|x64.Build.0 = Debug|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Debug|x86.Build.0 = Debug|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Release|x64.ActiveCfg = Release|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Release|x64.Build.0 = Release|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Release|x86.ActiveCfg = Release|Any CPU
+		{2DDC16E1-7AAD-4F36-942C-CCC0D4039D09}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1665,5 +1693,6 @@ Global
 		{43AF1482-6B3E-41C9-BF92-531EB00FEA20} = {4F52FD11-658E-A102-6CD3-7D7C16FFA15B}
 		{53D67486-6264-4554-BD21-F47811F16FEC} = {ADBDFBE0-1F6C-9F07-943C-8060402FBCEA}
 		{0F5234AE-1991-491D-A7E2-0921EF90B7BA} = {ADBDFBE0-1F6C-9F07-943C-8060402FBCEA}
+		{E8736EEA-D736-47AD-A041-2C06543B2623} = {81415B60-C1D4-887B-0030-6F6B04DE9059}
 	EndGlobalSection
 EndGlobal

@@ -24,6 +24,7 @@ public interface IHttpClientFunction
     /// <param name="parameters">Parameters to be added to the url and used in request.</param>
     /// <returns>string<returns>
     Task<string> SendGet(string url, Dictionary<string, string> parameters);
+    Task<HttpResponseMessage> SendGetResponse(string url, Dictionary<string, string> parameters);
 
     /// <summary>
     /// Performs a GET request to a PDS endpoint using HttpClient.
@@ -47,7 +48,7 @@ public interface IHttpClientFunction
     /// - <c>Authorization</c> with a Bearer token,
     /// - <c>fromASID</c> and <c>toASID</c> to specify the sender and receiver ASID values,
     /// - <c>Interaction-ID</c> to specify the interaction ID of the subscription creation process.
-     /// This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. Currently it's just a basic structure.
+    /// This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. Currently it's just a basic structure.
     /// </remarks>
     Task<HttpResponseMessage> PostNemsGet(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid);
 
