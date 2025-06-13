@@ -22,7 +22,7 @@ module "firewall_policy_rule_collection_group" {
 
 }
 
-module "route_table" {
+module "route_table_core" {
   for_each = var.routes
 
   source = "../../../dtos-devops-templates/infrastructure/modules/route-table"
