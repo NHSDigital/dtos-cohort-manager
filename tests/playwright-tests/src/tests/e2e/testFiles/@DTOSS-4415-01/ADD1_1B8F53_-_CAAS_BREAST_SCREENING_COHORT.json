@@ -1,0 +1,66 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9995446588",
+        "RuleId": 30,
+        "RuleDescription": "Postcode"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4415-01",
+        "requirementJiraId": "DTOSS-3033",
+        "additionalTags": "@regression @e2e @epic2-high-priority Raise exception for empty new participant's postcode value"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+ {
+    "Record Type": "ADD",
+    "Change Time Stamp": 20240524000000,
+    "Serial Change Number": 1,
+    "NHS Number": 9995446588,
+    "Superseded by NHS number": "",
+    "Primary Care Provider": "E85121",
+    "Primary Care Provider Business Effective From Date": 20030319,
+    "Current Posting": "BD",
+    "Current Posting Business Effective From Date": 20130419,
+    "Previous Posting": "Wales",
+    "Previous Posting Business Effective To Date": 20230411,
+    "Name Prefix": "Miss",
+    "Given Name": "John",
+    "Other Given Name(s)": "Reymond",
+    "Family Name": "Regans",
+    "Previous Family Name": "",
+    "Date of Birth": 19600112,
+    "Gender": 1,
+    "Address line 1": "25 Ring Road",
+    "Address line 2": "Eastend",
+    "Address line 3": "",
+    "Address line 4": "Ashford",
+    "Address line 5": "United Kingdom",
+    "Postcode": "",
+    "PAF key": "Z3S4Q5X8",
+    "Usual Address Business Effective From Date": 20031118,
+    "Reason for Removal": "",
+    "Reason for Removal Business Effective From Date": "",
+    "Date of Death": "",
+    "Death Status": "",
+    "Telephone Number (Home)": "01619999998",
+    "Telephone Number (Home) Business Effective From Date": 20200819,
+    "Telephone Number (Mobile)": "07888888889",
+    "Telephone Number (Mobile) Business Effective From Date": 20240502,
+    "E-mail address (Home)": "abc123@soup.io",
+    "E-mail address (Home) Business Effective From Date": 20240502,
+    "Preferred Language": "en",
+    "Interpreter required": 1,
+    "Invalid Flag": 1,
+    "Record Identifier": 1,
+    "Change Reason Code": "CR1\n"
+  }
+  ],
+  "nhsNumbers": [
+    "9995446588"
+  ]
+}
+
