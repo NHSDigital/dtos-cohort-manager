@@ -5,6 +5,7 @@ using System.Data;
 using System.Threading.Tasks;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Model;
 using Model.Enums;
 
@@ -13,39 +14,35 @@ public class ValidationExceptionData : IValidationExceptionData
     private readonly ILogger<ValidationExceptionData> _logger;
     private readonly IDataServiceClient<ExceptionManagement> _validationExceptionDataServiceClient;
     private readonly IDataServiceClient<ParticipantDemographic> _demographicDataServiceClient;
-    private readonly IDataServiceClient<GPPractice> _gpPracticeDataServiceClient;
-
     public ValidationExceptionData(
         ILogger<ValidationExceptionData> logger,
         IDataServiceClient<ExceptionManagement> validationExceptionDataServiceClient,
-        IDataServiceClient<ParticipantDemographic> demographicDataServiceClient,
-        IDataServiceClient<GPPractice> gpPracticeDataServiceClient
+        IDataServiceClient<ParticipantDemographic> demographicDataServiceClient
     )
     {
         _logger = logger;
         _validationExceptionDataServiceClient = validationExceptionDataServiceClient;
         _demographicDataServiceClient = demographicDataServiceClient;
-        _gpPracticeDataServiceClient = gpPracticeDataServiceClient;
     }
 
-    public async Task<List<ValidationException>> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty)
+    public async Task<List<ValidationException>?> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty, ExceptionCategory exceptionCategory)
     {
+        var category = (int)exceptionCategory;
+
         var exceptions = todayOnly
-            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated.Value.Date == DateTime.Today)
-            : await _validationExceptionDataServiceClient.GetAll();
+            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated != null &&
+                                                                      x.DateCreated.Value.Date == DateTime.Today &&
+                                                                      x.Category != null &&
+                                                                      x.Category.Value == category)
+            : await _validationExceptionDataServiceClient.GetByFilter(x => x.Category != null &&
+                                                                      x.Category.Value == category);
 
         var exceptionList = exceptions.Select(s => s.ToValidationException());
-        var propertyName = GetPropertyName(orderByProperty);
 
-        if (propertyName == nameof(ValidationException.DateCreated))
-        {
-            return exceptionList.OrderByDescending(o => o.DateCreated).ToList();
-        }
-
-        return exceptionList.OrderBy(o => o.GetType().GetProperty(propertyName).GetValue(o)).ToList();
+        return SortExceptions(orderByProperty, exceptionList);
     }
 
-    public async Task<ValidationException> GetExceptionById(int exceptionId)
+    public async Task<ValidationException?> GetExceptionById(int exceptionId)
     {
         var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
 
@@ -63,9 +60,8 @@ public class ValidationExceptionData : IValidationExceptionData
         }
 
         var participantDemographic = await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
-        var gpPracticeDetails = await _gpPracticeDataServiceClient.GetSingleByFilter(x => x.GPPracticeCode == participantDemographic.PrimaryCareProvider);
 
-        return GetExceptionDetails(exception.ToValidationException(), participantDemographic, gpPracticeDetails);
+        return GetExceptionDetails(exception.ToValidationException(), participantDemographic);
     }
 
     public async Task<bool> Create(ValidationException exception)
@@ -88,13 +84,13 @@ public class ValidationExceptionData : IValidationExceptionData
         if (validationExceptionToUpdate != null)
         {
             validationExceptionToUpdate.DateResolved = DateTime.Today;
-
+            validationExceptionToUpdate.RecordUpdatedDate = DateTime.Now;
             return await _validationExceptionDataServiceClient.Update(validationExceptionToUpdate);
         }
         return false;
     }
 
-    private ValidationException? GetExceptionDetails(ValidationException? exception, ParticipantDemographic? participantDemographic, GPPractice? gPPractice)
+    private ValidationException? GetExceptionDetails(ValidationException? exception, ParticipantDemographic? participantDemographic)
     {
         if (exception == null)
         {
@@ -116,19 +112,12 @@ public class ValidationExceptionData : IValidationExceptionData
             ParticipantPostCode = participantDemographic?.PostCode,
             TelephoneNumberHome = participantDemographic?.TelephoneNumberHome,
             EmailAddressHome = participantDemographic?.EmailAddressHome,
-            PrimaryCareProvider = participantDemographic?.PrimaryCareProvider,
-            GpPracticeCode = gPPractice?.GPPracticeCode,
-            GpAddressLine1 = gPPractice?.AddressLine1,
-            GpAddressLine2 = gPPractice?.AddressLine2,
-            GpAddressLine3 = gPPractice?.AddressLine3,
-            GpAddressLine4 = gPPractice?.AddressLine4,
-            GpAddressLine5 = gPPractice?.AddressLine5,
-            GpPostCode = gPPractice?.Postcode
+            PrimaryCareProvider = participantDemographic?.PrimaryCareProvider
         };
 
-        if (participantDemographic == null || gPPractice == null)
+        if (participantDemographic == null)
         {
-            _logger.LogWarning("Missing data: ParticipantDemographic: {ParticipantDemographic}, GPPractice: {GPPractice}", participantDemographic != null, gPPractice != null);
+            _logger.LogWarning("Missing data: ParticipantDemographic: {ParticipantDemographic}", participantDemographic != null);
         }
 
         return exception;
@@ -153,16 +142,28 @@ public class ValidationExceptionData : IValidationExceptionData
         throw new ArgumentNullException(nameof(datetime), "Failed to parse null datetime");
     }
 
-    private static string GetPropertyName(ExceptionSort? orderByProperty)
+    private static List<ValidationException>? SortExceptions(ExceptionSort? sortBy, IEnumerable<ValidationException> list)
     {
-        return orderByProperty switch
+        return sortBy switch
         {
-            ExceptionSort.ExceptionId => nameof(ValidationException.ExceptionId),
-            ExceptionSort.NhsNumber => nameof(ValidationException.NhsNumber),
-            ExceptionSort.DateCreated => nameof(ValidationException.DateCreated),
-            ExceptionSort.RuleDescription => nameof(ValidationException.RuleDescription),
-            _ => nameof(ValidationException.DateCreated)
+            // Sort by date created, oldest first
+            ExceptionSort.DateCreatedOldest => list.OrderBy(x => x.DateCreated).ToList(),
+
+            // Sort by date created, newest first
+            ExceptionSort.DateCreatedNewest => list.OrderByDescending(x => x.DateCreated).ToList(),
+
+            // Sort by exception status raised, then by date created
+            ExceptionSort.ExceptionStatusRaised => list
+                .OrderByDescending(x => !x.ServiceNowId.IsNullOrEmpty())
+                .ThenByDescending(x => x.DateCreated).ToList(),
+
+            // Sort by exception status not raised, then by date created
+            ExceptionSort.ExceptionStatusNotRaised => list
+                .OrderByDescending(x => x.ServiceNowId.IsNullOrEmpty())
+                .ThenByDescending(x => x.DateCreated).ToList(),
+
+            // By default sort by date created, newest first
+            _ => list.OrderByDescending(x => x.DateCreated).ToList()
         };
     }
-
 }

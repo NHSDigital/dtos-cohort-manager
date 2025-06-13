@@ -5,23 +5,25 @@ using Common;
 using Common.Interfaces;
 using Data.Database;
 using DataServices.Client;
+using Hl7.Fhir.Rest;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Protocols.Configuration;
 using Model;
+using Model.Enums;
 
 public class ProcessCaasFile : IProcessCaasFile
 {
     private readonly ILogger<ProcessCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
-    private readonly ICheckDemographic _checkDemographic;
+    private readonly ICallDurableDemographicFunc _callDurableDemographicFunc;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
     private readonly IValidateDates _validateDates;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ReceiveCaasFileConfig _config;
     private readonly string DemographicURI;
     private readonly string AddParticipantQueueName;
@@ -30,7 +32,6 @@ public class ProcessCaasFile : IProcessCaasFile
 
     public ProcessCaasFile(
         ILogger<ProcessCaasFile> logger,
-        ICheckDemographic checkDemographic,
         ICreateBasicParticipantData createBasicParticipantData,
         IAddBatchToQueue addBatchToQueue,
         IReceiveCaasFileHelper receiveCaasFileHelper,
@@ -38,12 +39,12 @@ public class ProcessCaasFile : IProcessCaasFile
         IDataServiceClient<ParticipantDemographic> participantDemographic,
         IRecordsProcessedTracker recordsProcessedTracker,
         IValidateDates validateDates,
-        ICallFunction callFunction,
+        IHttpClientFunction httpClientFactory,
+        ICallDurableDemographicFunc callDurableDemographicFunc,
         IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig
     )
     {
         _logger = logger;
-        _checkDemographic = checkDemographic;
         _createBasicParticipantData = createBasicParticipantData;
         _addBatchToQueue = addBatchToQueue;
         _receiveCaasFileHelper = receiveCaasFileHelper;
@@ -51,9 +52,9 @@ public class ProcessCaasFile : IProcessCaasFile
         _participantDemographic = participantDemographic;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
-        _callFunction = callFunction;
+        _callDurableDemographicFunc = callDurableDemographicFunc;
         _config = receiveCaasFileConfig.Value;
-
+        _httpClientFunction = httpClientFactory;
         DemographicURI = _config.DemographicURI;
         AddParticipantQueueName = _config.AddQueueName;
         UpdateParticipantQueueName = _config.UpdateQueueName;
@@ -74,21 +75,22 @@ public class ProcessCaasFile : IProcessCaasFile
     /// <param name="screeningService"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public async Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningService screeningService, string name)
+    public async Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningLkp screeningService, string name)
     {
         var currentBatch = new Batch();
         await Parallel.ForEachAsync(values, options, async (rec, cancellationToken) =>
         {
-            var participant = await _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId, screeningService.ScreeningName, name);
+            var participant = _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId.ToString(), screeningService.ScreeningName, name);
 
             if (participant == null)
             {
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception($"Could not map participant in file {name}"), rec.NhsNumber.ToString(), name, screeningService.ScreeningName, "");
                 return;
             }
 
             if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
             {
-                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed in for participant {participant} and file {name}"), participant, name);
+                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed in for participant {participant} and file {name}"), participant, name, nameof(ExceptionCategory.CaaS));
                 return; // skip current participant
             }
 
@@ -107,7 +109,7 @@ public class ProcessCaasFile : IProcessCaasFile
             await AddRecordToBatch(participant, currentBatch, name);
         });
 
-        if (await _checkDemographic.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI))
+        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI))
         {
             await AddBatchToQueue(currentBatch, name);
         }
@@ -131,18 +133,24 @@ public class ProcessCaasFile : IProcessCaasFile
         // take note: we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
         switch (participant.RecordType?.Trim())
         {
+
             case Actions.New:
-                await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
+                var DemographicRecordUpdated = await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
+                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+                if (DemographicRecordUpdated)
+                {
+                    break;
+                }
 
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
-                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Amended:
-                await DeleteOldDemographicRecord(basicParticipantCsvRecord, fileName);
-
-                currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
+                {
+                    await CreateError(participant, fileName);
+                    break;
+                }
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
-
                 break;
             case Actions.Removed:
                 currentBatch.DeleteRecords.Enqueue(basicParticipantCsvRecord);
@@ -171,7 +179,7 @@ public class ProcessCaasFile : IProcessCaasFile
         currentBatch = null;
     }
 
-    private async Task DeleteOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
+    private async Task<bool> UpdateOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
     {
         try
         {
@@ -183,23 +191,31 @@ public class ProcessCaasFile : IProcessCaasFile
 
             var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
 
-            if (participant != null)
+            if (participant == null)
             {
-                var deleted = await _participantDemographic.Delete(participant.ParticipantId.ToString());
+                _logger.LogWarning("The participant could not be found, when trying to update old Participant");
+                return false;
+            }
 
-                _logger.LogInformation(deleted ? "Deleting old Demographic record was successful" : "Deleting old Demographic record was not successful");
-                return;
-            }
-            else
+            var participantForUpdate = basicParticipantCsvRecord.participant.ToParticipantDemographic();
+            participantForUpdate.ParticipantId = participant.ParticipantId;
+
+            var updated = await _participantDemographic.Update(participantForUpdate);
+            if (updated)
             {
-                _logger.LogWarning("The participant could not be found, when trying to delete old Participant. This could prevent updates from being applied");
+                _logger.LogInformation("updating old Demographic record was successful");
+                return updated;
             }
+
+            _logger.LogError("updating old Demographic record was not successful");
+            return updated;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
             await CreateError(basicParticipantCsvRecord.participant, name);
         }
+        return false;
     }
 
     private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
@@ -211,7 +227,7 @@ public class ProcessCaasFile : IProcessCaasFile
             {
                 _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to RemoveParticipant function.");
                 var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                await _callFunction.SendPost(_config.PMSRemoveParticipant, json);
+                await _httpClientFunction.SendPost(_config.PMSRemoveParticipant, json);
             }
             else
             {

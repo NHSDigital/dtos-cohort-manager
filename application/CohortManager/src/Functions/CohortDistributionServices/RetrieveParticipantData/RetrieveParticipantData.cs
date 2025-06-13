@@ -6,7 +6,6 @@ using Common;
 using System.Net;
 using Microsoft.Extensions.Logging;
 using Model;
-using NHS.CohortManager.CohortDistribution;
 using System.Text;
 using System.Text.Json;
 using DataServices.Client;
@@ -17,7 +16,7 @@ public class RetrieveParticipantData
 {
     private readonly ICreateResponse _createResponse;
     private readonly ILogger<RetrieveParticipantData> _logger;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
@@ -26,11 +25,11 @@ public class RetrieveParticipantData
     public RetrieveParticipantData(ICreateResponse createResponse, ILogger<RetrieveParticipantData> logger,
                                 IDataServiceClient<ParticipantManagement> participantManagementClient,
                                 ICreateParticipant createParticipant, IExceptionHandler exceptionHandler,
-                                ICallFunction callFunction, IOptions<RetrieveParticipantDataConfig> retrieveParticipantDataConfig)
+                                IHttpClientFunction httpClientFunction, IOptions<RetrieveParticipantDataConfig> retrieveParticipantDataConfig)
     {
         _createResponse = createResponse;
         _logger = logger;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _createParticipant = createParticipant;
         _exceptionHandler = exceptionHandler;
         _participantManagementClient = participantManagementClient;
@@ -72,7 +71,7 @@ public class RetrieveParticipantData
                 {"Id", requestBody.NhsNumber }
             };
 
-            var demographicDataJson = await _callFunction.SendGet(_config.DemographicDataFunctionURL, demographicFunctionParams);
+            var demographicDataJson = await _httpClientFunction.SendGet(_config.DemographicDataFunctionURL, demographicFunctionParams);
 
             var demographicData = JsonSerializer.Deserialize<Demographic>(demographicDataJson);
             if (demographicData == null)

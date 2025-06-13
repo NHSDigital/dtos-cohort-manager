@@ -1,98 +1,260 @@
-name: "Test stage"
+# This workflow supports two testing approaches:
+# 1. Consolidated: All tests in a single project (ConsolidatedTests.csproj)
+# 2. Matrix: Multiple test projects run in parallel
+#
+# The consolidated approach is preferred for simplicity and consistent coverage reporting,
+# but the matrix approach is maintained as a fallback and for specific scenarios.
+
+name: Test stage
 
 on:
   workflow_call:
     inputs:
+      unit_test_dir:
+        description: Directory containing the unit tests
+        required: true
+        type: string
+      unit_test_logger_format:
+        description: Test report format
+        required: false
+        default: trx
+        type: string
       build_datetime:
-        description: "Build datetime, set by the CI/CD pipeline workflow"
+        description: Build datetime, set by the CI/CD pipeline workflow
         required: true
         type: string
       build_timestamp:
-        description: "Build timestamp, set by the CI/CD pipeline workflow"
+        description: Build timestamp, set by the CI/CD pipeline workflow
         required: true
         type: string
       build_epoch:
-        description: "Build epoch, set by the CI/CD pipeline workflow"
+        description: Build epoch, set by the CI/CD pipeline workflow
         required: true
         type: string
       nodejs_version:
-        description: "Node.js version, set by the CI/CD pipeline workflow"
+        description: Node.js version, set by the CI/CD pipeline workflow
         required: true
         type: string
       python_version:
-        description: "Python version, set by the CI/CD pipeline workflow"
+        description: Python version, set by the CI/CD pipeline workflow
         required: true
         type: string
       terraform_version:
-        description: "Terraform version, set by the CI/CD pipeline workflow"
+        description: Terraform version, set by the CI/CD pipeline workflow
         required: true
         type: string
       version:
-        description: "Version of the software, set by the CI/CD pipeline workflow"
+        description: Version of the software, set by the CI/CD pipeline workflow
         required: true
         type: string
 
 jobs:
-  test-unit:
-    name: "Unit tests"
+  check-consolidated-tests:
+    name: Check for consolidated test project
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    outputs:
+      has-consolidated-tests: ${{ steps.check.outputs.has-consolidated-tests }}
+    env:
+      UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Check for ConsolidatedTests.csproj
+        id: check
+        run: |
+          if [ -f "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" ]; then
+            echo "Found ConsolidatedTests.csproj - using consolidated approach"
+            echo "has-consolidated-tests=true" >> "${GITHUB_OUTPUT}"
+          else
+            echo "No ConsolidatedTests.csproj found - using matrix approach"
+            echo "has-consolidated-tests=false" >> "${GITHUB_OUTPUT}"
+          fi
+
+  unit-test-scope:
+    name: Get unit test scopes
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    needs: [check-consolidated-tests]
+    if: needs.check-consolidated-tests.outputs.has-consolidated-tests == 'false'
+    outputs:
+      test-matrix: ${{ steps.matrix.outputs.test-matrix }}
+    env:
+      UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Create matrix for parallel jobs
+        id: matrix
+        run: |
+          set -eo pipefail
+          mapfile -t test_matrix < <(find "${UNIT_TEST_DIR}" -mindepth 1 -maxdepth 1 -type d | sed 's|.*/||')
+          test_matrix_json=$(jq -c -n '$ARGS.positional' --args "${test_matrix[@]}")
+          echo "Unit test scopes: ${test_matrix_json}"
+          echo "test-matrix=${test_matrix_json}" >> "${GITHUB_OUTPUT}"
+
+  test-consolidated:
+    name: Run consolidated tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    needs: [check-consolidated-tests]
+    if: needs.check-consolidated-tests.outputs.has-consolidated-tests == 'true'
+    env:
+      UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
+      LOGGER_FORMAT: ${{ inputs.unit_test_logger_format }}
     steps:
-      - name: "Checkout code"
+      - name: Checkout code
         uses: actions/checkout@v4
         with:
-          submodules: 'true'
-      - name: "Run unit test suite"
-        run: |
-          make test-unit
-      - name: "Unit Tests Results"
-        uses: bibipkins/dotnet-test-reporter@v1.4.0
+          submodules: true
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
         with:
-          comment-title: 'Unit Test Results'
-          results-path: ./tests/UnitTests/results-unit/*.trx
+          dotnet-version: '8.0.x'
+      - name: Setup NuGet cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Run consolidated test suite
+        run: |
+          set -eo pipefail
+          mkdir -p "TestResults"
+          echo -e "\nRunning consolidated tests from:\n${UNIT_TEST_DIR}/ConsolidatedTests.csproj"
+          dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
+            --results-directory "TestResults" \
+            --logger "${LOGGER_FORMAT};LogFileName=ConsolidatedTests.${LOGGER_FORMAT}" \
+            --collect:"XPlat Code Coverage;Format=opencover;Include=**/*.cs;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*.cs,**/scripts/**/*.cs,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*.cs,**/obj/**/*.cs,**/Properties/**/*.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
+            --verbosity quiet
+      - name: Upload test results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-consolidated
+          path: |
+            TestResults/**/*.${{ inputs.unit_test_logger_format }}
+            TestResults/**/coverage.opencover.xml
+
+  test-unit:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: [unit-test-scope, check-consolidated-tests]
+    strategy:
+      matrix:
+        scope: ${{ fromJSON(needs.unit-test-scope.outputs.test-matrix) }}
+      # Run tests in parallel and continue on error
+      fail-fast: false
+    if: needs.check-consolidated-tests.outputs.has-consolidated-tests == 'false' && needs.unit-test-scope.outputs.test-matrix != '[]'
+    env:
+      UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
+      LOGGER_FORMAT: ${{ inputs.unit_test_logger_format }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Setup NuGet cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+      - name: Run unit test suite
+        continue-on-error: true
+        run: |
+          set -eo pipefail
+          mkdir -p "TestResults"
+          find "${UNIT_TEST_DIR}/${{ matrix.scope }}" -name '*.csproj' | while read -r file; do
+            echo -e "\nRunning unit tests for:\n${file}"
+            base=$(basename "$file" .csproj)
+            dotnet test "${file}" \
+              --results-directory "TestResults" \
+              --logger "${LOGGER_FORMAT};LogFileName=${base}.${LOGGER_FORMAT}" \
+              --collect:"XPlat Code Coverage;Format=opencover;Include=**/*.cs;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*.cs,**/scripts/**/*.cs,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*.cs,**/obj/**/*.cs,**/Properties/**/*.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
+              --verbosity quiet
+          done
+      - name: Upload test results as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.scope }}
+          path: |
+            TestResults/**/*.${{ inputs.unit_test_logger_format }}
+            TestResults/**/coverage.opencover.xml
+
+  aggregate-test-results:
+    name: Aggregate results and report
+    runs-on: ubuntu-latest
+    needs: [test-unit, test-consolidated, check-consolidated-tests]
+    if: always() && (needs.check-consolidated-tests.outputs.has-consolidated-tests == 'true' || needs.unit-test-scope.outputs.test-matrix != '[]')
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: aggregated-results
+      - name: Process coverage reports
+        continue-on-error: true
+        run: |
+          mkdir -p coverage
+          if [[ "${{ needs.check-consolidated-tests.outputs.has-consolidated-tests }}" == "true" ]]; then
+            echo "Using consolidated test coverage report"
+            find aggregated-results -name "coverage.opencover.xml" -exec cp {} coverage/opencover.xml \;
+            # Convert to other formats as needed
+            dotnet tool install --global dotnet-reportgenerator-globaltool
+            reportgenerator "-reports:coverage/opencover.xml" "-targetdir:coverage" "-reporttypes:Cobertura"
+          else
+            echo "Collating multiple coverage reports"
+            dotnet tool install --global dotnet-coverage
+            dotnet coverage merge aggregated-results/**/*.opencover.xml -o coverage/opencover.xml -f opencover
+            # Convert to other formats as needed
+            dotnet tool install --global dotnet-reportgenerator-globaltool
+            reportgenerator "-reports:coverage/opencover.xml" "-targetdir:coverage" "-reporttypes:Cobertura"
+          fi
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage-report
+          path: coverage/*.xml
+      - name: Report results
+        uses: bibipkins/dotnet-test-reporter@v1.5.3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          comment-title: Unit Test Results
+          results-path: aggregated-results/**/*.${{ inputs.unit_test_logger_format }}
+          coverage-type: cobertura
+          coverage-path: coverage/Cobertura.xml
+          # coverage-threshold: 50
+
   test-lint:
-    name: "Linting"
+    name: Linting
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - name: "Checkout code"
+      - name: Checkout code
         uses: actions/checkout@v4
-      - name: "Run linting"
+      - name: Run linting
         run: |
           make test-lint
-      - name: "Save the linting result"
+      - name: Save the linting result
         run: |
           echo "Nothing to save"
-  test-coverage:
-    name: "Test coverage"
-    needs: [test-unit]
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-      - name: "Run test coverage check"
-        run: |
-          make test-coverage
-      - name: "Save the coverage check result"
-        run: |
-          echo "Nothing to save"
-  perform-static-analysis:
-    name: "Perform static analysis"
-    needs: [test-unit]
-    runs-on: ubuntu-latest
-    permissions:
-      id-token: write
-      contents: read
-    timeout-minutes: 5
-    steps:
-      - name: "Checkout code"
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # Full history is needed to improving relevancy of reporting
-      - name: "Perform static analysis"
-        uses: ./.github/actions/perform-static-analysis
-        with:
-          sonar_organisation_key: "${{ vars.SONAR_ORGANISATION_KEY }}"
-          sonar_project_key: "${{ vars.SONAR_PROJECT_KEY }}"
-          sonar_token: "${{ secrets.SONAR_TOKEN }}"

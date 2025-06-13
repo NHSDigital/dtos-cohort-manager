@@ -6,6 +6,7 @@ Grype
 OAuth
 Octokit
 Podman
+Dockerfile
 Python
 Syft
 Terraform
@@ -22,3 +23,6 @@ Dev
 dev
 Smartcard
 npm
+cmd
+ctrl
+ui

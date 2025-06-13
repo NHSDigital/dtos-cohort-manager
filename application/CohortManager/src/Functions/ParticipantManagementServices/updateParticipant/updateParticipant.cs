@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 public class UpdateParticipantFunction
 {
     private readonly ILogger<UpdateParticipantFunction> _logger;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ICheckDemographic _checkDemographic;
     private readonly ICreateParticipant _createParticipant;
     private readonly IExceptionHandler _handleException;
@@ -22,7 +22,7 @@ public class UpdateParticipantFunction
 
     public UpdateParticipantFunction(
         ILogger<UpdateParticipantFunction> logger,
-        ICallFunction callFunction,
+        IHttpClientFunction httpClientFunction,
         ICheckDemographic checkDemographic,
         ICreateParticipant createParticipant,
         IExceptionHandler handleException,
@@ -30,7 +30,7 @@ public class UpdateParticipantFunction
         IOptions<UpdateParticipantConfig> updateParticipantConfig)
     {
         _logger = logger;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _checkDemographic = checkDemographic;
         _createParticipant = createParticipant;
         _handleException = handleException;
@@ -48,11 +48,7 @@ public class UpdateParticipantFunction
         try
         {
             var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, _config.DemographicURIGet);
-            if (demographicData == null)
-            {
-                _logger.LogInformation("demographic function failed");
-                return;
-            }
+
             var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
             var participantCsvRecord = new ParticipantCsvRecord
             {
@@ -65,44 +61,25 @@ public class UpdateParticipantFunction
 
             if (response.IsFatal)
             {
-                _logger.LogError("A fatal Rule was violated and therefore the record cannot be added to the database");
+                await HandleExceptions("A fatal Rule was violated and therefore the record cannot be added to the database", basicParticipantCsvRecord);
                 return;
             }
 
-            var responseDataFromCohort = false;
-            var updateResponse = false;
-            var participantEligibleResponse = false;
             if (response.CreatedException)
-            {
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
-                updateResponse = await UpdateParticipant(participantCsvRecord);
-                if (!updateResponse)
-                {
-                    _logger.LogError("Unsuccessfully updated records");
-                    return;
-                }
 
-                participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);
-
-                _logger.LogInformation("The participant has been updated but a validation Exception was raised");
-                responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
-
-
-                LogResultFromUpdating(updateResponse, responseDataFromCohort, participantEligibleResponse);
-                return;
-            }
-
-            updateResponse = await UpdateParticipant(participantCsvRecord);
-            if (!updateResponse)
+            if (!await UpdateParticipant(participantCsvRecord))
             {
-                _logger.LogError("Unsuccessfully updated records");
+                await HandleExceptions("There was problem posting the participant to the database", basicParticipantCsvRecord);
                 return;
             }
-            participantEligibleResponse = await MarkParticipantAsEligible(participantCsvRecord);
-            responseDataFromCohort = await SendToCohortDistribution(participant, participantCsvRecord.FileName);
+
+            if (!await SendToCohortDistribution(participant, participantCsvRecord.FileName))
+            {
+                await HandleExceptions("Failed to send record to cohort distribution", basicParticipantCsvRecord);
+            }
 
             _logger.LogInformation("participant sent to Cohort Distribution Service");
-            LogResultFromUpdating(updateResponse, responseDataFromCohort, participantEligibleResponse);
         }
         catch (Exception ex)
         {
@@ -111,17 +88,10 @@ public class UpdateParticipantFunction
         }
     }
 
-    private void LogResultFromUpdating(bool updateResponse, bool responseDataFromCohort, bool participantEligibleResponse)
+    private async Task HandleExceptions(string message, BasicParticipantCsvRecord participantRecord)
     {
-        if (updateResponse && responseDataFromCohort && participantEligibleResponse)
-        {
-            _logger.LogInformation("successfully updated records");
-        }
-        else
-        {
-            _logger.LogError("Unsuccessfully updated records with one of the functions failing. UpdateResponse: {updateResponse},ResponseDataFromCohort {responseDataFromCohort}, ParticipantEligibleResponse {participantEligibleResponse} ",
-            updateResponse, responseDataFromCohort, participantEligibleResponse);
-        }
+        _logger.LogError(message);
+        await _handleException.CreateSystemExceptionLog(new SystemException(message), participantRecord.Participant, participantRecord.FileName);
     }
 
     private async Task<bool> SendToCohortDistribution(Participant participant, string fileName)
@@ -138,31 +108,8 @@ public class UpdateParticipantFunction
     {
         var json = JsonSerializer.Serialize(participantCsvRecord);
 
-        var createResponse = await _callFunction.SendPost(_config.UpdateParticipant, json);
+        var createResponse = await _httpClientFunction.SendPost(_config.UpdateParticipant, json);
         if (createResponse.StatusCode == HttpStatusCode.OK)
-        {
-            _logger.LogInformation("Participant updated.");
-            return true;
-        }
-        return false;
-    }
-
-    private async Task<bool> MarkParticipantAsEligible(ParticipantCsvRecord participantCsvRecord)
-    {
-        HttpWebResponse eligibilityResponse;
-
-        if (participantCsvRecord.Participant.EligibilityFlag == EligibilityFlag.Eligible)
-        {
-            var participantJson = JsonSerializer.Serialize(participantCsvRecord.Participant);
-            eligibilityResponse = await _callFunction.SendPost(_config.DSmarkParticipantAsEligible, participantJson);
-        }
-        else
-        {
-            var participantJson = JsonSerializer.Serialize(participantCsvRecord);
-            eligibilityResponse = await _callFunction.SendPost(_config.markParticipantAsIneligible, participantJson);
-        }
-
-        if (eligibilityResponse.StatusCode == HttpStatusCode.OK)
         {
             _logger.LogInformation("Participant updated.");
             return true;
@@ -188,8 +135,8 @@ public class UpdateParticipantFunction
                 };
             }
 
-            var response = await _callFunction.SendPost(_config.StaticValidationURL, json);
-            var responseBodyJson = await _callFunction.GetResponseText(response);
+            var response = await _httpClientFunction.SendPost(_config.StaticValidationURL, json);
+            var responseBodyJson = await _httpClientFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
             return responseBody;

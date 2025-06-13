@@ -13,7 +13,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 2f8731f9c7d6b9d53b7044979e381377b2c85bcd
+      ref: 093557aee9d7ffb803106db24f51b7a5ef6f7f50
       endpoint: NHSDigital
 
 variables:
@@ -21,7 +21,7 @@ variables:
   - group: DEV_audit_backend_remote_state
   - group: DEV_hub_backend_remote_state
   - name: TF_VERSION
-    value: 1.9.2
+    value: 1.11.4
   - name: TF_PLAN_ARTIFACT
     value: tf_plan_core_DEV
   - name: TF_DIRECTORY

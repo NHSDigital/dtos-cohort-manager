@@ -1,0 +1,70 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 093557aee9d7ffb803106db24f51b7a5ef6f7f50
+      endpoint: NHSDigital
+
+variables:
+  - group: DEV_hub_backend_remote_state
+
+stages:
+- stage: db_changes_stage
+  displayName: Database changes
+  jobs:
+  - job: db_changes
+    pool:
+      name: private-pool-dev-uks
+    displayName: Apply database changes
+    variables:
+      - group: SBX_core_backend
+      - group: SBX_image_pipelines
+    steps:
+      - checkout: self
+      - checkout: dtos-devops-templates
+      - template: .azuredevops/templates/steps/app-container-job-start.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: $(SERVICE_CONNECTION)
+          targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+          resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
+          jobName: $(DATABASE_MANAGEMENT_JOB_NAME)
+
+- stage: deploy_image_stage
+  displayName: Deploy images
+  jobs:
+  - job: deploy_images
+    pool:
+      name: private-pool-dev-uks
+    displayName: Deploy Docker images to function apps
+    variables:
+      - group: SBX_core_backend
+      - group: SBX_image_pipelines
+    steps:
+      - template: .azuredevops/templates/steps/deploy-images-from-acr.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: $(SERVICE_CONNECTION)
+
+- stage: post_deployment_tests_stage
+  displayName: Post-deployment tests
+  variables:
+  - group: SBX_automation_testing_pipeline
+  jobs:
+  - job: post_deployment_tests
+    displayName: Run post-deployment tests
+    pool:
+      name: private-pool-dev-uks
+
+    steps:
+    - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+      parameters:
+        serviceConnection: $(SERVICE_CONNECTION)
+        testProjectDirectory: 'tests/playwright-tests'
+        testfileDirectory: 'src/tests/e2e/testFiles'
+        testProjectName: 'tests'

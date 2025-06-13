@@ -3,7 +3,7 @@ namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using NHS.CohortManager.CohortDistribution;
+using NHS.CohortManager.CohortDistributionService;
 using NHS.CohortManager.Tests.TestUtils;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
@@ -29,7 +29,6 @@ public class TransformDataServiceTests
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<ITransformReasonForRemoval> _transformReasonForRemoval = new();
-    private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceClient = new();
 
     public TransformDataServiceTests()
     {
@@ -56,14 +55,11 @@ public class TransformDataServiceTests
         _requestBody = new TransformDataRequestBody()
         {
             Participant = requestParticipant,
+            ExistingParticipant = databaseParticipant,
             ServiceProvider = "1"
         };
 
-        _cohortDistributionDataServiceClient
-            .Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
-            .ReturnsAsync([databaseParticipant]);
-
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval.Object, _cohortDistributionDataServiceClient.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -108,10 +104,12 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    [DataRow("ADMIRAL", "ADM",38)]
-    [DataRow("AIR MARSHAL", "A.ML",37)]
-    [DataRow("HIS ROYAL HIGHNESS", "HRH",54)]
-    [DataRow("BRIGADIER","BRIG",39)]
+    [DataRow("ADMIRAL", "ADM", 38)]
+    [DataRow("AIR MARSHAL", "A.ML", 37)]
+    [DataRow("AIR MARSHAL", "A.ML", 37)]
+    [DataRow("HIS ROYAL HIGHNESS", "HRH", 54)]
+    [DataRow("RIGHT REV", "R.RV", 70)]
+    [DataRow("COUNT", "R.HN", 67)]
     public async Task Run_TransformNamePrefix_ReturnTransformedPrefix(string namePrefix, string expectedTransformedPrefix, int ruleId)
     {
         // Arrange
@@ -126,9 +124,9 @@ public class TransformDataServiceTests
             NamePrefix = expectedTransformedPrefix,
             Gender = Gender.Male
         };
-      
+
         _transformReasonForRemoval
-            .Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(),It.IsAny<CohortDistribution>()))
+            .Setup(x => x.ReasonForRemovalTransformations(It.IsAny<CohortDistributionParticipant>(), It.IsAny<CohortDistribution>()))
             .Returns(Task.FromResult(expectedResponse));
 
         // Act
@@ -138,7 +136,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),It.IsAny<string>(),ruleId),times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), ruleId), times: Times.Once);
     }
 
     [TestMethod]
@@ -165,7 +163,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),It.IsAny<string>(),83),times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), 83), times: Times.Once);
     }
 
     [TestMethod]
@@ -192,7 +190,7 @@ public class TransformDataServiceTests
         var responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),It.IsAny<string>(),47),times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), 47), times: Times.Once);
     }
 
 
@@ -247,7 +245,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual("", responseBody);
         Assert.AreEqual(HttpStatusCode.Accepted, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),It.IsAny<string>(),It.IsAny<int>()),times: Times.Exactly(16));
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>()), times: Times.Exactly(16));
     }
 
     [TestMethod]
@@ -276,7 +274,7 @@ public class TransformDataServiceTests
         var responseBody = await reader.ReadToEndAsync();
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"OtherGenderNot-0-1-2-or-9",00),times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherGenderNot-0-1-2-or-9", 00), times: Times.Once);
     }
 
     [TestMethod]
@@ -303,7 +301,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"OtherGenderNot-0-1-2-or-9",00),times: Times.Never);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherGenderNot-0-1-2-or-9", 00), times: Times.Never);
     }
 
     //TODO: This test needs fixing as it doesnt test anything.
@@ -370,7 +368,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"CharacterRules",71),times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "CharacterRules", 71), times: Times.Once);
 
     }
 
@@ -404,7 +402,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"OtherDateOfDeathDoesNotExist",3),times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherDateOfDeathDoesNotExist", 3), times: Times.Once);
 
     }
 
@@ -434,7 +432,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"OtherFirstNameDoesNotExist",14),times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherFirstNameDoesNotExist", 14), times: Times.Once);
     }
 
     [TestMethod]
@@ -471,7 +469,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"OtherInvalidFlagTrueAndNoPrimaryCareProvider",0),times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherInvalidFlagTrueAndNoPrimaryCareProvider", 0), times: Times.Once);
 
     }
 

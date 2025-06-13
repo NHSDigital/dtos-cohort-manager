@@ -10,8 +10,4 @@ public class UpdateParticipantConfig
     public string UpdateParticipant { get; set; }
     [Required]
     public string StaticValidationURL { get; set; }
-    [Required]
-    public string DSmarkParticipantAsEligible { get; set; }
-    [Required]
-    public string markParticipantAsIneligible { get; set; }
 }

@@ -15,7 +15,6 @@ var host = new HostBuilder()
         .Build()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
         services.AddSingleton<ICallFunction, CallFunction>();
@@ -25,6 +24,7 @@ var host = new HostBuilder()
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

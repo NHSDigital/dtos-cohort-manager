@@ -52,6 +52,7 @@ OutputDirectory
 
 # User Settings
 local.settings.json
+appsettings.json
 
 # Docker
 .env
@@ -84,6 +85,31 @@ application/CohortManager/.vscode/
 
 # Ignore generated feature bindings
 *.feature.cs
-tests/smoke-tests/NHS.CohortManager.SmokeTests/Config/appsettings-local.json
-tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings-local.json
+# Ignore all appsettings.json files
+**/appsettings.json
+
+# Ignore all appsettings-local.json files
+**/appsettings-local.json
+
+# Ignore all .crt files
 *.crt
+tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
+
+application/CohortManager/src/Functions/*.json
+
+# Playwright
+# Ignore
+**/node_modules/
+**/test-results/
+**/playwright-report/
+**/blob-report/
+**/playwright/.cache/
+**/playwright-tests/.env
+**/playwright-tests/.env.*
+**/playwright-tests/.vscode/settings.json
+**/playwright-tests/src/tests/e2e/testFiles/**/*.parquet
+# Allow
+!**/playwright-tests/.env.dev.example
+!**/playwright-tests/src/parquet/*.parquet
+# Explicitly include test JSON files
+!**/playwright-tests/src/tests/e2e/testFiles/**/*.json

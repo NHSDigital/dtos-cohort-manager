@@ -24,6 +24,9 @@ public class Participant
         ReasonForRemovalEffectiveFromDate = pm.ReasonForRemovalDate.ToString();
         BusinessRuleVersion = pm.BusinessRuleVersion;
         ExceptionFlag = pm.ExceptionFlag.ToString();
+        BlockedFlag = pm.BlockedFlag.ToString();
+        ReferralFlag = pm.ReferralFlag.ToString();
+        CeasedFlag = pm.CeasedFlag.ToString(); 
         RecordInsertDateTime = pm.RecordInsertDateTime.ToString();
         RecordUpdateDateTime = pm.RecordUpdateDateTime.ToString();
 
@@ -124,6 +127,9 @@ public class Participant
             ReasonForRemovalDate = MappingUtilities.ParseDates(ReasonForRemovalEffectiveFromDate),
             BusinessRuleVersion = BusinessRuleVersion,
             ExceptionFlag = MappingUtilities.ParseStringFlag(ExceptionFlag ?? "0"),
+            BlockedFlag = MappingUtilities.ParseStringFlag(BlockedFlag ?? "0"),
+            ReferralFlag = MappingUtilities.ParseStringFlag(ReferralFlag ?? "0"),
+            CeasedFlag = MappingUtilities.ParseStringFlag(CeasedFlag ?? "0"),
             RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime),
             RecordUpdateDateTime = MappingUtilities.ParseDates(RecordUpdateDateTime),
         };
@@ -185,6 +191,9 @@ public class Participant
     public string? ScreeningId { get; set; }
     public string? BusinessRuleVersion { get; set; }
     public string? ExceptionFlag { get; set; }
+    public string? BlockedFlag { get; set; }
+    public string? ReferralFlag { get; set; }
+    public string? CeasedFlag { get; set; }
     public string? RecordInsertDateTime { get; set; }
     public string? RecordUpdateDateTime { get; set; }
     public string? ScreeningAcronym { get; set; }

@@ -4,7 +4,6 @@ using Moq;
 using Common;
 using Model;
 using RulesEngine.Models;
-using NHS.CohortManager.Tests.TestUtils;
 using Model.Enums;
 
 namespace NHS.CohortManager.Tests.UnitTests.ExceptionHandlerTests;
@@ -12,13 +11,13 @@ namespace NHS.CohortManager.Tests.UnitTests.ExceptionHandlerTests;
 public class ExceptionHandlerTests
 {
     private readonly Mock<ILogger<ExceptionHandler>> _logger = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private readonly ExceptionHandler _function;
 
     public ExceptionHandlerTests()
-    { 
+    {
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
-        _function = new ExceptionHandler(_logger.Object, _callFunction.Object);
+        _function = new ExceptionHandler(_logger.Object, _httpClientFunction.Object);
     }
 
     [TestMethod]
@@ -38,7 +37,7 @@ public class ExceptionHandlerTests
 
         // Assert - when NhsNumber is not null (even if empty or whitespace), ExceptionFlag should be set to "Y"
         var exceptionFlagY = "\\u0022ExceptionFlag\\u0022:\\u0022Y\\u0022";
-        _callFunction.Verify(call => call.SendPost(
+        _httpClientFunction.Verify(call => call.SendPost(
             It.Is<string>(s => s == "ExceptionFunctionURL"),
             It.Is<string>(v => v.Contains(exceptionFlagY))), Times.Once());
     }
@@ -55,7 +54,7 @@ public class ExceptionHandlerTests
 
         // Assert - when NhsNumber is null, the JSON should show ExceptionFlag as null
         var exceptionFlagNull = "\\u0022ExceptionFlag\\u0022:null";
-        _callFunction.Verify(call => call.SendPost(
+        _httpClientFunction.Verify(call => call.SendPost(
             It.Is<string>(s => s == "ExceptionFunctionURL"),
             It.Is<string>(v => v.Contains(exceptionFlagNull))), Times.Once());
     }
@@ -83,10 +82,8 @@ public class ExceptionHandlerTests
             GenerateSampleRuleResultTree(CreateSampleRule())
         };
 
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "[]");
-
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(Task.FromResult(response))
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.FromResult(new HttpResponseMessage { StatusCode = HttpStatusCode.OK }))
             .Verifiable();
 
         // Act
@@ -125,10 +122,9 @@ public class ExceptionHandlerTests
         string screeningName = "ScreeningTest";
         string errorRecord = "{}";
         string capturedPayload = null;
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
             .Callback<string, string>((url, payload) => capturedPayload = payload)
-            .ReturnsAsync(response);
+            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
         // Act
         await _function.CreateSystemExceptionLogFromNhsNumber(exception, nhsNumber, fileName, screeningName, errorRecord);
@@ -136,14 +132,14 @@ public class ExceptionHandlerTests
         // Assert - if the input is considered nil, the payload should include Category 7; otherwise it should not.
         if (nhsNumberIsNil)
         {
-            _callFunction.Verify(call => call.SendPost(
+            _httpClientFunction.Verify(call => call.SendPost(
                 It.Is<string>(s => s == "ExceptionFunctionURL"),
                 It.Is<string>(v => v.Contains("\"Category\":7"))), Times.Once());
             Assert.IsTrue(capturedPayload.Contains("\"Category\":7"), "Expected payload to contain Category 7 for nil NhsNumber");
         }
         else
         {
-            _callFunction.Verify(call => call.SendPost(
+            _httpClientFunction.Verify(call => call.SendPost(
                 It.Is<string>(s => s == "ExceptionFunctionURL"),
                 It.Is<string>(v => !v.Contains("\"Category\":7"))), Times.Once());
             Assert.IsFalse(capturedPayload.Contains("\"Category\":7"), "Expected payload NOT to contain Category 7 for non-nil NhsNumber");
@@ -159,15 +155,14 @@ public class ExceptionHandlerTests
         var basicParticipant = new BasicParticipantData { NhsNumber = "987654321", ScreeningName = screeningName };
         var exception = new Exception("Test exception");
         var fileName = "testfile";
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
-        // Act 
+        // Act
         await _function.CreateSystemExceptionLog(exception, basicParticipant, fileName);
 
         // Assert - verify that the JSON includes the provided NhsNumber and ScreeningName
-        _callFunction.Verify(x => x.SendPost(
+        _httpClientFunction.Verify(x => x.SendPost(
             It.Is<string>(s => s == "ExceptionFunctionURL"),
             It.Is<string>(s => s.Contains("\"NhsNumber\":\"987654321\"") && s.Contains($"\"ScreeningName\":\"{screeningName}\""))),
             Times.Once());
@@ -180,15 +175,14 @@ public class ExceptionHandlerTests
         var basicParticipant = new BasicParticipantData { NhsNumber = null, ScreeningName = "ScreeningTest" };
         var exception = new Exception("Test exception");
         var fileName = "testfile";
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
         // Act
         await _function.CreateSystemExceptionLog(exception, basicParticipant, fileName);
 
         // Assert - check that the default (empty) NhsNumber is used
-        _callFunction.Verify(x => x.SendPost(
+        _httpClientFunction.Verify(x => x.SendPost(
             It.Is<string>(s => s == "ExceptionFunctionURL"),
             It.Is<string>(s => s.Contains("\"NhsNumber\":\"\""))),
             Times.Once());
@@ -203,9 +197,8 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
         // Act
         await _function.CreateDeletedRecordException(participantCsvRecord);
@@ -229,9 +222,8 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.InternalServerError, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
 
         // Act
         await _function.CreateDeletedRecordException(participantCsvRecord);
@@ -256,9 +248,8 @@ public class ExceptionHandlerTests
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         string description = "Schema error occurred";
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response)
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK })
                      .Verifiable();
 
         // Act
@@ -273,7 +264,7 @@ public class ExceptionHandlerTests
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Never());
-        _callFunction.Verify(x => x.SendPost(
+        _httpClientFunction.Verify(x => x.SendPost(
                 It.Is<string>(s => s == "ExceptionFunctionURL"),
                 It.Is<string>(s => s.Contains("\"NhsNumber\":\"123456789\"") &&
                                    s.Contains("\"ScreeningName\":\"ScreeningTest\"") &&
@@ -291,9 +282,8 @@ public class ExceptionHandlerTests
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         string description = "Schema error occurred";
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.InternalServerError, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
 
         // Act
         await _function.CreateSchemaValidationException(participantCsvRecord, description);
@@ -322,15 +312,14 @@ public class ExceptionHandlerTests
             ruleResult2
         };
         var participant = new CohortDistributionParticipant { NhsNumber = "123456789", ScreeningName = "ScreeningTest" };
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
         // Act
         await _function.CreateTransformationExceptionLog(transformationErrors, participant);
 
         // Assert - verify that SendPost is called for each error and no error is logged
-        _callFunction.Verify(x => x.SendPost(
+        _httpClientFunction.Verify(x => x.SendPost(
             It.Is<string>(s => s == "ExceptionFunctionURL"),
             It.Is<string>(s => s.Contains("\"NhsNumber\":\"123456789\"") &&
                                 s.Contains("\"ScreeningName\":\"ScreeningTest\"")
@@ -352,9 +341,8 @@ public class ExceptionHandlerTests
         var ruleResult = GenerateSampleRuleResultTree(rule);
         var transformationErrors = new List<RuleResultTree> { ruleResult };
         var participant = new CohortDistributionParticipant { NhsNumber = "123456789", ScreeningName = "ScreeningTest" };
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.InternalServerError, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
 
         // Act
         await _function.CreateTransformationExceptionLog(transformationErrors, participant);
@@ -380,16 +368,15 @@ public class ExceptionHandlerTests
             ScreeningName = "ScreeningTest"
         };
         string ruleName = "51.Message.0";
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response)
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK })
                      .Verifiable();
 
         // Act
         await _function.CreateTransformExecutedExceptions(cohortDistributionParticipant, ruleName, 1);
 
         // Assert - verify that SendPost is called for each error and no error is logged
-        _callFunction.Verify(x => x.SendPost(
+        _httpClientFunction.Verify(x => x.SendPost(
                 It.Is<string>(s => s == "ExceptionFunctionURL"),
                 It.Is<string>(s => s.Contains($"\"RuleDescription\":\"Participant was transformed as transform rule: {ruleName} was executed\"") &&
                                    s.Contains("\"RuleId\":1") &&
@@ -414,9 +401,8 @@ public class ExceptionHandlerTests
             NhsNumber = "123456789",
             ScreeningName = "ScreeningTest"
         };
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.BadRequest, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest });
 
         // Act
         await _function.CreateTransformExecutedExceptions(cohortDistributionParticipant, "51.Message.0", 1);
@@ -445,9 +431,8 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.Created, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.Created });
 
         // Act
         var result = await _function.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
@@ -471,7 +456,8 @@ public class ExceptionHandlerTests
     {
         // Arrange
         var rule = CreateSampleRule();
-        rule.RuleName = "51.Message.0"; // non-fatal rule
+        // We parse the rule "ValidationExceptionLog" enum so that it enters the database correctly 
+        rule.RuleName = "51.Message.0.0"; // non-fatal rule
         var ruleResult = GenerateSampleRuleResultTree(rule);
         ruleResult.ActionResult.Output = "NonFatalError";
         ruleResult.ExceptionMessage = "";
@@ -481,9 +467,8 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.Created, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.Created });
 
         var notExpectedMessage = "an exception was raised while running the rules. Exception Message:";
         var notExpectedError = "There was an error while logging an exception to the database";
@@ -523,7 +508,8 @@ public class ExceptionHandlerTests
     {
         // Arrange
         var rule = CreateSampleRule();
-        rule.RuleName = "1.Message.1";
+        // We parse the rule "ValidationExceptionLog" enum so that it enters the database correctly 
+        rule.RuleName = "1.Message.1.1";
         var ruleResult = GenerateSampleRuleResultTree(rule);
         ruleResult.ActionResult.Output = "TestError";
         ruleResult.ExceptionMessage = "Actual exception occurred";
@@ -533,9 +519,8 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
         // Act
         var result = await _function.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
@@ -555,7 +540,8 @@ public class ExceptionHandlerTests
     {
         // Arrange
         var rule = CreateSampleRule();
-        rule.RuleName = "1.Message.1";
+        // We parse the rule "ValidationExceptionLog" enum so that it enters the database correctly 
+        rule.RuleName = "1.Message.1.1";
         var ruleResult = GenerateSampleRuleResultTree(rule);
         ruleResult.ActionResult.Output = "TestError";
         ruleResult.ExceptionMessage = "";
@@ -565,9 +551,8 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.BadRequest, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest });
 
         // Act
         var result = await _function.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
@@ -592,9 +577,8 @@ public class ExceptionHandlerTests
         string errorDescription = "Error description";
         string screeningName = "ScreeningTest";
         string errorRecord = "{}";
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
         // Act
         var result = await _function.CreateRecordValidationExceptionLog(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
@@ -612,9 +596,8 @@ public class ExceptionHandlerTests
         string errorDescription = "Error description";
         string screeningName = "ScreeningTest";
         string errorRecord = "{}";
-        var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.InternalServerError, "{}");
-        _callFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(response);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
 
         // Act
         var result = await _function.CreateRecordValidationExceptionLog(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
@@ -638,7 +621,7 @@ public class ExceptionHandlerTests
 
         // Act & Assert - should throw an InvalidOperationException
         Assert.ThrowsException<InvalidOperationException>(() =>
-            new ExceptionHandler(_logger.Object, _callFunction.Object));
+            new ExceptionHandler(_logger.Object, _httpClientFunction.Object));
 
         // Reset the environment variable for other tests
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
@@ -650,7 +633,7 @@ public class ExceptionHandlerTests
     {
         var rule = new Rule
         {
-            RuleName = "1.Message.1",
+            RuleName = "1.Message.1.1",
             Properties = new Dictionary<string, object>
             {
                 { "Property1", "Value1" },

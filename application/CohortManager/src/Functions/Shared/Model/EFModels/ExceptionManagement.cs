@@ -21,7 +21,7 @@ public class ExceptionManagement
     [Column("DATE_CREATED", TypeName = "datetime")]
     public DateTime? DateCreated { get; set; }
 
-    [Column("DATE_RESOLVED", TypeName = "datetime")]
+    [Column("DATE_RESOLVED", TypeName = "date")]
     public DateTime? DateResolved { get; set; }
 
     [Column("RULE_ID")]
@@ -50,6 +50,16 @@ public class ExceptionManagement
     [Column("IS_FATAL")]
     public short? IsFatal { get; set; }
 
+    [MaxLength(50)]
+    [Column("SERVICENOW_ID")]
+    public string? ServiceNowId { get; set; }
+
+    [Column("SERVICENOW_CREATED_DATE", TypeName = "date")]
+    public DateTime? ServiceNowCreatedDate { get; set; }
+
+    [Column("RECORD_UPDATED_DATE", TypeName = "datetime")]
+    public DateTime? RecordUpdatedDate { get; set; }
+
     public ValidationException ToValidationException()
     {
         return new ValidationException
@@ -66,7 +76,10 @@ public class ExceptionManagement
             ScreeningName = ScreeningName,
             ExceptionDate = ExceptionDate,
             CohortName = CohortName,
-            Fatal = IsFatal
+            Fatal = IsFatal,
+            ServiceNowId = ServiceNowId,
+            ServiceNowCreatedDate = ServiceNowCreatedDate,
+            RecordUpdatedDate = RecordUpdatedDate
         };
     }
 
@@ -78,7 +91,7 @@ public class ExceptionManagement
             ExceptionId = validationException.ExceptionId ?? 0,
             FileName = validationException.FileName,
             NhsNumber = validationException.NhsNumber,
-            DateCreated = validationException.DateCreated ?? DateTime.MinValue,
+            DateCreated = validationException.DateCreated ?? DateTime.MaxValue,
             DateResolved = validationException.DateResolved ?? DateTime.MaxValue,
             RuleId = validationException.RuleId,
             RuleDescription = validationException.RuleDescription,
@@ -87,7 +100,10 @@ public class ExceptionManagement
             ScreeningName = validationException.ScreeningName,
             ExceptionDate = validationException.ExceptionDate ?? DateTime.Now,
             CohortName = validationException.CohortName,
-            IsFatal = short.TryParse(input, out short result) ? result : new short()
+            IsFatal = short.TryParse(input, out short result) ? result : new short(),
+            ServiceNowId = ServiceNowId,
+            ServiceNowCreatedDate = validationException.ServiceNowCreatedDate,
+            RecordUpdatedDate = validationException.RecordUpdatedDate
         };
     }
 }

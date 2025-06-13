@@ -1,25 +1,22 @@
 using Common;
-using Data.Database;
-using DataServices.Client;
+using Common.Interfaces;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Model;
 using NHS.Screening.RetrievePDSDemographic;
 
 var host = new HostBuilder()
-    .AddConfiguration<RetrievePDSDemographicConfig>(out RetrievePDSDemographicConfig config)
-    .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(config.ParticipantDemographicDataServiceURL)
-        .Build()
+    .AddConfiguration<RetrievePDSDemographicConfig>()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        services.AddScoped<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
+        services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();
         // Register health checks
         services.AddBasicHealthCheck("RetrievePdsDemographic");
     })
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

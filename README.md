@@ -1,105 +1,96 @@
-# Repository Template
+# Cohort Manager
 
 [![CI/CD Pull Request](https://github.com/nhs-england-tools/repository-template/actions/workflows/cicd-1-pull-request.yaml/badge.svg)](https://github.com/nhs-england-tools/repository-template/actions/workflows/cicd-1-pull-request.yaml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=repository-template&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=repository-template)
 
-Start with an overview or a brief description of what the project is about and what it does. For example -
-
-Welcome to our repository template designed to streamline your project setup! This robust template provides a reliable starting point for your new projects, covering an essential tech stack and encouraging best practices in documenting.
-
-This repository template aims to foster a user-friendly development environment by ensuring that every included file is concise and adequately self-documented. By adhering to this standard, we can promote increased clarity and maintainability throughout your project's lifecycle. Bundled within this template are resources that pave the way for seamless repository creation. Currently supported technologies are:
-
-- Terraform
-- Docker
-
-Make use of this repository template to expedite your project setup and enhance your productivity right from the get-go. Enjoy the advantage of having a well-structured, self-documented project that reduces overhead and increases focus on what truly matters - coding!
+A service for identifying and managing cohorts of citizens. Users can select individuals to be part of a cohort, based on rules which are set by central bodies,\
+ or they can select individuals on an ad-hoc basis when planning their capacity. Rules for selecting individuals can be based on both demographic and medical criteria.  
 
 ## Table of Contents
 
-- [Repository Template](#repository-template)
-  - [Table of Contents](#table-of-contents)
-  - [Setup](#setup)
+- [Cohort Manager](#cohort-manager)
+  - [Set-up](#set-up)
     - [Prerequisites](#prerequisites)
     - [Configuration](#configuration)
   - [Usage](#usage)
     - [Testing](#testing)
-  - [Design](#design)
-    - [Diagrams](#diagrams)
-    - [Modularity](#modularity)
   - [Contributing](#contributing)
   - [Contacts](#contacts)
   - [Licence](#licence)
 
-## Setup
-
-By including preferably a one-liner or if necessary a set of clear CLI instructions we improve user experience. This should be a frictionless installation process that works on various operating systems (macOS, Linux, Windows WSL) and handles all the dependencies.
-
-Clone the repository
-
-```shell
-git clone https://github.com/nhs-england-tools/repository-template.git
-cd nhs-england-tools/repository-template
-```
+## Set-up
 
 ### Prerequisites
 
-The following software packages, or their equivalents, are expected to be installed and configured:
+- Visual Studio Code
+- Git
+- HomeBrew (Mac Only): \
+    `/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"`
+- [.NET SDK (8.0)](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- Signed Git commits (if you would like to contribute): \
+    [Using 1Password](https://developer.1password.com/docs/ssh/git-commit-signing/) is the easiest option if you have it, otherwise use the below link for instructions \
+    <https://github.com/NHSDigital/software-engineering-quality-framework/blob/main/practices/guides/commit-signing.md>
+- Added the git submodule:
+  `git submodule update --init --recursive`
 
-- [Docker](https://www.docker.com/) container runtime or a compatible tool, e.g. [Podman](https://podman.io/),
-- [asdf](https://asdf-vm.com/) version manager,
-- [GNU make](https://www.gnu.org/software/make/) 3.82 or later,
-- [GNU coreutils](https://www.gnu.org/software/coreutils/) and [GNU binutils](https://www.gnu.org/software/binutils/) may be required to build dependencies like Python, which may need to be compiled during installation. For macOS users, this has been scripted and automated by the `dotfiles` project; please see this [script](https://github.com/nhs-england-tools/dotfiles/blob/main/assets/20-install-base-packages.macos.sh) for details,
-- [Python](https://www.python.org/) required to run Git hooks,
-- [`jq`](https://jqlang.github.io/jq/) a lightweight and flexible command-line JSON processor.
+### 1. Import the NHS DToS Profile
 
-> [!NOTE]<br>
-> The version of GNU make available by default on macOS is earlier than 3.82. You will need to upgrade it or certain `make` tasks will fail. On macOS, you will need [Homebrew](https://brew.sh/) installed, then to install `make`, like so:
->
-> ```shell
-> brew install make
-> ```
->
-> You will then see instructions to fix your `$PATH` variable to make the newly installed version available. If you are using [dotfiles](https://github.com/nhs-england-tools/dotfiles), this is all done for you.
+To easily install the required extensions and settings/configuration for VS Code, you can import the profile located in `Set-up/NHS_DToS.code-profile`
+
+On the top toolbar of Visual Studio Code go to *Code > Settings > Profiles > Import Profile > click on Select File...* and select the file **NHS_DToS.code-profile**
+
+### 2. Azure Data Studio & Storage Explorer
+
+Azure Data Studio & Storage Explorer are the GUI tools we are using to manually interact with the database & Azure Storage respectively.
+
+- Install [Azure Data Studio](https://learn.microsoft.com/en-us/azure-data-studio/download-azure-data-studio?tabs=wi[…]all%2Credhat-install%2Cwindows-uninstall%2Credhat-uninstall)
+- (Optional) Install [Azure Storage Explorer](https://azure.microsoft.com/en-gb/products/storage/storage-explorer)
+
+Use the **Intel Chip/ x64** installer if you have and Intel Chip in your Mac. Otherwise, use the **Apple Silicon/ ARM64** installer.
+
+*Note: to check which version you are using, you can click on the Apple icon of your machine > About this Mac and a new window will appear. You can see the Chip your machine. Intel will have Intel in it, Apple Silicon will have something like Apple M1.*
+
+### 3. Download Docker/ Podman
+
+If you are on Windows, install Docker Engine using [these instructions](https://medium.com/@rom.bruyere/docker-and-wsl2-without-docker-desktop-f529d15d9398)
+
+If you are on Mac, install Podman by running:
+
+```bash
+brew install --cask podman
+brew install podman-compose
+
+# Allocate sufficient resources to Podman:
+podman machine stop
+podman machine set --cpus=6 --memory=12288 --disk-size=125
+podman machine start
+```
+
+### 4. Optional: Azure Functions Core Tools
+
+Install only if you plan on running the functions outside of Docker/ Podman
+
+Azure Function Core Tools lets you develop and test your functions on your local computer. To install, press `ctrl/ command + shift + P` and enter `Azure Functions: Install or Update Azure Functions Core Tools`
 
 ### Configuration
 
-Installation and configuration of the toolchain dependencies
+Copy the .env.example file, rename it to just ".env", and follow the instructions inside the file to add the variables.
 
-```shell
-make config
-```
+> **Note:** For existing users, make sure you replace where it says 127.0.0.1 in the azurite connection string and replace it with "azurite"
 
 ## Usage
 
-After a successful installation, please follow this [User Guide](./docs/user-guides/Local_machine_setup.md) to setup your local development environment.
+After a successful installation, please follow this [User Guide](./docs/user-guides/user_guide.md) to use the application.
 
 ### Testing
 
-There are `make` tasks for you to configure to run your tests. Run `make test` to see how they work. You should be able to use the same entry points for local development as in your CI pipeline.
+Unit tests can be run from the Functions directory with `dotnet test`
 
-[Smoke Tests Documentation](tests/smoke-tests/dtos-cohort-manager-smoke-tests/README.md)
-
-## Design
-
-### Diagrams
-
-The [C4 model](https://c4model.com/) is a simple and intuitive way to create software architecture diagrams that are clear, consistent, scalable and most importantly collaborative. This should result in documenting all the system interfaces, external dependencies and integration points.
-
-![Repository Template](./docs/diagrams/Repository_Template_GitHub_Generic.png)
-
-### Modularity
-
-Most of the projects are built with customisability and extendability in mind. At a minimum, this can be achieved by implementing service level configuration options and settings. The intention of this section is to show how this can be used. If the system processes data, you could mention here for example how the input is prepared for testing - anonymised, synthetic or live data.
+To run the end-to-end tests, follow the [instructions in the playwright-tests directory](tests/playwright-tests/README.md)
 
 ## Contributing
 
-Describe or link templates on how to raise an issue, feature request or make a contribution to the codebase. Reference the other documentation files, like
-
-- Environment setup for contribution, i.e. `CONTRIBUTING.md`
-- Coding standards, branching, linting, practices for development and testing
-- Release process, versioning, changelog
-- Backlog, board, roadmap, ways of working
-- High-level requirements, guiding principles, decision records, etc.
+To contribute, follow the instructions in the [contributing.md](CONTRIBUTING.md)
 
 ## Contacts
 

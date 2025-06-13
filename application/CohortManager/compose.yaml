@@ -1,6 +1,7 @@
 name: cohort-manager
 
 include:
-  - compose.cohort-distribution.yaml
+  - compose.data-services.yaml
   - compose.core.yaml
-
+  - compose.cohort-distribution.yaml
+  - compose.pipeline.yaml

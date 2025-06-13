@@ -4,7 +4,7 @@
 /// <param name="participant">The CohortDistributionParticipant to be transformed.</param>
 /// <returns>The transformed participant</returns>
 
-namespace NHS.CohortManager.CohortDistribution;
+namespace NHS.CohortManager.CohortDistributionService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -27,20 +27,17 @@ public class TransformDataService
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
-    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
     public TransformDataService(
         ICreateResponse createResponse,
         IExceptionHandler exceptionHandler,
         ILogger<TransformDataService> logger,
-        ITransformReasonForRemoval transformReasonForRemoval,
-        IDataServiceClient<CohortDistribution> cohortDistributionClient
+        ITransformReasonForRemoval transformReasonForRemoval
     )
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _logger = logger;
         _transformReasonForRemoval = transformReasonForRemoval;
-        _cohortDistributionClient = cohortDistributionClient;
     }
 
     [Function("TransformDataService")]
@@ -72,25 +69,22 @@ public class TransformDataService
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS Number couldn't be parsed to long");
             }
 
-            var existingParticipantsList = await _cohortDistributionClient.GetByFilter(x => x.NHSNumber == nhsNumberLong);
-            var lastParticipant = existingParticipantsList.OrderByDescending(x => x.CohortDistributionId).FirstOrDefault();
-
             // Character transformation
             var transformString = new TransformString(_exceptionHandler);
             participant = await transformString.TransformStringFields(participant);
 
             // Address transformation
-            participant = TransformAddress(lastParticipant, participant);
+            participant = TransformAddress(requestBody.ExistingParticipant, participant);
 
             // Other transformation rules
-            participant = await TransformParticipantAsync(participant, lastParticipant);
+            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant);
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
                 participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix,participant);
 
 
-            participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, lastParticipant);
+            participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
             if (participant.NhsNumber != null)
             {
                 var response = JsonSerializer.Serialize(participant);
@@ -101,7 +95,7 @@ public class TransformDataService
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "An error occurred during transformation");
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "", "", JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "", participant.ScreeningName, JsonSerializer.Serialize(participant));
             return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req);
         }
         catch (TransformationException ex)
@@ -111,7 +105,7 @@ public class TransformDataService
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "", "", JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "", participant.ScreeningName, JsonSerializer.Serialize(participant));
             _logger.LogWarning(ex, "exception occurred while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
