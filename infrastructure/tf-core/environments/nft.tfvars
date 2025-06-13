@@ -84,8 +84,8 @@ routes = {
     ]
     route_table_routes_to_audit = [
       {
-        name                   = "CohmanToAudit"
-        address_prefix         = "10.104.0.0/16"
+        name                   = "EgressViaHubFirewall"
+        address_prefix         = "0.0.0.0/0"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
