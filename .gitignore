@@ -38,6 +38,7 @@ _ReSharper.*/
 __azurite*
 __blobstorage__
 __queuestorage__
+AzuriteConfig
 
 # Tests
 TestResults

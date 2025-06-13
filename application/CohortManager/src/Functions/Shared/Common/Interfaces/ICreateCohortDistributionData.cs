@@ -8,7 +8,7 @@ public interface ICreateCohortDistributionData
     Task<List<CohortDistributionParticipantDto>> GetUnextractedCohortDistributionParticipants(int rowCount);
     Task<List<CohortDistributionParticipantDto>> GetCohortDistributionParticipantsByRequestId(Guid requestId);
     Task<List<CohortRequestAudit>> GetCohortRequestAudit(string? requestId, string? statusCode, DateTime? dateFrom);
-    Task<CohortRequestAudit> GetNextCohortRequestAudit(string requestId);
+    Task<CohortRequestAudit> GetNextCohortRequestAudit(Guid requestId);
 
 
 }
