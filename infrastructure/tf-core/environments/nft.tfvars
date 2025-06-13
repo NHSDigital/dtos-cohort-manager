@@ -47,7 +47,7 @@ regions = {
         cidr_newbits = 8
         cidr_offset  = 5
       }
-      container-app-db-management = {
+      container-app-db-management-2 = {
         cidr_newbits = 7
         cidr_offset  = 6
       }
@@ -202,7 +202,7 @@ container_app_environments = {
 
 container_app_jobs = {
   apps = {
-    db-management-2 = {
+    db-management = {
       container_app_environment_key = "db-management-2"
       docker_env_tag                = "nft"
       docker_image                  = "cohort-manager-db-migration"
