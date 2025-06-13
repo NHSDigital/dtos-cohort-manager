@@ -227,6 +227,31 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     await test.step(`Then Exception table should have expected rule id and description for 3 AMENDED participants`, async () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
-
   });
+
+  testWithAmended('@DTOSS-4090-01 Validate existing participant null GP practice code', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4090',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`When ADD participant is processed via storage`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      });
+
+      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+      await test.step(`Given 1 participant is processed to cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+
+      await test.step(`When same ADD participant record is AMENDED with an invalid GP code via storage for ${testData.nhsNumberAmend}`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+
+      await test.step(`Then the record should not be amended in the cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+  })
 });
