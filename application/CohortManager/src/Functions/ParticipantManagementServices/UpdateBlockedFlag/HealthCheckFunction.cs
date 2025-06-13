@@ -21,4 +21,3 @@ public class HealthCheckFunction
         return await HealthCheckServiceExtensions.CreateHealthCheckResponseAsync(req, _healthCheckService);
     }
 }
-
