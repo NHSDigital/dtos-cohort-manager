@@ -3,34 +3,31 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9996928160,
-        "PrimaryCareProvider": "ZZZGBR",
-        "ReasonForRemoval": null,
-        "ReasonForRemovalDate": null
+        "NHSNumber": 9996928160
       },
       "meta": {
-        "testJiraId": "@DTOSS-5388-01",
-        "requirementJiraId": "DTOSS-4573",
-        "additionalTags": "@regression @e2e @epic3-high-priority Tests TC_CohortDistribution_Valid_Transformation_RFR_Rule1"
+        "testJiraId": "@DTOSS-5402-01",
+        "requirementJiraId": "DTOSS-4574",
+        "additionalTags": "@regression @e2e @epic3-high-priority Tests CohortDistribution_Valid_Transformation_RFR_Rule2"
       }
     }
   ],
   "inputParticipantRecord": [
     {
-      "record_type": "AMENDED",
+      "record_type": "ADD",
       "change_time_stamp": "20240524000000",
       "serial_change_number": 1,
       "nhs_number": 9996928160,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": null,
-      "primary_care_effective_from_date": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20100101",
       "current_posting": "DMS",
       "current_posting_effective_from_date": "20100101",
       "name_prefix": "MRS",
       "given_name": "I am Greggs and I have given limit",
       "other_given_name": "RFR Rule 1",
-      "family_name": " I am conner and I have given limit",
-      "previous_family_name": " I am conner and I have given limit",
+      "family_name": "I am conner and I have given limit",
+      "previous_family_name": "I am conner and I have given limit",
       "date_of_birth": "19800112",
       "gender": 2,
       "address_line_1": "My adress 1 and I have given limit",
@@ -38,11 +35,11 @@
       "address_line_3": "My adress 3 and I have given limit",
       "address_line_4": "My adress 4 and I have given limit",
       "address_line_5": "My adress 5 and I have given limit",
-      "postcode": "BN20 1AF",
+      "postcode": "AB23 1AF",
       "paf_key": "Z3S4Q5X8",
       "address_effective_from_date": "20010101",
-      "reason_for_removal": "RDR",
-      "reason_for_removal_effective_from_date": "20230303",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
       "date_of_death": null,
       "death_status": null,
       "home_telephone_number": "0161999999001619999990016199900",
