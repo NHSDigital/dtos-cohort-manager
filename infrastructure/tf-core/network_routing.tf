@@ -34,7 +34,7 @@ module "route_table" {
   bgp_route_propagation_enabled = each.value.bgp_route_propagation_enabled
 
   routes = [
-    for route_key, route_val in each.value.route_table_routes_to_audit : {
+    for route_key, route_val in each.value.route_table_core : {
       name                   = route_val.name
       address_prefix         = route_val.address_prefix
       next_hop_type          = route_val.next_hop_type
@@ -66,7 +66,7 @@ module "route_table_audit" {
   bgp_route_propagation_enabled = each.value.bgp_route_propagation_enabled
 
   routes = [
-    for route_key, route_val in each.value.route_table_routes_from_audit : {
+    for route_key, route_val in each.value.route_table_audit : {
       name                   = route_val.name
       address_prefix         = route_val.address_prefix
       next_hop_type          = route_val.next_hop_type
