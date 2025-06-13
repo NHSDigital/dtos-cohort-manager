@@ -82,7 +82,7 @@ routes = {
         destination_ports     = ["443"]
       }
     ]
-    route_table_routes_to_audit = [
+    route_table_core = [
       {
         name                   = "EgressViaHubFirewall"
         address_prefix         = "0.0.0.0/0"
@@ -90,11 +90,12 @@ routes = {
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
-    route_table_routes_from_audit = [{
-      name                   = "AuditToCohman"
-      address_prefix         = "10.103.0.0/16"
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
+    route_table_audit = [
+      {
+        name                   = "AuditToCohman"
+        address_prefix         = "10.103.0.0/16"
+        next_hop_type          = "VirtualAppliance"
+        next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
   }
