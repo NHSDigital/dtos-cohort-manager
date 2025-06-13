@@ -3,7 +3,7 @@ import { processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } f
 import { TestHooks } from '../../hooks/test-hooks';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { createTempDirAndWriteJson, deleteTempDir } from '../../../../src/json/file-utils';
-import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../../src/json/json-updator';
+import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../../src/json/json-updater';
 
 test.describe('@regression @e2e @epic2-high-priority Tests', () => {
 
