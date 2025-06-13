@@ -22,8 +22,11 @@ public class ProcessCaasFileTests
     private readonly Mock<RecordsProcessedTracker> _recordsProcessedTrackerMock = new();
     private readonly Mock<DataServices.Client.IDataServiceClient<ParticipantDemographic>> _databaseClientParticipantMock = new();
     private readonly Mock<IValidateDates> _validateDates = new();
-    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
+
+
+    private readonly Mock<IHttpClientFunction> _mockHttpClientFunction = new();
     private readonly Mock<ICallDurableDemographicFunc> _callDurableFunc = new();
+    private readonly ProcessCaasFile _processCaasFile;
 
     private readonly Mock<IOptions<ReceiveCaasFileConfig>> _config = new();
 
@@ -40,7 +43,7 @@ public class ProcessCaasFileTests
             _databaseClientParticipantMock.Object,
             _recordsProcessedTrackerMock.Object,
             _validateDates.Object,
-            _httpClientFunction.Object,
+            _mockHttpClientFunction.Object,
             _callDurableFunc.Object,
             _config.Object
         );
@@ -310,7 +313,7 @@ public class ProcessCaasFileTests
         // Assert: expect CreateDeletedRecordException to be invoked
         _exceptionHandlerMock.Verify(m => m.CreateDeletedRecordException(
             It.IsAny<BasicParticipantCsvRecord>()), Times.Once);
-        _httpClientFunction.Verify(x => x.SendPost(
+        _mockHttpClientFunction.Verify(x => x.SendPost(
             It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()),
             Times.Never);
         _loggerMock.Verify(x => x.Log(
@@ -343,7 +346,7 @@ public class ProcessCaasFileTests
         await task;
 
         // Assert: expect call to SendPost to occur
-        _httpClientFunction.Verify(x => x.SendPost(
+        _mockHttpClientFunction.Verify(x => x.SendPost(
             It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()),
             Times.Once);
         _loggerMock.Verify(x => x.Log(
