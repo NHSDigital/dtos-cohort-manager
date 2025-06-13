@@ -13,7 +13,7 @@ module "container-app-environment" {
   location            = each.value.region
 
   log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
-  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-container-app-${lower(each.value.container_app_environment)}"].id
+  vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-container-app-container-app-db-management"].id
   zone_redundancy_enabled    = each.value.zone_redundancy_enabled
 }
 
