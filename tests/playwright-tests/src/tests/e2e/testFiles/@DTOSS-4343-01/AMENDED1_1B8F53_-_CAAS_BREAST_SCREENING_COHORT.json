@@ -8,7 +8,7 @@
         "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED1_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
-        "testJiraId": "@DTOSS-4344-01",
+        "testJiraId": "@DTOSS-4343-01",
         "requirementJiraId": "DTOSS-3136",
         "additionalTags": "@regression @e2e @epic2-high-priority Tests Raise exception for invalid format previous usual address business effective from date for participant 9993340189"
       }
