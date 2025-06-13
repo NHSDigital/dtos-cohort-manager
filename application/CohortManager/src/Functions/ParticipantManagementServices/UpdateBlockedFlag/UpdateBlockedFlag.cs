@@ -77,8 +77,9 @@ public class UpdateBlockedFlag
             }
 
             long nhsNumber = long.Parse(nhsNumberStr);
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumberStr))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumberStr)) {
                 throw new InvalidDataException("Invalid NHS Number");
+            }
 
             // Check participant exists in Participant Demographic table.
             ParticipantDemographic participantDemographic = await _participantDemographicClient
