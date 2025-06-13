@@ -263,6 +263,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReceiveServiceNowMessage", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendServiceNowMessageTests", "..\..\..\..\tests\UnitTests\SendServiceNowMessageTests\SendServiceNowMessageTests.csproj", "{10EADCB8-DF07-495F-8EBA-5A399962956D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RetrieveCohortDistributionTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\RetrieveCohortDistributionTests\RetrieveCohortDistributionTests.csproj", "{2CF91285-9386-4598-BFDC-0053042BB94B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1593,6 +1595,18 @@ Global
 		{10EADCB8-DF07-495F-8EBA-5A399962956D}.Release|x64.Build.0 = Release|Any CPU
 		{10EADCB8-DF07-495F-8EBA-5A399962956D}.Release|x86.ActiveCfg = Release|Any CPU
 		{10EADCB8-DF07-495F-8EBA-5A399962956D}.Release|x86.Build.0 = Release|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Debug|x64.Build.0 = Debug|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Debug|x86.Build.0 = Debug|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Release|x64.ActiveCfg = Release|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Release|x64.Build.0 = Release|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Release|x86.ActiveCfg = Release|Any CPU
+		{2CF91285-9386-4598-BFDC-0053042BB94B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
