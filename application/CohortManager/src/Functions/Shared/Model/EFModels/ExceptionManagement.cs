@@ -91,7 +91,7 @@ public class ExceptionManagement
             ExceptionId = validationException.ExceptionId ?? 0,
             FileName = validationException.FileName,
             NhsNumber = validationException.NhsNumber,
-            DateCreated = validationException.DateCreated ?? DateTime.MinValue,
+            DateCreated = validationException.DateCreated ?? DateTime.MaxValue,
             DateResolved = validationException.DateResolved ?? DateTime.MaxValue,
             RuleId = validationException.RuleId,
             RuleDescription = validationException.RuleDescription,
