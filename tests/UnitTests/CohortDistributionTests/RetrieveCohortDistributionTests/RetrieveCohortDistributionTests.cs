@@ -140,4 +140,4 @@ public class RetrieveCohortDistributionTests
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
 
     }
-
+}
