@@ -14,6 +14,7 @@ using Common;
 using DataServices.Client;
 using Azure.Data.Tables;
 using DataServices.Core;
+using Azure;
 
 public class ManageNemsSubscription
 {
@@ -24,7 +25,6 @@ public class ManageNemsSubscription
 
     public ManageNemsSubscription
     (
-        TableClient tableClient,
         ILogger<ManageNemsSubscription> logger,
         IDataServiceAccessor<NemsSubscription> nemsSubscriptionClient,
         IHttpClientFunction httpClientFunction,
@@ -34,8 +34,7 @@ public class ManageNemsSubscription
     {
         _logger = logger;
         _createResponse = createResponse;
-        _subscriptionManager = new(tableClient,
-                                  httpClientFunction,
+        _subscriptionManager = new(httpClientFunction,
                                   nemsSubscribeConfig,
                                   logger,
                                   nemsSubscriptionClient);
@@ -53,14 +52,18 @@ public class ManageNemsSubscription
     /// or failure with the appropriate HTTP status code and error message.
     /// </returns>
     [Function("Subscribe")]
-    public async Task<HttpResponseData> Subscribe([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "subscriptions/nems")] HttpRequestData req)
+    public async Task<HttpResponseData> Subscribe([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         try
         {
             _logger.LogInformation("Received subscribe request");
 
-            string nhsNumber = req.Query["nhsNumber"]
-                ?? throw new ArgumentNullException("NHS number is required.");
+            string? nhsNumber = req.Query["nhsNumber"];
+
+            if (string.IsNullOrEmpty(nhsNumber))
+            {
+                throw new ArgumentNullException("NHS number is required.");
+            }
 
             // Create subscription object
             Subscription subscription = _subscriptionManager.CreateSubscription(nhsNumber);
@@ -104,16 +107,20 @@ public class ManageNemsSubscription
     /// or failure with the appropriate HTTP status code and error message.
     /// </returns>
     [Function("Unsubscribe")]
-    public async Task<HttpResponseData> Unsubscribe([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequestData req)
+    public async Task<HttpResponseData> Unsubscribe([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         try
         {
             _logger.LogInformation("Received unsubscribe request");
 
-            string nhsNumber = req.Query["nhsNumber"]
-                ?? throw new ArgumentNullException("NHS number is required.");
+            string? nhsNumber = req.Query["nhsNumber"];
 
-            string? subscriptionId = _subscriptionManager.LookupSubscriptionId(nhsNumber);
+            if (string.IsNullOrEmpty(nhsNumber))
+            {
+                throw new ArgumentNullException("NHS number is required.");
+            }
+
+            string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
 
             if (string.IsNullOrEmpty(subscriptionId))
             {
@@ -125,14 +132,14 @@ public class ManageNemsSubscription
             if (!deleted)
             {
                 _logger.LogError("Failed to delete subscription from NEMS.");
-                _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to delete subscription from NEMS.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to delete subscription from NEMS.");
             }
 
             var unsubscribed = await _subscriptionManager.DeleteSubscriptionFromDatabaseAsync(nhsNumber);
             if (!unsubscribed)
             {
                 _logger.LogError("Failed to unsubscribe from NEMS.");
-                _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to unsubscribe from NEMS.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to unsubscribe from NEMS.");
             }
 
             _logger.LogInformation("Successfully unsubscribed.");

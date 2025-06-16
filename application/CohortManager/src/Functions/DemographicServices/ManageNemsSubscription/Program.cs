@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Common;
 using NHS.CohortManager.DemographicServices;
 using DataServices.Database;
+using Azure.Data.Tables;
 
 var host = new HostBuilder()
     .AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config)

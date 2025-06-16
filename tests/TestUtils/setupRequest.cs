@@ -4,6 +4,7 @@ using System.Text;
 using Moq;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
+using System.Collections.Specialized;
 
 public class SetupRequest
 {
@@ -16,7 +17,8 @@ public class SetupRequest
         _request = new Mock<HttpRequestData>(_context.Object);
     }
 
-    public Mock<HttpRequestData> Setup(string? json = null)
+    public Mock<HttpRequestData> Setup(string? json = null, NameValueCollection? parameters = null,
+                                      HttpMethod? method = null)
     {
         if (json == null)
         {
@@ -27,6 +29,16 @@ public class SetupRequest
             var bodyStream = new MemoryStream(byteArray);
 
             _request.Setup(r => r.Body).Returns(bodyStream);
+        }
+
+        if (parameters != null)
+        {
+            _request.Setup(r => r.Query).Returns(parameters);
+        }
+
+        if (method != null)
+        {
+            _request.Setup(r => r.Method).Returns(method.Method);
         }
         
         _request.Setup(r => r.CreateResponse()).Returns(() =>

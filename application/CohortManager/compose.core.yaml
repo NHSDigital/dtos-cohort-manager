@@ -290,6 +290,10 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+      - NemsFhirEndpoint=https://localhost:8080/fhir
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+    ports:
+      - "9081:9081"
 
   durable-demographic-function:
     container_name: durable-demographic-function

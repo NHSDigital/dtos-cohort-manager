@@ -16,20 +16,17 @@ using DataServices.Core;
 
 public class NemsSubscriptionManager
 {
-    private readonly TableClient _tableClient;
     private readonly IHttpClientFunction _httpClient;
     private readonly ILogger<ManageNemsSubscription> _logger;
     private readonly ManageNemsSubscriptionConfig _config;
     private readonly IDataServiceAccessor<NemsSubscription> _nemsSubscriptionAccessor;
 
     public NemsSubscriptionManager(
-        TableClient tableClient,
         IHttpClientFunction httpClient,
         IOptions<ManageNemsSubscriptionConfig> nemsUnSubscriptionConfig,
         ILogger<ManageNemsSubscription> logger,
         IDataServiceAccessor<NemsSubscription> nemsSubscriptionAccessor)
     {
-        _tableClient = tableClient;
         _httpClient = httpClient;
         _config = nemsUnSubscriptionConfig.Value;
         _logger = logger;
@@ -37,7 +34,7 @@ public class NemsSubscriptionManager
     }
 
     /// <summary>
-    /// Looks up the subscription ID for a given NHS number in the Azure Table Storage.
+    /// Looks up the subscription ID for a given NHS number in the database
     /// </summary> 
     /// <param name="nhsNumber">The NHS number to look up.</param>
     /// <returns>
@@ -46,12 +43,17 @@ public class NemsSubscriptionManager
     /// <remarks>
     /// WIP as there will be changes to this method after we are onboarded to the NEMS API.
     /// </remarks>
-    public string? LookupSubscriptionId(string nhsNumber)
+    public async Task <string?> LookupSubscriptionIdAsync(string nhsNumber)
     {
         try
         {
-            var entity = _tableClient.Query<TableEntity>(e => e.RowKey == nhsNumber).FirstOrDefault();
-            return entity?.GetString("SubscriptionId");
+            var subscription = await _nemsSubscriptionAccessor.GetSingle(i => i.NhsNumber == long.Parse(nhsNumber));
+            if (subscription != null)
+            {
+                return subscription.SubscriptionId.ToString();
+            }
+
+            return null;
         }
         catch (RequestFailedException ex)
         {
