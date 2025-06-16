@@ -23,7 +23,7 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
     private readonly IValidateDates _validateDates;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ReceiveCaasFileConfig _config;
     private readonly string DemographicURI;
     private readonly string AddParticipantQueueName;
@@ -39,7 +39,7 @@ public class ProcessCaasFile : IProcessCaasFile
         IDataServiceClient<ParticipantDemographic> participantDemographic,
         IRecordsProcessedTracker recordsProcessedTracker,
         IValidateDates validateDates,
-        ICallFunction callFunction,
+        IHttpClientFunction httpClientFactory,
         ICallDurableDemographicFunc callDurableDemographicFunc,
         IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig
     )
@@ -52,10 +52,9 @@ public class ProcessCaasFile : IProcessCaasFile
         _participantDemographic = participantDemographic;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
-        _callFunction = callFunction;
         _callDurableDemographicFunc = callDurableDemographicFunc;
         _config = receiveCaasFileConfig.Value;
-
+        _httpClientFunction = httpClientFactory;
         DemographicURI = _config.DemographicURI;
         AddParticipantQueueName = _config.AddQueueName;
         UpdateParticipantQueueName = _config.UpdateQueueName;
@@ -76,15 +75,16 @@ public class ProcessCaasFile : IProcessCaasFile
     /// <param name="screeningService"></param>
     /// <param name="name"></param>
     /// <returns></returns>
-    public async Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningService screeningService, string name)
+    public async Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningLkp screeningService, string name)
     {
         var currentBatch = new Batch();
         await Parallel.ForEachAsync(values, options, async (rec, cancellationToken) =>
         {
-            var participant = await _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId, screeningService.ScreeningName, name);
+            var participant = _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId.ToString(), screeningService.ScreeningName, name);
 
             if (participant == null)
             {
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception($"Could not map participant in file {name}"), rec.NhsNumber.ToString(), name, screeningService.ScreeningName, "");
                 return;
             }
 
@@ -227,7 +227,7 @@ public class ProcessCaasFile : IProcessCaasFile
             {
                 _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to RemoveParticipant function.");
                 var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                await _callFunction.SendPost(_config.PMSRemoveParticipant, json);
+                await _httpClientFunction.SendPost(_config.PMSRemoveParticipant, json);
             }
             else
             {

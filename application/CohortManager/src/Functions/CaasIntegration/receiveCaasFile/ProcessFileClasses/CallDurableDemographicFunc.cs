@@ -14,7 +14,7 @@ using Polly;
 public class CallDurableDemographicFunc : ICallDurableDemographicFunc
 {
 
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ILogger<CallDurableDemographicFunc> _logger;
     private readonly HttpClient _httpClient;
     private readonly ICopyFailedBatchToBlob _copyFailedBatchToBlob;
@@ -24,10 +24,10 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
     private readonly ReceiveCaasFileConfig _config;
 
 
-    public CallDurableDemographicFunc(ICallFunction callFunction, ILogger<CallDurableDemographicFunc> logger, HttpClient httpClient, ICopyFailedBatchToBlob copyFailedBatchToBlob, IOptions<ReceiveCaasFileConfig> config)
+    public CallDurableDemographicFunc(IHttpClientFunction httpClientFunction, ILogger<CallDurableDemographicFunc> logger, HttpClient httpClient, ICopyFailedBatchToBlob copyFailedBatchToBlob, IOptions<ReceiveCaasFileConfig> config)
     {
         _config = config.Value;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _logger = logger;
         _httpClient = httpClient;
         _copyFailedBatchToBlob = copyFailedBatchToBlob;
@@ -59,17 +59,11 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
 
         try
         {
-            using var memoryStream = new MemoryStream();
             // this seems to be better for memory management
-            await JsonSerializer.SerializeAsync(memoryStream, participants);
-            memoryStream.Position = 0;
+            var content = JsonSerializer.Serialize(participants);
+            var response = await _httpClientFunction.SendPost(DemographicFunctionURI, content);
 
-            var content = new StreamContent(memoryStream);
-            content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-            var response = await _httpClient.PostAsync(DemographicFunctionURI, content);
-
-            responseContent = response.Headers.Location.ToString();
-
+            responseContent = response.Headers.Location!.ToString();
             // this is not retrying the function if it fails but checking if it has done yet.
             var retryPolicy = Policy
                 .HandleResult<WorkFlowStatus>(status => status != WorkFlowStatus.Completed && status != WorkFlowStatus.Failed)
@@ -151,8 +145,8 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
             _logger.LogWarning(ex, "There has been error getting the status for instanceId {InstanceId}", instanceId);
 
             var json = JsonSerializer.Serialize(instanceId);
-            var response = await _callFunction.SendPost(getOrchestrationStatusURL, json);
-            var responseBody = await _callFunction.GetResponseText(response);
+            var response = await _httpClientFunction.SendPost(getOrchestrationStatusURL, json);
+            var responseBody = await _httpClientFunction.GetResponseText(response);
 
             if (Enum.TryParse<WorkFlowStatus>(responseBody, out var result))
             {
