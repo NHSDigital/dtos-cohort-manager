@@ -3,14 +3,10 @@
 using System.Collections.Specialized;
 using System.Linq.Expressions;
 using System.Net;
-using System.Security.Cryptography.X509Certificates;
-using Castle.Core.Logging;
 using Common;
 using Common.Interfaces;
 using Data.Database;
 using DataServices.Client;
-using Hl7.FhirPath.Expressions;
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -22,22 +18,15 @@ using NHS.CohortManager.Tests.TestUtils;
 public class RetrieveCohortDistributionTests
 {
 
-
     private readonly SetupRequest _setupRequest = new();
-
     private readonly RetrieveCohortDistributionData _sut;
-
     private readonly ICreateCohortDistributionData _createCohortDistribution;
-
     private readonly Mock<ILogger<RetrieveCohortDistributionData>> _retrieveCohortLogger = new();
     private readonly Mock<ILogger<CreateCohortDistributionData>> _createCohortLogger = new();
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataClient = new();
     private readonly Mock<IDataServiceClient<BsSelectRequestAudit>> _requestAuditDistributionDataClient = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
-
-
-
 
     public RetrieveCohortDistributionTests()
     {
