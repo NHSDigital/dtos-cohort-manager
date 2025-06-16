@@ -311,19 +311,19 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - AcceptableLatencyThresholdMs=500
 
-  # UI
-  web:
-    container_name: web
-    build:
-      context: ./src/Web
-      dockerfile: Dockerfile
-    restart: always
-    profiles: [ui]
-    ports:
-      - "3000:3000"
+  # Service Now Integration Service
+  receive-service-now-message: 
+    container_name: receive-service-now-message
     networks: [cohman-network]
-
-  # Service Now Integration
+    build:
+      context: ./src/Functions/
+      dockerfile: ServiceNowIntegrationService/ReceiveServiceNowMessage/Dockerfile
+    ports:
+      - 7912:7912
+    profiles: [not-implemented]
+    environment:
+      - ASPNETCORE_URLS=http://*:7912
+  
   send-servicenow-message:
     container_name: send-servicenow-message
     image: cohort-manager-send-servicenow-message
@@ -336,6 +336,18 @@ services:
       - ASPNETCORE_URLS=http://*:9092
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+
+  # UI
+  web:
+    container_name: web
+    build:
+      context: ./src/Web
+      dockerfile: Dockerfile
+    restart: always
+    profiles: [ui]
+    ports:
+      - "3000:3000"
+    networks: [cohman-network]
 
 networks:
   cohman-network:
