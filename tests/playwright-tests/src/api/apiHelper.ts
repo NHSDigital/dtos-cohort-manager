@@ -44,6 +44,9 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
     } catch (error) {
       const errorMsg = `Endpoint: ${endpoint}, Status: ${response?.status?.()}, Error: ${error instanceof Error ? error.stack || error.message : error}`;
       errorTrace = errorMsg;
+      if (response?.status?.() === 204) {
+        console.info(`ℹ️\t Status 204: No data found in the table using endpoint ${endpoint}`);
+      }
     }
 
     if (attempt < apiRetry && !status) {
