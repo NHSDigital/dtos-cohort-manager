@@ -21,7 +21,6 @@ using Microsoft.Extensions.Options;
 public class ReceiveCaasFileTests
 {
     private readonly Mock<ILogger<ReceiveCaasFile>> _mockLogger;
-    private readonly Mock<ICallFunction> _mockICallFunction;
     private readonly Mock<IReceiveCaasFileHelper> _mockIReceiveCaasFileHelper;
     private readonly ReceiveCaasFile _receiveCaasFileInstance;
     private readonly Participant _participant;
@@ -36,7 +35,6 @@ public class ReceiveCaasFileTests
     public ReceiveCaasFileTests()
     {
         _mockLogger = new Mock<ILogger<ReceiveCaasFile>>();
-        _mockICallFunction = new Mock<ICallFunction>();
         _mockIReceiveCaasFileHelper = new Mock<IReceiveCaasFileHelper>();
 
         var testConfig = new ReceiveCaasFileConfig
@@ -91,13 +89,13 @@ public class ReceiveCaasFileTests
         {
         // Original path
         Path.Combine(assemblyDirectory, "../../../CaasIntegrationTests/receiveCaasFileTest", filename),
-        
+
         // In the assembly directory
         Path.Combine(assemblyDirectory, filename),
-        
+
         // In TestData subdirectory
         Path.Combine(assemblyDirectory, "TestData", filename),
-        
+
         // One directory up in TestData
         Path.Combine(Directory.GetParent(assemblyDirectory)?.FullName ?? assemblyDirectory, "TestData", filename)
         };
@@ -173,9 +171,7 @@ public class ReceiveCaasFileTests
         _mockScreeningLkpClient
             .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>()))
             .ReturnsAsync(screeningLkp);
-        _mockICallFunction
-            .Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-            .Verifiable();
+
         _mockIReceiveCaasFileHelper
             .Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .Returns(_participant);
@@ -184,7 +180,6 @@ public class ReceiveCaasFileTests
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
         var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK);
-        _mockICallFunction.Setup(call => call.SendPost(It.IsAny<string>(), It.IsAny<string>())).Returns(Task.FromResult(response));
 
         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
                 It.IsAny<EventId>(),
@@ -248,8 +243,6 @@ public class ReceiveCaasFileTests
             .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>()))
             .ReturnsAsync((ScreeningLkp)null);
 
-        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
-
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
@@ -278,8 +271,6 @@ public class ReceiveCaasFileTests
         string parquetFilePath = GetParquetFilePath(_blobName);
         await using var fileSteam = File.OpenRead(parquetFilePath);
         var tempFilePath = Path.Combine(Path.GetTempPath(), _blobName);
-
-        _mockICallFunction.Setup(callFunction => callFunction.SendPost(It.IsAny<string>(), It.IsAny<string>())).Verifiable();
 
         var screeningLkp = new ScreeningLkp
         {
