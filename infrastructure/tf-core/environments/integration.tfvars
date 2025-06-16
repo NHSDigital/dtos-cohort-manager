@@ -51,6 +51,10 @@ regions = {
         cidr_newbits = 7
         cidr_offset  = 6
       }
+      container-app-db-management-3 = {
+        cidr_newbits = 7
+        cidr_offset  = 3
+      }
     }
   }
 }
@@ -187,7 +191,7 @@ app_service_plan = {
 
 container_app_environments = {
   instances = {
-    db-management = {
+    db-management-3 = {
       zone_redundancy_enabled = false
     }
   }
@@ -195,10 +199,10 @@ container_app_environments = {
 
 container_app_jobs = {
   apps = {
-    db-management = {
-      container_app_environment_key = "db-management"
-      docker_env_tag                = "development"
-      docker_image                  = "cohort-manager-database-db-migration"
+    db-management-3 = {
+      container_app_environment_key = "db-management-3"
+      docker_env_tag                = "integration"
+      docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
     }
   }
