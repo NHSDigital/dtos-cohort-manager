@@ -10,10 +10,6 @@ features = {
   public_network_access_enabled        = false
 }
 
-tags = {
-  Project = "Cohort-Manager"
-}
-
 regions = {
   uksouth = {
     is_primary_region = true

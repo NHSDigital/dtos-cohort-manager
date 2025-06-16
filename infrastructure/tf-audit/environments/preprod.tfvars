@@ -9,10 +9,6 @@ features = {
   log_analytics_data_export_rule_enabled = true
 }
 
-tags = {
-  Project = "Cohort-Manager"
-}
-
 regions = {
   uksouth = {
     is_primary_region = true
