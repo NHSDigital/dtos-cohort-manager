@@ -3,11 +3,13 @@
 using System.Collections.Specialized;
 using System.Linq.Expressions;
 using System.Net;
+using System.Security.Cryptography.X509Certificates;
 using Castle.Core.Logging;
 using Common;
 using Common.Interfaces;
 using Data.Database;
 using DataServices.Client;
+using Hl7.FhirPath.Expressions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -138,6 +140,127 @@ public class RetrieveCohortDistributionTests
 
         // assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+
+    }
+    [TestMethod]
+    public async Task Run_GetBatchWithRequestIdNextBatchNotNull_ReturnsSuccessful()
+    {
+        // arrange
+        NameValueCollection urlQueryItems = new NameValueCollection();
+        urlQueryItems["rowCount"] = "1";
+        urlQueryItems["requestId"] = "8f6282aa-1a5f-43fa-bac4-5d5aa532eded";
+        var req = _setupRequest.Setup(null, urlQueryItems);
+
+        var okStatusCode = ((int)HttpStatusCode.OK).ToString();
+        var nextRequestId = Guid.Parse("8fd9612e-3316-4e0e-9dc9-5a98ce45ae6c");
+
+        _requestAuditDistributionDataClient
+            .Setup(i => i.GetSingleByFilter(It.IsAny<Expression<Func<BsSelectRequestAudit, bool>>>()))
+            .ReturnsAsync(new BsSelectRequestAudit
+            {
+                StatusCode = okStatusCode,
+                CreatedDateTime = new DateTime(2024, 12, 25, 10, 0, 0)
+            });
+
+        _requestAuditDistributionDataClient
+            .Setup(i => i.GetByFilter(It.IsAny<Expression<Func<BsSelectRequestAudit, bool>>>()))
+            .ReturnsAsync(new List<BsSelectRequestAudit>
+            {
+                new BsSelectRequestAudit{
+                    RequestId = nextRequestId,
+                    StatusCode = okStatusCode,
+                    CreatedDateTime = new DateTime(2024, 12, 29, 10, 0, 0)
+                }
+            });
+
+        _cohortDistributionDataClient
+            .Setup(i => i.GetByFilter(x => x.RequestId == nextRequestId))
+            .ReturnsAsync(new List<CohortDistribution>
+            {
+                new CohortDistribution
+                {
+                    RequestId = nextRequestId,
+                    NHSNumber = 123
+                }
+            });
+
+        // act
+        var result = await _sut.Run(req.Object);
+
+        // assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+    }
+    [TestMethod]
+    public async Task Run_GetBatchWithRequestIdNotFound_ReturnsBadRequest()
+    {
+        // arrange
+
+        var requestId = Guid.Parse("8f6282aa-1a5f-43fa-bac4-5d5aa532eded");
+        NameValueCollection urlQueryItems = new NameValueCollection();
+        urlQueryItems["rowCount"] = "1";
+        urlQueryItems["requestId"] = requestId.ToString();
+        var req = _setupRequest.Setup(null, urlQueryItems);
+
+        _requestAuditDistributionDataClient
+            .Setup(i => i.GetSingleByFilter(x => x.RequestId == requestId))
+            .Returns(Task.FromResult<BsSelectRequestAudit>(null));
+
+
+        // act
+        var result = await _sut.Run(req.Object);
+
+        // assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+
+    }
+    [TestMethod]
+    public async Task Run_GetBatchWithRequestIdNextBatchNull_ReturnsSuccessful()
+    {
+        // arrange
+        NameValueCollection urlQueryItems = new NameValueCollection();
+        urlQueryItems["rowCount"] = "1";
+        urlQueryItems["requestId"] = "8f6282aa-1a5f-43fa-bac4-5d5aa532eded";
+        var req = _setupRequest.Setup(null, urlQueryItems);
+
+        var okStatusCode = ((int)HttpStatusCode.OK).ToString();
+
+        _requestAuditDistributionDataClient
+            .Setup(i => i.GetSingleByFilter(It.IsAny<Expression<Func<BsSelectRequestAudit, bool>>>()))
+            .ReturnsAsync(new BsSelectRequestAudit
+            {
+                StatusCode = okStatusCode,
+                CreatedDateTime = new DateTime(2024, 12, 25, 10, 0, 0)
+            });
+
+        _requestAuditDistributionDataClient
+            .Setup(i => i.GetByFilter(It.IsAny<Expression<Func<BsSelectRequestAudit, bool>>>()))
+            .ReturnsAsync(new List<BsSelectRequestAudit>());
+
+        var cohortDistributionParticipant = new CohortDistribution { NHSNumber = 123456789 };
+        var participantsList = new List<CohortDistribution>
+        {
+            cohortDistributionParticipant
+        };
+        _cohortDistributionDataClient
+            .Setup(x => x.Update(It.IsAny<CohortDistribution>()))
+            .ReturnsAsync(true);
+
+
+        _cohortDistributionDataClient
+            .Setup(x => x.GetSingle(It.IsAny<string>()))
+            .ReturnsAsync(cohortDistributionParticipant);
+
+
+        _cohortDistributionDataClient
+            .Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
+            .ReturnsAsync(participantsList);
+
+        // act
+        var result = await _sut.Run(req.Object);
+
+        // assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
 
     }
 }
