@@ -7,6 +7,11 @@
         "RuleId":3,
         "RuleDescription":"GP practice code and Reason for Removal fields contain incompatible values"
 
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5566-01",
+        "requirementJiraId": "DTOSS-4283",
+        "additionalTags": "@regression @e2e @epic3-high-priority Tests Validation - Not possible to determine BSO dummy practice code for subject"
       }
     },
     {
