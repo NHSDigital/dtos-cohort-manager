@@ -6,6 +6,11 @@
         "NhsNumber": "9994669834",
         "RuleId": 101,
         "RuleDescription": "CurrentPostingEffectiveFromDate"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4330-01",
+        "requirementJiraId": "DTOSS-3136",
+        "additionalTags": "@regression @e2e @epic2-high-priority future date exception for current Effective from date for participant 9994669834"
       }
     },
     {
@@ -14,6 +19,11 @@
         "NhsNumber": "9994592416",
         "RuleId": 101,
         "RuleDescription": "CurrentPostingEffectiveFromDate"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4330-01",
+        "requirementJiraId": "DTOSS-3136",
+        "additionalTags": "@regression @e2e @epic2-high-priority future date exception for current Effective from date for participant 9994592416"
       }
     },
     {
@@ -22,6 +32,11 @@
         "NhsNumber": "9994531689",
         "RuleId": 101,
         "RuleDescription": "CurrentPostingEffectiveFromDate"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4330-01",
+        "requirementJiraId": "DTOSS-3136",
+        "additionalTags": "@regression @e2e @epic2-high-priority future date exception for current Effective from date for participant 9994531689"
       }
     }
   ],
