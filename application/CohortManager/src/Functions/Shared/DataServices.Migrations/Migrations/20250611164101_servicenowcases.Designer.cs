@@ -4,6 +4,7 @@ using DataServices.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataServices.Migrations.Migrations
 {
     [DbContext(typeof(DataServicesContext))]
-    partial class DataServicesContextModelSnapshot : ModelSnapshot
+    [Migration("20250611164101_servicenowcases")]
+    partial class servicenowcases
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -552,7 +555,7 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnName("DATE_CREATED");
 
                     b.Property<DateTime?>("DateResolved")
-                        .HasColumnType("date")
+                        .HasColumnType("datetime")
                         .HasColumnName("DATE_RESOLVED");
 
                     b.Property<string>("ErrorRecord")
@@ -595,7 +598,7 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnName("SCREENING_NAME");
 
                     b.Property<DateTime?>("ServiceNowCreatedDate")
-                        .HasColumnType("date")
+                        .HasColumnType("datetime")
                         .HasColumnName("SERVICENOW_CREATED_DATE");
 
                     b.Property<string>("ServiceNowId")
