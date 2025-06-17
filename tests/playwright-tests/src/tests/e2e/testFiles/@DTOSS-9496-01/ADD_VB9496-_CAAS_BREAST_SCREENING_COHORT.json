@@ -4,6 +4,11 @@
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9999111173
+      },
+        "meta": {
+        "testJiraId": "@DTOSS-9496-01",
+        "requirementJiraId": "DTOSS-6045",
+        "additionalTags": "@regression @e2e @epic4d-validation-tests -  Verify that exception is raised if one or more conditions are FALSE (CP - English, PCPC - B86019) - AC02- ADD"
       }
     },
     {
@@ -12,6 +17,11 @@
         "NhsNumber": "9999111211",
         "RuleId": 3,
         "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values"
+      },
+        "meta": {
+        "testJiraId": "@DTOSS-9496-01",
+        "requirementJiraId": "DTOSS-6045",
+        "additionalTags": "@regression @e2e @epic4d-validation-tests -  Verify that exception is raised if one or more conditions are FALSE (CP - English, PCPC - null) - AC02- ADD"
       }
     }
   ],

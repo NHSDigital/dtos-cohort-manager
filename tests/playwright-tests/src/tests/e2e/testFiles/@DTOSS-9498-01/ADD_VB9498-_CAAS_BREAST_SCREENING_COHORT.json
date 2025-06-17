@@ -4,6 +4,11 @@
        "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber":9999111270
+      },
+        "meta": {
+        "testJiraId": "@DTOSS-9499-01",
+        "requirementJiraId": "DTOSS-6045",
+        "additionalTags": "@regression @e2e @epic4d-validation-tests -   Verify that exception is raised if one or more conditions are FALSE (CP - Not English, PCPC - B86019) - AC02 - ADD"
       }
     }
   ],

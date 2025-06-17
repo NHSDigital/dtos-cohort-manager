@@ -11,6 +11,7 @@
     "test:regression:e2e:epic3": "cross-env TEST_TYPE=RegressionEpic3 npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic3-",
     "test:regression:e2e:epic4d": "cross-env TEST_TYPE=RegressionEpic4d npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic4d-",
     "test:smoke:e2e": "cross-env TEST_TYPE=SMOKE npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @e2e\"",
+    "test:migrated": "cross-env TEST_TYPE=RegressionEpic4d npx playwright test --project=dev --config=src/config/playwright.config.ts  --grep=@DTOSS-9499-01",
     "test": "npx playwright test --project=dev --config=src/config/playwright.config.ts  --grep=\"@smoke @e2e\"",
     "test:dummy": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@dummy \"",
     "test:ut": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@ut\"",

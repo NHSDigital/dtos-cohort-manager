@@ -6,6 +6,11 @@
         "NhsNumber": "9999111262",
         "RuleId": 3601,
         "RuleDescription": "Invalid primary care provider GP practice code"
+      },
+        "meta": {
+        "testJiraId": "@DTOSS-9495-01",
+        "requirementJiraId": "DTOSS-6045",
+        "additionalTags": "@regression @e2e @epic4d-validation-tests -  Verify that exception is raised if one or more conditions are FALSE (CP - Not English - WGA, PCPC - NOT NULL - TWA123) - AC02 - ADD"
       }
     },
     {
@@ -14,6 +19,11 @@
         "NhsNumber": "9999111254",
         "RuleId": 53,
         "RuleDescription": "Current posting and Primary Care provider contain incompatible values"
+      },
+        "meta": {
+        "testJiraId": "@DTOSS-9495-01",
+        "requirementJiraId": "DTOSS-6045",
+        "additionalTags": "@regression @e2e @epic4d-validation-tests -  Verify that exception is raised if one or more conditions are FALSE (CP - Not English - null, PCPC - NOT NULL - TWA123) - AC02 - AMENDED"
       }
     }
   ],

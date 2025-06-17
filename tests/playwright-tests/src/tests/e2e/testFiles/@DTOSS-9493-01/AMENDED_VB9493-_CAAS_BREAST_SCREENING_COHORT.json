@@ -6,6 +6,11 @@
         "NhsNumber": "9999111149",
         "RuleId": 3602,
         "RuleDescription": "Invalid primary care provider GP practice code"
+      },
+        "meta": {
+        "testJiraId": "@DTOSS-9493-01",
+        "requirementJiraId": "DTOSS-6045",
+        "additionalTags": "@regression @e2e @epic4d-validation-tests -  Verify participant data meets the 3 conditions to trigger Rule 3602 - AC01- AMENDED for Rule 3602"
       }
     }
   ],

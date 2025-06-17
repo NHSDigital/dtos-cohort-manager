@@ -109,7 +109,7 @@ testWithAmended('@DTOSS-9497-01 - Verify that exception is raised if one or more
 
 });
 
-test('@DTOSS-9498-01 - Verify that exception is raised if one or more conditions are FALSE (CP - English, PCPC - B86019 or NULL) - AC02 - ADD', {
+test.only('@DTOSS-9498-01 - Verify that exception is raised if one or more conditions are FALSE (CP - Not English, PCPC - B86019 or NULL) - AC02 - ADD', {
   annotation: {
     type: 'Requirement',
     description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6045',
@@ -121,7 +121,7 @@ test('@DTOSS-9498-01 - Verify that exception is raised if one or more conditions
   });
 });
 
-testWithAmended('@DTOSS-9499-01 - Verify that exception is raised if one or more conditions are FALSE (CP - English, PCPC - TWA123 or NULL) - AC02 - AMENDED', {
+testWithAmended('@DTOSS-9499-01 - Verify that exception is raised if one or more conditions are FALSE (CP - Not English, PCPC - TWA123 or NULL) - AC02 - AMENDED', {
   annotation: {
     type: 'Requirement',
     description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6045',
