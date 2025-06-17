@@ -8,7 +8,7 @@ public static class AzureQueueExtension
     {
         return hostBuilder.ConfigureServices(_ =>
         {
-            _.AddTransient<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
+            _.AddTransient<IQueueSender, AzureQueueStorageHelper>();
             _.AddTransient<IQueueClientFactory, QueueClientFactory>();
         });
     }

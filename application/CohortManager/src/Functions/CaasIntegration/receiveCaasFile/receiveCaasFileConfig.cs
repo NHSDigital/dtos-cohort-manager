@@ -25,5 +25,7 @@ public class ReceiveCaasFileConfig
     public string caasfolder_STORAGE { get; set; }
     [Required]
     public string inboundBlobName { get; set; }
+    [Required]
+    public string ServiceBusConnectionString { get; set; }
     public string GetOrchestrationStatusURL { get; set; }
 }

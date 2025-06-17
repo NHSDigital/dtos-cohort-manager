@@ -39,9 +39,9 @@ try
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddTransient<IBlobStorageHelper, BlobStorageHelper>();
         services.AddTransient<ICopyFailedBatchToBlob, CopyFailedBatchToBlob>();
-
         services.AddScoped<IValidateDates, ValidateDates>();
-        services.AddScoped<IQueueClientFactory, QueueClientFactory>();
+        // services.AddScoped<IQueueClientFactory, QueueClientFactory>();
+        services.AddSingleton<IQueueSender>(_ => new ServiceBusSender(config.ServiceBusConnectionString));
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })

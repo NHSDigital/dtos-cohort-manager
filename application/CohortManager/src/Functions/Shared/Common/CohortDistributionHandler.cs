@@ -9,9 +9,9 @@ public class CohortDistributionHandler : ICohortDistributionHandler
 {
 
     private readonly ILogger<CohortDistributionHandler> _logger;
-    private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
+    private readonly IQueueSender _azureQueueStorageHelper;
 
-    public CohortDistributionHandler(ILogger<CohortDistributionHandler> logger, IAzureQueueStorageHelper azureQueueStorageHelper)
+    public CohortDistributionHandler(ILogger<CohortDistributionHandler> logger, IQueueSender azureQueueStorageHelper)
     {
         _logger = logger;
         _azureQueueStorageHelper = azureQueueStorageHelper;
@@ -28,7 +28,7 @@ public class CohortDistributionHandler : ICohortDistributionHandler
             ErrorRecord = errorRecord
         };
 
-        await _azureQueueStorageHelper.AddItemToQueueAsync<CreateCohortDistributionRequestBody>(requestBody, Environment.GetEnvironmentVariable("CohortQueueName"));
+        await _azureQueueStorageHelper.AddMessageToQueueAsync<CreateCohortDistributionRequestBody>(requestBody, Environment.GetEnvironmentVariable("CohortQueueName"));
 
         _logger.LogInformation($"Participant sent to Cohort Distribution Service");
         return true;

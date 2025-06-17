@@ -7,7 +7,7 @@ using Azure.Storage.Queues;
 using Microsoft.Extensions.Logging;
 using Model;
 
-public class AzureQueueStorageHelper : IAzureQueueStorageHelper
+public class AzureQueueStorageHelper : IQueueSender
 {
     public readonly ILogger<AzureQueueStorageHelper> _logger;
     public readonly IQueueClientFactory _queueClientFactory;
@@ -18,7 +18,7 @@ public class AzureQueueStorageHelper : IAzureQueueStorageHelper
         _queueClientFactory = queueClientFactory;
     }
 
-    public async Task<bool> AddItemToQueueAsync<T>(T participantCsvRecord, string queueName)
+    public async Task<bool> AddMessageToQueueAsync<T>(T participantCsvRecord, string queueName)
     {
         var _queueClient = _queueClientFactory.CreateClient(queueName);
         await _queueClient.CreateIfNotExistsAsync();

@@ -14,9 +14,9 @@ public class AddBatchToQueue : IAddBatchToQueue
     public readonly ILogger<AddBatchToQueue> _logger;
 
 
-    private readonly IAzureQueueStorageHelper _queueHelper;
+    private readonly IQueueSender _queueHelper;
 
-    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IAzureQueueStorageHelper queueHelper)
+    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IQueueSender queueHelper)
     {
         _logger = logger;
         _queueHelper = queueHelper;
@@ -52,6 +52,6 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord, string queueName)
     {
-        await _queueHelper.AddItemToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, queueName);
+        await _queueHelper.AddMessageToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, queueName);
     }
 }

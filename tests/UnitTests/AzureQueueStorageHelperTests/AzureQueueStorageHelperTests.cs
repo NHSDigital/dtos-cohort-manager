@@ -48,7 +48,7 @@ public class AzureQueueStorageHelperTests
         };
 
         // Act
-        var result = await _queueHelper.AddItemToQueueAsync(testRecord, "testqueue");
+        var result = await _queueHelper.AddMessageToQueueAsync(testRecord, "testqueue");
 
         // Assert
         Assert.IsTrue(result);
@@ -79,7 +79,7 @@ public class AzureQueueStorageHelperTests
 
         var _queueHelper = new AzureQueueStorageHelper(new Mock<ILogger<AzureQueueStorageHelper>>().Object, mockQueueClientFactory.Object);
 
-        var res = await _queueHelper.AddItemToQueueAsync<ParticipantCsvRecord>(new ParticipantCsvRecord(), "Some_Bad_Queue_Name");
+        var res = await _queueHelper.AddMessageToQueueAsync<ParticipantCsvRecord>(new ParticipantCsvRecord(), "Some_Bad_Queue_Name");
 
         Assert.IsFalse(res);
     }
