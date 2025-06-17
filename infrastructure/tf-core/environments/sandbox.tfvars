@@ -1,6 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "SBMJ"
+environment           = "SBX"
 
 features = {
   acr_enabled                          = false
@@ -14,7 +14,7 @@ features = {
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.200.0.0/16"
+    address_space     = "10.126.0.0/16"
     connect_peering   = true
     subnets = {
       apps = {
@@ -58,8 +58,8 @@ routes = {
         priority              = 900
         action                = "Allow"
         rule_name             = "CohmanToAudit"
-        source_addresses      = ["10.200.0.0/16"]
-        destination_addresses = ["10.201.0.0/16"]
+        source_addresses      = ["10.126.0.0/16"]
+        destination_addresses = ["10.127.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       },
@@ -68,8 +68,8 @@ routes = {
         priority              = 910
         action                = "Allow"
         rule_name             = "AuditToCohman"
-        source_addresses      = ["10.200.0.0/16"]
-        destination_addresses = ["10.201.0.0/16"]
+        source_addresses      = ["10.127.0.0/16"]
+        destination_addresses = ["10.126.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
@@ -77,14 +77,14 @@ routes = {
     route_table_routes_to_audit = [
       {
         name                   = "CohmanToAudit"
-        address_prefix         = "10.200.0.0/16"
+        address_prefix         = "10.127.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
     route_table_routes_from_audit = [{
       name                   = "AuditToCohman"
-      address_prefix         = "10.201.0.0/16"
+      address_prefix         = "10.126.0.0/16"
       next_hop_type          = "VirtualAppliance"
       next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -248,8 +248,8 @@ function_apps = {
         recordThresholdForBatching = "3"
         batchDivisionFactor        = "2"
         CheckTimer                 = "100"
-        DemographicURI             = "https://sbmj-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
-        GetOrchestrationStatusURL  = "https://sbmj-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
+        DemographicURI             = "https://sbx-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
+        GetOrchestrationStatusURL  = "https://sbx-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"

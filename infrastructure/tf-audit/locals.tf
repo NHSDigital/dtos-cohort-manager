@@ -23,7 +23,7 @@ locals {
 
     # DEV OPS
     ApplicationRole="WebApp"
-    Name="Artifact Name"
+    Name="<artifact name>"
   }
 
   merged_tags = merge(local.compliance_tags, var.tags)

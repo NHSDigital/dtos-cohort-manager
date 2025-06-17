@@ -17,8 +17,8 @@ resources:
       endpoint: NHSDigital
 
 variables:
-  - group: SBMJ_audit_backend
-  - group: SBMJ_hub_backend_remote_state
+  - group: DEV_audit_backend
+  - group: DEV_hub_backend_remote_state
   - name: TF_DIRECTORY
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
   - name: TF_VERSION
