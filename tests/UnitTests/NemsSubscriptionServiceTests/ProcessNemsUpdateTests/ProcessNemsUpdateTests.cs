@@ -32,7 +32,8 @@ public class ProcessNemsUpdateTests
     public async Task Run_TriggerProcessNemsUpdateFunction_LogsInformation()
     {
         // Arrange
-        await using var fileStream = File.OpenRead("mock-patient.json");
+        string fhirJson = LoadTestJson("mock-patient");
+        await using var fileStream = File.OpenRead(fhirJson);
 
         // Act
         await _sut.Run(fileStream, "fileName");
@@ -45,5 +46,33 @@ public class ProcessNemsUpdateTests
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
+    }
+
+    private static string LoadTestJson(string filename)
+    {
+        // Add .json extension if not already present
+        string filenameWithExtension = filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase)
+            ? filename
+            : $"{filename}.json";
+
+        // Get the directory of the currently executing assembly
+        string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        string assemblyDirectory = Path.GetDirectoryName(assemblyLocation) ?? string.Empty;
+
+        // Try the original path first
+        string originalPath = Path.Combine(assemblyDirectory, "../../../PatientMocks", filenameWithExtension);
+        if (File.Exists(originalPath))
+        {
+            return originalPath;
+        }
+
+        // Try the alternative path
+        string alternativePath = Path.Combine(assemblyDirectory, "../../../NemsSubscriptionServiceTests/ProcessNemsUpdateTests/PatientMocks", filenameWithExtension);
+        if (File.Exists(alternativePath))
+        {
+            return alternativePath;
+        }
+
+        return string.Empty;
     }
 }
