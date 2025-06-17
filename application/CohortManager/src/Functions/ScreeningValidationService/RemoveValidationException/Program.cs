@@ -13,7 +13,6 @@ var host = new HostBuilder()
     .AddDataServicesHandler()
     .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
     .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
-    .AddDataService<GPPractice>(config.GPPracticeDataServiceURL)
     .Build()
     .ConfigureServices(services =>
     {
