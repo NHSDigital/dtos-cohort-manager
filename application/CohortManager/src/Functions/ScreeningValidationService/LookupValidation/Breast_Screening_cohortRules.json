@@ -35,6 +35,7 @@
           {
             "Name": "primaryCareProvider",
             "Expression": "(string.IsNullOrEmpty(existingParticipant.PrimaryCareProvider) || !dbLookup.CheckIfPrimaryCareProviderExists(existingParticipant.PrimaryCareProvider)) && (string.IsNullOrEmpty(existingParticipant.PrimaryCareProvider) || !existingParticipant.PrimaryCareProvider.StartsWith(\"ZZZ\"))"
+
           }
         ],
         "Expression": "!(reasonForRemoval AND postcode AND primaryCareProvider)"
