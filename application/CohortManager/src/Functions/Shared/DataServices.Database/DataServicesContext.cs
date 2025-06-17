@@ -13,7 +13,6 @@ public class DataServicesContext : DbContext
     DbSet<GeneCodeLkp> geneCodeLkps {get;set;}
     DbSet<HigherRiskReferralReasonLkp> higherRiskReferralReasonLkps {get;set;}
     DbSet<ExceptionManagement> exceptionManagements { get; set; }
-    DbSet<GPPractice> gPPractices { get; set; }
     DbSet<CohortDistribution> cohortDistributions {get;set;}
     DbSet<BsSelectRequestAudit> bsSelectRequestAudits {get;set;}
     DbSet<ScreeningLkp> screeningLkps {get;set;}
