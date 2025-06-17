@@ -29,7 +29,6 @@ public class AddNewParticipantTest
         {
             DemographicURIGet = "DemographicURIGet",
             DSaddParticipant = "DSaddParticipant",
-            DSmarkParticipantAsEligible = "DSmarkParticipantAsEligible",
             StaticValidationURL = "StaticValidationURL"
         };
 
@@ -71,9 +70,6 @@ public class AddNewParticipantTest
         _httpClientFunctionMock.Setup(x => x.SendPost("DSaddParticipant", It.IsAny<string>()))
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
 
-        _httpClientFunctionMock.Setup(x => x.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
-
         _cohortDistributionHandler.Setup(x => x.SendToCohortDistributionService(
             It.IsAny<string>(),
             It.IsAny<string>(),
@@ -94,14 +90,6 @@ public class AddNewParticipantTest
             It.Is<LogLevel>(l => l == LogLevel.Information),
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Participant created")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            It.Is<LogLevel>(l => l == LogLevel.Information),
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Participant marked as eligible")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
@@ -134,24 +122,6 @@ public class AddNewParticipantTest
             It.IsAny<string>()), Times.Once);
     }
 
-    [TestMethod]
-    public async Task Run_FailsToMarkParticipantAsEligible_RaisesException()
-    {
-        // Arrange
-        var errorMessage = "There was an error while marking participant as eligible";
-
-        _httpClientFunctionMock.Setup(x => x.SendPost("DSmarkParticipantAsEligible", It.IsAny<string>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
-
-        // Act
-        await _sut.Run(JsonSerializer.Serialize(_request));
-
-        // Assert
-        _handleException.Verify(i => i.CreateSystemExceptionLog(
-            It.Is<Exception>((v, t) => v.ToString().Contains(errorMessage)),
-            It.IsAny<BasicParticipantData>(),
-            It.IsAny<string>()), Times.Once);
-    }
 
     [TestMethod]
     public async Task Run_StaticValidationReturnsFatalError_LogsErrorAndRaisesException()

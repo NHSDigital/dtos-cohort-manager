@@ -1,7 +1,7 @@
 using DataServices.Client;
 using Model;
 using Moq;
-using NHS.CohortManager.CohortDistribution;
+using NHS.CohortManager.CohortDistributionService;
 
 namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 

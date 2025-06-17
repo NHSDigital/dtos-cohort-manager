@@ -8,7 +8,6 @@ using Moq;
 using Common;
 using Microsoft.Extensions.Logging;
 using NHS.CohortManager.CohortDistributionService;
-using NHS.CohortManager.CohortDistribution;
 using Model;
 using NHS.CohortManager.Tests.TestUtils;
 using DataServices.Client;

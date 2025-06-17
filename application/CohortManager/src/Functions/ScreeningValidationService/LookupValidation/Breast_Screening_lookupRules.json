@@ -81,32 +81,5 @@
         "Expression": "newRecordType OR !reasonForRemovalIsLDNOrRC"
       }
     ]
-  },
-  {
-    "WorkflowName": "ADD",
-    "Rules": [
-      {
-        "RuleName": "47.ParticipantMustNotExist.CaaS.Fatal",
-        "Expression": "string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-      }
-    ]
-  },
-  {
-    "WorkflowName": "AMENDED",
-    "Rules": [
-      {
-        "RuleName": "22.ParticipantMustExist.CaaS.Fatal",
-        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-      }
-    ]
-  },
-  {
-    "WorkflowName": "DEL",
-    "Rules": [
-      {
-        "RuleName": "22.ParticipantMustExist.CaaS.Fatal",
-        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-      }
-    ]
   }
 ]

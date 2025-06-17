@@ -22,6 +22,7 @@ var host = new HostBuilder()
         services.AddBasicHealthCheck("DeleteParticipant");
     })
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
