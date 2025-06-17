@@ -291,4 +291,30 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
       });
   })
+
+  testWithAmended.only('@DTOSS-4094-01 Existing Participant Null Reason for Removal Exception', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4094',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`When ADD participant is processed via storage`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      });
+
+      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+      await test.step(`Given 1 participant is processed to participant table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+
+      await test.step(`When same ADD participant record  ${testData.nhsNumberAmend}`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+
+      await test.step(`Then the correct exception is displayed in the Exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+  })
 });
