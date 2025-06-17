@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.ParticipantManagementService;
+namespace NHS.Screening.ProcessNemsUpdate;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
