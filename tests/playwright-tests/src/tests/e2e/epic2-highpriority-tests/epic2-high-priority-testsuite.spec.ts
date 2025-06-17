@@ -287,7 +287,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
         await processFileViaStorage(testData.runTimeParquetFileAmend);
       });
 
-      await test.step(`Then the record should not be amended in the cohort`, async () => {
+      await test.step(`Then the correct exception is displayed in the Exception table`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
       });
   })
