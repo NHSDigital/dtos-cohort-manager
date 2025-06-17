@@ -15,13 +15,13 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9993499730,
+        "NHSNumber": 9991339345,
         "expectedCount": 1
       },
       "meta": {
         "testJiraId": "@DTOSS-4372-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Raise  Validate eMail address Home Business Effective From Date for participant 9993499730"
+        "additionalTags": "@regression @e2e @epic2-high-priority Raise  Validate eMail address Home Business Effective From Date for participant 9991339345"
       }
     },
     {
@@ -82,7 +82,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 9993499730,
+      "nhs_number": 9991339345,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "F84706",
       "primary_care_effective_from_date": "20100101",
@@ -161,7 +161,7 @@
   ],
   "nhsNumbers": [
     "9993340189",
-    "9993499730",
+    "9991339345",
     "9993044431"
   ]
 }
