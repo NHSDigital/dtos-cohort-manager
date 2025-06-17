@@ -56,6 +56,7 @@ public static class MockHelpers
             requestData.Setup(context => context.Body).Returns(bodyForHttpRequest);
         }
 
+
         requestData.Setup(i => i.Method).Returns(method);
         requestData.Setup(i => i.Query).Returns(headers);
 

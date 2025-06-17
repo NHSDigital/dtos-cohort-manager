@@ -8,6 +8,4 @@ public class GetValidationExceptionsConfig
     public string ExceptionManagementDataServiceURL {get; set;}
     [Required]
     public string DemographicDataServiceURL {get; set;}
-    [Required]
-    public string GPPracticeDataServiceURL {get; set;}
 }

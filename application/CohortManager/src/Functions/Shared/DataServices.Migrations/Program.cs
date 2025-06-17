@@ -53,9 +53,9 @@ public class Program
                     var sqlConnectionBuilder = new SqlConnectionStringBuilder(config.DtOsDatabaseConnectionString);
                     var connection = new SqlConnection(sqlConnectionBuilder.ConnectionString);
 
-                    if(config.SQL_IDENTITY_CLIENT_ID is not null)
+                    if (config.SQL_IDENTITY_CLIENT_ID is not null)
                     {
-                        var credential = new ManagedIdentityCredential(config.SQL_IDENTITY_CLIENT_ID );
+                        var credential = new ManagedIdentityCredential(config.SQL_IDENTITY_CLIENT_ID);
                         var token = credential.GetToken(new Azure.Core.TokenRequestContext(TokenScopes));
                         connection.AccessToken = token.Token;
                     }
@@ -94,7 +94,7 @@ public class Program
         }
         catch (Exception ex)
         {
-            logger.LogError(ex,"Migration Failed");
+            logger.LogError(ex, "Migration Failed");
             return ExitCodes.FAILURE;
         }
     }
@@ -107,21 +107,20 @@ public class Program
         var SeedDataLoader = scope.ServiceProvider.GetRequiredService<ISeedDataLoader>();
         try
         {
-            await SeedDataLoader.LoadData<BsoOrganisation>("./SeedData/BsoOrganisation.json","BSO_ORGANISATIONS");
-            await SeedDataLoader.LoadData<BsSelectGpPractice>("./SeedData/BsSelectGpPractice.json","BS_SELECT_GP_PRACTICE_LKP",false);
-            await SeedDataLoader.LoadData<BsSelectOutCode>("./SeedData/BsSelectOutCode.json","BS_SELECT_OUTCODE_MAPPING_LKP",false);
-            await SeedDataLoader.LoadData<CurrentPosting>("./SeedData/CurrentPosting.json","CURRENT_POSTING_LKP",false);
-            await SeedDataLoader.LoadData<ExcludedSMULookup>("./SeedData/ExcludedSMULookup.json","EXCLUDED_SMU_LKP",false);
-            await SeedDataLoader.LoadData<GenderMaster>("./SeedData/GenderMaster.json","GENDER_MASTER",false);
-            await SeedDataLoader.LoadData<GeneCodeLkp>("./SeedData/GeneCodeLkp.json","GENE_CODE_LKP");
-            await SeedDataLoader.LoadData<GPPractice>("./SeedData/GPPractice.json","GP_PRACTICES");
-            await SeedDataLoader.LoadData<HigherRiskReferralReasonLkp>("./SeedData/HigherRiskReferralReasonLkp.json","HIGHER_RISK_REFERRAL_REASON_LKP");
-            await SeedDataLoader.LoadData<LanguageCode>("./SeedData/LanguageCode.json","LANGUAGE_CODES",false);
-            await SeedDataLoader.LoadData<ScreeningLkp>("./SeedData/ScreeningLkp.json","SCREENING_LKP");
+            await SeedDataLoader.LoadData<BsoOrganisation>("./SeedData/BsoOrganisation.json", "BSO_ORGANISATIONS");
+            await SeedDataLoader.LoadData<BsSelectGpPractice>("./SeedData/BsSelectGpPractice.json", "BS_SELECT_GP_PRACTICE_LKP", false);
+            await SeedDataLoader.LoadData<BsSelectOutCode>("./SeedData/BsSelectOutCode.json", "BS_SELECT_OUTCODE_MAPPING_LKP", false);
+            await SeedDataLoader.LoadData<CurrentPosting>("./SeedData/CurrentPosting.json", "CURRENT_POSTING_LKP", false);
+            await SeedDataLoader.LoadData<ExcludedSMULookup>("./SeedData/ExcludedSMULookup.json", "EXCLUDED_SMU_LKP", false);
+            await SeedDataLoader.LoadData<GenderMaster>("./SeedData/GenderMaster.json", "GENDER_MASTER", false);
+            await SeedDataLoader.LoadData<GeneCodeLkp>("./SeedData/GeneCodeLkp.json", "GENE_CODE_LKP");
+            await SeedDataLoader.LoadData<HigherRiskReferralReasonLkp>("./SeedData/HigherRiskReferralReasonLkp.json", "HIGHER_RISK_REFERRAL_REASON_LKP");
+            await SeedDataLoader.LoadData<LanguageCode>("./SeedData/LanguageCode.json", "LANGUAGE_CODES", false);
+            await SeedDataLoader.LoadData<ScreeningLkp>("./SeedData/ScreeningLkp.json", "SCREENING_LKP");
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
-            logger.LogError(ex,"Failed to insert SeedData");
+            logger.LogError(ex, "Failed to insert SeedData");
             return ExitCodes.FAILURE;
         }
         return ExitCodes.SUCCESS;
