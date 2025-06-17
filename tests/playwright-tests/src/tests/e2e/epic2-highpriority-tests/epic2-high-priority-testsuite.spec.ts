@@ -292,7 +292,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
   })
 
-  testWithAmended.only('@DTOSS-4094-01 Existing Participant Null Reason for Removal Exception', {
+  testWithAmended('@DTOSS-4094-01 Existing Participant Null Reason for Removal Exception', {
       annotation: {
         type: 'Requirement',
         description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4094',
