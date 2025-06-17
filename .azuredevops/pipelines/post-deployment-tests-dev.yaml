@@ -44,7 +44,6 @@ stages:
           testfileDirectory: 'src/tests/e2e/testFiles'
           testProjectName: 'tests'
           testType: 'smoke:e2e'
-        condition: succeeded()
 
       - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
         parameters:
