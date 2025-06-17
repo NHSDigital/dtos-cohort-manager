@@ -4,8 +4,6 @@ using NHS.Screening.ReceiveCaasFile;
 
 public interface IReceiveCaasFileHelper
 {
-    Task<Participant?> MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name);
-    Task InsertValidationErrorIntoDatabase(string fileName, string errorRecord);
+    Participant MapParticipant(ParticipantsParquetMap rec, string screeningId, string ScreeningName, string name);
     string GetUrlFromEnvironment(string key);
-    Task<bool> CheckFileName(string name, FileNameParser fileNameParser, string errorMessage);
 }

@@ -20,10 +20,11 @@ public class ReceiveServiceNowMessage
     }
 
     [Function("ReceiveServiceNowMessage")]
-    public HttpResponseData Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         _logger.LogInformation("ReceiveServiceNowMessage function processed a request.");
+        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        _logger.LogInformation(requestBody);
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
     }
 }
-

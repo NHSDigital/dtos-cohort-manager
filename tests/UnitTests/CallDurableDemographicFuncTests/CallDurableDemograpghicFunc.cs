@@ -11,12 +11,13 @@ using System.Threading.Tasks;
 using Moq.Protected;
 using NHS.Screening.ReceiveCaasFile;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
 
 [TestClass]
 public class CallDurableDemographicFuncTests
 {
     private readonly Mock<ILogger<CallDurableDemographicFunc>> _logger = new();
-    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private readonly Mock<HttpClient> _httpClient = new();
     private readonly CallDurableDemographicFunc _callDurableDemographicFunc;
     private readonly Mock<ICopyFailedBatchToBlob> _copyFailedBatchToBlob = new();
@@ -32,7 +33,7 @@ public class CallDurableDemographicFuncTests
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
-        _callDurableDemographicFunc = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, _httpClient.Object, _copyFailedBatchToBlob.Object, _config.Object);
+        _callDurableDemographicFunc = new CallDurableDemographicFunc(_httpClientFunction.Object, _logger.Object, _httpClient.Object, _copyFailedBatchToBlob.Object, _config.Object);
     }
 
     [TestMethod]
@@ -68,7 +69,7 @@ public class CallDurableDemographicFuncTests
 
         var response = MockHelpers.CreateMockHttpResponseData(HttpStatusCode.OK, "[]");
 
-        _callFunction.Setup(x => x.SendGet(It.IsAny<string>()))
+        _httpClientFunction.Setup(x => x.SendGet(It.IsAny<string>()))
             .Returns(Task.FromResult("status"))
             .Verifiable();
 
@@ -89,9 +90,14 @@ public class CallDurableDemographicFuncTests
             new ParticipantDemographic { /* populate properties if needed */ }
         };
 
+
+        var message = new HttpResponseMessage();
+        message.Headers.Location = new Uri("http://some-fake-uri");
+
         // Create the HttpClient with the common helper
         var httpClient = CreateMockHttpClient(HttpStatusCode.OK);
-        var checkDemographic = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, httpClient, _copyFailedBatchToBlob.Object, _config.Object);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(message);
+        var checkDemographic = new CallDurableDemographicFunc(_httpClientFunction.Object, _logger.Object, httpClient, _copyFailedBatchToBlob.Object, _config.Object);
 
         // Act
         var result = await checkDemographic.PostDemographicDataAsync(participants, uri);
@@ -118,8 +124,13 @@ public class CallDurableDemographicFuncTests
         };
 
         // Create the HttpClient with the common helper
+        var message = new HttpResponseMessage(HttpStatusCode.BadRequest);
+        message.Headers.Location = new Uri("http://some-fake-uri");
+
+        // Create the HttpClient with the common helper
         var httpClient = CreateMockHttpClient(HttpStatusCode.BadRequest);
-        var checkDemographic = new CallDurableDemographicFunc(_callFunction.Object, _logger.Object, httpClient, _copyFailedBatchToBlob.Object, _config.Object);
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>())).ThrowsAsync(new Exception("Simulated exception")).Verifiable();
+        var checkDemographic = new CallDurableDemographicFunc(_httpClientFunction.Object, _logger.Object, httpClient, _copyFailedBatchToBlob.Object, _config.Object);
 
         // Act
         var result = await checkDemographic.PostDemographicDataAsync(participants, uri);

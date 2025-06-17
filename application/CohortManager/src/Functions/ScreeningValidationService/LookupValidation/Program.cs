@@ -22,7 +22,6 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
         .Build()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IReadRules, ReadRules>();
         services.AddSingleton<IDataLookupFacadeBreastScreening, DataLookupFacadeBreastScreening>();
@@ -31,6 +30,7 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
