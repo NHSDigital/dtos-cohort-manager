@@ -21,5 +21,6 @@ public class ProcessNemsUpdate
     public async Task Run([BlobTrigger("inbound-nems/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
     {
         _logger.LogInformation("ProcessNemsUpdate function triggered.");
+        _logger.LogInformation("This function will use the following config: {Url}", _config.RetrievePdsDemographicURL);
     }
 }

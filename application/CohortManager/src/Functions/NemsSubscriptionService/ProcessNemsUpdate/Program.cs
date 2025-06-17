@@ -4,7 +4,7 @@ using Microsoft.Extensions.Hosting;
 using NHS.Screening.ProcessNemsUpdate;
 
 var host = new HostBuilder()
-    .AddConfiguration<ProcessNemsUpdateConfig>(out ProcessNemsUpdateConfig config)
+    .AddConfiguration<ProcessNemsUpdateConfig>()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
