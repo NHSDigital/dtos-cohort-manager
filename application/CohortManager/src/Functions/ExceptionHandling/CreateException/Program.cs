@@ -14,7 +14,7 @@ var host = new HostBuilder()
     .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
     .AddDataService<GPPractice>(config.GPPracticeDataServiceURL)
     .Build()
-    .ConfigureFunctionsWorkerDefaults(_ => { }, opts => opts.EnableUserCodeException = true)
+    .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
         services.AddTransient<IValidationExceptionData, ValidationExceptionData>();
@@ -22,7 +22,6 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("CreateException");
     })
-    .AddTelemetry()
     .AddDatabaseConnection()
     .AddHttpClient()
     .Build();
