@@ -23,7 +23,7 @@ try
         .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
         .AddCachedDataService<ScreeningLkp>(config.ScreeningLkpDataServiceURL)
         .Build()
-    .ConfigureFunctionsWebApplication()
+    .ConfigureFunctionsWorkerDefaults()
 
     .ConfigureServices(services =>
     {

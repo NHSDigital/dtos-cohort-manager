@@ -33,7 +33,7 @@
         <PackageReference Include="CsvHelper" Version="33.0.1" />
         <PackageReference Include="FluentAssertions" Version="7.0.0" />
         <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
-        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
         <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.FileExtensions" Version="9.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
