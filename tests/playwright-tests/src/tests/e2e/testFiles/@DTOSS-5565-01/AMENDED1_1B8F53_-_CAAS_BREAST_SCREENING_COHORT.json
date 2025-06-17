@@ -4,8 +4,8 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9998827094",
-        "RuleId": 54,
-        "RuleDescription": "ValidateBsoCode"
+        "RuleId": 3,
+        "RuleDescription": "Participant was transformed as transform rule: OtherDateOfDeathNotDea was executed"
       },
       "meta": {
         "testJiraId": "@DTOSS-5565-01",
