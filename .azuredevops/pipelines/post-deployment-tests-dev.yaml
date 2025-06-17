@@ -8,7 +8,7 @@ resources:
   - repository: dtos-devops-templates
     type: github
     name: NHSDigital/dtos-devops-templates
-    ref: ac0aaf63e6d27820912918e2ecd23feec518ce51
+    ref: 1c899d5e79c0a8fb646ad31574e89535c2064a14
     endpoint: NHSDigital
 
 variables:
@@ -31,15 +31,55 @@ stages:
     value: ${{ parameters.destEnvironmentShortName }}
 
   jobs:
-  - job: post_deployment_tests_smoke
-    displayName: Run post-deployment smoke tests
+  - job: post_deployment_tests
+    displayName: Run post-deployment tests
     pool:
       name: private-pool-dev-uks
 
     steps:
-    - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-      parameters:
-        serviceConnection: sc-cohort-manager-dev
-        testProjectDirectory: 'tests/playwright-tests'
-        testfileDirectory: 'src/tests/e2e/testFiles'
-        testProjectName: 'tests'
+      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+        name: run_smoke_tests_e2e
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
+          testProjectDirectory: 'tests/playwright-tests'
+          testfileDirectory: 'src/tests/e2e/testFiles'
+          testProjectName: 'tests'
+          testType: 'smoke:e2e'
+        condition: succeeded()
+
+      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+        name: run_regression_tests_SIT
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
+          testProjectDirectory: 'tests/playwright-tests'
+          testfileDirectory: 'src/tests/e2e/testFiles'
+          testProjectName: 'tests'
+          testType: 'test:regression:api'
+          testType: 'SIT'
+
+      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+        name: run_regression_tests_epic1_e2e
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
+          testProjectDirectory: 'tests/playwright-tests'
+          testfileDirectory: 'src/tests/e2e/testFiles'
+          testProjectName: 'tests'
+          testType: 'test:regression:e2e:epic1'
+
+      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+        name: run_regression_tests_epic2_e2e
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
+          testProjectDirectory: 'tests/playwright-tests'
+          testfileDirectory: 'src/tests/e2e/testFiles'
+          testProjectName: 'tests'
+          testType: 'test:regression:e2e:epic2'
+
+      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+        name: run_regression_tests_epic3_e2e
+        parameters:
+          serviceConnection: sc-cohort-manager-dev
+          testProjectDirectory: 'tests/playwright-tests'
+          testfileDirectory: 'src/tests/e2e/testFiles'
+          testProjectName: 'tests'
+          testType: 'test:regression:e2e:epic3'
