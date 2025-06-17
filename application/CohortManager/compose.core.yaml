@@ -44,14 +44,15 @@ services:
   process-nems-update:
     container_name: process-nems-update
     image: cohort-manager-process-nems-update
-    networks: [ cohman-network ]
+    networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: NemsSubscriptionService/ProcessNemsUpdate/Dockerfile
-    profiles: [ non-essential ]
+    profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:9083
       - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
+      - NemsMessages="nems-messages"
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
 

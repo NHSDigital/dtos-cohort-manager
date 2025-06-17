@@ -322,6 +322,12 @@ function_apps = {
           env_var_name     = "RetrievePdsDemographicURL"
           function_app_key = "RetrievePDSDemographic"
         }
+      ],
+      storage_containers = [
+        {
+          env_var_name   = "NemsMessages"
+          container_name = "nems-messages"
+        }
       ]
     }
 

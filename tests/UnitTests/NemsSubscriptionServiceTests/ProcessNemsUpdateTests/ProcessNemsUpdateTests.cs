@@ -16,7 +16,8 @@ public class ProcessNemsUpdateTests
     {
         var testConfig = new ProcessNemsUpdateConfig
         {
-            RetrievePdsDemographicURL = "RetrievePdsDemographic"
+            RetrievePdsDemographicURL = "RetrievePdsDemographic",
+            NemsMessages = "nems-messages"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
