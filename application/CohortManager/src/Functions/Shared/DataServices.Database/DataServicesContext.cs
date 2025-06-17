@@ -1,4 +1,5 @@
 ﻿namespace DataServices.Database;
+
 using Model;
 using Microsoft.EntityFrameworkCore;
 public class DataServicesContext : DbContext
@@ -8,10 +9,10 @@ public class DataServicesContext : DbContext
     DbSet<LanguageCode> languageCodes { get; set; }
     DbSet<CurrentPosting> currentPostings { get; set; }
     DbSet<ExcludedSMULookup> excludedSMULookups { get; set; }
-    DbSet<ParticipantManagement> participantManagements {get;set;}
-    DbSet<ParticipantDemographic> participantDemographics {get;set;}
-    DbSet<GeneCodeLkp> geneCodeLkps {get;set;}
-    DbSet<HigherRiskReferralReasonLkp> higherRiskReferralReasonLkps {get;set;}
+    DbSet<ParticipantManagement> participantManagements { get; set; }
+    DbSet<ParticipantDemographic> participantDemographics { get; set; }
+    DbSet<GeneCodeLkp> geneCodeLkps { get; set; }
+    DbSet<HigherRiskReferralReasonLkp> higherRiskReferralReasonLkps { get; set; }
     DbSet<ExceptionManagement> exceptionManagements { get; set; }
     DbSet<GPPractice> gPPractices { get; set; }
     DbSet<CohortDistribution> cohortDistributions {get;set;}
@@ -21,7 +22,7 @@ public class DataServicesContext : DbContext
     DbSet<GenderMaster> genderMasters {get;set;}
     DbSet<NemsSubscription> nemsSubscriptions {get;set;}
     public DbSet<ParticipantManagement> ParticipantManagements {get; set;}
-    
+    DbSet<ServicenowCases> servicenowCases { get; set; }
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
 
@@ -61,9 +62,6 @@ public class DataServicesContext : DbContext
             .ToTable("EXCEPTION_MANAGEMENT", "dbo")
             .HasIndex(i => new { i.NhsNumber, i.ScreeningName }, "IX_EXCEPTIONMGMT_NHSNUM_SCREENINGNAME");
 
-        modelBuilder.Entity<GPPractice>()
-            .ToTable("GP_PRACTICES", "dbo");
-
         modelBuilder.Entity<CohortDistribution>()
             .ToTable("BS_COHORT_DISTRIBUTION", "dbo")
             .HasIndex(c => new { c.NHSNumber }, "IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
@@ -82,5 +80,8 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<NemsSubscription>()
             .ToTable("NEMS_SUBSCRIPTION", "dbo");
+
+        modelBuilder.Entity<ServicenowCases>()
+            .ToTable("SERVICENOW_CASES", "dbo");
     }
 }

@@ -5,18 +5,18 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using DataServices.Client;
 using Model;
-using NHS.Screening.CreateCohortDistribution;
+using NHS.CohortManager.CohortDistributionService;
 using HealthChecks.Extensions;
 
 var host = new HostBuilder()
     .AddConfiguration<CreateCohortDistributionConfig>(out CreateCohortDistributionConfig config)
     .ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
-        .AddDataService<ParticipantManagement>(Environment.GetEnvironmentVariable("ParticipantManagementUrl"))
+        .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
+        .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceUrl)
         .Build()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICohortDistributionHelper, CohortDistributionHelper>();
         services.TryAddTransient<IDatabaseHelper, DatabaseHelper>();
@@ -27,6 +27,7 @@ var host = new HostBuilder()
     .AddAzureQueues()
     .AddDatabaseConnection()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

@@ -98,9 +98,9 @@ public class CohortDistributionParticipant
     public string? InvalidFlag { get; set; }
 
 
-    public CohortDistribution ToCohortDistributionParticipant()
+    public CohortDistribution ToCohortDistribution()
     {
-        return new CohortDistribution
+        var cohortDis = new CohortDistribution()
         {
             RequestId = GetRequestId(),
             NHSNumber = long.Parse(NhsNumber),
@@ -139,6 +139,7 @@ public class CohortDistributionParticipant
             CurrentPostingFromDt = MappingUtilities.ParseDates(CurrentPostingEffectiveFromDate),
             ParticipantId = long.TryParse(ParticipantId, out var partId) ? partId : 0
         };
+        return cohortDis;
     }
 
     private Guid GetRequestId()

@@ -6,7 +6,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Common;
-using Data.Database;
 using Model.Enums;
 using Model;
 using NHS.CohortManager.Tests.TestUtils;
@@ -24,9 +23,9 @@ public class CreateParticipantTests
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClient = new();
     private readonly Mock<IOptions<CreateParticipantConfig>> _config = new();
 
-    private readonly Mock<ICallFunction> _callFunction = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private readonly ScreeningDataServices.CreateParticipant _sut;
-    private ParticipantCsvRecord _requestRecord;
+    private readonly ParticipantCsvRecord _requestRecord;
 
     public CreateParticipantTests()
     {
@@ -81,19 +80,19 @@ public class CreateParticipantTests
             .Setup(data => data.Add(It.IsAny<ParticipantManagement>()))
             .ReturnsAsync(true);
 
-        _callFunction
-            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+        _httpClientFunction
+            .Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync(JsonSerializer.Serialize(validationResponse));
 
         _sut = new(
             _mockLogger.Object,
             _mockCreateResponse.Object,
             _handleException.Object,
-            _callFunction.Object,
+            _httpClientFunction.Object,
 
             _participantManagementClient.Object,
             _config.Object);
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+        _httpClientFunction.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>())).Returns(Task.FromResult<string>(
             JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
             {
                 IsFatal = false,
@@ -177,14 +176,14 @@ public class CreateParticipantTests
 
         _config.Setup(c => c.Value).Returns(testConfig);
 
-        var sut = new ScreeningDataServices.CreateParticipant(
+        new ScreeningDataServices.CreateParticipant(
             _mockLogger.Object,
             _mockCreateResponse.Object,
             _handleException.Object,
-            _callFunction.Object,
+            _httpClientFunction.Object,
             _participantManagementClient.Object,
             _config.Object);
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+        _httpClientFunction.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>())).Returns(Task.FromResult<string>(
             JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
             {
                 IsFatal = true,
@@ -192,8 +191,8 @@ public class CreateParticipantTests
             })));
         _participantManagementClient.Setup(data => data.Add(It.IsAny<ParticipantManagement>())).ReturnsAsync(true);
 
-        _callFunction
-            .Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>()))
+        _httpClientFunction
+            .Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync(JsonSerializer.Serialize(validationResponse));
 
         var json = JsonSerializer.Serialize(_requestRecord);
@@ -224,14 +223,14 @@ public class CreateParticipantTests
 
         _config.Setup(c => c.Value).Returns(testConfig);
 
-        var sut = new ScreeningDataServices.CreateParticipant(
+        new ScreeningDataServices.CreateParticipant(
             _mockLogger.Object,
             _mockCreateResponse.Object,
             _handleException.Object,
-            _callFunction.Object,
+            _httpClientFunction.Object,
             _participantManagementClient.Object,
             _config.Object);
-        _callFunction.Setup(x => x.GetResponseText(It.IsAny<HttpWebResponse>())).Returns(Task.FromResult<string>(
+        _httpClientFunction.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>())).Returns(Task.FromResult<string>(
             JsonSerializer.Serialize<ValidationExceptionLog>(new ValidationExceptionLog()
             {
                 IsFatal = false,

@@ -552,7 +552,7 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnName("DATE_CREATED");
 
                     b.Property<DateTime?>("DateResolved")
-                        .HasColumnType("datetime")
+                        .HasColumnType("date")
                         .HasColumnName("DATE_RESOLVED");
 
                     b.Property<string>("ErrorRecord")
@@ -577,6 +577,10 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("NHS_NUMBER");
 
+                    b.Property<DateTime?>("RecordUpdatedDate")
+                        .HasColumnType("datetime")
+                        .HasColumnName("RECORD_UPDATED_DATE");
+
                     b.Property<string>("RuleDescription")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("RULE_DESCRIPTION");
@@ -591,7 +595,7 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnName("SCREENING_NAME");
 
                     b.Property<DateTime?>("ServiceNowCreatedDate")
-                        .HasColumnType("datetime")
+                        .HasColumnType("date")
                         .HasColumnName("SERVICENOW_CREATED_DATE");
 
                     b.Property<string>("ServiceNowId")
@@ -615,129 +619,6 @@ namespace DataServices.Migrations.Migrations
                     b.HasKey("GpPracticeCode");
 
                     b.ToTable("EXCLUDED_SMU_LKP", "dbo");
-                });
-
-            modelBuilder.Entity("Model.GPPractice", b =>
-                {
-                    b.Property<int>("GPPracticeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasColumnName("GP_PRACTICE_ID");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("GPPracticeId"));
-
-                    b.Property<bool>("Actioned")
-                        .HasColumnType("bit")
-                        .HasColumnName("ACTIONED");
-
-                    b.Property<string>("AddressLine1")
-                        .HasMaxLength(35)
-                        .HasColumnType("nvarchar(35)")
-                        .HasColumnName("ADDRESS_LINE_1");
-
-                    b.Property<string>("AddressLine2")
-                        .HasMaxLength(35)
-                        .HasColumnType("nvarchar(35)")
-                        .HasColumnName("ADDRESS_LINE_2");
-
-                    b.Property<string>("AddressLine3")
-                        .HasMaxLength(35)
-                        .HasColumnType("nvarchar(35)")
-                        .HasColumnName("ADDRESS_LINE_3");
-
-                    b.Property<string>("AddressLine4")
-                        .HasMaxLength(35)
-                        .HasColumnType("nvarchar(35)")
-                        .HasColumnName("ADDRESS_LINE_4");
-
-                    b.Property<string>("AddressLine5")
-                        .HasMaxLength(35)
-                        .HasColumnType("nvarchar(35)")
-                        .HasColumnName("ADDRESS_LINE_5");
-
-                    b.Property<int>("BSOOrganisationId")
-                        .HasColumnType("int")
-                        .HasColumnName("BSO_ORGANISATION_ID");
-
-                    b.Property<DateTime?>("CloseDate")
-                        .HasColumnType("datetime")
-                        .HasColumnName("CLOSE_DATE");
-
-                    b.Property<DateTime?>("FailsafeDate")
-                        .HasColumnType("datetime")
-                        .HasColumnName("FAILSAFE_DATE");
-
-                    b.Property<string>("GPPracticeCode")
-                        .IsRequired()
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)")
-                        .HasColumnName("GP_PRACTICE_CODE");
-
-                    b.Property<int?>("GPPracticeGroupId")
-                        .HasColumnType("int")
-                        .HasColumnName("GP_PRACTICE_GROUP_ID");
-
-                    b.Property<string>("GPPracticeName")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("GP_PRACTICE_NAME");
-
-                    b.Property<int?>("LastActionedByUserOrgRoleId")
-                        .HasColumnType("int")
-                        .HasColumnName("LAST_ACTIONED_BY_USER_ORG_ROLE_ID");
-
-                    b.Property<DateTimeOffset?>("LastActionedOn")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("LAST_ACTIONED_ON");
-
-                    b.Property<DateTimeOffset>("LastUpdatedDateTime")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("LAST_UPDATED_DATE_TIME");
-
-                    b.Property<DateTime?>("OpenDate")
-                        .HasColumnType("datetime")
-                        .HasColumnName("OPEN_DATE");
-
-                    b.Property<string>("Outcode")
-                        .HasMaxLength(4)
-                        .HasColumnType("nvarchar(4)")
-                        .HasColumnName("OUTCODE");
-
-                    b.Property<string>("Postcode")
-                        .HasMaxLength(8)
-                        .HasColumnType("nvarchar(8)")
-                        .HasColumnName("POSTCODE");
-
-                    b.Property<string>("StatusCode")
-                        .IsRequired()
-                        .HasMaxLength(1)
-                        .HasColumnType("nvarchar(1)")
-                        .HasColumnName("STATUS_CODE");
-
-                    b.Property<string>("TelephoneNumber")
-                        .HasMaxLength(12)
-                        .HasColumnType("nvarchar(12)")
-                        .HasColumnName("TELEPHONE_NUMBER");
-
-                    b.Property<DateTimeOffset>("TransactionAppDateTime")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("TRANSACTION_APP_DATE_TIME");
-
-                    b.Property<DateTimeOffset>("TransactionDbDateTime")
-                        .HasColumnType("datetimeoffset")
-                        .HasColumnName("TRANSACTION_DB_DATE_TIME");
-
-                    b.Property<int>("TransactionId")
-                        .HasColumnType("int")
-                        .HasColumnName("TRANSACTION_ID");
-
-                    b.Property<int>("TransactionUserOrgRoleId")
-                        .HasColumnType("int")
-                        .HasColumnName("TRANSACTION_USER_ORG_ROLE_ID");
-
-                    b.HasKey("GPPracticeId");
-
-                    b.ToTable("GP_PRACTICES", "dbo");
                 });
 
             modelBuilder.Entity("Model.GenderMaster", b =>
@@ -1014,6 +895,10 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("BUSINESS_RULE_VERSION");
 
+                    b.Property<short>("CeasedFlag")
+                        .HasColumnType("smallint")
+                        .HasColumnName("CEASED_FLAG");
+
                     b.Property<DateTime?>("DateIrradiated")
                         .HasColumnType("datetime")
                         .HasColumnName("DATE_IRRADIATED");
@@ -1085,6 +970,10 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("RECORD_UPDATE_DATETIME");
 
+                    b.Property<short>("ReferralFlag")
+                        .HasColumnType("smallint")
+                        .HasColumnName("REFERRAL_FLAG");
+
                     b.Property<string>("ScreeningCeasedReason")
                         .HasColumnType("nvarchar(max)")
                         .HasColumnName("SCREENING_CEASED_REASON");
@@ -1135,6 +1024,35 @@ namespace DataServices.Migrations.Migrations
                     b.HasKey("ScreeningWorkflowId");
 
                     b.ToTable("SCREENING_LKP", "dbo");
+                });
+
+            modelBuilder.Entity("Model.ServicenowCases", b =>
+                {
+                    b.Property<string>("ServicenowId")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("SERVICENOW_ID");
+
+                    b.Property<long?>("NhsNumber")
+                        .HasColumnType("bigint")
+                        .HasColumnName("NHS_NUMBER");
+
+                    b.Property<DateTime?>("RecordInsertDatetime")
+                        .HasColumnType("datetime")
+                        .HasColumnName("RECORD_INSERT_DATETIME");
+
+                    b.Property<DateTime?>("RecordUpdateDatetime")
+                        .HasColumnType("datetime")
+                        .HasColumnName("RECORD_UPDATE_DATETIME");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("STATUS");
+
+                    b.HasKey("ServicenowId");
+
+                    b.ToTable("SERVICENOW_CASES", "dbo");
                 });
 #pragma warning restore 612, 618
         }
