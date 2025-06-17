@@ -38,7 +38,6 @@ stages:
 
     steps:
       - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        name: run_smoke_tests_e2e
         parameters:
           serviceConnection: sc-cohort-manager-dev
           testProjectDirectory: 'tests/playwright-tests'
@@ -48,7 +47,6 @@ stages:
         condition: succeeded()
 
       - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        name: run_regression_tests_SIT
         parameters:
           serviceConnection: sc-cohort-manager-dev
           testProjectDirectory: 'tests/playwright-tests'
@@ -57,7 +55,6 @@ stages:
           testType: 'test:regression:api'
 
       - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        name: run_regression_tests_epic1_e2e
         parameters:
           serviceConnection: sc-cohort-manager-dev
           testProjectDirectory: 'tests/playwright-tests'
@@ -66,7 +63,6 @@ stages:
           testType: 'test:regression:e2e:epic1'
 
       - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        name: run_regression_tests_epic2_e2e
         parameters:
           serviceConnection: sc-cohort-manager-dev
           testProjectDirectory: 'tests/playwright-tests'
@@ -75,7 +71,6 @@ stages:
           testType: 'test:regression:e2e:epic2'
 
       - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        name: run_regression_tests_epic3_e2e
         parameters:
           serviceConnection: sc-cohort-manager-dev
           testProjectDirectory: 'tests/playwright-tests'
