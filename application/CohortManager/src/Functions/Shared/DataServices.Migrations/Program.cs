@@ -114,7 +114,8 @@ public class Program
             await SeedDataLoader.LoadData<ExcludedSMULookup>("./SeedData/ExcludedSMULookup.json","EXCLUDED_SMU_LKP",false);
             await SeedDataLoader.LoadData<GenderMaster>("./SeedData/GenderMaster.json","GENDER_MASTER",false);
             await SeedDataLoader.LoadData<GeneCodeLkp>("./SeedData/GeneCodeLkp.json","GENE_CODE_LKP");
-            await SeedDataLoader.LoadData<GPPractice>("./SeedData/GPPractice.json","GP_PRACTICES");
+            // we are not using this seed data yet but we have been asked to keep the table in
+            await SeedDataLoader.LoadData<GPPractice>("./SeedData/GPPractice.json", "GP_PRACTICES");
             await SeedDataLoader.LoadData<HigherRiskReferralReasonLkp>("./SeedData/HigherRiskReferralReasonLkp.json","HIGHER_RISK_REFERRAL_REASON_LKP");
             await SeedDataLoader.LoadData<LanguageCode>("./SeedData/LanguageCode.json","LANGUAGE_CODES",false);
             await SeedDataLoader.LoadData<ScreeningLkp>("./SeedData/ScreeningLkp.json","SCREENING_LKP");

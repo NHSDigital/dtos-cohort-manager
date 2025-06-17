@@ -4,6 +4,10 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
+
+/// <summary>
+/// this class is not used in the code, it is only here because we cannot remove the table yet 
+/// </summary>
 public class GPPractice
 {
     [Key]
