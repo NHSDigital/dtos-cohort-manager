@@ -16,7 +16,6 @@ var host = new HostBuilder()
     .Build()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddTransient<IValidationExceptionData, ValidationExceptionData>();
         // Register health checks
