@@ -9,6 +9,7 @@ using NHS.Screening.ReceiveCaasFile;
 using Model;
 using DataServices.Client;
 using HealthChecks.Extensions;
+using Microsoft.Extensions.Options;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -26,8 +27,6 @@ try
 
     .ConfigureServices(services =>
     {
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
         services.AddSingleton<IReceiveCaasFileHelper, ReceiveCaasFileHelper>();
         services.AddScoped<IProcessCaasFile, ProcessCaasFile>(); //Do not change the lifetime of this.
         services.AddSingleton<ICreateResponse, CreateResponse>();
@@ -45,6 +44,7 @@ try
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
+    .AddTelemetry()
     .AddHttpClient()
     .AddAzureQueues()
     .AddExceptionHandler()
