@@ -14,7 +14,6 @@ public class DataServicesContext : DbContext
     DbSet<GeneCodeLkp> geneCodeLkps { get; set; }
     DbSet<HigherRiskReferralReasonLkp> higherRiskReferralReasonLkps { get; set; }
     DbSet<ExceptionManagement> exceptionManagements { get; set; }
-    DbSet<GPPractice> gPPractices { get; set; }
     DbSet<CohortDistribution> cohortDistributions { get; set; }
     DbSet<BsSelectRequestAudit> bsSelectRequestAudits { get; set; }
     DbSet<ScreeningLkp> screeningLkps { get; set; }
@@ -61,10 +60,6 @@ public class DataServicesContext : DbContext
         modelBuilder.Entity<ExceptionManagement>()
             .ToTable("EXCEPTION_MANAGEMENT", "dbo")
             .HasIndex(i => new { i.NhsNumber, i.ScreeningName }, "IX_EXCEPTIONMGMT_NHSNUM_SCREENINGNAME");
-
-        //this table is not being used in code but we have been asked not to delete it from the database so it must remain in the db context for now
-        modelBuilder.Entity<GPPractice>()
-            .ToTable("GP_PRACTICES", "dbo");
 
         modelBuilder.Entity<CohortDistribution>()
             .ToTable("BS_COHORT_DISTRIBUTION", "dbo")
