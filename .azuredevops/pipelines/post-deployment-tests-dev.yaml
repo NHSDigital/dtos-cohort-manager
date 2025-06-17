@@ -31,48 +31,72 @@ stages:
     value: ${{ parameters.destEnvironmentShortName }}
 
   jobs:
-  - job: post_deployment_tests
-    displayName: Run post-deployment tests
-    pool:
-      name: private-pool-dev-uks
+    # Smoke E2E Tests Job
+    - job: smoke_e2e_tests
+      displayName: Run Smoke E2E Tests
+      pool:
+        name: private-pool-dev-uks
+      steps:
+        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: sc-cohort-manager-dev
+            testProjectDirectory: 'tests/playwright-tests'
+            testfileDirectory: 'src/tests/e2e/testFiles'
+            testProjectName: 'tests'
+            testType: 'smoke:e2e'
 
-    steps:
-      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        parameters:
-          serviceConnection: sc-cohort-manager-dev
-          testProjectDirectory: 'tests/playwright-tests'
-          testfileDirectory: 'src/tests/e2e/testFiles'
-          testProjectName: 'tests'
-          testType: 'smoke:e2e'
+    # Regression API Tests Job
+    - job: regression_api_tests
+      displayName: Run Regression API Tests
+      pool:
+        name: private-pool-dev-uks
+      steps:
+        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: sc-cohort-manager-dev
+            testProjectDirectory: 'tests/playwright-tests'
+            testfileDirectory: 'src/tests/e2e/testFiles'
+            testProjectName: 'tests'
+            testType: 'regression:api'
 
-      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        parameters:
-          serviceConnection: sc-cohort-manager-dev
-          testProjectDirectory: 'tests/playwright-tests'
-          testfileDirectory: 'src/tests/e2e/testFiles'
-          testProjectName: 'tests'
-          testType: 'test:regression:api'
+    # Regression E2E Epic1 Tests Job
+    - job: regression_e2e_epic1_tests
+      displayName: Run Regression E2E Epic1 Tests
+      pool:
+        name: private-pool-dev-uks
+      steps:
+        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: sc-cohort-manager-dev
+            testProjectDirectory: 'tests/playwright-tests'
+            testfileDirectory: 'src/tests/e2e/testFiles'
+            testProjectName: 'tests'
+            testType: 'regression:e2e:epic1'
 
-      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        parameters:
-          serviceConnection: sc-cohort-manager-dev
-          testProjectDirectory: 'tests/playwright-tests'
-          testfileDirectory: 'src/tests/e2e/testFiles'
-          testProjectName: 'tests'
-          testType: 'test:regression:e2e:epic1'
+    # Regression E2E Epic2 Tests Job
+    - job: regression_e2e_epic2_tests
+      displayName: Run Regression E2E Epic2 Tests
+      pool:
+        name: private-pool-dev-uks
+      steps:
+        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: sc-cohort-manager-dev
+            testProjectDirectory: 'tests/playwright-tests'
+            testfileDirectory: 'src/tests/e2e/testFiles'
+            testProjectName: 'tests'
+            testType: 'regression:e2e:epic2'
 
-      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        parameters:
-          serviceConnection: sc-cohort-manager-dev
-          testProjectDirectory: 'tests/playwright-tests'
-          testfileDirectory: 'src/tests/e2e/testFiles'
-          testProjectName: 'tests'
-          testType: 'test:regression:e2e:epic2'
-
-      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        parameters:
-          serviceConnection: sc-cohort-manager-dev
-          testProjectDirectory: 'tests/playwright-tests'
-          testfileDirectory: 'src/tests/e2e/testFiles'
-          testProjectName: 'tests'
-          testType: 'test:regression:e2e:epic3'
+    # Regression E2E Epic3 Tests Job
+    - job: regression_e2e_epic3_tests
+      displayName: Run Regression E2E Epic3 Tests
+      pool:
+        name: private-pool-dev-uks
+      steps:
+        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: sc-cohort-manager-dev
+            testProjectDirectory: 'tests/playwright-tests'
+            testfileDirectory: 'src/tests/e2e/testFiles'
+            testProjectName: 'tests'
+            testType: 'regression:e2e:epic3'
