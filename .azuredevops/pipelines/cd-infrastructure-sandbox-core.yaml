@@ -27,8 +27,8 @@ parameters:
     default: 'Apply'
 
 variables:
-  - group: SBX_core_backend
-  - group: SBX_audit_backend_remote_state
+  - group: SBMJ_core_backend
+  - group: SBMJ_audit_backend_remote_state
   - group: DEV_hub_backend_remote_state
   - name: TF_VERSION
     value: 1.11.4
