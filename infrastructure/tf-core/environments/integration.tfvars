@@ -1065,7 +1065,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        NemsFhirEndpoint   = "https://example.com"
+        NemsFhirEndpoint = "https://example.com"
       }
     }
 
