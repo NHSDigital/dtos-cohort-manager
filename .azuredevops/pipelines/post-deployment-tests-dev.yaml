@@ -23,17 +23,12 @@ parameters:
   default: dev
 
 stages:
-- stage: post_deployment_tests_stage
-  displayName: Post-deployment tests
-
+- stage: smoke_e2e_tests
+  displayName: Run Smoke E2E Tests
   variables:
-  - name: TARGET_ENVIRONMENT
-    value: ${{ parameters.destEnvironmentShortName }}
-
+    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
   jobs:
-    # Smoke E2E Tests Job
     - job: smoke_e2e_tests
-      displayName: Run Smoke E2E Tests
       pool:
         name: private-pool-dev-uks
       steps:
@@ -45,11 +40,14 @@ stages:
             testProjectName: 'tests'
             testType: 'smoke:e2e'
 
-    # Regression API Tests Job
+- stage: regression_api_tests
+  displayName: Run Regression API Tests
+  dependsOn: smoke_e2e_tests
+  condition: succeededOrFailed()
+  variables:
+    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
+  jobs:
     - job: regression_api_tests
-      displayName: Run Regression API Tests
-      dependsOn: smoke_e2e_tests
-      condition: succeededOrFailed()
       pool:
         name: private-pool-dev-uks
       steps:
@@ -61,11 +59,14 @@ stages:
             testProjectName: 'tests'
             testType: 'regression:api'
 
-    # Regression E2E Epic1 Tests Job
+- stage: regression_e2e_epic1_tests
+  displayName: Run Regression E2E Epic1 Tests
+  dependsOn: regression_api_tests
+  condition: succeededOrFailed()
+  variables:
+    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
+  jobs:
     - job: regression_e2e_epic1_tests
-      displayName: Run Regression E2E Epic1 Tests
-      dependsOn: regression_api_tests
-      condition: succeededOrFailed()
       pool:
         name: private-pool-dev-uks
       steps:
@@ -77,11 +78,14 @@ stages:
             testProjectName: 'tests'
             testType: 'regression:e2e:epic1'
 
-    # Regression E2E Epic2 Tests Job
+- stage: regression_e2e_epic2_tests
+  displayName: Run Regression E2E Epic2 Tests
+  dependsOn: regression_e2e_epic1_tests
+  condition: succeededOrFailed()
+  variables:
+    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
+  jobs:
     - job: regression_e2e_epic2_tests
-      displayName: Run Regression E2E Epic2 Tests
-      dependsOn: regression_e2e_epic1_tests
-      condition: succeededOrFailed()
       pool:
         name: private-pool-dev-uks
       steps:
@@ -93,11 +97,14 @@ stages:
             testProjectName: 'tests'
             testType: 'regression:e2e:epic2'
 
-    # Regression E2E Epic3 Tests Job
+- stage: regression_e2e_epic3_tests
+  displayName: Run Regression E2E Epic3 Tests
+  dependsOn: regression_e2e_epic2_tests
+  condition: succeededOrFailed()
+  variables:
+    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
+  jobs:
     - job: regression_e2e_epic3_tests
-      displayName: Run Regression E2E Epic3 Tests
-      dependsOn: regression_e2e_epic2_tests
-      condition: succeededOrFailed()
       pool:
         name: private-pool-dev-uks
       steps:
