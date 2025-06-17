@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9999111130
+        "NHSNumber": 9999111238
       }
     },
     {
@@ -18,7 +18,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": null,
-      "nhs_number": 9999111130,
+      "nhs_number": 9999111238,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "A81623",
       "primary_care_effective_from_date": "20030318",
@@ -96,7 +96,7 @@
     }
   ],
   "nhsNumbers": [
-    "9999111130",
+    "9999111238",
     "9999111165"
   ]
 }

@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9999111173",
+        "NhsNumber": "9999111262",
         "RuleId": 3601,
         "RuleDescription": "Invalid primary care provider GP practice code"
       }
@@ -11,7 +11,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9999111181",
+        "NhsNumber": "9999111254",
         "RuleId": 53,
         "RuleDescription": "Current posting and Primary Care provider contain incompatible values"
       }
@@ -22,7 +22,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 98,
-      "nhs_number": 9999111173,
+      "nhs_number": 9999111262,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "TWA123",
       "primary_care_effective_from_date": "20030318",
@@ -62,7 +62,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 98,
-      "nhs_number": 9999111181,
+      "nhs_number": 9999111254,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "TWA123",
       "primary_care_effective_from_date": "20030318",
@@ -100,7 +100,7 @@
     }
   ],
   "nhsNumbers": [
-    "9999111173",
-    "9999111181"
+    "9999111262",
+    "9999111254"
   ]
 }

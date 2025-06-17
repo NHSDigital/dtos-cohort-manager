@@ -85,7 +85,6 @@ test.describe('@regression @e2e @epic4d-validation-tests Tests', () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
     });
   });
-});
 
 testWithAmended('@DTOSS-9497-01 - Verify that exception is raised if one or more conditions are FALSE (CP - English, PCPC - B86019 or NULL) - AC02 - AMENDED', {
   annotation: {
@@ -110,7 +109,7 @@ testWithAmended('@DTOSS-9497-01 - Verify that exception is raised if one or more
 
 });
 
-test('@DTOSS-9496-01 - Verify that exception is raised if one or more conditions are FALSE (CP - English, PCPC - B86019 or NULL) - AC02 - ADD', {
+test('@DTOSS-9498-01 - Verify that exception is raised if one or more conditions are FALSE (CP - English, PCPC - B86019 or NULL) - AC02 - ADD', {
   annotation: {
     type: 'Requirement',
     description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6045',
@@ -143,4 +142,4 @@ testWithAmended('@DTOSS-9499-01 - Verify that exception is raised if one or more
     await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
   });
 });
-
+});
