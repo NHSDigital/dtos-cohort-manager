@@ -552,7 +552,7 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnName("DATE_CREATED");
 
                     b.Property<DateTime?>("DateResolved")
-                        .HasColumnType("datetime")
+                        .HasColumnType("date")
                         .HasColumnName("DATE_RESOLVED");
 
                     b.Property<string>("ErrorRecord")
@@ -595,7 +595,7 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnName("SCREENING_NAME");
 
                     b.Property<DateTime?>("ServiceNowCreatedDate")
-                        .HasColumnType("datetime")
+                        .HasColumnType("date")
                         .HasColumnName("SERVICENOW_CREATED_DATE");
 
                     b.Property<string>("ServiceNowId")
@@ -1147,6 +1147,35 @@ namespace DataServices.Migrations.Migrations
                     b.HasKey("ScreeningWorkflowId");
 
                     b.ToTable("SCREENING_LKP", "dbo");
+                });
+
+            modelBuilder.Entity("Model.ServicenowCases", b =>
+                {
+                    b.Property<string>("ServicenowId")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("SERVICENOW_ID");
+
+                    b.Property<long?>("NhsNumber")
+                        .HasColumnType("bigint")
+                        .HasColumnName("NHS_NUMBER");
+
+                    b.Property<DateTime?>("RecordInsertDatetime")
+                        .HasColumnType("datetime")
+                        .HasColumnName("RECORD_INSERT_DATETIME");
+
+                    b.Property<DateTime?>("RecordUpdateDatetime")
+                        .HasColumnType("datetime")
+                        .HasColumnName("RECORD_UPDATE_DATETIME");
+
+                    b.Property<string>("Status")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("STATUS");
+
+                    b.HasKey("ServicenowId");
+
+                    b.ToTable("SERVICENOW_CASES", "dbo");
                 });
 #pragma warning restore 612, 618
         }
