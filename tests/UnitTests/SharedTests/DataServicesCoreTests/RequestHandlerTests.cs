@@ -16,6 +16,7 @@ using System.Linq.Dynamic.Core;
 using DataServices.Database;
 using Model;
 
+// If these tests are failing after a DB change, make sure the create_test_table.sql file is up to date.
 [TestClass]
 public class RequestHandlerTests
 {
@@ -35,7 +36,6 @@ public class RequestHandlerTests
         _context = new DataServicesContext(options);
 
         _context.Database.OpenConnection();
-        // _context.Database.EnsureCreated();
         string sql = File.ReadAllText("create_test_table.sql");
 
         _context.Database.ExecuteSqlRaw(sql);
