@@ -25,7 +25,7 @@ public class RequestHandlerTests
     private SetupRequest setupRequest = new();
 
     [TestInitialize]
-    public void setup()
+    public void Setup()
     {
         var options = new DbContextOptionsBuilder<DataServicesContext>()
             .UseSqlite("DataSource=:memory:")
@@ -64,7 +64,7 @@ public class RequestHandlerTests
     public async Task HandleRequest_GetWithKey_ReturnCorrectEntity()
     {
         // Arrange
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("GET");
 
         // Act
@@ -79,7 +79,7 @@ public class RequestHandlerTests
     public async Task HandleRequest_GetWithKeyNotInDb_ReturnNotFound()
     {
         // Arrange
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("GET");
 
         // Act
@@ -93,7 +93,7 @@ public class RequestHandlerTests
     public async Task HandleRequest_GetWithoutKey_ReturnAllEntities()
     {
         // Arrange
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("GET");
         request.Setup(x => x.Query).Returns(new NameValueCollection());
 
@@ -112,7 +112,7 @@ public class RequestHandlerTests
         _context.ParticipantManagements.RemoveRange(_context.ParticipantManagements);
         _context.SaveChanges();
 
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("GET");
         request.Setup(x => x.Query).Returns(new NameValueCollection());
 
@@ -130,7 +130,7 @@ public class RequestHandlerTests
     public async Task HandleRequest_GetWithPredicate_ReturnAllMatchingEntities(string predicate, int expectedNumEntities)
     {
         // Arrange
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("GET");
 
         request
@@ -149,7 +149,7 @@ public class RequestHandlerTests
     public async Task HandleRequest_GetSingleWithPredicate_ReturnCorrectEntity()
     {
         // Arrange
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("GET");
 
         string predicate = "x => x.NHSNumber == 12345";
@@ -171,7 +171,7 @@ public class RequestHandlerTests
     public async Task HandleRequest_GetSingleWithInvalidPredicate_ReturnBadRequest(string predicate)
     {
         // Arrange
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("GET");
         request
             .Setup(x => x.Query)
@@ -189,7 +189,7 @@ public class RequestHandlerTests
     public async Task HandleRequest_GetSingleWithPredicateMatchingMultipleEntities_ReturnBadRequest()
     {
         // Arrange
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("GET");
 
         string predicate = "x => x.ReasonForRemoval == \"DEA\"";
@@ -219,7 +219,7 @@ public class RequestHandlerTests
 
         _context.Entry(entity).State = EntityState.Detached;
 
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("DELETE");
 
         // Act
@@ -237,7 +237,7 @@ public class RequestHandlerTests
     public async Task HandleRequest_DeleteWithKeyNotInDb_ReturnNotFound()
     {
         // Arrange
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("DELETE");
 
         // Act
@@ -251,7 +251,7 @@ public class RequestHandlerTests
     public async Task HandleRequest_DeleteWithoutKey_ReturnBadRequest()
     {
         // Arrange
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("DELETE");
 
         // Act
@@ -375,7 +375,7 @@ public class RequestHandlerTests
 
         _sut = new RequestHandler<ParticipantManagement>(_accessor, new NullLogger<RequestHandler<ParticipantManagement>>(), authConfig);
 
-        var request = setupRequest.Setup();
+        var request = setupRequest.Setup("");
         request.Setup(x => x.Method).Returns("GET");
 
         // Act
