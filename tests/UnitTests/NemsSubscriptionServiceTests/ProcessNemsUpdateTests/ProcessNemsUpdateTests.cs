@@ -32,7 +32,7 @@ public class ProcessNemsUpdateTests
     public async Task Run_TriggerProcessNemsUpdateFunction_LogsInformation()
     {
         // Arrange
-        await using var fileStream = File.OpenRead("PatientMocks/mock-patient.json");
+        await using var fileStream = File.OpenRead("mock-patient.json");
 
         // Act
         await _sut.Run(fileStream, "fileName");
