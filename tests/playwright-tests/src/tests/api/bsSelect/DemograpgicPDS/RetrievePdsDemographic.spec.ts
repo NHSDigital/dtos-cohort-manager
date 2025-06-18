@@ -50,25 +50,5 @@ test.describe.serial('@api get Participant data from PDS function', () => {
       expect(lastResponse.status).toBe(200);
     });
   });
-
-   /*test('@DTOSS-7772-01 - Verify participant is successfully gotten from PDS API', async ({ request }, testInfo) => {
-    const [,,nhsNumbers,] = await getApiTestData(testInfo.title);
-
-    await test.step(`call PDS function`, async () => {
-      const payload = {
-        NhsNumber: nhsNumbers[0],
-      };
-
-      const response = await retrieveDemographicPDS(request, payload);
-
-      const validators = composeValidators(
-        expectStatus(200)
-      );
-      await validators(response);
-
-      const lastResponse = await retrieveDemographicPDS(request, payload);
-      expect(lastResponse.status).toBe(200);
-    });
-  });*/
 });
 
