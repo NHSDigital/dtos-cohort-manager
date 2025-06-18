@@ -163,17 +163,15 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         return true;
     }
 
-    public async Task<CohortRequestAudit> GetNextCohortRequestAudit(string requestId)
+    public async Task<CohortRequestAudit> GetNextCohortRequestAudit(Guid requestId)
     {
-        var parsedRequestId = Guid.Parse(requestId);
-
         int errorCodeInt = (int)HttpStatusCode.InternalServerError;
         int NoContentInt = (int)HttpStatusCode.NoContent;
 
         string errorCode = errorCodeInt.ToString();
         string NoContent = NoContentInt.ToString();
 
-        var previousRequest = await _bsSelectRequestAuditDataServiceClient.GetSingleByFilter(x => x.RequestId == parsedRequestId);
+        var previousRequest = await _bsSelectRequestAuditDataServiceClient.GetSingleByFilter(x => x.RequestId == requestId);
 
         if(previousRequest == null)
         {
