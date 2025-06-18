@@ -116,7 +116,7 @@ public class NemsSubscriptionManager
             
             return subscriptionId;
         }
-        catch (Exception ex)
+        catch
         {
             return Guid.Empty;
         }
