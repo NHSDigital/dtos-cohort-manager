@@ -6,8 +6,8 @@ locals {
     # FinOps
     # ------------------------
     TagVersion=1                   # Tag version (e.g. 1, 2, 3)
-    Programme/Service="DToS/Breast Screening"   # Programme name (custom value)
-    Product/Project="Cohort Manager"                 # Product name (custom value)
+    Programme-Service="DToS/Breast Screening"   # Programme name (custom value)
+    Product-Project="Cohort Manager"                 # Product name (custom value)
     Owner="<product owner>"               # Business owner (name or email)
     CostCentre=129106              # Billing code (e.g. 128943)
 
