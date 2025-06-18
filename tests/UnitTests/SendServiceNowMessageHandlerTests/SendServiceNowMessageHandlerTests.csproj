@@ -13,8 +13,8 @@
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
   <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
   <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.5" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.6" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
@@ -26,6 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../TestUtils/TestUtils.csproj" />
     <ProjectReference Include="../../../application/CohortManager/src/Functions/ServiceNowMessageHandler/ServiceNowMessageHandler.csproj" />
   </ItemGroup>
 
