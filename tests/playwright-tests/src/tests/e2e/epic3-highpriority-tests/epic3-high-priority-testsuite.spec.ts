@@ -247,9 +247,9 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
 
     await test.step('Then BS_SELECT_REQUEST_AUDIT should have an entry for 204', async () => {
-      const response = await getRecordsFromBsSelectRetrieveAudit(request)
-      const firstRecord = response.data.find(() => true);
-      expect(firstRecord?.StatusCode).toBe("204");
+      const response = await getRecordsFromBsSelectRetrieveAudit(request);
+      const lastRecord = response.data[response.data.length - 1];
+      expect(lastRecord?.StatusCode).toBe("204");
     });
 
   });
@@ -319,7 +319,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
   }, async ({ request, testData }) => {
 
     await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
-        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      await processFileViaStorage(testData.runTimeParquetFileAdd);
     });
 
     await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
@@ -333,7 +333,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
 
     await test.step(`Then the record should end up in exception management table`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
 
   });
