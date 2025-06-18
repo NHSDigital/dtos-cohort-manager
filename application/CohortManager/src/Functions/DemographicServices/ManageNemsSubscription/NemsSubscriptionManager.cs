@@ -23,12 +23,12 @@ public class NemsSubscriptionManager
 
     public NemsSubscriptionManager(
         IHttpClientFunction httpClient,
-        ManageNemsSubscriptionConfig config,
+        IOptions<ManageNemsSubscriptionConfig> config,
         ILogger<NemsSubscriptionManager> logger,
         IDataServiceAccessor<NemsSubscription> nemsSubscriptionAccessor)
     {
         _httpClient = httpClient;
-        _config = config;
+        _config = config.Value;
         _logger = logger;
         _nemsSubscriptionAccessor = nemsSubscriptionAccessor;
     }

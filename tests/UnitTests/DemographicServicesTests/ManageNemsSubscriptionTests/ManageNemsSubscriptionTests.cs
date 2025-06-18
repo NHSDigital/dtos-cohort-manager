@@ -74,7 +74,7 @@ public class ManageNemsSubscriptionTests
 
         _nemsSubscriptionManager = new NemsSubscriptionManager(
             _httpClientFunction.Object,
-            config,
+            _config.Object,
             _subscriptionManagerLogger.Object,
             _nemsSubscriptionAccessor.Object);
 
