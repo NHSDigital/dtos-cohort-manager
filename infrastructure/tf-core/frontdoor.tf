@@ -16,6 +16,7 @@ module "frontdoor" {
 }
 
 locals = {
+  # Dynamically fetch the regional origins for the specified Web Apps. This needs to be dynamic to get the private_link_target_id values
   # There may be multiple origins and possibly multiple regions.
   # We cannot nest for loops inside a map, so first iterate all permutations of both as a list of objects...
   origins_object_list = flatten([
@@ -42,7 +43,7 @@ locals = {
     for object in local.origins_object_list : "${object.origin}-${object.region}" => object
   }
 
-
+  # Populate cdn_frontdoor_origin_keys from the dynamic origins interpolated above.
   route_map = {
     for route, config in var.frontdoor.route : route => merge(
       {
