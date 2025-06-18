@@ -41,6 +41,21 @@ services:
       - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
       - ASPNETCORE_URLS=http://*:7058
 
+  process-nems-update:
+    container_name: process-nems-update
+    image: cohort-manager-process-nems-update
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: NemsSubscriptionService/ProcessNemsUpdate/Dockerfile
+    profiles: [non-essential]
+    environment:
+      - ASPNETCORE_URLS=http://*:9083
+      - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
+      - NemsMessages="nems-messages"
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+
   receive-caas-file:
     container_name: receive-caas-file
     image: cohort-manager-receive-caas-file
@@ -312,7 +327,7 @@ services:
       - AcceptableLatencyThresholdMs=500
 
   # Service Now Integration Service
-  receive-service-now-message: 
+  receive-service-now-message:
     container_name: receive-service-now-message
     networks: [cohman-network]
     build:
@@ -323,7 +338,7 @@ services:
     profiles: [not-implemented]
     environment:
       - ASPNETCORE_URLS=http://*:7912
-  
+
   send-servicenow-message:
     container_name: send-servicenow-message
     image: cohort-manager-send-servicenow-message
