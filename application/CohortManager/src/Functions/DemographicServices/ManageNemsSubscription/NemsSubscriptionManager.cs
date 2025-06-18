@@ -118,7 +118,6 @@ public class NemsSubscriptionManager
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to send subscription to NEMS");
             return Guid.Empty;
         }
     }
