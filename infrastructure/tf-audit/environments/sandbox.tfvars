@@ -1,6 +1,11 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "SBMJ"
+environment           = "SBX"
+
+tags = {
+  Environment = "sandbox"
+}
+
 
 features = {
   private_endpoints_enabled              = true
@@ -12,7 +17,7 @@ features = {
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.200.0.0/16"
+    address_space     = "10.127.0.0/16"
     connect_peering   = true
     subnets = {
       pep = {

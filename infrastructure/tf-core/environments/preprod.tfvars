@@ -10,6 +10,10 @@ features = {
   public_network_access_enabled        = false
 }
 
+tags = {
+  Environment = "pre-production"
+}
+
 regions = {
   uksouth = {
     is_primary_region = true

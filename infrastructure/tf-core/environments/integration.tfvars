@@ -11,6 +11,10 @@ features = {
   public_network_access_enabled        = false
 }
 
+tags = {
+  Environment = "integration"
+}
+
 regions = {
   uksouth = {
     is_primary_region = true

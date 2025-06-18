@@ -2,6 +2,11 @@ application           = "cohman"
 application_full_name = "cohort-manager"
 environment           = "PRE"
 
+tags = {
+  Environment = "pre-production"
+}
+
+
 features = {
   private_endpoints_enabled              = true
   private_service_connection_is_manual   = false

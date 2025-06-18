@@ -13,8 +13,7 @@ features = {
 
 # these will be merged with compliance tags in locals.tf
 tags = {
-  data_classification = 1
-  DataType = "dev and integration"
+  Environment = "development"
 }
 
 regions = {

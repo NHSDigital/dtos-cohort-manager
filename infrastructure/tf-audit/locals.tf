@@ -1,29 +1,35 @@
 locals {
   primary_region = [for k, v in var.regions : k if v.is_primary_region][0]
   compliance_tags = {
+     # ------------------------
+    # FinOps
+    # ------------------------
+    TagVersion=1                   # Tag version (e.g. 1, 2, 3)
+    Programme/Service="DToS/Breast Screening"   # Programme name (custom value)
+    Product/Project="Cohort Manager"                 # Product name (custom value)
+    Owner="<product owner>"               # Business owner (name or email)
+    CostCentre=129106              # Billing code (e.g. 128943)
+
+    # ------------------------
+    # SecOps
+    # ------------------------
+    data_classification=3          # Data level (1–5)
+    DataType="PII"                 # Data type (None, PCD, PII, Anonymised, UserAccount, Audit)
+    ProjectType="In-development"       # Project stage (PoC, Pilot, Production)
+    PublicFacing=Y                 # Internet-facing (Y/N)
+
+    # ------------------------
+    # TechOps
+    # ------------------------
+    ServiceCategory="Bronze"         # Support tier (Bronze, Silver, Gold, Platinum)
+    OnOffPattern="OfficeHours"     # Uptime (AlwaysOn, OfficeHours, MF86, MF95, MF77)
+
+    # ------------------------
+    # DevOps
+    # ------------------------
+    ApplicationRole="WebServer"    # Resource role (Web, App, DB, WebServer, Firewall, LoadBalancer)
+
     Project = "Cohort-Manager"
-
-    # FIN OPS
-    TagVersion="1"
-    Programme-Service = "Screening/Cohort Management"
-    Product-Project="Cohort Manager/DToS"
-    Owner="<owner>"
-    CostCentre="129106"
-
-    #SEC OPS
-    data_classification=1             #	depends on environment (1 for non-Prod, 5 for Prod)
-    DataType="dev and integration"	  # depends on environment (dev and integration, anonymised - pre-prod, PII - prod)
-    Environment="All environments (audit)"
-    ProjectType=""
-    PublicFacing="No"
-
-    # TECH OPS
-    ServiceCategory=""
-    OnOffPattern="Always on"
-
-    # DEV OPS
-    ApplicationRole="WebApp"
-    Name="<artifact name>"
   }
 
   merged_tags = merge(local.compliance_tags, var.tags)
