@@ -27,7 +27,6 @@ public class TransformDataService
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
-    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
     private readonly ITransformDataLookupFacade _dataLookup;
 
     public TransformDataService(
@@ -35,7 +34,6 @@ public class TransformDataService
         IExceptionHandler exceptionHandler,
         ILogger<TransformDataService> logger,
         ITransformReasonForRemoval transformReasonForRemoval,
-        IDataServiceClient<CohortDistribution> cohortDistributionClient,
         ITransformDataLookupFacade dataLookup
     )
     {
@@ -43,7 +41,6 @@ public class TransformDataService
         _exceptionHandler = exceptionHandler;
         _logger = logger;
         _transformReasonForRemoval = transformReasonForRemoval;
-        _cohortDistributionClient = cohortDistributionClient;
         _dataLookup = dataLookup;
     }
 

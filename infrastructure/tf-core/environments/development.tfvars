@@ -635,10 +635,6 @@ function_apps = {
         {
           env_var_name     = "LanguageCodeUrl"
           function_app_key = "LanguageCodeDataService"
-        },
-        {
-          env_var_name     = "CohortDistributionDataServiceUrl"
-          function_app_key = "CohortDistributionDataService"
         }
       ]
       env_vars_static = {
