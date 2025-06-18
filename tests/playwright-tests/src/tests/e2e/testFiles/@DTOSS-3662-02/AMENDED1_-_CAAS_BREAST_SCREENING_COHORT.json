@@ -6,13 +6,11 @@
         "NhsNumber": "9998088917",
         "RuleId": 17,
         "RuleDescription": "Date of birth invalid"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9998088917,
-        "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3662-02",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify that the system correctly identifies and handles an invalid date of birth for participant 9998088917"
       }
     },
     {
@@ -21,6 +19,11 @@
         "RecordType": "AMENDED",
         "NHSNumber": 9998088917,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3662-02",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify that the Participant Management Table is updated correctly for participant 9998088917"
       }
     },
     {
@@ -28,6 +31,11 @@
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9998088917,
         "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3662-02",
+        "requirementJiraId": "DTOSS-3519",
+        "additionalTags": "@regression @e2e @epic1-high-priority Verify that the Participant Demographic Table is updated correctly for participant 9998088917"
       }
     }
   ],

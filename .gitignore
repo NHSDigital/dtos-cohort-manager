@@ -38,6 +38,7 @@ _ReSharper.*/
 __azurite*
 __blobstorage__
 __queuestorage__
+AzuriteConfig
 
 # Tests
 TestResults
@@ -52,6 +53,7 @@ OutputDirectory
 
 # User Settings
 local.settings.json
+appsettings.json
 
 # Docker
 .env
@@ -61,8 +63,6 @@ application/CohortManager/SampleData/
 *.csv
 *.parquet
 !tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
-!tests/smoke-tests/dtos-cohort-manager-smoke-tests/TestFiles/**/*.parquet
-!tests/e2e-tests/NHS.CohortManager.EndToEndTests/TestFiles/**/*.parquet
 
 # csv to sql statement scripts
 bs_select_gp_practice_lpk.txt
@@ -92,7 +92,6 @@ application/CohortManager/.vscode/
 
 # Ignore all .crt files
 *.crt
-tests/e2e-tests/NHS.CohortManager.EndToEndTests/Config/appsettings.json
 
 application/CohortManager/src/Functions/*.json
 

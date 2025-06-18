@@ -1,5 +1,5 @@
-import { test, APIRequestContext } from "@playwright/test";
-import { uploadToLocalStorage } from "../../storage/azureStorage";
+import { test, APIRequestContext, expect } from "@playwright/test";
+import { checkBlobExists, uploadToLocalStorage } from "../../storage/azureStorage";
 import { InputData } from "../../interface/InputData";
 import { config } from "../../config/env";
 import * as fs from 'fs';
@@ -17,9 +17,9 @@ export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers
 
 export async function validateSqlDatabaseFromAPI(request: APIRequestContext, validations: any) {
   return test.step(`Validate database for assertions`, async () => {
-    const status = await validateApiResponse(validations, request);
+    const {status, errorTrace} = await validateApiResponse(validations, request);
     if (!status) {
-      throw new Error(`❌ Validation failed after ${config.apiRetry} attempts, please checks logs for more details`);
+      throw new Error(`❌ Validation failed after ${config.apiRetry} attempts, please checks logs for more details: ${errorTrace}`);
     }
   });
 }
@@ -66,6 +66,48 @@ export function getCheckInDataBaseValidations(scenarioFolderName: string
 
 }
 
+export function getConsolidatedAllTestData(
+  scenarioFolderName: string,
+  recordType: string = "ADD"
+) {
+  const scenarioFolders = scenarioFolderName.split("|").map(name => name.trim());
+  let testFilesPath: string = "";
+  let allValidations: any[] = [];
+  let allInputParticipantRecords: any[] = [];
+  let allNhsNumbers: any[] = [];
+
+  scenarioFolders.forEach(folder => {
+    try {
+      testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder.substring(0, 14)}/`);
+      const jsonFiles = fs.readdirSync(testFilesPath).filter(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
+      jsonFiles.forEach(jsonFile => {
+        const srcPath = path.join(testFilesPath, jsonFile);
+        try {
+          const parsedData: InputData = JSON.parse(fs.readFileSync(srcPath, 'utf-8'));
+          allValidations = allValidations.concat(parsedData.validations);
+          allNhsNumbers = allNhsNumbers.concat(parsedData.nhsNumbers);
+          if (Array.isArray(parsedData.inputParticipantRecord)) {
+            allInputParticipantRecords = allInputParticipantRecords.concat(parsedData.inputParticipantRecord);
+          } else if (parsedData.inputParticipantRecord) {
+            allInputParticipantRecords.push(parsedData.inputParticipantRecord);
+          }
+        } catch (jsonErr) {
+          console.error(`Failed to parse JSON file: ${srcPath}`, jsonErr);
+        }
+      });
+    } catch (fsErr) {
+      console.error(`Failed to read directory: ${testFilesPath}`, fsErr);
+    }
+  });
+
+  return {
+    validations: allValidations,
+    inputParticipantRecords: allInputParticipantRecords,
+    nhsNumbers: allNhsNumbers,
+    testFilesPath
+  };
+}
+
 export async function getApiTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<any> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
     console.info('🏃‍♂️‍➡️\tRunning test For: ', scenarioFolderName);
@@ -75,5 +117,13 @@ export async function getApiTestData(scenarioFolderName: string, recordType: str
     const inputParticipantRecord: Record<string, any> = parsedData.inputParticipantRecord;
     const nhsNumbers: string[] = parsedData.nhsNumbers;
     return [parsedData.validations, inputParticipantRecord, nhsNumbers, testFilesPath];
+  });
+}
+
+export async function verifyBlobExists(stepName: string, filePath: string) {
+  await test.step(stepName, async () => {
+    const expectedBlobName = path.basename(filePath);
+    const outputFileExists = await checkBlobExists(expectedBlobName);
+    expect(outputFileExists).toBe(true);
   });
 }

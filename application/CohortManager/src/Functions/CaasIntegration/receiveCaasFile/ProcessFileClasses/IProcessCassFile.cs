@@ -4,6 +4,6 @@ using Model;
 
 public interface IProcessCaasFile
 {
-    Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningService screeningService, string name);
+    Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningLkp screeningService, string name);
 }
 

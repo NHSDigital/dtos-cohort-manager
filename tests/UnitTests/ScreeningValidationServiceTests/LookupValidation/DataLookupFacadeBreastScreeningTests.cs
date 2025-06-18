@@ -1,10 +1,12 @@
+namespace NHS.CohortManager.Tests.UnitTests.ScreeningValidationServiceTests;
+
+
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using NHS.CohortManager.ScreeningValidationService;
 
-namespace NHS.CohortManager.Tests.UnitTests.ScreeningValidationServiceTests;
 
 [TestClass]
 public class DataLookupFacadeBreastScreeningTests
@@ -13,7 +15,6 @@ public class DataLookupFacadeBreastScreeningTests
     private readonly Mock<ILogger<DataLookupFacadeBreastScreening>> _logger = new();
     private readonly Mock<IDataServiceClient<BsSelectGpPractice>> _gpPracticeServiceClient = new();
     private readonly Mock<IDataServiceClient<BsSelectOutCode>> _outcodeClient = new();
-    private readonly Mock<IDataServiceClient<LanguageCode>> _languageCodeClient = new();
     private readonly Mock<IDataServiceClient<CurrentPosting>> _currentPostingClient = new();
     private readonly Mock<IDataServiceClient<ExcludedSMULookup>> _excludedSMUClient = new();
 
@@ -21,7 +22,7 @@ public class DataLookupFacadeBreastScreeningTests
 
     public DataLookupFacadeBreastScreeningTests()
     {
-        _dataLookupFacade = new DataLookupFacadeBreastScreening(_logger.Object,_gpPracticeServiceClient.Object,_outcodeClient.Object,_languageCodeClient.Object,_currentPostingClient.Object,_excludedSMUClient.Object);
+        _dataLookupFacade = new DataLookupFacadeBreastScreening(_logger.Object,_gpPracticeServiceClient.Object,_outcodeClient.Object,_currentPostingClient.Object,_excludedSMUClient.Object);
     }
 
 

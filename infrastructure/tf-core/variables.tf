@@ -156,6 +156,45 @@ variable "app_service_plan" {
   })
 }
 
+variable "container_app_environments" {
+  description = "Configuration for the container app environments"
+  default     = {}
+  type = object({
+    instances = optional(map(object({
+      zone_redundancy_enabled = optional(bool, false)
+    })), {})
+  })
+}
+
+variable "container_apps" {
+  description = "Configuration for the container app jobs"
+  default     = {}
+  type = object({
+    apps = optional(map(object({
+      name_suffix                   = optional(string)
+      container_app_environment_key = optional(string)
+      docker_env_tag                = optional(string)
+      docker_image                  = optional(string)
+      is_web_app                    = optional(bool, false)
+      container_registry_use_mi     = optional(bool, false)
+    })), {})
+  })
+}
+
+variable "container_app_jobs" {
+  description = "Configuration for the container app jobs"
+  default     = {}
+  type = object({
+    apps = optional(map(object({
+      name_suffix                   = optional(string)
+      container_app_environment_key = optional(string)
+      docker_env_tag                = optional(string)
+      docker_image                  = optional(string)
+      container_registry_use_mi     = optional(bool, false)
+    })), {})
+  })
+}
+
 variable "diagnostic_settings" {
   description = "Configuration for the diagnostic settings"
   type = object({
@@ -375,7 +414,6 @@ variable "sqlserver" {
   description = "Configuration for the Azure MSSQL server instance and a default database "
   type = object({
 
-    sql_uai_name                         = optional(string)
     sql_admin_group_name                 = optional(string)
     ad_auth_only                         = optional(bool)
     auditing_policy_retention_in_days    = optional(number)
