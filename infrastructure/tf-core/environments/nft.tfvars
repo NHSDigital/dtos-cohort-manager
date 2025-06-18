@@ -595,10 +595,6 @@ function_apps = {
           function_app_key = "BsSelectOutcodeDataService"
         },
         {
-          env_var_name     = "LanguageCodeUrl"
-          function_app_key = "LanguageCodeDataService"
-        },
-        {
           env_var_name     = "CurrentPostingUrl"
           function_app_key = "CurrentPostingDataService"
         },
@@ -668,8 +664,8 @@ function_apps = {
           function_app_key = "BsSelectGpPracticeDataService"
         },
         {
-          env_var_name     = "CohortDistributionDataServiceUrl"
-          function_app_key = "CohortDistributionDataService"
+          env_var_name     = "LanguageCodeUrl"
+          function_app_key = "LanguageCodeDataService"
         }
       ]
       env_vars_static = {
