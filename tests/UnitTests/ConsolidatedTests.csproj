@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <ProjectGuid>{5C61489E-9430-470C-BC0F-786965C35010}</ProjectGuid>
@@ -9,6 +9,7 @@
     <IsTestProject>true</IsTestProject>
     <!-- Disable implicit file inclusion -->
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <UserSecretsId>4ba9d1bc-35b7-4f07-a628-a89bb37cd0aa</UserSecretsId>
   </PropertyGroup>
 
 
@@ -96,6 +97,7 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDataManagementFunction\DemographicDataManagementFunction.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageNemsSubscription\ManageNemsSubscription.csproj" />
   </ItemGroup>
 
   <!-- Cohort Distribution Services -->

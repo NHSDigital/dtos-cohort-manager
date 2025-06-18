@@ -21,6 +21,6 @@
     <ProjectReference Include="..\..\..\TestUtils\TestUtils.csproj" />
     <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\Shared\Model\Model.csproj" />
     <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
-    <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\DemographicServices\NEMSSubscribe\NEMSSubscribe.csproj" />
+    <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\DemographicServices\ManageNemsSubscription\ManageNemsSubscription.csproj" />
   </ItemGroup>
 </Project>
