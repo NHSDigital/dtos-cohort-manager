@@ -3,6 +3,7 @@ namespace NHS.Screening.ReceiveCaasFile;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
+using Data.Database;
 using DataServices.Client;
 using Hl7.Fhir.Rest;
 using Microsoft.Extensions.Logging;
@@ -38,7 +39,7 @@ public class ProcessCaasFile : IProcessCaasFile
         IDataServiceClient<ParticipantDemographic> participantDemographic,
         IRecordsProcessedTracker recordsProcessedTracker,
         IValidateDates validateDates,
-        IHttpClientFunction httpClientFunction,
+        IHttpClientFunction httpClientFactory,
         ICallDurableDemographicFunc callDurableDemographicFunc,
         IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig
     )
@@ -51,10 +52,9 @@ public class ProcessCaasFile : IProcessCaasFile
         _participantDemographic = participantDemographic;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
-        _httpClientFunction = httpClientFunction;
         _callDurableDemographicFunc = callDurableDemographicFunc;
         _config = receiveCaasFileConfig.Value;
-
+        _httpClientFunction = httpClientFactory;
         DemographicURI = _config.DemographicURI;
         AddParticipantQueueName = _config.AddQueueName;
         UpdateParticipantQueueName = _config.UpdateQueueName;

@@ -16,12 +16,5 @@ public class ExceptionDetails
     public string? TelephoneNumberHome { get; set; }
     public string? EmailAddressHome { get; set; }
     public string? PrimaryCareProvider { get; set; }
-    public string? GpPracticeCode { get; set; }
-    public string? GpAddressLine1 { get; set; }
-    public string? GpAddressLine2 { get; set; }
-    public string? GpAddressLine3 { get; set; }
-    public string? GpAddressLine4 { get; set; }
-    public string? GpAddressLine5 { get; set; }
-    public string? GpPostCode { get; set; }
     public Gender? Gender { get; set; }
 }

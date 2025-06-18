@@ -13,14 +13,6 @@
         "requirementJiraId": "DTOSS-4573",
         "additionalTags": "@regression @e2e @epic3-high-priority Tests TC_CohortDistribution_Valid_Transformation_RFR_Rule1"
       }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9996928160",
-        "RuleId": 1,
-        "RuleDescription": "Participant was transformed as transform rule: ReasonForRemovalRule was executed"
-      }
     }
   ],
   "inputParticipantRecord": [
