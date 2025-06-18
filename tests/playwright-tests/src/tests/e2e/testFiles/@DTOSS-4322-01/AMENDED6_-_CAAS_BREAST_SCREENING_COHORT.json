@@ -5,12 +5,12 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9993499730",
         "RuleId": -2146233088,
-        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4322-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9993499730"
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9993499730"
       }
     },
     {
@@ -18,12 +18,12 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9993626554",
         "RuleId": -2146233088,
-        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4322-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9993626554"
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9993626554"
       }
     },
     {
@@ -31,12 +31,12 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9993678090",
         "RuleId": -2146233088,
-        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4322-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9993678090"
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9993678090"
       }
     },
     {
@@ -44,12 +44,12 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9993866261",
         "RuleId": -2146233088,
-        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4322-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9993866261"
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9993866261"
       }
     },
     {
@@ -57,12 +57,12 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9993931888",
         "RuleId": -2146233088,
-        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4322-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9993931888"
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9993931888"
       }
     },
     {
@@ -70,12 +70,12 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9994161628",
         "RuleId": -2146233088,
-        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4322-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED15_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9994161628"
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate for AMENDED Rule_Id as -2146233088 & Rule_Description as Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet for participant 9994161628"
       }
     }
   ],
