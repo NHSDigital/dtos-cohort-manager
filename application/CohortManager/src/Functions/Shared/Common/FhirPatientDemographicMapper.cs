@@ -35,6 +35,22 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
     }
 
+    public string ParseFhirJsonNhsNumber(string json)
+    {
+        var parser = new FhirJsonParser();
+        try
+        {
+            var parsedPatient = parser.Parse<Patient>(json);
+            return parsedPatient.Id ?? string.Empty;
+        }
+        catch (FormatException ex)
+        {
+            var errorMessage = "Failed to parse FHIR json NHS number. Ensure the input is a valid FHIR Patient resource.";
+            _logger.LogError(ex, errorMessage);
+            throw new FormatException(errorMessage, ex);
+        }
+    }
+
     public PdsDemographic MapPatientToPDSDemographic(Patient patient)
     {
         var demographic = new PdsDemographic();
@@ -110,7 +126,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
             demographic.OtherGivenNames = string.Join(" ", usualName.Given.Skip(1).ToArray());
         }
 
-        demographic.FamilyName = usualName.Family;  // Family/surname        
+        demographic.FamilyName = usualName.Family;  // Family/surname
     }
 
     private static void MapGender(Patient patient, Demographic demographic)
@@ -369,7 +385,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
         // If no confidentiality code is found, return early
         if (confidentialityCoding == null)
-        { 
+        {
             return;
         }
 
