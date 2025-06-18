@@ -5,11 +5,11 @@ locals {
     # ------------------------
     # FinOps
     # ------------------------
-    TagVersion=1                   # Tag version (e.g. 1, 2, 3)
+    TagVersion="1"                   # Tag version (e.g. 1, 2, 3)
     Programme-Service="DToS/Breast Screening"   # Programme name (custom value)
     Product-Project="Cohort Manager"                 # Product name (custom value)
     Owner="<product owner>"               # Business owner (name or email)
-    CostCentre=129106              # Billing code (e.g. 128943)
+    CostCentre="129106"              # Billing code (e.g. 128943)
 
     # ------------------------
     # SecOps
@@ -17,7 +17,7 @@ locals {
     data_classification=3          # Data level (1–5)
     DataType="PII"                 # Data type (None, PCD, PII, Anonymised, UserAccount, Audit)
     ProjectType="In-development"       # Project stage (PoC, Pilot, Production)
-    PublicFacing=Y                 # Internet-facing (Y/N)
+    PublicFacing="Y"                 # Internet-facing (Y/N)
 
     # ------------------------
     # TechOps
