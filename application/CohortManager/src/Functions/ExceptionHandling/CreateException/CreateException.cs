@@ -55,8 +55,4 @@ public class CreateException
         _logger.LogError("The exception record was not inserted into the database: {Exception}", exception);
         return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
     }
-
-    [Function("CreateException")]
-    public async Task<HttpResponseData> CreateException([(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
-    {
-    }
+}
