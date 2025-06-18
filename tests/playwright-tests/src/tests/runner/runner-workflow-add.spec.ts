@@ -5,12 +5,14 @@ import { runnerBasedEpic123TestScenariosAdd } from '../e2e/epic123-smoke-tests/e
 import { runnerBasedEpic1TestScenariosAdd } from '../e2e/epic1-highpriority-tests/epic1-high-priority-testsuite-migrated';
 import { runnerBasedEpic2TestScenariosAdd } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
 import { runnerBasedEpic3TestScenariosAdd } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
+import { runnerBasedEpic4dTestScenariosAdd } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
 
 // Test Scenario Tags
 const smokeTestScenario = runnerBasedEpic123TestScenariosAdd;
 const regressionEpic1TestScenario = runnerBasedEpic1TestScenariosAdd;
 const regressionEpic2TestScenario = runnerBasedEpic2TestScenariosAdd;
 const regressionEpic3TestScenario = runnerBasedEpic3TestScenariosAdd;
+const regressionEpic4dTestScenario = runnerBasedEpic4dTestScenariosAdd;
 
 // Tests to run based on TEST_TYPE environment variable
 let scopedTestScenario = "";
@@ -22,6 +24,8 @@ if (TEST_TYPE == 'RegressionEpic1') {
   scopedTestScenario = regressionEpic2TestScenario;
 } else if (TEST_TYPE == 'RegressionEpic3') {
   scopedTestScenario = regressionEpic3TestScenario;
+} else if (TEST_TYPE == 'RegressionEpic4d') {
+  scopedTestScenario = regressionEpic4dTestScenario;
 } else {
   scopedTestScenario = smokeTestScenario;
 }
