@@ -263,6 +263,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReceiveServiceNowMessage", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendServiceNowMessageTests", "..\..\..\..\tests\UnitTests\SendServiceNowMessageTests\SendServiceNowMessageTests.csproj", "{10EADCB8-DF07-495F-8EBA-5A399962956D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ManageParticipant", "ParticipantManagementServices\ManageParticipant\ManageParticipant.csproj", "{F52B6480-0225-40B6-93E1-E113887C48F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

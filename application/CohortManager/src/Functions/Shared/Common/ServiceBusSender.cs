@@ -12,10 +12,18 @@ public class ServiceBusSender : IQueueSender
         _serviceBusClient = new ServiceBusClient(connectionString);
     }
 
-    public async Task<bool> AddMessageToQueueAsync<ServiceBusMessage>(ServiceBusMessage message, string queueName)
+    public async Task<bool> AddMessageToQueueAsync<T>(ServiceBusMessage message, string queueName)
     {
         var sender = _serviceBusClient.CreateSender(queueName);
-        ServiceBusMessage
 
+        await sender.SendMessageAsync(message);
+        sender.
+    }
+    
+    public async Task<bool> AddMessageBatchToQueueAsync<T>(IEnumerable<ServiceBusMessage> messages, string queueName)
+    {
+        var sender = _serviceBusClient.CreateSender(queueName);
+        await sender.SendMessagesAsync(messages);
+        return true;
     }
 }
