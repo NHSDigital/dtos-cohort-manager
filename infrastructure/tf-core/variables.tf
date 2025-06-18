@@ -249,7 +249,8 @@ variable "function_apps" {
 }
 
 variable "frontdoor" {
-  object({
+  description = "Configuration for Front Door"
+  type = object({
     endpoint = map(object({
       enabled = optional(bool, true)
     }))
