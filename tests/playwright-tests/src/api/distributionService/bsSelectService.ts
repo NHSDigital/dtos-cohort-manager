@@ -30,3 +30,16 @@ export const deleteParticipant = (
   const endpoint = `${config.endpointBsSelectDeleteParticipant}${config.routeBsSelectDeleteParticipant}`;
   return apiClient.post(request, endpoint, payload);
 };
+
+
+
+export const retrieveDemographicPDS = (
+  request: APIRequestContext,
+  payload: {
+    NhsNumber: string;
+  }
+): Promise<ApiResponse> => {
+  const endpoint = `${config.endpointPdsDemographic}${config.RetrievePdsDemographic}`;
+  var queryParams = {nhsNumber: payload.NhsNumber} 
+  return apiClient.get(request, endpoint, queryParams);
+};
