@@ -11,8 +11,9 @@ features = {
   public_network_access_enabled        = false
 }
 
+# these will be merged with compliance tags in locals.tf
 tags = {
-  Project = "Cohort-Manager"
+  Environment = "development"
 }
 
 regions = {
