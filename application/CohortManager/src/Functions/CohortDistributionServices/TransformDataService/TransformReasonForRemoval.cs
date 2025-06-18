@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.CohortDistribution;
+namespace NHS.CohortManager.CohortDistributionService;
 
 using Model;
 using Common;

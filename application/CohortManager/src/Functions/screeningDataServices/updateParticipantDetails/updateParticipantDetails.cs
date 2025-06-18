@@ -17,19 +17,19 @@ public class UpdateParticipantDetails
     private readonly ILogger<UpdateParticipantDetails> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
-    private readonly ICallFunction _callFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly UpdateParticipantDetailsConfig _config;
 
     public UpdateParticipantDetails(ILogger<UpdateParticipantDetails> logger, ICreateResponse createResponse,
-                                    IExceptionHandler handleException, ICallFunction callFunction,
+                                    IExceptionHandler handleException, IHttpClientFunction httpClientFunction,
                                     IDataServiceClient<ParticipantManagement> participantManagementClient,
                                     IOptions<UpdateParticipantDetailsConfig> updateParticipantDetailsConfig)
     {
         _logger = logger;
         _createResponse = createResponse;
         _handleException = handleException;
-        _callFunction = callFunction;
+        _httpClientFunction = httpClientFunction;
         _participantManagementClient = participantManagementClient;
         _config = updateParticipantDetailsConfig.Value;
     }
@@ -80,8 +80,13 @@ public class UpdateParticipantDetails
             }
 
             reqParticipant.ParticipantId = existingParticipantData.ParticipantId.ToString();
-            reqParticipant.RecordUpdateDateTime = DateTime.Now.ToString();
-            var isAdded = await _participantManagementClient.Update(reqParticipant.ToParticipantManagement());
+            reqParticipant.RecordUpdateDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            var ParticipantManagementRecord = reqParticipant.ToParticipantManagement();
+
+            //Mark Participant as Eligible/Ineligible
+            ParticipantManagementRecord.EligibilityFlag = (short)(reqParticipant.EligibilityFlag == EligibilityFlag.Eligible ? 1 : 0);
+
+            var isAdded = await _participantManagementClient.Update(ParticipantManagementRecord);
 
             if (isAdded)
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
@@ -101,8 +106,8 @@ public class UpdateParticipantDetails
 
         try
         {
-            var response = await _callFunction.SendPost(_config.LookupValidationURL, json);
-            var responseBodyJson = await _callFunction.GetResponseText(response);
+            var response = await _httpClientFunction.SendPost(_config.LookupValidationURL, json);
+            var responseBodyJson = await _httpClientFunction.GetResponseText(response);
             var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
             return responseBody;

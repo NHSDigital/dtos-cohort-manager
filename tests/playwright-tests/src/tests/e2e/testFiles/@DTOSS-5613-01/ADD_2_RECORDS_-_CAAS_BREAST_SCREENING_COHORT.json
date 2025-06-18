@@ -3,8 +3,12 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9994878999
-
+        "NHSNumber": 9990518092
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5613-01",
+        "requirementJiraId": "DTOSS-4909",
+        "additionalTags": "@regression @e2e @epic2-high-priority when Eligibility Flag is set to true for Add, then only one NHS Numbers should be updated in the cohort"
       }
     }
   ],
@@ -13,7 +17,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9994878999,
+      "nhs_number": 9990518092,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20030318",
@@ -91,7 +95,7 @@
     }
   ],
   "nhsNumbers": [
-    "9994878999",
+    "9990518092",
     "9995081229"
   ]
 }

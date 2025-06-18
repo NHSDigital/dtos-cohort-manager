@@ -17,14 +17,12 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
-        services.AddSingleton<ICallFunction, CallFunction>();
         // Register health checks
         services.AddDatabaseHealthCheck("updateParticipantDetails");
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

@@ -15,16 +15,15 @@ var host = new HostBuilder()
         .Build()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         // Register health checks
         services.AddDatabaseHealthCheck("RetrieveParticipantData");
     })
     .AddDatabaseConnection()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
