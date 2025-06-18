@@ -145,7 +145,7 @@ app_service_plan = {
           capacity_def = "2"
         }
       }
-      wildcard_ssl_cert_key = "screening_wildcard_private" # from keys in acme_certificates map in Hub tfvars
+      # wildcard_ssl_cert_key = "screening_wildcard_private" # from keys in acme_certificates map in Hub tfvars
     }
     HighLoadFunctions = {
       autoscale_override = {
