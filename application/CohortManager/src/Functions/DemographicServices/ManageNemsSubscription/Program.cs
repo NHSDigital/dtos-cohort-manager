@@ -14,8 +14,10 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddSingleton(config);
+        services.AddSingleton<NemsSubscriptionManager>();
         // Register health checks
-        services.AddBasicHealthCheck("NEMSSubscription");
+        services.AddDatabaseHealthCheck("NEMSSubscription");
     })
     .AddHttpClient()
     .Build();

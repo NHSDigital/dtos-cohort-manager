@@ -17,18 +17,18 @@ using DataServices.Core;
 public class NemsSubscriptionManager
 {
     private readonly IHttpClientFunction _httpClient;
-    private readonly ILogger<ManageNemsSubscription> _logger;
+    private readonly ILogger<NemsSubscriptionManager> _logger;
     private readonly ManageNemsSubscriptionConfig _config;
     private readonly IDataServiceAccessor<NemsSubscription> _nemsSubscriptionAccessor;
 
     public NemsSubscriptionManager(
         IHttpClientFunction httpClient,
-        IOptions<ManageNemsSubscriptionConfig> nemsUnSubscriptionConfig,
-        ILogger<ManageNemsSubscription> logger,
+        ManageNemsSubscriptionConfig config,
+        ILogger<NemsSubscriptionManager> logger,
         IDataServiceAccessor<NemsSubscription> nemsSubscriptionAccessor)
     {
         _httpClient = httpClient;
-        _config = nemsUnSubscriptionConfig.Value;
+        _config = config;
         _logger = logger;
         _nemsSubscriptionAccessor = nemsSubscriptionAccessor;
     }
@@ -97,7 +97,7 @@ public class NemsSubscriptionManager
     /// <remarks>
     /// WIP as there will be changes to this method after we are onboarded to the NEMS API.
     /// </remarks>
-    public async Task<Guid?> SendSubscriptionToNemsAsync(string subscription)
+    public async Task<Guid> SendSubscriptionToNemsAsync(string subscription)
     {
         try
         {
@@ -119,7 +119,7 @@ public class NemsSubscriptionManager
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send subscription to NEMS");
-            return null;
+            return Guid.Empty;
         }
     }
 

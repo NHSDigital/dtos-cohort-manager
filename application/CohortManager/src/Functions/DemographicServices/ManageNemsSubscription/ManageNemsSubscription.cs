@@ -26,18 +26,15 @@ public class ManageNemsSubscription
     public ManageNemsSubscription
     (
         ILogger<ManageNemsSubscription> logger,
-        IDataServiceAccessor<NemsSubscription> nemsSubscriptionClient,
-        IHttpClientFunction httpClientFunction,
         ICreateResponse createResponse,
-        IOptions<ManageNemsSubscriptionConfig> nemsSubscribeConfig
+        NemsSubscriptionManager subscriptionManager,
+        IRequestHandler<NemsSubscription> requestHandler
     )
     {
         _logger = logger;
         _createResponse = createResponse;
-        _subscriptionManager = new(httpClientFunction,
-                                  nemsSubscribeConfig,
-                                  logger,
-                                  nemsSubscriptionClient);
+        _subscriptionManager = subscriptionManager;
+        _requestHandler = requestHandler;
     }
 
     /// <summary>
@@ -62,7 +59,8 @@ public class ManageNemsSubscription
 
             if (string.IsNullOrEmpty(nhsNumber))
             {
-                throw new ArgumentNullException("NHS number is required.");
+                _logger.LogError("NHS number is required.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
             }
 
             // Create subscription object
@@ -70,8 +68,13 @@ public class ManageNemsSubscription
             string subscriptionJson = new FhirJsonSerializer().SerializeToString(subscription);
 
             // Post to NEMS FHIR endpoint
-            Guid subscriptionId = await _subscriptionManager.SendSubscriptionToNemsAsync(subscriptionJson)
-                ?? throw new InvalidOperationException("Failed to create subscription in NEMS.");
+            Guid subscriptionId = await _subscriptionManager.SendSubscriptionToNemsAsync(subscriptionJson);
+
+            if (subscriptionId == Guid.Empty)
+            {
+                _logger.LogError("Failed to create subscription in NEMS.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to create subscription in NEMS.");
+            }
 
             // Store in SQL Database
             bool storageSuccess = await _subscriptionManager.SaveSubscriptionInDatabase(nhsNumber, subscriptionId);
