@@ -16,7 +16,7 @@ module "frontdoor" {
 }
 
 locals = {
-  # Dynamically fetch the regional origins for the specified Web Apps. This needs to be dynamic to get the private_link_target_id values
+  # Dynamically fetch all regional origins for the specified Web Apps. This needs to be dynamic to get the private_link_target_id values.
   # There may be multiple origins and possibly multiple regions.
   # We cannot nest for loops inside a map, so first iterate all permutations of both as a list of objects...
   origins_object_list = flatten([
@@ -35,9 +35,9 @@ locals = {
           } : null
         },
         config # the rest of the key/value pairs for a specific origin
-      }
-    }
-  }
+      )
+    ]
+  ])
   # ...then project the list of objects into a map with unique keys (combining the iterators), for consumption by a for_each meta argument
   origin_map = {
     for object in local.origins_object_list : "${object.origin}-${object.region}" => object
