@@ -64,10 +64,10 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
-  test('@DTOSS-4103-01-Validate invalid GP Practice Code for a new participant', {
+  test('@DTOSS-4088-01-Validate valid postcode', {
       annotation: {
         type: 'Requirement',
-        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4103',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4088',
       },
     }, async ({ request, testData }) => {
 
