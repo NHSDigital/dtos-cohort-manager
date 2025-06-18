@@ -16,6 +16,7 @@ const endpointExceptionManagementDataService = process.env.ENDPOINT_EXCEPTION_MA
 const endpointBsSelectRetrieveCohortDistributionData = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '';
 const endpointBsSelectRetrieveCohortRequestAudit = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_REQUEST_AUDIT ?? '';
 const endpointBsSelectDeleteParticipant = process.env.ENDPOINT_BS_SELECT_DELETE_PARTICIPANT ?? '';
+const endpointPdsDemographic = process.env.ENDPOINT_PDS_DEMOGRAPHIC ?? '';
 
 export const config = {
   baseURL,
@@ -25,6 +26,7 @@ export const config = {
   endpointParticipantManagementDataService,
   endpointExceptionManagementDataService,
   endpointParticipantDemographicDataService,
+  endpointPdsDemographic: endpointPdsDemographic,
   endpointBsSelectRetrieveCohortDistributionData: endpointBsSelectRetrieveCohortDistributionData,
   endpointBsSelectRetrieveCohortRequestAudit: endpointBsSelectRetrieveCohortRequestAudit,
   endpointBsSelectDeleteParticipant: endpointBsSelectDeleteParticipant,
@@ -45,5 +47,6 @@ export const config = {
   uniqueKeyParticipantManagement: 'ParticipantId',
   uniqueKeyParticipantDemographic: 'ParticipantId',
   uniqueKeyExceptionManagement: 'ExceptionId',
-  ignoreValidationKey: 'apiEndpoint'
+  ignoreValidationKey: 'apiEndpoint',
+  RetrievePdsDemographic: 'api/RetrievePdsDemographic'
 }

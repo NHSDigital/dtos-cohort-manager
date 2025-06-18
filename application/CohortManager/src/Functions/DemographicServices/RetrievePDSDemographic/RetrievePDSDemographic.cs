@@ -65,7 +65,7 @@ public class RetrievePdsDemographic
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
 
-        }
+        } 
         catch (Exception ex)
         {
             _logger.LogError(ex, "There has been an error fetching PDS participant data: {Message}", ex.Message);
