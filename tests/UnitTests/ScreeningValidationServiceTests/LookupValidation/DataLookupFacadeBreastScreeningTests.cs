@@ -1,10 +1,12 @@
+namespace NHS.CohortManager.Tests.UnitTests.ScreeningValidationServiceTests;
+
+
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using NHS.CohortManager.ScreeningValidationService;
 
-namespace NHS.CohortManager.Tests.UnitTests.ScreeningValidationServiceTests;
 
 [TestClass]
 public class DataLookupFacadeBreastScreeningTests

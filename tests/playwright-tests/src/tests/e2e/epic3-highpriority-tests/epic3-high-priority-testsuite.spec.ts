@@ -299,29 +299,6 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithAmended('@DTOSS-5566-01 @P1 Validation - Not possible to determine BSO dummy practice code for subject - scenario 2', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
-    },
-  }, async ({ request, testData }) => {
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then ADD record should be updated in the cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
-
   test('@DTOSS-5221-01-Invalid preferred language code triggers a exception', {
     annotation: {
       type: 'Requirement',

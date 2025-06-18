@@ -1,9 +1,11 @@
+namespace NHS.CohortManager.Tests.TransformDataServiceTests;
+
 using DataServices.Client;
 using Model;
 using Moq;
 using NHS.CohortManager.CohortDistributionService;
 
-namespace NHS.CohortManager.Tests.TransformDataServiceTests;
+
 
 [TestClass]
 public class TransformDataLookupFacadeTests

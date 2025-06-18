@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
+    <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\Shared\Model\Model.csproj" />
     <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\CohortDistributionServices\TransformDataService\TransformDataService.csproj" />
     <ProjectReference Include="..\..\..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
