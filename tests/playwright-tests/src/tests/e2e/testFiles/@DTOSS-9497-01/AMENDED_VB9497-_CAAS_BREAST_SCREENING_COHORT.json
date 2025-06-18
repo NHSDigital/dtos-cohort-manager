@@ -8,7 +8,7 @@
         "meta": {
         "testJiraId": "@DTOSS-9497-01",
         "requirementJiraId": "DTOSS-6045",
-        "additionalTags": "@regression @e2e @epic4d-validation-tests -  Verify that exception is raised if one or more conditions are FALSE (CP - English, PCPC - null) - AC02- AMENDED"
+        "additionalTags": "@regression @e2e @epic4d-validation-tests -  Verify that exception is raised if one or more conditions are FALSE (CP - English, PCPC - B86019) - AC02- AMENDED"
       }
     },
     {
