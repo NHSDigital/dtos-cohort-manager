@@ -5,7 +5,7 @@ module "frontdoor" {
     azurerm = azurerm.hub
   }
 
-  cdn_frontdoor_profile_id = data.terraform_remote_state.hub.outputs.cdn_frontdoor_profile["dtos-${var.application_full_name}"].id
+  cdn_frontdoor_profile_id = data.terraform_remote_state.hub.outputs.frontdoor_profile["dtos-${var.application_full_name}"].id
   endpoint                 = var.frontdoor.endpoint
   origin_group             = var.frontdoor.origin_group
   origin                   = local.origin_map
