@@ -15,7 +15,7 @@ module "frontdoor" {
   tags = var.tags
 }
 
-locals = {
+locals {
   # Dynamically fetch all regional origins for the specified Web Apps. This needs to be dynamic to get the private_link_target_id values.
   # There may be multiple origins and possibly multiple regions.
   # We cannot nest for loops inside a map, so first iterate all permutations of both as a list of objects...
