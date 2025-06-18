@@ -146,6 +146,7 @@ app_service_plan = {
           capacity_def = "2"
         }
       }
+      # wildcard_ssl_cert_key = "screening_wildcard_private" # from keys in acme_certificates map in Hub tfvars
     }
     HighLoadFunctions = {
       autoscale_override = {
@@ -1151,11 +1152,13 @@ linux_web_app = {
     FrontEndUi = {
       name_suffix          = "web"
       app_service_plan_key = "DefaultPlan"
+#      custom_domains       = ["cohort-dev.private.non-live.screening.nhs.uk"]
       env_vars = {
         static = {
           AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
-          AUTH_CIS2_CLIENT_ID  = "7708154963.cohort-manager-ui-dev-environment.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
+          AUTH_CIS2_CLIENT_ID  = "8257927333.cohort-manager-ui-rg-cohman-dev-uks.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
           AUTH_TRUST_HOST      = "true"
+          NEXTAUTH_URL         = "https://cohort-dev.private.non-live.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
         }
         from_key_vault = {
@@ -1167,7 +1170,6 @@ linux_web_app = {
         local_urls = {
           # %s becomes the environment and region prefix (e.g. dev-uks)
           EXCEPTIONS_API_URL = "https://%s-get-validation-exceptions.azurewebsites.net"
-          NEXTAUTH_URL       = "https://%s-web.azurewebsites.net/api/auth"
         }
       }
     }
@@ -1175,6 +1177,30 @@ linux_web_app = {
 }
 
 linux_web_app_slots = []
+
+frontdoor = {
+  endpoint = {
+    cohort = {}
+  }
+  origin_group = {
+    "cohort-origins" = {}
+  }
+  origin = {
+    # Dynamically picks all origins for a specific Web App, adding Private Link connection if enabled
+    FrontEndUi = { # key from var.linux_web_app.linux_web_app_config
+      cdn_frontdoor_origin_group_key = "cohort-origins"
+      certificate_name_check_enabled = true
+    }
+  }
+  route = {
+    "cohort-route" = {
+      cdn_frontdoor_endpoint_key       = "cohort"
+      cdn_frontdoor_origin_group_key   = "cohort-origins"
+      cdn_frontdoor_origin_key         = "FrontEndUi" # Reference all origins dynamically retrieved above
+      cdn_frontdoor_custom_domain_keys = []
+    }
+  }
+}
 
 key_vault = {
   disk_encryption   = true
