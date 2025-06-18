@@ -33,7 +33,7 @@
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.37" />
 
     <!-- Other Dependencies -->
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
@@ -58,7 +58,6 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Data\Data.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Utilities\Utilities.csproj" />
     <ProjectReference Include="..\TestUtils\TestUtils.csproj" />
-    <ProjectReference Include="..\..\DataServices.Client\DataServices.Client.csproj" />
     <ProjectReference Include="../../application/CohortManager/src/Functions/Shared/DataServices.Client/DataServices.Client.csproj" />
   </ItemGroup>
 
