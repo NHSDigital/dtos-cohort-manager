@@ -1195,7 +1195,7 @@ frontdoor = {
   origin = {
     # Dynamically picks all origins for a specific Web App, adding Private Link connection if enabled
     FrontEndUi = { # key from var.linux_web_app.linux_web_app_config
-      cdn_frontdoor_origin_group_key = "cohort-uk-origins"
+      cdn_frontdoor_origin_group_key = "cohort-origins"
       certificate_name_check_enabled = true
     }
   }
