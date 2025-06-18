@@ -21,7 +21,9 @@ public class ManageNemsSubscriptionTests
     private readonly Mock<IDataServiceAccessor<NemsSubscription>> _nemsSubscriptionAccessor = new();
     private readonly Mock<IOptions<ManageNemsSubscriptionConfig>> _config = new();
     private readonly Mock<ILogger<ManageNemsSubscription>> _logger = new();
+    private readonly Mock<ILogger<NemsSubscriptionManager>> _subscriptionManagerLogger = new();
     private readonly SetupRequest _setupRequest = new();
+    private readonly NemsSubscriptionManager _nemsSubscriptionManager;
     private readonly ManageNemsSubscription _sut;
 
     public ManageNemsSubscriptionTests()
@@ -67,12 +69,19 @@ public class ManageNemsSubscriptionTests
         _httpClientFunction
             .Setup(x => x.SendDelete(It.IsAny<string>()))
             .ReturnsAsync(true);
+        
+        var requestHandler = new Mock<IRequestHandler<NemsSubscription>>();
+
+        _nemsSubscriptionManager = new NemsSubscriptionManager(
+            _httpClientFunction.Object,
+            config,
+            _subscriptionManagerLogger.Object,
+            _nemsSubscriptionAccessor.Object);
 
         _sut = new(_logger.Object,
-                    _nemsSubscriptionAccessor.Object,
-                    _httpClientFunction.Object,
                     _createResponse,
-                    _config.Object);
+                    _nemsSubscriptionManager,
+                    requestHandler.Object);
     }
 
     [TestMethod]
@@ -92,8 +101,7 @@ public class ManageNemsSubscriptionTests
     public async Task Unsubscribe_ValidRequest_ReturnsOk()
     {
         // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(new NameValueCollection { { "NhsNumber", "1233456" } });
+        var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "1233456" } }, HttpMethod.Post);
 
         // Act
         var response = await _sut.Unsubscribe(request.Object);
@@ -106,8 +114,7 @@ public class ManageNemsSubscriptionTests
     public async Task Subscribe_InvalidNhsNumber_ReturnsBadRequest()
     {
         // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(new NameValueCollection { { "NhsNumber", "" } });
+        var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "" } }, HttpMethod.Post);
 
         // Act
         var response = await _sut.Subscribe(request.Object);
@@ -120,8 +127,7 @@ public class ManageNemsSubscriptionTests
     public async Task Unsubscribe_InvalidNhsNumber_ReturnsBadRequest()
     {
         // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(new NameValueCollection { { "NhsNumber", "" } });
+        var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "" } }, HttpMethod.Post);
 
         // Act
         var response = await _sut.Unsubscribe(request.Object);
@@ -134,8 +140,7 @@ public class ManageNemsSubscriptionTests
     public async Task Unsubscribe_SubscriptionNotFound_ReturnsNotFound()
     {
         // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(new NameValueCollection { { "NhsNumber", "1233456" } });
+        var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "1233456" } }, HttpMethod.Post);
 
         _nemsSubscriptionAccessor
             .Setup(x => x.GetSingle(It.IsAny<Expression<Func<NemsSubscription, bool>>>()))
@@ -152,8 +157,7 @@ public class ManageNemsSubscriptionTests
     public async Task Subscribe_InsertFails_ReturnsInternalServerError()
     {
         // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(new NameValueCollection { { "NhsNumber", "1233456" } });
+        var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "1233456" } }, HttpMethod.Post);
 
         _nemsSubscriptionAccessor
             .Setup(x => x.InsertSingle(It.IsAny<NemsSubscription>()))
@@ -170,8 +174,7 @@ public class ManageNemsSubscriptionTests
     public async Task Subscribe_NemsPostFails_ReturnsInternalServerError()
     {
         // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(new NameValueCollection { { "NhsNumber", "1233456" } });
+        var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "1233456" } }, HttpMethod.Post);
 
         _httpClientFunction
             .Setup(x => x.SendNemsPost(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -188,8 +191,7 @@ public class ManageNemsSubscriptionTests
     public async Task Unsubscribe_DeleteFromDatabaseFails_ReturnsInternalServerError()
     {
         // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(new NameValueCollection { { "NhsNumber", "1233456" } });
+        var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "1233456" } }, HttpMethod.Post);
 
         _nemsSubscriptionAccessor
             .Setup(x => x.Remove(It.IsAny<Expression<Func<NemsSubscription, bool>>>()))
@@ -206,8 +208,7 @@ public class ManageNemsSubscriptionTests
     public async Task Unsubscribe_DeleteFromNemsFails_ReturnsInternalServerError()
     {
         // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(new NameValueCollection { { "NhsNumber", "1233456" } });
+        var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "1233456" } }, HttpMethod.Post);
 
         _httpClientFunction
             .Setup(x => x.SendDelete(It.IsAny<string>()))

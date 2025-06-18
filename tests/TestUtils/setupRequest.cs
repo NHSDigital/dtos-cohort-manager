@@ -53,36 +53,4 @@ public class SetupRequest
 
         return _request;
     }
-
-    public Mock<HttpRequestData> Setup(string? json = null, NameValueCollection urlQueries = null)
-    {
-        if (json == null)
-        {
-            _request.Setup(r => r.Body).Returns((MemoryStream)null);
-        }
-        else
-        {
-            var byteArray = Encoding.ASCII.GetBytes(json);
-            var bodyStream = new MemoryStream(byteArray);
-
-            _request.Setup(r => r.Body).Returns(bodyStream);
-        }
-        if (urlQueries != null)
-        {
-            _request.Setup(r => r.Query).Returns(urlQueries);
-        }
-
-        _request.Setup(r => r.CreateResponse()).Returns(() =>
-        {
-            var response = new Mock<HttpResponseData>(_context.Object);
-            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
-            response.SetupProperty(r => r.StatusCode);
-            response.SetupProperty(r => r.Body, new MemoryStream());
-
-            return response.Object;
-        });
-
-        return _request;
-
-    }
 }

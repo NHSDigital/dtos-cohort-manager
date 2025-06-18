@@ -111,7 +111,7 @@ public class NemsSubscriptionManager
             );
 
             response.EnsureSuccessStatusCode();
-            Guid subscriptionId = new();
+            Guid subscriptionId = Guid.NewGuid();
             _logger.LogInformation("Sent subscription to NEMS with ID: {SubscriptionId}", subscriptionId);
             
             return subscriptionId;

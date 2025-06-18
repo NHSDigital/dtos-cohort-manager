@@ -86,11 +86,6 @@ public class ManageNemsSubscription
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, subscriptionId.ToString());
         }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, "Missing required parameter NHS Number");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, ex.Message);
-        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to create NEMS subscription");
@@ -120,7 +115,8 @@ public class ManageNemsSubscription
 
             if (string.IsNullOrEmpty(nhsNumber))
             {
-                throw new ArgumentNullException("NHS number is required.");
+                _logger.LogError("NHS number is required.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
             }
 
             string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
@@ -147,11 +143,6 @@ public class ManageNemsSubscription
 
             _logger.LogInformation("Successfully unsubscribed.");
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Successfully unsubscribed.");
-        }
-        catch (ArgumentNullException ex)
-        {
-            _logger.LogError(ex, "Missing required parameter in NEMS unsubscription workflow: {Message}", ex.Message);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, ex.Message);
         }
         catch (Exception ex)
         {
