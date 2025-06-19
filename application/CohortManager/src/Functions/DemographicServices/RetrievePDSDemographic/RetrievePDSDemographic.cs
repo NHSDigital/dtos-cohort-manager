@@ -65,8 +65,8 @@ public class RetrievePdsDemographic
                 return updateResult switch
                 {
                     UpdateResult.Success => CreateSuccessResponse(req, demographic),
-                    UpdateResult.NotFound => HandleParticipantNotFound(req, nhsNumber),
-                    UpdateResult.UpdateFailed => HandleUpdateFailure(req, nhsNumber),
+                    UpdateResult.NotFound => HandleParticipantNotFound(req),
+                    UpdateResult.UpdateFailed => HandleUpdateFailure(req),
                     _ => HandleUnexpectedUpdateResult(req)
                 };
             }
@@ -105,13 +105,13 @@ public class RetrievePdsDemographic
         return _createResponse.CreateHttpResponse(HttpStatusCode.OK,req,JsonSerializer.Serialize(demographic));
     }
 
-    private HttpResponseData HandleParticipantNotFound(HttpRequestData req, string nhsNumber)
+    private HttpResponseData HandleParticipantNotFound(HttpRequestData req)
     {
         _logger.LogWarning("Participant not found when updating from PDS for NHS number");
         return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
     }
 
-    private HttpResponseData HandleUpdateFailure(HttpRequestData req, string nhsNumber)
+    private HttpResponseData HandleUpdateFailure(HttpRequestData req)
     {
         _logger.LogError("Failed to update Demographic record from PDS.");
         return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
