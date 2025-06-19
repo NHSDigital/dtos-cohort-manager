@@ -27,6 +27,7 @@ try
 
     .ConfigureServices(services =>
     {
+        services.AddSingleton<IQueueClient>(_ => new AzureServiceBusClient(config.ServiceBusConnectionString));
         services.AddSingleton<IReceiveCaasFileHelper, ReceiveCaasFileHelper>();
         services.AddScoped<IProcessCaasFile, ProcessCaasFile>(); //Do not change the lifetime of this.
         services.AddSingleton<ICreateResponse, CreateResponse>();
@@ -40,7 +41,6 @@ try
         services.AddTransient<ICopyFailedBatchToBlob, CopyFailedBatchToBlob>();
         services.AddScoped<IValidateDates, ValidateDates>();
         // services.AddScoped<IQueueClientFactory, QueueClientFactory>();
-        services.AddSingleton<IQueueSender>(_ => new ServiceBusSender(config.ServiceBusConnectionString));
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })

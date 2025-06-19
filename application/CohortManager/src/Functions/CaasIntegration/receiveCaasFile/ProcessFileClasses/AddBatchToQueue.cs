@@ -12,14 +12,12 @@ public class AddBatchToQueue : IAddBatchToQueue
 {
 
     public readonly ILogger<AddBatchToQueue> _logger;
+    private readonly IQueueClient _queueClient;
 
-
-    private readonly IQueueSender _queueHelper;
-
-    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IQueueSender queueHelper)
+    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IQueueClient queueClient)
     {
         _logger = logger;
-        _queueHelper = queueHelper;
+        _queueClient = queueClient;
     }
 
     public async Task ProcessBatch(ConcurrentQueue<BasicParticipantCsvRecord> batch, string queueName)
@@ -52,6 +50,6 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord, string queueName)
     {
-        await _queueHelper.AddMessageToQueueAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, queueName);
+        await _queueClient.AddAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, "participant-management-queue");
     }
 }

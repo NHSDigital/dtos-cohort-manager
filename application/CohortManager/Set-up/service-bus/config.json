@@ -5,21 +5,7 @@
         "Name": "cohman-sb",
         "Queues": [
           {
-            "Name": "add-queue",
-            "Properties": {
-              "DeadLetteringOnMessageExpiration": false,
-              "DefaultMessageTimeToLive": "PT1H",
-              "DuplicateDetectionHistoryTimeWindow": "PT20S",
-              "ForwardDeadLetteredMessagesTo": "",
-              "ForwardTo": "",
-              "LockDuration": "PT1M",
-              "MaxDeliveryCount": 3,
-              "RequiresDuplicateDetection": false,
-              "RequiresSession": false
-            }
-          },
-          {
-            "Name": "update-queue",
+            "Name": "participant-management-queue",
             "Properties": {
               "DeadLetteringOnMessageExpiration": false,
               "DefaultMessageTimeToLive": "PT1H",

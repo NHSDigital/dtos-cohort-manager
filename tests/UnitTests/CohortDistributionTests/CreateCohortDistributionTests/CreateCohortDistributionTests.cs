@@ -18,7 +18,7 @@ public class CreateCohortDistributionTests
     private CreateCohortDistribution _sut;
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private readonly CreateCohortDistributionRequestBody _requestBody;
-    private readonly Mock<IQueueSender> _azureQueueStorageHelper = new();
+    private readonly Mock<IQueueClient> _azureQueueStorageHelper = new();
     private readonly Mock<IOptions<CreateCohortDistributionConfig>> _config = new();
     private readonly CohortDistributionParticipant _cohortDistributionParticipant;
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
@@ -118,7 +118,7 @@ public class CreateCohortDistributionTests
                 It.IsAny<string>()));
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddMessageToQueueAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
     }
 
     [TestMethod]
@@ -143,7 +143,7 @@ public class CreateCohortDistributionTests
                 It.IsAny<string>()));
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddMessageToQueueAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
     }
 
     [TestMethod]
@@ -168,7 +168,7 @@ public class CreateCohortDistributionTests
                 It.IsAny<string>()));
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddMessageToQueueAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
     }
 
     [TestMethod]
@@ -206,7 +206,7 @@ public class CreateCohortDistributionTests
                 It.IsAny<string>()));
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddMessageToQueueAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
     }
 
     [TestMethod]
@@ -255,7 +255,7 @@ public class CreateCohortDistributionTests
         });
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddMessageToQueueAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
 
         if (ignoreExceptionsValue)
         {
@@ -328,7 +328,7 @@ public class CreateCohortDistributionTests
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Once);
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddMessageToQueueAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
 
         if (ignoreExceptionsValue)
         {
