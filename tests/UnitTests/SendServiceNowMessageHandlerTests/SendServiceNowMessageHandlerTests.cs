@@ -92,7 +92,7 @@ public class ServiceNowMessageIntegratedHandlerTests
             .Setup(r => r.CreateHttpResponse(HttpStatusCode.OK, _httpRequestMock.Object, "Success"))
             .Returns(expectedResponse);
 
-        var result = await _handler.Run(_httpRequestMock.Object, "baseUrl", "profile", "sysid");
+        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
 
         Assert.AreEqual(expectedResponse, result);
     }
@@ -119,7 +119,7 @@ public class ServiceNowMessageIntegratedHandlerTests
             .Returns(expectedResponse);
 
         // Act
-        var result = await _handler.Run(_httpRequestMock.Object, "base", "profile", "sysid");
+        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
 
         // Assert
         Assert.AreEqual(expectedResponse, result);
@@ -142,7 +142,7 @@ public class ServiceNowMessageIntegratedHandlerTests
             .Returns(expectedResponse);
 
         // Act
-        var result = await _handler.Run(_httpRequestMock.Object, "base", "profile", "sysid");
+        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
 
         // Assert
         Assert.AreEqual(expectedResponse, result);
