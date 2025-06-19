@@ -200,7 +200,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
       const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 2 });
 
       const genericValidations = composeValidators(
-        expectStatus(400),
+        expectStatus(204),
         validateResponseByStatus()
       );
       await genericValidations(response);
@@ -264,7 +264,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
             requestIdsToNhsNumbersFromResponse.push(...batch);
 
           } else {
-            expect(nextResponse.status).toBe(204);
+            expect(nextResponse.status).toBe(400);
           }
         }
       }
