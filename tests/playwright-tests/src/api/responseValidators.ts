@@ -10,7 +10,7 @@ export const expectStatus = <T>(expectedStatus: number): ResponseValidator<ApiRe
 
 export const validateResponseByStatus = <T>(): ResponseValidator<ApiResponse<T>> =>
   async (response: ApiResponse<T>): Promise<void> => {
-    console.info(`✅\t validateResponseByStatus response : ${response.data}`);
+    console.info(`✅\t validateResponseByStatus response : ${JSON.stringify(response.data)}`);
     if (response.status === 200) {
       expect(response.data).toBeDefined();
       expect(Array.isArray(response.data)).toBe(true);
