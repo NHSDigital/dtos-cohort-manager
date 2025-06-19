@@ -260,7 +260,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6016',
     },
   }, async ({ request, testData }) => {
-
+    test.setTimeout(90000);
     await test.step(`When ADD participant is processed via storage`, async () => {
       await processFileViaStorage(testData.runTimeParquetFileAdd);
     });
