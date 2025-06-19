@@ -9,6 +9,7 @@ using NHS.Screening.ReceiveCaasFile;
 using Model;
 using DataServices.Client;
 using HealthChecks.Extensions;
+using Microsoft.Extensions.Options;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -22,12 +23,10 @@ try
         .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
         .AddCachedDataService<ScreeningLkp>(config.ScreeningLkpDataServiceURL)
         .Build()
-    .ConfigureFunctionsWebApplication()
+    .ConfigureFunctionsWorkerDefaults()
 
     .ConfigureServices(services =>
     {
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
         services.AddSingleton<IReceiveCaasFileHelper, ReceiveCaasFileHelper>();
         services.AddScoped<IProcessCaasFile, ProcessCaasFile>(); //Do not change the lifetime of this.
         services.AddSingleton<ICreateResponse, CreateResponse>();
@@ -39,15 +38,16 @@ try
         services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddTransient<IBlobStorageHelper, BlobStorageHelper>();
         services.AddTransient<ICopyFailedBatchToBlob, CopyFailedBatchToBlob>();
+
         services.AddScoped<IValidateDates, ValidateDates>();
         services.AddScoped<IQueueClientFactory, QueueClientFactory>();
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
+    .AddHttpClient()
     .AddAzureQueues()
     .AddExceptionHandler()
     .AddDatabaseConnection()
-    .AddHttpClient()
     .Build();
 
     await host.RunAsync();

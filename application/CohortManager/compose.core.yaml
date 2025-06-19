@@ -41,6 +41,21 @@ services:
       - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
       - ASPNETCORE_URLS=http://*:7058
 
+  process-nems-update:
+    container_name: process-nems-update
+    image: cohort-manager-process-nems-update
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: NemsSubscriptionService/ProcessNemsUpdate/Dockerfile
+    profiles: [non-essential]
+    environment:
+      - ASPNETCORE_URLS=http://*:9083
+      - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
+      - NemsMessages="nems-messages"
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+
   receive-caas-file:
     container_name: receive-caas-file
     image: cohort-manager-receive-caas-file
@@ -244,7 +259,6 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - BsSelectGpPracticeUrl=http://bs-select-gp-practice-data-service:7998/api/BsSelectGpPracticeDataService
       - BsSelectOutCodeUrl=http://bs-select-outcode-data-service:7881/api/BsSelectOutCodeDataService
-      - LanguageCodeUrl=http://language-code-data-service:7997/api/LanguageCodeDataService
       - CurrentPostingUrl=http://current-posting-data-service:7996/api/CurrentPostingDataService
       - ExcludedSMULookupUrl=http://excluded-smu-data-service:7995/api/ExcludedSMUDataService
       - BlobContainerName=rules
@@ -277,32 +291,23 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsParticipantURL=https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient
 
-  nems-subscribe:
-    container_name: nems-subscribe
-    image: cohort-manager-nems-subscribe
+  manage-nems-subscription:
+    container_name: manage-nems-subscription
+    image: cohort-manager-manage-nems-subscription
     networks: [cohman-network]
     build:
       context: ./src/Functions/
-      dockerfile: DemographicServices/NEMSSubscribe/Dockerfile
-    profiles: [not-implemented]
+      dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile
+    profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:9081
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
-
-  nems-unsubscribe:
-    container_name: nems-unsubscribe
-    image: cohort-manager-nems-unsubscribe
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: DemographicServices/NEMSUnSubscription/Dockerfile
-    profiles: [not-implemented]
-    environment:
-      - ASPNETCORE_URLS=http://*:9082
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - NemsFhirEndpoint=https://localhost:8080/fhir
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+    ports:
+      - "9081:9081"
 
   durable-demographic-function:
     container_name: durable-demographic-function
@@ -320,19 +325,19 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - AcceptableLatencyThresholdMs=500
 
-    # UI
-  web:
-    container_name: web
-    build:
-      context: ./src/Web
-      dockerfile: Dockerfile
-    restart: always
-    profiles: [ui]
-    ports:
-      - "3000:3000"
+  # Service Now Integration Service
+  receive-service-now-message:
+    container_name: receive-service-now-message
     networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: ServiceNowIntegrationService/ReceiveServiceNowMessage/Dockerfile
+    ports:
+      - 7912:7912
+    profiles: [not-implemented]
+    environment:
+      - ASPNETCORE_URLS=http://*:7912
 
-    #Service Now Integration
   send-servicenow-message:
     container_name: send-servicenow-message
     image: cohort-manager-send-servicenow-message
@@ -345,6 +350,18 @@ services:
       - ASPNETCORE_URLS=http://*:9092
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+
+  # UI
+  web:
+    container_name: web
+    build:
+      context: ./src/Web
+      dockerfile: Dockerfile
+    restart: always
+    profiles: [ui]
+    ports:
+      - "3000:3000"
+    networks: [cohman-network]
 
 networks:
   cohman-network:
