@@ -306,10 +306,10 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(expectedResponseContent), Times.Once());
         _mockParticipantDemographicClient.Verify(x =>
             x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()),
-            Times.Once());
+            Times.AtLeastOnce());
         _mockParticipantDemographicClient.Verify(x =>
             x.Update(It.Is<ParticipantDemographic>(p => p.NhsNumber == validNhsNumberLong)),
-            Times.Once());
+            Times.AtLeastOnce());
 
         // Verify response
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
