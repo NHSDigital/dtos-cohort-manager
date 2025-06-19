@@ -305,7 +305,7 @@ test.describe.serial('@regression @api Negative - Cohort Distribution Data Retri
 
       const requestIdNotExists = '81b723eb-8b40-46bc-84dd-2459c22d69be';
 
-      const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: requestIdNotExists });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: requestIdNotExists, rowCount: 1 });
 
       const genericValidations = composeValidators(
         expectStatus(400),
