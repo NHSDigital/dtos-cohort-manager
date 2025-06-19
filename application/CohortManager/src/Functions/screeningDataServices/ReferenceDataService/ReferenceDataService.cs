@@ -10,7 +10,8 @@ using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
 
 /// <summary>
-/// Reference Data Service used
+/// Reference Data Service
+/// This function exposes a number of endpoints for Reference data used by the Lookup Validation Rules
 /// </summary>
 public class ReferenceDataService
 {
