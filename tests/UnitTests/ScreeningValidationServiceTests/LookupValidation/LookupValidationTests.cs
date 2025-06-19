@@ -55,7 +55,6 @@ public class LookupValidationTests
 
 
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
-        _lookupValidation.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
         _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(true);
 
         // Test data setup
@@ -189,110 +188,6 @@ public class LookupValidationTests
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         _exceptionHandler.Verify(handler => handler.CreateValidationExceptionLog(
             It.IsAny<IEnumerable<RuleResultTree>>(),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
-    [DataRow(Actions.Amended, "")]
-    [DataRow(Actions.Amended, null)]
-    [DataRow(Actions.Amended, " ")]
-    [DataRow(Actions.Removed, "")]
-    [DataRow(Actions.Removed, null)]
-    [DataRow(Actions.Removed, " ")]
-    public async Task Run_NullNhsNumber_ReturnCreatedAndCreateException(string recordType, string nhsNumber)
-    {
-        // Arrange
-        SetupRules("LookupRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _sut.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "22.ParticipantMustExist.CaaS.Fatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow(Actions.New, "")]
-    [DataRow(Actions.New, null)]
-    [DataRow(Actions.New, " ")]
-    [DataRow(Actions.Amended, "0000000000")]
-    [DataRow(Actions.Amended, "9999999999")]
-    [DataRow(Actions.Removed, "0000000000")]
-    [DataRow(Actions.Removed, "9999999999")]
-    public async Task Run_Should_Not_Create_Exception_When_ParticipantMustExist_Rule_Passes(string recordType, string nhsNumber)
-    {
-        // Arrange
-        SetupRules("LookupRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        await _sut.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "22.ParticipantMustExist")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
-    [DataRow("0000000000")]
-    [DataRow("9999999999")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_ParticipantMustNotExist_Rule_Fails(string nhsNumber)
-    {
-        // Arrange
-        SetupRules("LookupRules");
-        _requestBody.NewParticipant.RecordType = Actions.New;
-        _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _sut.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "47.ParticipantMustNotExist.CaaS.Fatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow(Actions.New, "")]
-    [DataRow(Actions.New, null)]
-    [DataRow(Actions.New, " ")]
-    [DataRow(Actions.Amended, "0000000000")]
-    [DataRow(Actions.Amended, "9999999999")]
-    [DataRow(Actions.Removed, "0000000000")]
-    [DataRow(Actions.Removed, "9999999999")]
-    public async Task Run_Should_Not_Create_Exception_When_ParticipantMustNotExist_Rule_Passes(string recordType, string nhsNumber)
-    {
-        // Arrange
-        SetupRules("LookupRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.ExistingParticipant.NhsNumber = nhsNumber;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        await _sut.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "47.ParticipantMustNotExist")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }

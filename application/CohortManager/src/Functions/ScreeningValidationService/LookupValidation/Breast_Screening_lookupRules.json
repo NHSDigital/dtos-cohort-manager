@@ -67,24 +67,6 @@
         }
       },
       {
-        "RuleName": "00.ValidateLanguageCode.NBO.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "languageCode",
-            "Expression": "newParticipant.PreferredLanguage"
-          }
-        ],
-        "Expression": "string.IsNullOrEmpty(languageCode) || dbLookup.ValidateLanguageCode(languageCode)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Invalid preferred language code\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "11.ValidateReasonForRemoval.NBO.NonFatal",
         "LocalParams": [
           {
@@ -97,33 +79,6 @@
           }
         ],
         "Expression": "newRecordType OR !reasonForRemovalIsLDNOrRC"
-      }
-    ]
-  },
-  {
-    "WorkflowName": "ADD",
-    "Rules": [
-      {
-        "RuleName": "47.ParticipantMustNotExist.CaaS.Fatal",
-        "Expression": "string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-      }
-    ]
-  },
-  {
-    "WorkflowName": "AMENDED",
-    "Rules": [
-      {
-        "RuleName": "22.ParticipantMustExist.CaaS.Fatal",
-        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
-      }
-    ]
-  },
-  {
-    "WorkflowName": "DEL",
-    "Rules": [
-      {
-        "RuleName": "22.ParticipantMustExist.CaaS.Fatal",
-        "Expression": "!string.IsNullOrWhiteSpace(existingParticipant.NhsNumber)"
       }
     ]
   }

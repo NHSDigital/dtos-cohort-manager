@@ -6,6 +6,7 @@ import { runnerBasedEpic1TestScenariosAmend } from '../e2e/epic1-highpriority-te
 import { runnerBasedEpic2TestScenariosAmend } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
 import { runnerBasedEpic3TestScenariosAmend } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
 import { runnerBasedEpic4dTestScenariosAmend } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
+import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 
 // Test Scenario Tags
 const smokeTestScenario = runnerBasedEpic123TestScenariosAddAmend;
@@ -47,7 +48,11 @@ test.beforeAll(async () => {
   await processFileViaStorage(runTimeParquetFile);
   await validateSqlDatabaseFromAPI(apiContext, addData.validations);
 
-  const runTimeParquetFileAmend = await createParquetFromJson(amendData.nhsNumbers, amendData.inputParticipantRecords, amendData.testFilesPath, "AMENDED", false);
+   const dateMap = generateDynamicDateMap();
+  const updatedParticipantRecordsAmend = replaceDynamicDatesInJson(amendData.inputParticipantRecords, dateMap);
+
+
+  const runTimeParquetFileAmend = await createParquetFromJson(amendData.nhsNumbers, updatedParticipantRecordsAmend, amendData.testFilesPath, "AMENDED", false);
   await processFileViaStorage(runTimeParquetFileAmend);
 });
 

@@ -6,6 +6,7 @@ import { runnerBasedEpic1TestScenariosAdd } from '../e2e/epic1-highpriority-test
 import { runnerBasedEpic2TestScenariosAdd } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
 import { runnerBasedEpic3TestScenariosAdd } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
 import { runnerBasedEpic4dTestScenariosAdd } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
+import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 
 // Test Scenario Tags
 const smokeTestScenario = runnerBasedEpic123TestScenariosAdd;
@@ -36,13 +37,17 @@ if (!scopedTestScenario) {
 
 let addData = getConsolidatedAllTestData(scopedTestScenario, "ADD");
 
-
 let apiContext: APIRequestContext;
 test.beforeAll(async () => {
   apiContext = await playwrightRequest.newContext();
   console.log(`Running ${TEST_TYPE} tests with scenario tags: ${scopedTestScenario}`);
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
-  const runTimeParquetFile = await createParquetFromJson(addData.nhsNumbers, addData.inputParticipantRecords, addData.testFilesPath, "ADD", false);
+
+
+  const dateMap = generateDynamicDateMap();
+  const updatedParticipantRecords = replaceDynamicDatesInJson(addData.inputParticipantRecords, dateMap);
+
+  const runTimeParquetFile = await createParquetFromJson(addData.nhsNumbers, updatedParticipantRecords, addData.testFilesPath, "ADD", false);
   await processFileViaStorage(runTimeParquetFile);
 });
 
