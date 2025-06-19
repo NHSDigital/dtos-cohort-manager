@@ -47,11 +47,12 @@ public class PdsDemographic : Demographic
             EmailAddressHomeFromDate = EmailAddressEffectiveFromDate,
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = IsInterpreterRequired?.ToLower() switch
-                                    {
-                                        "true" => 1,
-                                        "false" => 0,
-                                        _ => 0 // Default fallback (or throw an error)
-                                    }
+            {
+                "true" => 1,
+                "false" => 0,
+                null => throw new ArgumentNullException(nameof(IsInterpreterRequired)),
+                _ => throw new ArgumentException($"Invalid IsInterpreterRequired value '{IsInterpreterRequired}'. Must be 'true' or 'false'")
+            }
         };
     }
 
