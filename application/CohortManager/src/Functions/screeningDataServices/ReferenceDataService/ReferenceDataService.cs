@@ -74,13 +74,12 @@ public class ReferenceDataService
     {
         try
         {
-            _logger.LogInformation("C# HTTP trigger function processed a request.");
             var result = await handler(req, key);
             return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error has occurred ");
+            _logger.LogError(ex, "An error has occurred while processing a request to the Reference Data Service.");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, $"An error has occurred {ex.Message}");
         }
     }
