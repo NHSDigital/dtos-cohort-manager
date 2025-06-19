@@ -12,7 +12,7 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        services.AddHttpClient<ServiceNowMessageIntegratedHandler>();
+        // services.AddHttpClient<ServiceNowMessageHandler>();
 
     })
     .Build();

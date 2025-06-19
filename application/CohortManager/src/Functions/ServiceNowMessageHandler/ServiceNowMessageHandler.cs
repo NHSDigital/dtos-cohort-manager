@@ -15,10 +15,10 @@ using Microsoft.Extensions.Options;
 using NHS.CohortManager.ServiceNowMessageService.Models;
 using Common;
 
-public class ServiceNowMessageIntegratedHandler
+public class ServiceNowMessageHandler
     {
         private readonly HttpClient _httpClient;
-        private readonly ILogger<ServiceNowMessageIntegratedHandler> _logger;
+        private readonly ILogger<ServiceNowMessageHandler> _logger;
         private readonly SendServiceNowMsgConfig _config;
         private readonly ICreateResponse _createResponse;
 
@@ -26,9 +26,9 @@ public class ServiceNowMessageIntegratedHandler
         private static DateTime _lastTokenRefresh = DateTime.MinValue;
         private static readonly TimeSpan TokenExpiryBuffer = TimeSpan.FromMinutes(55);
 
-        public ServiceNowMessageIntegratedHandler(
+        public ServiceNowMessageHandler(
             IHttpClientFactory httpClientFactory,
-            ILogger<ServiceNowMessageIntegratedHandler> logger,
+            ILogger<ServiceNowMessageHandler> logger,
             IOptions<SendServiceNowMsgConfig> sendServiceNowMsgConfig,
             ICreateResponse createResponse)
         {
