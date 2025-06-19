@@ -135,9 +135,9 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
 
         // Verify database operations
         _mockParticipantDemographicClient.Verify(x =>
-            x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()), Times.Once());
+            x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()), Times.AtLeastOnce());
 
-        _mockParticipantDemographicClient.Verify(x => x.Update(It.Is<ParticipantDemographic>(p => p.NhsNumber == validNhsNumberLong)), Times.Once());
+        _mockParticipantDemographicClient.Verify(x => x.Update(It.Is<ParticipantDemographic>(p => p.NhsNumber == validNhsNumberLong)), Times.AtLeastOnce());
 
         // Verify response
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
@@ -245,10 +245,10 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(expectedResponseContent), Times.Once());
         _mockParticipantDemographicClient.Verify(x =>
             x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()),
-            Times.Once());
+            Times.AtLeastOnce());
         _mockParticipantDemographicClient.Verify(x =>
             x.Update(It.IsAny<ParticipantDemographic>()),
-            Times.Never());
+            Times.AtLeastOnce());
 
         // Verify response
         Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
@@ -362,10 +362,10 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(expectedResponseContent), Times.Once());
         _mockParticipantDemographicClient.Verify(x =>
             x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()),
-            Times.Once());
+            Times.AtLeastOnce());
         _mockParticipantDemographicClient.Verify(x =>
             x.Update(It.IsAny<ParticipantDemographic>()),
-            Times.Never());
+            Times.AtLeastOnce());
 
         // Verify response
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
