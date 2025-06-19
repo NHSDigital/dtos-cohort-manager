@@ -15,10 +15,10 @@ using Microsoft.Extensions.Options;
 using NHS.CohortManager.ServiceNowMessageService.Models;
 using Common;
 
-public class ServiceNowMsgHandler
+public class ServiceNowMessageIntegratedHandler
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<ServiceNowMsgHandler> _logger;
+    private readonly ILogger<ServiceNowMessageIntegratedHandler> _logger;
     private readonly SendServiceNowMsgConfig _config;
     private readonly ICreateResponse _createResponse;
 
@@ -26,9 +26,9 @@ public class ServiceNowMsgHandler
     private static DateTime _lastTokenRefresh = DateTime.MinValue;
     private static readonly TimeSpan TokenExpiryBuffer = TimeSpan.FromMinutes(55); // Assume 1hr expiry
 
-    public ServiceNowMsgHandler(
+    public ServiceNowMessageIntegratedHandler(
         IHttpClientFactory httpClientFactory,
-        ILogger<ServiceNowMsgHandler> logger,
+        ILogger<ServiceNowMessageIntegratedHandler> logger,
         IOptions<SendServiceNowMsgConfig> sendServiceNowMsgConfig,
         ICreateResponse createResponse)
     {
@@ -38,14 +38,14 @@ public class ServiceNowMsgHandler
         _createResponse = createResponse;
     }
 
-    [Function("ServiceNowMessageHandler")]
+    [Function("ServiceNowMessageIntegratedHandler")]
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", Route = "servicenow/{baseUrl?}/{profile?}/{sysId?}")] HttpRequestData req,
         string? baseUrl,
         string? profile,
         string? sysId)
     {
-        _logger.LogInformation("Triggered ServiceNowMessageHandler with method: {Method}", req.Method);
+        _logger.LogInformation("Triggered ServiceNowMessageIntegratedHandler with method: {Method}", req.Method);
 
         try
         {
@@ -58,7 +58,7 @@ public class ServiceNowMsgHandler
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occurred in ServiceNowMessageHandler.");
+            _logger.LogError(ex, "Exception occurred in ServiceNowMessageIntegratedHandler.");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An unexpected error occurred.");
         }
     }

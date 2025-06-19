@@ -245,8 +245,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReceiveServiceNowMessage", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendServiceNowMessageTests", "..\..\..\..\tests\UnitTests\SendServiceNowMessageTests\SendServiceNowMessageTests.csproj", "{10EADCB8-DF07-495F-8EBA-5A399962956D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceNowMessageHandler", "ServiceNowMessageHandler\ServiceNowMessageHandler.csproj", "{850D2798-BA23-4928-B4FA-07216ECCDDA0}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendServiceNowMessageHandlerTests", "..\..\..\..\tests\UnitTests\SendServiceNowMessageHandlerTests\SendServiceNowMessageHandlerTests.csproj", "{929843E4-8D8F-455B-8F88-770EB5DD38F3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateBlockedFlag", "ParticipantManagementServices\UpdateBlockedFlag\UpdateBlockedFlag.csproj", "{AE5EAAE6-E74E-4080-AED0-0CCC4A3EBBB2}"
@@ -268,6 +266,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessNemsUpdate", "NemsSubscriptionService\ProcessNemsUpdate\ProcessNemsUpdate.csproj", "{1538902B-C11F-492B-86A6-86A0DB72C761}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProcessNemsUpdateTests", "..\..\..\..\tests\UnitTests\NemsSubscriptionServiceTests\ProcessNemsUpdateTests\ProcessNemsUpdateTests.csproj", "{0F8F78E8-9DC7-4BF7-8BA8-E56A79615434}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceNowMessageHandler", "ServiceNowMessageIntegratedHandler\ServiceNowMessageHandler.csproj", "{D6E93521-5393-4C29-AE83-C16384429483}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -1527,18 +1527,6 @@ Global
 		{10EADCB8-DF07-495F-8EBA-5A399962956D}.Release|x64.Build.0 = Release|Any CPU
 		{10EADCB8-DF07-495F-8EBA-5A399962956D}.Release|x86.ActiveCfg = Release|Any CPU
 		{10EADCB8-DF07-495F-8EBA-5A399962956D}.Release|x86.Build.0 = Release|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Debug|x64.Build.0 = Debug|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Debug|x86.Build.0 = Debug|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Release|x64.ActiveCfg = Release|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Release|x64.Build.0 = Release|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Release|x86.ActiveCfg = Release|Any CPU
-		{850D2798-BA23-4928-B4FA-07216ECCDDA0}.Release|x86.Build.0 = Release|Any CPU
 		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -1647,6 +1635,18 @@ Global
 		{0F8F78E8-9DC7-4BF7-8BA8-E56A79615434}.Release|x64.Build.0 = Release|Any CPU
 		{0F8F78E8-9DC7-4BF7-8BA8-E56A79615434}.Release|x86.ActiveCfg = Release|Any CPU
 		{0F8F78E8-9DC7-4BF7-8BA8-E56A79615434}.Release|x86.Build.0 = Release|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Debug|x64.Build.0 = Debug|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Debug|x86.Build.0 = Debug|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Release|x64.ActiveCfg = Release|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Release|x64.Build.0 = Release|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Release|x86.ActiveCfg = Release|Any CPU
+		{D6E93521-5393-4C29-AE83-C16384429483}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

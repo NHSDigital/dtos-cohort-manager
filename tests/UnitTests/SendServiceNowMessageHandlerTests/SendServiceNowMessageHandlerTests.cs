@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.Tests.UnitTests.SendServiceNowMessageHandlerTests;
+namespace NHS.CohortManager.Tests.UnitTests.SendServiceNowMessageIntegratedHandlerTests;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -18,15 +18,15 @@ using NHS.CohortManager.ServiceNowIntegrationService;
 using Moq.Protected;
 
 [TestClass]
-public class ServiceNowMsgHandlerTests
+public class ServiceNowMessageIntegratedHandlerTests
 {
     private Mock<IHttpClientFactory> _httpClientFactoryMock;
-    private Mock<ILogger<ServiceNowMsgHandler>> _loggerMock;
+    private Mock<ILogger<ServiceNowMessageIntegratedHandler>> _loggerMock;
     private Mock<IOptions<SendServiceNowMsgConfig>> _optionsMock;
     private Mock<ICreateResponse> _createResponseMock;
     private Mock<FunctionContext> _contextMock;
     private Mock<HttpRequestData> _httpRequestMock;
-    private ServiceNowMsgHandler _handler;
+    private ServiceNowMessageIntegratedHandler _handler;
     private Mock<HttpMessageHandler> _httpMessageHandlerMock;
     private HttpClient _httpClient;
 
@@ -42,7 +42,7 @@ public class ServiceNowMsgHandlerTests
         _httpClientFactoryMock = new Mock<IHttpClientFactory>();
         _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient);
 
-        _loggerMock = new Mock<ILogger<ServiceNowMsgHandler>>();
+        _loggerMock = new Mock<ILogger<ServiceNowMessageIntegratedHandler>>();
         _optionsMock = new Mock<IOptions<SendServiceNowMsgConfig>>();
         _optionsMock.Setup(x => x.Value).Returns(new SendServiceNowMsgConfig
         {
@@ -56,7 +56,7 @@ public class ServiceNowMsgHandlerTests
 
         _createResponseMock = new Mock<ICreateResponse>();
 
-        _handler = new ServiceNowMsgHandler(
+        _handler = new ServiceNowMessageIntegratedHandler(
             _httpClientFactoryMock.Object,
             _loggerMock.Object,
             _optionsMock.Object,
