@@ -83,19 +83,20 @@ routes = {
         destination_ports     = ["443"]
       }
     ]
-    route_table_routes_to_audit = [
+    route_table_core = [
       {
-        name                   = "CohmanToAudit"
-        address_prefix         = "10.102.0.0/16"
+        name                   = "EgressViaHubFirewall"
+        address_prefix         = "0.0.0.0/0"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
-    route_table_routes_from_audit = [{
-      name                   = "AuditToCohman"
-      address_prefix         = "10.101.0.0/16"
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
+    route_table_audit = [
+      {
+        name                   = "AuditToCohman"
+        address_prefix         = "10.101.0.0/16"
+        next_hop_type          = "VirtualAppliance"
+        next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
   }
@@ -435,11 +436,10 @@ function_apps = {
       }
     }
 
-    BlockParticipant = {
-      name_suffix            = "block-participant"
-      function_endpoint_name = "BlockParticipant"
+    update-blocked-flag = {
+      name_suffix            = "update-blocked-flag"
+      function_endpoint_name = "UpdateBlockedFlag"
       app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
           env_var_name     = "ParticipantDemographicDataServiceURL"
@@ -1059,6 +1059,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
       env_vars_static = {
