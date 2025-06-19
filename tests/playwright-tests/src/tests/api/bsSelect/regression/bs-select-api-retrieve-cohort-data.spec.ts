@@ -217,7 +217,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
 
           const expectedRowCount = 2;
-          const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: currentRequestId });
+          const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: currentRequestId, rowCount: 1 });
 
           const genericValidations = composeValidators(
             expectStatus(200),
@@ -244,7 +244,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
         if (nextRequestId) {
 
 
-          const nextResponse = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: nextRequestId });
+          const nextResponse = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: nextRequestId, rowCount: 1 });
 
 
           if (nextResponse.status == 200) {
