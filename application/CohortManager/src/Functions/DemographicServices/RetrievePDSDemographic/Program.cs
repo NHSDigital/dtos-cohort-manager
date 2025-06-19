@@ -16,6 +16,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("RetrievePdsDemographic");
     })
+    .AddTelemetry()
     .AddHttpClient()
     .Build();
 

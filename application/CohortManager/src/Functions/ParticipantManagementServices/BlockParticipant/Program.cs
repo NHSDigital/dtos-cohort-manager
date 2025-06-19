@@ -13,10 +13,12 @@ var host = new HostBuilder()
         .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
         .AddDataService<ParticipantDemographic>(config.ParticipantDemographicDataServiceURL)
         .Build()
-    .ConfigureServices(services => {
+    .ConfigureServices(services =>
+    {
         // Register health checks
         services.AddBasicHealthCheck("CheckParticipantExists");
     })
+    .AddTelemetry()
     .Build();
 
 await host.RunAsync();

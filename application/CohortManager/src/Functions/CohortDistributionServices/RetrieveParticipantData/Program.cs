@@ -22,6 +22,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddDatabaseHealthCheck("RetrieveParticipantData");
     })
+    .AddTelemetry()
     .AddDatabaseConnection()
     .AddExceptionHandler()
     .AddHttpClient()

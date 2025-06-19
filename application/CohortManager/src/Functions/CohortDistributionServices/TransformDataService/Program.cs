@@ -25,6 +25,7 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
         // Register health checks
         services.AddDatabaseHealthCheck("TransformDataService");
     })
+    .AddTelemetry()
     .AddDatabaseConnection()
     .AddExceptionHandler()
     .AddHttpClient()

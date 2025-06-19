@@ -26,6 +26,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddDatabaseHealthCheck("GetValidationExceptions");
     })
+    .AddTelemetry()
     .AddDatabaseConnection()
     .AddExceptionHandler()
     .Build();

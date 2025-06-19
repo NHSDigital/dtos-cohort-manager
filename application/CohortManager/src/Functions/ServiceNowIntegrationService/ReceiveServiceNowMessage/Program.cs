@@ -9,6 +9,7 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
     })
+    .AddTelemetry()
     .Build();
 
 await host.RunAsync();

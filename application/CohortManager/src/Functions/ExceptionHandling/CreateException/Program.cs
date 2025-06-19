@@ -10,10 +10,10 @@ using NHS.Screening.CreateException;
 var host = new HostBuilder()
     .AddConfiguration<CreateExceptionConfig>(out CreateExceptionConfig config)
     .AddDataServicesHandler()
-    .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
-    .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
-    .AddDataService<GPPractice>(config.GPPracticeDataServiceURL)
-    .Build()
+        .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
+        .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
+        .AddDataService<GPPractice>(config.GPPracticeDataServiceURL)
+        .Build()
     .ConfigureFunctionsWorkerDefaults(_ => { }, opts => opts.EnableUserCodeException = true)
     .ConfigureServices(services =>
     {

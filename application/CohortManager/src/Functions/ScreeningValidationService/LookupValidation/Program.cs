@@ -29,6 +29,7 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
         // Register health checks
         services.AddBasicHealthCheck("LookupValidation");
     })
+    .AddTelemetry()
     .AddDatabaseConnection()
     .AddExceptionHandler()
     .AddHttpClient()
