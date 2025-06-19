@@ -30,3 +30,27 @@ export const deleteParticipant = (
   const endpoint = `${config.endpointBsSelectDeleteParticipant}${config.routeBsSelectDeleteParticipant}`;
   return apiClient.post(request, endpoint, payload);
 };
+
+export const BlockParticipant = (
+  request: APIRequestContext,
+  payload: {
+    NhsNumber: string;
+    FamilyName: string;
+    DateOfBirth: string;
+  }
+): Promise<ApiResponse> => {
+  const endpoint = `${config.endpointBsSelectBlockParticipant}${config.routeBsSelectBlockParticipant}`;
+  return apiClient.postWithQuery(request, endpoint, payload);
+};
+
+export const UnblockParticipant = (
+  request: APIRequestContext,
+  payload: {
+    NhsNumber: string;
+    FamilyName: string;
+    DateOfBirth: string;
+  }
+): Promise<ApiResponse> => {
+  const endpoint = `${config.endpointBsSelectUnblockParticipant}${config.routeBsSelectUnblockParticipant}`;
+  return apiClient.postWithQuery(request, endpoint, payload);
+};

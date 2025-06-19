@@ -24,3 +24,14 @@ export const post = async <T = any>(
   const response = await request.post(endpoint, { data, headers });
   return parseResponse<T>(response);
 };
+
+export const postWithQuery = async <T = any>(
+  request: APIRequestContext,
+  endpoint: string,
+  params?: QueryParams,
+  headers?: Headers
+): Promise<ApiResponse<T>> => {
+  const url = buildUrl(endpoint, params);
+  const response = await request.post(url, { headers });
+  return parseResponse<T>(response);
+};
