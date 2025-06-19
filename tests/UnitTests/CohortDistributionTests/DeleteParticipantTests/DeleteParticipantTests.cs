@@ -175,4 +175,113 @@ public class DeleteParticipantTests
 
         _cohortDistributionClientMock.Verify(x => x.Delete(It.IsAny<string>()), Times.Once);
     }
+
+    [TestMethod]
+    public async Task Preview_InvalidRequest_ReturnsBadRequest()
+    {
+        // Arrange
+        _request = _setupRequest.Setup(JsonSerializer.Serialize("invalid"));
+
+        // Act
+        var result = await _sut.PreviewAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Preview_GetByFilterThrows_ReturnsInternalServerError()
+    {
+        // Arrange
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
+
+        _cohortDistributionClientMock
+            .Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
+            .ThrowsAsync(new Exception("the function failed"));
+
+        // Act
+        var result = await _sut.PreviewAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Preview_NoMatchingParticipants_ReturnsNotFound()
+    {
+        // Arrange
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
+
+        var returnedParticipants = new List<CohortDistribution>
+        {
+            new CohortDistribution
+            {
+                NHSNumber = long.Parse(_requestBody.NhsNumber ?? "0"),
+                FamilyName = _requestBody.FamilyName,
+                DateOfBirth = _requestBody.DateOfBirth.Value.AddDays(-1)
+            }
+        };
+
+        _cohortDistributionClientMock
+            .Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
+            .ReturnsAsync(returnedParticipants);
+
+        // Act
+        var result = await _sut.PreviewAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Preview_MatchingParticipantsFound_ReturnsOkWithData()
+    {
+        // Arrange
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(_requestBody));
+
+        var participantData = new List<CohortDistribution>
+        {
+            new CohortDistribution
+            {
+                CohortDistributionId = 1,
+                FamilyName = _requestBody.FamilyName,
+                NHSNumber = long.Parse(_requestBody.NhsNumber),
+                DateOfBirth = _requestBody.DateOfBirth.Value
+            },
+            new CohortDistribution
+            {
+                CohortDistributionId = 2,
+                FamilyName = _requestBody.FamilyName,
+                NHSNumber = long.Parse(_requestBody.NhsNumber),
+                DateOfBirth = _requestBody.DateOfBirth.Value
+            }
+        };
+
+        _cohortDistributionClientMock
+            .Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
+            .ReturnsAsync(participantData);
+
+        string responseContent = string.Empty;
+
+        _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string body) =>
+            {
+                responseContent = body;
+                var response = req.CreateResponse(statusCode);
+                response.WriteString(body);
+                return response;
+            });
+
+        // Act
+        var result = await _sut.PreviewAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.IsFalse(string.IsNullOrWhiteSpace(responseContent));
+
+        var returnedParticipants = JsonSerializer.Deserialize<List<CohortDistribution>>(responseContent);
+        Assert.IsNotNull(returnedParticipants);
+        Assert.AreEqual(2, returnedParticipants.Count);
+        Assert.IsTrue(returnedParticipants.All(p => p.FamilyName == _requestBody.FamilyName));
+    }
 }

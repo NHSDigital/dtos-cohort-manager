@@ -11,8 +11,9 @@ features = {
   public_network_access_enabled        = false
 }
 
+# these will be merged with compliance tags in locals.tf
 tags = {
-  Project = "Cohort-Manager"
+  Environment = "development"
 }
 
 regions = {
@@ -307,6 +308,30 @@ function_apps = {
       }
     }
 
+    ProcessNemsUpdate = {
+      name_suffix                  = "process-nems-update"
+      function_endpoint_name       = "ProcessNemsUpdate"
+      app_service_plan_key         = "DefaultPlan"
+      key_vault_url                = "KeyVaultConnectionString"
+      storage_account_env_var_name = "caasfolder_STORAGE"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "RetrievePdsDemographicURL"
+          function_app_key = "RetrievePDSDemographic"
+        }
+      ],
+      storage_containers = [
+        {
+          env_var_name   = "NemsMessages"
+          container_name = "nems-messages"
+        }
+      ]
+    }
+
     AddParticipant = {
       name_suffix                  = "add-participant"
       function_endpoint_name       = "addParticipant"
@@ -563,10 +588,6 @@ function_apps = {
           function_app_key = "BsSelectOutcodeDataService"
         },
         {
-          env_var_name     = "LanguageCodeUrl"
-          function_app_key = "LanguageCodeDataService"
-        },
-        {
           env_var_name     = "CurrentPostingUrl"
           function_app_key = "CurrentPostingDataService"
         },
@@ -636,8 +657,8 @@ function_apps = {
           function_app_key = "BsSelectGpPracticeDataService"
         },
         {
-          env_var_name     = "CohortDistributionDataServiceUrl"
-          function_app_key = "CohortDistributionDataService"
+          env_var_name     = "LanguageCodeUrl"
+          function_app_key = "LanguageCodeDataService"
         }
       ]
       env_vars_static = {
@@ -1044,9 +1065,25 @@ function_apps = {
       }
     }
 
-    NemsSubscriptionDataService = {
-      name_suffix            = "nems-subscription-data-service"
-      function_endpoint_name = "NemsSubscriptionDataService"
+    ManageNemsSubscription = {
+      name_suffix            = "manage-nems-subscription"
+      function_endpoint_name = "ManageNemsSubscription"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
+    }
+
+    ReferenceDataService = {
+      name_suffix            = "reference-data-service"
+      function_endpoint_name = "ReferenceDataService"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
@@ -1078,22 +1115,9 @@ function_apps = {
           function_app_key = "RetrievePDSDemographic"
         }
       ]
-    }
-
-    NemsUnsubscribe = {
-      name_suffix            = "nems-unsubscribe"
-      function_endpoint_name = "NemsUnsubscribe"
-      app_service_plan_key   = "DefaultPlan"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "ParticipantDemographicDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
-        }
-      ]
+      env_vars_static = {
+        NemsFhirEndpoint = "https://example.com"
+      }
     }
 
     NemsMeshRetrieval = {
