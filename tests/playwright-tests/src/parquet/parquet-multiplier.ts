@@ -10,7 +10,7 @@ export async function createParquetFromJson(
 ): Promise<string> {
   try {
     const reader = await parquet.ParquetReader.openFile(path.join(__dirname, `schema.parquet`));
-    const outputFilePath = `${testFilesPath}${recordType}${nhsNumbers.length}_-_CAAS_BREAST_SCREENING_COHORT.parquet`;
+    const outputFilePath = `${testFilesPath}${recordType}_-_CAAS_BREAST_SCREENING_COHORT.parquet`;
     const schema = reader.getSchema();
 
     await reader.close();
