@@ -28,9 +28,9 @@ public class TransformDataServiceTests
     private readonly TransformDataService _function;
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
-    private readonly ITransformReasonForRemoval _transformReasonForRemoval;
-    private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceClient = new();
     private readonly Mock<ITransformDataLookupFacade> _transformLookups = new();
+    private readonly ITransformReasonForRemoval _transformReasonForRemoval;
+
     public TransformDataServiceTests()
     {
         _request = new Mock<HttpRequestData>(_context.Object);
@@ -63,10 +63,11 @@ public class TransformDataServiceTests
         _transformLookups.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(true);
         _transformLookups.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns("ELD");
         _transformLookups.Setup(x => x.GetBsoCodeUsingPCP(It.IsAny<string>())).Returns("ELD");
+        _transformLookups.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
 
         _transformReasonForRemoval = new TransformReasonForRemoval(_handleException.Object, _transformLookups.Object);
 
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval, _transformLookups.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {

@@ -474,6 +474,7 @@ variable "storage_accounts" {
 variable "tags" {
   description = "Default tags to be applied to resources"
   type        = map(string)
+  default = {}
 }
 
 variable "function_app_slots" {

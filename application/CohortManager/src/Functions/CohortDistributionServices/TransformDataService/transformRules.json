@@ -561,6 +561,35 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "00.ValidateLanguageCode",
+        "LocalParams": [
+          {
+            "Name": "languageCode",
+            "Expression": "participant.PreferredLanguage"
+          }
+        ],
+        "Expression": "!(string.IsNullOrEmpty(languageCode) || dbLookup.ValidateLanguageCode(languageCode))",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "PreferredLanguage",
+                  "value": "null"
+                },
+                {
+                  "isExpression": false,
+                  "field": "IsInterpreterRequired",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        }
       }
     ]
   }

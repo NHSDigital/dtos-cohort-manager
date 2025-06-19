@@ -15,7 +15,7 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
         .AddDataServiceStaticCachedClient<BsSelectOutCode>(config.BsSelectOutCodeUrl)
         .AddDataServiceStaticCachedClient<BsSelectGpPractice>(config.BsSelectGpPracticeUrl)
-        .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceUrl)
+        .AddDataServiceStaticCachedClient<LanguageCode>(config.LanguageCodeUrl)
         .Build()
     .ConfigureServices(services =>
     {

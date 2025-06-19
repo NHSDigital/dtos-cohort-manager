@@ -12,7 +12,7 @@ features = {
 }
 
 tags = {
-  Project = "Cohort-Manager"
+  Environment = "integration"
 }
 
 regions = {
@@ -588,10 +588,6 @@ function_apps = {
           function_app_key = "BsSelectOutcodeDataService"
         },
         {
-          env_var_name     = "LanguageCodeUrl"
-          function_app_key = "LanguageCodeDataService"
-        },
-        {
           env_var_name     = "CurrentPostingUrl"
           function_app_key = "CurrentPostingDataService"
         },
@@ -659,6 +655,10 @@ function_apps = {
         {
           env_var_name     = "BsSelectGpPracticeUrl"
           function_app_key = "BsSelectGpPracticeDataService"
+        },
+        {
+          env_var_name     = "LanguageCodeUrl"
+          function_app_key = "LanguageCodeDataService"
         },
         {
           env_var_name     = "CohortDistributionDataServiceUrl"
@@ -1069,26 +1069,11 @@ function_apps = {
       }
     }
 
-    NemsSubscriptionDataService = {
-      name_suffix            = "nems-subscription-data-service"
-      function_endpoint_name = "NemsSubscriptionDataService"
+    ManageNemsSubscription = {
+      name_suffix            = "manage-nems-subscription"
+      function_endpoint_name = "ManageNemsSubscription"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
-      env_vars_static = {
-        AcceptableLatencyThresholdMs = "500"
-      }
-    }
-
-    NemsSubscribe = {
-      name_suffix            = "nems-subscribe"
-      function_endpoint_name = "NemsSubscribe"
-      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1103,22 +1088,9 @@ function_apps = {
           function_app_key = "RetrievePDSDemographic"
         }
       ]
-    }
-
-    NemsUnsubscribe = {
-      name_suffix            = "nems-unsubscribe"
-      function_endpoint_name = "NemsUnsubscribe"
-      app_service_plan_key   = "DefaultPlan"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "ParticipantDemographicDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
-        }
-      ]
+      env_vars_static = {
+        NemsFhirEndpoint = "https://example.com"
+      }
     }
 
     NemsMeshRetrieval = {

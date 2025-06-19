@@ -1,20 +1,22 @@
-using DataServices.Client;
+using DataServices.Core;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Common;
 using NHS.CohortManager.DemographicServices;
+using DataServices.Database;
+using Azure.Data.Tables;
 
 var host = new HostBuilder()
-    .AddConfiguration<NEMSSubscribeConfig>(out NEMSSubscribeConfig config)
-    .AddDataServicesHandler()
-    .Build()
+    .AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config)
     .ConfigureFunctionsWebApplication()
+    .AddDataServicesHandler<DataServicesContext>()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddScoped<NemsSubscriptionManager>();
         // Register health checks
-        services.AddBasicHealthCheck("NEMSSubscription");
+        services.AddDatabaseHealthCheck("NEMSSubscription");
     })
     .AddHttpClient()
     .Build();
