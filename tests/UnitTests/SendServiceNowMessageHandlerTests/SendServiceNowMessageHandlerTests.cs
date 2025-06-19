@@ -14,7 +14,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NHS.CohortManager.ServiceNowMessageService.Models;
-using NHS.CohortManager.ServiceNowMessageHandler;
+using NHS.CohortManager.ServiceNowIntegrationService;
 using Moq.Protected;
 
 [TestClass]

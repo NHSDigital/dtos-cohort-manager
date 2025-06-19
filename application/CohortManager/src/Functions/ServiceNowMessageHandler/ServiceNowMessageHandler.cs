@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.ServiceNowMessageHandler;
+namespace NHS.CohortManager.ServiceNowIntegrationService;
 
 using System;
 using System.IO;
