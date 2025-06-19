@@ -49,9 +49,9 @@ public class ServiceNowMessageIntegratedHandlerTests
             EndpointPath = "api/now/table/incident",
             Definition = "change_request",
             AccessToken = "initial-token",
-            UpdateEndpoint = "dummy-endpoint",             // ✅ Required
-            ServiceNowBaseUrl = "instance.service-now.com",// ✅ Required
-            Profile = "prod"                               // ✅ Required
+            UpdateEndpoint = "dummy-endpoint",
+            ServiceNowBaseUrl = "instance.service-now.com",
+            Profile = "prod"
         });
 
         _createResponseMock = new Mock<ICreateResponse>();
@@ -75,7 +75,7 @@ public class ServiceNowMessageIntegratedHandlerTests
 
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(requestBody));
         _httpRequestMock.Setup(r => r.Body).Returns(stream);
-        _httpRequestMock.Setup(r => r.Method).Returns("PUT"); // ✅ IMPORTANT!
+        _httpRequestMock.Setup(r => r.Method).Returns("PUT");
 
         _httpMessageHandlerMock.Protected()
             .SetupSequence<Task<HttpResponseMessage>>("SendAsync",
