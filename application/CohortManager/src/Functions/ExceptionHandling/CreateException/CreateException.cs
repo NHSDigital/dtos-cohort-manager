@@ -9,7 +9,7 @@ using System.Text.Json;
 using Model;
 using Common;
 using Data.Database;
-using DataServices.Client;
+using Azure.Messaging.ServiceBus;
 
 public class CreateException
 {
@@ -54,5 +54,15 @@ public class CreateException
 
         _logger.LogError("The exception record was not inserted into the database: {Exception}", exception);
         return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+    }
+
+
+    [Function("CreateExceptionServiceBuss")]
+    public async Task ServiceBusMessageActionsFunction(
+    [ServiceBusTrigger("queue", Connection = "AzureWebJobsStorage", AutoCompleteMessages = false)]
+    ServiceBusReceivedMessage message,
+    ServiceBusMessageActions messageActions)
+    {
+        await messageActions.CompleteMessageAsync(message);
     }
 }
