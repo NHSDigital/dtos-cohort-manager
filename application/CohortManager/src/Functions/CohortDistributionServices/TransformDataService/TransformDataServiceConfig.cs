@@ -11,7 +11,5 @@ public class TransformDataServiceConfig
     [Required]
     public string BsSelectGpPracticeUrl { get; set; }
     [Required]
-    public string CohortDistributionDataServiceUrl { get; set; }
-    [Required]
     public string LanguageCodeUrl { get; set; }
 }
