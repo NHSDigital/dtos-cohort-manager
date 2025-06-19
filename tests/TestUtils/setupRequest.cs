@@ -17,8 +17,7 @@ public class SetupRequest
         _request = new Mock<HttpRequestData>(_context.Object);
     }
 
-    public Mock<HttpRequestData> Setup(string? json = null, NameValueCollection? parameters = null,
-                                      HttpMethod? method = null)
+    public Mock<HttpRequestData> Setup(string? json = null)
     {
         if (json == null)
         {
@@ -32,16 +31,6 @@ public class SetupRequest
             _request.Setup(r => r.Body).Returns(bodyStream);
         }
 
-        if (parameters != null)
-        {
-            _request.Setup(r => r.Query).Returns(parameters);
-        }
-
-        if (method != null)
-        {
-            _request.Setup(r => r.Method).Returns(method.Method);
-        }
-        
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
             var response = new Mock<HttpResponseData>(_context.Object);
@@ -52,5 +41,37 @@ public class SetupRequest
         });
 
         return _request;
+    }
+
+    public Mock<HttpRequestData> Setup(string? json = null, NameValueCollection urlQueries = null)
+    {
+        if (json == null)
+        {
+            _request.Setup(r => r.Body).Returns((MemoryStream)null);
+        }
+        else
+        {
+            var byteArray = Encoding.ASCII.GetBytes(json);
+            var bodyStream = new MemoryStream(byteArray);
+
+            _request.Setup(r => r.Body).Returns(bodyStream);
+        }
+        if (urlQueries != null)
+        {
+            _request.Setup(r => r.Query).Returns(urlQueries);
+        }
+
+        _request.Setup(r => r.CreateResponse()).Returns(() =>
+        {
+            var response = new Mock<HttpResponseData>(_context.Object);
+            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
+            response.SetupProperty(r => r.StatusCode);
+            response.SetupProperty(r => r.Body, new MemoryStream());
+
+            return response.Object;
+        });
+
+        return _request;
+
     }
 }

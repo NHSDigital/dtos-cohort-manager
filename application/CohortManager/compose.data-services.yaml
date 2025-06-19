@@ -1,6 +1,19 @@
 name: cohort-manager
 
-services: 
+services:
+  gppractice-data-service:
+    container_name: gppractice-data-service
+    image: cohort-manager-gppractice-data-service
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/GPPractice/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7910
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - AcceptableLatencyThresholdMs=500
+
+
   exception-management-data-service:
     container_name: exception-management-data-service
     image: cohort-manager-exception-management-data-service
@@ -178,20 +191,6 @@ services:
       - ASPNETCORE_URLS=http://*:7990
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - AcceptableLatencyThresholdMs=500
-
-  reference-data-service:
-    container_name: reference-data-service
-    image: cohort-manager-reference-data-service
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: screeningDataServices/ReferenceDataService/Dockerfile
-    profiles: [non-essential]
-    environment:
-      - ASPNETCORE_URLS=http://*:7988
-      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - AcceptableLatencyThresholdMs=500
-
 
 networks:
   cohman-network:

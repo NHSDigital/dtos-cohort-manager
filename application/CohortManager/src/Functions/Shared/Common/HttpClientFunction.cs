@@ -3,7 +3,6 @@ namespace Common;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 public class HttpClientFunction : IHttpClientFunction
@@ -83,7 +82,7 @@ public class HttpClientFunction : IHttpClientFunction
         }
     }
 
-    public async Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid)
+    public async Task<HttpResponseMessage> PostNemsGet(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid)
     {
         using var client = _factory.CreateClient();
         client.BaseAddress = new Uri(url);

@@ -8,15 +8,11 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 {
     private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
     private readonly IDataServiceClient<BsSelectGpPractice> _bsSelectGPPracticeClient;
-    private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
-
     public TransformDataLookupFacade(IDataServiceClient<BsSelectOutCode> outcodeClient,
-                                    IDataServiceClient<BsSelectGpPractice> bsSelectGPPracticeClient,
-                                    IDataServiceClient<LanguageCode> languageCodeClient)
+                                    IDataServiceClient<BsSelectGpPractice> bsSelectGPPracticeClient)
     {
         _outcodeClient = outcodeClient;
         _bsSelectGPPracticeClient = bsSelectGPPracticeClient;
-        _languageCodeClient = languageCodeClient;
     }
 
     public bool ValidateOutcode(string postcode)
@@ -29,19 +25,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
         return result != null;
     }
 
-    /// <summary>
-    /// Used in rule 00 in the transform rules. Validates the participants preferred language code.
-    /// </summary>
-    /// <param name="languageCode">The participant's preferred language code.</param>
-    /// <returns>bool, whether or not the language code exists in the DB.<returns>
-    public bool ValidateLanguageCode(string languageCode)
-    {
-        var result = _languageCodeClient.GetSingle(languageCode).Result;
-        return result != null;
-    }
-
-    public string GetBsoCode(string postcode)
-    {
+    public string GetBsoCode(string postcode){
         string outcode = ValidationHelper.ParseOutcode(postcode)
             ?? throw new TransformationException("Postcode format invalid");
 

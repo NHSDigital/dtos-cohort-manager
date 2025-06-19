@@ -48,7 +48,7 @@ module "linux_web_app" {
   worker_32bit               = var.linux_web_app.worker_32bit
 
   tags = merge(
-    #var.tags,
+    var.tags,
     # These special tags are necessary to enable Application Insights since the azurerm API does not currently offer a way to do it
     {
       "hidden-link: /app-insights-resource-id"         = data.azurerm_application_insights.ai.id

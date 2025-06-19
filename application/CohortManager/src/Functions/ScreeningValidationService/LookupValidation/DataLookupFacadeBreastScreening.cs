@@ -10,6 +10,7 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
     private readonly ILogger<DataLookupFacadeBreastScreening> _logger;
     private readonly IDataServiceClient<BsSelectGpPractice> _gpPracticeServiceClient;
     private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
+    private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
     private readonly IDataServiceClient<CurrentPosting> _currentPostingClient;
     private readonly IDataServiceClient<ExcludedSMULookup> _excludedSMUClient;
     private readonly string[] allPossiblePostingCategories = ["ENGLAND", "IOM", "DMS"];
@@ -20,12 +21,14 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
         ILogger<DataLookupFacadeBreastScreening> logger,
         IDataServiceClient<BsSelectGpPractice> gpPracticeClient,
         IDataServiceClient<BsSelectOutCode> outcodeClient,
+        IDataServiceClient<LanguageCode> languageCodeClient,
         IDataServiceClient<CurrentPosting> currentPostingClient,
         IDataServiceClient<ExcludedSMULookup> excludedSMUClient
     )
     {
         _logger = logger;
         _gpPracticeServiceClient = gpPracticeClient;
+        _languageCodeClient = languageCodeClient;
         _outcodeClient = outcodeClient;
         _currentPostingClient = currentPostingClient;
         _excludedSMUClient = excludedSMUClient;
@@ -55,6 +58,17 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
         _logger.LogInformation("Validating Outcode: {Outcode}", outcode);
         var result = _outcodeClient.GetSingle(outcode).Result;
 
+        return result != null;
+    }
+    /// <summary>
+    /// Used in rule 00 in the lookup rules. Validates the participants preferred language code.
+    /// </summary>
+    /// <param name="languageCode">The participant's preferred language code.</param>
+    /// <returns>bool, whether or not the language code exists in the DB.<returns>
+    public bool ValidateLanguageCode(string languageCode)
+    {
+        _logger.LogInformation("Validating Language Code: {LanguageCode}", languageCode);
+        var result = _languageCodeClient.GetSingle(languageCode).Result;
         return result != null;
     }
 

@@ -17,6 +17,8 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
+        services.AddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
         // Register health checks
         services.AddDatabaseHealthCheck("updateParticipantDetails");
     })

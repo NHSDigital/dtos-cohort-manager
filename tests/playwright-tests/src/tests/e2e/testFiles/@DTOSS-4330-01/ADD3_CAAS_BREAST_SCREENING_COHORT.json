@@ -6,11 +6,6 @@
         "NhsNumber": "9994669834",
         "RuleId": 101,
         "RuleDescription": "CurrentPostingEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4330-01",
-        "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority future date exception for current Effective from date for participant 9994669834"
       }
     },
     {
@@ -19,11 +14,6 @@
         "NhsNumber": "9994592416",
         "RuleId": 101,
         "RuleDescription": "CurrentPostingEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4330-01",
-        "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority future date exception for current Effective from date for participant 9994592416"
       }
     },
     {
@@ -32,11 +22,6 @@
         "NhsNumber": "9994531689",
         "RuleId": 101,
         "RuleDescription": "CurrentPostingEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4330-01",
-        "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority future date exception for current Effective from date for participant 9994531689"
       }
     }
   ],
@@ -50,7 +35,7 @@
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20100101",
       "current_posting": "BD",
-      "current_posting_effective_from_date": "DYNAMIC_DATE_TOMORROW",
+      "current_posting_effective_from_date": "20281106",
       "name_prefix": "MRS",
       "given_name": "Darrel",
       "other_given_name": "Reymond",
@@ -90,7 +75,7 @@
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20100101",
       "current_posting": "BD",
-      "current_posting_effective_from_date": "DYNAMIC_DATE_NEXT_MONTH",
+      "current_posting_effective_from_date": "20281205",
       "name_prefix": "MRS",
       "given_name": "Darrel",
       "other_given_name": "Reymond",
@@ -130,7 +115,7 @@
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20100101",
       "current_posting": "BD",
-      "current_posting_effective_from_date": "DYNAMIC_DATE_NEXT_YEAR",
+      "current_posting_effective_from_date": "20280101",
       "name_prefix": "MRS",
       "given_name": "Darrel",
       "other_given_name": "Reymond",

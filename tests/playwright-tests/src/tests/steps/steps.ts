@@ -17,9 +17,9 @@ export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers
 
 export async function validateSqlDatabaseFromAPI(request: APIRequestContext, validations: any) {
   return test.step(`Validate database for assertions`, async () => {
-    const {status, errorTrace} = await validateApiResponse(validations, request);
+    const status = await validateApiResponse(validations, request);
     if (!status) {
-      throw new Error(`❌ Validation failed after ${config.apiRetry} attempts, please checks logs for more details: ${errorTrace}`);
+      throw new Error(`❌ Validation failed after ${config.apiRetry} attempts, please checks logs for more details`);
     }
   });
 }

@@ -67,6 +67,24 @@
         }
       },
       {
+        "RuleName": "00.ValidateLanguageCode.NBO.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "languageCode",
+            "Expression": "newParticipant.PreferredLanguage"
+          }
+        ],
+        "Expression": "string.IsNullOrEmpty(languageCode) || dbLookup.ValidateLanguageCode(languageCode)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid preferred language code\""
+            }
+          }
+        }
+      },
+      {
         "RuleName": "11.ValidateReasonForRemoval.NBO.NonFatal",
         "LocalParams": [
           {

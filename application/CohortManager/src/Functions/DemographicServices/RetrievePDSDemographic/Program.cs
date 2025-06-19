@@ -3,16 +3,11 @@ using Common.Interfaces;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using DataServices.Client;
 using NHS.Screening.RetrievePDSDemographic;
-using Model;
 
 var host = new HostBuilder()
-    .AddConfiguration<RetrievePDSDemographicConfig>(out RetrievePDSDemographicConfig config)
+    .AddConfiguration<RetrievePDSDemographicConfig>()
     .ConfigureFunctionsWorkerDefaults()
-    .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
-        .Build()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();

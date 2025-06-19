@@ -4,8 +4,8 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "",
-        "RuleId": -2147024809,
-        "RuleDescription": "File name is invalid, file name: Exception_1B8F53_-_CAAS_BREAST_screening_@.parquet"
+        "RuleId": 0,
+        "RuleDescription": "The file failed file validation. Check the file Exceptions blob store."
       }
     }
   ],

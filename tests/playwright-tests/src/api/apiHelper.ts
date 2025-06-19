@@ -20,10 +20,9 @@ const IGNORE_VALIDATION_KEY = config.ignoreValidationKey;
 let waitTime = initialWaitTime;
 let response: APIResponse;
 
-export async function validateApiResponse(validationJson: any, request: any): Promise<{ status: boolean; errorTrace?: any }> {
+export async function validateApiResponse(validationJson: any, request: any): Promise<boolean> {
   let status = false;
   let endpoint = "";
-  let errorTrace: any = undefined;
 
   for (let attempt = 1; attempt <= apiRetry; attempt++) {
     if (status) break;
@@ -38,15 +37,9 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
         expect(Array.isArray(responseBody)).toBeTruthy();
         const { matchingObject, nhsNumber, matchingObjects } = await findMatchingObject(endpoint, responseBody, apiValidation);
         console.info(`Validating fields using 🅰️\t🅿️\tℹ️\t ${endpoint}`);
-        console.info(`From Response ${JSON.stringify(matchingObject, null, 2)}`);
         status = await validateFields(apiValidation, matchingObject, nhsNumber, matchingObjects);
       }
     } catch (error) {
-      const errorMsg = `Endpoint: ${endpoint}, Status: ${response?.status?.()}, Error: ${error instanceof Error ? error.stack || error.message : error}`;
-      errorTrace = errorMsg;
-      if (response?.status?.() === 204) {
-        console.info(`ℹ️\t Status 204: No data found in the table using endpoint ${endpoint}`);
-      }
     }
 
     if (attempt < apiRetry && !status) {
@@ -55,7 +48,7 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
     }
   }
   waitTime = Number(config.apiWaitTime);
-  return { status, errorTrace };
+  return status;
 }
 
 export async function fetchApiResponse(endpoint: string, request: any): Promise<APIResponse> {

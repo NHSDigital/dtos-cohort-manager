@@ -22,7 +22,7 @@ module "firewall_policy_rule_collection_group" {
 
 }
 
-module "route_table_core" {
+module "route_table" {
   for_each = var.routes
 
   source = "../../../dtos-devops-templates/infrastructure/modules/route-table"
@@ -34,7 +34,7 @@ module "route_table_core" {
   bgp_route_propagation_enabled = each.value.bgp_route_propagation_enabled
 
   routes = [
-    for route_key, route_val in each.value.route_table_core : {
+    for route_key, route_val in each.value.route_table_routes_to_audit : {
       name                   = route_val.name
       address_prefix         = route_val.address_prefix
       next_hop_type          = route_val.next_hop_type
@@ -66,7 +66,7 @@ module "route_table_audit" {
   bgp_route_propagation_enabled = each.value.bgp_route_propagation_enabled
 
   routes = [
-    for route_key, route_val in each.value.route_table_audit : {
+    for route_key, route_val in each.value.route_table_routes_from_audit : {
       name                   = route_val.name
       address_prefix         = route_val.address_prefix
       next_hop_type          = route_val.next_hop_type
