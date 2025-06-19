@@ -88,7 +88,7 @@ services:
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
       - ParticipantManagementQueueName=participant-management-queue
-      - UseNewFunctions=true
+      - UseNewFunctions=false
 
   # Participant Management Service
   manage-participant:
