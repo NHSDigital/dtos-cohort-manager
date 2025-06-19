@@ -12,7 +12,7 @@ export const get = async <T = any>(
 ): Promise<ApiResponse<T>> => {
   const url = buildUrl(endpoint, params);
   const response = await request.get(url, { headers });
-  console.info(`✅\t Log API response for GET ${url} with params ${JSON.stringify(params)}; received Response Body ${JSON.stringify(response.body())}`);
+  console.info(`✅\t Log API response for GET ${url} with params ${JSON.stringify(params)}; received Response Status : ${response.status()} and Body ${JSON.stringify(response.body())}`);
   return parseResponse<T>(response);
 };
 
