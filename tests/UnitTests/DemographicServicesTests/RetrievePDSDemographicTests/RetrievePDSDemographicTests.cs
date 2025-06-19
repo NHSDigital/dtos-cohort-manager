@@ -88,7 +88,7 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
             NhsNumber = _validNhsNumber,
             Gender = (Model.Enums.Gender?)1,
             DeathStatus = 0,
-            IsInterpreterRequired = "false"
+            IsInterpreterRequired = "true"
         };
 
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
