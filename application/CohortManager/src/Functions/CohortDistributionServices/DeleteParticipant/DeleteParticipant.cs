@@ -27,6 +27,18 @@ public class DeleteParticipant
         _cohortDistributionClient = cohortDistributionClient;
     }
 
+    /// <summary>
+    /// Azure Function that deletes participant records from the data source
+    /// when all specified identifying attributes match (NHS number, family name, and date of birth).
+    /// </summary>
+    /// <param name="req">
+    /// An HTTP request containing a JSON body with participant details:
+    /// NHS number (string), family name (string), and date of birth (DateTime).
+    /// </param>
+    /// <returns>
+    /// A 200 OK response if participants were deleted; 404 if none found; 400 or 500 for errors.
+    /// </returns>
+
     [Function("DeleteParticipant")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
@@ -96,6 +108,17 @@ public class DeleteParticipant
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
+
+    /// <summary>
+    /// Azure Function endpoint that previews participant data matching all specified attributes
+    /// before deletion.
+    /// </summary>
+    /// <param name="req">
+    /// An HTTP request containing NHS number, family name, and date of birth.
+    /// </param>
+    /// <returns>
+    /// A 200 OK response with participant data if found; 404 if no match; 400 or 500 for errors.
+    /// </returns>
 
     [Function("PreviewParticipant")]
     public async Task<HttpResponseData> PreviewAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)

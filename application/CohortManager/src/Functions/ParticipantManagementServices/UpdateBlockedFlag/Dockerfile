@@ -10,9 +10,10 @@ RUN mkdir -p /home/site/wwwroot && \
     dotnet publish ./DataServices.Client/DataServices.Client.csproj --output /home/site/wwwroot && \
     dotnet publish ./DataServices.Core/DataServices.Core.csproj --output /home/site/wwwroot && \
     dotnet publish ./DataServices.Database/DataServices.Database.csproj --output /home/site/wwwroot
+    
 FROM base AS function
 
-COPY ./ParticipantManagementServices/BlockParticipant /src/dotnet-function-app
+COPY ./ParticipantManagementServices/UpdateBlockedFlag /src/dotnet-function-app
 WORKDIR /src/dotnet-function-app
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
