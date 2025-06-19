@@ -3,10 +3,7 @@ import { config } from './env';
 
 export default defineConfig({
   testDir: '../tests',
-  timeout: 30 * 60 * 1000,    // 15 minutes
-  expect: {
-    timeout: 10000, // Sets the default assertion timeout to 10 seconds (10000ms)
-  },
+  timeout: 15 * 60 * 1000,    // 15 minutes
   retries: 1,
   workers: 1,
   fullyParallel: false,

@@ -61,16 +61,12 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
 export async function fetchApiResponse(endpoint: string, request: any): Promise<APIResponse> {
 
   if (endpoint.includes(COHORT_DISTRIBUTION_SERVICE)) {
-    console.error("URL: " + `${endpointCohortDistributionDataService}${endpoint.toLowerCase()}`);
     return await request.get(`${endpointCohortDistributionDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(PARTICIPANT_MANAGEMENT_SERVICE)) {
-    console.error("URL: " + `${endpointParticipantManagementDataService}${endpoint.toLowerCase()}`);
     return await request.get(`${endpointParticipantManagementDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE)) {
-    console.error("URL: " + `${endpointExceptionManagementDataService}${endpoint.toLowerCase()}`);
     return await request.get(`${endpointExceptionManagementDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
-    console.error("URL: " + `${endpointParticipantDemographicDataService}${endpoint.toLowerCase()}`);
     return await request.get(`${endpointParticipantDemographicDataService}${endpoint.toLowerCase()}`);
   }
   throw new Error(`Unknown endpoint: ${endpoint}`);
@@ -234,7 +230,7 @@ function validateTimestampFormat(timestamp: string, pattern: string): boolean {
 
 async function delayRetry() {
   await new Promise((resolve) => setTimeout(resolve, waitTime));
-  waitTime += 10000;
+  waitTime += 5000;
 }
 
 

@@ -1,13 +1,11 @@
-namespace NHS.CohortManager.ParticipantManagementServices;
+namespace NHS.CohortManager.CohortDistributionServices;
 
 using System.ComponentModel.DataAnnotations;
 
-public class ManageParticipantConfig
+public class DistributeParticipantConfig
 {
     [Required]
     public string ServiceBusConnectionString { get; set; }
     [Required]
     public string CohortQueueName { get; set; }
-    [Required]
-    public string ParticipantManagementQueueName { get; set; }
 }

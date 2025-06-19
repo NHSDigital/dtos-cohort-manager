@@ -1,11 +1,11 @@
 using Microsoft.Extensions.Hosting;
 using Common;
-using NHS.CohortManager.ParticipantManagementServices;
+using NHS.CohortManager.CohortDistributionServices;
 // using DataServices.Client;
 // using HealthChecks.Extensions;
 
 var host = new HostBuilder()
-    .AddConfiguration<ManageParticipantConfig>(out ManageParticipantConfig config)
+    .AddConfiguration<DistributeParticipantConfig>(out DistributeParticipantConfig config)
     .ConfigureFunctionsWebApplication()
     // .ConfigureServices(services => {
     //     // Register health checks
