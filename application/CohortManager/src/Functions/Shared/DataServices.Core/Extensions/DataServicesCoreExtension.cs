@@ -28,7 +28,7 @@ public static class DataServicesCoreExtension
         {
             if (dbContextOptionsBuilder == null)
             {
-                _.AddDbContextPool<DBContextType>(
+                _.AddDbContext<DBContextType>(
                     options => options.UseSqlServer(connectionString ?? Environment.GetEnvironmentVariable("DtOsDatabaseConnectionString"), sqlServerOptions => {
                         sqlServerOptions.CommandTimeout(180);
                         sqlServerOptions.EnableRetryOnFailure();
