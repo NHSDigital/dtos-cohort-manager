@@ -3,40 +3,40 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993071676",
-        "RuleId": -2146232060,
-        "RuleDescription": "String or binary data would be truncated in table 'DToSDB.dbo.PARTICIPANT_DEMOGRAPHIC', column 'TELEPHONE_NUMBER_MOB_FROM_DT'. Truncated value: '2023-12-'.*The statement has been terminate."
+        "NhsNumber": "9997973488",
+        "RuleId": -2146233088,
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4364-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate New participant Telephone Number Business Effective From Date is in correct format"
+        "additionalTags": "@regression @e2e @epic2-high-priority Raise exception for incorrect date format telephone Number(Mobile) Business Effective From Date for 9997973488"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993425001",
-        "RuleId": -2146232060,
-        "RuleDescription": "String or binary data would be truncated in table 'DToSDB.dbo.PARTICIPANT_DEMOGRAPHIC', column 'TELEPHONE_NUMBER_MOB_FROM_DT'. Truncated value: '2023-12-'.*The statement has been terminate."
+        "NhsNumber": "9997311361",
+        "RuleId": -2146233088,
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4364-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate New participant Telephone Number Business Effective From Date is in correct format"
+        "additionalTags": "@regression @e2e @epic2-high-priority Raise exception for incorrect date format telephone Number(Mobile) Business Effective From Date for 9997311361"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9992949600",
-        "RuleId": -2146232060,
-        "RuleDescription": "String or binary data would be truncated in table 'DToSDB.dbo.PARTICIPANT_DEMOGRAPHIC', column 'TELEPHONE_NUMBER_MOB_FROM_DT'. Truncated value: '2023-12-'.*The statement has been terminate."
+        "NhsNumber": "9996673383",
+        "RuleId": -2146233088,
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4364-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate New participant Telephone Number Business Effective From Date is in correct format"
+        "additionalTags": "@regression @e2e @epic2-high-priority Raise exception for incorrect date format telephone Number(Mobile) Business Effective From Date for 9996673383"
       }
     }
   ],
@@ -45,7 +45,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9993071676,
+      "nhs_number": 9997973488,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "F84706",
       "primary_care_effective_from_date": "20030318",
@@ -73,7 +73,7 @@
       "home_telephone_number": "01619999999",
       "home_telephone_effective_from_date": "20200818",
       "mobile_telephone_number": "07888888888",
-      "mobile_telephone_effective_from_date": "2023-12-31",
+      "mobile_telephone_effective_from_date": "2023-10-01",
       "email_address": "bturneux0@soup.io",
       "email_address_effective_from_date": null,
       "preferred_language": "en",
@@ -85,7 +85,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 9993425001,
+      "nhs_number": 9997311361,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "F84706",
       "primary_care_effective_from_date": "20030318",
@@ -113,7 +113,7 @@
       "home_telephone_number": "01619999999",
       "home_telephone_effective_from_date": "20200818",
       "mobile_telephone_number": "07888888888",
-      "mobile_telephone_effective_from_date": "31/12/2024",
+      "mobile_telephone_effective_from_date": "12/20/2022",
       "email_address": "bturneux0@soup.io",
       "email_address_effective_from_date": null,
       "preferred_language": "en",
@@ -125,7 +125,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 3,
-      "nhs_number": 9992949600,
+      "nhs_number": 9996673383,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "F84706",
       "primary_care_effective_from_date": "20030318",
@@ -163,8 +163,8 @@
     }
   ],
   "nhsNumbers": [
-    "9993071676",
-    "9993425001",
-    "9992949600"
+    "9997973488",
+    "9997311361",
+    "9996673383"
   ]
 }
