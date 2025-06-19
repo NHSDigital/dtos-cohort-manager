@@ -4,9 +4,11 @@ resource "azurerm_resource_group" "audit" {
   name     = "${module.regions_config[each.key].names.resource-group}-audit"
   location = each.key
 
-  lifecycle {
-    ignore_changes = [tags]
-  }
+#   lifecycle {
+#     ignore_changes = [tags]
+#   }
+
+  tags = local.merged_tags
 }
 
 module "regions_config" {
@@ -17,5 +19,5 @@ module "regions_config" {
   location    = each.key
   application = var.application
   env         = var.environment
-  tags        = var.tags
+  tags        = local.merged_tags
 }

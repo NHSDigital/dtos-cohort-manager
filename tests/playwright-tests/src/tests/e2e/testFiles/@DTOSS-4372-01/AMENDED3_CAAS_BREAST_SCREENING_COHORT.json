@@ -5,7 +5,11 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9993340189",
         "RuleId": -2146233088,
+<<<<<<< HEAD
         "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+=======
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+>>>>>>> main
       },
       "meta": {
         "testJiraId": "@DTOSS-4372-01",
@@ -16,14 +20,18 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993499730",
+        "NhsNumber": "9991339345",
         "RuleId": -2146233088,
+<<<<<<< HEAD
         "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+=======
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+>>>>>>> main
       },
       "meta": {
         "testJiraId": "@DTOSS-4372-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Tests Raise  Validate eMail address Business Effective From Date for participant 9993499730"
+        "additionalTags": "@regression @e2e @epic2-high-priority Tests Raise  Validate eMail address Business Effective From Date for participant 9991339345"
       }
     },
     {
@@ -85,7 +93,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 3,
-      "nhs_number": 9993499730,
+      "nhs_number": 9991339345,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20220101",
@@ -164,7 +172,7 @@
   ],
   "nhsNumbers": [
     "9993340189",
-    "9993499730",
+    "9991339345",
     "9993044431"
   ]
 }
