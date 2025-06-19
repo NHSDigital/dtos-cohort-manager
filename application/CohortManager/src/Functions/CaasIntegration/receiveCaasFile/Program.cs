@@ -27,7 +27,6 @@ try
 
     .ConfigureServices(services =>
     {
-        services.AddSingleton<IQueueClient>(_ => new AzureServiceBusClient(config.ServiceBusConnectionString));
         services.AddSingleton<IReceiveCaasFileHelper, ReceiveCaasFileHelper>();
         services.AddScoped<IProcessCaasFile, ProcessCaasFile>(); //Do not change the lifetime of this.
         services.AddSingleton<ICreateResponse, CreateResponse>();
@@ -45,7 +44,7 @@ try
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
     .AddHttpClient()
-    .AddAzureQueues()
+    .AddAzureQueues(config.UseNewFunctions, config.ServiceBusConnectionString)
     .AddExceptionHandler()
     .AddDatabaseConnection()
     .Build();

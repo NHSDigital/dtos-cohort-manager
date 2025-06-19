@@ -87,6 +87,8 @@ services:
       - inboundBlobName=inbound
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
+      - ParticipantManagementQueueName=participant-management-queue
+      - UseNewFunctions=true
 
   # Participant Management Service
   manage-participant:
@@ -98,6 +100,8 @@ services:
       dockerfile: ParticipantManagementServices/ManageParticipant/Dockerfile
     environment:
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - CohortQueueName=cohort-distribution-queue
+      - ParticipantManagementQueueName=participant-management-queue
 
   add-participant:
     container_name: add-participant

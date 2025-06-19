@@ -28,5 +28,6 @@ public class ReceiveCaasFileConfig
     [Required]
     public string ServiceBusConnectionString { get; set; }
     public string GetOrchestrationStatusURL { get; set; }
-    public bool UseNewFunctions { get; set; }
+    public bool UseNewFunctions { get; set; } = false;
+    public string ParticipantManagementQueueName {get; set;}
 }
