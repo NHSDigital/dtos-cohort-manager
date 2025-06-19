@@ -10,6 +10,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.Enums;
 using NHS.Screening.RetrievePDSDemographic;
 
 public class RetrievePdsDemographic
@@ -60,10 +61,14 @@ public class RetrievePdsDemographic
                 var jsonResponse = await _httpClientFunction.GetResponseText(response);
                 var demographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
                 var updatedParticipantDemographic = demographic.ToParticipantDemographic();
-                var Updated = await UpdateDemographicRecordFromPDS(updatedParticipantDemographic);
-                if (!Updated) {throw new Exception("Failed to update Demographic record from PDS.");};
-
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(demographic));
+                var updateResult = await UpdateDemographicRecordFromPDS(updatedParticipantDemographic);
+                return updateResult switch
+                {
+                    UpdateResult.Success => CreateSuccessResponse(req, demographic),
+                    UpdateResult.NotFound => HandleParticipantNotFound(req, nhsNumber),
+                    UpdateResult.UpdateFailed => HandleUpdateFailure(req, nhsNumber),
+                    _ => HandleUnexpectedUpdateResult(req)
+                };
             }
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -81,14 +86,41 @@ public class RetrievePdsDemographic
         }
     }
 
-    private async Task<bool> UpdateDemographicRecordFromPDS(ParticipantDemographic updatedParticipantDemographic)
+    private async Task<UpdateResult> UpdateDemographicRecordFromPDS(ParticipantDemographic updatedParticipantDemographic)
     {
-            // Check participant exists in Participant Demographic table.
-            ParticipantDemographic oldParticipantDemographic = await _participantDemographicClient.GetSingleByFilter(i => i.NhsNumber == updatedParticipantDemographic.NhsNumber);
-            if (oldParticipantDemographic == null) { throw new NullReferenceException("The participant could not be found, when trying to update old Participant from PDS."); }
-            updatedParticipantDemographic.ParticipantId = oldParticipantDemographic.ParticipantId;
-            bool updated = await _participantDemographicClient.Update(updatedParticipantDemographic);
-            if (!updated) { throw new Exception("updating Demographic record from PDS was not successful"); }
-            return updated;
+        // Check participant exists in Participant Demographic table.
+        ParticipantDemographic oldParticipantDemographic = await _participantDemographicClient.GetSingleByFilter(i => i.NhsNumber == updatedParticipantDemographic.NhsNumber);
+        if (oldParticipantDemographic == null)
+        {
+            _logger.LogWarning("The participant could not be found, when trying to update old Participant from PDS.");
+            return UpdateResult.NotFound;
+        }
+        updatedParticipantDemographic.ParticipantId = oldParticipantDemographic.ParticipantId;
+        bool updateSuccess = await _participantDemographicClient.Update(updatedParticipantDemographic);
+        return updateSuccess ? UpdateResult.Success : UpdateResult.UpdateFailed;
     }
+
+    private HttpResponseData CreateSuccessResponse(HttpRequestData req, PdsDemographic demographic)
+    {
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK,req,JsonSerializer.Serialize(demographic));
+    }
+
+    private HttpResponseData HandleParticipantNotFound(HttpRequestData req, string nhsNumber)
+    {
+        _logger.LogWarning("Participant not found when updating from PDS for NHS number");
+        return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
+    }
+
+    private HttpResponseData HandleUpdateFailure(HttpRequestData req, string nhsNumber)
+    {
+        _logger.LogError("Failed to update Demographic record from PDS.");
+        return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+    }
+
+    private HttpResponseData HandleUnexpectedUpdateResult(HttpRequestData req)
+    {
+        _logger.LogError("Unexpected result when updating participant demographic record from PDS.");
+        return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+    }
+
 }
