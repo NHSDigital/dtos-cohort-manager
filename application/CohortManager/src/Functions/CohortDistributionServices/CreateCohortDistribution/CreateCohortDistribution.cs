@@ -151,7 +151,7 @@ public class CreateCohortDistribution
         }
 
         await _exceptionHandler.CreateSystemExceptionLog(new Exception(errorMessage), participant, fileName);
-        await _azureQueueStorageHelper.AddMessageToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, _config.CohortQueueNamePoison);
+        await _azureQueueStorageHelper.AddAsync<CohortDistributionParticipant>(cohortDistributionParticipant, _config.CohortQueueNamePoison);
     }
 
     private async Task<bool> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
