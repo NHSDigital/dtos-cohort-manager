@@ -239,8 +239,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteParticipantTests", ".
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServices.Migrations", "Shared\DataServices.Migrations\DataServices.Migrations.csproj", "{43AF1482-6B3E-41C9-BF92-531EB00FEA20}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SendServiceNowMessageHandlerTests", "..\..\..\..\tests\UnitTests\SendServiceNowMessageHandlerTests\SendServiceNowMessageHandlerTests.csproj", "{929843E4-8D8F-455B-8F88-770EB5DD38F3}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateBlockedFlag", "ParticipantManagementServices\UpdateBlockedFlag\UpdateBlockedFlag.csproj", "{AE5EAAE6-E74E-4080-AED0-0CCC4A3EBBB2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{2F646680-91A4-F107-74F4-9BF3126A0F16}"
@@ -1485,18 +1483,6 @@ Global
 		{43AF1482-6B3E-41C9-BF92-531EB00FEA20}.Release|x64.Build.0 = Release|Any CPU
 		{43AF1482-6B3E-41C9-BF92-531EB00FEA20}.Release|x86.ActiveCfg = Release|Any CPU
 		{43AF1482-6B3E-41C9-BF92-531EB00FEA20}.Release|x86.Build.0 = Release|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Debug|x64.Build.0 = Debug|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Debug|x86.Build.0 = Debug|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Release|x64.ActiveCfg = Release|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Release|x64.Build.0 = Release|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Release|x86.ActiveCfg = Release|Any CPU
-		{929843E4-8D8F-455B-8F88-770EB5DD38F3}.Release|x86.Build.0 = Release|Any CPU
 		{AE5EAAE6-E74E-4080-AED0-0CCC4A3EBBB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AE5EAAE6-E74E-4080-AED0-0CCC4A3EBBB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AE5EAAE6-E74E-4080-AED0-0CCC4A3EBBB2}.Debug|x64.ActiveCfg = Debug|Any CPU
