@@ -264,7 +264,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
             requestIdsToNhsNumbersFromResponse.push(...batch);
 
           } else {
-            expect(nextResponse.status).toBe(400);
+            expect(nextResponse.status).toBe(204);
           }
         }
       }
