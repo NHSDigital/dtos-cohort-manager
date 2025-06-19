@@ -77,7 +77,7 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     }
 
     [TestMethod]
-    public async Task Run_ValidNhsNumberExistsInPds_ReturnsOk()
+    public async Task Run_ValidNhsNumberExistsInPds_ReturnsOk_UpdateDatabase()
     {
         // Arrange
         const string expectedResponseContent =  "{\"NhsNumber\":\"3112728165\",\"Gender\":2,\"DeathStatus\":2,\"IsInterpreterRequired\":\"True\"}";
