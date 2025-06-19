@@ -14,7 +14,6 @@ var host = new HostBuilder()
     .AddDataServicesHandler()
     .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
     .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
-    .AddDataService<GPPractice>(config.GPPracticeDataServiceURL)
 
     .Build()
     .ConfigureServices(services =>
@@ -28,6 +27,7 @@ var host = new HostBuilder()
     })
     .AddTelemetry()
     .AddDatabaseConnection()
+    .AddHttpClient()
     .AddExceptionHandler()
     .Build();
 
