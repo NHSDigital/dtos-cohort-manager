@@ -8,8 +8,10 @@ using Microsoft.Extensions.Options;
 using Model;
 using Moq;
 using NHS.CohortManager.DemographicServices;
+using DataServices.Client;
 using NHS.CohortManager.Tests.TestUtils;
 using NHS.Screening.RetrievePDSDemographic;
+using System.Linq.Expressions;
 
 [TestClass]
 public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemographic>
@@ -17,6 +19,7 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     private static readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private static readonly Mock<IOptions<RetrievePDSDemographicConfig>> _config = new();
     private static readonly Mock<IFhirPatientDemographicMapper> _fhirPatientDemographicMapperMock = new();
+    private static readonly Mock<IDataServiceClient<ParticipantDemographic>> _mockParticipantDemographicClient = new();
     private readonly string _validNhsNumber = "3112728165";
 
     public RetrievePdsDemographicTests() : base((conn, logger, transaction, command, response) =>
@@ -25,7 +28,8 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         response,
         _httpClientFunction.Object,
         _fhirPatientDemographicMapperMock.Object,
-        _config.Object))
+        _config.Object,
+        _mockParticipantDemographicClient.Object))
     {
         CreateHttpResponseMock();
     }
@@ -35,7 +39,8 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     {
         var testConfig = new RetrievePDSDemographicConfig
         {
-            RetrievePdsParticipantURL = "RetrievePdsParticipantURL"
+            RetrievePdsParticipantURL = "RetrievePdsParticipantURL",
+            DemographicDataServiceURL = "DemographicDataServiceURL"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -48,7 +53,8 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
             _createResponseMock.Object,
             _httpClientFunction.Object,
             _fhirPatientDemographicMapperMock.Object,
-            _config.Object);
+            _config.Object,
+            _mockParticipantDemographicClient.Object);
 
         _request = SetupRequest(string.Empty);
     }
@@ -74,16 +80,65 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     public async Task Run_ValidNhsNumberExistsInPds_ReturnsOk()
     {
         // Arrange
+        const string expectedResponseContent =  "{\"NhsNumber\":\"3112728165\",\"Gender\":2,\"DeathStatus\":2,\"IsInterpreterRequired\":\"True\"}";
+        long validNhsNumberLong = long.Parse(_validNhsNumber);
+
+        var expectedDemographic = new PdsDemographic
+        {
+            NhsNumber = _validNhsNumber,
+            Gender = (Model.Enums.Gender?)1,
+            DeathStatus = 0,
+            IsInterpreterRequired = "false"
+        };
+
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
-        _httpClientFunction.Setup(x => x.SendPdsGet(It.IsAny<string>())).ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
-        _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirJson(It.IsAny<string>())).Returns(new PdsDemographic());
+
+        // Mock HTTP response
+        var httpResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        {
+            Content = new StringContent(expectedResponseContent)
+        };
+
+        _httpClientFunction.Setup(x => x.SendPdsGet(It.Is<string>(url => url.Contains(_validNhsNumber))))
+            .ReturnsAsync(httpResponse);
+
+        _httpClientFunction.Setup(x => x.GetResponseText(httpResponse))
+            .ReturnsAsync(expectedResponseContent);
+
+        _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirJson(expectedResponseContent))
+            .Returns(expectedDemographic);
+
+        _mockParticipantDemographicClient.Setup(x =>
+                x.GetSingleByFilter(It.Is<Expression<Func<ParticipantDemographic, bool>>>(f =>
+                    f.Compile()(new ParticipantDemographic { NhsNumber = validNhsNumberLong }))))
+            .ReturnsAsync(new ParticipantDemographic { NhsNumber = validNhsNumberLong });
+
+        _mockParticipantDemographicClient.Setup(x =>
+                x.Update(It.Is<ParticipantDemographic>(p => p.NhsNumber == validNhsNumberLong)))
+            .ReturnsAsync(true);
 
         // Act
         var result = await _service.Run(_request.Object);
 
         // Assert
-        _httpClientFunction.Verify(x => x.SendPdsGet(It.IsAny<string>()), Times.Once());
-        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Once());
+        // Verify HTTP call was made with correct URL
+        _httpClientFunction.Verify(x =>
+            x.SendPdsGet(It.Is<string>(url => url.Contains(_validNhsNumber))),
+            Times.Once());
+
+        // Verify response was processed
+        _httpClientFunction.Verify(x => x.GetResponseText(httpResponse), Times.Once());
+
+        // Verify mapping was called with correct content
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJson(expectedResponseContent), Times.Once());
+
+        // Verify database operations
+        _mockParticipantDemographicClient.Verify(x =>
+            x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()),Times.Once());
+
+        _mockParticipantDemographicClient.Verify(x =>x.Update(It.Is<ParticipantDemographic>(p => p.NhsNumber == validNhsNumberLong)),Times.Once());
+
+        // Verify response
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
