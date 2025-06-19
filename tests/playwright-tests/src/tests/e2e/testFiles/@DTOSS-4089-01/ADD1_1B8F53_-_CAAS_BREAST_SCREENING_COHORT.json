@@ -10,7 +10,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4089-01",
         "requirementJiraId": "DTOSS-3033",
-        "additionalTags": "@regression @e2e @epic1-high-priority Raise exception for new participant's postcode value which is invalid and not NFA or overseas"
+        "additionalTags": "@regression @e2e @epic2-high-priority Raise exception for new participant's postcode value which is invalid and not NFA or overseas - 1234567"
       }
     },
     {
@@ -23,7 +23,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4089-01",
         "requirementJiraId": "DTOSS-3033",
-        "additionalTags": "@regression @e2e @epic1-high-priority Raise exception for new participant's postcode value which is invalid and not NFA or overseas"
+        "additionalTags": "@regression @e2e @epic2-high-priority Raise exception for new participant's postcode value which is invalid and not NFA or overseas - a23a34"
       }
     },
     {
@@ -36,7 +36,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4089-01",
         "requirementJiraId": "DTOSS-3033",
-        "additionalTags": "@regression @e2e @epic1-high-priority Raise exception for new participant's postcode value which is invalid and not NFA or overseas"
+        "additionalTags": "@regression @e2e @epic2-high-priority Raise exception for new participant's postcode value which is invalid and not NFA or overseas AB3 %GL"
       }
     },
     {
@@ -49,7 +49,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4089-01",
         "requirementJiraId": "DTOSS-3033",
-        "additionalTags": "@regression @e2e @epic1-high-priority Raise exception for new participant's postcode value which is invalid and not NFA or overseas"
+        "additionalTags": "@regression @e2e @epic2-high-priority Raise exception for new participant's postcode value which is invalid and not NFA or overseas Simonn"
       }
     }
   ],
