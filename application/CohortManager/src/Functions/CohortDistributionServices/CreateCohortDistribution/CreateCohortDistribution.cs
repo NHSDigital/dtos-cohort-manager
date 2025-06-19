@@ -16,7 +16,7 @@ public class CreateCohortDistribution
     private readonly ILogger<CreateCohortDistribution> _logger;
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IQueueSender _azureQueueStorageHelper;
+    private readonly IQueueClient _azureQueueStorageHelper;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly CreateCohortDistributionConfig _config;
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
@@ -24,7 +24,7 @@ public class CreateCohortDistribution
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
                                     ICohortDistributionHelper CohortDistributionHelper,
                                     IExceptionHandler exceptionHandler,
-                                    IQueueSender azureQueueStorageHelper,
+                                    IQueueClient azureQueueStorageHelper,
                                     IDataServiceClient<ParticipantManagement> participantManagementClient,
                                     IDataServiceClient<CohortDistribution> cohortDistributionClient,
                                     IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
