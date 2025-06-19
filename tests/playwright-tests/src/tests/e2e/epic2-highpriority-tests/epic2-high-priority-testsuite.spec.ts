@@ -41,29 +41,6 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
-    // test('@DTOSS-4330-01 Validate current posting effective date throw exception for future date new participants', {
-    //   annotation: {
-    //     type: 'Requirement',
-    //     description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
-    //   },
-    // }, async ({ request, testData }) => {
-    //   await test.step(`Then Exception table should have RuleId as 101 & RuleDescription as CurrentPostingEffectiveFromDate`, async () => {
-    //     const updatedParticipantRecord = JSON.parse(JSON.stringify(testData.inputParticipantRecord))
-
-    //     const dateMap = generateDynamicDateMap();
-
-    //     const finalJson = replaceDynamicDatesInJson(updatedParticipantRecord, dateMap);
-
-    //     const tempFilePath = createTempDirAndWriteJson(finalJson);
-
-    //     const runTimeParquetFile = await createParquetFromJson(testData.nhsNumbers, finalJson, tempFilePath, "AMENDED", false);
-    //     await processFileViaStorage(runTimeParquetFile);
-    //     deleteTempDir();
-
-    //     await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-    //   });
-    // })
-
     test('@DTOSS-4102-01-Validate valid GP Practice Code for a new participant', {
       annotation: {
         type: 'Requirement',
