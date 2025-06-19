@@ -12,7 +12,7 @@ features = {
 }
 
 tags = {
-  Project = "Cohort-Manager"
+  Environment = "non-functional testing"
 }
 
 regions = {

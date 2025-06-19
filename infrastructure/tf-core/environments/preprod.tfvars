@@ -11,7 +11,7 @@ features = {
 }
 
 tags = {
-  Project = "Cohort-Manager"
+  Environment = "pre-production"
 }
 
 regions = {
