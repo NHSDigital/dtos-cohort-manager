@@ -1,6 +1,7 @@
 namespace Model;
 
 using System.Text.Json.Serialization;
+using Model.Enums;
 
 public class PdsDemographic : Demographic
 {
@@ -13,4 +14,46 @@ public class PdsDemographic : Demographic
     [JsonPropertyOrder(903)]
     public string? ConfidentialityCode { get; set; } = "";
     public PdsDemographic() { }
+
+    public ParticipantDemographic ToParticipantDemographic()
+    {
+        return new ParticipantDemographic
+        {
+            NhsNumber = long.Parse(NhsNumber),
+            PrimaryCareProvider = PrimaryCareProvider,
+            PrimaryCareProviderFromDate = PrimaryCareProviderEffectiveFromDate,
+            NamePrefix = NamePrefix,
+            GivenName = FirstName,
+            OtherGivenName = OtherGivenNames,
+            FamilyName = FamilyName,
+            PreviousFamilyName = PreviousFamilyName,
+            DateOfBirth = DateOfBirth,
+            Gender = (short?)(Gender.HasValue ? (Gender?)Gender.Value : null),
+            AddressLine1 = AddressLine1,
+            AddressLine2 = AddressLine2,
+            AddressLine3 = AddressLine3,
+            AddressLine4 = AddressLine4,
+            AddressLine5 = AddressLine5,
+            PostCode = Postcode,
+            PafKey = PafKey,
+            UsualAddressFromDate = UsualAddressEffectiveFromDate,
+            DateOfDeath = DateOfDeath,
+            DeathStatus = (short?)(DeathStatus.HasValue ? (Status?)DeathStatus.Value : null),
+            TelephoneNumberHome = TelephoneNumber,
+            TelephoneNumberHomeFromDate = TelephoneNumberEffectiveFromDate,
+            TelephoneNumberMob = MobileNumber,
+            TelephoneNumberMobFromDate = MobileNumberEffectiveFromDate,
+            EmailAddressHome = EmailAddress,
+            EmailAddressHomeFromDate = EmailAddressEffectiveFromDate,
+            PreferredLanguage = PreferredLanguage,
+            InterpreterRequired = IsInterpreterRequired?.ToLower() switch
+            {
+                "true" => 1,
+                "false" => 0,
+                null => throw new ArgumentNullException(nameof(IsInterpreterRequired)),
+                _ => throw new ArgumentException($"Invalid IsInterpreterRequired value '{IsInterpreterRequired}'. Must be 'true' or 'false'")
+            }
+        };
+    }
+
 }
