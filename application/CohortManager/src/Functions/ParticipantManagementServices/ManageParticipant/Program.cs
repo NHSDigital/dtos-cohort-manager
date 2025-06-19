@@ -1,16 +1,22 @@
 using Microsoft.Extensions.Hosting;
 using Common;
+using Model;
 using NHS.CohortManager.ParticipantManagementServices;
-// using DataServices.Client;
-// using HealthChecks.Extensions;
+using DataServices.Client;
+using HealthChecks.Extensions;
 
 var host = new HostBuilder()
     .AddConfiguration<ManageParticipantConfig>(out ManageParticipantConfig config)
     .ConfigureFunctionsWebApplication()
-    // .ConfigureServices(services => {
-    //     // Register health checks
-    //     services.AddBasicHealthCheck("CheckParticipantExists");
-    // })
+    .AddDataServicesHandler()
+        .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
+        .Build()
+    .ConfigureServices(services =>
+    {
+        // Register health checks
+        services.AddBasicHealthCheck("ManageParticipant");
+    })
+    .AddExceptionHandler()
     .AddAzureQueues(true, config.ServiceBusConnectionString)
     .Build();
 
