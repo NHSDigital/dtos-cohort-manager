@@ -33,11 +33,4 @@ public class AzureServiceBusClient : IQueueClient
             await sender.DisposeAsync();
         }
     }
-    
-    public async Task<bool> AddMessageBatchToQueueAsync<T>(IEnumerable<ServiceBusMessage> messages, string queueName)
-    {
-        var sender = _serviceBusClient.CreateSender(queueName);
-        await sender.SendMessagesAsync(messages);
-        return true;
-    }
 }
