@@ -26,7 +26,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../TestUtils/TestUtils.csproj" />
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\ServiceNowMessageIntegratedHandler\ServiceNowMessageHandler.csproj" />
   </ItemGroup>
 
