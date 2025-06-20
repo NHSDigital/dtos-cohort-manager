@@ -44,13 +44,14 @@ public class DistributeParticipant
     }
 
     [Function(nameof(FetchDataActivity))]
-    public static string FetchDataActivity([ActivityTrigger] string initialData, FunctionContext functionContext)
+    public string FetchDataActivity([ActivityTrigger] string initialData, FunctionContext functionContext)
     {
+        _logger.LogInformation(initialData);
         return string.Empty;
     }
 
 
-    [Function("ServiceBusQueueTrigger")]
+    [Function("DistributeParticipant")]
     public async Task Run(
        [ServiceBusTrigger("%CohortQueueName%", Connection = "ServiceBusConnectionString")] string messageBody,
        [DurableClient] DurableTaskClient durableClient,
@@ -64,6 +65,4 @@ public class DistributeParticipant
 
         _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
     }
-
-
 }

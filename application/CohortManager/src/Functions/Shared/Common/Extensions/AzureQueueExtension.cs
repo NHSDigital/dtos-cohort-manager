@@ -9,7 +9,7 @@ public static class AzureQueueExtension
     {
         return hostBuilder.ConfigureServices(_ =>
         {
-            _.AddSingleton<IQueueClient>(_ => new AzureServiceBusClient(Environment.GetEnvironmentVariable("ServiceBusConnectionString") ?? ""));
+            _.AddScoped<IQueueClient>(_ => new AzureServiceBusClient(Environment.GetEnvironmentVariable("ServiceBusConnectionString") ?? ""));
 
             _.AddTransient<IQueueClient, AzureStorageQueueClient>();
             _.AddTransient<IQueueClientFactory, QueueClientFactory>();
