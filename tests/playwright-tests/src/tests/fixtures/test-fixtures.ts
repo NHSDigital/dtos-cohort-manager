@@ -30,6 +30,21 @@ interface TestDataWithAmended {
   testFilesPathAmend?: string;
   runTimeParquetFileAmend: string;
 }
+interface TestDataWithDelete {
+  checkInDatabaseAdd: any[];
+  nhsNumbers: string[];
+  parquetFile: string | undefined;
+  inputParticipantRecord?: Record<string, any>;
+  testFilesPath?: string;
+  runTimeParquetFileAdd: string;
+
+  checkInDatabaseDelete: any[];
+  nhsNumberDelete: string[];
+  parquetFileDelete: string | undefined;
+  inputParticipantRecordDelete?: Record<string, any>;
+  testFilesPathDelete?: string;
+  runTimeParquetFileDelete: string;
+}
 
 interface TestDataWithTwoAmendments {
   checkInDatabaseAdd: any[];
@@ -219,5 +234,56 @@ export const testWithTwoAmendments = base.extend<{
   },
 });
 
+export const testWithDelete = base.extend<{
+  testData: TestDataWithDelete;
+}>({
+  testData: async ({ request: _ }, use, testInfo) => {
+    const [checkInDatabaseAdd, nhsNumbers, parquetFile, inputParticipantRecord, testFilesPath] =
+      await getTestData(testInfo.title, "ADD", true);
+
+    let runTimeParquetFileAdd: string = "";
+    if (!parquetFile) {
+      runTimeParquetFileAdd = await createParquetFromJson(
+        nhsNumbers,
+        inputParticipantRecord!,
+        testFilesPath!,
+        "ADD",
+        false
+      );
+    }
+
+    const [checkInDatabaseDelete, nhsNumberDelete, parquetFileDelete, inputParticipantRecordDelete, testFilesPathDelete] =
+      await getTestData(testInfo.title, "DEL", true);
+
+    let runTimeParquetFileDelete: string = "";
+    if (!parquetFileDelete) {
+      runTimeParquetFileDelete = await createParquetFromJson(
+        nhsNumberDelete,
+        inputParticipantRecordDelete!,
+        testFilesPathDelete!,
+        "DEL",
+        false
+      );
+    }
+
+    const testDataWithDelete: TestDataWithDelete = {
+      checkInDatabaseAdd,
+      nhsNumbers,
+      parquetFile,
+      inputParticipantRecord,
+      testFilesPath,
+      runTimeParquetFileAdd,
+
+      checkInDatabaseDelete,
+      nhsNumberDelete,
+      parquetFileDelete,
+      inputParticipantRecordDelete,
+      testFilesPathDelete,
+      runTimeParquetFileDelete
+    };
+
+    await use(testDataWithDelete);
+  },
+});
 
 export { expect } from '@playwright/test';
