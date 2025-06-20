@@ -63,6 +63,10 @@ module "functionapp" {
   function_app_slots = var.function_app_slots
 
   tags = var.tags
+
+  depends_on = [
+    module.azure_service_bus
+  ]
 }
 
 
