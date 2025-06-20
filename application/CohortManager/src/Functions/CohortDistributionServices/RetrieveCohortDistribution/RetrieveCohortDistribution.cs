@@ -57,14 +57,10 @@ public class RetrieveCohortDistributionData
         try
         {
 
-
-            if (string.IsNullOrEmpty(req.Query["rowCount"]) || !int.TryParse(req.Query["rowCount"], out int rowCount))
+            int rowCount = _config.MaxRowCount;
+            if (!string.IsNullOrEmpty(req.Query["rowCount"]) && int.TryParse(req.Query["rowCount"], out int rowCountParam))
             {
-                rowCount = _config.MaxRowCount;
-            }
-            else
-            {
-                rowCount = Math.Min(rowCount, _config.MaxRowCount);
+                rowCount = Math.Min(rowCount, rowCountParam);
             }
 
             //If no requestID is provided we send back a batch of unextracted participants
