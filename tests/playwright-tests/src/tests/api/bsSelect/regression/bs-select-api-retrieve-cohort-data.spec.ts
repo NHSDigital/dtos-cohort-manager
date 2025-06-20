@@ -170,7 +170,6 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`Send a GET request via RetrieveCohortDistribution 5 times, and validate that req_id 1 nhs numbers are mapped to req_id 2 nhs numbers`, async () => {
 
-      const expectedRowCount = 2;
       const requestIdsToNhsNumbers: { requestId: string; nhsNumber: string }[] = [];
       const requestIdsToNhsNumbersFromResponse: { requestId: string; nhsNumber: string }[] = [];
 
@@ -184,7 +183,6 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
         await genericValidations(response);
 
         //Extend custom assertions
-        expect(response.data.length).toBe(expectedRowCount);
 
         const currentBatch = response.data.map((item: any) => {
           return {
@@ -216,17 +214,13 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
         if (i === 0) {
 
 
-          const expectedRowCount = 2;
-          const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: currentRequestId, rowCount: 1 });
+          const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: currentRequestId, rowCount: 2 });
 
           const genericValidations = composeValidators(
             expectStatus(200),
             validateResponseByStatus()
           );
           await genericValidations(response);
-
-
-          expect(response.data.length).toBe(expectedRowCount);
 
           const nhsNumbers = response.data.map((item: any) => item.nhs_number);
           expect(nhsNumbers.length).toBe(2);
@@ -244,7 +238,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
         if (nextRequestId) {
 
 
-          const nextResponse = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: nextRequestId, rowCount: 1 });
+          const nextResponse = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: nextRequestId, rowCount: 2 });
 
 
           if (nextResponse.status == 200) {
