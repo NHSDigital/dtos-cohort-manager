@@ -288,6 +288,10 @@ function_apps = {
         {
           env_var_name     = "ScreeningLkpDataServiceURL"
           function_app_key = "ScreeningLkpDataService"
+        },
+        {
+          env_var_name     = "UseNewFunctions"
+          function_app_key = "false"
         }
       ]
       env_vars_static = {
