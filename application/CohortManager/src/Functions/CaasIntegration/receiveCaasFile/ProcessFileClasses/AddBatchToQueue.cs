@@ -1,22 +1,16 @@
 namespace NHS.Screening.ReceiveCaasFile;
 
 using System.Collections.Concurrent;
-using System.Text;
-using System.Text.Json;
-using Azure.Storage.Queues;
 using Common;
 using Microsoft.Extensions.Logging;
 using Model;
 
 public class AddBatchToQueue : IAddBatchToQueue
 {
-
-    private readonly ILogger<AddBatchToQueue> _logger;
     private readonly IQueueClient _queueClient;
 
-    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IQueueClient queueClient)
+    public AddBatchToQueue(IQueueClient queueClient)
     {
-        _logger = logger;
         _queueClient = queueClient;
     }
 
@@ -50,6 +44,7 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord, string queueName)
     {
+        await _queueClient.AddAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, queueName);
         await _queueClient.AddAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, queueName);
     }
 }
