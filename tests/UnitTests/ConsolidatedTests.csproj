@@ -93,7 +93,6 @@
 
   <!-- Demographic Services -->
   <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDataManagementFunction\DemographicDataManagementFunction.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageNemsSubscription\ManageNemsSubscription.csproj" />
@@ -125,12 +124,12 @@
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\NemsMeshRetrieval\NemsMeshRetrieval.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\ProcessNemsUpdate\ProcessNemsUpdate.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSSubscribe\NEMSSubscribe.csproj" />
   </ItemGroup>
 
     <!-- Send Service Now Message Services -->
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegrationService\SendServiceNowMessage\SendServiceNowMessage.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj" />
   </ItemGroup>
 
   <!-- Content files to be copied to output directory -->
