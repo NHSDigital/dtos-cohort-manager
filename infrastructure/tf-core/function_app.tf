@@ -63,7 +63,51 @@ module "functionapp" {
   function_app_slots = var.function_app_slots
 
   tags = var.tags
+
+  depends_on = [
+    module.azure_service_bus
+  ]
 }
+
+
+locals {
+  # Filter fa_config to only include those with producer_to_service_bus
+  service_bus_function_app_map = {
+    for app_key, app_value in var.function_apps.fa_config :
+    app_key => app_value
+    if contains(keys(app_value), "producer_to_service_bus")
+  }
+
+  # There are multiple maps
+  # We cannot nest for loops inside a map, so first iterate all permutations as a list of objects...
+  unified_service_bus_object_list = flatten([
+    for service_bus_key, service_bus_value in local.azure_service_bus_map : [
+      for function_key, function_values in local.service_bus_function_app_map : merge({
+        service_bus_key   = service_bus_key # 1st iterator
+        function_key      = function_key    # 2nd iterator
+        service_bus_value = service_bus_value
+      }, function_values) # the block of key/value pairs for a specific collection
+      if contains(keys(function_values), "producer_to_service_bus")
+      && (function_values.producer_to_service_bus != null ? length(function_values.producer_to_service_bus) > 0 : false)
+    ]
+  ])
+  # ...then project them into a map with unique keys (combining the iterators), for consumption by a for_each meta argument
+  unified_service_bus_object_map = {
+    for item in local.unified_service_bus_object_list :
+    "${item.service_bus_key}-${item.function_key}" => item
+  }
+}
+
+# Use the merged map in your resources
+resource "azurerm_role_assignment" "function_send_to_topic" {
+  for_each = local.unified_service_bus_object_map
+
+  principal_id         = module.functionapp["${each.value.function_key}-${each.value.service_bus_value.region}"].function_app_sami_id
+  role_definition_name = "Azure Service Bus Data Sender"
+  scope                = module.azure_service_bus[each.value.service_bus_key].namespace_id
+
+}
+
 
 locals {
   app_settings_common = {
@@ -102,6 +146,10 @@ locals {
                 var.function_apps.fa_config[obj.function_app_key].name_suffix,
                 var.function_apps.fa_config[obj.function_app_key].function_endpoint_name
               )
+            },
+
+            {
+              for key, obj in local.unified_service_bus_object_map : "SERVICE_BUS_NAMESPACE" => "${module.azure_service_bus[obj.service_bus_key].namespace_name}.servicebus.windows.net"
             },
 
             # Dynamic reference to Key Vault
