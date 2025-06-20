@@ -300,6 +300,7 @@ function_apps = {
         GetOrchestrationStatusURL  = "https://pre-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         AllowDeleteRecords         = false
         UpdateQueueName            = "update-participant-queue"
+        UseNewFunctions            = "false"
       }
 
     }

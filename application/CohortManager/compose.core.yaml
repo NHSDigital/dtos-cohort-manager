@@ -2,7 +2,6 @@ name: cohort-manager
 
 services:
   # CaaS Integration Service
-
   retrieve-mesh-file:
     container_name: retrieve-mesh-file
     image: cohort-manager-retrieve-mesh-file
@@ -86,9 +85,24 @@ services:
       - ScreeningLkpDataServiceURL=http://screening-lkp-data-service:8996/api/ScreeningLkpDataService
       - maxNumberOfChecks=50
       - inboundBlobName=inbound
+      - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
+      - ParticipantManagementQueueName=participant-management-queue
+      - UseNewFunctions=false
 
   # Participant Management Service
+  manage-participant:
+    container_name: manage-participant
+    image: cohort-manager-manage-participant
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/ManageParticipant/Dockerfile
+    environment:
+      - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - CohortQueueName=cohort-distribution-queue
+      - ParticipantManagementQueueName=participant-management-queue
+
   add-participant:
     container_name: add-participant
     image: cohort-manager-add-participant

@@ -7,6 +7,7 @@ using NHS.Screening.RemoveParticipant;
 var host = new HostBuilder()
 .AddConfiguration<RemoveParticipantConfig>(out RemoveParticipantConfig config)
     .ConfigureFunctionsWorkerDefaults()
+    .AddTelemetry()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
@@ -16,7 +17,6 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("RemoveParticipant");
     })
-    .AddTelemetry()
     .AddAzureQueues()
     .AddExceptionHandler()
     .AddHttpClient()

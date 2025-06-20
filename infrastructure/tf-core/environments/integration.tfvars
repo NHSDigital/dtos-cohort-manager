@@ -287,6 +287,7 @@ function_apps = {
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
+        UseNewFunctions            = "false"
       }
 
     }
