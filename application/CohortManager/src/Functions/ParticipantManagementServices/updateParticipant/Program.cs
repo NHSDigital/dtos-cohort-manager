@@ -17,7 +17,7 @@ var host = new HostBuilder()
         services.AddBasicHealthCheck("updateParticipant");
     })
     .AddTelemetry()
-    .AddAzureQueues(false, "")
+    .AddAzureQueues()
     .AddExceptionHandler()
     .AddHttpClient()
     .Build();

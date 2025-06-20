@@ -11,7 +11,7 @@ var host = new HostBuilder()
     //     // Register health checks
     //     services.AddBasicHealthCheck("CheckParticipantExists");
     // })
-    .AddAzureQueues(true, config.ServiceBusConnectionString)
+    .AddAzureQueues()
     .Build();
 
 
