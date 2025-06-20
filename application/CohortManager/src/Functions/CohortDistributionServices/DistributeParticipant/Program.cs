@@ -7,11 +7,12 @@ using NHS.CohortManager.CohortDistributionServices;
 var host = new HostBuilder()
     .AddConfiguration<DistributeParticipantConfig>(out DistributeParticipantConfig config)
     .ConfigureFunctionsWebApplication()
+    .AddTelemetry()
     // .ConfigureServices(services => {
     //     // Register health checks
     //     services.AddBasicHealthCheck("CheckParticipantExists");
     // })
-    .AddAzureQueues(true, config.ServiceBusConnectionString)
+    .AddAzureQueues()
     .Build();
 
 

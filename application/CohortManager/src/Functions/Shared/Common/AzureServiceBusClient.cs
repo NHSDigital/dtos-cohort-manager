@@ -2,15 +2,22 @@ namespace Common;
 
 using System.Text.Json;
 using Azure.Messaging.ServiceBus;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.Logging;
 
 public class AzureServiceBusClient : IQueueClient
 {
-
     private readonly ServiceBusClient _serviceBusClient;
+    private readonly ILogger<AzureServiceBusClient> _logger;
 
     public AzureServiceBusClient(string connectionString)
     {
         _serviceBusClient = new ServiceBusClient(connectionString);
+        var factory = LoggerFactory.Create(builder =>
+        {
+            builder.AddConsole();
+        });
+        _logger = factory.CreateLogger<AzureServiceBusClient>();
     }
 
     public async Task<bool> AddAsync<T>(T message, string queueName)
@@ -21,23 +28,19 @@ public class AzureServiceBusClient : IQueueClient
             string jsonMessage = JsonSerializer.Serialize(message);
             ServiceBusMessage serviceBusMessage = new(jsonMessage);
 
+            _logger.LogInformation("sending message to service buss queue");
+
             await sender.SendMessageAsync(serviceBusMessage);
             return true;
         }
-        catch
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "There was an error sending message to service buss queue {queueName} {errorMessage}", queueName, ex.Message);
             return false;
         }
         finally
         {
             await sender.DisposeAsync();
         }
-    }
-    
-    public async Task<bool> AddMessageBatchToQueueAsync<T>(IEnumerable<ServiceBusMessage> messages, string queueName)
-    {
-        var sender = _serviceBusClient.CreateSender(queueName);
-        await sender.SendMessagesAsync(messages);
-        return true;
     }
 }

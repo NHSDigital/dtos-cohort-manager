@@ -11,6 +11,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("AllocateServiceProviderToParticipantByService");
     })
+    .AddTelemetry()
     .AddExceptionHandler()
     .AddHttpClient()
     .Build();

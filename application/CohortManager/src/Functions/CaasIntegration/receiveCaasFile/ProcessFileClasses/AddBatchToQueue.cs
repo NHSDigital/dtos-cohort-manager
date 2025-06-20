@@ -11,7 +11,7 @@ using Model;
 public class AddBatchToQueue : IAddBatchToQueue
 {
 
-    public readonly ILogger<AddBatchToQueue> _logger;
+    private readonly ILogger<AddBatchToQueue> _logger;
     private readonly IQueueClient _queueClient;
 
     public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IQueueClient queueClient)

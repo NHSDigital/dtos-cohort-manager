@@ -18,11 +18,11 @@ public class AzureStorageQueueClient : IQueueClient
         _queueClientFactory = queueClientFactory;
     }
 
-    public async Task<bool> AddAsync<T>(T participantCsvRecord, string queueName)
+    public async Task<bool> AddAsync<T>(T message, string queueName)
     {
         var _queueClient = _queueClientFactory.CreateClient(queueName);
         await _queueClient.CreateIfNotExistsAsync();
-        var json = JsonSerializer.Serialize(participantCsvRecord);
+        var json = JsonSerializer.Serialize(message);
         var bytes = Encoding.UTF8.GetBytes(json);
         try
         {

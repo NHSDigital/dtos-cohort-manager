@@ -8,10 +8,8 @@ using System.IO;
 using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
 using Common;
-using Common.Interfaces;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
-using Azure.Messaging.ServiceBus;
 
 public class ReceiveCaasFile
 {
