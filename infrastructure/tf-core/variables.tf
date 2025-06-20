@@ -489,6 +489,7 @@ variable "service_bus_subscriptions" {
       subscriber_functionName = string
     }))
   })
+  default = {}
 }
 
 
