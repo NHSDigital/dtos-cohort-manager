@@ -264,10 +264,6 @@ function_apps = {
         {
           env_var_name     = "ScreeningLkpDataServiceURL"
           function_app_key = "ScreeningLkpDataService"
-        }, 
-        {
-          env_var_name     = "UseNewFunctions"
-          function_app_key = "false"
         }
       ],
       storage_containers = [
@@ -291,6 +287,7 @@ function_apps = {
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
+        UseNewFunctions            = "false"
       }
 
     }
