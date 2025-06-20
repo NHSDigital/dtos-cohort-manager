@@ -5,7 +5,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9991536566",
         "RuleId": -2146233088,
-        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED23_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name AMENDED_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4343-01",

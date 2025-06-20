@@ -44,6 +44,7 @@ try
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
+    .AddTelemetry()
     .AddHttpClient()
     .AddAzureQueues()
     .AddExceptionHandler()

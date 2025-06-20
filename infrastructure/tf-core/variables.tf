@@ -394,13 +394,13 @@ variable "routes" {
       protocols             = optional(list(string))
       destination_ports     = optional(list(string))
     }))
-    route_table_routes_to_audit = list(object({
+    route_table_core = list(object({
       name                   = optional(string)
       address_prefix         = optional(string)
       next_hop_type          = optional(string)
       next_hop_in_ip_address = optional(string)
     }))
-    route_table_routes_from_audit = list(object({
+    route_table_audit = list(object({
       name                   = optional(string)
       address_prefix         = optional(string)
       next_hop_type          = optional(string)
@@ -474,7 +474,7 @@ variable "storage_accounts" {
 variable "tags" {
   description = "Default tags to be applied to resources"
   type        = map(string)
-  default = {}
+  default     = {}
 }
 
 variable "function_app_slots" {
