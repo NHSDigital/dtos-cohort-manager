@@ -1,7 +1,7 @@
 module "azure_service_bus" {
   for_each = local.azure_service_bus_map
 
-  source = "../../../../../dtos-devops-templates/infrastructure/modules/service-bus-queue"
+  source = "../../../dtos-devops-templates/infrastructure/modules/service-bus-queue"
 
   servicebus_queue_map = each.value.queues
   # The namespace defaults to the object key unless a namespace is specified, then it overwrites it.
