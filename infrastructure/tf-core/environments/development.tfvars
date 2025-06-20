@@ -1218,6 +1218,30 @@ key_vault = {
   sku_name          = "standard"
 }
 
+service_bus = {
+  dtoss-nsp = {
+    capacity         = 1
+    sku_tier         = "Premium"
+    max_payload_size = "100mb"
+    topics = {
+      events = {
+        batched_operations_enabled = true
+      }
+    }
+  }
+}
+
+# service_bus_subscriptions = {
+#   subscriber_config = {
+#     event-dev-ap = {
+#       subscription_name       = "events-sub"
+#       topic_name              = "events"
+#       namespace_name          = "dtoss-nsp"
+#       subscriber_functionName = "foundryRelay"
+#     }
+#   }
+# }
+
 sqlserver = {
   sql_admin_group_name                 = "sqlsvr_cohman_dev_uks_admin"
   ad_auth_only                         = true
