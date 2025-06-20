@@ -33,7 +33,7 @@ public class DistributeParticipant
             var task = context.CallActivityAsync<bool>(
                                nameof(FetchDataActivity));
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Orchestration failed with an exception.");
             throw;
@@ -53,7 +53,7 @@ public class DistributeParticipant
 
     [Function("DistributeParticipant")]
     public async Task Run(
-       [ServiceBusTrigger("%CohortQueueName%", Connection = "ServiceBusConnectionString")] string messageBody,
+       [ServiceBusTrigger(topicName: "%DistributeParticipantTopic%", subscriptionName: "%DistributeParticipantTopic%", Connection = "ServiceBusConnectionString")] string messageBody,
        [DurableClient] DurableTaskClient durableClient,
        FunctionContext functionContext)
     {

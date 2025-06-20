@@ -1,7 +1,5 @@
 namespace Common;
 
-using System.Net;
-using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Model;
 
@@ -28,7 +26,12 @@ public class CohortDistributionHandler : ICohortDistributionHandler
             ErrorRecord = errorRecord
         };
 
-        await _azureQueueStorageHelper.AddAsync<CreateCohortDistributionRequestBody>(requestBody, Environment.GetEnvironmentVariable("CohortQueueName"));
+        var CohortQueueName = Environment.GetEnvironmentVariable("CohortQueueName");
+        if (string.IsNullOrEmpty(CohortQueueName))
+        {
+            throw new NullReferenceException("The cohort queue name was null");
+        }
+        await _azureQueueStorageHelper.AddAsync<CreateCohortDistributionRequestBody>(requestBody, CohortQueueName);
 
         _logger.LogInformation($"Participant sent to Cohort Distribution Service");
         return true;

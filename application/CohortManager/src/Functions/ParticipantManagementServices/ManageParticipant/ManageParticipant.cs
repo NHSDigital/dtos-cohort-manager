@@ -25,7 +25,7 @@ public class ManageParticipant
     }
 
     [Function(nameof(ManageParticipant))]
-    public async Task Run([ServiceBusTrigger("%ParticipantManagementQueueName%", Connection = "ServiceBusConnectionString")] string messageBody)
+    public async Task Run([ServiceBusTrigger(topicName: "%ManageParticipantTopicTrigger%", subscriptionName: "%ManageParticipantTopic%", Connection = "ServiceBusConnectionString")] string messageBody)
     {
         _logger.LogInformation($"Received message: {messageBody}");
         BasicParticipantCsvRecord message = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(messageBody);
