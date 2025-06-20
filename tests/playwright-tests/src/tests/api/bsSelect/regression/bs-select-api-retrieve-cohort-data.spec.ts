@@ -274,7 +274,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
 test.describe.serial('@regression @api Negative - Cohort Distribution Data Retrieval API ADD and AMENDED', async () => {
 
-  test('@DTOSS-5941-01 400 - @TC14_SIT Verify that an error message is displayed when BS Select attempts to retrieve an already retrieved cohort(ADD)', async ({ request }, testInfo) => {
+  test('@DTOSS-5941-01 400 - @TC14_SIT Verify that status code 400 is received when BS Select attempts to retrieve for non existent requestId', async ({ request }, testInfo) => {
 
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
@@ -297,9 +297,9 @@ test.describe.serial('@regression @api Negative - Cohort Distribution Data Retri
 
     await test.step(`And 400 status code should be received for non existent requestId`, async () => {
 
-      const requestIdNotExists = '81b723eb-8b40-46bc-84dd-2459c22d69be';
+      const nonExistentRequestId = '81b723eb-8b40-46bc-84dd-2459c22d69be';
 
-      const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: requestIdNotExists, rowCount: 1 });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: nonExistentRequestId, rowCount: 1 });
 
       const genericValidations = composeValidators(
         expectStatus(400),
