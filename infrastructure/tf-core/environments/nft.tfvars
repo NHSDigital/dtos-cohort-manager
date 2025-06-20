@@ -195,7 +195,7 @@ app_service_plan = {
 
 container_app_environments = {
   instances = {
-    db-management = {
+    db-management-4 = {
       zone_redundancy_enabled = false
     }
   }
@@ -203,10 +203,10 @@ container_app_environments = {
 
 container_app_jobs = {
   apps = {
-    db-management = {
-      container_app_environment_key = "db-management"
-      docker_env_tag                = "development"
-      docker_image                  = "cohort-manager-database-db-migration"
+    db-management-4 = {
+      container_app_environment_key = "db-management-4"
+      docker_env_tag                = "nft"
+      docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
     }
   }
