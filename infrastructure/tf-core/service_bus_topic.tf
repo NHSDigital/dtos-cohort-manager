@@ -1,9 +1,9 @@
 module "azure_service_bus" {
   for_each = local.azure_service_bus_map
 
-  source = "../../../dtos-devops-templates/infrastructure/modules/service-bus-queue"
+  source = "../../../dtos-devops-templates/infrastructure/modules/service-bus"
 
-  servicebus_queue_map = each.value.queues
+  servicebus_topic_map = each.value.topics
   # The namespace defaults to the object key unless a namespace is specified, then it overwrites it.
   servicebus_namespace_name = coalesce(each.value.namespace_name, each.key)
   resource_group_name       = azurerm_resource_group.core[each.value.region].name
