@@ -47,7 +47,7 @@ regions = {
         cidr_newbits = 8
         cidr_offset  = 5
       }
-      container-app-db-management = {
+      container-app-db-management-4 = {
         cidr_newbits = 7
         cidr_offset  = 6
       }
