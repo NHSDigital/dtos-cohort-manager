@@ -1,14 +1,6 @@
 namespace NHS.CohortManager.ExceptionService;
 
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using Microsoft.Azure.Functions.Worker.Http;
-using System.Net;
-using System.Text;
-using System.Text.Json;
-using Model;
-using Common;
-using Data.Database;
 using Azure.Messaging.ServiceBus;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
