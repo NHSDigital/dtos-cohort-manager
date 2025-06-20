@@ -9,9 +9,9 @@ using NHS.Screening.UpdateException;
 
 var host = new HostBuilder()
     .AddConfiguration<UpdateExceptionConfig>(out UpdateExceptionConfig config)
-    .AddDataServicesHandler()
-    .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
-    .Build()
+        .AddDataServicesHandler()
+        .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
+        .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
@@ -19,6 +19,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("UpdateException");
     })
+    .AddTelemetry()
     .AddDatabaseConnection()
     .Build();
 

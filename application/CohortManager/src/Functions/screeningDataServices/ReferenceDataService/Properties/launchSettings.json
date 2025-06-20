@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "BlockParticipant": {
+    "ReferenceDataService": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7114",
+      "commandLineArgs": "--port 7248",
       "launchBrowser": false
     }
   }

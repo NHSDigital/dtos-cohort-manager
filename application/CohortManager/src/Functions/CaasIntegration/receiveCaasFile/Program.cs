@@ -43,6 +43,7 @@ try
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
+    .AddTelemetry()
     .AddHttpClient()
     .AddAzureQueues(config.UseNewFunctions, config.ServiceBusConnectionString)
     .AddExceptionHandler()

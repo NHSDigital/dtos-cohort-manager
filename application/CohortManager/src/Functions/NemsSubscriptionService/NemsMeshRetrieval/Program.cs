@@ -55,7 +55,8 @@ try
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services
-            .AddMeshClient(_ => {
+            .AddMeshClient(_ =>
+            {
                 _.MeshApiBaseUrl = config.MeshApiBaseUrl;
                 _.BypassServerCertificateValidation = config.BypassServerCertificateValidation ?? false;
             })
@@ -72,6 +73,7 @@ try
         // Register health checks
         services.AddBlobStorageHealthCheck("NemsMeshRetrieval");
     })
+    .AddTelemetry()
     .AddExceptionHandler();
 
     var app = host.Build();

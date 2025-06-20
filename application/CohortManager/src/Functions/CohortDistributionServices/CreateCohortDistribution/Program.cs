@@ -24,6 +24,7 @@ var host = new HostBuilder()
         services.AddDatabaseHealthCheck("CreateCohortDistribution");
         services.AddBlobStorageHealthCheck("CreateCohortDistribution");
     })
+    .AddTelemetry()
     .AddAzureQueues(false, "")
     .AddDatabaseConnection()
     .AddExceptionHandler()

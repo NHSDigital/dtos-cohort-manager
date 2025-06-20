@@ -16,6 +16,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBlobStorageHealthCheck("addParticipant");
     })
+    .AddTelemetry()
     .AddAzureQueues(false, "")
     .AddExceptionHandler()
     .AddHttpClient()
