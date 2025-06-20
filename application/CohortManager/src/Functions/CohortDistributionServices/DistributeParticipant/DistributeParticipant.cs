@@ -19,21 +19,6 @@ public class DistributeParticipant
         _config = config.Value;
     }
 
-    [Function("ServiceBusQueueTrigger")]
-    public async Task Run(
-        [ServiceBusTrigger("%CohortQueueName%", Connection = "ServiceBusConnectionString")] string messageBody,
-        [DurableClient] DurableTaskClient durableClient,
-        FunctionContext functionContext)
-    {
-        _logger.LogInformation($"Received message: {messageBody}");
-
-        // Start a new orchestration instance and pass the message body as input.
-        string instanceId = await durableClient.ScheduleNewOrchestrationInstanceAsync(
-            nameof(MyOrchestration), messageBody);
-
-        _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
-    }
-
     [Function(nameof(MyOrchestration))]
     public async Task<List<string>> MyOrchestration(
         [OrchestrationTrigger] TaskOrchestrationContext context)
@@ -45,6 +30,8 @@ public class DistributeParticipant
 
         try
         {
+            var task = context.CallActivityAsync<bool>(
+                               nameof(FetchDataActivity));
         }
         catch (System.Exception ex)
         {
@@ -56,10 +43,27 @@ public class DistributeParticipant
         return outputs;
     }
 
-    // [Function(nameof(FetchDataActivity))]
-    // public static string FetchDataActivity([ActivityTrigger] string initialData, FunctionContext functionContext)
-    // {
-    //     return string.Empty;
-    // }
+    [Function(nameof(FetchDataActivity))]
+    public static string FetchDataActivity([ActivityTrigger] string initialData, FunctionContext functionContext)
+    {
+        return string.Empty;
+    }
+
+
+    [Function("ServiceBusQueueTrigger")]
+    public async Task Run(
+       [ServiceBusTrigger("%CohortQueueName%", Connection = "ServiceBusConnectionString")] string messageBody,
+       [DurableClient] DurableTaskClient durableClient,
+       FunctionContext functionContext)
+    {
+        _logger.LogInformation($"Received message: {messageBody}");
+
+        // Start a new orchestration instance and pass the message body as input.
+        string instanceId = await durableClient.ScheduleNewOrchestrationInstanceAsync(
+            nameof(MyOrchestration), messageBody);
+
+        _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
+    }
+
 
 }
