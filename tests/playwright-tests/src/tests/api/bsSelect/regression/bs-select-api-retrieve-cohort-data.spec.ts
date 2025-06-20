@@ -170,7 +170,6 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`Send a GET request via RetrieveCohortDistribution 5 times, and validate that req_id 1 nhs numbers are mapped to req_id 2 nhs numbers`, async () => {
 
-      const expectedRowCount = 2;
       const requestIdsToNhsNumbers: { requestId: string; nhsNumber: string }[] = [];
       const requestIdsToNhsNumbersFromResponse: { requestId: string; nhsNumber: string }[] = [];
 
@@ -184,7 +183,6 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
         await genericValidations(response);
 
         //Extend custom assertions
-        expect(response.data.length).toBe(expectedRowCount);
 
         const currentBatch = response.data.map((item: any) => {
           return {
@@ -216,17 +214,13 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
         if (i === 0) {
 
 
-          const expectedRowCount = 2;
-          const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: currentRequestId });
+          const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: currentRequestId, rowCount: 2 });
 
           const genericValidations = composeValidators(
             expectStatus(200),
             validateResponseByStatus()
           );
           await genericValidations(response);
-
-
-          expect(response.data.length).toBe(expectedRowCount);
 
           const nhsNumbers = response.data.map((item: any) => item.nhs_number);
           expect(nhsNumbers.length).toBe(2);
@@ -244,7 +238,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
         if (nextRequestId) {
 
 
-          const nextResponse = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: nextRequestId });
+          const nextResponse = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: nextRequestId, rowCount: 2 });
 
 
           if (nextResponse.status == 200) {
@@ -280,7 +274,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
 test.describe.serial('@regression @api Negative - Cohort Distribution Data Retrieval API ADD and AMENDED', async () => {
 
-  test('@DTOSS-5941-01 204 - @TC14_SIT Verify that an error message is displayed when BS Select attempts to retrieve an already retrieved cohort(ADD)', async ({ request }, testInfo) => {
+  test('@DTOSS-5941-01 400 - @TC14_SIT Verify that status code 400 is received when BS Select attempts to retrieve for non existent requestId', async ({ request }, testInfo) => {
 
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
@@ -301,14 +295,14 @@ test.describe.serial('@regression @api Negative - Cohort Distribution Data Retri
     });
 
 
-    await test.step(`And 204 status code should be received`, async () => {
+    await test.step(`And 400 status code should be received for non existent requestId`, async () => {
 
-      const requestIdNotExists = '81b723eb-8b40-46bc-84dd-2459c22d69be';
+      const nonExistentRequestId = '81b723eb-8b40-46bc-84dd-2459c22d69be';
 
-      const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: requestIdNotExists });
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { requestId: nonExistentRequestId, rowCount: 1 });
 
       const genericValidations = composeValidators(
-        expectStatus(204),
+        expectStatus(400),
         validateResponseByStatus()
       );
       await genericValidations(response);
