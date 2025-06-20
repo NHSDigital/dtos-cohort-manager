@@ -1,7 +1,7 @@
 module "service_bus_subscriptions" {
   for_each = local.service_bus_subscriptions_map
 
-  source = "../../../dtos-devops-templates/infrastructure/modules/service-bus-subscriptions"
+  source = "../../../dtos-devops-templates/infrastructure/modules/service-bus-subscription"
 
   subscription_name         = each.value.service_bus_subscription_key
   max_delivery_count        = 10
