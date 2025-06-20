@@ -479,18 +479,18 @@ variable "service_bus" {
   }))
 }
 
-variable "service_bus_subscriptions" {
-  description = "Configuration for service bus subscriptions"
-  type = object({
-    subscriber_config = map(object({
-      subscription_name       = string
-      namespace_name          = optional(string)
-      topic_name              = string
-      subscriber_functionName = string
-    }))
-  })
-  default = {}
-}
+# variable "service_bus_subscriptions" {
+#   description = "Configuration for service bus subscriptions"
+#   type = object({
+#     subscriber_config = map(object({
+#       subscription_name       = string
+#       namespace_name          = optional(string)
+#       topic_name              = string
+#       subscriber_functionName = string
+#     }))
+#   })
+#   default = {}
+# }
 
 
 variable "storage_accounts" {
