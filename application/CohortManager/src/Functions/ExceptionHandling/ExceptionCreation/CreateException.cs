@@ -29,7 +29,7 @@ public class CreateException
 
     [Function("RunCreateException")]
     public async Task Run(
-       [ServiceBusTrigger("queue", Connection = "AzureWebJobsStorage", AutoCompleteMessages = false)]
+       [ServiceBusTrigger(topicName: "%ExceptionTopic%", subscriptionName: "%ExceptionSubscription%", Connection = "ServiceBusConnectionString", AutoCompleteMessages = false)]
         [DurableClient] DurableTaskClient client,
         FunctionContext executionContext,
         ServiceBusReceivedMessage message,
