@@ -10,6 +10,7 @@ var host = new HostBuilder()
     {
         services.AddBlobStorageHealthCheck("ProcessNemsUpdate");
     })
+    .AddTelemetry()
     .AddExceptionHandler()
     .Build();
 

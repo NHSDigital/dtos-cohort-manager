@@ -1,3 +1,4 @@
+using Common;
 using DataServices.Core;
 using DataServices.Database;
 using HealthChecks.Extensions;
@@ -11,6 +12,7 @@ var host = new HostBuilder()
     {
         services.AddDatabaseHealthCheck("ReferenceDataService");
     })
+    .AddTelemetry()
     .Build();
 
 
