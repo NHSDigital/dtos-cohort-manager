@@ -10,7 +10,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4359-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate Telephone Number Business Effective From Date is future"
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate Amended Telephone Number Business Effective From Date is future"
       }
     }
   ],
