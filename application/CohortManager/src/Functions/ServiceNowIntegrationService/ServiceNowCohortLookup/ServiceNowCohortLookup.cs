@@ -41,8 +41,7 @@ public class ServiceNowCohortLookup
     /// <param name="myTimer">The TimerInfo object containing schedule information</param>
     /// <returns>A Task representing the asynchronous operation</returns>
     [Function("ServiceNowCohortLookup")]
-    //public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer)
-    public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
+    public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer)
     {
         _logger.LogInformation($"ServiceNowCohortLookup function started at: {DateTime.Now}");
 
