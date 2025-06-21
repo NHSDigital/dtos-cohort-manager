@@ -38,7 +38,11 @@ public class ServiceNowMessageHandler
             _createResponse = createResponse;
         }
 
-        // ⬅️ RECEIVE endpoint
+        /// <summary>
+        /// Azure Function to receive and log incoming ServiceNow messages.
+        /// </summary>
+        /// <param name="req">The HTTP request containing the incoming message payload.</param>
+        /// <returns>A 200 OK HTTP response containing the original body content.</returns>
         [Function("ReceiveServiceNowMessage")]
         public async Task<HttpResponseData> ReceiveServiceNowMessage(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "servicenow/receive")] HttpRequestData req)
@@ -49,7 +53,18 @@ public class ServiceNowMessageHandler
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, requestBody);
         }
 
-        // ➡️ SEND endpoint
+        /// <summary>
+        /// Azure Function to send a message to the ServiceNow API, with automatic token refresh handling.
+        /// </summary>
+        /// <param name="req">The HTTP request containing the message to be sent.</param>
+        /// <param name="baseUrl">Base URL of the ServiceNow instance.</param>
+        /// <param name="profile">The profile environment (e.g., dev, test, prod).</param>
+        /// <param name="sysId">The system identifier (sys_id) used for the PUT request path.</param>
+        /// <returns>
+        /// An HTTP response indicating the result of the operation:
+        ///  - 200 OK on success
+        ///  - 400 Bad Request for invalid input
+        /// </returns>
         [Function("SendServiceNowMessage")]
         public async Task<HttpResponseData> SendServiceNowMessage(
             [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "servicenow/send/{baseUrl}/{profile}/{sysId}")] HttpRequestData req,

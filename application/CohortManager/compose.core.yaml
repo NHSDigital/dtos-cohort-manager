@@ -141,7 +141,7 @@ services:
       - CohortDistributionServiceURL=http://create-cohort-distribution:7082/api/CreateCohortDistribution
       - CohortQueueName=cohort-distribution-queue
       - UpdateQueueName=update-participant-queue
-  
+
   update-blocked-flag:
     container_name: update-blocked-flag
     image: cohort-manager-update-blocked-flag
@@ -152,7 +152,7 @@ services:
     profiles: [non-essential]
     ports:
       - "7027:7027"
-    environment: 
+    environment:
       - ASPNETCORE_URLS=http://*:7027
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
@@ -343,6 +343,19 @@ services:
       - ASPNETCORE_URLS=http://*:7912
 
   send-servicenow-message:
+    container_name: send-servicenow-message
+    image: cohort-manager-send-servicenow-message
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: ServiceNowIntegrationService/SendServiceNowMessage/Dockerfile
+    profiles: [non-essential]
+    environment:
+      - ASPNETCORE_URLS=http://*:9092
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+
+  send-servicenow-handler:
     container_name: send-servicenow-message
     image: cohort-manager-send-servicenow-message
     networks: [cohman-network]

@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.Tests.UnitTests.ServiceNowMessageHandlerrTests;
+namespace NHS.CohortManager.Tests.UnitTests.ServiceNowMessageHandlerTests;
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
