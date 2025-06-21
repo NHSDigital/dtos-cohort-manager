@@ -15,6 +15,7 @@ var host = new HostBuilder()
         // services.AddHttpClient<ServiceNowMessageHandler>();
 
     })
+    .AddTelemetry()
     .Build();
 
 await host.RunAsync();

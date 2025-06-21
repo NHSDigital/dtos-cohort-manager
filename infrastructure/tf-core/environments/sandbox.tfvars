@@ -206,7 +206,7 @@ container_app_jobs = {
     db-management = {
       container_app_environment_key = "db-management"
       docker_env_tag                = "development"
-      docker_image                  = "cohort-manager-database-db-migration"
+      docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
     }
   }
@@ -294,6 +294,7 @@ function_apps = {
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
+        UseNewFunctions            = "false"
       }
 
     }

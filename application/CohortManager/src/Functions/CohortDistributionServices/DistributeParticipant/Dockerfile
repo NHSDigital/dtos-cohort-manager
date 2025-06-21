@@ -1,6 +1,5 @@
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
 
-
 COPY ./Shared /Shared
 WORKDIR /Shared
 
@@ -14,8 +13,8 @@ RUN mkdir -p /home/site/wwwroot && \
     dotnet publish ./DataServices.Database/DataServices.Database.csproj --output /home/site/wwwroot
 
 FROM base AS function
-
-COPY ./screeningDataServices/GPPractice /src/dotnet-function-app
+    
+COPY ./CohortDistributionServices/DistributeParticipant /src/dotnet-function-app
 WORKDIR /src/dotnet-function-app
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
