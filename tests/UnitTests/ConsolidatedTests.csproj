@@ -136,7 +136,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowMessageHandler\ServiceNowMessageHandler.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegration\ServiceNowMessageHandler\ServiceNowMessageHandler.csproj" />
   </ItemGroup>
       <!-- FileValidation Services -->
   <ItemGroup>

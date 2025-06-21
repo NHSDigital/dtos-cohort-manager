@@ -14,7 +14,7 @@ RUN mkdir -p /home/site/wwwroot && \
 
 FROM base AS function
 
-COPY ./ServiceNowMessageHandler  /src/dotnet-function-app
+COPY ./ServiceNowIntegration/ServiceNowMessageHandler  /src/dotnet-function-app
 WORKDIR /src/dotnet-function-app
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
