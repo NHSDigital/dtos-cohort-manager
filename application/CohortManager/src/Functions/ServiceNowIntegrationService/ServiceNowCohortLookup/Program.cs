@@ -4,7 +4,7 @@ using DataServices.Client;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NHS.CohortManager.ServiceNowCohortLookup;
+using NHS.CohortManager.ServiceNowIntegrationService;
 
 var host = new HostBuilder()
     .AddConfiguration<ServiceNowCohortLookupConfig>(out ServiceNowCohortLookupConfig config)

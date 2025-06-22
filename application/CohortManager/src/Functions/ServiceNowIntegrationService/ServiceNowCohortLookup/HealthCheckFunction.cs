@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.DemographicServices;
+namespace NHS.CohortManager.ServiceNowIntegrationService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;

@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.ServiceNowCohortLookup;
+namespace NHS.CohortManager.ServiceNowIntegrationService;
 
 using Microsoft.Azure.Functions.Worker;
 using Common;
