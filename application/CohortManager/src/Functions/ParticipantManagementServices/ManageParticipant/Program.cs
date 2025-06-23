@@ -18,6 +18,7 @@ var host = new HostBuilder()
     })
     .AddExceptionHandler()
     .AddAzureQueues(true, config.ServiceBusConnectionString)
+    .AddTelemetry()
     .Build();
 
 

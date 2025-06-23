@@ -28,7 +28,7 @@ public class AzureServiceBusClient : IQueueClient
             string jsonMessage = JsonSerializer.Serialize(message);
             ServiceBusMessage serviceBusMessage = new(jsonMessage);
 
-            _logger.LogInformation("sending message to service buss queue");
+            _logger.LogInformation("sending message to service bus queue");
 
             await sender.SendMessageAsync(serviceBusMessage);
             return true;
