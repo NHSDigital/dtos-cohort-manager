@@ -135,7 +135,7 @@
       "email_address_effective_from_date": "20240502",
       "preferred_language": "en",
       "is_interpreter_required": true,
-      "invalid_flag": true,
+      "invalid_flag": false,
       "eligibility": true
     },
     {
@@ -175,7 +175,7 @@
       "email_address_effective_from_date": "20240502",
       "preferred_language": "en",
       "is_interpreter_required": true,
-      "invalid_flag": true,
+      "invalid_flag": false,
       "eligibility": true
     },
     {
@@ -215,7 +215,7 @@
       "email_address_effective_from_date": "20240502",
       "preferred_language": "en",
       "is_interpreter_required": true,
-      "invalid_flag": true,
+      "invalid_flag": false,
       "eligibility": true
     },
     {
@@ -255,7 +255,7 @@
       "email_address_effective_from_date": "20240502",
       "preferred_language": "en",
       "is_interpreter_required": true,
-      "invalid_flag": true,
+      "invalid_flag": false,
       "eligibility": true
     },
     {
@@ -295,7 +295,7 @@
       "email_address_effective_from_date": "20240502",
       "preferred_language": "en",
       "is_interpreter_required": true,
-      "invalid_flag": true,
+      "invalid_flag": false,
       "eligibility": true
     },
     {
@@ -335,7 +335,7 @@
       "email_address_effective_from_date": "20240502",
       "preferred_language": "en",
       "is_interpreter_required": true,
-      "invalid_flag": true,
+      "invalid_flag": false,
       "eligibility": true
     },
     {
@@ -375,7 +375,7 @@
       "email_address_effective_from_date": "20240502",
       "preferred_language": "en",
       "is_interpreter_required": true,
-      "invalid_flag": true,
+      "invalid_flag": false,
       "eligibility": true
     },
     {
@@ -415,7 +415,7 @@
       "email_address_effective_from_date": "20240502",
       "preferred_language": "en",
       "is_interpreter_required": true,
-      "invalid_flag": true,
+      "invalid_flag": false,
       "eligibility": true
     }
   ],
