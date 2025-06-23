@@ -229,9 +229,9 @@ services:
       dockerfile: ExceptionHandling/ExceptionCreation/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7070
-      - ExceptionTopic=""
-      - ExceptionSubscription=""
-      - ServiceBusConnectionString=""
+      - ExceptionTopic="createExceptionTopic"
+      - ExceptionSubscription="exceptionSub"
+      - ServiceBusConnectionString="Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
 
     
   update-exception:
