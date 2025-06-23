@@ -29,7 +29,7 @@ public class CohortDistributionHandler : ICohortDistributionHandler
         var CohortQueueName = Environment.GetEnvironmentVariable("CohortQueueName");
         if (string.IsNullOrEmpty(CohortQueueName))
         {
-            throw new NullReferenceException("The cohort queue name was null");
+            throw new ArgumentNullException("The cohort queue name was null");
         }
         await _azureQueueStorageHelper.AddAsync<CreateCohortDistributionRequestBody>(requestBody, CohortQueueName);
 
