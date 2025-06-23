@@ -22,8 +22,8 @@ public class ServiceNowMessageHandler
         private readonly SendServiceNowMsgConfig _config;
         private readonly ICreateResponse _createResponse;
 
-        private static string? _cachedAccessToken;
-        private static DateTime _lastTokenRefresh = DateTime.MinValue;
+        private string? _cachedAccessToken;
+        private DateTime _lastTokenRefresh = DateTime.MinValue;
         private static readonly TimeSpan TokenExpiryBuffer = TimeSpan.FromMinutes(55);
 
         public ServiceNowMessageHandler(

@@ -12,8 +12,6 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
-        // services.AddHttpClient<ServiceNowMessageHandler>();
-
     })
     .AddTelemetry()
     .Build();
