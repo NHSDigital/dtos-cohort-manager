@@ -3,7 +3,7 @@ import { processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } f
 import { TestHooks } from '../../hooks/test-hooks';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { createTempDirAndWriteJson, deleteTempDir } from '../../../../src/json/file-utils';
-import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../../src/json/json-updator';
+import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../../src/json/json-updater';
 
 test.describe('@regression @e2e @epic2-high-priority Tests', () => {
 
@@ -41,17 +41,6 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
     })
 
-    test('@DTOSS-4330-01 Validate current posting effective date throw exception for future date new participants', {
-      annotation: {
-        type: 'Requirement',
-        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
-      },
-    }, async ({ request, testData }) => {
-      await test.step(`Then Exception table should have RuleId as 101 & RuleDescription as CurrentPostingEffectiveFromDate`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-    })
-
     test('@DTOSS-4102-01-Validate valid GP Practice Code for a new participant', {
       annotation: {
         type: 'Requirement',
@@ -60,20 +49,32 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     }, async ({ request, testData }) => {
 
       await test.step(`Then the record should appear in the cohort management table`, async () => {
-         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
     })
 
-  test('@DTOSS-4103-01-Validate invalid GP Practice Code for a new participant', {
+  test('@DTOSS-4088-01-Validate valid postcode', {
       annotation: {
         type: 'Requirement',
-        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4103',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4088',
       },
     }, async ({ request, testData }) => {
 
       await test.step(`Then the record should appear in the exception table`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
+  })
+
+    test('@DTOSS-4103-01-Validate invalid GP Practice Code for a new participant', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4103',
+      },
+    }, async ({ request, testData }) => {
+
+    await test.step(`Then the record should appear in the exception table`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+    });
   })
 
   test('@DTOSS-4099-01-Validate missing address lines', {
@@ -266,6 +267,57 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       });
   })
 
+  testWithAmended('@DTOSS-4095-01 Validate incompatible value reason for removal exception', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4095',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`When ADD participant is processed via storage`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      });
+
+      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+      await test.step(`Given 1 participant is processed to participant table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+
+      await test.step(`When same ADD participant record  ${testData.nhsNumberAmend}`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+
+      await test.step(`Then the correct exception is displayed in the Exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+  })
+
+  testWithAmended('@DTOSS-4094-01 Existing Participant Null Reason for Removal Exception', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4094',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`When ADD participant is processed via storage`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      });
+
+      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+      await test.step(`Given 1 participant is processed to participant table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+
+      await test.step(`When same ADD participant record  ${testData.nhsNumberAmend}`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+
+      await test.step(`Then the correct exception is displayed in the Exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+  })
   testWithAmended('@DTOSS-4219-01 Valid Postcode Existing', {
       annotation: {
         type: 'Requirement',

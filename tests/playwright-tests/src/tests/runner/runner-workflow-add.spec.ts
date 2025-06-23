@@ -6,7 +6,7 @@ import { runnerBasedEpic1TestScenariosAdd } from '../e2e/epic1-highpriority-test
 import { runnerBasedEpic2TestScenariosAdd } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
 import { runnerBasedEpic3TestScenariosAdd } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
 import { createTempDirAndWriteJson, deleteTempDir } from '../../../src/json/file-utils';
-import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updator';
+import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 
 // Test Scenario Tags
 const smokeTestScenario = runnerBasedEpic123TestScenariosAdd;

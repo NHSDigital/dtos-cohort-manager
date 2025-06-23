@@ -16,7 +16,7 @@ public class CreateCohortDistribution
     private readonly ILogger<CreateCohortDistribution> _logger;
     private readonly ICohortDistributionHelper _CohortDistributionHelper;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
+    private readonly IQueueClient _azureQueueStorageHelper;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly CreateCohortDistributionConfig _config;
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
@@ -24,7 +24,7 @@ public class CreateCohortDistribution
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
                                     ICohortDistributionHelper CohortDistributionHelper,
                                     IExceptionHandler exceptionHandler,
-                                    IAzureQueueStorageHelper azureQueueStorageHelper,
+                                    IQueueClient azureQueueStorageHelper,
                                     IDataServiceClient<ParticipantManagement> participantManagementClient,
                                     IDataServiceClient<CohortDistribution> cohortDistributionClient,
                                     IOptions<CreateCohortDistributionConfig> createCohortDistributionConfig)
@@ -151,7 +151,7 @@ public class CreateCohortDistribution
         }
 
         await _exceptionHandler.CreateSystemExceptionLog(new Exception(errorMessage), participant, fileName);
-        await _azureQueueStorageHelper.AddItemToQueueAsync<CohortDistributionParticipant>(cohortDistributionParticipant, _config.CohortQueueNamePoison);
+        await _azureQueueStorageHelper.AddAsync<CohortDistributionParticipant>(cohortDistributionParticipant, _config.CohortQueueNamePoison);
     }
 
     private async Task<bool> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
