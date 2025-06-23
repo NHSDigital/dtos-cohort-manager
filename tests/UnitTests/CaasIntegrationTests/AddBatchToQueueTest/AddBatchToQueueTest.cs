@@ -14,9 +14,9 @@ using NHS.Screening.ReceiveCaasFile;
 [TestClass]
 public class AddBatchToQueueTest
 {
+    private readonly Mock<ILogger<AddBatchToQueue>> _loggerMock = new();
     private readonly Mock<IQueueClient> _mockQueueStorageHelper = new();
     private AddBatchToQueue _addBatchToQueue;
-    private readonly Mock<ILogger<AddBatchToQueue>> _loggerMock = new();
 
 
     public AddBatchToQueueTest()
