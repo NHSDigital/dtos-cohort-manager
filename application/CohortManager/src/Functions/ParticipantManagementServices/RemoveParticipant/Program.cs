@@ -17,7 +17,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("RemoveParticipant");
     })
-    .AddAzureQueues(false, "")
+    .AddAzureQueues()
     .AddExceptionHandler()
     .AddHttpClient()
     .Build();
