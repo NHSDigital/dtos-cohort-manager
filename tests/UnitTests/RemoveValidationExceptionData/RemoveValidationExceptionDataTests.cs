@@ -18,19 +18,13 @@ using NHS.CohortManager.ScreeningValidationService;
 public class RemoveValidationExceptionDataTests
 {
     private readonly Mock<ICreateResponse> _createResponse = new();
-
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private Mock<HttpRequestData> _request;
     private readonly ServiceCollection _serviceCollection = new();
-    private Mock<ICallFunction> _callFunction = new();
-
     private Mock<IValidationExceptionData> _validationExceptionData = new();
-
     private RemoveValidationExceptionData _removeValidationExceptionData;
-
     private readonly Mock<ILogger<RemoveValidationExceptionData>> _logger = new();
-
     private readonly OldExceptionRecord _participantCsvRecord;
 
     public RemoveValidationExceptionDataTests()

@@ -49,7 +49,7 @@ public interface IHttpClientFunction
     /// - <c>Interaction-ID</c> to specify the interaction ID of the subscription creation process.
      /// This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. Currently it's just a basic structure.
     /// </remarks>
-    Task<HttpResponseMessage> PostNemsGet(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid);
+    Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid);
 
     /// <summary>
     /// Performs a PUT request using HttpClient.

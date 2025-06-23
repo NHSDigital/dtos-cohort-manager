@@ -27,6 +27,8 @@ var host = new HostBuilder()
         // Register health checks
         services.AddDatabaseHealthCheck("RetrieveCohortDistribution");
     })
+    .AddTelemetry()
+    .AddHttpClient()
     .AddDatabaseConnection()
     .AddExceptionHandler()
     .Build();

@@ -14,11 +14,11 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        services.AddScoped<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         // Register health checks
         services.AddBasicHealthCheck("DemographicDataFunction");
     })
+    .AddTelemetry()
     .AddHttpClient()
     .Build();
 

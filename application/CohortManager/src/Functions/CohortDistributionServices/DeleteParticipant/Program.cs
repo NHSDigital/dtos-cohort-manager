@@ -21,6 +21,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("DeleteParticipant");
     })
+    .AddTelemetry()
     .AddExceptionHandler()
     .AddHttpClient()
     .Build();

@@ -15,7 +15,7 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
         .AddDataServiceStaticCachedClient<BsSelectOutCode>(config.BsSelectOutCodeUrl)
         .AddDataServiceStaticCachedClient<BsSelectGpPractice>(config.BsSelectGpPracticeUrl)
-        .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceUrl)
+        .AddDataServiceStaticCachedClient<LanguageCode>(config.LanguageCodeUrl)
         .Build()
     .ConfigureServices(services =>
     {
@@ -25,6 +25,7 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
         // Register health checks
         services.AddDatabaseHealthCheck("TransformDataService");
     })
+    .AddTelemetry()
     .AddDatabaseConnection()
     .AddExceptionHandler()
     .AddHttpClient()

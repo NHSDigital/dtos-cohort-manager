@@ -17,11 +17,11 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
         // Register health checks
         services.AddDatabaseHealthCheck("RetrieveParticipantData");
     })
+    .AddTelemetry()
     .AddDatabaseConnection()
     .AddExceptionHandler()
     .AddHttpClient()

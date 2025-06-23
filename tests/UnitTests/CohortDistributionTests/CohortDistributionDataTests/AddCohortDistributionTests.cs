@@ -124,20 +124,6 @@ public class AddCohortDistributionTests
         Assert.IsNotNull(result);
         Assert.AreEqual(0, result.Count);
     }
-
-    public void GetNextCohortRequestAudit_GuidParseFails_ReturnsEmptyCohortRequestAudit()
-    {
-        // Arrange
-        var invalidRequestId = "i-Am-Not-A-Guid";
-
-        // Act
-        var result = _createCohortDistributionData.GetNextCohortRequestAudit(invalidRequestId);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.IsInstanceOfType(result, typeof(CohortRequestAudit));
-    }
-
     [TestMethod]
     public async Task GetCohortDistributionParticipantsByRequestId_ValidRequestId_ReturnsParticipants()
     {
