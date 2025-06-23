@@ -23,7 +23,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4220-01",
         "requirementJiraId": "DTOSS-3033",
-        "additionalTags": "@regression @e2e @epic2-high-priority Exception for existing participant's postcode invalid and not NFA or overseas(1234567)"
+        "additionalTags": "@regression @e2e @epic2-high-priority Exception for existing participant's postcode invalid and not NFA or overseas(9991742468)"
       }
     },
         {
@@ -36,7 +36,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4220-01",
         "requirementJiraId": "DTOSS-3033",
-        "additionalTags": "@regression @e2e @epic2-high-priority Exception for existing participant's postcode invalid and not NFA or overseas(1234567)"
+        "additionalTags": "@regression @e2e @epic2-high-priority Exception for existing participant's postcode invalid and not NFA or overseas(AB3 %GL)"
       }
     },     {
       "validations": {
@@ -48,7 +48,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4220-01",
         "requirementJiraId": "DTOSS-3033",
-        "additionalTags": "@regression @e2e @epic2-high-priority Exception for existing participant's postcode invalid and not NFA or overseas(1234567)"
+        "additionalTags": "@regression @e2e @epic2-high-priority Exception for existing participant's postcode invalid and not NFA or overseas(Simon)"
       }
     }
   ],
