@@ -132,6 +132,13 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegration\ServiceNowMessageHandler\ServiceNowMessageHandler.csproj" />
+  </ItemGroup>
+      <!-- FileValidation Services -->
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\FileValidation\FileValidation.csproj" />
+  </ItemGroup>
   <!-- Content files to be copied to output directory -->
   <ItemGroup>
     <None Update="**\*.json;**\*.parquet" CopyToOutputDirectory="PreserveNewest" />
