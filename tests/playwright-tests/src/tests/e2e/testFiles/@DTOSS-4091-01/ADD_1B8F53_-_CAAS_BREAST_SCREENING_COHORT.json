@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9990335133",
+        "NHSNumber": 9990335133,
         "expectedCount": 1
       },
       "meta": {
@@ -15,7 +15,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9990618356",
+        "NHSNumber": 9990618356,
         "expectedCount": 1
       },
       "meta": {
@@ -27,7 +27,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9991536566",
+        "NHSNumber": 9991536566,
         "expectedCount": 1
       },
       "meta": {
@@ -39,7 +39,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9992949600",
+        "NHSNumber": 9992949600,
         "expectedCount": 1
       },
       "meta": {
@@ -51,7 +51,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9991932887",
+        "NHSNumber": 9991932887,
         "expectedCount": 1
       },
       "meta": {
@@ -63,7 +63,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9992332484",
+        "NHSNumber": 9992332484,
         "expectedCount": 1
       },
       "meta": {
@@ -75,7 +75,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9993931888",
+        "NHSNumber": 9993931888,
         "expectedCount": 1
       },
       "meta": {
