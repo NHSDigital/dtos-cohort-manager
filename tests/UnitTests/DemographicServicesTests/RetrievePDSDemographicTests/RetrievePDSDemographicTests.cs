@@ -363,9 +363,10 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         _mockParticipantDemographicClient.Verify(x =>
             x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()),
             Times.AtLeastOnce());
+
         _mockParticipantDemographicClient.Verify(x =>
             x.Update(It.IsAny<ParticipantDemographic>()),
-            Times.AtLeastOnce());
+            Times.Never());
 
         // Verify response
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
