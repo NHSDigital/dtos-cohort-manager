@@ -5,7 +5,7 @@ using Common;
 using Microsoft.Extensions.Logging;
 using Model;
 using DataServices.Client;
-using Microsoft.Extensions.Options;
+using System.Linq;
 
 public class ServiceNowCohortLookup
 {
@@ -24,118 +24,209 @@ public class ServiceNowCohortLookup
     }
 
     /// <summary>
-    /// Azure Timer Function to check status of participants that have been received via serviceNow and updates participant statuses on a daily schedule.
+    /// Azure Function that processes ServiceNow cases on a timer trigger.
     /// </summary>
+    /// <param name="myTimer">Timer information from the Azure Functions host.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     /// <remarks>
-    /// This timer-triggered function:
-    /// 1. Gets the NHS Numbers from the ServiceNow_Cases table where status = NEW
-    /// 2. Lookup the NHS Numbers in Cohort Distribution
-    /// 3. If the NHS Number is in Cohort Distribution, change the status in the ServiceNow_Cases table to COMPLETE
-    /// 4. This function should run once every 24 hours
-    /// 5. Logs processing metrics and schedule information
+    /// This function runs every 2 minutes (as per the cron expression) and:
+    /// 1. Retrieves new ServiceNow cases
+    /// 2. Finds matching participants in cohort distribution which were added yesterday.
+    /// 3. Updates case statuses for successful matches
     /// </remarks>
-    /// <param name="myTimer">The TimerInfo object containing schedule information</param>
-    /// <returns>A Task representing the asynchronous operation</returns>
     [Function("ServiceNowCohortLookup")]
     public async Task Run([TimerTrigger("0 0 0 * * *")] TimerInfo myTimer)
     {
-        _logger.LogInformation($"ServiceNowCohortLookup function started at: {DateTime.Now}");
+        _logger.LogInformation("ServiceNowCohortLookup function started at: {StartTime}", DateTime.UtcNow);
 
         try
         {
-            _logger.LogInformation("Starting ServiceNow cohort lookup processing");
             var processingResult = await ProcessNewServiceNowCasesAsync();
-
-            _logger.LogInformation(
-                "Completed processing. Status updates: {UpdatedCount}/{TotalCases} cases marked as {CompleteStatus}",
-                processingResult.ProcessedCount,
-                processingResult.TotalCases,
-                ServiceNowStatus.Complete);
+            LogProcessingResult(processingResult);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to process ServiceNow cohort lookup timer function.");
+            _logger.LogError(ex, "Failed to process ServiceNow cohort lookup timer function");
         }
 
-        if (myTimer.ScheduleStatus is not null)
-        {
-            _logger.LogInformation("Next timer schedule at: {scheduleStatus}", myTimer.ScheduleStatus.Next);
-        }
+        LogNextSchedule(myTimer);
     }
 
     /// <summary>
-    /// Processes all new ServiceNow cases and updates their status if participants are found
+    /// Processes all new ServiceNow cases and updates their status if matching participants are found.
     /// </summary>
-    /// <remarks>
-    /// This method:
-    /// 1. Retrieves all records/cases from the ServiceNow_Cases table where status = NEW
-    /// 2. Processes each record/case through <see cref="ProcessSingleCaseAsync"/>
-    /// 3. Tracks success/failure counts
-    /// </remarks>
     /// <returns>
-    /// <list>
-    ///   <item><term>ProcessedCount</term><description>Number of successfully updated servicenow cases</description></item>
-    ///   <item><term>TotalCases</term><description>Total number of servicenow cases found</description></item>
+    /// A tuple containing:
+    /// <list type="bullet">
+    /// <item><description>ProcessedCount: Number of successfully updated cases</description></item>
+    /// <item><description>TotalCases: Total number of new cases processed</description></item>
     /// </list>
     /// </returns>
     private async Task<(int ProcessedCount, int TotalCases)> ProcessNewServiceNowCasesAsync()
     {
-        var serviceNowCases = (await _serviceNowCasesClient.GetByFilter(c => c.Status == ServiceNowStatus.New)).ToList();
-        _logger.LogInformation("Found {CaseCount} servicenow cases with status {NewStatus}.", serviceNowCases.Count, ServiceNowStatus.New);
+        var serviceNowCases = await GetNewServiceNowCasesAsync();
+        if (serviceNowCases.Count == 0)
+        {
+            return (0, 0);
+        }
 
+        var participantsList = await GetYesterdayCohortParticipantsAsync();
+        if (participantsList.Count == 0)
+        {
+            return (0, serviceNowCases.Count);
+        }
+
+        return await ProcessCasesAsync(serviceNowCases, participantsList);
+    }
+
+    /// <summary>
+    /// Retrieves all new ServiceNow cases with status 'NEW'.
+    /// </summary>
+    /// <returns>List of new ServiceNow cases.</returns>
+    private async Task<List<ServicenowCases>> GetNewServiceNowCasesAsync()
+    {
+        var cases = (await _serviceNowCasesClient.GetByFilter(c => c.Status == ServiceNowStatus.New)).ToList();
+        _logger.LogInformation("Found {CaseCount} new ServiceNow cases", cases.Count);
+        return cases;
+    }
+
+    /// <summary>
+    /// Retrieves cohort participants that were inserted yesterday.
+    /// </summary>
+    /// <returns>List of cohort participants from yesterday.</returns>
+    private async Task<List<CohortDistribution>> GetYesterdayCohortParticipantsAsync()
+    {
+        var yesterdayDate = DateTime.UtcNow.Date.AddDays(-1);
+        var participants = (await _cohortDistributionClient.GetByFilter(c =>
+            c.RecordInsertDateTime.HasValue &&
+            c.RecordInsertDateTime.Value.Date == yesterdayDate))
+            .ToList();
+
+        _logger.LogInformation("Found {ParticipantCount} participants from {YesterdayDate}",
+            participants.Count,
+            yesterdayDate.ToString("dd-MM-yyyy"));
+
+        return participants;
+    }
+
+    /// <summary>
+    /// Processes a batch of ServiceNow cases against cohort participants.
+    /// </summary>
+    /// <param name="cases">List of ServiceNow cases to process.</param>
+    /// <param name="participants">List of cohort participants to match against.</param>
+    /// <returns>
+    /// A tuple containing:
+    /// <list type="bullet">
+    /// <item><description>ProcessedCount: Number of successfully updated cases</description></item>
+    /// <item><description>TotalCases: Total number of cases processed</description></item>
+    /// </list>
+    /// </returns>
+    private async Task<(int ProcessedCount, int TotalCases)> ProcessCasesAsync(
+        List<ServicenowCases> cases,
+        List<CohortDistribution> participants)
+    {
         var processedCount = 0;
-        foreach (var caseItem in serviceNowCases)
+        var participantLookup = CreateParticipantLookup(participants);
+
+        foreach (var caseItem in cases)
         {
             try
             {
-                if (await ProcessSingleCaseAsync(caseItem))
+                if (await TryProcessCaseAsync(caseItem, participantLookup))
                 {
                     processedCount++;
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to process servicenow case {ServicenowId}", caseItem.ServicenowId);
+                _logger.LogWarning(ex, "Failed to process ServiceNow case {ServiceNowId}", caseItem.ServicenowId);
             }
         }
-        return (processedCount, serviceNowCases.Count);
+        return (processedCount, cases.Count);
     }
 
     /// <summary>
-    /// Processes an individual ServiceNow case by verifying participant and updating status
+    /// Creates a dictionary lookup for participants by NHS number.
     /// </summary>
-    /// <remarks>
-    /// This method:
-    /// 1. Lookup the NHS Numbers in Cohort Distribution from the servicenow case
-    /// 2. Updates servicenow case status to 'COMPLETE' if participant exists in Cohort Distribution table.
-    /// 3. Returns whether the case was successfully processed
-    /// </remarks>
-    /// <param name="caseItem">The ServiceNow case to process</param>
-    /// <returns>
-    /// True if case was successfully updated, false if participant was not found
-    /// </returns>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown when the case status cannot be updated in ServiceNow
-    /// </exception>
-    private async Task<bool> ProcessSingleCaseAsync(ServicenowCases caseItem)
+    private Dictionary<long, CohortDistribution> CreateParticipantLookup(List<CohortDistribution> participants)
     {
-        //Gets participant records for the last 24 hours
-        var participant = await _cohortDistributionClient.GetSingleByFilter(p => caseItem.NhsNumber.HasValue && p.NHSNumber == caseItem.NhsNumber.Value);
-        if (participant == null)
+        return participants.Where(p => p.NHSNumber != 0).ToDictionary(p => p.NHSNumber,p => p);
+    }
+
+    /// <summary>
+    /// Attempts to process a single ServiceNow case.
+    /// </summary>
+    /// <param name="caseItem">The ServiceNow case to process.</param>
+    /// <param name="participantLookup">Dictionary lookup of cohort participants by NHS number.</param>
+    /// <returns>
+    /// 'true' if the case was processed successfully; 'false' if processing failed due to:
+    /// </returns>
+    private async Task<bool> TryProcessCaseAsync(
+        ServicenowCases caseItem,
+        Dictionary<long, CohortDistribution> participantLookup)
+    {
+        if (!caseItem.NhsNumber.HasValue)
         {
-            _logger.LogInformation("No participant found for Servicenow Id: {ServicenowId}", caseItem.ServicenowId);
+            _logger.LogWarning("Case {ServiceNowId} has no NHS number", caseItem.ServicenowId);
             return false;
         }
 
-        caseItem.Status = ServiceNowStatus.Complete;
-        caseItem.RecordUpdateDatetime = DateTime.Now;
-        var updateSuccess = await _serviceNowCasesClient.Update(caseItem);
-
-        if (!updateSuccess)
+        string nhsNumberString = Convert.ToString(caseItem.NhsNumber.Value);
+        if (!long.TryParse(nhsNumberString, out long nhsNumber))
         {
-            throw new InvalidOperationException($"Failed to update status for servicenow case {caseItem.ServicenowId}.");
+            _logger.LogWarning("Invalid NHS number format: {NhsNumber}", nhsNumberString);
+            return false;
         }
-        _logger.LogInformation("Updated servicenow case {ServicenowId} to status {CompleteStatus}", caseItem.ServicenowId, ServiceNowStatus.Complete);
+
+        if (!participantLookup.TryGetValue(nhsNumber, out var participant))
+        {
+            _logger.LogInformation("No participant found for NHS number in ServiceNowId {ServicenowId}", caseItem.ServicenowId);
+            return false;
+        }
+
+        return await UpdateCaseStatusAsync(caseItem);
+    }
+
+    /// <summary>
+    /// Updates the status of a ServiceNow case to 'Complete'.
+    /// </summary>
+    /// <param name="caseItem">The case to update.</param>
+    /// <returns>'true' if the update was successful; otherwise, 'false'.</returns>
+    private async Task<bool> UpdateCaseStatusAsync(ServicenowCases caseItem)
+    {
+        caseItem.Status = ServiceNowStatus.Complete;
+        caseItem.RecordUpdateDatetime = DateTime.UtcNow;
+
+        if (!await _serviceNowCasesClient.Update(caseItem))
+        {
+            throw new InvalidOperationException($"Failed to update status for case {caseItem.ServicenowId}");
+        }
+
+        _logger.LogInformation("Updated case {ServiceNowId} to {Status}",
+            caseItem.ServicenowId,
+            ServiceNowStatus.Complete);
+
         return true;
+    }
+
+    private void LogProcessingResult((int ProcessedCount, int TotalCases) result)
+    {
+        _logger.LogInformation(
+            "Processed {ProcessedCount}/{TotalCases} cases successfully",
+            result.ProcessedCount,
+            result.TotalCases);
+    }
+
+    /// <summary>
+    /// Logs the next scheduled execution time.
+    /// </summary>
+    /// <param name="timer">Timer information containing schedule details.</param>
+    private void LogNextSchedule(TimerInfo timer)
+    {
+        if (timer.ScheduleStatus is not null)
+        {
+            _logger.LogInformation("Next execution scheduled for: {NextRun}",
+                timer.ScheduleStatus.Next);
+        }
     }
 }

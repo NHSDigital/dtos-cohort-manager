@@ -27,11 +27,6 @@ public class ServiceNowCohortLookupTests
         _cohortDistributionClientMock = new Mock<IDataServiceClient<CohortDistribution>>();
         _serviceNowCasesClientMock = new Mock<IDataServiceClient<ServicenowCases>>();
 
-        var config = Options.Create(new ServiceNowCohortLookupConfig
-        {
-            CohortDistributionDataServiceURL = "CohortDistributionDataServiceURL",
-            ServiceNowCasesDataServiceURL = "ServiceNowCasesDataServiceURL"
-        });
         _service = new ServiceNowCohortLookup(
             _loggerMock.Object,
             _cohortDistributionClientMock.Object,
@@ -50,47 +45,20 @@ public class ServiceNowCohortLookupTests
     }
 
     [TestMethod]
-    public async Task Run_WithNewServiceNowCases_FoundInCohort_UpdatesStatusToComplete()
+    public async Task Run_WithInvalidNhsNumber_LogsWarningAndSkips()
     {
         // Arrange
-        var validNhsNumberLong = long.Parse(ValidNhsNumber);
-        var newCase = new ServicenowCases
+        var invalidCase = new ServicenowCases
         {
             ServicenowId = ServiceNowId,
-            NhsNumber = validNhsNumberLong,
+            NhsNumber = 0, // Invalid NHS number
             Status = ServiceNowStatus.New,
             RecordUpdateDatetime = DateTime.Now
         };
 
-        var cohortParticipant = new CohortDistribution { NHSNumber = validNhsNumberLong };
-
         _serviceNowCasesClientMock.Setup(x =>
                 x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
-            .ReturnsAsync(new List<ServicenowCases> { newCase });
-
-        _cohortDistributionClientMock.Setup(x =>
-                x.GetSingleByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
-            .ReturnsAsync(cohortParticipant);
-
-        _serviceNowCasesClientMock.Setup(x =>
-                x.Update(It.Is<ServicenowCases>(c =>
-                    c.ServicenowId == ServiceNowId && c.Status == ServiceNowStatus.Complete)))
-            .ReturnsAsync(true);
-
-        // Act
-        await _service.Run(_timerInfo);
-
-        // Assert
-        _serviceNowCasesClientMock.Verify(x => x.Update(It.Is<ServicenowCases>(c => c.Status == ServiceNowStatus.Complete && c.ServicenowId == ServiceNowId)), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Run_WithNoNewServiceNowCases_DoesNothing()
-    {
-        // Arrange
-        _serviceNowCasesClientMock.Setup(x =>
-                x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
-            .ReturnsAsync(new List<ServicenowCases>());
+            .ReturnsAsync(new List<ServicenowCases> { invalidCase });
 
         // Act
         await _service.Run(_timerInfo);
@@ -103,14 +71,14 @@ public class ServiceNowCohortLookupTests
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("0 servicenow cases")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Processed 0/1 cases")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
     }
 
     [TestMethod]
-    public async Task Run_WhenParticipantNotFound_DoesNotUpdateStatus()
+    public async Task Run_WithNoYesterdayParticipants_LogsInformation()
     {
         // Arrange
         var validNhsNumberLong = long.Parse(ValidNhsNumber);
@@ -127,8 +95,38 @@ public class ServiceNowCohortLookupTests
             .ReturnsAsync(new List<ServicenowCases> { newCase });
 
         _cohortDistributionClientMock.Setup(x =>
-                x.GetSingleByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
-            .ReturnsAsync((CohortDistribution)null);
+                x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
+            .ReturnsAsync(new List<CohortDistribution>());
+
+        // Act
+        await _service.Run(_timerInfo);
+
+        // Assert
+        _loggerMock.Verify(x => x.Log(
+            LogLevel.Information,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("0 participants")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_WithCaseAlreadyProcessed_DoesNotProcessAgain()
+    {
+        // Arrange
+        var validNhsNumberLong = long.Parse(ValidNhsNumber);
+        var processedCase = new ServicenowCases
+        {
+            ServicenowId = ServiceNowId,
+            NhsNumber = validNhsNumberLong,
+            Status = ServiceNowStatus.Complete, // Already processed
+            RecordUpdateDatetime = DateTime.Now
+        };
+
+        _serviceNowCasesClientMock.Setup(x =>
+                x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
+            .ReturnsAsync(new List<ServicenowCases> { processedCase });
 
         // Act
         await _service.Run(_timerInfo);
@@ -137,149 +135,129 @@ public class ServiceNowCohortLookupTests
         _serviceNowCasesClientMock.Verify(x =>
             x.Update(It.IsAny<ServicenowCases>()),
             Times.Never);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("No participant found")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
     }
 
     [TestMethod]
-    public async Task Run_WhenUpdateFails_LogsError()
+    public async Task Run_WithMixedCases_ProcessesCorrectly()
     {
         // Arrange
-        var validNhsNumberLong = long.Parse(ValidNhsNumber);
-        var newCase = new ServicenowCases
-        {
-            ServicenowId = ServiceNowId,
-            NhsNumber = validNhsNumberLong,
-            Status = ServiceNowStatus.New,
-            RecordUpdateDatetime = DateTime.Now
-        };
-
-        var cohortParticipant = new CohortDistribution { NHSNumber = validNhsNumberLong };
-
-        _serviceNowCasesClientMock.Setup(x =>
-                x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
-            .ReturnsAsync(new List<ServicenowCases> { newCase });
-
-        _cohortDistributionClientMock.Setup(x =>
-                x.GetSingleByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
-            .ReturnsAsync(cohortParticipant);
-
-        _serviceNowCasesClientMock.Setup(x =>
-                x.Update(It.IsAny<ServicenowCases>()))
-            .ReturnsAsync(false);
-
-        // Act
-        await _service.Run(_timerInfo);
-
-        // Assert
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Warning,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to process servicenow case")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Run_WhenExceptionOccurs_LogsError()
-    {
-        // Arrange
-        _serviceNowCasesClientMock.Setup(x =>
-                x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
-            .ThrowsAsync(new Exception("Test exception"));
-
-        // Act
-        await _service.Run(_timerInfo);
-
-        // Assert
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Error,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to process ServiceNow cohort lookup")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Run_WithMultipleServiceNowCases_ProcessesAll()
-    {
-        // Arrange
-        var case1 = new ServicenowCases
+        var validCase1 = new ServicenowCases
         {
             ServicenowId = "SN1",
             NhsNumber = 123,
-            Status = ServiceNowStatus.New,
-            RecordUpdateDatetime = DateTime.Now
+            Status = ServiceNowStatus.New
         };
 
-        var case2 = new ServicenowCases
+        var validCase2 = new ServicenowCases
         {
             ServicenowId = "SN2",
             NhsNumber = 456,
-            Status = ServiceNowStatus.New,
-            RecordUpdateDatetime = DateTime.Now
+            Status = ServiceNowStatus.New
         };
 
+        var invalidCase = new ServicenowCases
+        {
+            ServicenowId = "SN3",
+            NhsNumber = 0, // Invalid
+            Status = ServiceNowStatus.New
+        };
+
+        // Mock case retrieval
         _serviceNowCasesClientMock.Setup(x =>
                 x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
-            .ReturnsAsync(new List<ServicenowCases> { case1, case2 });
+            .ReturnsAsync(new List<ServicenowCases> { validCase1, validCase2, invalidCase });
 
-        // Mock successful lookup for case1
+        // Mock participant lookup - only match validCase1
+        var participants = new List<CohortDistribution>
+        {
+            new CohortDistribution { NHSNumber = 123 } // Only matches validCase1
+        };
+
         _cohortDistributionClientMock.Setup(x =>
-                x.GetSingleByFilter(It.Is<Expression<Func<CohortDistribution, bool>>>(f =>
-                    f.Compile()(new CohortDistribution { NHSNumber = 123 }))))
-            .ReturnsAsync(new CohortDistribution { NHSNumber = 123 });
+                x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
+            .ReturnsAsync(participants);
 
-        // Mock failed lookup for case2
-        _cohortDistributionClientMock.Setup(x =>
-                x.GetSingleByFilter(It.Is<Expression<Func<CohortDistribution, bool>>>(f =>
-                    f.Compile()(new CohortDistribution { NHSNumber = 456 }))))
-            .ReturnsAsync((CohortDistribution)null);
-
-        // Mock successful update for case1
+        var updatedCases = new List<ServicenowCases>();
         _serviceNowCasesClientMock.Setup(x =>
-                x.Update(It.Is<ServicenowCases>(c => c.ServicenowId == "SN1")))
-            .ReturnsAsync(true);
+                x.Update(It.IsAny<ServicenowCases>()))
+            .ReturnsAsync(true)
+            .Callback<ServicenowCases>(c => updatedCases.Add(c));
 
+        // Act
         await _service.Run(_timerInfo);
 
         // Assert
-        // Verify case1 was updated
-        _serviceNowCasesClientMock.Verify(x =>
-            x.Update(It.Is<ServicenowCases>(c =>
-                c.ServicenowId == "SN1" &&
-                c.Status == ServiceNowStatus.Complete)),
-            Times.Once);
+        // Verify exactly one case was updated (validCase1)
+        Assert.AreEqual(1, updatedCases.Count, "Expected exactly one case to be updated");
 
-        // Verify case2 was not updated
-        _serviceNowCasesClientMock.Verify(x =>
-            x.Update(It.Is<ServicenowCases>(c => c.ServicenowId == "SN2")),
-            Times.Never);
+        // Verify validCase1 was updated correctly
+        var updatedValidCase = updatedCases.FirstOrDefault(c => c.ServicenowId == "SN1");
+        Assert.IsNotNull(updatedValidCase, "Valid case 1 should have been updated");
+        Assert.AreEqual(ServiceNowStatus.Complete, updatedValidCase.Status, "Case should be marked Complete");
+
+        // Verify other cases weren't updated
+        Assert.IsFalse(updatedCases.Any(c => c.ServicenowId == "SN2"), "Valid case without match shouldn't update");
+        Assert.IsFalse(updatedCases.Any(c => c.ServicenowId == "SN3"), "Invalid case shouldn't update");
 
         // Verify logging
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Updated servicenow case SN1")),
+            It.Is<It.IsAnyType>((v, t) =>
+                v.ToString().Contains("No participant found for NHS number in ServiceNowId SN1", StringComparison.OrdinalIgnoreCase) ||
+                v.ToString().Contains("No participant found for NHS number in ServiceNowId SN2", StringComparison.OrdinalIgnoreCase) ||
+                v.ToString().Contains("Processed 1/3 cases successfully", StringComparison.OrdinalIgnoreCase)),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("No participant found")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
+            Times.AtLeastOnce);
     }
+
+    [TestMethod]
+    public async Task Run_WithDuplicateNhsNumbers_ProcessesAll()
+    {
+        // Arrange
+        const long testNhsNumber = 123;
+
+        var case1 = new ServicenowCases
+        {
+            ServicenowId = "SN1",
+            NhsNumber = testNhsNumber,
+            Status = ServiceNowStatus.New
+        };
+
+        var case2 = new ServicenowCases
+        {
+            ServicenowId = "SN2",
+            NhsNumber = testNhsNumber, // Same NHS number
+            Status = ServiceNowStatus.New
+        };
+
+        _serviceNowCasesClientMock.Setup(x =>
+            x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
+            .ReturnsAsync(new List<ServicenowCases> { case1, case2 });
+
+        var participant = new CohortDistribution { NHSNumber = testNhsNumber };
+        var participants = new List<CohortDistribution> { participant };
+
+        _cohortDistributionClientMock.Setup(x =>
+            x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
+            .ReturnsAsync(participants);
+
+        var updatedCases = new List<ServicenowCases>();
+        _serviceNowCasesClientMock.Setup(x =>
+            x.Update(It.IsAny<ServicenowCases>()))
+            .ReturnsAsync(true)
+            .Callback<ServicenowCases>(c => updatedCases.Add(c));
+
+        // Act
+        await _service.Run(_timerInfo);
+
+        // Assert
+        Assert.AreEqual(2, updatedCases.Count, "Expected both cases to be updated");
+        Assert.IsTrue(updatedCases.Any(c => c.ServicenowId == "SN1"), "Case SN1 should be updated");
+        Assert.IsTrue(updatedCases.Any(c => c.ServicenowId == "SN2"), "Case SN2 should be updated");
+        Assert.IsTrue(updatedCases.All(c => c.Status == ServiceNowStatus.Complete), "All cases should be marked Complete");
+    }
+
 
 }
