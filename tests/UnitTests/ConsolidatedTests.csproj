@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <ProjectGuid>{5C61489E-9430-470C-BC0F-786965C35010}</ProjectGuid>
@@ -9,6 +9,7 @@
     <IsTestProject>true</IsTestProject>
     <!-- Disable implicit file inclusion -->
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <UserSecretsId>4ba9d1bc-35b7-4f07-a628-a89bb37cd0aa</UserSecretsId>
   </PropertyGroup>
 
 
@@ -32,7 +33,7 @@
     <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.37" />
 
     <!-- Other Dependencies -->
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
@@ -57,7 +58,6 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Data\Data.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Utilities\Utilities.csproj" />
     <ProjectReference Include="..\TestUtils\TestUtils.csproj" />
-    <ProjectReference Include="..\..\DataServices.Client\DataServices.Client.csproj" />
     <ProjectReference Include="../../application/CohortManager/src/Functions/Shared/DataServices.Client/DataServices.Client.csproj" />
   </ItemGroup>
 
@@ -89,7 +89,7 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\updateParticipant\updateParticipant.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\RemoveParticipant\RemoveParticipant.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\BlockParticipant\BlockParticipant.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\UpdateBlockedFlag\UpdateBlockedFlag.csproj" />
   </ItemGroup>
 
   <!-- Demographic Services -->
@@ -97,6 +97,7 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDataManagementFunction\DemographicDataManagementFunction.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageNemsSubscription\ManageNemsSubscription.csproj" />
   </ItemGroup>
 
   <!-- Cohort Distribution Services -->
@@ -124,6 +125,7 @@
   <!-- NEMS Services -->
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\NemsMeshRetrieval\NemsMeshRetrieval.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\ProcessNemsUpdate\ProcessNemsUpdate.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSSubscribe\NEMSSubscribe.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSUnSubscription\NEMSUnSubscription.csproj" />
   </ItemGroup>

@@ -1,4 +1,5 @@
 namespace Common;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -8,7 +9,9 @@ public static class AzureQueueExtension
     {
         return hostBuilder.ConfigureServices(_ =>
         {
-            _.AddTransient<IAzureQueueStorageHelper, AzureQueueStorageHelper>();
+            _.AddScoped<IQueueClient>(_ => new AzureServiceBusClient(Environment.GetEnvironmentVariable("ServiceBusConnectionString") ?? ""));
+
+            _.AddTransient<IQueueClient, AzureStorageQueueClient>();
             _.AddTransient<IQueueClientFactory, QueueClientFactory>();
         });
     }

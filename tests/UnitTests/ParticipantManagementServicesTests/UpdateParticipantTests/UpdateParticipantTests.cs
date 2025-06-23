@@ -20,7 +20,7 @@ public class UpdateParticipantTests
     private readonly Mock<IExceptionHandler> _handleException = new();
     private ParticipantCsvRecord _request = new();
     private readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new();
-    private readonly Mock<IAzureQueueStorageHelper> _azureQueueStorageHelper = new();
+    private readonly Mock<IQueueClient> _azureQueueStorageHelper = new();
     private readonly Mock<IOptions<UpdateParticipantConfig>> _config = new();
 
     public UpdateParticipantTests()

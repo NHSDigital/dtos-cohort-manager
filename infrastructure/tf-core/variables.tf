@@ -237,8 +237,9 @@ variable "function_apps" {
           env_var_name   = string
           container_name = string
       })), [])
-      db_connection_string = optional(string, "")
-      key_vault_url        = optional(string, "")
+      db_connection_string    = optional(string, "")
+      producer_to_service_bus = optional(list(string), [])
+      key_vault_url           = optional(string, "")
       app_urls = optional(list(object({
         env_var_name     = string
         function_app_key = string
@@ -394,13 +395,13 @@ variable "routes" {
       protocols             = optional(list(string))
       destination_ports     = optional(list(string))
     }))
-    route_table_routes_to_audit = list(object({
+    route_table_core = list(object({
       name                   = optional(string)
       address_prefix         = optional(string)
       next_hop_type          = optional(string)
       next_hop_in_ip_address = optional(string)
     }))
-    route_table_routes_from_audit = list(object({
+    route_table_audit = list(object({
       name                   = optional(string)
       address_prefix         = optional(string)
       next_hop_type          = optional(string)
@@ -455,6 +456,43 @@ variable "sqlserver" {
   })
 }
 
+variable "service_bus" {
+  description = "Configuration for Service Bus namespaces and their topics"
+  type = map(object({
+    namespace_name   = optional(string)
+    capacity         = number
+    sku_tier         = string
+    max_payload_size = string
+    topics = map(object({
+      auto_delete_on_idle                     = optional(string, "P10675199DT2H48M5.4775807S")
+      batched_operations_enabled              = optional(bool, false)
+      default_message_ttl                     = optional(string, "P10675199DT2H48M5.4775807S")
+      duplicate_detection_history_time_window = optional(string)
+      partitioning_enabled                    = optional(bool, false)
+      max_message_size_in_kilobytes           = optional(number, 1024)
+      max_size_in_megabytes                   = optional(number, 5120)
+      requires_duplicate_detection            = optional(bool, false)
+      support_ordering                        = optional(bool)
+      status                                  = optional(string, "Active")
+      topic_name                              = optional(string)
+    }))
+  }))
+}
+
+# variable "service_bus_subscriptions" {
+#   description = "Configuration for service bus subscriptions"
+#   type = object({
+#     subscriber_config = map(object({
+#       subscription_name       = string
+#       namespace_name          = optional(string)
+#       topic_name              = string
+#       subscriber_functionName = string
+#     }))
+#   })
+#   default = {}
+# }
+
+
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"
   type = map(object({
@@ -474,6 +512,7 @@ variable "storage_accounts" {
 variable "tags" {
   description = "Default tags to be applied to resources"
   type        = map(string)
+  default     = {}
 }
 
 variable "function_app_slots" {
