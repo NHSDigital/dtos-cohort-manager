@@ -26,12 +26,7 @@ public class CohortDistributionHandler : ICohortDistributionHandler
             ErrorRecord = errorRecord
         };
 
-        var CohortQueueName = Environment.GetEnvironmentVariable("CohortQueueName");
-        if (string.IsNullOrEmpty(CohortQueueName))
-        {
-            throw new ArgumentNullException("The cohort queue name was null");
-        }
-        await _azureQueueStorageHelper.AddAsync<CreateCohortDistributionRequestBody>(requestBody, CohortQueueName);
+        await _azureQueueStorageHelper.AddAsync<CreateCohortDistributionRequestBody>(requestBody, Environment.GetEnvironmentVariable("CohortQueueName"));
 
         _logger.LogInformation($"Participant sent to Cohort Distribution Service");
         return true;
