@@ -148,7 +148,7 @@ public class ServiceNowCohortLookup
     /// <summary>
     /// Creates a dictionary lookup for participants by NHS number.
     /// </summary>
-    private Dictionary<long, CohortDistribution> CreateParticipantLookup(List<CohortDistribution> participants)
+    private static Dictionary<long, CohortDistribution> CreateParticipantLookup(List<CohortDistribution> participants)
     {
         return participants.Where(p => p.NHSNumber != 0).ToDictionary(p => p.NHSNumber,p => p);
     }
