@@ -75,16 +75,15 @@ public class ManageParticipant
 
             if (!dataServiceResponse)
             {
-                HandleException(new InvalidOperationException("Participant Management Data Service request failed"), participant, participantRecord.FileName);
+                await HandleException(new InvalidOperationException("Participant Management Data Service request failed"), participant, participantRecord.FileName);
                 return;
             }
-
 
             await _queueClient.AddAsync(participantRecord, _config.CohortQueueName);
         }
         catch (Exception ex)
         {
-            HandleException(ex, participant, participantRecord.FileName);
+            await HandleException(ex, participant, participantRecord.FileName);
         }
     }
 

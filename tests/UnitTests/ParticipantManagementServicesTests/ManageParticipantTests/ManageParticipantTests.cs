@@ -9,6 +9,9 @@ using Model;
 using Microsoft.Extensions.Options;
 using NHS.CohortManager.ParticipantManagementServices;
 using DataServices.Client;
+using System.Linq.Expressions;
+using Azure.Core;
+using Model.Enums;
 
 [TestClass]
 public class ManageParticipantTests
@@ -17,6 +20,7 @@ public class ManageParticipantTests
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<IOptions<ManageParticipantConfig>> _config = new();
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
+    private readonly Mock<IQueueClient> _queueClientMock = new();
     private readonly ManageParticipant _sut;
     private readonly BasicParticipantCsvRecord _request;
 
@@ -24,187 +28,179 @@ public class ManageParticipantTests
     {
         var testConfig = new ManageParticipantConfig
         {
-
+            CohortQueueName = "CohortQueueName"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
 
         _participantManagementClientMock
-            .Setup(data => data.Add(It.IsAny<ParticipantManagement>()))
+            .Setup(x => x.Add(It.IsAny<ParticipantManagement>()))
             .ReturnsAsync(true);
 
         _participantManagementClientMock
-            .Setup(data => data.Update(It.IsAny<ParticipantManagement>()))
+            .Setup(x => x.Update(It.IsAny<ParticipantManagement>()))
+            .ReturnsAsync(true);
+
+        _participantManagementClientMock
+            .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync((ParticipantManagement)null);
+
+        _queueClientMock
+            .Setup(x => x.AddAsync(It.IsAny<ParticipantCsvRecord>(), testConfig.CohortQueueName))
             .ReturnsAsync(true);
 
         _sut = new ManageParticipant(
             _loggerMock.Object,
-            _handleException.Object,
-            _config.Object
+            _config.Object,
+            _queueClientMock.Object,
+            _participantManagementClientMock.Object,
+            _handleException.Object
         );
 
         _request = new BasicParticipantCsvRecord
         {
             FileName = "mockFileName",
-            Participant = new BasicParticipantData
+            participant = new Participant
             {
-                NhsNumber = "1234567890",
-                ScreeningName = "mockScreeningName"
+                NhsNumber = "9444567877",
+                ScreeningName = "mockScreeningName",
+                SupersededByNhsNumber = "789012",
+                PrimaryCareProvider = "ABC Clinic",
+                NamePrefix = "Mr.",
+                FirstName = "John",
+                OtherGivenNames = "Middle",
+                FamilyName = "Doe",
+                DateOfBirth = "1990-01-01",
+                Gender = Gender.Male,
+                AddressLine1 = "123 Main Street",
+                AddressLine2 = "Apt 101",
+                AddressLine3 = "Suburb",
+                AddressLine4 = "City",
+                AddressLine5 = "State",
+                Postcode = "12345",
+                ReasonForRemoval = "Moved",
+                ReasonForRemovalEffectiveFromDate = "2024-04-23",
+                DateOfDeath = "2024-04",
+                TelephoneNumber = "123-456-7890",
+                MobileNumber = "987-654-3210",
+                EmailAddress = "john.doe@example.com",
+                PreferredLanguage = "English",
+                IsInterpreterRequired = "0",
+                RecordType = Actions.Amended,
+                ScreeningId = "1"
             }
         };
 
     }
 
     [TestMethod]
-    public async Task Run_SuccessfullyAddsParticipant_LogsParticipantCreatedAndMarkedEligible()
+    public async Task Run_ParticipantNotInTable_AddParticipantAndSendToQueue()
     {
         // Act
         await _sut.Run(JsonSerializer.Serialize(_request));
 
         // Assert
-        _loggerMock.Verify(x => x.Log(
-            It.Is<LogLevel>(l => l == LogLevel.Information),
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Participant created")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
+        _participantManagementClientMock
+            .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Once);
+        _participantManagementClientMock
+            .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
+        _queueClientMock
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
-    public async Task Run_FailsToAddParticipant_LogsErrorAndRaisesException()
+    public async Task Run_ParticipantInTable_UpdateParticipantAndSendToQueue()
     {
         // Arrange
-        var errorMessage = "There was problem posting the participant to the database";
-
-        _httpClientFunctionMock.Setup(x => x.SendPost("DSaddParticipant", It.IsAny<string>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
+        _participantManagementClientMock
+            .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync(new ParticipantManagement());
 
         // Act
         await _sut.Run(JsonSerializer.Serialize(_request));
 
         // Assert
-        _loggerMock.Verify(x => x.Log(
-            It.Is<LogLevel>(l => l == LogLevel.Error),
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(errorMessage)),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-
-        _handleException.Verify(i => i.CreateSystemExceptionLog(
-            It.Is<Exception>((v, t) => v.ToString().Contains(errorMessage)),
-            It.IsAny<BasicParticipantData>(),
-            It.IsAny<string>()), Times.Once);
-    }
-
-
-    [TestMethod]
-    public async Task Run_StaticValidationReturnsFatalError_LogsErrorAndRaisesException()
-    {
-        // Arrange
-        var errorMessage = "A fatal Rule was violated, so the record cannot be added to the database";
-
-        _httpClientFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
-            .ReturnsAsync(JsonSerializer.Serialize(new ValidationExceptionLog()
-            {
-                IsFatal = true,
-                CreatedException = false
-            }));
-
-        // Act
-        await _sut.Run(JsonSerializer.Serialize(_request));
-
-        // Assert
-        _loggerMock.Verify(x => x.Log(
-                    It.Is<LogLevel>(l => l == LogLevel.Error),
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(errorMessage)),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
-
-        _handleException.Verify(i => i.CreateSystemExceptionLog(
-            It.IsAny<Exception>(),
-            It.IsAny<BasicParticipantData>(),
-            It.IsAny<string>()), Times.Once);
+        _participantManagementClientMock
+            .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Once);
+        _participantManagementClientMock
+            .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never);
+        _queueClientMock
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
-    public async Task Run_AddParticipantThrowsError_LogsErrorAndRaisesException()
+    public async Task Run_InvalidNhsNumber_CreateExceptionAndReturn()
     {
         // Arrange
-        var errorMessage = "Unable to call function";
-
-        _httpClientFunctionMock.Setup(x => x.SendPost("DSaddParticipant", It.IsAny<string>()))
-            .ThrowsAsync(new Exception("some new exception"));
+        _request.participant.NhsNumber = "12345";
 
         // Act
         await _sut.Run(JsonSerializer.Serialize(_request));
 
         // Assert
-        _loggerMock.Verify(x => x.Log(
-                    It.Is<LogLevel>(l => l == LogLevel.Information),
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(errorMessage)),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
-
-        _handleException.Verify(i => i.CreateSystemExceptionLog(
-            It.IsAny<Exception>(),
-            It.IsAny<BasicParticipantData>(),
-            It.IsAny<string>()), Times.Once);
+        _participantManagementClientMock
+            .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never);
+        _participantManagementClientMock
+            .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
+        _queueClientMock
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+        _handleException
+            .Verify(i => i.CreateSystemExceptionLog(
+                It.IsAny<ArgumentException>(),
+                It.IsAny<Participant>(),
+                It.IsAny<string>(),
+                ""), Times.Once);
     }
 
     [TestMethod]
-    public async Task Run_FailsToSendParticipantToCohortDistribution_LogsErrorAndRaisesException()
+    public async Task Run_ParticipantIsBlocked_CreateExceptionAndReturn()
     {
         // Arrange
-        var errorMessage = "Participant failed to send to Cohort Distribution Service";
-
-        _cohortDistributionHandler.Setup(x => x.SendToCohortDistributionService(
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<Participant>()
-        )).ReturnsAsync(false);
+        _participantManagementClientMock
+            .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync(new ParticipantManagement { BlockedFlag = 1 });
 
         // Act
         await _sut.Run(JsonSerializer.Serialize(_request));
 
         // Assert
-        _loggerMock.Verify(x => x.Log(
-                    It.Is<LogLevel>(l => l == LogLevel.Error),
-                    It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains(errorMessage)),
-                    It.IsAny<Exception>(),
-                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-                Times.Once);
-
-        _handleException.Verify(i => i.CreateSystemExceptionLog(
-            It.Is<Exception>((v, t) => v.ToString().Contains(errorMessage)),
-            It.IsAny<BasicParticipantData>(),
-            It.IsAny<string>()), Times.Once);
+        _participantManagementClientMock
+            .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never);
+        _participantManagementClientMock
+            .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
+        _queueClientMock
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+        _handleException
+            .Verify(i => i.CreateSystemExceptionLog(
+                It.IsAny<InvalidOperationException>(),
+                It.IsAny<Participant>(),
+                It.IsAny<string>(),
+                ""), Times.Once);
     }
 
     [TestMethod]
-    public async Task Run_ParticipantHasInvalidScreeningName_RaisesException()
+    public async Task Run_AddFails_CreateExceptionAndReturn()
     {
         // Arrange
-        var errorMessage = "invalid screening name and therefore cannot be processed by the static validation function";
-        _request.Participant.ScreeningName = string.Empty;
+        _participantManagementClientMock
+            .Setup(x => x.Add(It.IsAny<ParticipantManagement>()))
+            .ReturnsAsync(false);
 
         // Act
         await _sut.Run(JsonSerializer.Serialize(_request));
 
         // Assert
-        _handleException.Verify(i => i.CreateRecordValidationExceptionLog(
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.Is<string>((v, t) => v.ToString().Contains(errorMessage)),
-            It.IsAny<string>(),
-            It.IsAny<string>()), Times.Once);
+        _participantManagementClientMock
+            .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Once);
+        _participantManagementClientMock
+            .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
+        _queueClientMock
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+        _handleException
+            .Verify(i => i.CreateSystemExceptionLog(
+                It.IsAny<InvalidOperationException>(),
+                It.IsAny<Participant>(),
+                It.IsAny<string>(),
+                ""), Times.Once);
     }
 }

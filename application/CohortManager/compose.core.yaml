@@ -88,7 +88,7 @@ services:
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
       - ParticipantManagementQueueName=participant-management-queue
-      - UseNewFunctions=false
+      - UseNewFunctions=true
 
   # Participant Management Service
   manage-participant:
@@ -102,6 +102,8 @@ services:
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - CohortQueueName=cohort-distribution-queue
       - ParticipantManagementQueueName=participant-management-queue
+      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
   add-participant:
     container_name: add-participant
