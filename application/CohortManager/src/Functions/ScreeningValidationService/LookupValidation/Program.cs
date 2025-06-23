@@ -16,19 +16,18 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
         .AddDataServiceStaticCachedClient<BsSelectGpPractice>(config.BsSelectGpPracticeUrl)
         .AddDataServiceStaticCachedClient<BsSelectOutCode>(config.BsSelectOutCodeUrl)
-        .AddDataServiceStaticCachedClient<LanguageCode>(config.LanguageCodeUrl)
         .AddDataServiceStaticCachedClient<CurrentPosting>(config.CurrentPostingUrl)
         .AddDataServiceStaticCachedClient<ExcludedSMULookup>(config.ExcludedSMULookupUrl)
         .Build()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IReadRules, ReadRules>();
         services.AddSingleton<IDataLookupFacadeBreastScreening, DataLookupFacadeBreastScreening>();
         // Register health checks
         services.AddBasicHealthCheck("LookupValidation");
     })
+    .AddTelemetry()
     .AddDatabaseConnection()
     .AddExceptionHandler()
     .AddHttpClient()

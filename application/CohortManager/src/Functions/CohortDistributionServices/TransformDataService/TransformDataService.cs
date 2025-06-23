@@ -27,17 +27,21 @@ public class TransformDataService
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
+    private readonly ITransformDataLookupFacade _dataLookup;
+
     public TransformDataService(
         ICreateResponse createResponse,
         IExceptionHandler exceptionHandler,
         ILogger<TransformDataService> logger,
-        ITransformReasonForRemoval transformReasonForRemoval
+        ITransformReasonForRemoval transformReasonForRemoval,
+        ITransformDataLookupFacade dataLookup
     )
     {
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
         _logger = logger;
         _transformReasonForRemoval = transformReasonForRemoval;
+        _dataLookup = dataLookup;
     }
 
     [Function("TransformDataService")]
@@ -129,6 +133,7 @@ public class TransformDataService
         var ruleParameters = new[] {
             new RuleParameter("databaseParticipant", databaseParticipant),
             new RuleParameter("participant", participant),
+            new RuleParameter("dbLookup", _dataLookup)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);

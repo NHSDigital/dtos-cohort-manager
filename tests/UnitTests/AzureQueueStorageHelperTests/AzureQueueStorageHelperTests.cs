@@ -15,25 +15,25 @@ namespace AzureQueueStorageHelperTests;
 public class AzureQueueStorageHelperTests
 {
 
-    AzureQueueStorageHelper _queueHelper;
+    AzureStorageQueueClient _queueHelper;
 
     Mock<IQueueClientFactory> mockQueueClientFactory;
 
     Mock<QueueClient> _mockQueueClient;
 
-    Mock<ILogger<AzureQueueStorageHelper>> _loggerMock;
+    Mock<ILogger<AzureStorageQueueClient>> _loggerMock;
 
     public AzureQueueStorageHelperTests()
     {
         mockQueueClientFactory = new Mock<IQueueClientFactory>();
-        _loggerMock = new Mock<ILogger<AzureQueueStorageHelper>>();
+        _loggerMock = new Mock<ILogger<AzureStorageQueueClient>>();
         _mockQueueClient = new("UseDevelopmentStorage=true", "testqueue");
 
         mockQueueClientFactory
             .Setup(f => f.CreateClient(It.IsAny<string>()))
             .Returns(_mockQueueClient.Object);
 
-        _queueHelper = new AzureQueueStorageHelper(_loggerMock.Object, mockQueueClientFactory.Object);
+        _queueHelper = new AzureStorageQueueClient(_loggerMock.Object, mockQueueClientFactory.Object);
 
     }
 
@@ -48,7 +48,7 @@ public class AzureQueueStorageHelperTests
         };
 
         // Act
-        var result = await _queueHelper.AddItemToQueueAsync(testRecord, "testqueue");
+        var result = await _queueHelper.AddAsync(testRecord, "testqueue");
 
         // Assert
         Assert.IsTrue(result);
@@ -77,9 +77,9 @@ public class AzureQueueStorageHelperTests
             .Setup(f => f.CreateClient(It.IsAny<string>()))
             .Returns(mockQueueClient.Object);
 
-        var _queueHelper = new AzureQueueStorageHelper(new Mock<ILogger<AzureQueueStorageHelper>>().Object, mockQueueClientFactory.Object);
+        var _queueHelper = new AzureStorageQueueClient(new Mock<ILogger<AzureStorageQueueClient>>().Object, mockQueueClientFactory.Object);
 
-        var res = await _queueHelper.AddItemToQueueAsync<ParticipantCsvRecord>(new ParticipantCsvRecord(), "Some_Bad_Queue_Name");
+        var res = await _queueHelper.AddAsync<ParticipantCsvRecord>(new ParticipantCsvRecord(), "Some_Bad_Queue_Name");
 
         Assert.IsFalse(res);
     }

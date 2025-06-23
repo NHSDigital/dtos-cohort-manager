@@ -7,6 +7,7 @@ using NHS.Screening.RemoveParticipant;
 var host = new HostBuilder()
 .AddConfiguration<RemoveParticipantConfig>(out RemoveParticipantConfig config)
     .ConfigureFunctionsWorkerDefaults()
+    .AddTelemetry()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
