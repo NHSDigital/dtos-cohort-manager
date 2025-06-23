@@ -19,6 +19,7 @@ public class AddBatchToQueueTest
     private AddBatchToQueue _addBatchToQueue;
 
 
+
     public AddBatchToQueueTest()
     {
 
