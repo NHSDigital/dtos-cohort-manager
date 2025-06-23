@@ -261,6 +261,10 @@ function_apps = {
           function_app_key = "RemoveParticipant"
         },
         {
+          env_var_name     = "PMSUpdateParticipant"
+          function_app_key = "UpdateParticipant"
+        },
+        {
           env_var_name     = "StaticValidationURL"
           function_app_key = "StaticValidation"
         },
@@ -289,11 +293,15 @@ function_apps = {
         recordThresholdForBatching = "3"
         batchDivisionFactor        = "2"
         CheckTimer                 = "100"
+        delayBetweenChecks         = "50"
         DemographicURI             = "https://nft-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
         GetOrchestrationStatusURL  = "https://nft-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
+        maxNumberOfChecks          = "50"
         AllowDeleteRecords         = true
+        TopicName                  = "DistributeParticipantQueue"
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
+        ServiceBusConnectionString = ""
         UseNewFunctions            = "false"
       }
 
@@ -1056,6 +1064,42 @@ function_apps = {
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
       }
+    }
+
+    ServicenowCasesDataService = {
+      name_suffix            = "servicenow-cases-data-service"
+      function_endpoint_name = "ServicenowCasesDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
+    }
+
+    ServiceNowCohortLookup = {
+      name_suffix            = "servicenow-cohort-lookup"
+      function_endpoint_name = "ServiceNowCohortLookup"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ServiceNowCasesDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        }
+      ]
     }
 
     RetrievePDSDemographic = {
