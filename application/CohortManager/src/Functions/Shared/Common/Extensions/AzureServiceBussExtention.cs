@@ -5,8 +5,7 @@ using Microsoft.Extensions.Hosting;
 
 public static class AzureServiceBussExtension
 {
-
-    public static IHostBuilder AddAzureQueues(this IHostBuilder hostBuilder, bool UseNewFunctions, string serviceBusConnectionString)
+    public static IHostBuilder AddAzureQueues(this IHostBuilder hostBuilder, string serviceBusConnectionString)
     {
         return hostBuilder.ConfigureServices(_ =>
         {
