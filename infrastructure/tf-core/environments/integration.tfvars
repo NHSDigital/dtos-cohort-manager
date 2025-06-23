@@ -290,11 +290,11 @@ function_apps = {
         DemographicURI             = "https://int-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
         GetOrchestrationStatusURL  = "https://int-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         maxNumberOfChecks          = "50"
-        UseNewFunctions            = "false"
         AllowDeleteRecords         = true
         TopicName                  = "DistributeParticipantQueue"
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
+        ServiceBusConnectionString = ""
         UseNewFunctions            = "false"
       }
 
