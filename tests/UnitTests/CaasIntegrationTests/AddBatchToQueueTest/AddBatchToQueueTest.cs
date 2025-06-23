@@ -16,14 +16,14 @@ public class AddBatchToQueueTest
 {
     private readonly Mock<IQueueClient> _mockQueueStorageHelper = new();
     private AddBatchToQueue _addBatchToQueue;
-
+    private readonly Mock<ILogger<AddBatchToQueue>> _loggerMock = new();
 
 
     public AddBatchToQueueTest()
     {
 
 
-        _addBatchToQueue = new AddBatchToQueue(_mockQueueStorageHelper.Object);
+        _addBatchToQueue = new AddBatchToQueue(_loggerMock.Object, _mockQueueStorageHelper.Object);
     }
 
     [TestMethod]
