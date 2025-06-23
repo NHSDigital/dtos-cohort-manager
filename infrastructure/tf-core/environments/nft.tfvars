@@ -261,6 +261,10 @@ function_apps = {
           function_app_key = "RemoveParticipant"
         },
         {
+          env_var_name     = "PMSUpdateParticipant"
+          function_app_key = "UpdateParticipant"
+        },
+        {
           env_var_name     = "StaticValidationURL"
           function_app_key = "StaticValidation"
         },
@@ -289,11 +293,15 @@ function_apps = {
         recordThresholdForBatching = "3"
         batchDivisionFactor        = "2"
         CheckTimer                 = "100"
+        delayBetweenChecks         = "50"
         DemographicURI             = "https://nft-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
         GetOrchestrationStatusURL  = "https://nft-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
+        maxNumberOfChecks          = "50"
         AllowDeleteRecords         = true
+        TopicName                  = "DistributeParticipantQueue"
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
+        ServiceBusConnectionString = ""
         UseNewFunctions            = "false"
       }
 
