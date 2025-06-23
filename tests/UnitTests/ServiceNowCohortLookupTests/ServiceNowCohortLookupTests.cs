@@ -204,8 +204,8 @@ public class ServiceNowCohortLookupTests
             LogLevel.Information,
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, t) =>
-                v.ToString().Contains("No participant found for NHS number in ServiceNowId SN1", StringComparison.OrdinalIgnoreCase) ||
                 v.ToString().Contains("No participant found for NHS number in ServiceNowId SN2", StringComparison.OrdinalIgnoreCase) ||
+                v.ToString().Contains("No participant found for NHS number in ServiceNowId SN3", StringComparison.OrdinalIgnoreCase) ||
                 v.ToString().Contains("Processed 1/3 cases successfully", StringComparison.OrdinalIgnoreCase)),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
