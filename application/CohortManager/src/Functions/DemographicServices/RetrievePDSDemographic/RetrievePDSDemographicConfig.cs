@@ -1,4 +1,4 @@
-namespace NHS.Screening.RetrievePDSDemographic;
+namespace NHS.CohortManager.DemographicServices;
 
 using System.ComponentModel.DataAnnotations;
 

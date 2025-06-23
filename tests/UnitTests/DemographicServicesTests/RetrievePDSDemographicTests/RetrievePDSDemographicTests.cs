@@ -10,9 +10,7 @@ using Moq;
 using NHS.CohortManager.DemographicServices;
 using DataServices.Client;
 using NHS.CohortManager.Tests.TestUtils;
-using NHS.Screening.RetrievePDSDemographic;
 using System.Linq.Expressions;
-using Microsoft.Azure.Functions.Worker.Http;
 
 [TestClass]
 public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemographic>
@@ -370,5 +368,4 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         // Verify response
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
-
 }

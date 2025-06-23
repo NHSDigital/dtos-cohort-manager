@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
-using NHS.Screening.RetrievePDSDemographic;
 
 public class RetrievePdsDemographic
 {
@@ -102,7 +101,7 @@ public class RetrievePdsDemographic
 
     private HttpResponseData CreateSuccessResponse(HttpRequestData req, PdsDemographic demographic)
     {
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK,req,JsonSerializer.Serialize(demographic));
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(demographic));
     }
 
     private HttpResponseData HandleParticipantNotFound(HttpRequestData req)
@@ -122,5 +121,4 @@ public class RetrievePdsDemographic
         _logger.LogError("Unexpected result when updating participant demographic record from PDS.");
         return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
     }
-
 }
