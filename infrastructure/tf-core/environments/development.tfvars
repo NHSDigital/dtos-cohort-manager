@@ -239,6 +239,7 @@ function_apps = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
       app_service_plan_key         = "DefaultPlan"
+      producer_to_service_bus      = ["dtoss-nsp"]
       db_connection_string         = "DtOsDatabaseConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
@@ -290,6 +291,7 @@ function_apps = {
         DemographicURI             = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
         GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
         AllowDeleteRecords         = true
+        TopicName                  = "DistributeParticipantQueue"
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
         UseNewFunctions            = "false"
@@ -1222,6 +1224,36 @@ key_vault = {
   purge_prot        = false
   sku_name          = "standard"
 }
+
+service_bus = {
+  distribute-participant = {
+    capacity         = 1
+    sku_tier         = "Premium"
+    max_payload_size = "100mb"
+    topics = {
+      cohort-distribution-queue = {
+        batched_operations_enabled = true
+      }
+      add-participant-queue = {
+        batched_operations_enabled = true
+      }
+      update-participant-queue = {
+        batched_operations_enabled = true
+      }
+    }
+  }
+}
+
+# service_bus_subscriptions = {
+#   subscriber_config = {
+#     event-dev-ap = {
+#       subscription_name       = "events-sub"
+#       topic_name              = "events"
+#       namespace_name          = "dtoss-nsp"
+#       subscriber_functionName = "foundryRelay"
+#     }
+#   }
+# }
 
 sqlserver = {
   sql_admin_group_name                 = "sqlsvr_cohman_dev_uks_admin"
