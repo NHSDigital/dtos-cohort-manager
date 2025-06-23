@@ -9,7 +9,6 @@ using System.Text.Json;
 using Model;
 using Common;
 using Data.Database;
-using Azure.Messaging.ServiceBus;
 
 public class CreateException
 {
