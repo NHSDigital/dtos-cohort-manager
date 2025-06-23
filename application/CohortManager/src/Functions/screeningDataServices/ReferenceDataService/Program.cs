@@ -1,16 +1,19 @@
-using Microsoft.Extensions.Hosting;
+using Common;
 using DataServices.Core;
 using DataServices.Database;
 using HealthChecks.Extensions;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Hosting;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler<DataServicesContext>()
     .ConfigureServices(services =>
     {
-        // Register health checks
-        services.AddDatabaseHealthCheck("GPPracticeDataService");
+        services.AddDatabaseHealthCheck("ReferenceDataService");
     })
+    .AddTelemetry()
     .Build();
+
 
 await host.RunAsync();

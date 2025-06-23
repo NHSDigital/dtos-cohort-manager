@@ -1,8 +1,8 @@
-namespace NHS.Screening.BlockParticipant;
+namespace NHS.CohortManager.ParticipantManagementService;
 
 using System.ComponentModel.DataAnnotations;
 
-public class BlockParticipantConfig
+public class UpdateBlockedFlagConfig
 {
     [Required]
     public string ParticipantManagementUrl {get; set;}

@@ -1,10 +1,10 @@
-namespace ParticipantManagementDataService;
+namespace NHS.CohortManager.ParticipantManagementService;
 
-using System.Threading.Tasks;
-using HealthChecks.Extensions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Threading.Tasks;
+using HealthChecks.Extensions;
 
 public class HealthCheckFunction
 {

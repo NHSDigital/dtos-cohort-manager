@@ -88,7 +88,7 @@ services:
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
       - ParticipantManagementQueueName=participant-management-queue
-      - UseNewFunctions=true
+      - UseNewFunctions=false
 
   # Participant Management Service
   manage-participant:
@@ -104,7 +104,7 @@ services:
       - ParticipantManagementQueueName=participant-management-queue
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-
+      
   add-participant:
     container_name: add-participant
     image: cohort-manager-add-participant
@@ -126,20 +126,6 @@ services:
       - CohortDistributionServiceURL=http://create-cohort-distribution:7082/api/CreateCohortDistribution
       - CohortQueueName=cohort-distribution-queue
       - AddQueueName=add-participant-queue
-
-  block-participant:
-    container_name: block-participant
-    image: cohort-manager-block-participant
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/BlockParticipant/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7026
-      - AzureWebJobsStorage=UseDevelopmentStorage=true
-      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
-      - DemographicURIGet=http://demographic-data-management:7076/api/DemographicDataFunction
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
   remove-participant:
     container_name: remove-participant
@@ -171,6 +157,23 @@ services:
       - CohortDistributionServiceURL=http://create-cohort-distribution:7082/api/CreateCohortDistribution
       - CohortQueueName=cohort-distribution-queue
       - UpdateQueueName=update-participant-queue
+  
+  update-blocked-flag:
+    container_name: update-blocked-flag
+    image: cohort-manager-update-blocked-flag
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/UpdateBlockedFlag/Dockerfile
+    profiles: [non-essential]
+    ports:
+      - "7027:7027"
+    environment: 
+      - ASPNETCORE_URLS=http://*:7027
+      - AzureWebJobsStorage=UseDevelopmentStorage=true
+      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
   # Screening Data Service
   create-participant:
@@ -306,6 +309,7 @@ services:
       - ASPNETCORE_URLS=http://*:8082
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsParticipantURL=https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient
+      - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
 
   manage-nems-subscription:
     container_name: manage-nems-subscription

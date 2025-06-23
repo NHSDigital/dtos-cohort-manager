@@ -39,10 +39,10 @@ try
         services.AddTransient<IBlobStorageHelper, BlobStorageHelper>();
         services.AddTransient<ICopyFailedBatchToBlob, CopyFailedBatchToBlob>();
         services.AddScoped<IValidateDates, ValidateDates>();
-        // services.AddScoped<IQueueClientFactory, QueueClientFactory>();
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
+    .AddTelemetry()
     .AddHttpClient()
     .AddAzureQueues(config.UseNewFunctions, config.ServiceBusConnectionString)
     .AddExceptionHandler()

@@ -12,7 +12,7 @@ features = {
 }
 
 tags = {
-  Project = "Cohort-Manager"
+  Environment = "sandbox"
 }
 
 regions = {
@@ -82,19 +82,20 @@ routes = {
         destination_ports     = ["443"]
       }
     ]
-    route_table_routes_to_audit = [
+    route_table_core = [
       {
-        name                   = "CohmanToAudit"
-        address_prefix         = "10.127.0.0/16"
+        name                   = "EgressViaHubFirewall"
+        address_prefix         = "0.0.0.0/0"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
-    route_table_routes_from_audit = [{
-      name                   = "AuditToCohman"
-      address_prefix         = "10.126.0.0/16"
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
+    route_table_audit = [
+      {
+        name                   = "AuditToCohman"
+        address_prefix         = "10.126.0.0/16"
+        next_hop_type          = "VirtualAppliance"
+        next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
   }
@@ -205,7 +206,7 @@ container_app_jobs = {
     db-management = {
       container_app_environment_key = "db-management"
       docker_env_tag                = "development"
-      docker_image                  = "cohort-manager-database-db-migration"
+      docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
     }
   }
@@ -293,6 +294,7 @@ function_apps = {
         AllowDeleteRecords         = true
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
+        UseNewFunctions            = "false"
       }
 
     }
@@ -321,7 +323,7 @@ function_apps = {
     ProcessNemsUpdate = {
       name_suffix                  = "process-nems-update"
       function_endpoint_name       = "ProcessNemsUpdate"
-      app_service_plan_key         = "ProcessNemsUpdate"
+      app_service_plan_key         = "DefaultPlan"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
@@ -445,11 +447,10 @@ function_apps = {
       }
     }
 
-    BlockParticipant = {
-      name_suffix            = "block-participant"
-      function_endpoint_name = "BlockParticipant"
+    update-blocked-flag = {
+      name_suffix            = "update-blocked-flag"
+      function_endpoint_name = "UpdateBlockedFlag"
       app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
           env_var_name     = "ParticipantDemographicDataServiceURL"
