@@ -85,7 +85,7 @@ public class ServiceNowMessageHandler
             }
             catch
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "ServiceNow update failed.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "ServiceNow update failed.");
             }
 
             if (string.IsNullOrWhiteSpace(input?.WorkNotes))
@@ -127,7 +127,7 @@ public class ServiceNowMessageHandler
             {
                 _cachedAccessToken = await RefreshAccessTokenAsync();
             }
-            return _cachedAccessToken!;
+            return _cachedAccessToken;
         }
 
         private async Task<string> RefreshAccessTokenAsync()
