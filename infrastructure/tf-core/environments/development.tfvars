@@ -239,6 +239,7 @@ function_apps = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
       app_service_plan_key         = "DefaultPlan"
+      producer_to_service_bus      = ["dtoss-nsp"]
       db_connection_string         = "DtOsDatabaseConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
@@ -255,6 +256,10 @@ function_apps = {
           function_app_key = "RemoveParticipant"
         },
         {
+          env_var_name     = "PMSUpdateParticipant"
+          function_app_key = "UpdateParticipant"
+        },
+        {
           env_var_name     = "StaticValidationURL"
           function_app_key = "StaticValidation"
         },
@@ -265,10 +270,6 @@ function_apps = {
         {
           env_var_name     = "ScreeningLkpDataServiceURL"
           function_app_key = "ScreeningLkpDataService"
-        },
-        {
-          env_var_name     = "UseNewFunctions"
-          function_app_key = "false"
         }
       ],
       storage_containers = [
@@ -287,9 +288,12 @@ function_apps = {
         recordThresholdForBatching = "3"
         batchDivisionFactor        = "2"
         CheckTimer                 = "100"
+        delayBetweenChecks         = "50"
         DemographicURI             = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
         GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
+        maxNumberOfChecks          = "50"
         AllowDeleteRecords         = true
+        TopicName                  = "DistributeParticipantQueue"
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
         UseNewFunctions            = "false"
@@ -1223,6 +1227,36 @@ key_vault = {
   sku_name          = "standard"
 }
 
+service_bus = {
+  distribute-participant = {
+    capacity         = 1
+    sku_tier         = "Premium"
+    max_payload_size = "100mb"
+    topics = {
+      cohort-distribution-queue = {
+        batched_operations_enabled = true
+      }
+      add-participant-queue = {
+        batched_operations_enabled = true
+      }
+      update-participant-queue = {
+        batched_operations_enabled = true
+      }
+    }
+  }
+}
+
+# service_bus_subscriptions = {
+#   subscriber_config = {
+#     event-dev-ap = {
+#       subscription_name       = "events-sub"
+#       topic_name              = "events"
+#       namespace_name          = "dtoss-nsp"
+#       subscriber_functionName = "foundryRelay"
+#     }
+#   }
+# }
+
 sqlserver = {
   sql_admin_group_name                 = "sqlsvr_cohman_dev_uks_admin"
   ad_auth_only                         = true
@@ -1243,7 +1277,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 30
       read_scale           = false
-      sku                  = "S1"
+      sku                  = "S2"
       storage_account_type = "Local"
       zone_redundant       = false
     }
