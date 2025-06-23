@@ -34,7 +34,6 @@ public class ServiceNowCohortLookupTests
         });
         _service = new ServiceNowCohortLookup(
             _loggerMock.Object,
-            config,
             _cohortDistributionClientMock.Object,
             _serviceNowCasesClientMock.Object);
 
@@ -60,17 +59,15 @@ public class ServiceNowCohortLookupTests
             ServicenowId = ServiceNowId,
             NhsNumber = validNhsNumberLong,
             Status = ServiceNowStatus.New,
-            RecordUpdateDatetime = DateTime.Now // Add all required properties
+            RecordUpdateDatetime = DateTime.Now
         };
 
         var cohortParticipant = new CohortDistribution { NHSNumber = validNhsNumberLong };
 
-        // Simplified mock setup without expression compilation
         _serviceNowCasesClientMock.Setup(x =>
                 x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
             .ReturnsAsync(new List<ServicenowCases> { newCase });
 
-        // Fixed ReturnsAsync usage with proper mock setup
         _cohortDistributionClientMock.Setup(x =>
                 x.GetSingleByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
             .ReturnsAsync(cohortParticipant);
@@ -252,7 +249,6 @@ public class ServiceNowCohortLookupTests
                 x.Update(It.Is<ServicenowCases>(c => c.ServicenowId == "SN1")))
             .ReturnsAsync(true);
 
-        // Act - Remove the var result assignment since Run() is void
         await _service.Run(_timerInfo);
 
         // Assert

@@ -10,19 +10,15 @@ using Microsoft.Extensions.Options;
 public class ServiceNowCohortLookup
 {
     private readonly ILogger<ServiceNowCohortLookup> _logger;
-    private readonly ICreateResponse _createResponse;
-    private readonly ServiceNowCohortLookupConfig _config;
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
     private readonly IDataServiceClient<ServicenowCases> _serviceNowCasesClient;
 
     public ServiceNowCohortLookup(
         ILogger<ServiceNowCohortLookup> logger,
-        IOptions<ServiceNowCohortLookupConfig> config,
         IDataServiceClient<CohortDistribution> cohortDistributionClient,
         IDataServiceClient<ServicenowCases> serviceNowCasesClient)
     {
         _logger = logger;
-        _config = config.Value;
         _cohortDistributionClient = cohortDistributionClient;
         _serviceNowCasesClient = serviceNowCasesClient;
     }
@@ -123,6 +119,7 @@ public class ServiceNowCohortLookup
     /// </exception>
     private async Task<bool> ProcessSingleCaseAsync(ServicenowCases caseItem)
     {
+        //Gets participant records for the last 24 hours
         var participant = await _cohortDistributionClient.GetSingleByFilter(p => caseItem.NhsNumber.HasValue && p.NHSNumber == caseItem.NhsNumber.Value);
         if (participant == null)
         {
