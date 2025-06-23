@@ -10,6 +10,7 @@ using Model;
 
 public class AddBatchToQueue : IAddBatchToQueue
 {
+
     private readonly ILogger<AddBatchToQueue> _logger;
     private readonly IQueueClient _queueClient;
 
