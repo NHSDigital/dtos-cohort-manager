@@ -16,6 +16,19 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9990335133",
+        "RuleId": 3602,
+        "RuleDescription": "Invalid primary care provider GP practice code"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4091-01",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3602 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9990335133"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9990618356",
         "RuleId": 3601,
         "RuleDescription": "Invalid primary care provider GP practice code"
@@ -24,6 +37,19 @@
         "testJiraId": "@DTOSS-4091-01",
         "requirementJiraId": "DTOSS-3035",
         "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3601 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9990618356"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9990618356",
+        "RuleId": 3602,
+        "RuleDescription": "Invalid primary care provider GP practice code"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4091-01",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3602 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9990618356"
       }
     },
     {
@@ -42,6 +68,19 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9991536566",
+        "RuleId": 3602,
+        "RuleDescription": "Invalid primary care provider GP practice code"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4091-01",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3602 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9991536566"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9992949600",
         "RuleId": 3601,
         "RuleDescription": "Invalid primary care provider GP practice code"
@@ -50,6 +89,19 @@
         "testJiraId": "@DTOSS-4091-01",
         "requirementJiraId": "DTOSS-3035",
         "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3601 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9992949600"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9992949600",
+        "RuleId": 3602,
+        "RuleDescription": "Invalid primary care provider GP practice code"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4091-01",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3602 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9992949600"
       }
     },
     {
@@ -68,6 +120,19 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9991932887",
+        "RuleId": 3602,
+        "RuleDescription": "Invalid primary care provider GP practice code"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4091-01",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3602 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9991932887"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9992332484",
         "RuleId": 3601,
         "RuleDescription": "Invalid primary care provider GP practice code"
@@ -76,6 +141,19 @@
         "testJiraId": "@DTOSS-4091-01",
         "requirementJiraId": "DTOSS-3035",
         "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3601 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9992332484"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9992332484",
+        "RuleId": 3602,
+        "RuleDescription": "Invalid primary care provider GP practice code"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4091-01",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3602 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9992332484"
       }
     },
     {
@@ -90,6 +168,18 @@
         "requirementJiraId": "DTOSS-3035",
         "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3601 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9993931888"
       }
+    },{
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9993931888",
+        "RuleId": 3602,
+        "RuleDescription": "Invalid primary care provider GP practice code"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4091-01",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3602 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9993931888"
+      }
     },
     {
       "validations": {
@@ -102,6 +192,18 @@
         "testJiraId": "@DTOSS-4091-01",
         "requirementJiraId": "DTOSS-3035",
         "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3601 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9994531689"
+      }
+    },{
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9994531689",
+        "RuleId": 3602,
+        "RuleDescription": "Invalid primary care provider GP practice code"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4091-01",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate existing participant's GP_Practice code value for RuleId 3602 and RuleDescription 'Invalid primary care provider GP practice code' for NHS Number 9994531689"
       }
     }
   ],
@@ -392,7 +494,7 @@
       "serial_change_number": 8,
       "nhs_number": 9994531689,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": null,
+      "primary_care_provider": "ABC123",
       "primary_care_effective_from_date": "20030319",
       "current_posting": "CB",
       "current_posting_effective_from_date": "20130419",

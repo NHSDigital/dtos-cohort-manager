@@ -87,7 +87,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9994531689",
+        "NHSNumber": 9994531689,
         "expectedCount": 1
       },
       "meta": {
@@ -384,7 +384,7 @@
       "serial_change_number": 8,
       "nhs_number": 9994531689,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": "E85121",
+      "primary_care_provider": "",
       "primary_care_effective_from_date": "20030319",
       "current_posting": "CB",
       "current_posting_effective_from_date": "20130419",
