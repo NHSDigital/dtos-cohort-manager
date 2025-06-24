@@ -898,10 +898,6 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("BUSINESS_RULE_VERSION");
 
-                    b.Property<short>("CeasedFlag")
-                        .HasColumnType("smallint")
-                        .HasColumnName("CEASED_FLAG");
-
                     b.Property<DateTime?>("DateIrradiated")
                         .HasColumnType("datetime")
                         .HasColumnName("DATE_IRRADIATED");
