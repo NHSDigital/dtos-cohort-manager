@@ -44,7 +44,7 @@ try
     })
     .AddTelemetry()
     .AddHttpClient()
-    .AddAzureQueues()
+    .AddAzureQueues(config.UseNewFunctions, config.ServiceBusConnectionString)
     .AddExceptionHandler()
     .AddDatabaseConnection()
     .Build();
