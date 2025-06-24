@@ -5,6 +5,7 @@ import { runnerBasedEpic123TestScenariosAdd } from '../e2e/epic123-smoke-tests/e
 import { runnerBasedEpic1TestScenariosAdd } from '../e2e/epic1-highpriority-tests/epic1-high-priority-testsuite-migrated';
 import { runnerBasedEpic2TestScenariosAdd } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
 import { runnerBasedEpic3TestScenariosAdd } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
+import { runnerBasedEpic3MedTestScenariosAdd } from '../e2e/epic3-medpriority-tests/epic3-med-priority-testsuite';
 import { createTempDirAndWriteJson, deleteTempDir } from '../../../src/json/file-utils';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 
@@ -13,6 +14,7 @@ const smokeTestScenario = runnerBasedEpic123TestScenariosAdd;
 const regressionEpic1TestScenario = runnerBasedEpic1TestScenariosAdd;
 const regressionEpic2TestScenario = runnerBasedEpic2TestScenariosAdd;
 const regressionEpic3TestScenario = runnerBasedEpic3TestScenariosAdd;
+const regressionEpic3MedTestScenarios = runnerBasedEpic3MedTestScenariosAdd;
 
 // Tests to run based on TEST_TYPE environment variable
 let scopedTestScenario = "";
@@ -24,6 +26,8 @@ if (TEST_TYPE == 'RegressionEpic1') {
   scopedTestScenario = regressionEpic2TestScenario;
 } else if (TEST_TYPE == 'RegressionEpic3') {
   scopedTestScenario = regressionEpic3TestScenario;
+} else if (TEST_TYPE == 'RegressionEpic3Med') {
+  scopedTestScenario = runnerBasedEpic3MedTestScenariosAdd;
 } else {
   scopedTestScenario = smokeTestScenario;
 }
