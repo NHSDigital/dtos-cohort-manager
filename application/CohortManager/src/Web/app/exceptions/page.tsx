@@ -9,7 +9,7 @@ import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 
 export const metadata: Metadata = {
-  title: "Complete exceptions list - Cohort Manager",
+  title: "Not raised breast screening exceptions - Cohort Manager",
 };
 
 export default async function Page() {
