@@ -1,4 +1,4 @@
-// For Future Epic 3 High Regression Tests
+// For Future Epic 3 Med Regression Tests
 
 // Note:
 // These tests have been fully migrated to the new and improved test execution orchestration:
@@ -13,13 +13,13 @@
 // Guidance:
 //
 // - First, try adding new tests using the runner.
-// - If custom calls are needed, use new file for test addition. - tests\playwright-tests\src\tests\e2e\epic3-highpriority-tests\epic3-high-priority-testsuite.spec.ts
+// - If custom calls are needed, use new file for test addition. - tests\playwright-tests\src\tests\e2e\epic3-medpriority-tests\epic3-med-priority-testsuite.spec.ts
 //
 // Test Tags:
 // There is no impact to the test tags. The same tags can be used to trigger these tests.
 // For example, to run regression tests, use:
 //
-//   npm run test:regression:e2e:epic3
+//   npm run test:regression:e2e:epic3Med
 //
 // This equates to "@epic3-" tags, configured in the package.json at the playwright-tests root location.
 
