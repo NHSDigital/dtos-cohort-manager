@@ -3,7 +3,6 @@ namespace NHS.CohortManager.Tests.UnitTests.RetrieveCohortRequestAuditTests;
 using System.Linq.Expressions;
 using Data.Database;
 using DataServices.Client;
-using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 [TestClass]
@@ -11,15 +10,12 @@ public class RetrieveCohortRequestAuditTests
 {
 
     private readonly CreateCohortDistributionData _createCohortDistributionData;
-    private readonly Guid _requestId = Guid.NewGuid();
-
-    private readonly Mock<ILogger<CreateCohortDistributionData>> _loggerMock = new();
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceClient = new();
     private readonly Mock<IDataServiceClient<BsSelectRequestAudit>> _bsSelectRequestAuditDataServiceClient = new();
 
     public RetrieveCohortRequestAuditTests()
     {
-        _createCohortDistributionData = new CreateCohortDistributionData(_loggerMock.Object, _cohortDistributionDataServiceClient.Object, _bsSelectRequestAuditDataServiceClient.Object);
+        _createCohortDistributionData = new CreateCohortDistributionData(_cohortDistributionDataServiceClient.Object, _bsSelectRequestAuditDataServiceClient.Object);
     }
 
 
@@ -79,7 +75,6 @@ public class RetrieveCohortRequestAuditTests
         Assert.IsNotNull(result);
         Assert.AreEqual(1, result.Count);
         Assert.IsInstanceOfType(result, typeof(List<CohortRequestAudit>));
-
     }
 
     [TestMethod]
