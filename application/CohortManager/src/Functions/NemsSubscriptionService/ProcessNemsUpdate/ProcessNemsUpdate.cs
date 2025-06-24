@@ -1,6 +1,7 @@
 ﻿namespace NHS.Screening.ProcessNemsUpdate;
 
 using System.Collections.Concurrent;
+using System.Collections.Specialized;
 using System.Text;
 using System.Text.Json;
 using Common;
@@ -69,6 +70,13 @@ public class ProcessNemsUpdate
 
                 _logger.LogInformation("NHS numbers do not match, processing the superseded record.");
                 await ProcessRecord(supersededRecord);
+
+                var unsubscribedFromNems = await UnsubscribeNems(nhsNumber);
+
+                if (unsubscribedFromNems)
+                {
+                    _logger.LogInformation("Successfully unsubscribed from NEMS.");
+                }
             }
 
         }
@@ -155,5 +163,21 @@ public class ProcessNemsUpdate
         // add to the queue
         _logger.LogInformation("sending records to update queue");
         await _addBatchToQueue.ProcessBatch(updateRecord, _config.UpdateQueueName);
+    }
+
+    private async Task<bool> UnsubscribeNems(string nhsNumber)
+    {
+        try
+        {
+            var data = new NameValueCollection { { "NhsNumber", nhsNumber } };
+            var response = await _httpClientFunction.SendPost(_config.UnsubscribeNemsSubscriptionUrl, JsonSerializer.Serialize(data));
+
+            return response.IsSuccessStatusCode;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "There was an error unsubscribing from NEMS.");
+            throw;
+        }
     }
 }
