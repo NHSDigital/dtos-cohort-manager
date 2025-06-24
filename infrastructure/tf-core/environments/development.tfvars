@@ -11,8 +11,9 @@ features = {
   public_network_access_enabled        = false
 }
 
+# these will be merged with compliance tags in locals.tf
 tags = {
-  Project = "Cohort-Manager"
+  Environment = "development"
 }
 
 regions = {
@@ -82,19 +83,20 @@ routes = {
         destination_ports     = ["443"]
       }
     ]
-    route_table_routes_to_audit = [
+    route_table_core = [
       {
-        name                   = "CohmanToAudit"
-        address_prefix         = "10.102.0.0/16"
+        name                   = "EgressViaHubFirewall"
+        address_prefix         = "0.0.0.0/0"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
-    route_table_routes_from_audit = [{
-      name                   = "AuditToCohman"
-      address_prefix         = "10.101.0.0/16"
-      next_hop_type          = "VirtualAppliance"
-      next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
+    route_table_audit = [
+      {
+        name                   = "AuditToCohman"
+        address_prefix         = "10.101.0.0/16"
+        next_hop_type          = "VirtualAppliance"
+        next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
     ]
   }
@@ -237,6 +239,7 @@ function_apps = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
       app_service_plan_key         = "DefaultPlan"
+      producer_to_service_bus      = ["dtoss-nsp"]
       db_connection_string         = "DtOsDatabaseConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
@@ -251,6 +254,10 @@ function_apps = {
         {
           env_var_name     = "PMSRemoveParticipant"
           function_app_key = "RemoveParticipant"
+        },
+        {
+          env_var_name     = "PMSUpdateParticipant"
+          function_app_key = "UpdateParticipant"
         },
         {
           env_var_name     = "StaticValidationURL"
@@ -281,11 +288,15 @@ function_apps = {
         recordThresholdForBatching = "3"
         batchDivisionFactor        = "2"
         CheckTimer                 = "100"
+        delayBetweenChecks         = "50"
         DemographicURI             = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
         GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
+        maxNumberOfChecks          = "50"
         AllowDeleteRecords         = true
+        TopicName                  = "DistributeParticipantQueue"
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
+        UseNewFunctions            = "false"
       }
 
     }
@@ -310,7 +321,7 @@ function_apps = {
     ProcessNemsUpdate = {
       name_suffix                  = "process-nems-update"
       function_endpoint_name       = "ProcessNemsUpdate"
-      app_service_plan_key         = "ProcessNemsUpdate"
+      app_service_plan_key         = "DefaultPlan"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
@@ -434,11 +445,10 @@ function_apps = {
       }
     }
 
-    BlockParticipant = {
-      name_suffix            = "block-participant"
-      function_endpoint_name = "BlockParticipant"
+    update-blocked-flag = {
+      name_suffix            = "update-blocked-flag"
+      function_endpoint_name = "UpdateBlockedFlag"
       app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
         {
           env_var_name     = "ParticipantDemographicDataServiceURL"
@@ -588,10 +598,6 @@ function_apps = {
           function_app_key = "BsSelectOutcodeDataService"
         },
         {
-          env_var_name     = "LanguageCodeUrl"
-          function_app_key = "LanguageCodeDataService"
-        },
-        {
           env_var_name     = "CurrentPostingUrl"
           function_app_key = "CurrentPostingDataService"
         },
@@ -661,8 +667,8 @@ function_apps = {
           function_app_key = "BsSelectGpPracticeDataService"
         },
         {
-          env_var_name     = "CohortDistributionDataServiceUrl"
-          function_app_key = "CohortDistributionDataService"
+          env_var_name     = "LanguageCodeUrl"
+          function_app_key = "LanguageCodeDataService"
         }
       ]
       env_vars_static = {
@@ -1062,6 +1068,10 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
       env_vars_static = {
@@ -1069,9 +1079,25 @@ function_apps = {
       }
     }
 
-    NemsSubscriptionDataService = {
-      name_suffix            = "nems-subscription-data-service"
-      function_endpoint_name = "NemsSubscriptionDataService"
+    ManageNemsSubscription = {
+      name_suffix            = "manage-nems-subscription"
+      function_endpoint_name = "ManageNemsSubscription"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
+    }
+
+    ReferenceDataService = {
+      name_suffix            = "reference-data-service"
+      function_endpoint_name = "ReferenceDataService"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
@@ -1103,22 +1129,9 @@ function_apps = {
           function_app_key = "RetrievePDSDemographic"
         }
       ]
-    }
-
-    NemsUnsubscribe = {
-      name_suffix            = "nems-unsubscribe"
-      function_endpoint_name = "NemsUnsubscribe"
-      app_service_plan_key   = "DefaultPlan"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "ParticipantDemographicDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
-        }
-      ]
+      env_vars_static = {
+        NemsFhirEndpoint = "https://example.com"
+      }
     }
 
     NemsMeshRetrieval = {
@@ -1214,6 +1227,36 @@ key_vault = {
   sku_name          = "standard"
 }
 
+service_bus = {
+  distribute-participant = {
+    capacity         = 1
+    sku_tier         = "Premium"
+    max_payload_size = "100mb"
+    topics = {
+      cohort-distribution-queue = {
+        batched_operations_enabled = true
+      }
+      add-participant-queue = {
+        batched_operations_enabled = true
+      }
+      update-participant-queue = {
+        batched_operations_enabled = true
+      }
+    }
+  }
+}
+
+# service_bus_subscriptions = {
+#   subscriber_config = {
+#     event-dev-ap = {
+#       subscription_name       = "events-sub"
+#       topic_name              = "events"
+#       namespace_name          = "dtoss-nsp"
+#       subscriber_functionName = "foundryRelay"
+#     }
+#   }
+# }
+
 sqlserver = {
   sql_admin_group_name                 = "sqlsvr_cohman_dev_uks_admin"
   ad_auth_only                         = true
@@ -1234,7 +1277,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 30
       read_scale           = false
-      sku                  = "S1"
+      sku                  = "S2"
       storage_account_type = "Local"
       zone_redundant       = false
     }

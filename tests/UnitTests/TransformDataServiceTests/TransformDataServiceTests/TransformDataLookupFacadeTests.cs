@@ -12,6 +12,7 @@ public class TransformDataLookupFacadeTests
 {
     private readonly TransformDataLookupFacade _sut;
     private Mock<IDataServiceClient<BsSelectOutCode>> _outcodeClientMock = new();
+    private readonly Mock<IDataServiceClient<LanguageCode>> _languageCodeClientMock = new();
     private Mock<IDataServiceClient<BsSelectGpPractice>> _gpPracticeClientMock = new();
 
     public TransformDataLookupFacadeTests()
@@ -20,7 +21,11 @@ public class TransformDataLookupFacadeTests
             .Setup(x => x.GetSingle(It.IsAny<string>()))
             .ReturnsAsync(new BsSelectOutCode());
 
-        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object);
+        _languageCodeClientMock
+            .Setup(x => x.GetSingle(It.IsAny<string>()))
+            .ReturnsAsync(new LanguageCode());
+
+        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object);
     }
 
     [TestMethod]

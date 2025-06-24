@@ -3,6 +3,7 @@ using Microsoft.Extensions.Hosting;
 using DataServices.Core;
 using DataServices.Database;
 using HealthChecks.Extensions;
+using Common;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
@@ -12,6 +13,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddDatabaseHealthCheck("BsSelectOutCode");
     })
+    .AddTelemetry()
     .Build();
 
 await host.RunAsync();

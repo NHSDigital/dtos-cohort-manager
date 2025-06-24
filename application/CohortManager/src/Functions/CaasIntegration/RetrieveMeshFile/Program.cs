@@ -52,8 +52,6 @@ try
     host.ConfigureFunctionsWebApplication();
     host.ConfigureServices(services =>
     {
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
         services
             .AddMeshClient(_ =>
             {
@@ -73,6 +71,7 @@ try
         // Register health checks
         services.AddBlobStorageHealthCheck("RetrieveMeshFile");
     })
+    .AddTelemetry()
     .AddExceptionHandler();
 
     var app = host.Build();

@@ -56,8 +56,16 @@ public class ProcessCaasFile : IProcessCaasFile
         _config = receiveCaasFileConfig.Value;
         _httpClientFunction = httpClientFactory;
         DemographicURI = _config.DemographicURI;
-        AddParticipantQueueName = _config.AddQueueName;
-        UpdateParticipantQueueName = _config.UpdateQueueName;
+        if (_config.UseNewFunctions)
+        {
+            AddParticipantQueueName = _config.ParticipantManagementQueueName;
+            UpdateParticipantQueueName = _config.ParticipantManagementQueueName;
+        }
+        else
+        {
+            AddParticipantQueueName = _config.AddQueueName;
+            UpdateParticipantQueueName = _config.UpdateQueueName;
+        }
 
 
         if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(AddParticipantQueueName) || string.IsNullOrEmpty(UpdateParticipantQueueName))

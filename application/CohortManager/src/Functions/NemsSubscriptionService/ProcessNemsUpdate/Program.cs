@@ -15,6 +15,7 @@ var host = new HostBuilder()
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddBlobStorageHealthCheck("ProcessNemsUpdate");
     })
+    .AddTelemetry()
     .AddExceptionHandler()
     .AddHttpClient()
     .AddAzureQueues()
