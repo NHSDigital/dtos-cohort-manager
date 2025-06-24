@@ -48,8 +48,10 @@ Focus: Enable early detection of changes that cause failures, reducing feedback 
 
 **Individual Run Example**
 ![test execution individual run](../../docs/assets/test-playwright-test-execution-individual-run.png)
+
 **Scope-wise Run Example**
 ![test execution scope-wise run](../../docs/assets/test-playwright-test-execution-scope-wise-run.png)
+
 **Slack Notification Example**
 ![slack notification example](../../docs/assets/test-playwright-slack-notification-example.png)
 
