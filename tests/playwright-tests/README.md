@@ -46,14 +46,17 @@ Focus: Enable early detection of changes that cause failures, reducing feedback 
 
 #### Test Execution Reporting Example
 
-**Individual Run Example**
-![test execution individual run](../../docs/assets/test-playwright-test-execution-individual-run.png)
+##### Individual Run Example
 
-**Scope-wise Run Example**
-![test execution scope-wise run](../../docs/assets/test-playwright-test-execution-scope-wise-run.png)
+![Test execution individual run](../../docs/assets/test-playwright-test-execution-individual-run.png)
 
-**Slack Notification Example**
-![slack notification example](../../docs/assets/test-playwright-slack-notification-example.png)
+##### Scope-wise Run Example
+
+![Test execution scope-wise run](../../docs/assets/test-playwright-test-execution-scope-wise-run.png)
+
+##### Slack Notification Example
+
+![Slack notification example](../../docs/assets/test-playwright-slack-notification-example.png)
 
 ## Test Flow Overview
 
