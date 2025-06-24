@@ -44,6 +44,14 @@ Focus: Enable early detection of changes that cause failures, reducing feedback 
   - `acr-image-promote-dev-to-nft.yaml`
   - `acr-image-promote-nft-to-integration.yaml`
 
+  #### Test Execution Azure DevOps Reporting Example
+
+  **Individual Run Example**
+  ![Test Execution - Individual Run](../../docs/assets/test-playwright-test-execution-individual-run.png)
+
+  **Scope-wise Run Example**
+  ![Test Execution - Scope-wise Run](../../docs/assets/test-playwright-test-execution-scope-wise-run.png)
+
 ## Test Flow Overview
 
 1. **File Upload**: Upload test file to storage
