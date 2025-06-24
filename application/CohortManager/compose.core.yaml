@@ -220,6 +220,20 @@ services:
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
       - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
 
+  exception-creation:
+    container_name: create-exception
+    image: cohort-manager-create-exception
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: ExceptionHandling/ExceptionCreation/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7070
+      - ExceptionTopic="createExceptionTopic"
+      - ExceptionSubscription="exceptionSub"
+      - ServiceBusConnectionString="Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
+
+    
   update-exception:
     container_name: update-exception
     image: cohort-manager-update-exception
