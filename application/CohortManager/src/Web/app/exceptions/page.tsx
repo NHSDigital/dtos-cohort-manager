@@ -40,7 +40,7 @@ export default async function Page() {
         dateCreated: exception.DateCreated,
         shortDescription: exception.RuleDescription,
         nhsNumber: exception.NhsNumber,
-        serviceNowId: exception.ServiceNowId || "",
+        serviceNowId: exception.ServiceNowId ?? "",
         serviceNowCreatedDate: exception.ServiceNowCreatedDate,
       })
     );
