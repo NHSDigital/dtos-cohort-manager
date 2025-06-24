@@ -77,6 +77,33 @@ Focus: Enable early detection of changes that cause failures, reducing feedback 
 
 ![test logs example](../../docs/assets/test-playwright-logs-example.png)
 
+## Scope of Automation Tests
+
+```mermaid
+sequenceDiagram
+    participant M as Mesh
+    participant S as Storage
+    participant D as Database
+    participant BSI as BS Select Internal
+    participant BSE as BS Select External
+
+    rect rgb(255, 248, 220)
+        Note over S, D: @smoke @e2e<br/>Scope: Storage → Database
+        S->>D: Smoke Test Coverage
+    end
+
+    rect rgb(240, 248, 255)
+        Note over S, D: @regression @e2e<br/>Scope: Storage → Database
+        S->>D: E2E Regression Coverage
+    end
+
+    rect rgb(245, 255, 245)
+        Note over S, BSI: @regression @api<br/>Scope: Storage → BS Select Internal
+        S->>D: API Data Flow
+        D->>BSI: API Regression Coverage
+    end
+```
+
 ## Contributing to improve Test Coverage & Framework
 
 - Identify gaps in current test coverage, and or framework
