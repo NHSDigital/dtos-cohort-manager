@@ -1,5 +1,6 @@
 ﻿namespace NHS.Screening.ProcessNemsUpdate;
 
+using System.Collections.Concurrent;
 using System.Text;
 using System.Text.Json;
 using Common;
@@ -13,17 +14,23 @@ public class ProcessNemsUpdate
 {
     private readonly ILogger<ProcessNemsUpdate> _logger;
     private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
+    private readonly ICreateBasicParticipantData _createBasicParticipantData;
+    private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly ProcessNemsUpdateConfig _config;
 
     public ProcessNemsUpdate(
         ILogger<ProcessNemsUpdate> logger,
         IFhirPatientDemographicMapper fhirPatientDemographicMapper,
+        ICreateBasicParticipantData createBasicParticipantData,
+        IAddBatchToQueue addBatchToQueue,
         IHttpClientFunction httpClientFunction,
         IOptions<ProcessNemsUpdateConfig> processNemsUpdateConfig)
     {
         _logger = logger;
         _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
+        _createBasicParticipantData = createBasicParticipantData;
+        _addBatchToQueue = addBatchToQueue;
         _httpClientFunction = httpClientFunction;
         _config = processNemsUpdateConfig.Value;
     }
@@ -47,7 +54,8 @@ public class ProcessNemsUpdate
             {
                 _logger.LogInformation("NHS numbers match.");
                 _logger.LogInformation("Process the PDS record: {PdsRecord}", JsonSerializer.Serialize(pdsRecord));
-                // need to check how the Update queue works in ProcessCaasFile, then implement the same here
+
+                await ProcessRecord(pdsRecord);
             }
 
             else
@@ -64,6 +72,8 @@ public class ProcessNemsUpdate
                     // EligibilityFlag = 0,
                     // RecordType = "AMENDED"
                 };
+
+                await ProcessRecord(supersededRecord);
 
                 _logger.LogInformation("Process built superseded record: {Superseded}", JsonSerializer.Serialize(supersededRecord));
             }
@@ -126,5 +136,32 @@ public class ProcessNemsUpdate
             _logger.LogError(ex, "There was an error retrieving the PDS record.");
             throw;
         }
+    }
+
+    private async Task ProcessRecord(PdsDemographic pdsDemographic)
+    {
+        var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
+
+        // convert the pdsDemographic into a Participant
+        var participant = new Participant(pdsDemographic);
+        Console.WriteLine(JsonSerializer.Serialize(participant));
+
+        // TODO validate NHS number in record before enqueuing
+        // TODO validate all dates in record before enqueuing
+
+        // convert the Participant into a BasicParticipantCsvRecord
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        {
+            Participant = _createBasicParticipantData.BasicParticipantData(participant),
+            FileName = "N/A",
+            participant = participant
+        };
+
+        // enqueue the record
+        updateRecord.Enqueue(basicParticipantCsvRecord);
+
+        // add to the queue
+        _logger.LogInformation("sending records to update queue");
+        await _addBatchToQueue.ProcessBatch(updateRecord, _config.UpdateQueueName);
     }
 }

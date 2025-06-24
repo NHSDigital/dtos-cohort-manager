@@ -55,6 +55,7 @@ services:
       - NemsMessages="nems-messages"
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+      - UpdateQueueName=update-participant-queue
 
   receive-caas-file:
     container_name: receive-caas-file
