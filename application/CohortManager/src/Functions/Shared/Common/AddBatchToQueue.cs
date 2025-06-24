@@ -1,18 +1,15 @@
 namespace Common;
 
 using System.Collections.Concurrent;
-using Microsoft.Extensions.Logging;
 using Model;
 
 public class AddBatchToQueue : IAddBatchToQueue
 {
 
-    private readonly ILogger<AddBatchToQueue> _logger;
     private readonly IQueueClient _queueClient;
 
-    public AddBatchToQueue(ILogger<AddBatchToQueue> logger, IQueueClient queueClient)
+    public AddBatchToQueue(IQueueClient queueClient)
     {
-        _logger = logger;
         _queueClient = queueClient;
     }
 
@@ -43,7 +40,6 @@ public class AddBatchToQueue : IAddBatchToQueue
 
         // Wait for all tasks to complete
         await Task.WhenAll(tasks.ToArray());
-
     }
 
     private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord, string queueName)

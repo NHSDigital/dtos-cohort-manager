@@ -19,12 +19,12 @@ export default function Footer() {
                     </Link>
                   </li>
                   <li className="nhsuk-footer__list-item nhsuk-footer-default__list-item">
-                    <a
+                    <Link
                       className="nhsuk-footer__list-item-link"
-                      href="mailto:england.digitalscreening@nhs.net"
+                      href="/contact-us"
                     >
                       Contact us
-                    </a>
+                    </Link>
                   </li>
                   <li className="nhsuk-footer__list-item nhsuk-footer-default__list-item">
                     <Link
@@ -35,14 +35,12 @@ export default function Footer() {
                     </Link>
                   </li>
                   <li className="nhsuk-footer__list-item nhsuk-footer-default__list-item">
-                    <a className="nhsuk-footer__list-item-link" href="#">
-                      Privacy policy
-                    </a>
-                  </li>
-                  <li className="nhsuk-footer__list-item nhsuk-footer-default__list-item">
-                    <a className="nhsuk-footer__list-item-link" href="#">
+                    <Link
+                      href="/terms-and-conditions"
+                      className="nhsuk-footer__list-item-link"
+                    >
                       Terms and conditions
-                    </a>
+                    </Link>
                   </li>
                 </ul>
                 <div>
