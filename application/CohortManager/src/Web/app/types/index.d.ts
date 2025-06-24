@@ -11,6 +11,12 @@ export interface ExceptionDetails {
     phoneNumber?: string;
     email?: string;
   };
-  gpPracticeCode?: string;
-  gpPracticeAddress?: string;
+  serviceNowId?: string;
+  serviceNowCreatedDate?: string;
+}
+
+export interface ReportDetails {
+  reportId: string;
+  dateCreated: string;
+  description: string;
 }

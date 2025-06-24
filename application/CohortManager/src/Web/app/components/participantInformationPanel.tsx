@@ -15,28 +15,9 @@ export default function ParticipantInformationPanel({
 }: Readonly<ParticipantInformationPanelProps>) {
   return (
     <>
-      <div className="nhsuk-card nhsuk-u-margin-bottom-4">
-        <div className="nhsuk-card__content">
-          <h2 className="nhsuk-heading-m">Exception details</h2>
-          <dl className="nhsuk-summary-list">
-            <div className="nhsuk-summary-list__row">
-              <dt className="nhsuk-summary-list__key">Date created</dt>
-              <dd className="nhsuk-summary-list__value">
-                {formatDate(exceptionDetails.dateCreated)}
-              </dd>
-            </div>
-            <div className="nhsuk-summary-list__row">
-              <dt className="nhsuk-summary-list__key">Short description</dt>
-              <dd className="nhsuk-summary-list__value">
-                {exceptionDetails.shortDescription}
-              </dd>
-            </div>
-          </dl>
-        </div>
-      </div>
       <div className="nhsuk-card">
         <div className="nhsuk-card__content">
-          <h2 className="nhsuk-heading-m">Personal details</h2>
+          <h2 className="nhsuk-heading-m">Participant details</h2>
           <dl className="nhsuk-summary-list">
             <div className="nhsuk-summary-list__row">
               <dt className="nhsuk-summary-list__key">NHS number</dt>
@@ -79,16 +60,23 @@ export default function ParticipantInformationPanel({
                 <p>{exceptionDetails.contactDetails?.email}</p>
               </dd>
             </div>
+          </dl>
+        </div>
+      </div>
+      <div className="nhsuk-card nhsuk-u-margin-bottom-4">
+        <div className="nhsuk-card__content">
+          <h2 className="nhsuk-heading-m">Exception details</h2>
+          <dl className="nhsuk-summary-list">
             <div className="nhsuk-summary-list__row">
-              <dt className="nhsuk-summary-list__key">GP practice code</dt>
+              <dt className="nhsuk-summary-list__key">Date created</dt>
               <dd className="nhsuk-summary-list__value">
-                {exceptionDetails.gpPracticeCode}
+                {formatDate(exceptionDetails.dateCreated)}
               </dd>
             </div>
             <div className="nhsuk-summary-list__row">
-              <dt className="nhsuk-summary-list__key">GP practice address</dt>
+              <dt className="nhsuk-summary-list__key">Short description</dt>
               <dd className="nhsuk-summary-list__value">
-                {exceptionDetails.gpPracticeAddress}
+                {exceptionDetails.shortDescription}
               </dd>
             </div>
           </dl>

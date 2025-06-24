@@ -28,12 +28,12 @@ export default async function Page(props: {
 
   const breadcrumbItems = [
     {
-      label: "Overview",
+      label: "Home",
       url: "/",
     },
     {
-      label: "Exceptions summary",
-      url: "/exceptions-summary",
+      label: "Exceptions",
+      url: "/exceptions",
     },
   ];
 
@@ -72,24 +72,6 @@ export default async function Page(props: {
         phoneNumber: exception.ExceptionDetails.TelephoneNumberHome,
         email: exception.ExceptionDetails.EmailAddressHome,
       },
-      gpPracticeCode: exception.ExceptionDetails.GpPracticeCode,
-      gpPracticeAddress: `${exception.ExceptionDetails.GpAddressLine1}${
-        exception.ExceptionDetails.GpAddressLine2
-          ? `, ${exception.ExceptionDetails.GpAddressLine2}`
-          : ""
-      }${
-        exception.ExceptionDetails.GpAddressLine3
-          ? `, ${exception.ExceptionDetails.GpAddressLine3}`
-          : ""
-      }${
-        exception.ExceptionDetails.GpAddressLine4
-          ? `, ${exception.ExceptionDetails.GpAddressLine4}`
-          : ""
-      }${
-        exception.ExceptionDetails.gpAddressLine5
-          ? `, ${exception.ExceptionDetails.gpAddressLine5}`
-          : ""
-      }, ${exception.ExceptionDetails.ParticipantPostCode}`,
     };
 
     return (
@@ -101,7 +83,7 @@ export default async function Page(props: {
               <h1>
                 Exception information{" "}
                 <span className="nhsuk-caption-xl">
-                  Exception ID: {exceptionDetails.exceptionId}
+                  Local reference (exception ID): {exceptionDetails.exceptionId}
                 </span>
               </h1>
               <ParticipantInformationPanel
