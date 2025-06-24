@@ -52,30 +52,23 @@ public class ProcessNemsUpdate
 
             if (pdsRecord.NhsNumber == nhsNumber)
             {
-                _logger.LogInformation("NHS numbers match.");
-                _logger.LogInformation("Process the PDS record: {PdsRecord}", JsonSerializer.Serialize(pdsRecord));
-
+                _logger.LogInformation("NHS numbers match, processing the retrieved PDS record.");
                 await ProcessRecord(pdsRecord);
             }
 
             else
             {
-                _logger.LogInformation("NHS numbers do not match.");
-
                 var supersededRecord = new PdsDemographic()
                 {
                     NhsNumber = nhsNumber,
                     SupersededByNhsNumber = pdsRecord.NhsNumber,
                     PrimaryCareProvider = null,
                     ReasonForRemoval = "ORR",
-                    RemovalEffectiveFromDate = DateTime.Today.ToString("yyyyMMdd"),
-                    // EligibilityFlag = 0,
-                    // RecordType = "AMENDED"
+                    RemovalEffectiveFromDate = DateTime.Today.ToString("yyyyMMdd")
                 };
 
+                _logger.LogInformation("NHS numbers do not match, processing the superseded record.");
                 await ProcessRecord(supersededRecord);
-
-                _logger.LogInformation("Process built superseded record: {Superseded}", JsonSerializer.Serialize(supersededRecord));
             }
 
         }
@@ -144,7 +137,6 @@ public class ProcessNemsUpdate
 
         // convert the pdsDemographic into a Participant
         var participant = new Participant(pdsDemographic);
-        Console.WriteLine(JsonSerializer.Serialize(participant));
 
         // TODO validate NHS number in record before enqueuing
         // TODO validate all dates in record before enqueuing
@@ -153,7 +145,7 @@ public class ProcessNemsUpdate
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
             Participant = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = "N/A",
+            FileName = "NemsMessages",
             participant = participant
         };
 
