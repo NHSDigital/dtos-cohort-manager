@@ -72,7 +72,7 @@ public class RetrievePdsDemographic
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There has been an error fetching PDS participant data: {Message}", ex.Message);
+            _logger.LogError(ex, "There has been an error retrieving PDS participant data.");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
@@ -83,16 +83,16 @@ public class RetrievePdsDemographic
 
         if (oldParticipantDemographic == null)
         {
-            _logger.LogInformation("Participant Demographic record not found, attemping to insert Participant Demographic.");
-            bool insertSuccess = await _participantDemographicClient.Add(participantDemographic);
+            _logger.LogInformation("Participant Demographic record not found, attemping to add Participant Demographic.");
+            bool addSuccess = await _participantDemographicClient.Add(participantDemographic);
 
-            if (insertSuccess)
+            if (addSuccess)
             {
-                _logger.LogInformation("Successfully inserted Participant Demographic.");
+                _logger.LogInformation("Successfully added Participant Demographic.");
                 return true;
             }
 
-            _logger.LogInformation("Failed to insert Participant Demographic.");
+            _logger.LogError("Failed to add Participant Demographic.");
             return false;
         }
 
@@ -106,7 +106,7 @@ public class RetrievePdsDemographic
             return true;
         }
 
-        _logger.LogInformation("Failed to update Participant Demographic.");
+        _logger.LogError("Failed to update Participant Demographic.");
         return false;
     }
 }
