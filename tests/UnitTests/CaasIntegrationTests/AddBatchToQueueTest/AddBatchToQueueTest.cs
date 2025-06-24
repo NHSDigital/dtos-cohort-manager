@@ -48,7 +48,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(queue, "AddQueueName");
 
         //Assert
-        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
+        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once());
     }
 
     [TestMethod]
