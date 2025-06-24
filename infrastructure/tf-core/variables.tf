@@ -464,6 +464,7 @@ variable "sqlserver" {
 
 variable "service_bus" {
   description = "Configuration for Service Bus namespaces and their topics"
+  default = {} 
   type = map(object({
     namespace_name   = optional(string)
     capacity         = number
