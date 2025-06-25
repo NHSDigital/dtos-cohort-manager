@@ -100,6 +100,14 @@ describe("formatGenderValue", () => {
     expect(formatGenderValue(2)).toBe("Female");
   });
 
+  it("should return 'Unspecified' for input '9' (string)", () => {
+    expect(formatGenderValue("9")).toBe("Unspecified");
+  });
+
+  it("should return 'Unspecified' for input 9 (number)", () => {
+    expect(formatGenderValue(9)).toBe("Unspecified");
+  });
+
   it("should return 'Unknown' for input '3' (string)", () => {
     expect(formatGenderValue("3")).toBe("Unknown");
   });

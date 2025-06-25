@@ -48,5 +48,6 @@ export function formatGenderValue(gender?: number | string | null): string {
   const genderNum = typeof gender === "string" ? parseInt(gender, 10) : gender;
   if (genderNum === 1) return "Male";
   if (genderNum === 2) return "Female";
+  if (genderNum === 9) return "Unspecified";
   return "Unknown";
 }
