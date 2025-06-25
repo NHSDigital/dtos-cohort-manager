@@ -18,7 +18,7 @@ public class AzureStorageQueueClient : IQueueClient
         _queueClientFactory = queueClientFactory;
     }
 
-    public async Task<bool> AddAsync<T>(T message, string queueName, string? topicName = null)
+    public async Task<bool> AddAsync<T>(T message, string queueName)
     {
         var _queueClient = _queueClientFactory.CreateClient(queueName);
         await _queueClient.CreateIfNotExistsAsync();

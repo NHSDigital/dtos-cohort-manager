@@ -21,38 +21,30 @@ public class AzureServiceBusClient : IQueueClient
 
 
     /// <summary>
-    /// sends a message to a topic of the given name or name or sends a message to service buss queue when the topic name is not provided 
+    /// will send a message to a queue/ topic
     /// </summary>
     /// <typeparam name="T"></typeparam>
     /// <param name="message"></param>
     /// <param name="queueName"></param>
     /// <param name="topicName"></param>
     /// <returns></returns>
-    public async Task<bool> AddAsync<T>(T message, string queueName, string? topicName = null)
+    public async Task<bool> AddAsync<T>(T message, string queueTopicName)
     {
-        ServiceBusSender sender = null!;
-        if (!string.IsNullOrEmpty(queueName))
-        {
-            sender = _serviceBusClient.CreateSender(queueName);
-        }
-        if (!string.IsNullOrEmpty(topicName))
-        {
-            sender = _serviceBusClient.CreateSender(topicName);
-        }
+        var sender = _serviceBusClient.CreateSender(queueTopicName);
 
         try
         {
             string jsonMessage = JsonSerializer.Serialize(message);
             ServiceBusMessage serviceBusMessage = new(jsonMessage);
 
-            _logger.LogInformation("sending message to service bus queue");
+            _logger.LogInformation("sending message to service bus queue or topic");
 
             await sender.SendMessageAsync(serviceBusMessage);
             return true;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There was an error sending message to service bus queue {QueueName} {ErrorMessage}", queueName, ex.Message);
+            _logger.LogError(ex, "There was an error sending message to service bus queue {QueueName} {ErrorMessage}", queueTopicName, ex.Message);
             return false;
         }
         finally

@@ -19,7 +19,7 @@ public static class ExceptionHandlerServiceExtension
         return hostBuilder.ConfigureServices(_ =>
       {
           _.AddSingleton<IExceptionHandler, ExceptionHandler>();
-          _.AddSingleton<IQueueClient>(_ => new AzureServiceBusClient(serviceBusConnectionString));
+          _.AddTransient<IQueueClient>(_ => new AzureServiceBusClient(serviceBusConnectionString));
       });
     }
 

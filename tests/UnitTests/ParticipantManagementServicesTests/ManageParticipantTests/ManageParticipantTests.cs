@@ -46,7 +46,7 @@ public class ManageParticipantTests
             .ReturnsAsync((ParticipantManagement)null);
 
         _queueClientMock
-            .Setup(x => x.AddAsync(It.IsAny<ParticipantCsvRecord>(), testConfig.CohortQueueName, null))
+            .Setup(x => x.AddAsync(It.IsAny<ParticipantCsvRecord>(), testConfig.CohortQueueName))
             .ReturnsAsync(true);
 
         _sut = new ManageParticipant(
@@ -105,7 +105,7 @@ public class ManageParticipantTests
         _participantManagementClientMock
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
-            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>(), null), Times.Once);
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -125,7 +125,7 @@ public class ManageParticipantTests
         _participantManagementClientMock
             .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
-            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>(), null), Times.Once);
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -143,7 +143,7 @@ public class ManageParticipantTests
         _participantManagementClientMock
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
-            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>(), null), Times.Never);
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
         _handleException
             .Verify(i => i.CreateSystemExceptionLog(
                 It.IsAny<ArgumentException>(),
@@ -169,7 +169,7 @@ public class ManageParticipantTests
         _participantManagementClientMock
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
-            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>(), null), Times.Never);
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
         _handleException
             .Verify(i => i.CreateSystemExceptionLog(
                 It.IsAny<InvalidOperationException>(),
@@ -195,7 +195,7 @@ public class ManageParticipantTests
         _participantManagementClientMock
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
-            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>(), null), Times.Never);
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
         _handleException
             .Verify(i => i.CreateSystemExceptionLog(
                 It.IsAny<InvalidOperationException>(),

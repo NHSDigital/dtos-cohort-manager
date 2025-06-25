@@ -9,7 +9,6 @@ using Model.Enums;
 using DataServices.Client;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
-using Castle.Components.DictionaryAdapter;
 
 [TestClass]
 public class CreateCohortDistributionTests
@@ -119,7 +118,7 @@ public class CreateCohortDistributionTests
                 It.IsAny<string>()));
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), null));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
     }
 
     [TestMethod]
@@ -144,7 +143,7 @@ public class CreateCohortDistributionTests
                 It.IsAny<string>()));
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), null));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
     }
 
     [TestMethod]
@@ -169,7 +168,7 @@ public class CreateCohortDistributionTests
                 It.IsAny<string>()));
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), null));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
     }
 
     [TestMethod]
@@ -207,7 +206,7 @@ public class CreateCohortDistributionTests
                 It.IsAny<string>()));
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), null));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
     }
 
     [TestMethod]
@@ -256,7 +255,7 @@ public class CreateCohortDistributionTests
         });
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), null));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
 
         if (ignoreExceptionsValue)
         {
@@ -329,7 +328,7 @@ public class CreateCohortDistributionTests
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Once);
 
         _azureQueueStorageHelper
-            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), null));
+            .Verify(x => x.AddAsync(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>()));
 
         if (ignoreExceptionsValue)
         {

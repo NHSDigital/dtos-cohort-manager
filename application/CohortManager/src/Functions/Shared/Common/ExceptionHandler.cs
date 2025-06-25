@@ -34,10 +34,10 @@ public class ExceptionHandler : IExceptionHandler
         _httpClientFunction = httpClientFunction;
         _createExceptionUrl = Environment.GetEnvironmentVariable("ExceptionFunctionURL");
 
-        var wasParsed = bool.TryParse(Environment.GetEnvironmentVariable("useNewFunctions"), out _useServiceBus);
+        var wasParsed = bool.TryParse(Environment.GetEnvironmentVariable("useExceptionServiceBus"), out _useServiceBus);
         if (!wasParsed)
         {
-            _logger.LogWarning("useNewFunctions environment variable is not set.");
+            _logger.LogWarning("useExceptionServiceBus environment variable is not set.");
         }
 
         if (_createExceptionUrl == null)
@@ -47,7 +47,7 @@ public class ExceptionHandler : IExceptionHandler
         }
 
         _serviceBusHandler = serviceBusHandler;
-        _serviceBusTopicName = Environment.GetEnvironmentVariable("serviceBusTopicName");
+        _serviceBusTopicName = Environment.GetEnvironmentVariable("ExceptionTopicName");
     }
 
     public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName, string category = "")
@@ -380,16 +380,14 @@ public class ExceptionHandler : IExceptionHandler
                 _logger.LogError("The service bus topic was not set and therefore we cannot sent exception to topic");
                 return false;
             }
-            return await _serviceBusHandler!.AddAsync<ValidationException>(validationException, "", _serviceBusTopicName);
+            return await _serviceBusHandler!.AddAsync<ValidationException>(validationException, _serviceBusTopicName);
         }
-        else
+
+        var response = await _httpClientFunction!.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
+        if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
         {
-            var response = await _httpClientFunction!.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
-            if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
-            {
-                return false;
-            }
-            return true;
+            return false;
         }
+        return true;
     }
 }
