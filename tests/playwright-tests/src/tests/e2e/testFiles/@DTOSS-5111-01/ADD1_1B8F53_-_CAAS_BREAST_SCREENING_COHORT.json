@@ -3,9 +3,9 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993626554",
+        "NhsNumber": "9990185433",
         "RuleId": 94,
-        "RuleDescription": "Invalid eligibility flag"
+        "RuleDescription": "Invalid eligibility flag."
       },
       "meta": {
         "testJiraId": "@DTOSS-5111-01",
@@ -19,7 +19,7 @@
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 1,
-      "nhs_number": 9993626554,
+      "nhs_number": 9990185433,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20100101",
@@ -57,6 +57,6 @@
     }
   ],
   "nhsNumbers": [
-    "9993626554"
+    "9990185433"
   ]
 }
