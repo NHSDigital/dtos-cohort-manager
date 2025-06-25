@@ -20,6 +20,7 @@ public class CreateCohortDistribution
     private readonly CreateCohortDistributionConfig _config;
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
     private const string DefaultNhsNumber = "0";
+    private readonly string defaultServiceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
 
     public CreateCohortDistribution(ILogger<CreateCohortDistribution> logger,
                                     ICohortDistributionHelper CohortDistributionHelper,
@@ -77,12 +78,12 @@ public class CreateCohortDistribution
         var serviceProvider = await AllocateServiceProviderAsync(basicParticipantCsvRecord, participantData);
         if (serviceProvider == null) return;
 
-        var shouldContinue = await HandleParticipantExceptionsAsync(participantData, basicParticipantCsvRecord.FileName!);
-        if (!shouldContinue) return;
+        var exceptionHandled = await HandleParticipantExceptionsAsync(participantData, basicParticipantCsvRecord.FileName!);
+        if (!exceptionHandled) return;
 
         participantData.RecordType = basicParticipantCsvRecord.RecordType;
-        var shouldProceed = await ValidateAndHandleExceptionsAsync(basicParticipantCsvRecord.FileName!, participantData, previousCohortDistributionRecord);
-        if (!shouldProceed) return;
+        var validateExceptionHandled = await ValidateAndHandleExceptionsAsync(basicParticipantCsvRecord.FileName!, participantData, previousCohortDistributionRecord);
+        if (!validateExceptionHandled) return;
 
         await TransformAndAddParticipantAsync(serviceProvider, participantData, previousCohortDistributionRecord, basicParticipantCsvRecord.FileName);
     }
@@ -101,14 +102,12 @@ public class CreateCohortDistribution
 
     private async Task<string?> AllocateServiceProviderAsync(CreateCohortDistributionRequestBody basicParticipantCsvRecord, CohortDistributionParticipant participantData)
     {
-        var serviceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
-
         if (string.IsNullOrEmpty(participantData.Postcode))
         {
-            return serviceProvider;
+            return defaultServiceProvider;
         }
 
-        serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(
+        var serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(
             basicParticipantCsvRecord.NhsNumber,
             participantData.ScreeningAcronym,
             participantData.Postcode,
@@ -118,7 +117,7 @@ public class CreateCohortDistribution
         if (serviceProvider == null)
         {
             await HandleExceptionAsync("Could not allocate Participant to service provider from postcode", participantData, basicParticipantCsvRecord.FileName);
-            return serviceProvider;
+            return defaultServiceProvider;
         }
 
         return serviceProvider;
