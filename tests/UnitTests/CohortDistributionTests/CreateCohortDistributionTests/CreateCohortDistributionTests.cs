@@ -261,7 +261,7 @@ public class CreateCohortDistributionTests
         {
             _exceptionHandler
             .Verify(x => x.CreateSystemExceptionLog(
-                It.Is<Exception>(ex => ex.Message.Contains("Failed to add the participant")),
+                It.Is<Exception>(ex => ex.Message.Contains("Failed to add the Participant")),
                 It.IsAny<Participant>(),
                 It.IsAny<string>(),
                 It.IsAny<string>()));
@@ -271,7 +271,7 @@ public class CreateCohortDistributionTests
         {
             _exceptionHandler
                 .Verify(x => x.CreateSystemExceptionLog(
-                    It.Is<Exception>(ex => ex.Message.Contains("Unable to add to cohort distribution")),
+                    It.Is<Exception>(ex => ex.Message.Contains("Unable to add to Cohort Distribution")),
                     It.IsAny<Participant>(),
                     It.IsAny<string>(),
                     It.IsAny<string>()));
@@ -319,7 +319,7 @@ public class CreateCohortDistributionTests
         // Assert
         _exceptionHandler
             .Verify(x => x.CreateSystemExceptionLog(
-                It.Is<Exception>(ex => ex.Message.Contains("triggered a validation rule, so will not be added to cohort distribution")),
+                It.Is<Exception>(ex => ex.Message.Contains("triggered a validation rule, so will not be added to Cohort Distribution")),
                 It.IsAny<Participant>(),
                 It.IsAny<string>(),
                 It.IsAny<string>()));
