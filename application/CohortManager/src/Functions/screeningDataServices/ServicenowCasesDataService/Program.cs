@@ -10,7 +10,7 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         // Register health checks
-        services.AddDatabaseHealthCheck("ServicenowCasesDataService");
+        services.AddDatabaseHealthCheck("ServiceNowCasesDataService");
     })
     .AddTelemetry()
     .Build();

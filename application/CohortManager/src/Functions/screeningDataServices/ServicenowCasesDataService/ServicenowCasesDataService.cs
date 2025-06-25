@@ -21,7 +21,7 @@ public class ServiceNowCasesDataService
         _createResponse = createResponse;
     }
 
-    [Function("ServicenowCasesDataService")]
+    [Function("ServiceNowCasesDataService")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "ServiceNowCasesDataService/{*key}")] HttpRequestData req, string? key)
     {
         try
