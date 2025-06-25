@@ -115,9 +115,7 @@ public class ProcessNemsUpdate
         {
             var queryParams = new Dictionary<string, string>()
             {
-                // {"nhsNumber", "9111231130" } // NotFound
-                // {"nhsNumber", "9000000025" } // Not matching
-                {"nhsNumber", nhsNumber } // Matching
+                {"nhsNumber", nhsNumber }
             };
 
             var pdsDemographicResponse = await _httpClientFunction.SendGetResponse(_config.RetrievePdsDemographicURL, queryParams);
@@ -143,13 +141,11 @@ public class ProcessNemsUpdate
     {
         var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
 
-        // convert the pdsDemographic into a Participant
         var participant = new Participant(pdsDemographic);
 
         // TODO validate NHS number in record before enqueuing
         // TODO validate all dates in record before enqueuing
 
-        // convert the Participant into a BasicParticipantCsvRecord
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
             Participant = _createBasicParticipantData.BasicParticipantData(participant),
@@ -157,11 +153,9 @@ public class ProcessNemsUpdate
             participant = participant
         };
 
-        // enqueue the record
         updateRecord.Enqueue(basicParticipantCsvRecord);
 
-        // add to the queue
-        _logger.LogInformation("sending records to update queue");
+        _logger.LogInformation("Sending record to the update queue.");
         await _addBatchToQueue.ProcessBatch(updateRecord, _config.UpdateQueueName);
     }
 
