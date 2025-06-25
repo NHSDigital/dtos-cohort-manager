@@ -56,7 +56,7 @@ public class CreateCohortDistribution
         {
             var errorMessage = $"Create Cohort Distribution failed .\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
             await HandleExceptionAsync(errorMessage,
-                                    new CohortDistributionParticipant { NhsNumber = basicParticipantCsvRecord.NhsNumber },
+                                    new CohortDistributionParticipant { NhsNumber = basicParticipantCsvRecord.NhsNumber ?? string.Empty },
                                     basicParticipantCsvRecord.FileName!);
             throw;
         }
@@ -65,7 +65,8 @@ public class CreateCohortDistribution
     private static bool IsValidRequest(CreateCohortDistributionRequestBody request)
     {
         return !string.IsNullOrWhiteSpace(request.ScreeningService) &&
-               !string.IsNullOrWhiteSpace(request.NhsNumber);
+               !string.IsNullOrWhiteSpace(request.NhsNumber) &&
+               !string.IsNullOrWhiteSpace(request.RecordType);
     }
 
     private async Task ProcessCohortDistributionAsync(CreateCohortDistributionRequestBody basicParticipantCsvRecord)
@@ -81,7 +82,7 @@ public class CreateCohortDistribution
         var exceptionHandled = await HandleParticipantExceptionsAsync(participantData, basicParticipantCsvRecord.FileName!);
         if (!exceptionHandled) return;
 
-        participantData.RecordType = basicParticipantCsvRecord.RecordType;
+        participantData.RecordType = basicParticipantCsvRecord.RecordType!;
         var validateExceptionHandled = await ValidateAndHandleExceptionsAsync(basicParticipantCsvRecord.FileName!, participantData, previousCohortDistributionRecord);
         if (!validateExceptionHandled) return;
 
@@ -108,7 +109,7 @@ public class CreateCohortDistribution
         }
 
         var serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(
-            basicParticipantCsvRecord.NhsNumber,
+            basicParticipantCsvRecord.NhsNumber!,
             participantData.ScreeningAcronym,
             participantData.Postcode,
             JsonSerializer.Serialize(participantData)
