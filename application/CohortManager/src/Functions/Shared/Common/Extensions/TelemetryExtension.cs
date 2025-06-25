@@ -17,6 +17,7 @@ public static class TelemetryExtension
                 {
                     module.SetComponentCorrelationHttpHeaders = true;
                 });
+            _.AddApplicationInsightsTelemetryProcessor<HealthCheckFilterTelemetryProcessor>();
         });
     }
 
