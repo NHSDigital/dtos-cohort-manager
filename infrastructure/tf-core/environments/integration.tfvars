@@ -11,6 +11,7 @@ features = {
   public_network_access_enabled        = false
 }
 
+# these will be merged with compliance tags in locals.tf
 tags = {
   Environment = "integration"
 }
@@ -1100,6 +1101,7 @@ function_apps = {
         AcceptableLatencyThresholdMs = "500"
       }
     }
+
     ReferenceDataService = {
       name_suffix            = "reference-data-service"
       function_endpoint_name = "ReferenceDataService"
