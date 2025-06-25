@@ -25,6 +25,8 @@ public class ExceptionHandler : IExceptionHandler
     private bool _useServiceBus;
     private string? _serviceBusTopicName;
 
+    private const string errorMessage = "There was an error while logging an exception to the database."
+
     public ExceptionHandler(ILogger<ExceptionHandler> logger, IHttpClientFunction? httpClientFunction, IQueueClient? serviceBusHandler = null)
     {
 
@@ -63,7 +65,7 @@ public class ExceptionHandler : IExceptionHandler
 
         if (!isSentSuccessfully)
         {
-            _logger.LogError("There was an error while logging a transformation exception to the database");
+            _logger.LogError(errorMessage);
         }
     }
 
@@ -105,7 +107,7 @@ public class ExceptionHandler : IExceptionHandler
         var exceptionSentSuccessfully = await sendToCreateException(exception);
         if (!exceptionSentSuccessfully)
         {
-            _logger.LogError("There was an error while logging an exception to the database.");
+            _logger.LogError(errorMessage);
         }
     }
 
@@ -132,7 +134,7 @@ public class ExceptionHandler : IExceptionHandler
 
         if (!isSentSuccessfully)
         {
-            _logger.LogError("There was an error while logging a transformation exception to the database");
+            _logger.LogError(errorMessage);
         }
     }
 
@@ -163,7 +165,7 @@ public class ExceptionHandler : IExceptionHandler
 
             if (!isSentSuccessfully)
             {
-                _logger.LogError("There was an error while logging a transformation exception to the database");
+                _logger.LogError(errorMessage);
             }
         }
     }
@@ -208,7 +210,6 @@ public class ExceptionHandler : IExceptionHandler
                 Fatal = IsFatal
             };
 
-            var exceptionJson = JsonSerializer.Serialize(exception);
             var isSentSuccessfully = await sendToCreateException(exception);
 
             if (!isSentSuccessfully)
@@ -244,7 +245,7 @@ public class ExceptionHandler : IExceptionHandler
 
         if (!isSentSuccessfully)
         {
-            _logger.LogError("There was an error while logging a transformation exception to the database");
+            _logger.LogError(errorMessage);
         }
         return isSentSuccessfully;
     }
@@ -271,7 +272,7 @@ public class ExceptionHandler : IExceptionHandler
 
         if (!isSentSuccessfully)
         {
-            _logger.LogError("There was an error while logging a transformation exception to the database");
+            _logger.LogError(errorMessage);
         }
 
     }
@@ -379,11 +380,11 @@ public class ExceptionHandler : IExceptionHandler
                 _logger.LogError("The service bus topic was not set and therefore we cannot sent exception to topic");
                 return false;
             }
-            return await _serviceBusHandler.AddAsync<ValidationException>(validationException, "", _serviceBusTopicName);
+            return await _serviceBusHandler!.AddAsync<ValidationException>(validationException, "", _serviceBusTopicName);
         }
         else
         {
-            var response = await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
+            var response = await _httpClientFunction!.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
             if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
             {
                 return false;
