@@ -24,4 +24,4 @@
 // This equates to "@epic3-" tags, configured in the package.json at the playwright-tests root location.
 
 
-export const runnerBasedEpic3MedTestScenariosAdd = "@DTOSS-4967-01";
+export const runnerBasedEpic3MedTestScenariosAdd = "@DTOSS-4967-01|@DTOSS-4975-01"
