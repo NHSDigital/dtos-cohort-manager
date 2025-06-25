@@ -3,6 +3,7 @@ import Card from "@/app/components/card";
 interface CardProps {
   readonly value: number;
   readonly label: string;
+  readonly description?: string;
   readonly url: string;
 }
 
@@ -15,10 +16,15 @@ export default function CardGroup({ items }: Readonly<CardGroupProps>) {
     <ul className="nhsuk-grid-row nhsuk-card-group">
       {items.map((card) => (
         <li
-          className="nhsuk-grid-column-one-third nhsuk-card-group__item"
+          className="nhsuk-grid-column-one-quarter nhsuk-card-group__item"
           key={card.label}
         >
-          <Card value={card.value} label={card.label} url={card.url} />
+          <Card
+            value={card.value}
+            label={card.label}
+            description={card.description}
+            url={card.url}
+          />
         </li>
       ))}
     </ul>

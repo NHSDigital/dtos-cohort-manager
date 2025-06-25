@@ -1,0 +1,62 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9992949600",
+        "RuleId": 18,
+        "RuleDescription": "DateOfDeath"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5210-01",
+        "requirementJiraId": "DTOSS-3128",
+        "additionalTags": "@regression @e2e @epic2-medium-priority Verify exception raised for incomplete date of death with RuleID 18"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "AMENDED",
+      "change_time_stamp": null,
+      "serial_change_number": 1,
+      "nhs_number": 9992949600,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "C88007",
+      "primary_care_effective_from_date": "20030318",
+      "current_posting": "CH",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "WCOM",
+      "given_name": "Emem",
+      "other_given_name": "Greg",
+      "family_name": "Adani",
+      "previous_family_name": "Adam",
+      "date_of_birth": "19700101",
+      "gender": 1,
+      "address_line_1": "245 SpaightSpaightSpTeeeeeeest Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": null,
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AB43 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": null,
+      "reason_for_removal": "DEA",
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": "10/29",
+      "death_status": 2,
+      "home_telephone_number": "01619999999",
+      "home_telephone_effective_from_date": "20200818",
+      "mobile_telephone_number": "07888888888",
+      "mobile_telephone_effective_from_date": "20240501",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20240501",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9992949600"
+  ]
+}

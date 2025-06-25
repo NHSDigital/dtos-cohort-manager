@@ -8,6 +8,7 @@ import { runnerBasedEpic2MedTestScenariosAdd } from '../e2e/epic2-medpriority-te
 import { runnerBasedEpic3TestScenariosAdd } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
 import { runnerBasedEpic3MedTestScenariosAdd } from '../e2e/epic3-medpriority-tests/epic3-med-priority-testsuite';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
+import { runnerBasedEpic4dTestScenariosAdd } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
 
 
 // Tests to run based on TEST_TYPE environment variable
@@ -24,6 +25,8 @@ if (TEST_TYPE == 'RegressionEpic1') {
   scopedTestScenario = runnerBasedEpic3TestScenariosAdd;
 } else if (TEST_TYPE == 'RegressionEpic3Med') {
   scopedTestScenario = runnerBasedEpic3MedTestScenariosAdd;
+} else if (TEST_TYPE == 'RegressionEpic4d') {
+  scopedTestScenario = runnerBasedEpic4dTestScenariosAdd;
 } else {
   scopedTestScenario = runnerBasedEpic123TestScenariosAdd;
 }
