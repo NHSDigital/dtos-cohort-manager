@@ -12,6 +12,9 @@ export interface ExceptionsAPI {
   ExceptionDate: string;
   CohortName: string;
   Fatal: number;
+  ServiceNowId: string;
+  ServiceNowCreatedDate: string;
+  RecordUpdatedDate: string;
 }
 
 export interface ExceptionAPIDetails extends ExceptionsAPI {
@@ -19,7 +22,7 @@ export interface ExceptionAPIDetails extends ExceptionsAPI {
     GivenName: string;
     FamilyName: string;
     DateOfBirth: string;
-    Gender: string;
+    Gender: number;
     ParticipantAddressLine1: string;
     ParticipantAddressLine2: string;
     ParticipantAddressLine3: string;
@@ -28,12 +31,6 @@ export interface ExceptionAPIDetails extends ExceptionsAPI {
     ParticipantPostCode: string;
     TelephoneNumberHome: string;
     EmailAddressHome: string;
-    GpPracticeCode: string;
-    GpAddressLine1: string;
-    GpAddressLine2: string;
-    GpAddressLine3: string;
-    GpAddressLine4: string;
-    GpAddressLine5: string;
-    GpPostCode: string;
+    PrimaryCareProvider: string;
   };
 }
