@@ -11,6 +11,7 @@ features = {
   public_network_access_enabled        = false
 }
 
+# these will be merged with compliance tags in locals.tf
 tags = {
   Environment = "integration"
 }
@@ -50,6 +51,9 @@ regions = {
       container-app-db-management = {
         cidr_newbits = 7
         cidr_offset  = 6
+        delegation_name            = "Microsoft.App/environments"
+        service_delegation_name    = "Microsoft.App/environments"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
       }
     }
   }
@@ -1104,6 +1108,7 @@ function_apps = {
         AcceptableLatencyThresholdMs = "500"
       }
     }
+
     ReferenceDataService = {
       name_suffix            = "reference-data-service"
       function_endpoint_name = "ReferenceDataService"

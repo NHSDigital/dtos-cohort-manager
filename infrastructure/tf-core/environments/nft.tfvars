@@ -11,6 +11,7 @@ features = {
   public_network_access_enabled        = false
 }
 
+# these will be merged with compliance tags in locals.tf
 tags = {
   Environment = "non-functional testing"
 }
@@ -47,9 +48,12 @@ regions = {
         cidr_newbits = 8
         cidr_offset  = 5
       }
-      container-app-db-management-4 = {
+      container-app-db-management = {
         cidr_newbits = 7
         cidr_offset  = 6
+        delegation_name            = "Microsoft.App/environments"
+        service_delegation_name    = "Microsoft.App/environments"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
       }
     }
   }
@@ -144,13 +148,6 @@ app_service_plan = {
           capacity_min = "1"
           capacity_max = "4"
           capacity_def = "2"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 2
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
         }
       }
     }
@@ -195,7 +192,7 @@ app_service_plan = {
 
 container_app_environments = {
   instances = {
-    db-management-4 = {
+    db-management = {
       zone_redundancy_enabled = false
     }
   }
@@ -203,8 +200,8 @@ container_app_environments = {
 
 container_app_jobs = {
   apps = {
-    db-management-4 = {
-      container_app_environment_key = "db-management-4"
+    db-management = {
+      container_app_environment_key = "db-management"
       docker_env_tag                = "nft"
       docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
@@ -1107,6 +1104,7 @@ function_apps = {
         AcceptableLatencyThresholdMs = "500"
       }
     }
+
     ReferenceDataService = {
       name_suffix            = "reference-data-service"
       function_endpoint_name = "ReferenceDataService"

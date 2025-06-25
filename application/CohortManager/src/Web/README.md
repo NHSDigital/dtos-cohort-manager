@@ -1,7 +1,5 @@
 # Cohort Manager Web
 
-> Note: This repository will shortly be getting merged together with [https://github.com/NHSDigital/dtos-cohort-manager](https://github.com/NHSDigital/dtos-cohort-manager), which is why it doesn't use the repository template.
-
 User interface for the Screening - Cohort Manager service (Team Select).
 
 Built with [Next.js](https://nextjs.org/) using [NHS CIS2 Authentication](https://digital.nhs.uk/services/care-identity-service/applications-and-services/cis2-authentication).
