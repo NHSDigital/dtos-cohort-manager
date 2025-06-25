@@ -3,7 +3,8 @@ export interface ExceptionDetails {
   dateCreated: string;
   shortDescription: string;
   nhsNumber?: string;
-  name: string;
+  surname: string;
+  forename: string;
   dateOfBirth?: string;
   gender?: string;
   address?: string;
@@ -11,6 +12,7 @@ export interface ExceptionDetails {
     phoneNumber?: string;
     email?: string;
   };
+  primaryCareProvider: string;
   serviceNowId?: string;
   serviceNowCreatedDate?: string;
 }
