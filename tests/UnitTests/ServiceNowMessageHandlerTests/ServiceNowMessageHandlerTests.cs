@@ -21,12 +21,12 @@ using Moq.Protected;
 public class ServiceNowMessageHandlerTests
 {
     private Mock<IHttpClientFactory> _httpClientFactoryMock;
-    private Mock<ILogger<ServiceNowMessageHandler>> _loggerMock;
-    private Mock<IOptions<SendServiceNowMsgConfig>> _optionsMock;
+    private Mock<ILogger<SendServiceNowMessageFunction>> _loggerMock;
+    private Mock<IOptions<ServiceNowMessageHandlerConfig>> _optionsMock;
     private Mock<ICreateResponse> _createResponseMock;
     private Mock<FunctionContext> _contextMock;
     private Mock<HttpRequestData> _httpRequestMock;
-    private ServiceNowMessageHandler _handler;
+    private SendServiceNowMessageFunction _handler;
     private Mock<HttpMessageHandler> _httpMessageHandlerMock;
     private HttpClient _httpClient;
 
@@ -42,9 +42,9 @@ public class ServiceNowMessageHandlerTests
         _httpClientFactoryMock = new Mock<IHttpClientFactory>();
         _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient);
 
-        _loggerMock = new Mock<ILogger<ServiceNowMessageHandler>>();
-        _optionsMock = new Mock<IOptions<SendServiceNowMsgConfig>>();
-        _optionsMock.Setup(x => x.Value).Returns(new SendServiceNowMsgConfig
+        _loggerMock = new Mock<ILogger<SendServiceNowMessageFunction>>();
+        _optionsMock = new Mock<IOptions<ServiceNowMessageHandlerConfig>>();
+        _optionsMock.Setup(x => x.Value).Returns(new ServiceNowMessageHandlerConfig
         {
             EndpointPath = "api/now/table/incident",
             Definition = "change_request",
@@ -56,7 +56,7 @@ public class ServiceNowMessageHandlerTests
 
         _createResponseMock = new Mock<ICreateResponse>();
 
-        _handler = new ServiceNowMessageHandler(
+        _handler = new SendServiceNowMessageFunction(
             _httpClientFactoryMock.Object,
             _loggerMock.Object,
             _optionsMock.Object,
@@ -92,7 +92,7 @@ public class ServiceNowMessageHandlerTests
             .Setup(r => r.CreateHttpResponse(HttpStatusCode.OK, _httpRequestMock.Object, "Success"))
             .Returns(expectedResponse);
 
-        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
+        var result = await _handler.Run(_httpRequestMock.Object, "base", "profile", "sysid");
 
         Assert.AreEqual(expectedResponse, result);
     }
@@ -118,7 +118,7 @@ public class ServiceNowMessageHandlerTests
             .Returns(expectedResponse);
 
         // Act
-        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
+        var result = await _handler.Run(_httpRequestMock.Object, "base", "profile", "sysid");
 
         // Assert
         Assert.AreEqual(expectedResponse, result);
@@ -140,7 +140,7 @@ public class ServiceNowMessageHandlerTests
             .Returns(expectedResponse);
 
         // Act
-        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
+        var result = await _handler.Run(_httpRequestMock.Object, "base", "profile", "sysid");
 
         // Assert
         Assert.AreEqual(expectedResponse, result);
