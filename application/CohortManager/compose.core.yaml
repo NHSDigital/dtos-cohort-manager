@@ -385,7 +385,7 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7180
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ServiceNowCasesDataServiceURL=http://servicenow-cases-data-service:8996/api/ServiceNowCasesDataService
+      - ServiceNowCasesDataServiceURL=http://servicenow-cases-data-service:9996/api/ServiceNowCasesDataService
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService
 
   # UI
