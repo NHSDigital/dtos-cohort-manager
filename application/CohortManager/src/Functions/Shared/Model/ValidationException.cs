@@ -15,5 +15,8 @@ public class ValidationException
     public DateTime? ExceptionDate { get; set; }
     public string? CohortName { get; set; }
     public int? Fatal { get; set; }
-    public ExceptionDetails ExceptionDetails {get; set;}
+    public ExceptionDetails ExceptionDetails { get; set; }
+    public string? ServiceNowId { get; set; }
+    public DateTime? ServiceNowCreatedDate { get; set; }
+    public DateTime? RecordUpdatedDate { get; set; }
 }

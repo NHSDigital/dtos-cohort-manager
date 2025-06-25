@@ -151,7 +151,53 @@ variable "app_service_plan" {
           dec_scale_cooldown  = optional(string)
         })
       }))
+      wildcard_ssl_cert_key = optional(string, null)
     }))
+  })
+}
+
+variable "container_app_environments" {
+  description = "Configuration for the container app environments"
+  default     = {}
+  type = object({
+    instances = optional(map(object({
+      workload_profile = optional(object({
+        name                  = optional(string)
+        workload_profile_type = optional(string)
+        minimum_count         = optional(number, 0)
+        maximum_count         = optional(string, 1)
+      }), {})
+      zone_redundancy_enabled = optional(bool, false)
+    })), {})
+  })
+}
+
+variable "container_apps" {
+  description = "Configuration for the container app jobs"
+  default     = {}
+  type = object({
+    apps = optional(map(object({
+      name_suffix                   = optional(string)
+      container_app_environment_key = optional(string)
+      docker_env_tag                = optional(string)
+      docker_image                  = optional(string)
+      is_web_app                    = optional(bool, false)
+      container_registry_use_mi     = optional(bool, false)
+    })), {})
+  })
+}
+
+variable "container_app_jobs" {
+  description = "Configuration for the container app jobs"
+  default     = {}
+  type = object({
+    apps = optional(map(object({
+      name_suffix                   = optional(string)
+      container_app_environment_key = optional(string)
+      docker_env_tag                = optional(string)
+      docker_image                  = optional(string)
+      container_registry_use_mi     = optional(bool, false)
+    })), {})
   })
 }
 
@@ -169,8 +215,6 @@ variable "function_apps" {
     acr_name                               = string
     acr_rg_name                            = string
     always_on                              = bool
-    app_insights_name                      = string
-    app_insights_rg_name                   = string
     app_service_logs_disk_quota_mb         = optional(number)
     app_service_logs_retention_period_days = optional(number)
     cont_registry_use_mi                   = bool
@@ -199,8 +243,9 @@ variable "function_apps" {
           env_var_name   = string
           container_name = string
       })), [])
-      db_connection_string = optional(string, "")
-      key_vault_url        = optional(string, "")
+      db_connection_string    = optional(string, "")
+      producer_to_service_bus = optional(list(string), [])
+      key_vault_url           = optional(string, "")
       app_urls = optional(list(object({
         env_var_name     = string
         function_app_key = string
@@ -218,6 +263,65 @@ variable "key_vault" {
     purge_prot        = optional(bool, false)
     sku_name          = optional(string, "standard")
   })
+}
+
+variable "linux_web_app" {
+  description = "Configuration for linux web apps"
+  type = object({
+    acr_mi_name                            = string
+    acr_name                               = string
+    acr_rg_name                            = string
+    always_on                              = bool
+    app_service_logs_disk_quota_mb         = optional(number)
+    app_service_logs_retention_period_days = optional(number)
+    cont_registry_use_mi                   = bool
+    docker_env_tag                         = string
+    docker_CI_enable                       = optional(string, "")
+    docker_img_prefix                      = string
+    enable_appsrv_storage                  = bool
+    ftps_state                             = string
+    health_check_path                      = optional(string, "")
+    https_only                             = bool
+    pull_image_over_vnet                   = optional(bool, true)
+    remote_debugging_enabled               = optional(bool, false)
+    storage_name                           = optional(string)
+    storage_type                           = optional(string)
+    share_name                             = optional(string)
+    storage_account_access_key             = optional(string)
+    storage_account_name                   = optional(string)
+    worker_32bit                           = bool
+    slots = optional(map(object({
+      name         = string
+      slot_enabled = optional(bool, false)
+    })))
+    linux_web_app_config = map(object({
+      name_suffix          = string
+      app_service_plan_key = string
+      custom_domains       = optional(list(string), [])
+      db_connection_string = optional(string, "")
+      env_vars = optional(object({
+        static         = optional(map(string), {})
+        from_key_vault = optional(map(string), {})
+        local_urls     = optional(map(string), {})
+      }), {})
+      key_vault_url                = optional(string, "")
+      storage_account_env_var_name = optional(string, "")
+      storage_containers = optional(list(object
+        ({
+          env_var_name   = string
+          container_name = string
+      })), [])
+    }))
+  })
+}
+
+variable "linux_web_app_slots" {
+  description = "linux web app slots"
+  type = list(object({
+    linux_web_app_slots_name    = optional(string, "")
+    linux_web_app_slots_enabled = optional(bool, false)
+  }))
+  default = []
 }
 
 variable "network_security_group_rules" {
@@ -258,7 +362,6 @@ variable "network_security_group_rules" {
     },
 */
 
-
 variable "routes" {
   description = "Routes configuration for different regions"
   type = map(object({
@@ -298,13 +401,13 @@ variable "routes" {
       protocols             = optional(list(string))
       destination_ports     = optional(list(string))
     }))
-    route_table_routes_to_audit = list(object({
+    route_table_core = list(object({
       name                   = optional(string)
       address_prefix         = optional(string)
       next_hop_type          = optional(string)
       next_hop_in_ip_address = optional(string)
     }))
-    route_table_routes_from_audit = list(object({
+    route_table_audit = list(object({
       name                   = optional(string)
       address_prefix         = optional(string)
       next_hop_type          = optional(string)
@@ -318,7 +421,6 @@ variable "sqlserver" {
   description = "Configuration for the Azure MSSQL server instance and a default database "
   type = object({
 
-    sql_uai_name                         = optional(string)
     sql_admin_group_name                 = optional(string)
     ad_auth_only                         = optional(bool)
     auditing_policy_retention_in_days    = optional(number)
@@ -360,6 +462,44 @@ variable "sqlserver" {
   })
 }
 
+variable "service_bus" {
+  description = "Configuration for Service Bus namespaces and their topics"
+  default = {} 
+  type = map(object({
+    namespace_name   = optional(string)
+    capacity         = number
+    sku_tier         = string
+    max_payload_size = string
+    topics = map(object({
+      auto_delete_on_idle                     = optional(string, "P10675199DT2H48M5.4775807S")
+      batched_operations_enabled              = optional(bool, false)
+      default_message_ttl                     = optional(string, "P10675199DT2H48M5.4775807S")
+      duplicate_detection_history_time_window = optional(string)
+      partitioning_enabled                    = optional(bool, false)
+      max_message_size_in_kilobytes           = optional(number, 1024)
+      max_size_in_megabytes                   = optional(number, 5120)
+      requires_duplicate_detection            = optional(bool, false)
+      support_ordering                        = optional(bool)
+      status                                  = optional(string, "Active")
+      topic_name                              = optional(string)
+    }))
+  }))
+}
+
+# variable "service_bus_subscriptions" {
+#   description = "Configuration for service bus subscriptions"
+#   type = object({
+#     subscriber_config = map(object({
+#       subscription_name       = string
+#       namespace_name          = optional(string)
+#       topic_name              = string
+#       subscriber_functionName = string
+#     }))
+#   })
+#   default = {}
+# }
+
+
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"
   type = map(object({
@@ -379,6 +519,7 @@ variable "storage_accounts" {
 variable "tags" {
   description = "Default tags to be applied to resources"
   type        = map(string)
+  default     = {}
 }
 
 variable "function_app_slots" {

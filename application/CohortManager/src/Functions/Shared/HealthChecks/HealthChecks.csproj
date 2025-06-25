@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+    <ProjectGuid>{471E92DC-E0E7-415E-85EF-0069ED9D9B59}</ProjectGuid>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -14,7 +15,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Azure.Storage.Blobs" Version="12.24.0-beta.1" />
+      <PackageReference Include="Azure.Storage.Blobs" Version="12.24.1" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.2" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.2">
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

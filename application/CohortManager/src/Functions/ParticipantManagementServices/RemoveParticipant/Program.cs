@@ -5,11 +5,11 @@ using Microsoft.Extensions.Hosting;
 using NHS.Screening.RemoveParticipant;
 
 var host = new HostBuilder()
-    .AddConfiguration<RemoveParticipantConfig>(out RemoveParticipantConfig config)
+.AddConfiguration<RemoveParticipantConfig>(out RemoveParticipantConfig config)
     .ConfigureFunctionsWorkerDefaults()
+    .AddTelemetry()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
@@ -19,6 +19,7 @@ var host = new HostBuilder()
     })
     .AddAzureQueues()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

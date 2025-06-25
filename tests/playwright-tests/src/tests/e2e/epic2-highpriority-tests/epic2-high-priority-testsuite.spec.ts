@@ -1,101 +1,147 @@
-import { test, testWithAmended, expect } from '../../fixtures/test-fixtures';
-import { cleanupDatabaseFromAPI, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
+import { test, testWithAmended} from '../../fixtures/test-fixtures';
+import { processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } from '../../steps/steps';
 import { TestHooks } from '../../hooks/test-hooks';
+import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
+import { createTempDirAndWriteJson, deleteTempDir } from '../../../../src/json/file-utils';
+import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../../src/json/json-updater';
 
 test.describe('@regression @e2e @epic2-high-priority Tests', () => {
 
   TestHooks.setupAllTestHooks();
 
-  test.describe('ADD Tests', () => {
+  test.describe('ADD Tests for NHS Number format', () => {
 
-    test('@DTOSS-5104-01 @Implement Validation for Eligibility Flag for Add', async ({ request, testData }) => {
-      await test.step(`Then NHS Numbers should be updated in the cohort`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-
-      await test.step(`Then validate eligibility flag is always set to true for ADD`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-    });
-
-    test('@DTOSS-5613-01 @Implement Validation participant for Eligibility Flag set to true for Add', async ({ request, testData }) => {
-      await test.step(`Then only one NHS Numbers should be updated in the cohort for elgibility flag true`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-    });
-
-    test('@DTOSS-4395-01 @Implement validate invalid flag set to false for ADD', async ({ request, testData }) => {
-      await test.step(`Then validate invalid flag is set to false for ADD`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-    });
-
-    test('@DTOSS-4397-01 @Implement validate invalid flag set to true for ADD', async ({ request, testData }) => {
-      await test.step(`Then validate invalid flag is set to true for ADD`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-    });
-
-    test('@DTOSS-4562-01 @Implement Validation for Eligibility Flag for Add set to true', async ({ request, testData }) => {
-      await test.step(`Then validate eligibility flag will always revert to true for ADD`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-
-      await test.step(`Then ADD record should be updated in the cohort`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-    });
-
-    test('@DTOSS-4563-01 @Implement Validation for Eligibility Flag for Add set to false ends up in Exception', async ({ request, testData }) => {
-      await test.step(`Then there should be exception in exception management table`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-    });
-
-    test('@DTOSS-3206-01 @Duplicate NHS ID Participants records', async ({ request, testData }) => {
-      await test.step(`Then NHS Numbers should be updated in the participant table`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-
-      await test.step(`When ADD participant is processed via storage again`, async () => {
-        await processFileViaStorage(testData.runTimeParquetFile);
-      });
-
-      await test.step(`Then NHS Numbers should be updated in the participant table after second run`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-    })
-
-    test('@DTOSS-4136-01 @Validate NHS number 10 digits', async ({ request, testData }) => {
-      await test.step(`Then NHS Numbers should be updated in the participant table`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-      });
-    })
-
-    test('@DTOSS-4139-01 @Validate NHS number 11 digits', async ({ request, testData }) => {
+    test('@DTOSS-4139-01 @not-runner-based @Validate NHS number 11 digits', async ({ request, testData }) => {
       await test.step(`Then NHS Numbers should be updated in the Exception table`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
     })
 
-    test('@DTOSS-4140-01 @Validate NHS number 9 digits', async ({ request, testData }) => {
+    test('@DTOSS-4140-01 @not-runner-based @Validate NHS number 9 digits', async ({ request, testData }) => {
       await test.step(`Then NHS Numbers should be updated in the Exception table`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
     })
 
-    test('@DTOSS-4141-01 @Validate NHS number as null', async ({ request, testData }) => {
+    test('@DTOSS-4141-01 @not-runner-based @Validate NHS number as null', async ({ request, testData }) => {
       await test.step(`Then NHS Numbers should be updated in the Exception table`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
       });
     })
+  });
 
-  }); // End of ADD Tests
+    test('@DTOSS-4328-01 Validate current posting effective date throw exception when invalid date format given for new participants', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
+      },
+    }, async ({ request, testData }) => {
+      await test.step(`Then Exception table should have RuleId as 101 & RuleDescription as CurrentPostingEffectiveFromDate`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
 
-  test.describe('AMENDED Tests', () => {
+    test('@DTOSS-4102-01-Validate valid GP Practice Code for a new participant', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4102',
+      },
+    }, async ({ request, testData }) => {
 
-    testWithAmended('@DTOSS-5605-01 @Implement Validation for Eligibility Flag for Amended', async ({ request, testData }) => {
-      await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await test.step(`Then the record should appear in the cohort management table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+    })
+
+  test('@DTOSS-4088-01-Validate valid postcode', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4088',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`Then the record should appear in the exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+  })
+
+    test('@DTOSS-4103-01-Validate invalid GP Practice Code for a new participant', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4103',
+      },
+    }, async ({ request, testData }) => {
+
+    await test.step(`Then the record should appear in the exception table`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+    });
+  })
+
+  test('@DTOSS-4099-01-Validate missing address lines', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4099',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`Then the record should appear in the exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+  })
+
+  test('@DTOSS-4092-01-Validate null GP Practice Code for a new participant', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4092',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`Then the record should appear in the exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      });
+  })
+  // End of ADD Tests
+
+  testWithAmended('@DTOSS-4384-01-Update a invalid GP Practice Code for a existing participant', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4384',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`When ADD participant is processed via storage`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      });
+
+      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+      await test.step(`Given 1 participant is processed to cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+
+      await test.step(`When same ADD participant record is AMENDED with an invalid GP code via storage for ${testData.nhsNumberAmend}`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+
+      await test.step(`Then the record should not be amended in the cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+  })
+
+  testWithAmended('@DTOSS-4383-01-Update a valid GP Practice Code for a existing participant', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4383',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`When ADD participant is processed via storage`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      });
+
+      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+      await test.step(`Given 1 participant is processed to cohort`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
       });
 
@@ -103,81 +149,225 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
         await processFileViaStorage(testData.runTimeParquetFileAmend);
       });
 
-      await test.step(`Then validate eligibility flag is always set to true for AMENDED`, async () => {
+      await test.step(`Then the record should be amended in the cohort`, async () => {
         await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
       });
+  })
+
+  testWithAmended('@DTOSS-5418-01 @Validate_GP_practice_code_empty_and_reason_for_removal_fields_AMENDED_noException', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-2759',
+    },
+  }, async ({ request, testData }) => {
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
     });
 
-    testWithAmended('@DTOSS-4396-01 @Implement validate invalid flag value for Amended', async ({ request, testData }) => {
-      await test.step(`Then validate invalid flag is set to true for ADD`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-      });
-
-      await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-        await processFileViaStorage(testData.runTimeParquetFileAmend);
-      });
-
-      await test.step(`Then validate invalid flag set to true for AMENDED`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-      });
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
     });
 
-    testWithAmended('@DTOSS-5419-01 @validate Gp practice codes and reason for removal no exception for Amended', async ({ request, testData }) => {
-      await test.step(`Then ADD record should be updated in the cohort`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-      });
-
-      await test.step(`When same ADD participant record is AMENDED via storage`, async () => {
-        await processFileViaStorage(testData.runTimeParquetFileAmend);
-      });
-
-      await test.step(`Then AMENDED record should be updated in the cohort`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-      });
+    await test.step(`Then the record should not end up in exception management`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
 
-    testWithAmended('@DTOSS-4068-01 @Implement Validate Amend fields date of death', async ({ request, testData }) => {
-      await test.step(`Then validate nhs number for ADD in participant demographic`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-      });
+  });
 
-      await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-        await processFileViaStorage(testData.runTimeParquetFileAmend);
-      });
-
-      await test.step(`Then validate the values changed in AMENDED in Participant demographic`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-      });
+  testWithAmended('@DTOSS-4561-01 @Validate_GP_practice_code_empty_and_reason_for_removal_fields_AMENDED_Exception', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-2759',
+    },
+  }, async ({ request, testData }) => {
+    await test.step(`Then ADD record should be updated in the cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
     });
 
-    testWithAmended('@DTOSS-4070-01 @Validate Amend fields Reason for Removal,Reason for Removal Business Effective From Date,E-mail address (Home)', async ({ request, testData }) => {
-      await test.step(`Then validate nhs number for ADD in participant demographic`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-      });
-
-      await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-        await processFileViaStorage(testData.runTimeParquetFileAmend);
-      });
-
-      await test.step(`Then validate the values changed in AMENDED in Participant demographic`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-      });
+    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
     });
 
-    testWithAmended('@DTOSS-4564-01 @Validate date of birth,Address,Address line 1,Address line 2,Address line 3,post code,SupersededNHSNumber,RecordInsertDateTime,RecordUpdateDateTime,E-mail address (Home)', async ({ request, testData }) => {
+    await test.step(`Then the record should end up in exception management`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
 
-      await test.step(`Then validate nhs number for ADD in participant demographic`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-      });
+  });
 
-      await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-        await processFileViaStorage(testData.runTimeParquetFileAmend);
-      });
+  testWithAmended('@DTOSS-4329-01 Validation current posting effective date throw exception when invalid date format given for update participants', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
+    },
+  }, async ({ request, testData }) => {
+    await test.step(`Given 3 ADD participants are processed to cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+    await test.step(`And 3 ADD participants are AMENDED with invalid effective date `, async () => {
+      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    });
+    await test.step(`Then Exception table should have expected rule id and description for 3 AMENDED participants`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+    });
+  })
 
-      await test.step(`Then validate the values changed in AMENDED in Participant demographic`, async () => {
-        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-      });
+  testWithAmended('@DTOSS-4331-01 Validate current posting effective date throw exception for future date amend participants', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
+    },
+  }, async ({ request, testData }) => {
+    await test.step(`Given 3 ADD participants are processed to cohort`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+    });
+
+    await test.step(`And 3 ADD participants are AMENDED with future effective date `, async () => {
+
+      const updatedParticipantRecord = JSON.parse(JSON.stringify(testData.inputParticipantRecordAmend))
+
+      const dateMap = generateDynamicDateMap();
+
+      const finalJson = replaceDynamicDatesInJson(updatedParticipantRecord, dateMap);
+
+      const tempFilePath = createTempDirAndWriteJson(finalJson);
+
+      const runTimeParquetFile = await createParquetFromJson(testData.nhsNumberAmend, finalJson, tempFilePath, "AMENDED", false);
+      await processFileViaStorage(runTimeParquetFile);
+      deleteTempDir();
+
+    });
+    await test.step(`Then Exception table should have expected rule id and description for 3 AMENDED participants`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
   });
+
+  testWithAmended('@DTOSS-4090-01 Validate existing participant null GP practice code', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4090',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`When ADD participant is processed via storage`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      });
+
+      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+      await test.step(`Given 1 participant is processed to cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+
+      await test.step(`When same ADD participant record is AMENDED with an invalid GP code via storage for ${testData.nhsNumberAmend}`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+
+      await test.step(`Then the record should not be amended in the cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+  })
+
+  testWithAmended('@DTOSS-4095-01 Validate incompatible value reason for removal exception', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4095',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`When ADD participant is processed via storage`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      });
+
+      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+      await test.step(`Given 1 participant is processed to participant table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+
+      await test.step(`When same ADD participant record  ${testData.nhsNumberAmend}`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+
+      await test.step(`Then the correct exception is displayed in the Exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+  })
+
+  testWithAmended('@DTOSS-4094-01 Existing Participant Null Reason for Removal Exception', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4094',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`When ADD participant is processed via storage`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      });
+
+      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+      await test.step(`Given 1 participant is processed to participant table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+
+      await test.step(`When same ADD participant record  ${testData.nhsNumberAmend}`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+
+      await test.step(`Then the correct exception is displayed in the Exception table`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+  })
+  testWithAmended('@DTOSS-4219-01 Valid Postcode Existing', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4219',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`When ADD participant is processed via storage`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      });
+
+      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+      await test.step(`Given 1 participant is processed to cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+
+      await test.step(`When same ADD participant record is AMENDED with an invalid GP code via storage for ${testData.nhsNumberAmend}`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+
+      await test.step(`Then the record should not be amended in the cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+  })
+
+  testWithAmended('@DTOSS-4220-01 Non_valid_postcode_NOT_NFA_overseas_Existing', {
+      annotation: {
+        type: 'Requirement',
+        description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4220',
+      },
+    }, async ({ request, testData }) => {
+
+      await test.step(`When ADD participant is processed via storage`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAdd);
+      });
+
+      await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
+
+      await test.step(`Given 1 participant is processed to cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
+      });
+
+      await test.step(`When same ADD participant record is AMENDED with an invalid GP code via storage for ${testData.nhsNumberAmend}`, async () => {
+        await processFileViaStorage(testData.runTimeParquetFileAmend);
+      });
+
+      await test.step(`Then the record should not be amended in the cohort`, async () => {
+        await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+      });
+  })
 
 });

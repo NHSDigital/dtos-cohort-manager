@@ -12,9 +12,8 @@ var host = new HostBuilder()
     .AddDataServicesHandler()
     .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
     .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
-    .AddDataService<GPPractice>(config.GPPracticeDataServiceURL)
     .Build()
-    .ConfigureFunctionsWorkerDefaults()
+    .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {
         services.AddTransient<IValidationExceptionData, ValidationExceptionData>();
@@ -22,7 +21,9 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("CreateException");
     })
+    .AddTelemetry()
     .AddDatabaseConnection()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

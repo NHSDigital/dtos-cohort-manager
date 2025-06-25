@@ -1,17 +1,15 @@
 namespace Common;
-using System.Net;
-using System.Text.Json;
+
 using Microsoft.Extensions.Logging;
 using Model;
-using NHS.CohortManager.CohortDistribution;
 
 public class CohortDistributionHandler : ICohortDistributionHandler
 {
 
     private readonly ILogger<CohortDistributionHandler> _logger;
-    private readonly IAzureQueueStorageHelper _azureQueueStorageHelper;
+    private readonly IQueueClient _azureQueueStorageHelper;
 
-    public CohortDistributionHandler(ILogger<CohortDistributionHandler> logger, IAzureQueueStorageHelper azureQueueStorageHelper)
+    public CohortDistributionHandler(ILogger<CohortDistributionHandler> logger, IQueueClient azureQueueStorageHelper)
     {
         _logger = logger;
         _azureQueueStorageHelper = azureQueueStorageHelper;
@@ -28,7 +26,7 @@ public class CohortDistributionHandler : ICohortDistributionHandler
             ErrorRecord = errorRecord
         };
 
-        await _azureQueueStorageHelper.AddItemToQueueAsync<CreateCohortDistributionRequestBody>(requestBody, Environment.GetEnvironmentVariable("CohortQueueName"));
+        await _azureQueueStorageHelper.AddAsync<CreateCohortDistributionRequestBody>(requestBody, Environment.GetEnvironmentVariable("CohortQueueName"));
 
         _logger.LogInformation($"Participant sent to Cohort Distribution Service");
         return true;

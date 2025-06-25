@@ -10,13 +10,14 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IReadRules, ReadRules>();
         // Register health checks
         services.AddBasicHealthCheck("StaticValidation");
     })
+    .AddTelemetry()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

@@ -4,11 +4,12 @@ using System.Net;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
+using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NHS.Screening.RetrievePDSDemographic;
+using Model;
 
 public class RetrievePdsDemographic
 {
@@ -17,6 +18,7 @@ public class RetrievePdsDemographic
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly RetrievePDSDemographicConfig _config;
     private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
     private const string PdsParticipantUrlFormat = "{0}/{1}";
 
     public RetrievePdsDemographic(
@@ -24,13 +26,15 @@ public class RetrievePdsDemographic
         ICreateResponse createResponse,
         IHttpClientFunction httpClientFunction,
         IFhirPatientDemographicMapper fhirPatientDemographicMapper,
-        IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig)
+        IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig,
+        IDataServiceClient<ParticipantDemographic> participantDemographicClient)
     {
         _logger = logger;
         _createResponse = createResponse;
         _httpClientFunction = httpClientFunction;
         _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
         _config = retrievePDSDemographicConfig.Value;
+        _participantDemographicClient = participantDemographicClient;
     }
 
     // TODO: Need to send an exception to the EXCEPTION_MANAGEMENT table whenever this function returns a non OK status.
@@ -50,26 +54,59 @@ public class RetrievePdsDemographic
 
             var response = await _httpClientFunction.SendPdsGet(url);
 
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var jsonResponse = await _httpClientFunction.GetResponseText(response);
-                var demographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
-
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(demographic));
-            }
-
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            response.EnsureSuccessStatusCode();
 
+            var jsonResponse = await _httpClientFunction.GetResponseText(response);
+            var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
+            var participantDemographic = pdsDemographic.ToParticipantDemographic();
+            var upsertResult = await UpsertDemographicRecordFromPDS(participantDemographic);
+
+            return upsertResult ?
+                _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(participantDemographic)) :
+                _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There has been an error fetching PDS participant data: {Message}", ex.Message);
+            _logger.LogError(ex, "There has been an error retrieving PDS participant data.");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
+    }
+
+    private async Task<bool> UpsertDemographicRecordFromPDS(ParticipantDemographic participantDemographic)
+    {
+        ParticipantDemographic oldParticipantDemographic = await _participantDemographicClient.GetSingleByFilter(i => i.NhsNumber == participantDemographic.NhsNumber);
+
+        if (oldParticipantDemographic == null)
+        {
+            _logger.LogInformation("Participant Demographic record not found, attemping to add Participant Demographic.");
+            bool addSuccess = await _participantDemographicClient.Add(participantDemographic);
+
+            if (addSuccess)
+            {
+                _logger.LogInformation("Successfully added Participant Demographic.");
+                return true;
+            }
+
+            _logger.LogError("Failed to add Participant Demographic.");
+            return false;
+        }
+
+        _logger.LogInformation("Participant Demographic record found, attempting to update Participant Demographic.");
+        participantDemographic.ParticipantId = oldParticipantDemographic.ParticipantId;
+        bool updateSuccess = await _participantDemographicClient.Update(participantDemographic);
+
+        if (updateSuccess)
+        {
+            _logger.LogInformation("Successfully updated Participant Demographic.");
+            return true;
+        }
+
+        _logger.LogError("Failed to update Participant Demographic.");
+        return false;
     }
 }

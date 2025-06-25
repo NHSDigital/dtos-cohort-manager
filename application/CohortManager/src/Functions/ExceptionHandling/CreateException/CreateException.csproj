@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
+    <ProjectGuid>{6DD9FFBC-738A-4B07-BCD6-7435B97701B2}</ProjectGuid>
         <TargetFramework>net8.0</TargetFramework>
         <AzureFunctionsVersion>v4</AzureFunctionsVersion>
         <OutputType>Exe</OutputType>
@@ -7,11 +8,14 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="1.19.0" />
-        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.0.13" />
-        <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="1.15.1" />
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="1.2.1" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.4" />
         <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.3" />
+        <PackageReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" Version="5.18.0" />
+        <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
     </ItemGroup>
     <ItemGroup>
         <None Update="host.json">

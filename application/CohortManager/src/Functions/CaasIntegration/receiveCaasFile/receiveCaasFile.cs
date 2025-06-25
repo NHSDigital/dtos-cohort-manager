@@ -7,58 +7,51 @@ using System;
 using System.IO;
 using ParquetSharp.RowOriented;
 using System.Threading.Tasks;
-using Common.Interfaces;
+using Common;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
 
 public class ReceiveCaasFile
 {
     private readonly ILogger<ReceiveCaasFile> _logger;
-    private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly IProcessCaasFile _processCaasFile;
     private readonly IDataServiceClient<ScreeningLkp> _screeningLkpClient;
     private readonly ReceiveCaasFileConfig _config;
+    private readonly IBlobStorageHelper _blobStorageHelper;
+    private readonly IExceptionHandler _exceptionHandler;
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
-        IReceiveCaasFileHelper receiveCaasFileHelper,
         IProcessCaasFile processCaasFile,
         IDataServiceClient<ScreeningLkp> screeningLkpClient,
-        IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig
+        IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig,
+        IBlobStorageHelper blobStorageHelper,
+        IExceptionHandler exceptionHandler
         )
     {
         _logger = logger;
-        _receiveCaasFileHelper = receiveCaasFileHelper;
         _processCaasFile = processCaasFile;
         _screeningLkpClient = screeningLkpClient;
         _config = receiveCaasFileConfig.Value;
+        _blobStorageHelper = blobStorageHelper;
+        _exceptionHandler = exceptionHandler;
     }
 
     [Function(nameof(ReceiveCaasFile))]
     public async Task Run([BlobTrigger("inbound/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
     {
-        var ErrorOccurred = false;
         var downloadFilePath = string.Empty;
+        string screeningName = string.Empty;
         // for larger batches use size of 5000 - this works the best
         var BatchSize = _config.BatchSize;
         try
         {
-            FileNameParser fileNameParser = new FileNameParser(name);
-            var fileNameErrorMessage = "File name is invalid. File name: " + name;
-            if (!await _receiveCaasFileHelper.CheckFileName(name, fileNameParser, fileNameErrorMessage))
-            {
-                _logger.LogError(fileNameErrorMessage);
-                ErrorOccurred = true;
-                return;
-            }
+            FileNameParser fileNameParser = new(name);
+            if (!fileNameParser.IsValid)
+                throw new ArgumentException("File name is invalid, file name: " + name);
 
-            var screeningService = await GetScreeningService(name, fileNameParser);
-            if (string.IsNullOrWhiteSpace(screeningService.ScreeningName) || string.IsNullOrWhiteSpace(screeningService.ScreeningId))
-            {
-                _logger.LogError("The Screening id or screening name was null or empty");
-                ErrorOccurred = true;
-                return;
-            }
+            var screeningService = await GetScreeningService(fileNameParser);
+            screeningName = screeningService.ScreeningName;
 
             downloadFilePath = Path.Combine(Path.GetTempPath(), name);
 
@@ -98,55 +91,36 @@ public class ReceiveCaasFile
                     values.ToList().Clear();
                 }
             }
+            _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.Now);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Stack Trace: {ExStackTrace}\nMessage:{ExMessage}", ex.StackTrace, ex.Message);
-            await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, "N/A");
+            _logger.LogError(ex, "There was a system exception in receive-caas-file");
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", name, screeningName, "");
+            await _blobStorageHelper.CopyFileToPoisonAsync(_config.caasfolder_STORAGE, name, _config.inboundBlobName);
         }
         finally
         {
-            //We do not want to log here that we have processed all rows as this might be mis leading when looking in the logs in azure
-            if (!ErrorOccurred)
-            {
-                _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.Now);
-            }
             //We want to release the file from temporary storage no matter what
             if (File.Exists(downloadFilePath)) File.Delete(downloadFilePath);
         }
-    }
-
-    public async Task<ScreeningService> GetScreeningService(string name, FileNameParser fileNameParser)
-    {
-        // get screening service name and id
-        var screeningService = await GetScreeningService(fileNameParser);
-        if (string.IsNullOrEmpty(screeningService.ScreeningId) || string.IsNullOrEmpty(screeningService.ScreeningName))
-        {
-            string errorMessage = "No Screening Service Found for Workflow: " + fileNameParser.GetScreeningService();
-            _logger.LogError(errorMessage);
-            await _receiveCaasFileHelper.InsertValidationErrorIntoDatabase(name, errorMessage);
-
-            return new ScreeningService();
-        }
-        return screeningService;
     }
 
     /// <summary>
     /// gets the screening service data for a screening work flow
     /// </summary>
     /// <param name="fileNameParser"></param>
-    /// <returns></returns>
-    public async Task<ScreeningService> GetScreeningService(FileNameParser fileNameParser)
+    /// <exception cref="ArgumentExcpetion">
+    /// Thrown if the screening service could not be found
+    /// </exception>
+    public async Task<ScreeningLkp> GetScreeningService(FileNameParser fileNameParser)
     {
         var screeningWorkflowId = fileNameParser.GetScreeningService();
         _logger.LogInformation("Screening Acronym {screeningWorkflowId}", screeningWorkflowId);
-        var res = await _screeningLkpClient.GetSingleByFilter(x => x.ScreeningWorkflowId == screeningWorkflowId);
-        ScreeningService screeningWorkflow = new ScreeningService
-        {
-            ScreeningName = res?.ScreeningName,
-            ScreeningId = res?.ScreeningId.ToString(),
-            ScreeningWorkflowId = res?.ScreeningWorkflowId
-        };
-        return screeningWorkflow;
+
+        ScreeningLkp screeningService = await _screeningLkpClient.GetSingleByFilter(x => x.ScreeningWorkflowId == screeningWorkflowId)
+            ?? throw new ArgumentException("Could not get screening service data for screening id: " + screeningWorkflowId);
+
+        return screeningService;
     }
 }

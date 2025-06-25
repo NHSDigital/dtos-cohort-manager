@@ -2,21 +2,12 @@
 
 ## Prerequisites
 
-- Local functions environment running
 - Node.js installed
-- Git installed
-- VS Code or any preferred IDE
 - Verify all functions are operational
-
-## Getting Started
-
-- Follow the setup instructions in the docs located at [Local machine setup](../../docs/user-guides/Local_machine_setup.md) to complete the local setup of functions and dependencies
 
 ## Running Playwright Tests
 
 ### Local Execution
-
-- Run tests
 
 ```bash
 
@@ -33,7 +24,25 @@ npx playwright test src/tests/e2e/e2e-with-db.spec.ts
 
 ### Cloud Execution
 
->Note: will be updated soon
+Cloud-based test execution is supported in 2 main scenarios:
+
+#### Without Application Code Changes
+
+*(Ad-hoc / Scheduled)*
+Focus: Identify outliers (e.g., manual deployments in non-production environments) and ensure test stability, reliability, and transparency.
+
+- Pipeline: `post-deployment-tests-dev.yaml`
+
+#### With Application Code Changes
+
+*(CI/CD)*
+Focus: Enable early detection of changes that cause failures, reducing feedback cycles and improving efficiency.
+
+- Pipelines:
+  - `acr-image-promote-to-sandbox.yaml`
+  - `acr-image-promote-to-dev.yaml`
+  - `acr-image-promote-dev-to-nft.yaml`
+  - `acr-image-promote-nft-to-integration.yaml`
 
 ## Test Flow Overview
 
@@ -41,23 +50,32 @@ npx playwright test src/tests/e2e/e2e-with-db.spec.ts
 2. **Processing**: Local functions process the uploaded file
 3. **Validation**: Verify results in cohort using **dynamic** database queries
 
-### Test Case Scripting Example
+## Scope of Automation Tests
 
-![smoke test example](../../docs/assets/test-playwright-smoke-example.png)
+```mermaid
+sequenceDiagram
+    participant M as Mesh
+    participant S as Storage
+    participant D as Database
+    participant BSI as BS Select Internal
+    participant BSE as BS Select External
 
-### Test Report Example
+    rect rgb(255, 248, 220)
+        Note over S, D: @smoke @e2e<br/>Scope: Storage → Database
+        S->>D: Smoke Test Coverage
+    end
 
-- report overview
+    rect rgb(240, 248, 255)
+        Note over S, D: @regression @e2e<br/>Scope: Storage → Database
+        S->>D: E2E Regression Coverage
+    end
 
-![default report](../../docs/assets/test-playwright-report-example.png)
-
-- automatic retries
-
-![automatic retries](../../docs/assets/test-playwright-automatic-retry-example.png)
-
-### Test Logs Example
-
-![test logs example](../../docs/assets/test-playwright-logs-example.png)
+    rect rgb(245, 255, 245)
+        Note over S, BSI: @regression @api<br/>Scope: Storage → BS Select Internal
+        S->>D: API Data Flow
+        D->>BSI: API Regression Coverage
+    end
+```
 
 ## Contributing to improve Test Coverage & Framework
 
@@ -90,87 +108,8 @@ async function validateSqlDatabaseFromAPI(request: APIRequestContext, validation
 
 ```
 
-The validation engine accepts a JSON configuration to validate from API response; below are some examples of currently supported formats, more complex scenarios will be added in future
+The validation engine accepts a JSON configuration to validate API responses. Below are examples of currently supported formats; more complex scenarios will be added in the future:
 
-- Example Usage 1
-
-```json
-
-{
-  "validations": [
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 1111110662,
-        "PrimaryCareProvider": "E85121",
-        "NamePrefix": "MR",
-        "GivenName": "NewTest 1",
-        "OtherGivenName": "Test",
-        "FamilyName": "Adani 1",
-        "PreviousFamilyName": "Tester 1",
-        "AddressLine5": "United Kingdom",
-        "PostCode": "AB43 8FJ",
-        "CurrentPosting": "CH",
-        "EmailAddressHome": "bturneux0@soup.io",
-        "PreferredLanguage": "en",
-        "InterpreterRequired": 0
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 2222211794
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 2222211794,
-        "PrimaryCareProvider": "E85121"
-      }
-    }
-  ]
-}
-
-
-```
-
-- Example Usage 2
-
-```json
-
-{
-  "validations": [
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "2612314172",
-        "RuleId": 36,
-        "RuleDescription": "Invalid primary care provider GP practice code"
-      }
-    }
-  ]
-}
-
-
-
-```
-
-- Example Usage 3
-
-```json
-
-{
-  "validations": [
-    {
-      "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 2612314172,
-        "ExceptionFlag":1
-      }
-    }
-  ]
-}
-
-
-```
+- Example Usage 1 – [with meta information for automatic test script generation using runner workflow](../playwright-tests/src/tests/e2e/testFiles/@DTOSS-3217-01/ADD_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.json)
+- Example Usage 2 – [multiply input participant records based on unique NHS numbers](../playwright-tests/src/tests/api/testFiles/@DTOSS-5928-01/ADD-10-records-expected.json)
+- Example Usage 3 – [multiple participant ADD and AMENDED](../playwright-tests/src/tests/e2e/testFiles/@DTOSS-4365-01/)

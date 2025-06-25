@@ -9,7 +9,6 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICallFunction, CallFunction>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ICheckDemographic, CheckDemographic>();
         services.AddSingleton<ICreateParticipant, CreateParticipant>();
@@ -17,8 +16,10 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBlobStorageHealthCheck("addParticipant");
     })
+    .AddTelemetry()
     .AddAzureQueues()
     .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

@@ -7,6 +7,7 @@ using DataServices.Client;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NHS.CohortManager.CohortDistributionDataServices;
 using Model;
 
 
@@ -26,6 +27,8 @@ var host = new HostBuilder()
         // Register health checks
         services.AddDatabaseHealthCheck("RetrieveCohortDistribution");
     })
+    .AddTelemetry()
+    .AddHttpClient()
     .AddDatabaseConnection()
     .AddExceptionHandler()
     .Build();

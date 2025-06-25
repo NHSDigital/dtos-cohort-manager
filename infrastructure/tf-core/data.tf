@@ -22,6 +22,13 @@ data "terraform_remote_state" "audit" {
   }
 }
 
+data "azurerm_application_insights" "ai" {
+  provider = azurerm.audit
+
+  name                = data.terraform_remote_state.audit.outputs.application_insights.name
+  resource_group_name = data.terraform_remote_state.audit.outputs.application_insights.resource_group_name
+}
+
 data "azurerm_virtual_network" "vnet_audit" {
   for_each = var.regions
 
@@ -59,9 +66,9 @@ data "azurerm_user_assigned_identity" "acr_mi" {
   resource_group_name = var.function_apps.acr_rg_name
 }
 
-data "azurerm_application_insights" "ai" {
-  provider = azurerm.audit
+data "azurerm_user_assigned_identity" "db-management" {
+  for_each = var.regions
 
-  name                = var.function_apps.app_insights_name
-  resource_group_name = var.function_apps.app_insights_rg_name
+  name                = "mi-cohort-manager-db-management-${lower(var.environment)}"
+  resource_group_name = module.regions_config[each.key].names.resource-group
 }

@@ -1,3 +1,5 @@
+namespace NHS.CohortManager.CohortDistributionDataServices;
+
 using System.ComponentModel.DataAnnotations;
 
 public class RetrieveCohortDistributionConfig
@@ -9,5 +11,6 @@ public class RetrieveCohortDistributionConfig
     public string CohortDistributionDataServiceURL { get; set; }
     [Required]
     public string BsSelectRequestAuditDataService { get; set; }
+    public int MaxRowCount { get; set; } = 1_000;
 
 }

@@ -1,31 +1,24 @@
 namespace NHS.CohortManager.Tests.UnitTests.AddCohortDistributionDataTests;
 
-using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
-using Castle.Core.Logging;
 using Data.Database;
 using DataServices.Client;
-using Microsoft.Extensions.Logging;
 using Model;
-using Model.DTO;
 using Moq;
-using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class AddCohortDistributionTests
 {
     private readonly CreateCohortDistributionData _createCohortDistributionData;
     private readonly Guid _requestId = Guid.NewGuid();
-
-    private readonly Mock<ILogger<CreateCohortDistributionData>> _loggerMock = new();
     private List<CohortDistribution> _cohortDistributionList;
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataServiceClient = new();
     private readonly Mock<IDataServiceClient<BsSelectRequestAudit>> _bsSelectRequestAuditDataServiceClient = new();
 
     public AddCohortDistributionTests()
     {
-        _createCohortDistributionData = new CreateCohortDistributionData(_loggerMock.Object, _cohortDistributionDataServiceClient.Object, _bsSelectRequestAuditDataServiceClient.Object);
+        _createCohortDistributionData = new CreateCohortDistributionData(_cohortDistributionDataServiceClient.Object, _bsSelectRequestAuditDataServiceClient.Object);
     }
 
     [TestMethod]
@@ -124,20 +117,6 @@ public class AddCohortDistributionTests
         Assert.IsNotNull(result);
         Assert.AreEqual(0, result.Count);
     }
-
-    public void GetNextCohortRequestAudit_GuidParseFails_ReturnsEmptyCohortRequestAudit()
-    {
-        // Arrange
-        var invalidRequestId = "i-Am-Not-A-Guid";
-
-        // Act
-        var result = _createCohortDistributionData.GetNextCohortRequestAudit(invalidRequestId);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.IsInstanceOfType(result, typeof(CohortRequestAudit));
-    }
-
     [TestMethod]
     public async Task GetCohortDistributionParticipantsByRequestId_ValidRequestId_ReturnsParticipants()
     {

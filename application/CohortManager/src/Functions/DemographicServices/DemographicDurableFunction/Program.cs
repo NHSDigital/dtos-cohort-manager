@@ -20,8 +20,10 @@ var host = new HostBuilder()
         // Register health checks
         services.AddDatabaseHealthCheck("DurableDemographicFunction");
     })
+    .AddTelemetry()
     .AddExceptionHandler()
     .AddDatabaseConnection()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
