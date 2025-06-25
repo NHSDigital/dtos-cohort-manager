@@ -1,6 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <ProjectGuid>{C32FF271-9CA2-4C12-8FBB-719BD1D5E25F}</ProjectGuid>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
@@ -11,10 +12,6 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" Version="6.0.0" />
-  <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
-  <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="9.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.6" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
     <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
@@ -26,7 +23,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../../../application/CohortManager/src/Functions/ServiceNowIntegrationService/SendServiceNowMessage/SendServiceNowMessage.csproj" />
+    <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\ParticipantManagementServices\ManageParticipant\ManageParticipant.csproj" />
+    <ProjectReference Include="..\..\..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
 
 </Project>
