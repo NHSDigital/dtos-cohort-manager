@@ -9,7 +9,7 @@
       "meta": {
         "testJiraId": "@DTOSS-5399-01",
         "requirementJiraId": "DTOSS-2757",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate eligibility flag is always set to null for ADD participant records"
+        "additionalTags": "@regression @e2e @epic2-med-priority Validate eligibility flag is always set to null for ADD participant records"
       }
     },
     {
@@ -22,7 +22,7 @@
       "meta": {
         "testJiraId": "@DTOSS-5399-01",
         "requirementJiraId": "DTOSS-2757",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate eligibility flag is always set to null exception for ADD participant records"
+        "additionalTags": "@regression @e2e @epic2-med-priority Validate eligibility flag is always set to null exception for ADD participant records"
       }
     }
   ],
