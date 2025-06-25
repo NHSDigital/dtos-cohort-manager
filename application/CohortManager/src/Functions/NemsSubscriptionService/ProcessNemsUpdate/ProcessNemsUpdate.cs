@@ -55,7 +55,7 @@ public class ProcessNemsUpdate
         {
             string nhsNumber = await GetNhsNumberFromFile(blobStream, name);
 
-            PdsDemographic pdsRecord = await RetrievePdsRecord(nhsNumber);
+            PdsDemographic? pdsRecord = await RetrievePdsRecord(nhsNumber);
 
             if (pdsRecord == null)
             {
@@ -121,7 +121,7 @@ public class ProcessNemsUpdate
         }
     }
 
-    private async Task<PdsDemographic> RetrievePdsRecord(string nhsNumber)
+    private async Task<PdsDemographic?> RetrievePdsRecord(string nhsNumber)
     {
         try
         {
