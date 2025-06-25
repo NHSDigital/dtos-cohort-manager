@@ -6,7 +6,7 @@ export interface ExceptionDetails {
   surname: string;
   forename: string;
   dateOfBirth?: string;
-  gender?: string;
+  gender?: number;
   address?: string;
   contactDetails?: {
     phoneNumber?: string;

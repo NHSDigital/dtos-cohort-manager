@@ -5,6 +5,7 @@ import {
   formatPhoneNumber,
   formatCIS2Roles,
   getCurrentDate,
+  formatGenderValue,
 } from "@/app/lib/utils";
 
 describe("formatNhsNumber", () => {
@@ -79,5 +80,43 @@ describe("getCurrentDate", () => {
     const day = String(date.getDate()).padStart(2, "0");
     const expectedOutput = `${year}-${month}-${day}`;
     expect(getCurrentDate()).toBe(expectedOutput);
+  });
+});
+
+describe("formatGenderValue", () => {
+  it("should return 'Male' for input '1' (string)", () => {
+    expect(formatGenderValue("1")).toBe("Male");
+  });
+
+  it("should return 'Male' for input 1 (number)", () => {
+    expect(formatGenderValue(1)).toBe("Male");
+  });
+
+  it("should return 'Female' for input '2' (string)", () => {
+    expect(formatGenderValue("2")).toBe("Female");
+  });
+
+  it("should return 'Female' for input 2 (number)", () => {
+    expect(formatGenderValue(2)).toBe("Female");
+  });
+
+  it("should return 'Unknown' for input '3' (string)", () => {
+    expect(formatGenderValue("3")).toBe("Unknown");
+  });
+
+  it("should return 'Unknown' for input 3 (number)", () => {
+    expect(formatGenderValue(3)).toBe("Unknown");
+  });
+
+  it("should return 'Unknown' for undefined input", () => {
+    expect(formatGenderValue(undefined)).toBe("Unknown");
+  });
+
+  it("should return 'Unknown' for null input", () => {
+    expect(formatGenderValue(null)).toBe("Unknown");
+  });
+
+  it("should return 'Unknown' for empty string input", () => {
+    expect(formatGenderValue("")).toBe("Unknown");
   });
 });

@@ -4,6 +4,7 @@ import {
   formatCompactDate,
   formatNhsNumber,
   formatPhoneNumber,
+  formatGenderValue,
 } from "@/app/lib/utils";
 
 interface ParticipantInformationPanelProps {
@@ -57,7 +58,7 @@ export default function ParticipantInformationPanel({
           <div className="nhsuk-summary-list__row">
             <dt className="nhsuk-summary-list__key">Gender</dt>
             <dd className="nhsuk-summary-list__value">
-              {exceptionDetails.gender}
+              {formatGenderValue(exceptionDetails.gender)}
             </dd>
           </div>
           <div className="nhsuk-summary-list__row">
