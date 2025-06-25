@@ -79,7 +79,7 @@ public class CreateParticipant
                 _logger.LogError("could not parse eligibility flag from participant in file");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "could not parse eligibility flag from participant in file");
             }
-            ParticipantManagementRecord.EligibilityFlag = eligibilityFlagFromParticipant; // Mark Participant as Eligible
+            ParticipantManagementRecord.EligibilityFlag = eligibilityFlagFromParticipant;
             var participantCreated = await _participantManagementClient.Add(ParticipantManagementRecord);
 
             if (participantCreated)
