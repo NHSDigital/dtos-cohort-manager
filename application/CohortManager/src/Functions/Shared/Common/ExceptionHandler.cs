@@ -25,7 +25,7 @@ public class ExceptionHandler : IExceptionHandler
     private bool _useServiceBus;
     private string? _serviceBusTopicName;
 
-    private const string errorMessage = "There was an error while logging an exception to the database."
+    private const string errorMessage = "There was an error while logging an exception to the database.";
 
     public ExceptionHandler(ILogger<ExceptionHandler> logger, IHttpClientFunction? httpClientFunction, IQueueClient? serviceBusHandler = null)
     {
