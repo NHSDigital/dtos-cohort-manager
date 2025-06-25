@@ -3,6 +3,7 @@ namespace Common;
 
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Logging;
+using Common.Interfaces;
 
 public class ServiceTopicBusHandler : IServiceBusTopicHandler
 {
