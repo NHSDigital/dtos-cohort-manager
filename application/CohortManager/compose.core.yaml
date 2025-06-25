@@ -54,6 +54,7 @@ services:
       - NemsMessages="nems-messages"
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+      - UnsubscribeNemsSubscriptionUrl=http://manage-nems-subscription:9081/api/Unsubscribe
       - UpdateQueueName=update-participant-queue
 
   receive-caas-file:
@@ -105,7 +106,7 @@ services:
       - ParticipantManagementQueueName=participant-management-queue
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      
+
   add-participant:
     container_name: add-participant
     image: cohort-manager-add-participant
@@ -237,7 +238,7 @@ services:
       - ExceptionSubscription="exceptionSub"
       - ServiceBusConnectionString="Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
 
-    
+
   update-exception:
     container_name: update-exception
     image: cohort-manager-update-exception
