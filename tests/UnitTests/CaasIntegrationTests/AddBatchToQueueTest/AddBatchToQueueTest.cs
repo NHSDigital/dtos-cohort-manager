@@ -43,7 +43,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(queue, "AddQueueName");
 
         //Assert
-        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once());
+        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>(), null), Times.Once());
     }
 
     [TestMethod]
@@ -60,7 +60,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(queue, "AddQueueName");
 
         //Assert
-        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>(), null), Times.Never);
     }
 
     [TestMethod]
@@ -77,6 +77,6 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(null, "AddQueueName");
 
         //Assert
-        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>(), null), Times.Never);
     }
 }

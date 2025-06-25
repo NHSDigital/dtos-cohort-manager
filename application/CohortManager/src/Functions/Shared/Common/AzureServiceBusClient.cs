@@ -19,9 +19,27 @@ public class AzureServiceBusClient : IQueueClient
         _logger = factory.CreateLogger<AzureServiceBusClient>();
     }
 
-    public async Task<bool> AddAsync<T>(T message, string queueName)
+
+    /// <summary>
+    /// sends a message to a topic of the given name or name or sends a message to service buss queue when the topic name is not provided 
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    /// <param name="message"></param>
+    /// <param name="queueName"></param>
+    /// <param name="topicName"></param>
+    /// <returns></returns>
+    public async Task<bool> AddAsync<T>(T message, string queueName, string? topicName = null)
     {
-        var sender = _serviceBusClient.CreateSender(queueName);
+        ServiceBusSender sender = null!;
+        if (!string.IsNullOrEmpty(queueName))
+        {
+            sender = _serviceBusClient.CreateSender(queueName);
+        }
+        if (!string.IsNullOrEmpty(topicName))
+        {
+            sender = _serviceBusClient.CreateSender(topicName);
+        }
+
         try
         {
             string jsonMessage = JsonSerializer.Serialize(message);

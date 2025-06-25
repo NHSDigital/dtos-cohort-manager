@@ -11,7 +11,7 @@ using Common.Interfaces;
 
 public class ExceptionHandler : IExceptionHandler
 {
-    private readonly IServiceBusTopicHandler? _serviceBusHandler;
+    private readonly IQueueClient? _serviceBusHandler;
     private readonly ILogger<ExceptionHandler> _logger;
     private readonly IHttpClientFunction? _httpClientFunction;
     private static readonly int DefaultRuleId = 0;
@@ -25,7 +25,7 @@ public class ExceptionHandler : IExceptionHandler
     private bool _useServiceBus;
     private string? _serviceBusTopicName;
 
-    public ExceptionHandler(ILogger<ExceptionHandler> logger, IHttpClientFunction? httpClientFunction, IServiceBusTopicHandler? serviceBusHandler = null)
+    public ExceptionHandler(ILogger<ExceptionHandler> logger, IHttpClientFunction? httpClientFunction, IQueueClient? serviceBusHandler = null)
     {
 
         _logger = logger;
@@ -379,7 +379,7 @@ public class ExceptionHandler : IExceptionHandler
                 _logger.LogError("The service bus topic was not set and therefore we cannot sent exception to topic");
                 return false;
             }
-            return await _serviceBusHandler.SendMessageToTopic(_serviceBusTopicName, JsonSerializer.Serialize(validationException));
+            return await _serviceBusHandler.AddAsync<ValidationException>(validationException, "", _serviceBusTopicName);
         }
         else
         {
