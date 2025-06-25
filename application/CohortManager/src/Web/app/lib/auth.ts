@@ -125,7 +125,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           sid: "5678",
           orgName: "Test Org",
           odsCode: "ABC",
-          roles: "Test Role",
+          workgroups: ["Test Workgroup"],
+          workgroups_codes: ["TEST-WG"],
         });
       }
 
@@ -146,9 +147,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             org_code: string;
           }[];
 
-        const [{ role_name: roles }] = nhsid_nrbac_roles as {
-          role_name: string;
-        }[];
+        const workgroups = (nhsid_nrbac_roles as Array<unknown>).flatMap(
+          (role) => (role as { workgroups?: unknown[] }).workgroups || []
+        );
+
+        const workgroups_codes = (nhsid_nrbac_roles as Array<unknown>).flatMap(
+          (role: unknown) =>
+            (role as { workgroups_codes?: unknown[] }).workgroups_codes || []
+        );
 
         Object.assign(token, {
           uid,
@@ -158,15 +164,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           sid: sid ?? undefined,
           orgName,
           odsCode,
-          roles,
+          workgroups,
+          workgroups_codes,
         });
       }
       return token;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
-        const { uid, firstName, lastName, sub, sid, odsCode, orgName, roles } =
-          token;
+        const {
+          uid,
+          firstName,
+          lastName,
+          sub,
+          sid,
+          odsCode,
+          orgName,
+          workgroups,
+          workgroups_codes,
+        } = token;
 
         Object.assign(session.user, {
           uid,
@@ -176,7 +192,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           sid,
           odsCode,
           orgName,
-          roles,
+          workgroups,
+          workgroups_codes,
         });
       }
       return session;
