@@ -2,7 +2,6 @@ namespace Common;
 
 using System.Text.Json;
 using Azure.Messaging.ServiceBus;
-using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
 public class AzureServiceBusClient : IQueueClient

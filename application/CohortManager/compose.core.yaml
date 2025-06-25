@@ -234,6 +234,10 @@ services:
       - ExceptionTopic="createExceptionTopic"
       - ExceptionSubscription="exceptionSub"
       - ServiceBusConnectionString="Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
+      - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
+      - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
+      - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
+      
 
     
   update-exception:
