@@ -14,7 +14,7 @@ RUN mkdir -p /home/site/wwwroot && \
 
 FROM base AS function
 
-COPY ./screeningDataServices/ServicenowCasesDataService /src/dotnet-function-app
+COPY ./screeningDataServices/ServiceNowCasesDataService /src/dotnet-function-app
 WORKDIR /src/dotnet-function-app
 
 RUN dotnet publish ./*.csproj --output /home/site/wwwroot

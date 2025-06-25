@@ -198,7 +198,7 @@ services:
     networks: [cohman-network]
     build:
       context: ./src/Functions/
-      dockerfile: screeningDataServices/ServicenowCasesDataService/Dockerfile
+      dockerfile: screeningDataServices/ServiceNowCasesDataService/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:8996
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

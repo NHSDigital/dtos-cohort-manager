@@ -8,13 +8,13 @@ using Common;
 using DataServices.Core;
 using Model;
 
-public class ServicenowCasesDataService
+public class ServiceNowCasesDataService
 {
-    private readonly ILogger<ServicenowCasesDataService> _logger;
+    private readonly ILogger<ServiceNowCasesDataService> _logger;
     private readonly IRequestHandler<ServicenowCases> _requestHandler;
     private readonly ICreateResponse _createResponse;
 
-    public ServicenowCasesDataService(ILogger<ServicenowCasesDataService> logger, IRequestHandler<ServicenowCases> requestHandler, ICreateResponse createResponse)
+    public ServiceNowCasesDataService(ILogger<ServiceNowCasesDataService> logger, IRequestHandler<ServicenowCases> requestHandler, ICreateResponse createResponse)
     {
         _logger = logger;
         _requestHandler = requestHandler;
@@ -22,7 +22,7 @@ public class ServicenowCasesDataService
     }
 
     [Function("ServicenowCasesDataService")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "ServicenowCasesDataService/{*key}")] HttpRequestData req, string? key)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "ServiceNowCasesDataService/{*key}")] HttpRequestData req, string? key)
     {
         try
         {

@@ -107,26 +107,18 @@
 
   <!-- Participant Management Services -->
   <ItemGroup>
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\updateParticipant\updateParticipant.csproj" />
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\RemoveParticipant\RemoveParticipant.csproj" />
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\UpdateBlockedFlag\UpdateBlockedFlag.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\updateParticipant\updateParticipant.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\RemoveParticipant\RemoveParticipant.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\UpdateBlockedFlag\UpdateBlockedFlag.csproj" />
   </ItemGroup>
 
   <!-- Demographic Services -->
   <ItemGroup>
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj" />
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj" />
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDataManagementFunction\DemographicDataManagementFunction.csproj" />
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageNemsSubscription\ManageNemsSubscription.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDataManagementFunction\DemographicDataManagementFunction.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageNemsSubscription\ManageNemsSubscription.csproj" />
   </ItemGroup>
 
   <!-- Cohort Distribution Services -->
@@ -163,20 +155,15 @@
 
   <!-- NEMS Services -->
   <ItemGroup>
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\NemsMeshRetrieval\NemsMeshRetrieval.csproj" />
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\ProcessNemsUpdate\ProcessNemsUpdate.csproj" />
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSSubscribe\NEMSSubscribe.csproj" />
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSUnSubscription\NEMSUnSubscription.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\NemsMeshRetrieval\NemsMeshRetrieval.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\ProcessNemsUpdate\ProcessNemsUpdate.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSSubscribe\NEMSSubscribe.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\NEMSUnSubscription\NEMSUnSubscription.csproj" />
   </ItemGroup>
 
   <!-- Send Service Now Message Services -->
   <ItemGroup>
-    <ProjectReference
-      Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegrationService\SendServiceNowMessage\SendServiceNowMessage.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegrationService\SendServiceNowMessage\SendServiceNowMessage.csproj" />
   </ItemGroup>
 
   <!-- ServiceNow Integration Services -->

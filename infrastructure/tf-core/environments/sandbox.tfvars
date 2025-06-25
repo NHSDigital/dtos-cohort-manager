@@ -1109,9 +1109,9 @@ function_apps = {
       }
     }
 
-    ServicenowCasesDataService = {
+    ServiceNowCasesDataService = {
       name_suffix            = "servicenow-cases-data-service"
-      function_endpoint_name = "ServicenowCasesDataService"
+      function_endpoint_name = "ServiceNowCasesDataService"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
       app_urls = [
