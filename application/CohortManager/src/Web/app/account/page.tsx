@@ -40,11 +40,9 @@ export default async function Page() {
                 <dt className="nhsuk-summary-list__key">Workgroups</dt>
                 <dd className="nhsuk-summary-list__value">
                   <ul>
-                    {(session?.user?.workgroups || []).map(
-                      (group: string, idx: number) => (
-                        <li key={idx}>{group}</li>
-                      )
-                    )}
+                    {(session?.user?.workgroups || []).map((group: string) => (
+                      <li key={group}>{group}</li>
+                    ))}
                   </ul>
                 </dd>
               </div>
@@ -53,8 +51,8 @@ export default async function Page() {
                 <dd className="nhsuk-summary-list__value">
                   <ul>
                     {(session?.user?.workgroups_codes || []).map(
-                      (group: string, idx: number) => (
-                        <li key={idx}>{group}</li>
+                      (group: string) => (
+                        <li key={group}>{group}</li>
                       )
                     )}
                   </ul>
