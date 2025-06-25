@@ -36,6 +36,18 @@ public class ProcessNemsUpdate
         _config = processNemsUpdateConfig.Value;
     }
 
+    /// <summary>
+    /// Function that processes files from the nems-messages blob container. There are a number of stages to this function:
+    /// 1) Parse the NHS number from the received file.
+    /// 2) Use the parsed NHS number to retrieve the PDS record.
+    /// 3) Compare the retrieved PDS record NHS number against the parsed NHS number.
+    /// 4) If the NHS numbers match, add the PDS record onto the correct participant management queue.
+    /// 5) If the NHS numbers do not match, build the required superseded record, then add this record onto the correct participant management queue.
+    /// 6) Also if the NHS numbers do not match, unsubscribe the parsed NHS number from NEMS.
+    /// </summary>
+    /// <returns>
+    /// It's unclear from the Jira ticket what should be returned, but currently this function returns nothing, only logging information.
+    /// </returns>
     [Function(nameof(ProcessNemsUpdate))]
     public async Task Run([BlobTrigger("nems-messages/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
     {
