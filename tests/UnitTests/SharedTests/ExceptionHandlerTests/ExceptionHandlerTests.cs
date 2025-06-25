@@ -7,6 +7,7 @@ using RulesEngine.Models;
 using Model.Enums;
 
 namespace NHS.CohortManager.Tests.UnitTests.ExceptionHandlerTests;
+
 [TestClass]
 public class ExceptionHandlerTests
 {
@@ -32,6 +33,10 @@ public class ExceptionHandlerTests
         // Arrange
         var participant = new Participant() { NhsNumber = NhsNumber };
 
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+                  .Returns(Task.FromResult(new HttpResponseMessage { StatusCode = HttpStatusCode.OK }))
+                  .Verifiable();
+
         // Act
         await _function.CreateSystemExceptionLog(new Exception("Test exception"), participant, "filename");
 
@@ -48,6 +53,11 @@ public class ExceptionHandlerTests
     {
         // Arrange
         var participant = new Participant() { NhsNumber = NhsNumber };
+
+        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
+          .Returns(Task.FromResult(new HttpResponseMessage { StatusCode = HttpStatusCode.OK }))
+          .Verifiable();
+
 
         // Act
         await _function.CreateSystemExceptionLog(new Exception("Test exception"), participant, "filename");
@@ -292,7 +302,7 @@ public class ExceptionHandlerTests
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("There was an error while logging an exception to the database.")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("There was an error while logging a transformation exception to the database")),
             null,
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once());
@@ -607,7 +617,7 @@ public class ExceptionHandlerTests
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("There was an error while logging an exception to the database")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("There was an error while logging a transformation exception to the database")),
             null,
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once());

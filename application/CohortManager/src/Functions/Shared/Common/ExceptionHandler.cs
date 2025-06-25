@@ -58,7 +58,12 @@ public class ExceptionHandler : IExceptionHandler
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant), category);
 
-        await sendToCreateException(validationException);
+        var isSentSuccessfully = await sendToCreateException(validationException);
+
+        if (!isSentSuccessfully)
+        {
+            _logger.LogError("There was an error while logging a transformation exception to the database");
+        }
     }
 
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
@@ -96,7 +101,11 @@ public class ExceptionHandler : IExceptionHandler
 
         };
 
-        await sendToCreateException(exception);
+        var exceptionSentSuccessfully = await sendToCreateException(exception);
+        if (!exceptionSentSuccessfully)
+        {
+            _logger.LogError("There was an error while logging an exception to the database.");
+        }
     }
 
     public async Task CreateSchemaValidationException(BasicParticipantCsvRecord participantCsvRecord, string description)
@@ -118,7 +127,12 @@ public class ExceptionHandler : IExceptionHandler
 
         };
 
-        await sendToCreateException(exception);
+        var isSentSuccessfully = await sendToCreateException(exception);
+
+        if (!isSentSuccessfully)
+        {
+            _logger.LogError("There was an error while logging a transformation exception to the database");
+        }
     }
 
 
@@ -144,7 +158,12 @@ public class ExceptionHandler : IExceptionHandler
                 Fatal = 0
             };
 
-            await sendToCreateException(exception);
+            var isSentSuccessfully = await sendToCreateException(exception);
+
+            if (!isSentSuccessfully)
+            {
+                _logger.LogError("There was an error while logging a transformation exception to the database");
+            }
         }
     }
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
@@ -219,7 +238,14 @@ public class ExceptionHandler : IExceptionHandler
     {
         var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
 
-        return await sendToCreateException(validationException);
+
+        var isSentSuccessfully = await sendToCreateException(validationException);
+
+        if (!isSentSuccessfully)
+        {
+            _logger.LogError("There was an error while logging a transformation exception to the database");
+        }
+        return isSentSuccessfully;
     }
 
     public async Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId)
