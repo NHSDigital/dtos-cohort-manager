@@ -76,8 +76,8 @@ public class Participant
 
     public Participant(PdsDemographic pdsDemographic)
     {
-        RecordType = Actions.Amended; // this does not exist on PdsDemographic
-        ParticipantId = null; // this will never exist on PdsDemographic
+        RecordType = Actions.Amended; // this does not exist on PdsDemographic, so is hardcoded for the time being.
+        ParticipantId = null; // this will never exist on PdsDemographic, so is hardcoded to null.
         NhsNumber = pdsDemographic.NhsNumber;
         SupersededByNhsNumber = pdsDemographic.SupersededByNhsNumber;
         PrimaryCareProvider = pdsDemographic.PrimaryCareProvider;
@@ -109,11 +109,11 @@ public class Participant
         ReasonForRemovalEffectiveFromDate = pdsDemographic.RemovalEffectiveFromDate;
         RecordInsertDateTime = pdsDemographic.RecordInsertDateTime;
         RecordUpdateDateTime = pdsDemographic.RecordUpdateDateTime;
-        ScreeningAcronym = "BSS"; // retrieved from screening lookup using filename
-        ScreeningName = "Breast Screening"; // retrieved from screening lookup using filename
-        ScreeningId = "1"; // retrieved from screening lookup using filename
+        ScreeningAcronym = "BSS"; // this does not exist on PdsDemographic, so is hardcoded for the time being.
+        ScreeningName = "Breast Screening"; // this does not exist on PdsDemographic, so is hardcoded for the time being.
+        ScreeningId = "1"; // this does not exist on PdsDemographic, so is hardcoded for the time being.
         CurrentPosting = pdsDemographic.CurrentPosting;
-        EligibilityFlag = "0"; // this does not exist on PdsDemographic
+        EligibilityFlag = "0"; // this does not exist on PdsDemographic, so is hardcoded for the time being.
     }
 
     public ParticipantDemographic ToParticipantDemographic()
