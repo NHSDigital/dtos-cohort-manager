@@ -133,6 +133,11 @@
      <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegration\ServiceNowCohortLookup\ServiceNowCohortLookup.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj" />
+  </ItemGroup>
+
+
       <!-- FileValidation Services -->
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\FileValidation\FileValidation.csproj" />
