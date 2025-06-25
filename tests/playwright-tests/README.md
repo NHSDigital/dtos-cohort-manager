@@ -44,43 +44,11 @@ Focus: Enable early detection of changes that cause failures, reducing feedback 
   - `acr-image-promote-dev-to-nft.yaml`
   - `acr-image-promote-nft-to-integration.yaml`
 
-#### Test Execution Reporting Example
-
-##### Individual Run Example
-
-![Test execution individual run](../../docs/assets/test-playwright-test-execution-individual-run.png)
-
-##### Scope-wise Run Example
-
-![Test execution scope-wise run](../../docs/assets/test-playwright-test-execution-scope-wise-run.png)
-
-##### Slack Notification Example
-
-![Slack notification example](../../docs/assets/test-playwright-slack-notification-example.png)
-
 ## Test Flow Overview
 
 1. **File Upload**: Upload test file to storage
 2. **Processing**: Local functions process the uploaded file
 3. **Validation**: Verify results in cohort using **dynamic** database queries
-
-### Test Case Scripting Example
-
-![smoke test example](../../docs/assets/test-playwright-smoke-example.png)
-
-### Test Report Example
-
-- report overview
-
-![default report](../../docs/assets/test-playwright-report-example.png)
-
-- automatic retries
-
-![automatic retries](../../docs/assets/test-playwright-automatic-retry-example.png)
-
-### Test Logs Example
-
-![test logs example](../../docs/assets/test-playwright-logs-example.png)
 
 ## Scope of Automation Tests
 
