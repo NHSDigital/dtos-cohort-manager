@@ -139,17 +139,26 @@ locals {
             # } : {},
 
             # Dynamic references to other Function App URLs
-            {
-              for obj in config.app_urls : obj.env_var_name => format(
-                "https://%s-%s.azurewebsites.net/api/%s",
-                module.regions_config[region].names["function-app"],
-                var.function_apps.fa_config[obj.function_app_key].name_suffix,
-                var.function_apps.fa_config[obj.function_app_key].function_endpoint_name
-              )
-            },
-
+            # {
+            #   for obj in config.app_urls : obj.env_var_name => format("https://%s-%s.azurewebsites.net/api/%s",
+            #     module.regions_config[region].names["function-app"],
+            #     var.function_apps.fa_config[obj.function_app_key].name_suffix,
+            #   var.function_apps.fa_config[obj.function_app_key].function_endpoint_name)
+            # },
             {
               for key, obj in local.unified_service_bus_object_map : "SERVICE_BUS_NAMESPACE" => "${module.azure_service_bus[obj.service_bus_key].namespace_name}.servicebus.windows.net"
+            },
+            {
+              for k, v in config.env_vars.app_urls : k => format("https://%s-%s.azurewebsites.net/api/%s",
+                module.regions_config[region].names["function-app"],
+                var.function_apps.fa_config[v].name_suffix,
+              var.function_apps.fa_config[v].function_endpoint_name)
+            },
+            {
+              for k, v in config.env_vars.static : k => v
+            },
+            {
+              for k, v in config.env_vars.storage_containers : k => v
             },
 
             # Dynamic reference to Key Vault
