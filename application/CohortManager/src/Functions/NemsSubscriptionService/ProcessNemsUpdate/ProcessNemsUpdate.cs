@@ -46,7 +46,7 @@ public class ProcessNemsUpdate
     /// 6) Also if the NHS numbers do not match, unsubscribe the parsed NHS number from NEMS.
     /// </summary>
     /// <returns>
-    /// It's unclear from the Jira ticket what should be returned, but currently this function returns nothing, only logging information.
+    /// This function returns nothing, only logs information/errors for successful or failing tasks.
     /// </returns>
     [Function(nameof(ProcessNemsUpdate))]
     public async Task Run([BlobTrigger("nems-messages/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
