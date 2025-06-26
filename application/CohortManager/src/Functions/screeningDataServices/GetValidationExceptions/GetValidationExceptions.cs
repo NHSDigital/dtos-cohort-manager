@@ -60,12 +60,12 @@ public class GetValidationExceptions
 
             var exceptions = await _validationData.GetAllExceptions(orderByProperty, exceptionCategory);
 
-            if (exceptions.Count == 0)
+            if (exceptions == null || exceptions.Count == 0)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
             }
 
-            var paginatedResults = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId, e => e.ExceptionId.Value);
+            var paginatedResults = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId, e => e.ExceptionId);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResults));
         }
