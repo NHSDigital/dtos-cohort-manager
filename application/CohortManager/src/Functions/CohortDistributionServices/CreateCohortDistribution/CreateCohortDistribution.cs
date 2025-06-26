@@ -44,7 +44,7 @@ public class CreateCohortDistribution
     {
         if (!IsValidRequest(basicParticipantCsvRecord))
         {
-            await HandleExceptionAsync("One or more of the required parameters is missing.", null, basicParticipantCsvRecord.FileName);
+            await HandleExceptionAsync("One or more of the required parameters is missing.", null, basicParticipantCsvRecord.FileName ?? string.Empty);
             return;
         }
 
@@ -65,8 +65,7 @@ public class CreateCohortDistribution
     private static bool IsValidRequest(CreateCohortDistributionRequestBody request)
     {
         return !string.IsNullOrWhiteSpace(request.ScreeningService) &&
-               !string.IsNullOrWhiteSpace(request.NhsNumber) &&
-               !string.IsNullOrWhiteSpace(request.RecordType);
+               !string.IsNullOrWhiteSpace(request.NhsNumber);
     }
 
     private async Task ProcessCohortDistributionAsync(CreateCohortDistributionRequestBody basicParticipantCsvRecord)
@@ -74,7 +73,7 @@ public class CreateCohortDistribution
         var participantData = await RetrieveAndValidateParticipantDataAsync(basicParticipantCsvRecord);
         if (participantData == null) return;
 
-        var previousCohortDistributionRecord = await GetLatestCohortDistributionRecordAsync(participantData.ParticipantId);
+        var previousCohortDistributionRecord = await GetLatestCohortDistributionRecordAsync(participantData.ParticipantId ?? string.Empty);
 
         var serviceProvider = await AllocateServiceProviderAsync(basicParticipantCsvRecord, participantData);
         if (serviceProvider == null) return;
@@ -82,11 +81,11 @@ public class CreateCohortDistribution
         var exceptionHandled = await HandleParticipantExceptionsAsync(participantData, basicParticipantCsvRecord.FileName!);
         if (!exceptionHandled) return;
 
-        participantData.RecordType = basicParticipantCsvRecord.RecordType!;
+        participantData.RecordType = basicParticipantCsvRecord.RecordType ?? string.Empty;
         var validateExceptionHandled = await ValidateAndHandleExceptionsAsync(basicParticipantCsvRecord.FileName!, participantData, previousCohortDistributionRecord);
         if (!validateExceptionHandled) return;
 
-        await TransformAndAddParticipantAsync(serviceProvider, participantData, previousCohortDistributionRecord, basicParticipantCsvRecord.FileName);
+        await TransformAndAddParticipantAsync(serviceProvider, participantData, previousCohortDistributionRecord, basicParticipantCsvRecord.FileName ?? string.Empty);
     }
 
     private async Task<CohortDistributionParticipant> RetrieveAndValidateParticipantDataAsync(CreateCohortDistributionRequestBody basicParticipantCsvRecord)
@@ -95,7 +94,7 @@ public class CreateCohortDistribution
 
         if (participantData == null || string.IsNullOrEmpty(participantData.ScreeningServiceId))
         {
-            await HandleExceptionAsync("Participant data returned from database is missing required fields", participantData, basicParticipantCsvRecord.FileName);
+            await HandleExceptionAsync("Participant data returned from database is missing required fields", participantData, basicParticipantCsvRecord.FileName ?? string.Empty);
         }
 
         return participantData;
@@ -110,14 +109,14 @@ public class CreateCohortDistribution
 
         var serviceProvider = await _CohortDistributionHelper.AllocateServiceProviderAsync(
             basicParticipantCsvRecord.NhsNumber!,
-            participantData.ScreeningAcronym,
+            participantData.ScreeningAcronym ?? string.Empty,
             participantData.Postcode,
             JsonSerializer.Serialize(participantData)
         );
 
         if (serviceProvider == null)
         {
-            await HandleExceptionAsync("Could not allocate Participant to service provider from postcode", participantData, basicParticipantCsvRecord.FileName);
+            await HandleExceptionAsync("Could not allocate Participant to service provider from postcode", participantData, basicParticipantCsvRecord.FileName ?? string.Empty);
             return defaultServiceProvider;
         }
 
@@ -153,7 +152,7 @@ public class CreateCohortDistribution
         var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to Cohort Distribution";
         await HandleExceptionAsync(errorMessage, participantData, fileName);
 
-        await UpdateParticipantExceptionFlagAsync(participantData.ParticipantId);
+        await UpdateParticipantExceptionFlagAsync(participantData.ParticipantId ?? string.Empty);
 
         var ignoreParticipantExceptions = _config.IgnoreParticipantExceptions;
         if (ignoreParticipantExceptions)
@@ -195,11 +194,11 @@ public class CreateCohortDistribution
         _logger.LogInformation("Participant has been successfully put on the Cohort Distribution table");
     }
 
-    private async Task HandleExceptionAsync(string errorMessage, CohortDistributionParticipant cohortDistributionParticipant, string fileName)
+    private async Task HandleExceptionAsync(string errorMessage, CohortDistributionParticipant? cohortDistributionParticipant, string fileName)
     {
         _logger.LogError(errorMessage);
         var participant = new Participant();
-        if (cohortDistributionParticipant != null)
+        if (cohortDistributionParticipant != null )
         {
             participant = new Participant(cohortDistributionParticipant);
         }
