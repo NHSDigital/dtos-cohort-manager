@@ -88,7 +88,7 @@ public class CreateCohortDistribution
         await TransformAndAddParticipantAsync(serviceProvider, participantData, previousCohortDistributionRecord, basicParticipantCsvRecord.FileName ?? string.Empty);
     }
 
-    private async Task<CohortDistributionParticipant> RetrieveAndValidateParticipantDataAsync(CreateCohortDistributionRequestBody basicParticipantCsvRecord)
+    private async Task<CohortDistributionParticipant?> RetrieveAndValidateParticipantDataAsync(CreateCohortDistributionRequestBody basicParticipantCsvRecord)
     {
         var participantData = await _CohortDistributionHelper.RetrieveParticipantDataAsync(basicParticipantCsvRecord);
 
@@ -198,7 +198,7 @@ public class CreateCohortDistribution
     {
         _logger.LogError(errorMessage);
         var participant = new Participant();
-        if (cohortDistributionParticipant != null )
+        if (cohortDistributionParticipant != null)
         {
             participant = new Participant(cohortDistributionParticipant);
         }
