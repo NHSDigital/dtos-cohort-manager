@@ -11,7 +11,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NHS.CohortManager.ServiceNowMessageService.Models;
 using Common;
 
 public class SendServiceNowMessageFunction
@@ -59,10 +58,10 @@ public class SendServiceNowMessageFunction
         if (string.IsNullOrWhiteSpace(requestBody))
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Request body is missing or empty.");
 
-        ServiceNowRequestModel? input;
+        SendServiceNowMessageRequestBody? input;
         try
         {
-            input = JsonSerializer.Deserialize<ServiceNowRequestModel>(requestBody);
+            input = JsonSerializer.Deserialize<SendServiceNowMessageRequestBody>(requestBody);
         }
         catch
         {

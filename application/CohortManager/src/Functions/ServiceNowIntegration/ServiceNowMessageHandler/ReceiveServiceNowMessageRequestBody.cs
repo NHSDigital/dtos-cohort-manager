@@ -1,12 +1,11 @@
 namespace NHS.CohortManager.ServiceNowIntegrationService;
 
-using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using Common;
 
 public class ReceiveServiceNowMessageRequestBody
 {
     [NotNullOrEmpty]
-    [Required]
     [JsonPropertyName("forename")]
     public required string FirstName { get; set; }
     [NotNullOrEmpty]
