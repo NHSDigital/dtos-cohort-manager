@@ -11,9 +11,8 @@ using Common.Interfaces;
 
 public class ExceptionHandler : IExceptionHandler
 {
-    private readonly IQueueClient? _serviceBusHandler;
+    private readonly IExceptionSender _exceptionSender;
     private readonly ILogger<ExceptionHandler> _logger;
-    private readonly IHttpClientFunction? _httpClientFunction;
     private static readonly int DefaultRuleId = 0;
     private readonly string _createExceptionUrl;
     private const string DefaultCohortName = "";
@@ -22,32 +21,20 @@ public class ExceptionHandler : IExceptionHandler
     private const string DefaultFileName = "";
     private const string DefaultNhsNumber = "";
 
-    private bool _useServiceBus;
-    private string? _serviceBusTopicName;
-
     private const string logErrorMessage = "There was an error while logging an exception to the database.";
 
-    public ExceptionHandler(ILogger<ExceptionHandler> logger, IHttpClientFunction? httpClientFunction, IQueueClient? serviceBusHandler = null)
+    public ExceptionHandler(ILogger<ExceptionHandler> logger, IExceptionSender exceptionSender)
     {
 
         _logger = logger;
-        _httpClientFunction = httpClientFunction;
+        _exceptionSender = exceptionSender;
         _createExceptionUrl = Environment.GetEnvironmentVariable("ExceptionFunctionURL");
-
-        var wasParsed = bool.TryParse(Environment.GetEnvironmentVariable("useExceptionServiceBus"), out _useServiceBus);
-        if (!wasParsed)
-        {
-            _logger.LogWarning("useExceptionServiceBus environment variable is not set.");
-        }
 
         if (_createExceptionUrl == null)
         {
             _logger.LogError("ExceptionFunctionURL environment variable is not set.");
             throw new InvalidOperationException("ExceptionFunctionURL environment variable is not set.");
         }
-
-        _serviceBusHandler = serviceBusHandler;
-        _serviceBusTopicName = Environment.GetEnvironmentVariable("ExceptionTopicName");
     }
 
     public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName, string category = "")
@@ -61,7 +48,7 @@ public class ExceptionHandler : IExceptionHandler
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant), category);
 
-        var isSentSuccessfully = await sendToCreateException(validationException);
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(validationException, _createExceptionUrl);
 
         if (!isSentSuccessfully)
         {
@@ -75,14 +62,14 @@ public class ExceptionHandler : IExceptionHandler
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant));
 
-        await sendToCreateException(validationException);
+        await _exceptionSender.sendToCreateException(validationException, _createExceptionUrl);
     }
 
     public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord)
     {
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, errorRecord);
 
-        await sendToCreateException(validationException);
+        await _exceptionSender.sendToCreateException(validationException, _createExceptionUrl);
     }
 
     public async Task CreateDeletedRecordException(BasicParticipantCsvRecord participantCsvRecord)
@@ -104,7 +91,7 @@ public class ExceptionHandler : IExceptionHandler
 
         };
 
-        var exceptionSentSuccessfully = await sendToCreateException(exception);
+        var exceptionSentSuccessfully = await _exceptionSender.sendToCreateException(exception, _createExceptionUrl);
         if (!exceptionSentSuccessfully)
         {
             _logger.LogError(logErrorMessage);
@@ -130,7 +117,7 @@ public class ExceptionHandler : IExceptionHandler
 
         };
 
-        var isSentSuccessfully = await sendToCreateException(exception);
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception, _createExceptionUrl);
 
         if (!isSentSuccessfully)
         {
@@ -161,7 +148,7 @@ public class ExceptionHandler : IExceptionHandler
                 Fatal = 0
             };
 
-            var isSentSuccessfully = await sendToCreateException(exception);
+            var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception, _createExceptionUrl);
 
             if (!isSentSuccessfully)
             {
@@ -210,7 +197,7 @@ public class ExceptionHandler : IExceptionHandler
                 Fatal = IsFatal
             };
 
-            var isSentSuccessfully = await sendToCreateException(exception);
+            var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception, _createExceptionUrl);
 
             if (!isSentSuccessfully)
             {
@@ -241,7 +228,7 @@ public class ExceptionHandler : IExceptionHandler
         var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
 
 
-        var isSentSuccessfully = await sendToCreateException(validationException);
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(validationException, _createExceptionUrl);
 
         if (!isSentSuccessfully)
         {
@@ -268,7 +255,7 @@ public class ExceptionHandler : IExceptionHandler
             Fatal = 0
         };
 
-        var isSentSuccessfully = await sendToCreateException(exception);
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception, _createExceptionUrl);
 
         if (!isSentSuccessfully)
         {
@@ -370,24 +357,4 @@ public class ExceptionHandler : IExceptionHandler
         return nilReturnFileNhsNumbers.Contains(nhsNumber);
     }
 
-
-    private async Task<bool> sendToCreateException(ValidationException validationException)
-    {
-        if (_useServiceBus)
-        {
-            if (string.IsNullOrWhiteSpace(_serviceBusTopicName))
-            {
-                _logger.LogError("The service bus topic was not set and therefore we cannot sent exception to topic");
-                return false;
-            }
-            return await _serviceBusHandler!.AddAsync<ValidationException>(validationException, _serviceBusTopicName);
-        }
-
-        var response = await _httpClientFunction!.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
-        if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
-        {
-            return false;
-        }
-        return true;
-    }
 }

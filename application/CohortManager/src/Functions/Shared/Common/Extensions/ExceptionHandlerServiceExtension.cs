@@ -1,5 +1,6 @@
 namespace Common;
 
+using Common.Interfaces;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -11,6 +12,7 @@ public static class ExceptionHandlerServiceExtension
         {
             _.AddSingleton<IExceptionHandler, ExceptionHandler>();
             _.AddTransient<IHttpClientFunction, HttpClientFunction>();
+            _.AddTransient<IExceptionSender, SendExceptionToHttp>();
         });
     }
 
@@ -19,6 +21,7 @@ public static class ExceptionHandlerServiceExtension
         return hostBuilder.ConfigureServices(_ =>
       {
           _.AddSingleton<IExceptionHandler, ExceptionHandler>();
+          _.AddTransient<IExceptionSender, SendExceptionToServiceBus>();
           _.AddTransient<IQueueClient>(_ => new AzureServiceBusClient(serviceBusConnectionString));
       });
     }

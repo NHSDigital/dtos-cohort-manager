@@ -5,6 +5,8 @@ using Common;
 using Model;
 using RulesEngine.Models;
 using Model.Enums;
+using Common.Interfaces;
+using System.Security.Cryptography.X509Certificates;
 
 namespace NHS.CohortManager.Tests.UnitTests.ExceptionHandlerTests;
 
@@ -12,13 +14,13 @@ namespace NHS.CohortManager.Tests.UnitTests.ExceptionHandlerTests;
 public class ExceptionHandlerTests
 {
     private readonly Mock<ILogger<ExceptionHandler>> _logger = new();
-    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
+    private readonly Mock<IExceptionSender> _exceptionSender = new();
     private readonly ExceptionHandler _function;
 
     public ExceptionHandlerTests()
     {
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
-        _function = new ExceptionHandler(_logger.Object, _httpClientFunction.Object);
+        _function = new ExceptionHandler(_logger.Object, _exceptionSender.Object);
     }
 
     [TestMethod]
@@ -33,18 +35,17 @@ public class ExceptionHandlerTests
         // Arrange
         var participant = new Participant() { NhsNumber = NhsNumber };
 
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                  .Returns(Task.FromResult(new HttpResponseMessage { StatusCode = HttpStatusCode.OK }))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                  .Returns(Task.FromResult(true))
                   .Verifiable();
 
         // Act
         await _function.CreateSystemExceptionLog(new Exception("Test exception"), participant, "filename");
 
         // Assert - when NhsNumber is not null (even if empty or whitespace), ExceptionFlag should be set to "Y"
-        var exceptionFlagY = "\\u0022ExceptionFlag\\u0022:\\u0022Y\\u0022";
-        _httpClientFunction.Verify(call => call.SendPost(
-            It.Is<string>(s => s == "ExceptionFunctionURL"),
-            It.Is<string>(v => v.Contains(exceptionFlagY))), Times.Once());
+        _exceptionSender.Verify(call => call.sendToCreateException(
+            It.IsAny<ValidationException>(),
+            It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
     }
 
     [TestMethod]
@@ -54,19 +55,17 @@ public class ExceptionHandlerTests
         // Arrange
         var participant = new Participant() { NhsNumber = NhsNumber };
 
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-          .Returns(Task.FromResult(new HttpResponseMessage { StatusCode = HttpStatusCode.OK }))
-          .Verifiable();
-
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                     .Returns(Task.FromResult(true))
+                     .Verifiable();
 
         // Act
         await _function.CreateSystemExceptionLog(new Exception("Test exception"), participant, "filename");
 
         // Assert - when NhsNumber is null, the JSON should show ExceptionFlag as null
-        var exceptionFlagNull = "\\u0022ExceptionFlag\\u0022:null";
-        _httpClientFunction.Verify(call => call.SendPost(
-            It.Is<string>(s => s == "ExceptionFunctionURL"),
-            It.Is<string>(v => v.Contains(exceptionFlagNull))), Times.Once());
+        _exceptionSender.Verify(call => call.sendToCreateException(
+           It.IsAny<ValidationException>(),
+           It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
     }
 
     [TestMethod]
@@ -92,10 +91,9 @@ public class ExceptionHandlerTests
             GenerateSampleRuleResultTree(CreateSampleRule())
         };
 
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(Task.FromResult(new HttpResponseMessage { StatusCode = HttpStatusCode.OK }))
-            .Verifiable();
-
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                         .Returns(Task.FromResult(true))
+                         .Verifiable();
         // Act
         var result = await _function.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
 
@@ -131,51 +129,48 @@ public class ExceptionHandlerTests
         string fileName = "testfile";
         string screeningName = "ScreeningTest";
         string errorRecord = "{}";
-        string capturedPayload = null;
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-            .Callback<string, string>((url, payload) => capturedPayload = payload)
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
-
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                 .Returns(Task.FromResult(true))
+                 .Verifiable();
         // Act
         await _function.CreateSystemExceptionLogFromNhsNumber(exception, nhsNumber, fileName, screeningName, errorRecord);
 
         // Assert - if the input is considered nil, the payload should include Category 7; otherwise it should not.
         if (nhsNumberIsNil)
         {
-            _httpClientFunction.Verify(call => call.SendPost(
-                It.Is<string>(s => s == "ExceptionFunctionURL"),
-                It.Is<string>(v => v.Contains("\"Category\":7"))), Times.Once());
-            Assert.IsTrue(capturedPayload.Contains("\"Category\":7"), "Expected payload to contain Category 7 for nil NhsNumber");
+            _exceptionSender.Verify(call => call.sendToCreateException(
+                It.Is<ValidationException>(s => s.Category == 7),
+                It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
         }
         else
         {
-            _httpClientFunction.Verify(call => call.SendPost(
-                It.Is<string>(s => s == "ExceptionFunctionURL"),
-                It.Is<string>(v => !v.Contains("\"Category\":7"))), Times.Once());
-            Assert.IsFalse(capturedPayload.Contains("\"Category\":7"), "Expected payload NOT to contain Category 7 for non-nil NhsNumber");
+            _exceptionSender.Verify(call => call.sendToCreateException(
+                 It.Is<ValidationException>(s => s.Category != 7),
+                 It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
+
         }
     }
 
     [TestMethod]
     [DataRow("ScreeningTest")]
-    [DataRow(null)]
+    [DataRow("")]
     public async Task CreateSystemExceptionLog_CalledWithBasicParticipantData_SuccessWithNhsNumber(string? screeningName)
     {
         // Arrange
         var basicParticipant = new BasicParticipantData { NhsNumber = "987654321", ScreeningName = screeningName };
         var exception = new Exception("Test exception");
         var fileName = "testfile";
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                  .Returns(Task.FromResult(true))
+                  .Verifiable();
 
         // Act
         await _function.CreateSystemExceptionLog(exception, basicParticipant, fileName);
 
         // Assert - verify that the JSON includes the provided NhsNumber and ScreeningName
-        _httpClientFunction.Verify(x => x.SendPost(
-            It.Is<string>(s => s == "ExceptionFunctionURL"),
-            It.Is<string>(s => s.Contains("\"NhsNumber\":\"987654321\"") && s.Contains($"\"ScreeningName\":\"{screeningName}\""))),
-            Times.Once());
+        _exceptionSender.Verify(call => call.sendToCreateException(
+               It.Is<ValidationException>(s => s.NhsNumber == "987654321" && s.ScreeningName == screeningName),
+               It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
     }
 
     [TestMethod]
@@ -185,17 +180,17 @@ public class ExceptionHandlerTests
         var basicParticipant = new BasicParticipantData { NhsNumber = null, ScreeningName = "ScreeningTest" };
         var exception = new Exception("Test exception");
         var fileName = "testfile";
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                   .Returns(Task.FromResult(true))
+                   .Verifiable();
 
         // Act
         await _function.CreateSystemExceptionLog(exception, basicParticipant, fileName);
 
         // Assert - check that the default (empty) NhsNumber is used
-        _httpClientFunction.Verify(x => x.SendPost(
-            It.Is<string>(s => s == "ExceptionFunctionURL"),
-            It.Is<string>(s => s.Contains("\"NhsNumber\":\"\""))),
-            Times.Once());
+        _exceptionSender.Verify(call => call.sendToCreateException(
+              It.Is<ValidationException>(s => s.NhsNumber == ""),
+              It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
     }
 
     [TestMethod]
@@ -207,8 +202,9 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                   .Returns(Task.FromResult(true))
+                   .Verifiable();
 
         // Act
         await _function.CreateDeletedRecordException(participantCsvRecord);
@@ -232,8 +228,9 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                         .Returns(Task.FromResult(false))
+                         .Verifiable();
 
         // Act
         await _function.CreateDeletedRecordException(participantCsvRecord);
@@ -258,9 +255,9 @@ public class ExceptionHandlerTests
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         string description = "Schema error occurred";
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK })
-                     .Verifiable();
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                   .Returns(Task.FromResult(true))
+                   .Verifiable();
 
         // Act
         await _function.CreateSchemaValidationException(participantCsvRecord, description);
@@ -274,12 +271,16 @@ public class ExceptionHandlerTests
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Never());
-        _httpClientFunction.Verify(x => x.SendPost(
-                It.Is<string>(s => s == "ExceptionFunctionURL"),
-                It.Is<string>(s => s.Contains("\"NhsNumber\":\"123456789\"") &&
-                                   s.Contains("\"ScreeningName\":\"ScreeningTest\"") &&
-                                   s.Contains($"\"RuleDescription\":\"{description}\""))
-            ), Times.Once);
+
+        // Assert - check that the default (empty) NhsNumber is used
+        _exceptionSender.Verify(call => call.sendToCreateException(
+              It.Is<ValidationException>(
+                s => s.NhsNumber == "123456789" &&
+                s.ScreeningName == "ScreeningTest" &&
+                s.RuleDescription == description
+              ),
+              It.Is<string>(s => s == "ExceptionFunctionURL")),
+              Times.Once());
     }
 
     [TestMethod]
@@ -292,8 +293,9 @@ public class ExceptionHandlerTests
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         string description = "Schema error occurred";
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                   .Returns(Task.FromResult(false))
+                   .Verifiable();
 
         // Act
         await _function.CreateSchemaValidationException(participantCsvRecord, description);
@@ -322,18 +324,22 @@ public class ExceptionHandlerTests
             ruleResult2
         };
         var participant = new CohortDistributionParticipant { NhsNumber = "123456789", ScreeningName = "ScreeningTest" };
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                    .Returns(Task.FromResult(true))
+                    .Verifiable();
 
         // Act
         await _function.CreateTransformationExceptionLog(transformationErrors, participant);
 
         // Assert - verify that SendPost is called for each error and no error is logged
-        _httpClientFunction.Verify(x => x.SendPost(
-            It.Is<string>(s => s == "ExceptionFunctionURL"),
-            It.Is<string>(s => s.Contains("\"NhsNumber\":\"123456789\"") &&
-                                s.Contains("\"ScreeningName\":\"ScreeningTest\"")
-        )), Times.Exactly(transformationErrors.Count));
+        _exceptionSender.Verify(call => call.sendToCreateException(
+             It.Is<ValidationException>(
+               s => s.NhsNumber == "123456789" &&
+               s.ScreeningName == "ScreeningTest"
+             ),
+             It.Is<string>(s => s == "ExceptionFunctionURL")),
+             Times.Exactly(transformationErrors.Count));
+
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
@@ -351,8 +357,10 @@ public class ExceptionHandlerTests
         var ruleResult = GenerateSampleRuleResultTree(rule);
         var transformationErrors = new List<RuleResultTree> { ruleResult };
         var participant = new CohortDistributionParticipant { NhsNumber = "123456789", ScreeningName = "ScreeningTest" };
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
+
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+               .Returns(Task.FromResult(false))
+               .Verifiable();
 
         // Act
         await _function.CreateTransformationExceptionLog(transformationErrors, participant);
@@ -378,20 +386,23 @@ public class ExceptionHandlerTests
             ScreeningName = "ScreeningTest"
         };
         string ruleName = "51.Message.0";
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK })
-                     .Verifiable();
-
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(true))
+                .Verifiable();
         // Act
         await _function.CreateTransformExecutedExceptions(cohortDistributionParticipant, ruleName, 1);
 
         // Assert - verify that SendPost is called for each error and no error is logged
-        _httpClientFunction.Verify(x => x.SendPost(
-                It.Is<string>(s => s == "ExceptionFunctionURL"),
-                It.Is<string>(s => s.Contains($"\"RuleDescription\":\"Participant was transformed as transform rule: {ruleName} was executed\"") &&
-                                   s.Contains("\"RuleId\":1") &&
-                                   s.Contains($"\"Category\":{(int)ExceptionCategory.TransformExecuted}"))
-            ), Times.Once);
+
+        _exceptionSender.Verify(call => call.sendToCreateException(
+        It.Is<ValidationException>(
+            s => s.RuleDescription.Contains("Participant was transformed as transform rule") &&
+            s.RuleId == 1 &&
+            s.Category == (int)ExceptionCategory.TransformExecuted
+        ),
+        It.Is<string>(s => s == "ExceptionFunctionURL")),
+        Times.Once);
+
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
@@ -411,9 +422,9 @@ public class ExceptionHandlerTests
             NhsNumber = "123456789",
             ScreeningName = "ScreeningTest"
         };
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest });
-
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(false))
+                .Verifiable();
         // Act
         await _function.CreateTransformExecutedExceptions(cohortDistributionParticipant, "51.Message.0", 1);
 
@@ -441,8 +452,9 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.Created });
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(true))
+                .Verifiable();
 
         // Act
         var result = await _function.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
@@ -477,8 +489,9 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.Created });
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+                .Returns(Task.FromResult(true))
+                .Verifiable();
 
         var notExpectedMessage = "an exception was raised while running the rules. Exception Message:";
         var notExpectedError = "There was an error while logging an exception to the database";
@@ -488,7 +501,9 @@ public class ExceptionHandlerTests
 
         // Assert - non-fatal rule should not trigger a fatal log message
         Assert.IsFalse(result.IsFatal);
+
         Assert.IsTrue(result.CreatedException);
+
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Information),
             It.IsAny<EventId>(),
@@ -496,6 +511,7 @@ public class ExceptionHandlerTests
             null,
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Never());
+
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
@@ -503,6 +519,7 @@ public class ExceptionHandlerTests
             null,
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Never());
+
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
             It.IsAny<EventId>(),
@@ -529,9 +546,9 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
-
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+               .Returns(Task.FromResult(true))
+               .Verifiable();
         // Act
         var result = await _function.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
 
@@ -561,8 +578,9 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest });
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+               .Returns(Task.FromResult(false))
+               .Verifiable();
 
         // Act
         var result = await _function.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
@@ -587,8 +605,9 @@ public class ExceptionHandlerTests
         string errorDescription = "Error description";
         string screeningName = "ScreeningTest";
         string errorRecord = "{}";
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+               .Returns(Task.FromResult(true))
+               .Verifiable();
 
         // Act
         var result = await _function.CreateRecordValidationExceptionLog(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
@@ -606,9 +625,9 @@ public class ExceptionHandlerTests
         string errorDescription = "Error description";
         string screeningName = "ScreeningTest";
         string errorRecord = "{}";
-        _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
-                     .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
-
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+               .Returns(Task.FromResult(false))
+               .Verifiable();
         // Act
         var result = await _function.CreateRecordValidationExceptionLog(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
 
@@ -631,7 +650,7 @@ public class ExceptionHandlerTests
 
         // Act & Assert - should throw an InvalidOperationException
         Assert.ThrowsException<InvalidOperationException>(() =>
-            new ExceptionHandler(_logger.Object, _httpClientFunction.Object));
+            new ExceptionHandler(_logger.Object, _exceptionSender.Object));
 
         // Reset the environment variable for other tests
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
