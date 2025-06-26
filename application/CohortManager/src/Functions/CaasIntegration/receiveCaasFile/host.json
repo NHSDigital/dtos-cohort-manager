@@ -8,6 +8,10 @@
         "excludedTypes": "Request"
       },
       "enableLiveMetricsFilters": true
+    },
+    "logLevel": {
+      "HealthChecks": "Error",
+      "HealthChecks.Extensions": "Error"
     }
   },
   "concurrency": {
