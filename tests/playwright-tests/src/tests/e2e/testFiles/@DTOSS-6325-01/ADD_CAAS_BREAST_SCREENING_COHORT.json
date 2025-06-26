@@ -4,8 +4,8 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9995963809",
-        "RuleId": 42,
-        "RuleDescription": "GP practice code invalid"
+        "RuleId": 3,
+        "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values"
       },
       "meta": {
         "testJiraId": "@DTOSS-6325-01",
@@ -17,8 +17,8 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9995963809",
-        "RuleId": 3,
-        "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values"
+        "RuleId": 42,
+        "RuleDescription": "GP practice code invalid"
       },
       "meta": {
         "testJiraId": "@DTOSS-6325-01",
@@ -31,7 +31,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9995963809",
         "RuleId": -2146233088,
-        "RuleDescription": "Unable to add to cohort distribution. As participant with ParticipantId: Has an Exception against it"
+        "RuleDescriptionDynamic": "Unable to add to cohort distribution. As participant with ParticipantId: 3104 Has an Exception against it"
       },
       "meta": {
         "testJiraId": "@DTOSS-6325-01",
