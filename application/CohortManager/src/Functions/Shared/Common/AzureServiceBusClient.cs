@@ -1,5 +1,6 @@
 namespace Common;
 
+using System.Collections.Concurrent;
 using System.Text.Json;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Logging;
@@ -8,6 +9,8 @@ public class AzureServiceBusClient : IQueueClient
 {
     private readonly ServiceBusClient _serviceBusClient;
     private readonly ILogger<AzureServiceBusClient> _logger;
+
+    private readonly ConcurrentDictionary<string, ServiceBusSender> _senders = new();
 
     public AzureServiceBusClient(string connectionString)
     {
@@ -30,7 +33,7 @@ public class AzureServiceBusClient : IQueueClient
     /// <returns></returns>
     public async Task<bool> AddAsync<T>(T message, string queueTopicName)
     {
-        var sender = _serviceBusClient.CreateSender(queueTopicName);
+        var sender = _senders.GetOrAdd(queueTopicName, _serviceBusClient.CreateSender);
 
         try
         {
@@ -46,10 +49,6 @@ public class AzureServiceBusClient : IQueueClient
         {
             _logger.LogError(ex, "There was an error sending message to service bus queue {QueueName} {ErrorMessage}", queueTopicName, ex.Message);
             return false;
-        }
-        finally
-        {
-            await sender.DisposeAsync();
         }
     }
 }

@@ -23,6 +23,6 @@ public class SendExceptionToServiceBus : IExceptionSender
             _logger.LogError("The service bus topic was not set and therefore we cannot sent exception to topic");
             return false;
         }
-        return await _serviceBusHandler!.AddAsync<ValidationException>(validationException, serviceBusTopicName);
+        return await _serviceBusHandler.AddAsync<ValidationException>(validationException, serviceBusTopicName);
     }
 }
