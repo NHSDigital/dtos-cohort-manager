@@ -199,8 +199,7 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
 
     // ✅ Custom dynamic rule description handling
     else if (fieldName === 'RuleDescriptionDynamic') {
-      console.info(`🔍 Detected RuleDescriptionDynamic — running regex match for NHS Number ${nhsNumber}`);
-      const actualValue = matchingObject['RuleDescription']; // Where the actual message is
+      const actualValue = matchingObject['RuleDescription'];
       console.info(`Actual RuleDescription: "${actualValue}"`);
       
       // Regex based on message requirement
@@ -210,9 +209,7 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
         expect(actualValue).toMatch(dynamicPattern);
         console.info(`✅ Dynamic message validation passed for NHS Number ${nhsNumber}`);
       } catch (error) {
-        console.error(`❌ Dynamic message validation failed!`);
-        console.error(`Expected pattern: ${dynamicPattern}`);
-        console.error(`Actual message: "${actualValue}"`);
+        console.info(`❌ Dynamic message validation failed!`);
         throw error;
       }
     }
