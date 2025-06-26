@@ -299,6 +299,7 @@ function_apps = {
         TopicName                  = "DistributeParticipantQueue"
         UpdateQueueName            = "update-participant-queue"
         maxNumberOfChecks          = "50"
+        ServiceBusConnectionString = ""
         UseNewFunctions            = "false"
       }
 
