@@ -50,8 +50,8 @@ public class ProcessNemsUpdateTests
 
         _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>())).Returns(_validNhsNumber);
 
-        _httpClientFunctionMock.Setup(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
+        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = _validNhsNumber }));
 
         _httpClientFunctionMock.Setup(x => x.SendPost("Unsubscribe", It.IsAny<string>()))
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
@@ -72,7 +72,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Never);
+        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Never);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
@@ -90,7 +90,7 @@ public class ProcessNemsUpdateTests
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
-        _httpClientFunctionMock.Setup(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>())).Throws(new Exception("error"));
+        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>())).Throws(new Exception("error"));
 
         // Act
         await _sut.Run(fileStream, _fileName);
@@ -98,47 +98,12 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("There was an error retrieving the PDS record.")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Run_RetrievePdsRecordReturnsNonSuccessStatus_LogsError()
-    {
-        // Arrange
-        string fhirJson = LoadTestJson("mock-patient");
-        await using var fileStream = File.OpenRead(fhirJson);
-
-        _httpClientFunctionMock.Setup(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.NotFound });
-
-        // Act
-        await _sut.Run(fileStream, _fileName);
-
-        // Assert
-        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
-
-        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Error,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The PDS response was not successful. StatusCode: NotFound")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("There is no PDS record, unable to continue.")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
@@ -151,7 +116,7 @@ public class ProcessNemsUpdateTests
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
-        _httpClientFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
+        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
             .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = "123" }));
 
         // Act
@@ -160,7 +125,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -179,6 +144,8 @@ public class ProcessNemsUpdateTests
         Times.Once);
 
         _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
+
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -188,7 +155,7 @@ public class ProcessNemsUpdateTests
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
-        _httpClientFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
+        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
             .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = "123" }));
 
         _httpClientFunctionMock.Setup(x => x.SendPost("Unsubscribe", It.IsAny<string>())).Throws(new Exception("error"));
@@ -199,7 +166,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -218,6 +185,8 @@ public class ProcessNemsUpdateTests
         Times.Never);
 
         _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
+
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -236,7 +205,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -246,7 +215,7 @@ public class ProcessNemsUpdateTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
 
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
     }
 
     private static string LoadTestJson(string filename)

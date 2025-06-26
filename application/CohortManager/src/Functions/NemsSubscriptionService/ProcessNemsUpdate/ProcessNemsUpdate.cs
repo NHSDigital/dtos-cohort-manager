@@ -55,7 +55,7 @@ public class ProcessNemsUpdate
         {
             string nhsNumber = await GetNhsNumberFromFile(blobStream, name);
 
-            PdsDemographic? pdsRecord = await RetrievePdsRecord(nhsNumber);
+            string? pdsRecord = await RetrievePdsRecord(nhsNumber);
 
             if (pdsRecord == null)
             {
@@ -63,10 +63,12 @@ public class ProcessNemsUpdate
                 return;
             }
 
-            if (pdsRecord.NhsNumber == nhsNumber)
+            var retrievedPdsRecord = JsonSerializer.Deserialize<PdsDemographic>(pdsRecord);
+
+            if (retrievedPdsRecord?.NhsNumber == nhsNumber)
             {
                 _logger.LogInformation("NHS numbers match, processing the retrieved PDS record.");
-                await ProcessRecord(pdsRecord);
+                await ProcessRecord(retrievedPdsRecord);
             }
 
             else
@@ -74,7 +76,7 @@ public class ProcessNemsUpdate
                 var supersededRecord = new PdsDemographic()
                 {
                     NhsNumber = nhsNumber,
-                    SupersededByNhsNumber = pdsRecord.NhsNumber,
+                    SupersededByNhsNumber = retrievedPdsRecord?.NhsNumber,
                     PrimaryCareProvider = null,
                     ReasonForRemoval = "ORR",
                     RemovalEffectiveFromDate = DateTime.Today.ToString("yyyyMMdd")
@@ -121,7 +123,7 @@ public class ProcessNemsUpdate
         }
     }
 
-    private async Task<PdsDemographic?> RetrievePdsRecord(string nhsNumber)
+    private async Task<string?> RetrievePdsRecord(string nhsNumber)
     {
         try
         {
@@ -130,22 +132,12 @@ public class ProcessNemsUpdate
                 {"nhsNumber", nhsNumber }
             };
 
-            var pdsDemographicResponse = await _httpClientFunction.SendGetResponse(_config.RetrievePdsDemographicURL, queryParams);
-
-            if (pdsDemographicResponse.IsSuccessStatusCode)
-            {
-                var responseBody = await _httpClientFunction.GetResponseText(pdsDemographicResponse);
-                return JsonSerializer.Deserialize<PdsDemographic>(responseBody);
-            }
-
-            var errorMessage = $"The PDS response was not successful. StatusCode: {pdsDemographicResponse.StatusCode}. Unable to process record.";
-            _logger.LogError(errorMessage);
-            return null;
+            return await _httpClientFunction.SendGet(_config.RetrievePdsDemographicURL, queryParams);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "There was an error retrieving the PDS record.");
-            throw;
+            return null;
         }
     }
 
