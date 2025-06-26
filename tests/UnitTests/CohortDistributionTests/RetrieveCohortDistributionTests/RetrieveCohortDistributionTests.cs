@@ -23,7 +23,6 @@ public class RetrieveCohortDistributionTests
     private readonly RetrieveCohortDistributionData _sut;
     private readonly ICreateCohortDistributionData _createCohortDistribution;
     private readonly Mock<ILogger<RetrieveCohortDistributionData>> _retrieveCohortLogger = new();
-    private readonly Mock<ILogger<CreateCohortDistributionData>> _createCohortLogger = new();
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataClient = new();
     private readonly Mock<IDataServiceClient<BsSelectRequestAudit>> _requestAuditDistributionDataClient = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
@@ -34,7 +33,7 @@ public class RetrieveCohortDistributionTests
     {
 
         _config.Setup(i => i.Value).Returns(new RetrieveCohortDistributionConfig());
-        _createCohortDistribution = new CreateCohortDistributionData(_createCohortLogger.Object, _cohortDistributionDataClient.Object, _requestAuditDistributionDataClient.Object);
+        _createCohortDistribution = new CreateCohortDistributionData(_cohortDistributionDataClient.Object, _requestAuditDistributionDataClient.Object);
         _sut = new RetrieveCohortDistributionData(_retrieveCohortLogger.Object, _createCohortDistribution, _createResponse.Object, _exceptionHandler.Object, _config.Object);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string?>()))
@@ -273,6 +272,5 @@ public class RetrieveCohortDistributionTests
 
         // assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-
     }
 }

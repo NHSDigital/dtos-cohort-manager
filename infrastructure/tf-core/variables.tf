@@ -161,6 +161,12 @@ variable "container_app_environments" {
   default     = {}
   type = object({
     instances = optional(map(object({
+      workload_profile = optional(object({
+        name                  = optional(string)
+        workload_profile_type = optional(string)
+        minimum_count         = optional(number, 0)
+        maximum_count         = optional(string, 1)
+      }), {})
       zone_redundancy_enabled = optional(bool, false)
     })), {})
   })
@@ -458,6 +464,7 @@ variable "sqlserver" {
 
 variable "service_bus" {
   description = "Configuration for Service Bus namespaces and their topics"
+  default = {}
   type = map(object({
     namespace_name   = optional(string)
     capacity         = number
