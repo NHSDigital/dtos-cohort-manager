@@ -11,7 +11,7 @@ test.describe('@regression @e2e @epic2-medium-priority Tests', () => {
 
   TestHooks.setupAllTestHooks();
 
-  testWithTwoAmendments.only('@DTOSS-5105-01 @not-runner-based @P1 Validation - Validations_Valid_supplied_ReasonForRemoval_empty_Has_valid_GP_PracticeCode_Amend', {
+  testWithTwoAmendments('@DTOSS-5105-01 @not-runner-based @P1 Validation - Validations_Valid_supplied_ReasonForRemoval_empty_Has_valid_GP_PracticeCode_Amend', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3040',
