@@ -1070,6 +1070,42 @@ function_apps = {
       }
     }
 
+    ServiceNowCasesDataService = {
+       name_suffix            = "servicenow-cases-data-service"
+       function_endpoint_name = "ServiceNowCasesDataService"
+       app_service_plan_key   = "DefaultPlan"
+       db_connection_string   = "DtOsDatabaseConnectionString"
+       app_urls = [
+         {
+           env_var_name     = "ExceptionFunctionURL"
+           function_app_key = "CreateException"
+         }
+       ]
+       env_vars_static = {
+         AcceptableLatencyThresholdMs = "500"
+       }
+     }
+
+     ServiceNowCohortLookup = {
+       name_suffix            = "servicenow-cohort-lookup"
+       function_endpoint_name = "ServiceNowCohortLookup"
+       app_service_plan_key   = "DefaultPlan"
+       app_urls = [
+         {
+           env_var_name     = "ExceptionFunctionURL"
+           function_app_key = "CreateException"
+         },
+         {
+           env_var_name     = "ServiceNowCasesDataServiceURL"
+           function_app_key = "CohortDistributionDataService"
+         },
+         {
+           env_var_name     = "CohortDistributionDataServiceURL"
+           function_app_key = "ParticipantDemographicDataService"
+         }
+       ]
+     }
+
     RetrievePDSDemographic = {
       name_suffix            = "retrieve-pds-demographic"
       function_endpoint_name = "RetrievePDSDemographic"
