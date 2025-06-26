@@ -15,7 +15,7 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     public async Task ProcessBatch(ConcurrentQueue<BasicParticipantCsvRecord> batch, string queueName)
     {
-        if (batch != null && batch.Any())
+        if (batch != null && !batch.IsEmpty)
         {
             await AddMessagesAsync(batch, queueName);
         }
