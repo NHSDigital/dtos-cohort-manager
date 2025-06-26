@@ -41,3 +41,13 @@ export function getCurrentDate(): string {
   const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
 }
+
+export function formatGenderValue(gender?: number | string | null): string {
+  if (gender === null || gender === undefined || gender === "")
+    return "Unknown";
+  const genderNum = typeof gender === "string" ? parseInt(gender, 10) : gender;
+  if (genderNum === 1) return "Male";
+  if (genderNum === 2) return "Female";
+  if (genderNum === 9) return "Unspecified";
+  return "Unknown";
+}

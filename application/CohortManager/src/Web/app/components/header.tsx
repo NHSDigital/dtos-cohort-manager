@@ -52,7 +52,10 @@ export default async function Header({
                   aria-hidden="true"
                   focusable="false"
                 >
-                  <path d="M8 0c4.4 0 8 3.6 8 8s-3.6 8-8 8-8-3.6-8-8 3.6-8 8-8Zm0 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm-1.5 9h3a2.5 2.5 0 0 1 2.5 2.5V14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1.5A2.5 2.5 0 0 1 6.5 10ZM8 9C6.368 9 5 7.684 5 6s1.316-3 3-3c1.632 0 3 1.316 3 3S9.632 9 8 9" />
+                  <path
+                    fill="currentcolor"
+                    d="M8 0c4.4 0 8 3.6 8 8s-3.6 8-8 8-8-3.6-8-8 3.6-8 8-8Zm0 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1Zm-1.5 9h3a2.5 2.5 0 0 1 2.5 2.5V14a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-1.5A2.5 2.5 0 0 1 6.5 10ZM8 9C6.368 9 5 7.684 5 6s1.316-3 3-3c1.632 0 3 1.316 3 3S9.632 9 8 9"
+                  ></path>
                 </svg>
                 {session.user.firstName} {session.user.lastName}
               </li>
@@ -71,7 +74,6 @@ export default async function Header({
                     "use server";
                     await signOut({ redirectTo: "/" });
                   }}
-                  method="post"
                 >
                   <button className={styles["nhsuk-header__account-button"]}>
                     Log out

@@ -11,6 +11,7 @@ features = {
   public_network_access_enabled        = false
 }
 
+# these will be merged with compliance tags in locals.tf
 tags = {
   Environment = "integration"
 }
@@ -50,6 +51,9 @@ regions = {
       container-app-db-management = {
         cidr_newbits = 7
         cidr_offset  = 6
+        delegation_name            = "Microsoft.App/environments"
+        service_delegation_name    = "Microsoft.App/environments"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
       }
     }
   }
@@ -1063,6 +1067,42 @@ function_apps = {
       }
     }
 
+    ServiceNowCasesDataService = {
+       name_suffix            = "servicenow-cases-data-service"
+       function_endpoint_name = "ServiceNowCasesDataService"
+       app_service_plan_key   = "DefaultPlan"
+       db_connection_string   = "DtOsDatabaseConnectionString"
+       app_urls = [
+         {
+           env_var_name     = "ExceptionFunctionURL"
+           function_app_key = "CreateException"
+         }
+       ]
+       env_vars_static = {
+         AcceptableLatencyThresholdMs = "500"
+       }
+     }
+
+     ServiceNowCohortLookup = {
+       name_suffix            = "servicenow-cohort-lookup"
+       function_endpoint_name = "ServiceNowCohortLookup"
+       app_service_plan_key   = "DefaultPlan"
+       app_urls = [
+         {
+           env_var_name     = "ExceptionFunctionURL"
+           function_app_key = "CreateException"
+         },
+         {
+           env_var_name     = "ServiceNowCasesDataServiceURL"
+           function_app_key = "CohortDistributionDataService"
+         },
+         {
+           env_var_name     = "CohortDistributionDataServiceURL"
+           function_app_key = "ParticipantDemographicDataService"
+         }
+       ]
+     }
+
     RetrievePDSDemographic = {
       name_suffix            = "retrieve-pds-demographic"
       function_endpoint_name = "RetrievePDSDemographic"
@@ -1097,6 +1137,7 @@ function_apps = {
         AcceptableLatencyThresholdMs = "500"
       }
     }
+
     ReferenceDataService = {
       name_suffix            = "reference-data-service"
       function_endpoint_name = "ReferenceDataService"

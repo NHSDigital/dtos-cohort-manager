@@ -10,8 +10,18 @@ export async function fetchExceptions(exceptionId?: number) {
   return response.json();
 }
 
-export async function fetchExceptionsToday() {
-  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?todayOnly=true`;
+export async function fetchExceptionsNotRaised() {
+  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?notRaisedOnly=true`;
+
+  const response = await fetch(apiUrl);
+  if (!response.ok) {
+    throw new Error(`Error fetching data: ${response.statusText}`);
+  }
+  return response.json();
+}
+
+export async function fetchExceptionsRaised() {
+  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?raisedOnly=true`;
 
   const response = await fetch(apiUrl);
   if (!response.ok) {
