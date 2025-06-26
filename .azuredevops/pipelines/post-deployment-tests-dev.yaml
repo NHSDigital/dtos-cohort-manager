@@ -3,6 +3,14 @@ name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
 trigger: none
 pr: none
 
+schedules:
+  - cron: "15 9 * * 1-5"   # Every weekday (Mon-Fri) at 09:15 UTC
+    displayName: Weekdays 09:15 run
+    branches:
+      include:
+        - main           # Change to your default branch if needed
+    always: true
+
 resources:
   repositories:
   - repository: dtos-devops-templates
