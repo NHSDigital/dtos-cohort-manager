@@ -53,7 +53,13 @@ public class ProcessNemsUpdate
     {
         try
         {
-            string nhsNumber = await GetNhsNumberFromFile(blobStream, name);
+            string? nhsNumber = await GetNhsNumberFromFile(blobStream, name);
+
+            if (nhsNumber == null)
+            {
+                _logger.LogInformation("There is no NHS number, unable to continue.");
+                return;
+            }
 
             string? pdsRecord = await RetrievePdsRecord(nhsNumber);
 
@@ -101,7 +107,7 @@ public class ProcessNemsUpdate
 
     }
 
-    private async Task<string> GetNhsNumberFromFile(Stream blobStream, string name)
+    private async Task<string?> GetNhsNumberFromFile(Stream blobStream, string name)
     {
         try
         {
@@ -119,7 +125,7 @@ public class ProcessNemsUpdate
         catch (Exception ex)
         {
             _logger.LogError(ex, "There was an error getting the NHS number from the file.");
-            throw;
+            return null;
         }
     }
 
@@ -175,7 +181,7 @@ public class ProcessNemsUpdate
         catch (Exception ex)
         {
             _logger.LogError(ex, "There was an error unsubscribing from NEMS.");
-            throw;
+            return false;
         }
     }
 }
