@@ -22,6 +22,8 @@ public class DataServicesContext : DbContext
     DbSet<NemsSubscription> nemsSubscriptions { get; set; }
     DbSet<ServicenowCases> servicenowCases { get; set; }
 
+    DbSet<InboundMetric> inboundMetrics { get; set; }
+
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
 
@@ -82,5 +84,8 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<ServicenowCases>()
             .ToTable("SERVICENOW_CASES", "dbo");
+
+        modelBuilder.Entity<InboundMetric>()
+            .ToTable("INBOUND_METRICS", "dbo");
     }
 }
