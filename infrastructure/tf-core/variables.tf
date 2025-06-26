@@ -250,7 +250,6 @@ variable "function_apps" {
         static             = optional(map(string), {})
         app_urls           = optional(map(string), {})
         storage_containers = optional(map(string), {})
-        # local_urls       = optional(map(string), {})
       }), {})
       app_urls = optional(list(object({
         env_var_name     = string
