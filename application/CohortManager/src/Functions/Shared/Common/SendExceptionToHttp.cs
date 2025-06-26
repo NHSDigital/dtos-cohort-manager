@@ -1,10 +1,9 @@
 
-
+namespace Common.Interfaces;
 
 using System.Net;
 using System.Text.Json;
 using Common;
-using Common.Interfaces;
 using Model;
 
 public class SendExceptionToHttp : IExceptionSender

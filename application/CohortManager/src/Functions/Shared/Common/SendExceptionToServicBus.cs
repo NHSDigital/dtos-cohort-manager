@@ -1,7 +1,7 @@
 
+namespace Common.Interfaces;
 
 using Common;
-using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Model;
 
