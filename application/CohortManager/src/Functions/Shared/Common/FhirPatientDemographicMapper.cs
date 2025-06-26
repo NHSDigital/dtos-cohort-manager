@@ -30,7 +30,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         catch (FormatException ex)
         {
             var errorMessage = "Failed to parse FHIR json. Ensure the input is a valid FHIR Patient resource.";
-            _logger.LogError(ex, errorMessage);
+            _logger.LogError(ex, "{Message}", errorMessage);
             throw new FormatException(errorMessage, ex);
         }
     }
@@ -46,7 +46,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         catch (FormatException ex)
         {
             var errorMessage = "Failed to parse FHIR json NHS number. Ensure the input is a valid FHIR Patient resource.";
-            _logger.LogError(ex, errorMessage);
+            _logger.LogError(ex, "{Message}", errorMessage);
             throw new FormatException(errorMessage, ex);
         }
     }
