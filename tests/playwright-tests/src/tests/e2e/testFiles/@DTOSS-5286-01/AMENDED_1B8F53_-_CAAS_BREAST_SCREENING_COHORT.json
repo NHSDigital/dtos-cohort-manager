@@ -1,0 +1,98 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9990200025,
+        "expectedCount": 2
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5286-01",
+        "requirementJiraId": "DTOSS-4286",
+        "additionalTags": "@regression @e2e @epic3-med-priority Tests Verify transformation occurs and Given name is updated with previous Given name value when name not supplied amend for participant with NHS number 9990200025 - expected count 2"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9990200025,
+        "GivenName": "Abby"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5286-01",
+        "requirementJiraId": "DTOSS-4286",
+        "additionalTags": "@regression @e2e @epic3-med-priority Tests Verify transformation occurs and Given name is updated with previous Given name value when name not supplied amend for participant with NHS number 9990200025 - given name value should be Abby"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9990200025,
+        "GivenName": null
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5286-01",
+        "requirementJiraId": "DTOSS-4286",
+        "additionalTags": "@regression @e2e @epic3-med-priority Tests Verify Participant added with Given name value for participant with NHS number 9990200025 - demographic data should have given name value as null"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9990200025",
+        "RuleId": 14,
+        "RuleDescription": "Participant was transformed as transform rule: OtherFirstNameDoesNotExist was executed"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5286-01",
+        "requirementJiraId": "DTOSS-4286",
+        "additionalTags": "@regression @e2e @epic3-med-priority Tests Verify Participant added with Given name value for participant with NHS number 9990200025 - exception management data should have rule id 14 and rule description as Participant was transformed as transform rule: OtherFirstNameDoesNotExist was executed"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "AMENDED",
+      "change_time_stamp": null,
+      "serial_change_number": 1,
+      "nhs_number": 9990200025,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20100101",
+      "current_posting": "BD",
+      "current_posting_effective_from_date": "20100101",
+      "name_prefix": "MRS",
+      "given_name": null,
+      "other_given_name": "Conners",
+      "family_name": "Rayes",
+      "previous_family_name": "gibbins",
+      "date_of_birth": "20130112",
+      "gender": 1,
+      "address_line_1": "AddressLine1",
+      "address_line_2": "AddressLine2",
+      "address_line_3": "AddressLine3",
+      "address_line_4": "AddressLine4",
+      "address_line_5": "AddressLine5",
+      "postcode": "AB23 1AF",
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20010101",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "161999999",
+      "home_telephone_effective_from_date": "20010101",
+      "mobile_telephone_number": "7888888889",
+      "mobile_telephone_effective_from_date": "20010101",
+      "email_address": "abc123@soup.io",
+      "email_address_effective_from_date": "20240101",
+      "preferred_language": "en",
+      "is_interpreter_required": true,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9990200025"
+  ]
+}
