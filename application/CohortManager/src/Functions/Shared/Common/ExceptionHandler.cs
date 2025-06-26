@@ -155,7 +155,42 @@ public class ExceptionHandler : IExceptionHandler
     }
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
-        participantCsvRecord.Participant.ExceptionFlag = "Y";
+        // Handle null or empty collection
+        if (validationErrors == null || !validationErrors.Any())
+        {
+            return new ValidationExceptionLog
+            {
+                IsFatal = false,
+                CreatedException = false
+            };
+        }
+
+        var errorCount = validationErrors.Count();
+        bool isSingleConfusionError = false;
+
+        // Check if we have exactly 1 error and it's Confusion category
+        if (errorCount == 1)
+        {
+            var firstError = validationErrors.First();
+            var ruleDetails = firstError.Rule?.RuleName?.Split('.') ?? Array.Empty<string>();
+
+            if (ruleDetails.Length > 2)
+            {
+                var categoryString = ruleDetails[2];
+                if (Enum.TryParse<ExceptionCategory>(categoryString, true, out var categoryEnum))
+                {
+                    isSingleConfusionError = categoryEnum == ExceptionCategory.Confusion;
+                }
+            }
+        }
+
+        //As per the new changed rule 35, when a record meets this criteria then do not change the exception flag
+        // Only set ExceptionFlag if NOT a single Confusion error
+        if (!isSingleConfusionError)
+        {
+            participantCsvRecord.Participant.ExceptionFlag = "Y";
+        }
+
 
         var foundFatalRule = false;
         foreach (var error in validationErrors)
@@ -206,13 +241,12 @@ public class ExceptionHandler : IExceptionHandler
                     CreatedException = false
                 };
             }
-
         }
 
         return new ValidationExceptionLog()
         {
             IsFatal = foundFatalRule,
-            CreatedException = true
+            CreatedException = !isSingleConfusionError  //false for single Confusion error. This is because we want to saved it to cohort distribution table for new change rule 35.
         };
     }
 

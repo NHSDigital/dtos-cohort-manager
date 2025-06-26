@@ -3,7 +3,7 @@
     "WorkflowName": "Common",
     "Rules": [
       {
-        "RuleName": "35.TooManyDemographicsFieldsChanged.NBO.NonFatal",
+        "RuleName": "35.TooManyDemographicsFieldsChanged.Confusion.NonFatal",
         "LocalParams": [
           {
             "Name": "NewDateOfBirth",
