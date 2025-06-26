@@ -61,27 +61,6 @@ public class HttpClientFunction : IHttpClientFunction
         return await GetAsync(client);
     }
 
-    public async Task<HttpResponseMessage> SendGetResponse(string url, Dictionary<string, string> parameters)
-    {
-        using var client = _factory.CreateClient();
-
-        url = QueryHelpers.AddQueryString(url, parameters);
-
-        client.BaseAddress = new Uri(url);
-        client.Timeout = _timeout;
-
-        try
-        {
-            HttpResponseMessage response = await client.GetAsync(url);
-            return response;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
-            throw;
-        }
-    }
-
     public async Task<HttpResponseMessage> SendPdsGet(string url)
     {
         using var client = _factory.CreateClient();
