@@ -74,7 +74,14 @@ public class CreateParticipant
                 participantCsvRecord.Participant.ExceptionFlag = "Y";
 
             var ParticipantManagementRecord = participantCsvRecord.Participant.ToParticipantManagement();
-            ParticipantManagementRecord.EligibilityFlag = 1; // Mark Participant as Eligible
+            if (!short.TryParse(participantCsvRecord.Participant.EligibilityFlag, out var eligibilityFlagFromParticipant))
+            {
+                _logger.LogError("Could not parse eligibility flag '{EligibilityFlag}' for participant",
+                    participantCsvRecord.Participant.EligibilityFlag);
+
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "could not parse eligibility flag from participant in file");
+            }
+            ParticipantManagementRecord.EligibilityFlag = eligibilityFlagFromParticipant;
             var participantCreated = await _participantManagementClient.Add(ParticipantManagementRecord);
 
             if (participantCreated)
