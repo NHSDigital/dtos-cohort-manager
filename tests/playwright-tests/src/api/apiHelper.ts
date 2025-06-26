@@ -131,22 +131,59 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
   for (const [fieldName, expectedValue] of fieldsToValidate) {
     if (fieldName === "expectedCount") {
       console.info(`🚧 Count check with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
-      const actualCount = matchingObjects.length;
-      expect(actualCount).toBe(expectedValue);
-      console.info(`✅ Count check completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+
+
+      let actualCount = 0;
+      if (matchingObjects && Array.isArray(matchingObjects)) {
+        actualCount = matchingObjects.length;
+      } else if (matchingObjects === null || matchingObjects === undefined) {
+        actualCount = 0;
+        console.warn(`⚠️ matchingObjects is ${matchingObjects === null ? 'null' : 'undefined'} for NHS Number ${nhsNumber}`);
+      } else {
+
+        actualCount = 1;
+        console.warn(`⚠️ matchingObjects is not an array for NHS Number ${nhsNumber}, treating as single object`);
+      }
+
+      console.info(`📊 Actual count: ${actualCount}, Expected count: ${expectedValue} for NHS Number ${nhsNumber}`);
+
+
+      const expectedCount = Number(expectedValue);
+
+      if (isNaN(expectedCount)) {
+        throw new Error(`❌ expectedCount value '${expectedValue}' is not a valid number for NHS Number ${nhsNumber}`);
+      }
+
+      // Perform the assertion
+      try {
+        expect(actualCount).toBe(expectedCount);
+        console.info(`✅ Count check completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+      } catch (error) {
+        console.error(`❌ Count check failed for NHS Number ${nhsNumber}: Expected ${expectedCount}, but got ${actualCount}`);
+        throw error;
+      }
     }
-    // Special handling for timestamp fields
+
     else if (fieldName === 'RecordInsertDateTime' || fieldName === 'RecordUpdateDateTime') {
       console.info(`🚧 Validating timestamp field ${fieldName} for NHS Number ${nhsNumber}`);
+
+
+      if (!matchingObject && expectedValue !== null && expectedValue !== undefined) {
+        throw new Error(`❌ No matching object found for NHS Number ${nhsNumber} but expected to validate field ${fieldName}`);
+      }
+
+
+      if (!matchingObject && (expectedValue === null || expectedValue === undefined)) {
+        console.info(`ℹ️ Skipping validation for ${fieldName} as no matching object found and no expected value for NHS Number ${nhsNumber}`);
+        continue;
+      }
 
       expect(matchingObject).toHaveProperty(fieldName);
       const actualValue = matchingObject[fieldName];
 
-
       if (typeof expectedValue === 'string' && expectedValue.startsWith('PATTERN:')) {
         const pattern = expectedValue.substring('PATTERN:'.length);
         console.info(`Validating timestamp against pattern: ${pattern}`);
-
 
         const formatMatch = validateTimestampFormat(actualValue, pattern);
 
@@ -157,7 +194,6 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
           expect(formatMatch).toBe(true);
         }
       } else {
-
         if (expectedValue === actualValue) {
           console.info(`✅ Timestamp exact match for ${fieldName}`);
         } else {
@@ -165,25 +201,20 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
             const expectedDate = new Date(expectedValue as string);
             const actualDate = new Date(actualValue);
 
-
             const expectedTimeWithoutMs = new Date(expectedDate);
             expectedTimeWithoutMs.setMilliseconds(0);
             const actualTimeWithoutMs = new Date(actualDate);
             actualTimeWithoutMs.setMilliseconds(0);
 
-
             if (expectedTimeWithoutMs.getTime() === actualTimeWithoutMs.getTime()) {
               console.info(`✅ Timestamp matches (ignoring milliseconds) for ${fieldName}`);
             } else {
-
               const timeDiff = Math.abs(expectedDate.getTime() - actualDate.getTime());
               const oneMinute = 60 * 1000;
-
 
               if (timeDiff <= oneMinute) {
                 console.info(`✅ Timestamp within acceptable range (±1 minute) for ${fieldName}`);
               } else {
-
                 expect(actualValue).toBe(expectedValue);
               }
             }
@@ -199,6 +230,17 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
     else {
       console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
 
+
+      if (!matchingObject && expectedValue !== null && expectedValue !== undefined) {
+        throw new Error(`❌ No matching object found for NHS Number ${nhsNumber} but expected to validate field ${fieldName}`);
+      }
+
+
+      if (!matchingObject && (expectedValue === null || expectedValue === undefined)) {
+        console.info(`ℹ️ Skipping validation for ${fieldName} as no matching object found and no expected value for NHS Number ${nhsNumber}`);
+        continue;
+      }
+
       expect(matchingObject).toHaveProperty(fieldName);
       expect(matchingObject[fieldName]).toBe(expectedValue);
       console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
@@ -206,7 +248,6 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
   }
   return true;
 }
-
 // Helper function to validate timestamp format
 function validateTimestampFormat(timestamp: string, pattern: string): boolean {
   if (!timestamp) return false;
