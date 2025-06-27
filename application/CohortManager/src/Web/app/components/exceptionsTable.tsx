@@ -13,22 +13,26 @@ export default function ExceptionsTable({
 }: Readonly<ExceptionsTableProps>) {
   return (
     <table role="table" className="nhsuk-table-responsive">
-      <caption className="nhsuk-table__caption">
+      <caption className="nhsuk-table__caption nhsuk-u-visually-hidden">
         {caption ? `${caption}` : "Total breast screening exceptions"}
       </caption>
       <thead className="nhsuk-table__head">
         <tr role="row">
           <th role="columnheader" scope="col">
-            Exception ID
+            Local reference <br /> Exception ID
           </th>
           <th role="columnheader" scope="col">
             NHS number
           </th>
           <th role="columnheader" scope="col">
-            Date created
+            Date exception <br />
+            created
           </th>
           <th role="columnheader" scope="col">
             Short description
+          </th>
+          <th role="columnheader" scope="col">
+            Exception status
           </th>
         </tr>
       </thead>
@@ -44,6 +48,7 @@ export default function ExceptionsTable({
                 className="nhsuk-table-responsive__heading"
                 aria-hidden="true"
               >
+                Local reference <br />
                 Exception ID{" "}
               </span>
               <Link href={`/participant-information/${exception.exceptionId}`}>
@@ -64,7 +69,7 @@ export default function ExceptionsTable({
                 className="nhsuk-table-responsive__heading"
                 aria-hidden="true"
               >
-                Date created{" "}
+                Date exception <br /> created{" "}
               </span>
               {formatDate(exception.dateCreated)}
             </td>
@@ -76,6 +81,24 @@ export default function ExceptionsTable({
                 Short description{" "}
               </span>
               {exception.shortDescription}
+            </td>
+            <td className="nhsuk-table__cell">
+              <span
+                className="nhsuk-table-responsive__heading"
+                aria-hidden="true"
+              >
+                Exception status{" "}
+              </span>
+              {exception.serviceNowId ? (
+                <>
+                  <strong className="nhsuk-tag">Raised</strong> on{" "}
+                  {formatDate(exception.serviceNowCreatedDate ?? "")}
+                </>
+              ) : (
+                <strong className="nhsuk-tag nhsuk-tag--grey">
+                  Not raised
+                </strong>
+              )}
             </td>
           </tr>
         ))}

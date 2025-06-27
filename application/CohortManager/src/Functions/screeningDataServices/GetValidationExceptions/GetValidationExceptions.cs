@@ -48,7 +48,6 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
-        var todaysExceptions = _httpParserHelper.GetQueryParameterAsBool(req, "todayOnly");
         var orderByProperty = GetExceptionSort(req, "orderByProperty");
         var exceptionCategory = GetExceptionCategory(req);
 
@@ -59,14 +58,14 @@ public class GetValidationExceptions
                 return await GetExceptionById(req, exceptionId);
             }
 
-            var exceptions = await _validationData.GetAllExceptions(todaysExceptions, orderByProperty, exceptionCategory);
+            var exceptions = await _validationData.GetAllExceptions(orderByProperty, exceptionCategory);
 
-            if (exceptions.Count == 0)
+            if (exceptions == null || exceptions.Count == 0)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
             }
 
-            var paginatedResults = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId, e => e.ExceptionId.Value);
+            var paginatedResults = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId, e => e.ExceptionId);
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResults));
         }

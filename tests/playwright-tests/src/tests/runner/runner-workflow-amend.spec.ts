@@ -5,28 +5,27 @@ import { runnerBasedEpic123TestScenariosAddAmend } from '../e2e/epic123-smoke-te
 import { runnerBasedEpic1TestScenariosAmend } from '../e2e/epic1-highpriority-tests/epic1-high-priority-testsuite-migrated';
 import { runnerBasedEpic2TestScenariosAmend } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
 import { runnerBasedEpic3TestScenariosAmend } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
-import { createTempDirAndWriteJson, deleteTempDir } from '../../../src/json/file-utils';
+import { runnerBasedEpic3MedTestScenariosAmended } from '../e2e/epic3-medpriority-tests/epic3-med-priority-testsuite';
+import { runnerBasedEpic4dTestScenariosAmend } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 
-
-// Test Scenario Tags
-const smokeTestScenario = runnerBasedEpic123TestScenariosAddAmend;
-const regressionEpic1TestScenario = runnerBasedEpic1TestScenariosAmend;
-const regressionEpic2TestScenario = runnerBasedEpic2TestScenariosAmend;
-const regressionEpic3TestScenario = runnerBasedEpic3TestScenariosAmend;
 
 // Tests to run based on TEST_TYPE environment variable
 let scopedTestScenario = "";
 
 const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
 if (TEST_TYPE == 'RegressionEpic1') {
-  scopedTestScenario = regressionEpic1TestScenario;
+  scopedTestScenario = runnerBasedEpic1TestScenariosAmend;
 } else if (TEST_TYPE == 'RegressionEpic2') {
-  scopedTestScenario = regressionEpic2TestScenario;
+  scopedTestScenario = runnerBasedEpic2TestScenariosAmend;
 } else if (TEST_TYPE == 'RegressionEpic3') {
-  scopedTestScenario = regressionEpic3TestScenario;
+  scopedTestScenario = runnerBasedEpic3TestScenariosAmend;
+} else if (TEST_TYPE == 'RegressionEpic3Med') {
+  scopedTestScenario = runnerBasedEpic3MedTestScenariosAmended;
+} else if (TEST_TYPE == 'RegressionEpic4d') {
+  scopedTestScenario = runnerBasedEpic4dTestScenariosAmend;
 } else {
-  scopedTestScenario = smokeTestScenario;
+  scopedTestScenario = runnerBasedEpic123TestScenariosAddAmend;
 }
 
 if (!scopedTestScenario) {
@@ -45,7 +44,7 @@ test.beforeAll(async () => {
   await processFileViaStorage(runTimeParquetFile);
   await validateSqlDatabaseFromAPI(apiContext, addData.validations);
 
-   const dateMap = generateDynamicDateMap();
+  const dateMap = generateDynamicDateMap();
   const updatedParticipantRecordsAmend = replaceDynamicDatesInJson(amendData.inputParticipantRecords, dateMap);
 
 

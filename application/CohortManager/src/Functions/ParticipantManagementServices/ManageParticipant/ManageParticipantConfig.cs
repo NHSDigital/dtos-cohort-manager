@@ -10,4 +10,6 @@ public class ManageParticipantConfig
     public string CohortQueueName { get; set; }
     [Required]
     public string ParticipantManagementQueueName { get; set; }
+    [Required]
+    public string ParticipantManagementUrl { get; set; }
 }
