@@ -35,6 +35,21 @@ public class TransformDataServiceTests
     {
         _request = new Mock<HttpRequestData>(_context.Object);
 
+         // Test data setup
+        var existingParticipant = new Participant
+        {
+            NhsNumber = "9876543210",
+            FirstName = "John",
+            FamilyName = "Smith",
+            CurrentPosting = "DMS"
+        };
+        var newParticipant = new Participant
+        {
+            NhsNumber = "9876543210",
+            FirstName = "John",
+            FamilyName = "Smith"
+        };
+
         CohortDistributionParticipant requestParticipant = new()
         {
             NhsNumber = "1",
@@ -558,7 +573,6 @@ public class TransformDataServiceTests
             .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumber", 60),
             times: Times.Once);
     }
-
 
     private void SetUpRequestBody(string json)
     {
