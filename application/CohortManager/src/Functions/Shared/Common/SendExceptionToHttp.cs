@@ -20,7 +20,7 @@ public class SendExceptionToHttp : IExceptionSender
     }
     public async Task<bool> sendToCreateException(ValidationException validationException)
     {
-        var response = await _httpClientFunction!.SendPost(_httpValidationConfig.ExceptionFunctionURL, JsonSerializer.Serialize(validationException));
+        var response = await _httpClientFunction.SendPost(_httpValidationConfig.ExceptionFunctionURL, JsonSerializer.Serialize(validationException));
         if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
         {
             return false;
