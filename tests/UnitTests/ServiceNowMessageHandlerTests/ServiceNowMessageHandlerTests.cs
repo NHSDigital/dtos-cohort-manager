@@ -1,9 +1,13 @@
 namespace NHS.CohortManager.Tests.UnitTests.ServiceNowMessageHandlerTests;
 
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -13,27 +17,32 @@ using NHS.CohortManager.ServiceNowIntegrationService;
 using Moq.Protected;
 
 [TestClass]
-public class SendServiceNowMessageFunctionTests
+public class ServiceNowMessageHandlerTests
 {
-    private readonly Mock<IHttpClientFactory> _httpClientFactoryMock = new();
-    private readonly Mock<ILogger<SendServiceNowMessageFunction>> _loggerMock = new();
-    private readonly Mock<IOptions<ServiceNowMessageHandlerConfig>> _optionsMock = new();
-    private readonly Mock<ICreateResponse> _createResponseMock = new();
-    private readonly Mock<FunctionContext> _contextMock = new();
-    private readonly Mock<HttpMessageHandler> _httpMessageHandlerMock = new();
+    private Mock<IHttpClientFactory> _httpClientFactoryMock;
+    private Mock<ILogger<ServiceNowMessageHandler>> _loggerMock;
+    private Mock<IOptions<ServiceNowMessageHandlerConfig>> _optionsMock;
+    private Mock<ICreateResponse> _createResponseMock;
+    private Mock<FunctionContext> _contextMock;
     private Mock<HttpRequestData> _httpRequestMock;
-    private SendServiceNowMessageFunction _handler;
+    private ServiceNowMessageHandler _handler;
+    private Mock<HttpMessageHandler> _httpMessageHandlerMock;
     private HttpClient _httpClient;
 
     [TestInitialize]
     public void Setup()
     {
+        _contextMock = new Mock<FunctionContext>();
         _httpRequestMock = new Mock<HttpRequestData>(_contextMock.Object);
 
+        _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
         _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
 
+        _httpClientFactoryMock = new Mock<IHttpClientFactory>();
         _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient);
 
+        _loggerMock = new Mock<ILogger<ServiceNowMessageHandler>>();
+        _optionsMock = new Mock<IOptions<ServiceNowMessageHandlerConfig>>();
         _optionsMock.Setup(x => x.Value).Returns(new ServiceNowMessageHandlerConfig
         {
             EndpointPath = "api/now/table/incident",
@@ -44,7 +53,9 @@ public class SendServiceNowMessageFunctionTests
             Profile = "prod"
         });
 
-        _handler = new SendServiceNowMessageFunction(
+        _createResponseMock = new Mock<ICreateResponse>();
+
+        _handler = new ServiceNowMessageHandler(
             _httpClientFactoryMock.Object,
             _loggerMock.Object,
             _optionsMock.Object,
@@ -55,8 +66,7 @@ public class SendServiceNowMessageFunctionTests
     [TestMethod]
     public async Task HandleSendServiceNowMessage_ReturnsSuccess_AfterTokenRefresh()
     {
-        // Arrange
-        var requestBody = JsonSerializer.Serialize(new SendServiceNowMessageRequestBody
+        var requestBody = JsonSerializer.Serialize(new ServiceNowRequestModel
         {
             WorkNotes = "Retry this",
             State = 2
@@ -81,17 +91,15 @@ public class SendServiceNowMessageFunctionTests
             .Setup(r => r.CreateHttpResponse(HttpStatusCode.OK, _httpRequestMock.Object, "Success"))
             .Returns(expectedResponse);
 
-        // Act
-        var result = await _handler.Run(_httpRequestMock.Object, "base", "profile", "sysid");
+        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
 
-        // Assert
         Assert.AreEqual(expectedResponse, result);
     }
 
     [TestMethod]
     public async Task HandleSendServiceNowMessage_ReturnsBadRequest_WhenMissingWorkNotes()
     {
-        // Arrange
+        // Arrange: valid JSON with empty WorkNotes
         var invalidBody = JsonSerializer.Serialize(new
         {
             WorkNotes = "", // Simulates missing or empty value
@@ -109,7 +117,7 @@ public class SendServiceNowMessageFunctionTests
             .Returns(expectedResponse);
 
         // Act
-        var result = await _handler.Run(_httpRequestMock.Object, "base", "profile", "sysid");
+        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
 
         // Assert
         Assert.AreEqual(expectedResponse, result);
@@ -122,7 +130,7 @@ public class SendServiceNowMessageFunctionTests
         // Arrange: empty body
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(""));
         _httpRequestMock.Setup(r => r.Body).Returns(stream);
-        _httpRequestMock.Setup(r => r.Method).Returns("PUT");
+        _httpRequestMock.Setup(r => r.Method).Returns("PUT"); // Required for routing
 
         var expectedResponse = new Mock<HttpResponseData>(_contextMock.Object).Object;
 
@@ -131,9 +139,11 @@ public class SendServiceNowMessageFunctionTests
             .Returns(expectedResponse);
 
         // Act
-        var result = await _handler.Run(_httpRequestMock.Object, "base", "profile", "sysid");
+        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
 
         // Assert
         Assert.AreEqual(expectedResponse, result);
     }
+
 }
+
