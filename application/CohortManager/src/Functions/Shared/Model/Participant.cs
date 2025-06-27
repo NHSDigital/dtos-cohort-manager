@@ -26,7 +26,7 @@ public class Participant
         ExceptionFlag = pm.ExceptionFlag.ToString();
         BlockedFlag = pm.BlockedFlag.ToString();
         ReferralFlag = pm.ReferralFlag.ToString();
-        CeasedFlag = pm.CeasedFlag.ToString(); 
+        CeasedFlag = pm.CeasedFlag.ToString();
         RecordInsertDateTime = pm.RecordInsertDateTime.ToString();
         RecordUpdateDateTime = pm.RecordUpdateDateTime.ToString();
 
@@ -72,6 +72,48 @@ public class Participant
         ScreeningId = cohortDistributionParticipant.ScreeningServiceId;
         CurrentPosting = cohortDistributionParticipant.CurrentPosting;
         EligibilityFlag = cohortDistributionParticipant.EligibilityFlag;
+    }
+
+    public Participant(PdsDemographic pdsDemographic)
+    {
+        RecordType = Actions.Amended; // TODO this does not exist on PdsDemographic, so is hardcoded for the time being.
+        ParticipantId = null; // TODO this will never exist on PdsDemographic, so is hardcoded to null.
+        NhsNumber = pdsDemographic.NhsNumber;
+        SupersededByNhsNumber = pdsDemographic.SupersededByNhsNumber;
+        PrimaryCareProvider = pdsDemographic.PrimaryCareProvider;
+        PrimaryCareProviderEffectiveFromDate = pdsDemographic.PrimaryCareProviderEffectiveFromDate;
+        NamePrefix = pdsDemographic.NamePrefix;
+        FirstName = pdsDemographic.FirstName;
+        OtherGivenNames = pdsDemographic.OtherGivenNames;
+        FamilyName = pdsDemographic.FamilyName;
+        PreviousFamilyName = pdsDemographic.PreviousFamilyName;
+        DateOfBirth = pdsDemographic.DateOfBirth;
+        Gender = pdsDemographic.Gender.GetValueOrDefault();
+        AddressLine1 = pdsDemographic.AddressLine1;
+        AddressLine2 = pdsDemographic.AddressLine2;
+        AddressLine3 = pdsDemographic.AddressLine3;
+        AddressLine4 = pdsDemographic.AddressLine4;
+        AddressLine5 = pdsDemographic.AddressLine5;
+        Postcode = pdsDemographic.Postcode;
+        UsualAddressEffectiveFromDate = pdsDemographic.UsualAddressEffectiveFromDate;
+        DateOfDeath = pdsDemographic.DateOfDeath;
+        TelephoneNumber = pdsDemographic.TelephoneNumber;
+        TelephoneNumberEffectiveFromDate = pdsDemographic.TelephoneNumberEffectiveFromDate;
+        MobileNumber = pdsDemographic.MobileNumber;
+        MobileNumberEffectiveFromDate = pdsDemographic.MobileNumberEffectiveFromDate;
+        EmailAddress = pdsDemographic.EmailAddress;
+        EmailAddressEffectiveFromDate = pdsDemographic.EmailAddressEffectiveFromDate;
+        PreferredLanguage = pdsDemographic.PreferredLanguage;
+        IsInterpreterRequired = pdsDemographic.IsInterpreterRequired == "True" ? "1" : "0";
+        ReasonForRemoval = pdsDemographic.ReasonForRemoval;
+        ReasonForRemovalEffectiveFromDate = pdsDemographic.RemovalEffectiveFromDate;
+        RecordInsertDateTime = pdsDemographic.RecordInsertDateTime;
+        RecordUpdateDateTime = pdsDemographic.RecordUpdateDateTime;
+        ScreeningAcronym = "BSS"; // TODO this does not exist on PdsDemographic, so is hardcoded for the time being.
+        ScreeningName = "Breast Screening"; // TODO this does not exist on PdsDemographic, so is hardcoded for the time being.
+        ScreeningId = "1"; // TODO this does not exist on PdsDemographic, so is hardcoded for the time being.
+        CurrentPosting = pdsDemographic.CurrentPosting;
+        EligibilityFlag = "0"; // TODO this does not exist on PdsDemographic, so is hardcoded for the time being.
     }
 
     public ParticipantDemographic ToParticipantDemographic()
