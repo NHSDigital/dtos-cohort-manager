@@ -4,19 +4,23 @@ namespace Common.Interfaces;
 using System.Net;
 using System.Text.Json;
 using Common;
+using Microsoft.Extensions.Options;
 using Model;
 
 public class SendExceptionToHttp : IExceptionSender
 {
-    public IHttpClientFunction _httpClientFunction;
+    private IHttpClientFunction _httpClientFunction;
 
-    public SendExceptionToHttp(IHttpClientFunction httpClientFunction)
+    private readonly HttpValidationConfig _httpValidationConfig;
+
+    public SendExceptionToHttp(IHttpClientFunction httpClientFunction, IOptions<HttpValidationConfig> httpValidationConfig)
     {
         _httpClientFunction = httpClientFunction;
+        _httpValidationConfig = httpValidationConfig.Value;
     }
-    public async Task<bool> sendToCreateException(ValidationException validationException, string createExceptionUrl)
+    public async Task<bool> sendToCreateException(ValidationException validationException)
     {
-        var response = await _httpClientFunction!.SendPost(createExceptionUrl, JsonSerializer.Serialize(validationException));
+        var response = await _httpClientFunction!.SendPost(_httpValidationConfig.ExceptionFunctionURL, JsonSerializer.Serialize(validationException));
         if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
         {
             return false;

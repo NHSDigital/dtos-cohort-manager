@@ -35,7 +35,7 @@ public class ExceptionHandlerTests
         // Arrange
         var participant = new Participant() { NhsNumber = NhsNumber };
 
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                   .Returns(Task.FromResult(true))
                   .Verifiable();
 
@@ -44,8 +44,7 @@ public class ExceptionHandlerTests
 
         // Assert - when NhsNumber is not null (even if empty or whitespace), ExceptionFlag should be set to "Y"
         _exceptionSender.Verify(call => call.sendToCreateException(
-            It.IsAny<ValidationException>(),
-            It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
+            It.IsAny<ValidationException>()), Times.Once());
     }
 
     [TestMethod]
@@ -55,7 +54,7 @@ public class ExceptionHandlerTests
         // Arrange
         var participant = new Participant() { NhsNumber = NhsNumber };
 
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                      .Returns(Task.FromResult(true))
                      .Verifiable();
 
@@ -64,8 +63,7 @@ public class ExceptionHandlerTests
 
         // Assert - when NhsNumber is null, the JSON should show ExceptionFlag as null
         _exceptionSender.Verify(call => call.sendToCreateException(
-           It.IsAny<ValidationException>(),
-           It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
+           It.IsAny<ValidationException>()), Times.Once());
     }
 
     [TestMethod]
@@ -91,7 +89,7 @@ public class ExceptionHandlerTests
             GenerateSampleRuleResultTree(CreateSampleRule())
         };
 
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                          .Returns(Task.FromResult(true))
                          .Verifiable();
         // Act
@@ -129,7 +127,7 @@ public class ExceptionHandlerTests
         string fileName = "testfile";
         string screeningName = "ScreeningTest";
         string errorRecord = "{}";
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                  .Returns(Task.FromResult(true))
                  .Verifiable();
         // Act
@@ -139,14 +137,14 @@ public class ExceptionHandlerTests
         if (nhsNumberIsNil)
         {
             _exceptionSender.Verify(call => call.sendToCreateException(
-                It.Is<ValidationException>(s => s.Category == 7),
-                It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
+                It.Is<ValidationException>(s => s.Category == 7)), Times.Once()
+                );
         }
         else
         {
             _exceptionSender.Verify(call => call.sendToCreateException(
-                 It.Is<ValidationException>(s => s.Category != 7),
-                 It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
+                 It.Is<ValidationException>(s => s.Category != 7)
+                 ), Times.Once());
 
         }
     }
@@ -160,7 +158,7 @@ public class ExceptionHandlerTests
         var basicParticipant = new BasicParticipantData { NhsNumber = "987654321", ScreeningName = screeningName };
         var exception = new Exception("Test exception");
         var fileName = "testfile";
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                   .Returns(Task.FromResult(true))
                   .Verifiable();
 
@@ -169,8 +167,8 @@ public class ExceptionHandlerTests
 
         // Assert - verify that the JSON includes the provided NhsNumber and ScreeningName
         _exceptionSender.Verify(call => call.sendToCreateException(
-               It.Is<ValidationException>(s => s.NhsNumber == "987654321" && s.ScreeningName == screeningName),
-               It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
+               It.Is<ValidationException>(s => s.NhsNumber == "987654321" && s.ScreeningName == screeningName)
+               ), Times.Once());
     }
 
     [TestMethod]
@@ -180,7 +178,7 @@ public class ExceptionHandlerTests
         var basicParticipant = new BasicParticipantData { NhsNumber = null, ScreeningName = "ScreeningTest" };
         var exception = new Exception("Test exception");
         var fileName = "testfile";
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                    .Returns(Task.FromResult(true))
                    .Verifiable();
 
@@ -189,8 +187,8 @@ public class ExceptionHandlerTests
 
         // Assert - check that the default (empty) NhsNumber is used
         _exceptionSender.Verify(call => call.sendToCreateException(
-              It.Is<ValidationException>(s => s.NhsNumber == ""),
-              It.Is<string>(s => s == "ExceptionFunctionURL")), Times.Once());
+              It.Is<ValidationException>(s => s.NhsNumber == "")
+              ), Times.Once());
     }
 
     [TestMethod]
@@ -202,7 +200,7 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                    .Returns(Task.FromResult(true))
                    .Verifiable();
 
@@ -228,7 +226,7 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                          .Returns(Task.FromResult(false))
                          .Verifiable();
 
@@ -255,7 +253,7 @@ public class ExceptionHandlerTests
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         string description = "Schema error occurred";
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                    .Returns(Task.FromResult(true))
                    .Verifiable();
 
@@ -278,9 +276,7 @@ public class ExceptionHandlerTests
                 s => s.NhsNumber == "123456789" &&
                 s.ScreeningName == "ScreeningTest" &&
                 s.RuleDescription == description
-              ),
-              It.Is<string>(s => s == "ExceptionFunctionURL")),
-              Times.Once());
+              )), Times.Once());
     }
 
     [TestMethod]
@@ -293,7 +289,7 @@ public class ExceptionHandlerTests
             Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         string description = "Schema error occurred";
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                    .Returns(Task.FromResult(false))
                    .Verifiable();
 
@@ -324,7 +320,7 @@ public class ExceptionHandlerTests
             ruleResult2
         };
         var participant = new CohortDistributionParticipant { NhsNumber = "123456789", ScreeningName = "ScreeningTest" };
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                     .Returns(Task.FromResult(true))
                     .Verifiable();
 
@@ -336,8 +332,7 @@ public class ExceptionHandlerTests
              It.Is<ValidationException>(
                s => s.NhsNumber == "123456789" &&
                s.ScreeningName == "ScreeningTest"
-             ),
-             It.Is<string>(s => s == "ExceptionFunctionURL")),
+             )),
              Times.Exactly(transformationErrors.Count));
 
         _logger.Verify(x => x.Log(
@@ -358,7 +353,7 @@ public class ExceptionHandlerTests
         var transformationErrors = new List<RuleResultTree> { ruleResult };
         var participant = new CohortDistributionParticipant { NhsNumber = "123456789", ScreeningName = "ScreeningTest" };
 
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                .Returns(Task.FromResult(false))
                .Verifiable();
 
@@ -386,7 +381,7 @@ public class ExceptionHandlerTests
             ScreeningName = "ScreeningTest"
         };
         string ruleName = "51.Message.0";
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                 .Returns(Task.FromResult(true))
                 .Verifiable();
         // Act
@@ -399,9 +394,7 @@ public class ExceptionHandlerTests
             s => s.RuleDescription.Contains("Participant was transformed as transform rule") &&
             s.RuleId == 1 &&
             s.Category == (int)ExceptionCategory.TransformExecuted
-        ),
-        It.Is<string>(s => s == "ExceptionFunctionURL")),
-        Times.Once);
+        )), Times.Once);
 
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
@@ -422,7 +415,7 @@ public class ExceptionHandlerTests
             NhsNumber = "123456789",
             ScreeningName = "ScreeningTest"
         };
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                 .Returns(Task.FromResult(false))
                 .Verifiable();
         // Act
@@ -452,7 +445,7 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                 .Returns(Task.FromResult(true))
                 .Verifiable();
 
@@ -489,7 +482,7 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                 .Returns(Task.FromResult(true))
                 .Verifiable();
 
@@ -546,7 +539,7 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                .Returns(Task.FromResult(true))
                .Verifiable();
         // Act
@@ -578,7 +571,7 @@ public class ExceptionHandlerTests
             FileName = "file.csv",
             Participant = new Participant { ParticipantId = "PID123", NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                .Returns(Task.FromResult(false))
                .Verifiable();
 
@@ -605,7 +598,7 @@ public class ExceptionHandlerTests
         string errorDescription = "Error description";
         string screeningName = "ScreeningTest";
         string errorRecord = "{}";
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                .Returns(Task.FromResult(true))
                .Verifiable();
 
@@ -625,7 +618,7 @@ public class ExceptionHandlerTests
         string errorDescription = "Error description";
         string screeningName = "ScreeningTest";
         string errorRecord = "{}";
-        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>(), It.IsAny<string>()))
+        _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                .Returns(Task.FromResult(false))
                .Verifiable();
         // Act

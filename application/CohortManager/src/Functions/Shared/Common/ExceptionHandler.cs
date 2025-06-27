@@ -14,7 +14,6 @@ public class ExceptionHandler : IExceptionHandler
     private readonly IExceptionSender _exceptionSender;
     private readonly ILogger<ExceptionHandler> _logger;
     private static readonly int DefaultRuleId = 0;
-    private readonly string _createExceptionUrl;
     private const string DefaultCohortName = "";
     private const string DefaultScreeningName = "";
     private const string DefaultErrorRecord = "N/A";
@@ -25,16 +24,8 @@ public class ExceptionHandler : IExceptionHandler
 
     public ExceptionHandler(ILogger<ExceptionHandler> logger, IExceptionSender exceptionSender)
     {
-
         _logger = logger;
         _exceptionSender = exceptionSender;
-        _createExceptionUrl = Environment.GetEnvironmentVariable("ExceptionFunctionURL");
-
-        if (_createExceptionUrl == null)
-        {
-            _logger.LogError("ExceptionFunctionURL environment variable is not set.");
-            throw new InvalidOperationException("ExceptionFunctionURL environment variable is not set.");
-        }
     }
 
     public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName, string category = "")
@@ -48,7 +39,7 @@ public class ExceptionHandler : IExceptionHandler
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant), category);
 
-        var isSentSuccessfully = await _exceptionSender.sendToCreateException(validationException, _createExceptionUrl);
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(validationException);
 
         if (!isSentSuccessfully)
         {
@@ -62,14 +53,14 @@ public class ExceptionHandler : IExceptionHandler
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant));
 
-        await _exceptionSender.sendToCreateException(validationException, _createExceptionUrl);
+        await _exceptionSender.sendToCreateException(validationException);
     }
 
     public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord)
     {
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, errorRecord);
 
-        await _exceptionSender.sendToCreateException(validationException, _createExceptionUrl);
+        await _exceptionSender.sendToCreateException(validationException);
     }
 
     public async Task CreateDeletedRecordException(BasicParticipantCsvRecord participantCsvRecord)
@@ -91,7 +82,7 @@ public class ExceptionHandler : IExceptionHandler
 
         };
 
-        var exceptionSentSuccessfully = await _exceptionSender.sendToCreateException(exception, _createExceptionUrl);
+        var exceptionSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
         if (!exceptionSentSuccessfully)
         {
             _logger.LogError(logErrorMessage);
@@ -117,7 +108,7 @@ public class ExceptionHandler : IExceptionHandler
 
         };
 
-        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception, _createExceptionUrl);
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
 
         if (!isSentSuccessfully)
         {
@@ -148,7 +139,7 @@ public class ExceptionHandler : IExceptionHandler
                 Fatal = 0
             };
 
-            var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception, _createExceptionUrl);
+            var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
 
             if (!isSentSuccessfully)
             {
@@ -197,7 +188,7 @@ public class ExceptionHandler : IExceptionHandler
                 Fatal = IsFatal
             };
 
-            var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception, _createExceptionUrl);
+            var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
 
             if (!isSentSuccessfully)
             {
@@ -228,7 +219,7 @@ public class ExceptionHandler : IExceptionHandler
         var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
 
 
-        var isSentSuccessfully = await _exceptionSender.sendToCreateException(validationException, _createExceptionUrl);
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(validationException);
 
         if (!isSentSuccessfully)
         {
@@ -255,7 +246,7 @@ public class ExceptionHandler : IExceptionHandler
             Fatal = 0
         };
 
-        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception, _createExceptionUrl);
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
 
         if (!isSentSuccessfully)
         {

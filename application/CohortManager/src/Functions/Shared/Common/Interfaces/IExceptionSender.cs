@@ -12,5 +12,5 @@ public interface IExceptionSender
     /// <param name="validationException"></param>
     /// <param name="topicOrURL"></param>
     /// <returns></returns>
-    Task<bool> sendToCreateException(ValidationException validationException, string topicOrURL);
+    Task<bool> sendToCreateException(ValidationException validationException);
 }
