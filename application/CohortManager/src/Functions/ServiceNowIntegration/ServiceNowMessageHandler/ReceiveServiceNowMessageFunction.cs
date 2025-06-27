@@ -21,7 +21,7 @@ public class ReceiveServiceNowMessageFunction
     }
 
     /// <summary>
-    /// Azure Function to receive and log incoming ServiceNow messages.
+    /// Azure Function to receive and validate an incoming ServiceNow message.
     /// </summary>
     /// <param name="req">The HTTP request containing the incoming message payload.</param>
     /// <returns>
