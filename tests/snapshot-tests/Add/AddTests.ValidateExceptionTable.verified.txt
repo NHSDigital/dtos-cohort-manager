@@ -1,0 +1,72 @@
+﻿[
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4144498484,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4527563688,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4785733349,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7093375219,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7290320794,
+    RuleId: 0,
+    RuleDescription: RecordType was not set to an expected value,
+    Category: 10,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7335805996,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7635643460,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  }
+]
