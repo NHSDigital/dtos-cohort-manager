@@ -8,7 +8,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4585-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic3-med-priority Verify OtherGivenName is truncated to 100 characters for nhs number 9995446588"
+        "additionalTags": "@regression @e2e @epic3-med-priority Verify OtherGivenName is added for nhs number 9992949600"
       }
     }
   ],
