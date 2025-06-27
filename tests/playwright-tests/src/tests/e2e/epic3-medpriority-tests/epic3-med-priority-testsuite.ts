@@ -25,3 +25,4 @@
 
 
 export const runnerBasedEpic3MedTestScenariosAdd = "@DTOSS-4967-01|@DTOSS-4975-01"
+export const runnerBasedEpic3MedTestScenariosAmended = "@DTOSS-5286-01"
