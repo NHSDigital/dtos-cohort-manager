@@ -29,13 +29,15 @@ public class ReconciliationService
 
     [Function("InboundMetricsTracker")]
     public async Task Run(
-        [ServiceBusTrigger("mytopic", "mysubscription", Connection = "ServiceBusConnectionString")]
+        [ServiceBusTrigger("%inboundMetricTopic%", "%inboundMetricSub%", Connection = "ServiceBusConnectionString")]
         ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
     {
         _logger.LogInformation("Message ID: {id}", message.MessageId);
         _logger.LogInformation("Message Body: {body}", message.Body);
         _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
+
+        //var metric = message.Body.ToObjectFromJson<>();
 
         // Complete the message
         await messageActions.CompleteMessageAsync(message);
