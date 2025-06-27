@@ -305,9 +305,11 @@ function_apps = {
         app_urls = {
           ExceptionFunctionURL      = "CreateException"
           RetrievePdsDemographicURL = "RetrievePDSDemographic"
+          UnsubscribeNemsSubscriptionUrl = "ManageNemsSubscription"
         }
         static = {
           MeshCertName = "MeshCert"
+          UpdateQueueName = "update-participant-queue"
         }
         storage_containers = {
           NemsMessages = "nems-messages"
