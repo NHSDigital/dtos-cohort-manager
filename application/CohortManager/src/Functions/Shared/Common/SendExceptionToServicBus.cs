@@ -10,14 +10,15 @@ public class SendExceptionToServiceBus : IExceptionSender
 {
     private readonly IQueueClient _serviceBusHandler;
 
-    private readonly ILogger<IExceptionSender> _logger;
-    private readonly serviceBusValidationConfig _serviceBusValidationConfig;
+    private readonly ILogger<SendExceptionToServiceBus> _logger;
+    private readonly ServiceBusValidationConfig _serviceBusValidationConfig;
 
 
-    public SendExceptionToServiceBus(IQueueClient serviceBusHandler, ILogger<IExceptionSender> logger, IOptions<serviceBusValidationConfig> httpValidationConfig)
+    public SendExceptionToServiceBus(IQueueClient serviceBusHandler, ILogger<SendExceptionToServiceBus> logger, IOptions<ServiceBusValidationConfig> serviceBusValidationConfig)
     {
         _serviceBusHandler = serviceBusHandler;
         _logger = logger;
+        _serviceBusValidationConfig = serviceBusValidationConfig.Value;
     }
     public async Task<bool> sendToCreateException(ValidationException validationException)
     {

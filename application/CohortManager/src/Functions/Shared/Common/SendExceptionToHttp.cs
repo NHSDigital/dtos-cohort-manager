@@ -9,7 +9,7 @@ using Model;
 
 public class SendExceptionToHttp : IExceptionSender
 {
-    private IHttpClientFunction _httpClientFunction;
+    private readonly IHttpClientFunction _httpClientFunction;
 
     private readonly HttpValidationConfig _httpValidationConfig;
 

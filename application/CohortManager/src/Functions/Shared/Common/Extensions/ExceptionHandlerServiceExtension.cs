@@ -20,7 +20,7 @@ public static class ExceptionHandlerServiceExtension
 
     public static IHostBuilder AddExceptionHandlerWithServiceBus(this IHostBuilder hostBuilder)
     {
-        hostBuilder.AddConfiguration<serviceBusValidationConfig>(out serviceBusValidationConfig config);
+        hostBuilder.AddConfiguration<ServiceBusValidationConfig>(out ServiceBusValidationConfig config);
         return hostBuilder.ConfigureServices(_ =>
         {
             _.AddSingleton<IExceptionHandler, ExceptionHandler>();
