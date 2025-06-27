@@ -1,4 +1,4 @@
-namespace NHS.Screening.ReceiveCaasFile;
+namespace Common;
 
 using System.Collections.Concurrent;
 using Model;
