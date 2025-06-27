@@ -83,12 +83,11 @@ services:
       - batchDivisionFactor=5
       - UpdateQueueName=update-participant-queue
       - ScreeningLkpDataServiceURL=http://screening-lkp-data-service:8996/api/ScreeningLkpDataService
-      - maxNumberOfChecks=50
       - inboundBlobName=inbound
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
       - ParticipantManagementQueueName=participant-management-queue
-      - UseNewFunctions=false
+      - UseNewFunctions=true
 
   # Participant Management Service
   manage-participant:

@@ -3,156 +3,36 @@ namespace NHS.CohortManager.CohortDistributionServices;
 using System.Net;
 using System.Text.Json;
 using Common;
+using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
+using Model.Enums;
 
 public class DistributeParticipantActivities
 {
-    // TODO: add lookup & static validation
-    [Function(nameof(ValidateParticipant))]
-    public async Task<ValidationExceptionLog> ValidateParticipant(string fileName,
-                                                        CohortDistributionParticipant requestParticipant,
-                                                        CohortDistributionParticipant existingParticipant)
+    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
+    private readonly DistributeParticipantConfig _config;
+    private readonly IHttpClientFunction _httpClient;
+    private readonly ILogger<DistributeParticipantActivities> _logger;
+
+    public DistributeParticipantActivities(IDataServiceClient<CohortDistribution> cohortDistributionClient,
+                                           IDataServiceClient<ParticipantManagement> participantManagementClient,
+                                           IOptions<DistributeParticipantConfig> config,
+                                           IHttpClientFunction httpClientFunction,
+                                           ILogger<DistributeParticipantActivities> logger)
     {
-        var request = new LookupValidationRequestBody
-        {
-            NewParticipant = new Participant(requestParticipant),
-            ExistingParticipant = new Participant(existingParticipant),
-            FileName = fileName,
-            RulesType = RulesType.CohortDistribution
-        };
-
-        var json = JsonSerializer.Serialize(request);
-
-        _logger.LogInformation("Called cohort validation service");
-        var response = await GetResponseAsync(json, _config.LookupValidationURL);
-
-        if (response.StatusCode != HttpStatusCode.OK)
-        {
-            return null;
-        }
-        var exceptionLog = JsonSerializer.Deserialize<ValidationExceptionLog>(response);
-
-        if (exceptionLog.CreatedException)
-        {
-            var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
-            await HandleExceptionAsync(errorMessage, participantData, participantRecord.FileName!);
-
-            var participantManagement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
-            participantManagement.ExceptionFlag = 1;
-
-            var exceptionFlagUpdated = await _participantManagementClient.Update(participantManagement);
-            if (!exceptionFlagUpdated)
-            {
-                throw new IOException("Failed to update exception flag");
-            }
-
-            if (!ignoreParticipantExceptions)
-            {
-                return;
-            }
-        }
+        _cohortDistributionClient = cohortDistributionClient;
+        _participantManagementClient = participantManagementClient;
+        _config = config.Value;
+        _httpClient = httpClientFunction;
+        _logger = logger;
     }
 
-    /// <summary>
-    /// Calls the Transform Data Service and returns the transformed participant
-    /// </summary>
-    /// <returns>
-    /// The transformed CohortDistributionParticipant, or null if there were any exceptions during execution.
-    /// </returns>
-    [Function(nameof(TransformParticipant))]
-    public async Task<CohortDistributionParticipant?> TransformParticipant(string serviceProvider,
-                                                                CohortDistributionParticipant participantData,
-                                                                CohortDistributionParticipant existingParticipant)
-    {
-        var transformDataRequestBody = new TransformDataRequestBody()
-        {
-            Participant = participantData,
-            ServiceProvider = serviceProvider,
-            ExistingParticipant = existingParticipant.ToCohortDistribution()
-        };
 
-        var json = JsonSerializer.Serialize(transformDataRequestBody);
-
-        _logger.LogInformation("Called transform data service");
-        var response = await GetResponseAsync(json, _config.TransformDataServiceURL);
-        if (!string.IsNullOrEmpty(response))
-        {
-            return JsonSerializer.Deserialize<CohortDistributionParticipant>(response);
-        }
-        return null;
-    }
-
-    [Function(nameof(GetCohortDistributionRecord))]
-    public async Task<CohortDistributionParticipant> GetCohortDistributionRecord(string participantId)
-    {
-        long longParticipantId = long.Parse(participantId);
-
-        var cohortDistRecords = await _cohortDistributionClient.GetByFilter(x => x.ParticipantId == longParticipantId);
-        var latestParticipant = cohortDistRecords.OrderByDescending(x => x.CohortDistributionId).FirstOrDefault();
-
-        if (latestParticipant != null)
-        {
-            return new CohortDistributionParticipant(latestParticipant);
-        }
-        else
-        {
-            var participantToReturn = new CohortDistributionParticipant();
-            participantToReturn.NhsNumber = "0";
-
-            return participantToReturn;
-        }
-    }
-
-    [Function(nameof(UpdateExceptionFlag))]
-    public async Task UpdateExceptionFlag()
-    {
-        var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
-        await HandleExceptionAsync(errorMessage, participantData, participantRecord.FileName!);
-
-        var participantManagement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
-        participantManagement.ExceptionFlag = 1;
-
-        var exceptionFlagUpdated = await _participantManagementClient.Update(participantManagement);
-        if (!exceptionFlagUpdated)
-        {
-            throw new IOException("Failed to update exception flag");
-        }
-
-        if (!ignoreParticipantExceptions)
-        {
-            return;
-        }
-    }
-
-    [Function(nameof(AllocateServiceProvider))]
-    public async Task<string?> AllocateServiceProvider(string nhsNumber, string screeningAcronym, string postCode, string errorRecord)
-    {
-
-        if (string.IsNullOrEmpty(postCode))
-        {
-            return string.Empty;
-        }
-        var allocationConfigRequestBody = new AllocationConfigRequestBody
-        {
-            NhsNumber = nhsNumber,
-            Postcode = postCode,
-            ScreeningAcronym = screeningAcronym,
-            ErrorRecord = errorRecord
-        };
-
-        var json = JsonSerializer.Serialize(allocationConfigRequestBody);
-
-        var response = await GetResponseAsync(json, _config.AllocateScreeningProviderURL);
-
-        if (!string.IsNullOrEmpty(response))
-        {
-            return response;
-        }
-        // return null;
-
-    }
-
+    // TODO: make sure all activities are idempotent
     /// <summary>
     /// Calls retrieve participant data which constructs a CohortDistributionParticipant
     /// based on the data from the Participant Management and Demographic tables.
@@ -161,22 +41,66 @@ public class DistributeParticipantActivities
     /// CohortDistributionParticipant, or null if there were any exceptions during execution.
     /// </returns>
     [Function(nameof(RetrieveParticipantData))]
-    public async Task<CohortDistributionParticipant> RetrieveParticipantData(CreateCohortDistributionRequestBody cohortDistributionRequestBody)
+    public async Task<CohortDistributionParticipant> RetrieveParticipantData(BasicParticipantData participantData)
     {
-        var retrieveParticipantRequestBody = new RetrieveParticipantRequestBody()
-        {
-            NhsNumber = cohortDistributionRequestBody.NhsNumber,
-            ScreeningService = cohortDistributionRequestBody.ScreeningService
-        };
+        // TODO: if response = OK but data is null, return exception and do not continue processing
+        long nhsNumber = long.Parse(participantData.NhsNumber);
+        long screeningId = long.Parse(participantData.ScreeningId);
 
-        var requestBody = JsonSerializer.Serialize(retrieveParticipantRequestBody);
-        var response = await GetResponseAsync(requestBody, _config.RetrieveParticipantDataURL);
+        // Get participant management data
+        var participantManagement = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == nhsNumber &&
+                                                                                        p.ScreeningId == screeningId);
 
-        if (!string.IsNullOrEmpty(response))
+        if (participantManagement is null)
         {
-            return JsonSerializer.Deserialize<CohortDistributionParticipant>(response);
+            throw new KeyNotFoundException("Could not find participant in the participant management table");
         }
 
-        // return null;
+        // Get demographic data
+        Dictionary<string, string> demographicFunctionParams = new() { { "Id", participantData.NhsNumber } };
+
+        var demographicDataJson = await _httpClient.SendGet(_config.DemographicDataFunctionURL, demographicFunctionParams)
+            ?? throw new HttpRequestException("Demographic request failed");
+
+        var demographicData = JsonSerializer.Deserialize<Demographic>(demographicDataJson);
+
+        // Create cohort distribution participant
+        CohortDistributionParticipant participant = new(participantManagement, demographicData)
+        {
+            //TODO, This needs to happen elsewhere Hardcoded for now
+            ScreeningName = "Breast Screening",
+            ScreeningAcronym = "BSS"
+        };
+
+        return participant;
+    }
+
+    [Function(nameof(AllocateServiceProvider))]
+    public async Task<string?> AllocateServiceProvider(string screeningAcronym, string postCode)
+    {
+        string configFilePath = Path.Combine(Environment.CurrentDirectory, "AllocateServiceProvider", "allocationConfig.json");
+
+        string configFile = await File.ReadAllTextAsync(configFilePath);
+        var allocationConfigEntries = JsonSerializer.Deserialize<AllocationConfigDataList>(configFile);
+
+        string serviceProvider = allocationConfigEntries.ConfigDataList
+            .Where(item => postCode.StartsWith(item.Postcode, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(item.ScreeningService, screeningAcronym, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(item => item.Postcode.Length)
+            .Select(item => item.ServiceProvider)
+            .FirstOrDefault() ?? "BS SELECT";
+
+        return serviceProvider;
+    }
+
+    [Function(nameof(AddParticipant))]
+    public async Task<bool> AddParticipant(CohortDistributionParticipant transformedParticipant)
+    {
+        transformedParticipant.Extracted = Convert.ToInt32(_config.IsExtractedToBSSelect).ToString();
+        var cohortDistributionParticipantToAdd = transformedParticipant.ToCohortDistribution();
+        var isAdded = await _cohortDistributionClient.Add(cohortDistributionParticipantToAdd);
+
+        _logger.LogInformation("sent participant to cohort distribution data service");
+        return isAdded;
     }
 }

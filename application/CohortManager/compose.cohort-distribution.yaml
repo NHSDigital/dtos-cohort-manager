@@ -13,7 +13,15 @@ services:
       - CohortQueueName=cohort-distribution-queue
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - WEBSITE_HOSTNAME=localhost:8080
-
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - TransformDataServiceURL=http://transform-data-service:7080/api/TransformDataService
+      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - CohortDistributionDataServiceUrl=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
+      - LookupValidationURL=http://lookup-validation:7075/api/LookupValidation
+      - StaticValidationURL=http://static-validation:7074/api/StaticValidation
+      - DemographicDataFunctionURL=http://demographic-data-management:7076/api/DemographicDataFunction
+      - IgnoreParticipantExceptions=false
+      - IsExtractedToBSSelect=true
 
   retrieve-cohort-distribution-data:
     container_name: retrieve-cohort-distribution-data

@@ -57,11 +57,13 @@ public class DurableDemographicFunction
                 );
 
                 // Add timeout-aware logic
-                var task = context.CallActivityAsync<bool>(
+                var task =  context.CallActivityAsync<bool>(
                     nameof(InsertDemographicData),
                     demographicJsonData,
                     options: retryOptions
                 );
+
+                _logger.LogInformation("Insert demorgraphic data has been called");
 
                 // Monitor for timeout
                 var timeoutTask = context.CreateTimer(expirationTime, cts.Token);

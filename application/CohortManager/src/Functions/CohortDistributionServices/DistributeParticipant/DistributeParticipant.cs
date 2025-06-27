@@ -17,148 +17,86 @@ public class DistributeParticipant
 {
     private readonly ILogger<DistributeParticipant> _logger;
     private readonly DistributeParticipantConfig _config;
+    private readonly IExceptionHandler _exceptionHandler;
 
-    public DistributeParticipant(ILogger<DistributeParticipant> logger, IOptions<DistributeParticipantConfig> config)
+    public DistributeParticipant(ILogger<DistributeParticipant> logger, IOptions<DistributeParticipantConfig> config,
+                                IExceptionHandler exceptionHandler)
     {
         _logger = logger;
         _config = config.Value;
+        _exceptionHandler = exceptionHandler;
     }
 
-    // TODO: staic validation
-    [Function(nameof(MyOrchestration))]
-    public async Task MyOrchestration([OrchestrationTrigger] TaskOrchestrationContext context)
+    [Function("DistributeParticipant")]
+    public async Task Run(
+   [ServiceBusTrigger("%CohortQueueName%", Connection = "ServiceBusConnectionString")] string messageBody,
+   [DurableClient] DurableTaskClient durableClient,
+   FunctionContext functionContext)
     {
-        var participantRecord = context.GetInput<BasicParticipantCsvRecord>();
-        var outputs = new List<string>();
+        _logger.LogInformation($"Received message: {messageBody}");
+        var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(messageBody);
 
-        _logger.LogInformation("Orchestration started with input: {input}", input);
-
-        if (string.IsNullOrWhiteSpace(participantRecord.ScreeningService) || string.IsNullOrWhiteSpace(participantRecord.NhsNumber))
+        if (string.IsNullOrWhiteSpace(participantRecord.Participant.ScreeningId) || string.IsNullOrWhiteSpace(participantRecord.Participant.NhsNumber))
         {
-            await HandleExceptionAsync("One or more of the required parameters is missing.", null, participantRecord.FileName);
+            await HandleExceptionAsync(new ArgumentException("One or more of the required parameters is missing"), participantRecord);
             return;
         }
 
+        string instanceId = await durableClient.ScheduleNewOrchestrationInstanceAsync(nameof(DistributeParticipantOrchestrator), participantRecord);
+
+        _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
+    }
+
+    // TODO: staic validation
+    [Function(nameof(DistributeParticipantOrchestrator))]
+    public async Task DistributeParticipantOrchestrator([OrchestrationTrigger] TaskOrchestrationContext context)
+    {
+        var participantRecord = context.GetInput<BasicParticipantCsvRecord>();
         try
         {
             // Retrieve participant data
-            CohortDistributionParticipant participantData = await context.CallActivityAsync(nameof(Activities.RetrieveParticipantData), participantRecord);
-            if (participantData == null || string.IsNullOrEmpty(participantData.ScreeningServiceId))
-            {
-                await HandleExceptionAsync("Participant data returned from database is missing required fields", participantData, participantRecord.FileName);
-                return;
-            }
-
-            CohortDistributionParticipant previousCohortDistributionRecord = await context.CallActivityAsync(nameof(Activities.GetCohortDistributionRecord), participantData.ParticipantId);
+            var participantData = await context.CallActivityAsync<CohortDistributionParticipant>(nameof(Activities.RetrieveParticipantData), participantRecord.Participant);
+            participantData.RecordType = participantRecord.Participant.RecordType;
 
             // Allocate service provider
-            var serviceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
-            serviceProvider = await context.CallActivityAsync(nameof(Activities.RetrieveParticipantData), participantRecord)
-            if (serviceProvider == null)
-            {
-                await HandleExceptionAsync("Could not allocate participant to service provider from postcode", participantData, participantRecord.FileName);
-                return;
-            }
+            string serviceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord);
 
             // Check if participant has exceptions
-            var ignoreParticipantExceptions = _config.IgnoreParticipantExceptions;
-            _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", ignoreParticipantExceptions);
-
-            var participantHasException = participantData.ExceptionFlag == 1;
-            if (participantHasException && !ignoreParticipantExceptions) // Will only run if IgnoreParticipantExceptions is false.
+            _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", _config.IgnoreParticipantExceptions);
+            if (participantData.ExceptionFlag == 1 && !_config.IgnoreParticipantExceptions)
             {
-                await HandleExceptionAsync($"Unable to add to cohort distribution. As participant with ParticipantId: {participantData.ParticipantId}. Has an Exception against it", participantData, participantRecord.FileName!);
+                await HandleExceptionAsync(new ArgumentException("Pariticipant has an unresolved exception, will not add to cohort distribution"), participantRecord);
                 return;
             }
 
-            // Validation
-            participantData.RecordType = participantRecord.RecordType;
-            var validationResponse = 
-            var validationResponse = await _CohortDistributionHelper.ValidateCohortDistributionRecordAsync(participantRecord.FileName!, participantData, previousCohortDistributionRecord);
-
-            // Update participant exception flag
-            if (validationResponse.CreatedException)
-            {
-                var errorMessage = $"Participant {participantData.ParticipantId} triggered a validation rule, so will not be added to cohort distribution";
-                await HandleExceptionAsync(errorMessage, participantData, participantRecord.FileName!);
-
-                var participantManagement = await _participantManagementClient.GetSingle(participantData.ParticipantId);
-                participantManagement.ExceptionFlag = 1;
-
-                var exceptionFlagUpdated = await _participantManagementClient.Update(participantManagement);
-                if (!exceptionFlagUpdated)
-                {
-                    throw new IOException("Failed to update exception flag");
-                }
-
-                if (!ignoreParticipantExceptions)
-                {
-                    return;
-                }
-            }
-            _logger.LogInformation("Validation has passed or exceptions are ignored, the record with participant id: {ParticipantId} will be added to the database", participantData.ParticipantId);
-
-            // Transformation
-            var transformedParticipant = await _CohortDistributionHelper.TransformParticipantAsync(serviceProvider, participantData, previousCohortDistributionRecord);
-            if (transformedParticipant == null)
+            // Validation & Transformation
+            ValidationRecord validationRecord = new() {FileName = participantRecord.FileName, Participant = participantData}; 
+            var transformedParticipant = await context.CallSubOrchestratorAsync<CohortDistributionParticipant?>(nameof(Validation.ValidationOrchestrator), validationRecord);
+            if (transformedParticipant is null)
             {
                 return;
             }
+
+            _logger.LogInformation("Validation has passed or exceptions are ignored, participant will be added to the database");
 
             // Add to cohort distribution table
-            var participantAdded = await AddCohortDistribution(transformedParticipant);
+            var participantAdded = await context.CallActivityAsync<bool>(nameof(Activities.AddParticipant), transformedParticipant);
             if (!participantAdded)
             {
-                await HandleExceptionAsync("Failed to add the participant to the Cohort Distribution table", transformedParticipant, participantRecord.FileName);
+                await HandleExceptionAsync(new InvalidOperationException("Failed to add participant to the table"), participantRecord);
                 return;
             }
             _logger.LogInformation("Participant has been successfully put on the cohort distribution table");
         }
         catch (Exception ex)
         {
-            var errorMessage = $"Create Cohort Distribution failed .\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
-            await HandleExceptionAsync(errorMessage,
-                                    new CohortDistributionParticipant { NhsNumber = participantRecord.NhsNumber },
-                                    participantRecord.FileName!);
-            throw;
+            await HandleExceptionAsync(ex, participantRecord);
         }
     }
 
-    [Function("DistributeParticipant")]
-    public async Task Run(
-       [ServiceBusTrigger("%CohortQueueName%", Connection = "ServiceBusConnectionString")] string messageBody,
-       [DurableClient] DurableTaskClient durableClient,
-       FunctionContext functionContext)
+    private async Task HandleExceptionAsync(Exception ex, BasicParticipantCsvRecord participantRecord)
     {
-        _logger.LogInformation($"Received message: {messageBody}");
-        var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(messageBody);
-
-        // Start a new orchestration instance and pass the message body as input.
-        string instanceId = await durableClient.ScheduleNewOrchestrationInstanceAsync(nameof(MyOrchestration), participantRecord);
-
-        _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
-    }
-
-    private async Task<bool> AddCohortDistribution(CohortDistributionParticipant transformedParticipant)
-    {
-        transformedParticipant.Extracted = DatabaseHelper.ConvertBoolStringToBoolByType("IsExtractedToBSSelect", DataTypes.Integer).ToString();
-        var cohortDistributionParticipantToAdd = transformedParticipant.ToCohortDistribution();
-        var isAdded = await _cohortDistributionClient.Add(cohortDistributionParticipantToAdd);
-
-        _logger.LogInformation("sent participant to cohort distribution data service");
-        return isAdded;
-    }
-
-    private async Task HandleExceptionAsync(string errorMessage, CohortDistributionParticipant cohortDistributionParticipant, string fileName)
-    {
-        _logger.LogError(errorMessage);
-        var participant = new Participant();
-        if (cohortDistributionParticipant != null)
-        {
-            participant = new Participant(cohortDistributionParticipant);
-        }
-
-        await _exceptionHandler.CreateSystemExceptionLog(new Exception(errorMessage), participant, fileName);
-        await _azureQueueStorageHelper.AddAsync<CohortDistributionParticipant>(cohortDistributionParticipant, _config.CohortQueueNamePoison);
+        _logger.LogError(ex, "Distribute Participant failed");
+        await _exceptionHandler.CreateSystemExceptionLog(ex, participantRecord.Participant, participantRecord.FileName);
     }
 }
