@@ -596,14 +596,14 @@
         "LocalParams": [
           {
             "Name": "NewDateOfBirth",
-            "Expression": "string.IsNullOrEmpty(newParticipant.DateOfBirth) ? null : newParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
+            "Expression": "string.IsNullOrEmpty(participant.DateOfBirth) ? null : participant.DateOfBirth.Replace(\"-\", string.Empty)"
           },
           {
             "Name": "ExistingDateOfBirth",
-            "Expression": "string.IsNullOrEmpty(existingParticipant.DateOfBirth) ? null : existingParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
+            "Expression": "string.IsNullOrEmpty(databaseParticipant.DateOfBirth) ? null : databaseParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
           }
         ],
-        "Expression": "existingParticipant.ParticipantId == null || ((newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.FamilyName == existingParticipant.FamilyName AND NewDateOfBirth == ExistingDateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND NewDateOfBirth == ExistingDateOfBirth))"
+        "Expression": "databaseParticipant.ParticipantId == null || ((newParticipant.FamilyName == databaseParticipant.FamilyName AND newParticipant.Gender == databaseParticipant.Gender) OR (newParticipant.FamilyName == databaseParticipant.FamilyName AND NewDateOfBirth == ExistingDateOfBirth) OR (newParticipant.Gender == databaseParticipant.Gender AND NewDateOfBirth == ExistingDateOfBirth))"
       }
     ]
   }
