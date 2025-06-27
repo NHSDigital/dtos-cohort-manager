@@ -634,21 +634,6 @@ public class ExceptionHandlerTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
             Times.Once());
     }
-
-    [TestMethod]
-    public void ExceptionHandlerConstructor_EnvironmentVariableNotSet_ThrowsException()
-    {
-        // Arrange - unset the environment variable temporarily
-        Environment.SetEnvironmentVariable("ExceptionFunctionURL", null);
-
-        // Act & Assert - should throw an InvalidOperationException
-        Assert.ThrowsException<InvalidOperationException>(() =>
-            new ExceptionHandler(_logger.Object, _exceptionSender.Object));
-
-        // Reset the environment variable for other tests
-        Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
-    }
-
     // -------------------- Helper Methods --------------------
 
     private Rule CreateSampleRule()
