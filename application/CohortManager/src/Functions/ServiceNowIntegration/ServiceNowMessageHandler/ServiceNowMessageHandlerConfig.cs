@@ -2,7 +2,7 @@ namespace NHS.CohortManager.ServiceNowIntegrationService;
 
 using System.ComponentModel.DataAnnotations;
 
-public class SendServiceNowMsgConfig
+public class ServiceNowMessageHandlerConfig
 {
     [Required]
     public required string UpdateEndpoint { get; set; }
@@ -17,4 +17,3 @@ public class SendServiceNowMsgConfig
     [Required]
     public required string EndpointPath { get; set; }
 }
-

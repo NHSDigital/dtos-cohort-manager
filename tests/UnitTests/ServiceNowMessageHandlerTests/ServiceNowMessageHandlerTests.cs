@@ -13,7 +13,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NHS.CohortManager.ServiceNowMessageService.Models;
 using NHS.CohortManager.ServiceNowIntegrationService;
 using Moq.Protected;
 
@@ -22,7 +21,7 @@ public class ServiceNowMessageHandlerTests
 {
     private Mock<IHttpClientFactory> _httpClientFactoryMock;
     private Mock<ILogger<ServiceNowMessageHandler>> _loggerMock;
-    private Mock<IOptions<SendServiceNowMsgConfig>> _optionsMock;
+    private Mock<IOptions<ServiceNowMessageHandlerConfig>> _optionsMock;
     private Mock<ICreateResponse> _createResponseMock;
     private Mock<FunctionContext> _contextMock;
     private Mock<HttpRequestData> _httpRequestMock;
@@ -43,8 +42,8 @@ public class ServiceNowMessageHandlerTests
         _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient);
 
         _loggerMock = new Mock<ILogger<ServiceNowMessageHandler>>();
-        _optionsMock = new Mock<IOptions<SendServiceNowMsgConfig>>();
-        _optionsMock.Setup(x => x.Value).Returns(new SendServiceNowMsgConfig
+        _optionsMock = new Mock<IOptions<ServiceNowMessageHandlerConfig>>();
+        _optionsMock.Setup(x => x.Value).Returns(new ServiceNowMessageHandlerConfig
         {
             EndpointPath = "api/now/table/incident",
             Definition = "change_request",
@@ -147,5 +146,4 @@ public class ServiceNowMessageHandlerTests
     }
 
 }
-
 
