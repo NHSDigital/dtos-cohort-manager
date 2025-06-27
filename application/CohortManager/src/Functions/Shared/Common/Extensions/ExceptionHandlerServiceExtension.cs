@@ -25,7 +25,7 @@ public static class ExceptionHandlerServiceExtension
         {
             _.AddSingleton<IExceptionHandler, ExceptionHandler>();
             _.AddTransient<IExceptionSender, SendExceptionToServiceBus>();
-            _.AddTransient<IQueueClient>(_ => new AzureServiceBusClient(config.serviceBusConnectionString));
+            _.AddTransient<IQueueClient>(_ => new AzureServiceBusClient(config.ServiceBusConnectionString));
         });
     }
 

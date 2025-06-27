@@ -1,6 +1,8 @@
 
 namespace Common.Interfaces;
 
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -22,12 +24,12 @@ public class SendExceptionToServiceBus : IExceptionSender
     }
     public async Task<bool> sendToCreateException(ValidationException validationException)
     {
-        var serviceBusTopicName = _serviceBusValidationConfig.serviceBusTopicName;
+        var serviceBusTopicName = _serviceBusValidationConfig.ServiceBusTopicName;
         if (string.IsNullOrWhiteSpace(serviceBusTopicName))
         {
             _logger.LogError("The service bus topic was not set and therefore we cannot sent exception to topic");
             return false;
         }
-        return await _serviceBusHandler.AddAsync<ValidationException>(validationException, serviceBusTopicName);
+        return await _serviceBusHandler.AddAsync(validationException, serviceBusTopicName);
     }
 }
