@@ -33,16 +33,16 @@ public class ReceiveServiceNowMessageFunction
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "servicenow/receive")] HttpRequestData req)
     {
-        ReceiveServiceNowMessageRequestBody receiveServiceNowMessageRequest;
+        ReceiveServiceNowMessageRequestBody requestBody;
 
         try
         {
-            receiveServiceNowMessageRequest = await JsonSerializer.DeserializeAsync<ReceiveServiceNowMessageRequestBody>(req.Body)
+            requestBody = await JsonSerializer.DeserializeAsync<ReceiveServiceNowMessageRequestBody>(req.Body)
                 ?? throw new InvalidOperationException("Deserializating the request body returned null which is invalid.");
 
-            var validationContext = new ValidationContext(receiveServiceNowMessageRequest);
+            var validationContext = new ValidationContext(requestBody);
 
-            Validator.ValidateObject(receiveServiceNowMessageRequest, validationContext, true);
+            Validator.ValidateObject(requestBody, validationContext, true);
         }
         catch (Exception ex)
         {
