@@ -41,9 +41,10 @@ public class ReceiveServiceNowMessageFunctionTests
         var requestBodyJson = JsonSerializer.Serialize(new
         {
             nhs_number = "1234567890",
-            forename = "Charlie",
+            forename_ = "Charlie",
             surname_family_name = "Bloggs",
-            date_of_birth = "1970-01-01"
+            date_of_birth = "1970-01-01",
+            BSO_code = "ABC"
         });
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
@@ -56,19 +57,22 @@ public class ReceiveServiceNowMessageFunctionTests
     }
 
     [TestMethod]
-    [DataRow("{\"forename\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\"}")]                         // NHS Number missing
-    [DataRow("{\"nhs_number\":null,\"forename\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\"}")]     // NHS Number null
-    [DataRow("{\"nhs_number\":\"\",\"forename\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\"}")]     // NHS Number empty
-    [DataRow("{\"nhs_number\":\"1234567890\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\"}")]                    // Forename missing
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename\":null,\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\"}")]  // Forename null
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename\":\"\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\"}")]  // Forename empty
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename\":\"Charlie\",\"date_of_birth\":\"1970-01-01\"}")]                              // Family Name missing
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename\":\"\",\"surname_family_name\":null,\"date_of_birth\":\"1970-01-01\"}")]        // Family Name null
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename\":\"\",\"surname_family_name\":\"\",\"date_of_birth\":\"1970-01-01\"}")]        // Family Name empty
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename\":\"\",\"surname_family_name\":\"Bloggs\",}")]                                  // Date of Birth missing
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename\":\"\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":null}")]            // Date of Birth null
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename\":\"\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"\"}")]            // Date of Birth empty
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename\":\"\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"01-01-1980\"}")]  // Date of Birth incorrect date format
+    [DataRow("{\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]                               // NHS Number missing
+    [DataRow("{\"nhs_number\":null,\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]           // NHS Number null
+    [DataRow("{\"nhs_number\":\"\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]           // NHS Number empty
+    [DataRow("{\"nhs_number\":\"1234567890\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]                           // Forename missing
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":null,\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]        // Forename null
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]        // Forename empty
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]                                    // Family Name missing
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":null,\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]       // Family Name null
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]       // Family Name empty
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"BSO_code\":\"ABC\"}")]                                  // Date of Birth missing
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":null,\"BSO_code\":\"ABC\"}")]           // Date of Birth null
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"\",\"BSO_code\":\"ABC\"}")]           // Date of Birth empty
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"01-01-1980\",\"BSO_code\":\"ABC\"}")] // Date of Birth incorrect date format
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"01-01-1980\"}")]                      // BSO Code missing
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"01-01-1980\",\"BSO_code\":null}")]    // BSO Code null
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"01-01-1980\",\"BSO_code\":\"\"}")]    // BSO Code empty
     public async Task Run_WhenMandatoryPropertyIsMissingOrNullOrEmpty_ReturnsBadRequest(string requestBodyJson)
     {
         // Arrange
