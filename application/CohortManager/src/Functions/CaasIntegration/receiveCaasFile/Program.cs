@@ -10,6 +10,7 @@ using Model;
 using DataServices.Client;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.Options;
+using ReconciliationServiceCore;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -39,9 +40,11 @@ try
         services.AddTransient<IBlobStorageHelper, BlobStorageHelper>();
         services.AddTransient<ICopyFailedBatchToBlob, CopyFailedBatchToBlob>();
         services.AddScoped<IValidateDates, ValidateDates>();
+
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
+    .AddInboundMetricTracker()
     .AddTelemetry()
     .AddHttpClient()
     .AddAzureQueues(config.UseNewFunctions, config.ServiceBusConnectionString)

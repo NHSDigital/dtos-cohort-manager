@@ -11,6 +11,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using ReconciliationServiceCore;
 
 public class ReconciliationService
 {
@@ -18,13 +19,17 @@ public class ReconciliationService
     private readonly ICreateResponse _createResponse;
     private readonly IRequestHandler<InboundMetric> _inboundMetricRequestHandler;
 
+    private readonly IDataServiceAccessor<InboundMetric> _inboundMetricDataServiceAccessor;
+
     public ReconciliationService(ILogger<ReconciliationService> logger,
         ICreateResponse createResponse,
-        IRequestHandler<InboundMetric> inboundMetricRequestHandler)
+        IRequestHandler<InboundMetric> inboundMetricRequestHandler,
+        IDataServiceAccessor<InboundMetric> inboundMetricDataServiceAccessor)
     {
         _logger = logger;
         _createResponse = createResponse;
         _inboundMetricRequestHandler = inboundMetricRequestHandler;
+        _inboundMetricDataServiceAccessor = inboundMetricDataServiceAccessor;
     }
 
     [Function("InboundMetricsTracker")]
@@ -37,10 +42,39 @@ public class ReconciliationService
         _logger.LogInformation("Message Body: {body}", message.Body);
         _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
 
-        //var metric = message.Body.ToObjectFromJson<>();
+        var metric = message.Body.ToObjectFromJson<InboundMetricRequest>();
 
-        // Complete the message
+        if (metric == null)
+        {
+            _logger.LogError("Metric message was empty");
+            await messageActions.DeadLetterMessageAsync(message);
+            return;
+        }
+
+
+
+        var metricId = Guid.NewGuid();
+        var inboundMetric = new InboundMetric
+        {
+            MetricAuditId = Guid.NewGuid(),
+            ProcessName = metric.AuditProcess,
+            ReceivedDateTime = metric.ReceivedDateTime,
+            Source = metric.Source,
+            RecordCount = metric.RecordCount
+
+        };
+
+        var result = await _inboundMetricDataServiceAccessor.InsertSingle(inboundMetric);
+
+        if (!result)
+        {
+            _logger.LogWarning("Metric failed to add to the database, Message will be deferred");
+            await messageActions.DeferMessageAsync(message);
+        }
+
+
         await messageActions.CompleteMessageAsync(message);
+
     }
 
     [Function("ReconcileParticipants")]

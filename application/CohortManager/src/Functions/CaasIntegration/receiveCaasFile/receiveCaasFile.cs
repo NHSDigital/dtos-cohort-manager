@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Common;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
+using ReconciliationServiceCore;
 
 public class ReceiveCaasFile
 {
@@ -19,6 +20,7 @@ public class ReceiveCaasFile
     private readonly ReceiveCaasFileConfig _config;
     private readonly IBlobStorageHelper _blobStorageHelper;
     private readonly IExceptionHandler _exceptionHandler;
+    private readonly IInboundMetricClient _inboundMetricClient;
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
@@ -26,7 +28,8 @@ public class ReceiveCaasFile
         IDataServiceClient<ScreeningLkp> screeningLkpClient,
         IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig,
         IBlobStorageHelper blobStorageHelper,
-        IExceptionHandler exceptionHandler
+        IExceptionHandler exceptionHandler,
+        IInboundMetricClient inboundMetricClient
         )
     {
         _logger = logger;
@@ -35,6 +38,7 @@ public class ReceiveCaasFile
         _config = receiveCaasFileConfig.Value;
         _blobStorageHelper = blobStorageHelper;
         _exceptionHandler = exceptionHandler;
+        _inboundMetricClient = inboundMetricClient;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -65,6 +69,8 @@ public class ReceiveCaasFile
 
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
+
+
                 // A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.
                 for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
                 {
@@ -90,6 +96,9 @@ public class ReceiveCaasFile
                     listOfAllValues.Clear();
                     values.ToList().Clear();
                 }
+
+                await _inboundMetricClient.LogInboundMetric(name, Convert.ToInt32(rowReader.FileMetaData.NumRows));
+
             }
             _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.Now);
         }

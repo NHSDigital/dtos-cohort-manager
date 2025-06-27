@@ -12,7 +12,6 @@ var host = new HostBuilder()
     .AddDataServicesHandler<DataServicesContext>()
     .ConfigureServices(services =>
     {
-        // Register health checks
         services.AddDatabaseHealthCheck("ReconciliationService");
         services.AddSingleton<ICreateResponse, CreateResponse>();
     })
