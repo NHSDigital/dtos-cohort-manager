@@ -38,21 +38,6 @@ public class ServiceNowMessageHandler
         }
 
         /// <summary>
-        /// Azure Function to receive and log incoming ServiceNow messages.
-        /// </summary>
-        /// <param name="req">The HTTP request containing the incoming message payload.</param>
-        /// <returns>A 200 OK HTTP response containing the original body content.</returns>
-        [Function("ReceiveServiceNowMessage")]
-        public async Task<HttpResponseData> ReceiveServiceNowMessage(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "servicenow/receive")] HttpRequestData req)
-        {
-            _logger.LogInformation("ReceiveServiceNowMessage function triggered.");
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            _logger.LogInformation("Received body: {Body}", requestBody);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, requestBody);
-        }
-
-        /// <summary>
         /// Azure Function to send a message to the ServiceNow API, with automatic token refresh handling.
         /// </summary>
         /// <param name="req">The HTTP request containing the message to be sent.</param>
