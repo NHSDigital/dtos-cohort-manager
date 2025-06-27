@@ -109,7 +109,7 @@ public class LookupValidationTests
             Path.Combine("../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
-            
+
             // Try with the ScreeningValidationService root directory
             Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService", filename),
             Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService", filename)
@@ -220,7 +220,7 @@ public class LookupValidationTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.TooManyDemographicsFieldsChanged.NBO.NonFatal")),
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.TooManyDemographicsFieldsChanged.Confusion.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }

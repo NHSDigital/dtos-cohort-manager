@@ -155,16 +155,6 @@ public class ExceptionHandler : IExceptionHandler
     }
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
-        // Handle null or empty collection
-        if (validationErrors == null || !validationErrors.Any())
-        {
-            return new ValidationExceptionLog
-            {
-                IsFatal = false,
-                CreatedException = false
-            };
-        }
-
         var errorCount = validationErrors.Count();
         bool isSingleConfusionError = false;
 
