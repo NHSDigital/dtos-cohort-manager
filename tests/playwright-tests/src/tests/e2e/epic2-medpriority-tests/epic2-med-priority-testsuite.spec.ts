@@ -1,10 +1,6 @@
-import { getRecordsFromExceptionService } from '../../../api/dataService/exceptionService';
-import { getRecordsFromBsSelectRetrieveAudit, getRecordsFromBsSelectRetrieveCohort } from '../../../api/distributionService/bsSelectService';
-import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
-import { expect, test, testWithAmended, testWithTwoAmendments } from '../../fixtures/test-fixtures';
+import { test, testWithTwoAmendments } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
-import { processFileViaStorage, validateSqlDatabaseFromAPI, verifyBlobExists } from "../../steps/steps";
-import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
+import { processFileViaStorage, validateSqlDatabaseFromAPI } from "../../steps/steps";
 
 
 test.describe('@regression @e2e @epic2-medium-priority Tests', () => {
