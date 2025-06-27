@@ -109,7 +109,7 @@ public class LookupValidationTests
             Path.Combine("../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
-            
+
             // Try with the ScreeningValidationService root directory
             Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService", filename),
             Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService", filename)
@@ -191,6 +191,7 @@ public class LookupValidationTests
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
+    /*
 
     [TestMethod]
     [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Male, "19700101")]     // New Family Name & Gender
@@ -258,6 +259,7 @@ public class LookupValidationTests
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
+    */
 
     [TestMethod]
     [DataRow("RDR", null, null)] // postcode and primary care provider null

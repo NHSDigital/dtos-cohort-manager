@@ -1,24 +1,5 @@
 [
   {
-    "WorkflowName": "Common",
-    "Rules": [
-      {
-        "RuleName": "35.TooManyDemographicsFieldsChanged.NBO.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "NewDateOfBirth",
-            "Expression": "string.IsNullOrEmpty(newParticipant.DateOfBirth) ? null : newParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
-          },
-          {
-            "Name": "ExistingDateOfBirth",
-            "Expression": "string.IsNullOrEmpty(existingParticipant.DateOfBirth) ? null : existingParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
-          }
-        ],
-        "Expression": "existingParticipant.ParticipantId == null || ((newParticipant.FamilyName == existingParticipant.FamilyName AND newParticipant.Gender == existingParticipant.Gender) OR (newParticipant.FamilyName == existingParticipant.FamilyName AND NewDateOfBirth == ExistingDateOfBirth) OR (newParticipant.Gender == existingParticipant.Gender AND NewDateOfBirth == ExistingDateOfBirth))"
-      }
-    ]
-  },
-  {
     "WorkflowName": "AMENDED",
     "Rules": [
       {
