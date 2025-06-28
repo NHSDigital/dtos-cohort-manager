@@ -6,7 +6,7 @@ import { getRecordsFromParticipantManagementService, BlockParticipant, UnblockPa
 // This test uses the previous tests' state save on code repeat
 test.describe.serial(' @api Positive - The UpdateBlockFlag function called', async () => {
 
-  test.only('@DTOSS-7694-01 200 @smoke @api - @TC2_SIT Verify the ability to Block a participant then Unblock them', async ({ request }, testInfo) => {
+  test('@DTOSS-7694-01 200 @smoke @api - @TC2_SIT Verify the ability to Block a participant then Unblock them', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
 
