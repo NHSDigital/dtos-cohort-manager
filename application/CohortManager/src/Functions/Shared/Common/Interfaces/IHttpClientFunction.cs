@@ -47,7 +47,7 @@ public interface IHttpClientFunction
     /// - <c>Authorization</c> with a Bearer token,
     /// - <c>fromASID</c> and <c>toASID</c> to specify the sender and receiver ASID values,
     /// - <c>Interaction-ID</c> to specify the interaction ID of the subscription creation process.
-     /// This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. Currently it's just a basic structure.
+    /// This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. Currently it's just a basic structure.
     /// </remarks>
     Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid);
 

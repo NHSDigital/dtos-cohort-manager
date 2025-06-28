@@ -3,14 +3,22 @@ export interface ExceptionDetails {
   dateCreated: string;
   shortDescription: string;
   nhsNumber?: string;
-  name: string;
+  surname: string;
+  forename: string;
   dateOfBirth?: string;
-  gender?: string;
+  gender?: number;
   address?: string;
   contactDetails?: {
     phoneNumber?: string;
     email?: string;
   };
-  gpPracticeCode?: string;
-  gpPracticeAddress?: string;
+  primaryCareProvider: string;
+  serviceNowId?: string;
+  serviceNowCreatedDate?: string;
+}
+
+export interface ReportDetails {
+  reportId: string;
+  dateCreated: string;
+  description: string;
 }

@@ -90,6 +90,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return isValidToken;
     },
     async jwt({ account, token, profile }) {
+      if (account?.access_token) {
+        try {
+          const response = await fetch(
+            `${process.env.AUTH_CIS2_ISSUER_URL}/openam/oauth2/realms/root/realms/NHSIdentity/realms/Healthcare/userinfo`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${account.access_token}`,
+              },
+            }
+          );
+          if (!response.ok) {
+            throw new Error("Failed to call the userinfo endpoint from CIS2");
+          }
+          const userInfo: Profile = await response.json();
+          token.profile = userInfo;
+        } catch (error) {
+          console.error("Error fetching user info:", error);
+          return token;
+        }
+      }
+
       // Handle test accounts in development
       if (
         process.env.NODE_ENV === "development" &&

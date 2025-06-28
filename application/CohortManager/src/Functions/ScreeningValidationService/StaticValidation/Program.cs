@@ -15,6 +15,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("StaticValidation");
     })
+    .AddTelemetry()
     .AddExceptionHandler()
     .AddHttpClient()
     .Build();

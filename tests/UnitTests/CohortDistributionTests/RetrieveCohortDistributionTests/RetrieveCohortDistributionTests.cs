@@ -9,6 +9,7 @@ using Data.Database;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Moq;
 using NHS.CohortManager.CohortDistributionDataServices;
@@ -22,16 +23,18 @@ public class RetrieveCohortDistributionTests
     private readonly RetrieveCohortDistributionData _sut;
     private readonly ICreateCohortDistributionData _createCohortDistribution;
     private readonly Mock<ILogger<RetrieveCohortDistributionData>> _retrieveCohortLogger = new();
-    private readonly Mock<ILogger<CreateCohortDistributionData>> _createCohortLogger = new();
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionDataClient = new();
     private readonly Mock<IDataServiceClient<BsSelectRequestAudit>> _requestAuditDistributionDataClient = new();
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
+    private readonly Mock<IOptions<RetrieveCohortDistributionConfig>> _config = new();
 
     public RetrieveCohortDistributionTests()
     {
-        _createCohortDistribution = new CreateCohortDistributionData(_createCohortLogger.Object, _cohortDistributionDataClient.Object, _requestAuditDistributionDataClient.Object);
-        _sut = new RetrieveCohortDistributionData(_retrieveCohortLogger.Object, _createCohortDistribution, _createResponse.Object, _exceptionHandler.Object);
+
+        _config.Setup(i => i.Value).Returns(new RetrieveCohortDistributionConfig());
+        _createCohortDistribution = new CreateCohortDistributionData(_cohortDistributionDataClient.Object, _requestAuditDistributionDataClient.Object);
+        _sut = new RetrieveCohortDistributionData(_retrieveCohortLogger.Object, _createCohortDistribution, _createResponse.Object, _exceptionHandler.Object, _config.Object);
 
         _createResponse.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string?>()))
             .Returns((HttpStatusCode statusCode, HttpRequestData req, string? ResponseBody) =>
@@ -118,17 +121,36 @@ public class RetrieveCohortDistributionTests
 
     }
     [TestMethod]
-    public async Task Run_GetBatchNoRowCountOrRequestId_ReturnsBadRequest()
+    public async Task Run_GetBatchNoRowCountOrRequestId_ReturnsOkData()
     {
         // arrange
         NameValueCollection urlQueryItems = new NameValueCollection();
         var req = _setupRequest.Setup(null, urlQueryItems);
 
+        var cohortDistributionParticipant = new CohortDistribution { NHSNumber = 123456789 };
+        var participantsList = new List<CohortDistribution>
+        {
+            cohortDistributionParticipant
+        };
+
+        _cohortDistributionDataClient
+            .Setup(x => x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
+            .ReturnsAsync(participantsList);
+
+        _cohortDistributionDataClient
+            .Setup(x => x.GetSingle(It.IsAny<string>()))
+            .ReturnsAsync(cohortDistributionParticipant);
+
+        _cohortDistributionDataClient
+            .Setup(x => x.Update(It.IsAny<CohortDistribution>()))
+            .ReturnsAsync(true);
+
+
         // act
         var result = await _sut.Run(req.Object);
 
         // assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
 
     }
     [TestMethod]
@@ -250,6 +272,5 @@ public class RetrieveCohortDistributionTests
 
         // assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-
     }
 }

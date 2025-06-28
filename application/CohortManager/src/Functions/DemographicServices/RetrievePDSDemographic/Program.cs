@@ -4,8 +4,8 @@ using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using DataServices.Client;
-using NHS.Screening.RetrievePDSDemographic;
 using Model;
+using NHS.CohortManager.DemographicServices;
 
 var host = new HostBuilder()
     .AddConfiguration<RetrievePDSDemographicConfig>(out RetrievePDSDemographicConfig config)
@@ -21,6 +21,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("RetrievePdsDemographic");
     })
+    .AddTelemetry()
     .AddHttpClient()
     .Build();
 

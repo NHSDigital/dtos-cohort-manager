@@ -23,6 +23,7 @@ var host = new HostBuilder()
     })
     .AddExceptionHandler()
     .AddHttpClient()
+    .AddTelemetry()
     .Build();
 
 await host.RunAsync();

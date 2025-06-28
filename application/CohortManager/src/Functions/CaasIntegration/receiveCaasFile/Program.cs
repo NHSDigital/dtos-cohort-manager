@@ -35,17 +35,15 @@ try
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
-        services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddTransient<IBlobStorageHelper, BlobStorageHelper>();
         services.AddTransient<ICopyFailedBatchToBlob, CopyFailedBatchToBlob>();
-
         services.AddScoped<IValidateDates, ValidateDates>();
-        services.AddScoped<IQueueClientFactory, QueueClientFactory>();
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");
     })
+    .AddTelemetry()
     .AddHttpClient()
-    .AddAzureQueues()
+    .AddAzureQueues(config.UseNewFunctions, config.ServiceBusConnectionString)
     .AddExceptionHandler()
     .AddDatabaseConnection()
     .Build();
