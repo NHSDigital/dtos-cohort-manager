@@ -14,12 +14,15 @@ var host = new HostBuilder()
         .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
         .AddDataService<ParticipantDemographic>(config.ParticipantDemographicDataServiceURL)
         .Build()
-    .ConfigureServices(services => {
+    .ConfigureServices(services =>
+    {
         // Register health checks
         services.AddBasicHealthCheck("Update Blocked Flag");
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IExceptionHandler, ExceptionHandler>();
     })
+    .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
