@@ -19,6 +19,12 @@ export const getRecordsFromBsSelectRetrieveAudit = (
   return apiClient.get(request, `${config.endpointBsSelectRetrieveCohortRequestAudit}${config.routeBsSelectRetrieveCohortRequestAudit}`, params);
 };
 
+export const getRecordsFromParticipantManagementService = (
+  request: APIRequestContext
+): Promise<ApiResponse> => {
+  return apiClient.get(request, `${config.endpointParticipantManagementDataService}api/${config.participantManagementService}`);
+};
+
 export const deleteParticipant = (
   request: APIRequestContext,
   payload: {
@@ -29,4 +35,28 @@ export const deleteParticipant = (
 ): Promise<ApiResponse> => {
   const endpoint = `${config.endpointBsSelectDeleteParticipant}${config.routeBsSelectDeleteParticipant}`;
   return apiClient.post(request, endpoint, payload);
+};
+
+export const BlockParticipant = (
+  request: APIRequestContext,
+  payload: {
+    NhsNumber: string;
+    FamilyName: string;
+    DateOfBirth: string;
+  }
+): Promise<ApiResponse> => {
+  const endpoint = `${config.endpointBsSelectUpdateBlockFlag}${config.routeBsSelectBlockParticipant}`;
+  return apiClient.postWithQuery(request, endpoint, payload);
+};
+
+export const UnblockParticipant = (
+  request: APIRequestContext,
+  payload: {
+    NhsNumber: string;
+    FamilyName: string;
+    DateOfBirth: string;
+  }
+): Promise<ApiResponse> => {
+  const endpoint = `${config.endpointBsSelectUpdateBlockFlag}${config.routeBsSelectUnblockParticipant}`;
+  return apiClient.postWithQuery(request, endpoint, payload);
 };

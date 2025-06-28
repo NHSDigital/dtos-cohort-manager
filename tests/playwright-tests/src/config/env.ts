@@ -16,6 +16,7 @@ const endpointExceptionManagementDataService = process.env.ENDPOINT_EXCEPTION_MA
 const endpointBsSelectRetrieveCohortDistributionData = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '';
 const endpointBsSelectRetrieveCohortRequestAudit = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_REQUEST_AUDIT ?? '';
 const endpointBsSelectDeleteParticipant = process.env.ENDPOINT_BS_SELECT_DELETE_PARTICIPANT ?? '';
+const endpointBsSelectUpdateBlockFlag = process.env.ENDPOINT_BS_SELECT_UPDATE_BLOCK_FLAG ?? '';
 
 export const config = {
   baseURL,
@@ -28,9 +29,12 @@ export const config = {
   endpointBsSelectRetrieveCohortDistributionData: endpointBsSelectRetrieveCohortDistributionData,
   endpointBsSelectRetrieveCohortRequestAudit: endpointBsSelectRetrieveCohortRequestAudit,
   endpointBsSelectDeleteParticipant: endpointBsSelectDeleteParticipant,
+  endpointBsSelectUpdateBlockFlag: endpointBsSelectUpdateBlockFlag,
   routeBsSelectRetrieveCohortDistributionData: 'api/RetrieveCohortDistributionData',
   routeBsSelectRetrieveCohortRequestAudit: 'api/RetrieveCohortRequestAudit',
   routeBsSelectDeleteParticipant: 'api/DeleteParticipant',
+  routeBsSelectBlockParticipant: 'api/BlockParticipant',
+  routeBsSelectUnblockParticipant: 'api/UnblockParticipant',
   cohortDistributionService: 'CohortDistributionDataService',
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',
