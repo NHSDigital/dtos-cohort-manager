@@ -1,10 +1,13 @@
 namespace Common;
 
 using System.Net;
+using System.Net.Http.Headers;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 
 public class HttpClientFunction : IHttpClientFunction
 {
@@ -83,9 +86,34 @@ public class HttpClientFunction : IHttpClientFunction
         }
     }
 
-    public async Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid)
+    public async Task<HttpResponseMessage> SendNemsPost(
+        string url,
+        string subscriptionJson,
+        string jwtToken,
+        string fromAsid,
+        string toAsid,
+        X509Certificate2 clientCertificate = null,
+        bool bypassCertValidation = false)
     {
-        using var client = _factory.CreateClient();
+        var handler = new HttpClientHandler();
+
+        // Add client certificate for mutual TLS authentication
+        if (clientCertificate != null)
+        {
+            handler.ClientCertificates.Add(clientCertificate);
+            _logger.LogInformation("Added client certificate for NEMS authentication");
+        }
+
+        if (bypassCertValidation)
+        {
+            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+            {
+                _logger.LogWarning("Bypassing server certificate validation - DO NOT USE IN PRODUCTION");
+                return true;
+            };
+        }
+
+        using var client = new HttpClient(handler);
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
 
@@ -94,14 +122,40 @@ public class HttpClientFunction : IHttpClientFunction
             Content = new StringContent(subscriptionJson, Encoding.UTF8, "application/fhir+json")
         };
 
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", spineAccessToken);
+        // Add required NEMS headers
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
         request.Headers.Add("fromASID", fromAsid);
         request.Headers.Add("toASID", toAsid);
-        request.Headers.Add("Interaction-ID", "urn:nhs:names:services:nems:CreateSubscription");
+        request.Headers.Add("InteractionID", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiPost"); // Corrected InteractionID
+
+        _logger.LogInformation("Sending NEMS POST to: {Url}", url);
+
+        _logger.LogInformation("Headers:");
+        foreach (var header in request.Headers)
+        {
+            _logger.LogInformation("  {0}: {1}", header.Key, string.Join(",", header.Value));
+        }
+
+        if (request.Content != null)
+        {
+            var contentString = await request.Content.ReadAsStringAsync();
+            _logger.LogInformation("Request Body:\n{0}", contentString);
+        }
+
 
         try
         {
             var response = await client.SendAsync(request);
+
+            _logger.LogInformation("NEMS API Response: {StatusCode}", response.StatusCode);
+
+            // Log response for debugging
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("NEMS API Error Response: {Response}", responseContent);
+            }
+
             return response;
         }
         catch (Exception ex)
@@ -109,6 +163,117 @@ public class HttpClientFunction : IHttpClientFunction
             _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
             throw;
         }
+    }
+
+    public async Task<HttpResponseMessage> SendNemsDelete(
+        string url,
+        string jwtToken,
+        string fromAsid,
+        string toAsid,
+        X509Certificate2 clientCertificate = null,
+        bool bypassCertValidation = false)
+    {
+        var handler = new HttpClientHandler();
+
+        if (clientCertificate != null)
+        {
+            handler.ClientCertificates.Add(clientCertificate);
+        }
+
+        if (bypassCertValidation)
+        {
+            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+            {
+                _logger.LogWarning("Bypassing server certificate validation - DO NOT USE IN PRODUCTION");
+                return true;
+            };
+        }
+
+        using var client = new HttpClient(handler);
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        var request = new HttpRequestMessage(HttpMethod.Delete, url);
+
+        // Add required NEMS headers for delete
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
+        request.Headers.Add("fromASID", fromAsid);
+        request.Headers.Add("toASID", toAsid);
+        request.Headers.Add("InteractionID", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiDelete");
+
+
+        _logger.LogInformation("Sending NEMS DELETE to: {Url}", url);
+
+        _logger.LogInformation("Headers:");
+        foreach (var header in request.Headers)
+        {
+            _logger.LogInformation("  {0}: {1}", header.Key, string.Join(",", header.Value));
+        }
+
+        if (request.Content != null)
+        {
+            var contentString = await request.Content.ReadAsStringAsync();
+            _logger.LogInformation("Request Body:\n{0}", contentString);
+        }
+
+
+        try
+        {
+            var response = await client.SendAsync(request);
+
+            _logger.LogInformation("NEMS API Response: {StatusCode}", response.StatusCode);
+            // Log response for debugging
+            if (!response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("NEMS API Error Response: {Response}", responseContent);
+            }
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Generates a JWT token for NEMS API authentication
+    /// </summary>
+    /// <param name="asid">Your ASID</param>
+    /// <param name="audience">The NEMS endpoint</param>
+    /// <param name="scope">The required scope (e.g., patient/Subscription.write)</param>
+    /// <returns>Unsigned JWT token</returns>
+    public string GenerateNemsJwtToken(string asid, string audience, string scope)
+    {
+        var header = new
+        {
+            alg = "none",
+            typ = "JWT"
+        };
+
+        var payload = new
+        {
+            iss = "https://nems.nhs.uk",
+            sub = $"https://fhir.nhs.uk/Id/accredited-system|{asid}",
+            aud = audience,
+            exp = DateTimeOffset.UtcNow.AddHours(1).ToUnixTimeSeconds(),
+            iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            reason_for_request = "directcare",
+            scope = scope,
+            requesting_system = $"https://fhir.nhs.uk/Id/accredited-system|{asid}"
+        };
+
+        var headerJson = JsonSerializer.Serialize(header);
+        var payloadJson = JsonSerializer.Serialize(payload);
+
+        var headerEncoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(headerJson))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+        var payloadEncoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(payloadJson))
+            .TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+        // Unsigned JWT (signature is empty)
+        return $"{headerEncoded}.{payloadEncoded}.";
     }
 
     public async Task<HttpResponseMessage> SendPut(string url, string data)

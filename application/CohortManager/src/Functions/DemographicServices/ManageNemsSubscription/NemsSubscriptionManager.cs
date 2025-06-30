@@ -3,6 +3,7 @@ namespace NHS.CohortManager.DemographicServices;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Azure;
 using Azure.Data.Tables;
 using Microsoft.Extensions.Logging;
@@ -10,9 +11,17 @@ using System.Net.Http;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
 using Model;
-using Hl7.Fhir.Model;
 using Common;
 using DataServices.Core;
+using System.Security.Cryptography.X509Certificates;
+using Azure.Security.KeyVault.Certificates;
+using Azure.Identity;
+using Hl7.Fhir.Serialization;
+// Use explicit STU3 aliases to avoid R4 conflicts
+using STU3Subscription = Hl7.Fhir.Model.Subscription;
+using STU3Meta = Hl7.Fhir.Model.Meta;
+using STU3ContactPoint = Hl7.Fhir.Model.ContactPoint;
+using System.Text.RegularExpressions;
 
 public class NemsSubscriptionManager
 {
@@ -34,16 +43,62 @@ public class NemsSubscriptionManager
     }
 
     /// <summary>
+    /// Loads the NEMS client certificate from Azure Key Vault or local file
+    /// </summary>
+    /// <returns>X509Certificate2 for NEMS client authentication</returns>
+    private async System.Threading.Tasks.Task<X509Certificate2> LoadNemsClientCertificateAsync()
+    {
+        try
+        {
+            // Azure Key Vault
+            if (!string.IsNullOrEmpty(_config.KeyVaultConnectionString))
+            {
+                _logger.LogInformation("Loading NEMS certificate from Azure Key Vault");
+                var certClient = new CertificateClient(
+                    vaultUri: new Uri(_config.KeyVaultConnectionString),
+                    credential: new DefaultAzureCredential()
+                );
+
+                var certificate = await certClient.DownloadCertificateAsync(_config.NemsKeyName);
+                return certificate.Value;
+            }
+            // Local file (development only)
+            else if (!string.IsNullOrEmpty(_config.NemsLocalCertPath))
+            {
+                _logger.LogInformation("Loading NEMS certificate from local file");
+
+                X509Certificate2 certificate;
+                if (!string.IsNullOrEmpty(_config.NemsLocalCertPassword))
+                {
+                    certificate = new X509Certificate2(_config.NemsLocalCertPath, _config.NemsLocalCertPassword);
+                }
+                else
+                {
+                    certificate = new X509Certificate2(_config.NemsLocalCertPath);
+                }
+
+                return certificate;
+            }
+            else
+            {
+                throw new InvalidOperationException("No certificate configuration found. Please configure either KeyVaultConnectionString or NemsLocalCertPath.");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load NEMS client certificate");
+            throw;
+        }
+    }
+
+    /// <summary>
     /// Looks up the subscription ID for a given NHS number in the database
-    /// </summary> 
+    /// </summary>
     /// <param name="nhsNumber">The NHS number to look up.</param>
     /// <returns>
     /// The subscription ID if found, otherwise null.
     /// </returns>
-    /// <remarks>
-    /// WIP as there will be changes to this method after we are onboarded to the NEMS API.
-    /// </remarks>
-    public async Task <string?> LookupSubscriptionIdAsync(string nhsNumber)
+    public async Task<string?> LookupSubscriptionIdAsync(string nhsNumber)
     {
         try
         {
@@ -64,21 +119,34 @@ public class NemsSubscriptionManager
 
     /// <summary>
     /// Deletes a subscription from the NEMS API using the provided subscription ID.
-    /// </summary> 
+    /// </summary>
     /// <param name="subscriptionId">The subscription ID to delete.</param>
     /// <returns>
-    /// The subscription ID if found, otherwise null.
+    /// True if deletion was successful, otherwise false.
     /// </returns>
-    /// <remarks>
-    /// WIP as there will be changes to this method after we are onboarded to the NEMS API.
-    /// </remarks>
     public async Task<bool> DeleteSubscriptionFromNemsAsync(string subscriptionId)
     {
         try
         {
-            string nemsEndpoint = _config.NemsDeleteEndpoint;
-            bool isSuccess = await _httpClient.SendDelete($"{nemsEndpoint}/{subscriptionId}");
-            return isSuccess;
+            // Generate JWT token for delete operation - use base URL for audience
+            var baseUri = new Uri(_config.NemsFhirEndpoint);
+            var baseUrl = $"{baseUri.Scheme}://{baseUri.Host}";
+            var jwtToken = _httpClient.GenerateNemsJwtToken(
+                _config.FromAsid,
+                baseUrl,
+                "patient/Subscription.write"
+            );
+
+            // Load client certificate
+            var clientCert = await LoadNemsClientCertificateAsync();
+
+            string deleteUrl = $"{_config.NemsFhirEndpoint}/Subscription/{subscriptionId}";
+
+            var bypassCert = _config.BypassServerCertificateValidation;
+
+            var response = await _httpClient.SendNemsDelete(deleteUrl, jwtToken, _config.FromAsid, _config.ToAsid, clientCert, bypassCert);
+
+            return response.IsSuccessStatusCode;
         }
         catch (Exception ex)
         {
@@ -88,39 +156,86 @@ public class NemsSubscriptionManager
     }
 
     /// <summary>
-    /// Sends the given subscpription to NEMS
-    /// </summary> 
-    /// <param name="subscription">The serialised subsciption object</param>
+    /// Sends the given subscription to NEMS
+    /// </summary>
+    /// <param name="subscriptionJson">The serialised subscription object</param>
     /// <returns>
-    /// The subscription ID if found, otherwise null.
+    /// The subscription ID if successful, otherwise null.
     /// </returns>
-    /// <remarks>
-    /// WIP as there will be changes to this method after we are onboarded to the NEMS API.
-    /// </remarks>
-    public async Task<Guid> SendSubscriptionToNemsAsync(string subscription)
+    public async Task<string?> SendSubscriptionToNemsAsync(string subscriptionJson)
     {
         try
         {
-            var url = string.Format("{0}/{1}", _config.NemsFhirEndpoint, "Subscription");
-            var response = await _httpClient.SendNemsPost(
-                url,
-                subscription,
-                _config.SpineAccessToken,
+            var baseUrl = _config.NemsFhirEndpoint.Replace("/STU3", "");
+            var jwtToken = _httpClient.GenerateNemsJwtToken(
                 _config.FromAsid,
-                _config.ToAsid
+                baseUrl,
+                "patient/Subscription.write"
             );
 
-            response.EnsureSuccessStatusCode();
-            Guid subscriptionId = Guid.NewGuid();
-            _logger.LogInformation("Sent subscription to NEMS with ID: {SubscriptionId}", subscriptionId);
-            
-            return subscriptionId;
+            var clientCert = await LoadNemsClientCertificateAsync();
+            var url = $"{_config.NemsFhirEndpoint}/Subscription";
+            var bypassCert = _config.BypassServerCertificateValidation;
+
+            var response = await _httpClient.SendNemsPost(
+                url,
+                subscriptionJson,
+                jwtToken,
+                _config.FromAsid,
+                _config.ToAsid,
+                clientCert,
+                bypassCert
+            );
+
+            if (response.IsSuccessStatusCode)
+            {
+                if (response.Headers.Location != null)
+                {
+                    var locationPath = response.Headers.Location.ToString();
+                    var subscriptionId = locationPath.Split('/').LastOrDefault();
+
+                    _logger.LogInformation("Successfully created NEMS subscription with ID: {SubscriptionId}", subscriptionId);
+                    return subscriptionId;
+                }
+                else
+                {
+                    _logger.LogWarning("Subscription created but no Location header found in response");
+                    return null;
+                }
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogWarning("NEMS returned error response: {Response}", errorContent);
+
+                // Handle known duplicate error
+                if (errorContent.Contains("DUPLICATE_REJECTED", StringComparison.OrdinalIgnoreCase))
+                {
+                    var match = Regex.Match(errorContent, @"subscription already exists\s*:\s*([a-fA-F0-9]+)");
+                    if (match.Success)
+                    {
+                        var existingId = match.Groups[1].Value;
+                        _logger.LogWarning("Subscription already exists in Spine with ID: {Id}", existingId);
+                        return existingId;
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Duplicate response received but failed to parse existing subscription ID.");
+                    }
+                }
+
+                _logger.LogError("Failed to create NEMS subscription. Status: {StatusCode}, Response: {Response}",
+                    response.StatusCode, errorContent);
+                return null;
+            }
         }
-        catch
+        catch (Exception ex)
         {
-            return Guid.Empty;
+            _logger.LogError(ex, "Exception occurred while sending subscription to NEMS");
+            return null;
         }
     }
+
 
     /// <summary>
     /// Deletes a subscription from the NEMS subscriptions table in the cohort manager database.
@@ -141,31 +256,28 @@ public class NemsSubscriptionManager
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Exception occurred while deleting the subscription}");
+            _logger.LogError(ex, "Exception occurred while deleting the subscription");
             return false;
         }
     }
 
     /// <summary>
-    /// Saves a subscription in the NEMS subscriptions table in the cohort manager database.    
+    /// Saves a subscription in the NEMS subscriptions table in the cohort manager database.
     /// </summary>
     /// <param name="nhsNumber">The NHS number associated with the subscription.</param>
     /// <param name="subscriptionId">The subscription ID to save.</param>
     /// <returns>
     /// A boolean indicating whether the subscription was successfully saved.
     /// </returns>
-    /// <remarks>
-    /// WIP as there will be changes to this method after we are onboarded to the NEMS API.
-    /// </remarks>
-    public async Task<bool> SaveSubscriptionInDatabase(string nhsNumber, Guid subscriptionId)
+    public async Task<bool> SaveSubscriptionInDatabase(string nhsNumber, string subscriptionId)
     {
         try
         {
             _logger.LogInformation("Start saving the SubscriptionId in the database.");
             var subscription = new NemsSubscription
             {
-                SubscriptionId = subscriptionId, //WIP , might change after onboarding as datatype might change
-                NhsNumber = Convert.ToInt64(nhsNumber), //WIP , might change after onboarding as datatype might change
+                SubscriptionId = subscriptionId, // Parse the actual subscription ID from NEMS
+                NhsNumber = Convert.ToInt64(nhsNumber),
                 RecordInsertDateTime = DateTime.UtcNow
             };
             bool subscriptionCreated = await _nemsSubscriptionAccessor.InsertSingle(subscription);
@@ -180,42 +292,159 @@ public class NemsSubscriptionManager
     }
 
     /// <summary>
-    /// Creates a new subscription object for the NEMS API.
+    /// Creates a new subscription object for the NEMS API using proper FHIR STU3 types.
     /// </summary>
     /// <param name="nhsNumber">The NHS number to create the subscription for.</param>
+    /// <param name="eventType">The event type to subscribe to (e.g., pds-record-change-1)</param>
     /// <returns>
-    /// <see cref="Subscription"/> A subscription object
+    /// A STU3 FHIR Subscription object
     /// </returns>
-    /// <remarks>
-    /// WIP as there will be changes to this method after we are onboarded to the NEMS API.
-    /// </remarks>
-    public Subscription CreateSubscription(string nhsNumber)
+    public STU3Subscription CreateSubscription(string nhsNumber, string eventType = "pds-record-change-1")
     {
-        /* This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. */
-        var subscription = new Subscription
+        var subscription = new STU3Subscription
         {
-            Meta = new Meta
+            Meta = new STU3Meta
             {
-                //Profile = new[] { "https://fhir.nhs.uk/StructureDefinition/EMS-Subscription-1" }, // WIP, Will remove this after onboarding
                 Profile = new[] { _config.SubscriptionProfile },
                 LastUpdated = DateTimeOffset.UtcNow
             },
-            Status = Subscription.SubscriptionStatus.Requested,
-            Reason = "NEMS event notification subscription",
-            //Criteria = $"Patient?identifier=https://fhir.nhs.uk/Id/nhs-number|{nhsNumber}", // WIP, Will remove this after onboarding
-            Criteria = $"Patient?identifier={_config.SubscriptionCriteria}|{nhsNumber}",
-            Channel = new Subscription.ChannelComponent
+            Status = STU3Subscription.SubscriptionStatus.Requested,
+            Reason = $"Subscribe to {eventType} events for NHS number {nhsNumber}",
+
+            Criteria = $"/Bundle?type=message&Patient.identifier={_config.SubscriptionCriteria}|{nhsNumber}&MessageHeader.event={eventType}",
+
+            Channel = new STU3Subscription.ChannelComponent
             {
-                Type = Subscription.SubscriptionChannelType.RestHook,
-                Endpoint = _config.CallbackEndpoint,
-                Payload = "application/fhir+json",
-                Header = new[] {
-                    $"Authorization: Bearer {_config.CallAuthToken}",
-                    "X-Correlation-ID: " + Guid.NewGuid().ToString()
-                }
+                Type = STU3Subscription.SubscriptionChannelType.Message, // Use 'message' for MESH delivery
+                Endpoint = _config.MeshMailboxId, // Use MESH mailbox ID, not ODS code
+                Payload = "application/fhir+json"
             }
         };
 
+        _logger.LogInformation("Creating subscription with endpoint: {Endpoint}", subscription.Channel.Endpoint);
+
+
+        subscription.Contact = new List<STU3ContactPoint>
+        {
+            new STU3ContactPoint
+            {
+                System = STU3ContactPoint.ContactPointSystem.Url,
+                Value = $"https://directory.spineservices.nhs.uk/STU3/Organization/{_config.OdsCode}",
+                Use = STU3ContactPoint.ContactPointUse.Work
+            }
+        };
+
+
         return subscription;
+    }
+
+    /// <summary>
+    /// Serializes a subscription object to JSON for sending to NEMS using proper FHIR serialization
+    /// </summary>
+    /// <param name="subscription">The subscription to serialize</param>
+    /// <returns>JSON string representation of the subscription</returns>
+    public string SerializeSubscription(STU3Subscription subscription)
+    {
+        var serializer = new FhirJsonSerializer();
+        return serializer.SerializeToString(subscription);
+    }
+
+    /// <summary>
+    /// Creates and sends a subscription to NEMS, then saves it to the database
+    /// </summary>
+    /// <param name="nhsNumber">NHS number to subscribe to</param>
+    /// <param name="eventType">Event type to subscribe to</param>
+    /// <returns>True if successful, false otherwise</returns>
+    public async Task<bool> CreateAndSendSubscriptionAsync(string nhsNumber, string eventType = "pds-record-change-1")
+    {
+        try
+        {
+            // Check if subscription already exists
+            var existingSubscriptionId = await LookupSubscriptionIdAsync(nhsNumber);
+            if (!string.IsNullOrEmpty(existingSubscriptionId))
+            {
+                _logger.LogInformation("Subscription already exists for NHS number {NhsNumber} with ID {SubscriptionId}",
+                    nhsNumber, existingSubscriptionId);
+                return true;
+            }
+
+            // Create subscription object using proper FHIR STU3 types
+            var subscription = CreateSubscription(nhsNumber, eventType);
+
+            // Serialize to JSON using FHIR serializer
+            var subscriptionJson = SerializeSubscription(subscription);
+
+            // Send to NEMS
+            var subscriptionId = await SendSubscriptionToNemsAsync(subscriptionJson);
+
+            if (!string.IsNullOrEmpty(subscriptionId))
+            {
+                // Save to database
+                var saved = await SaveSubscriptionInDatabase(nhsNumber, subscriptionId);
+
+                if (saved)
+                {
+                    _logger.LogInformation("Successfully created and saved subscription for NHS number {NhsNumber}", nhsNumber);
+                    return true;
+                }
+                else
+                {
+                    _logger.LogError("Failed to save subscription to database for NHS number {NhsNumber}", nhsNumber);
+
+                    // Cleanup: delete from NEMS since database save failed
+                    await DeleteSubscriptionFromNemsAsync(subscriptionId);
+                    return false;
+                }
+            }
+
+            return false;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to create and send subscription for NHS number {NhsNumber}", nhsNumber);
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Removes a subscription both from NEMS and the local database
+    /// </summary>
+    /// <param name="nhsNumber">NHS number to unsubscribe</param>
+    /// <returns>True if successful, false otherwise</returns>
+    public async Task<bool> RemoveSubscriptionAsync(string nhsNumber)
+    {
+        try
+        {
+            // Look up subscription ID
+            var subscriptionId = await LookupSubscriptionIdAsync(nhsNumber);
+            if (string.IsNullOrEmpty(subscriptionId))
+            {
+                _logger.LogWarning("No subscription found for NHS number {NhsNumber} in databse. Continuing unsubscription in NEMS...", nhsNumber);
+                //return false;
+            }
+
+            // Delete from NEMS first
+            var nemsDeleted = await DeleteSubscriptionFromNemsAsync(subscriptionId);
+
+            // Delete from database regardless of NEMS result (cleanup)
+            var dbDeleted = await DeleteSubscriptionFromDatabaseAsync(nhsNumber);
+
+            if (nemsDeleted && dbDeleted)
+            {
+                _logger.LogInformation("Successfully removed subscription for NHS number {NhsNumber}", nhsNumber);
+                return true;
+            }
+            else
+            {
+                _logger.LogWarning("Partial removal for NHS number {NhsNumber}. NEMS: {NemsDeleted}, DB: {DbDeleted}",
+                    nhsNumber, nemsDeleted, dbDeleted);
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to remove subscription for NHS number {NhsNumber}", nhsNumber);
+            return false;
+        }
     }
 }

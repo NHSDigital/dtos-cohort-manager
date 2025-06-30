@@ -1,5 +1,7 @@
 namespace Common;
 
+using System.Security.Cryptography.X509Certificates;
+
 public interface IHttpClientFunction
 {
     /// <summary>
@@ -34,36 +36,38 @@ public interface IHttpClientFunction
     Task<HttpResponseMessage> SendPdsGet(string url);
 
     /// <summary>
-    /// Sends an HTTP POST request to the specified NEMS URL with the provided subscription JSON, headers, and authorization tokens.
+    /// Sends a POST request to NEMS API with proper authentication and headers
     /// </summary>
-    /// <param name="subscriptionJson">The body of the request in JSON format. This represents the subscription details to be sent.</param>
-    /// <param name="spineAccessToken">The authorization token to be included in the request headers for Bearer authentication.</param>
-    /// <param name="fromAsid">The ASID (Application Service Identifier) of the sender, used for the request headers.</param>
-    /// <param name="toAsid">The ASID (Application Service Identifier) of the receiver, used for the request headers.</param>
-    /// <param name="url">URL to be used in request.</param>
-    /// <remarks>
-    /// This method sends a POST request to the specified NEMS endpoint with a JSON body and the necessary authorization headers.
-    /// The request headers include:
-    /// - <c>Authorization</c> with a Bearer token,
-    /// - <c>fromASID</c> and <c>toASID</c> to specify the sender and receiver ASID values,
-    /// - <c>Interaction-ID</c> to specify the interaction ID of the subscription creation process.
-    /// This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. Currently it's just a basic structure.
-    /// </remarks>
-    Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid);
+    /// <param name="url">NEMS API endpoint URL</param>
+    /// <param name="subscriptionJson">FHIR subscription JSON</param>
+    /// <param name="jwtToken">JWT bearer token</param>
+    /// <param name="fromAsid">Source ASID</param>
+    /// <param name="toAsid">Target ASID</param>
+    /// <param name="clientCertificate">Client certificate for mutual TLS</param>
+    /// <returns>HTTP response message</returns>
+    Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string jwtToken, string fromAsid, string toAsid, X509Certificate2 clientCertificate = null, bool bypassCertValidation = false);
 
     /// <summary>
-    /// Performs a PUT request using HttpClient.
+    /// Sends a DELETE request to NEMS API with proper authentication and headers
     /// </summary>
-    /// <param name="url">URL to be used in request.</param>
-    /// <param name="data">Data to be sent in request.</param>
-    /// <returns>HttpResponseMessage<returns>
+    /// <param name="url">NEMS API endpoint URL</param>
+    /// <param name="jwtToken">JWT bearer token</param>
+    /// <param name="fromAsid">Source ASID</param>
+    /// <param name="toAsid">Target ASID</param>
+    /// <param name="clientCertificate">Client certificate for mutual TLS</param>
+    /// <returns>HTTP response message</returns>
+    Task<HttpResponseMessage> SendNemsDelete(string url, string jwtToken, string fromAsid, string toAsid, X509Certificate2 clientCertificate = null, bool bypassCertValidation = false);
+
+    /// <summary>
+    /// Generates an unsigned JWT token for NEMS API authentication
+    /// </summary>
+    /// <param name="asid">Your ASID</param>
+    /// <param name="audience">The NEMS endpoint</param>
+    /// <param name="scope">The required scope</param>
+    /// <returns>Unsigned JWT token string</returns>
+    string GenerateNemsJwtToken(string asid, string audience, string scope);
+
     Task<HttpResponseMessage> SendPut(string url, string data);
-
-    /// <summary>
-    /// Performs a DELETE request using HttpClient.
-    /// </summary>
-    /// <param name="url">URL to be used in request.</param>
-    /// <returns>bool<returns>
     Task<bool> SendDelete(string url);
 
     /// <summary>
