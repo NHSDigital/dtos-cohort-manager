@@ -33,21 +33,37 @@ public class ReceiveServiceNowMessageFunction
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "servicenow/receive")] HttpRequestData req)
     {
-        ReceiveServiceNowMessageRequestBody requestBody;
+        ReceiveServiceNowMessageRequestBody? requestBody;
 
         try
         {
-            requestBody = await JsonSerializer.DeserializeAsync<ReceiveServiceNowMessageRequestBody>(req.Body)
-                ?? throw new InvalidOperationException("Deserializating the request body returned null which is invalid.");
+            requestBody = await JsonSerializer.DeserializeAsync<ReceiveServiceNowMessageRequestBody>(req.Body);
+
+            if (requestBody == null)
+            {
+                _logger.LogError("Request body deserialised to null");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
 
             var validationContext = new ValidationContext(requestBody);
+            var validationResult = new List<ValidationResult>();
+            bool isRequestBodyValid = Validator.TryValidateObject(requestBody, validationContext, validationResult, true);
 
-            Validator.ValidateObject(requestBody, validationContext, true);
+            if (!isRequestBodyValid)
+            {
+                _logger.LogError("Request body failed validation");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize json request body to type {type}", nameof(ReceiveServiceNowMessageRequestBody));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Request body invalid");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            _logger.LogError(ex, "Unexpected error occured");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
 
         return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req);
