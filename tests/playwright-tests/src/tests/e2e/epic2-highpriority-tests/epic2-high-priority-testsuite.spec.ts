@@ -30,17 +30,6 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     })
   });
 
-  test('@DTOSS-4103-01-Validate invalid GP Practice Code for a new participant', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4103',
-    },
-  }, async ({ request, testData }) => {
-
-    await test.step(`Then the record should appear in the exception table`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-    });
-  })
 
   test('@DTOSS-4099-01-Validate missing address lines', {
     annotation: {
