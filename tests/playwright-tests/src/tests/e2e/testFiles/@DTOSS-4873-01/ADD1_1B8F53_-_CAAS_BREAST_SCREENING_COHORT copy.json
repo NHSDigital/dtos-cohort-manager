@@ -8,7 +8,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4873-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's AddressLine4 value is truncated to 35 characters"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify adding participant's AddressLine4 value"
       }
     }
   ],
@@ -33,7 +33,7 @@
       "address_line_1": "AddressLine1AddressLine1AddressLine1",
       "address_line_2": "AddressLine2AddressLine2AddressLine2",
       "address_line_3": "AddressLine3AddressLine3AddressLine3",
-      "address_line_4": "AddressLine4AddressLine4AddressLine4update",
+      "address_line_4": "AddressLine4AddressLine4AddressLine4",
       "address_line_5": "United Kingdom",
       "postcode": "AB43 8JR",
       "paf_key": "Z3S4Q5X8",
