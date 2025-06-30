@@ -419,8 +419,8 @@ public class NemsSubscriptionManager
             var subscriptionId = await LookupSubscriptionIdAsync(nhsNumber);
             if (string.IsNullOrEmpty(subscriptionId))
             {
-                _logger.LogWarning("No subscription found for NHS number {NhsNumber} in databse. Continuing unsubscription in NEMS...", nhsNumber);
-                //return false;
+                _logger.LogWarning("No subscription found for NHS number {NhsNumber} in database.", nhsNumber);
+                return false;
             }
 
             // Delete from NEMS first
