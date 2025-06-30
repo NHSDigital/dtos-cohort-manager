@@ -38,14 +38,7 @@ public class ReceiveServiceNowMessageFunctionTests
     public async Task Run_WhenRequestIsValid_ReturnsAccepted()
     {
         // Arrange
-        var requestBodyJson = JsonSerializer.Serialize(new
-        {
-            nhs_number = "1234567890",
-            forename_ = "Charlie",
-            surname_family_name = "Bloggs",
-            date_of_birth = "1970-01-01",
-            BSO_code = "ABC"
-        });
+        var requestBodyJson = CreateRequestBodyJson("1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC");
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
 
@@ -57,23 +50,13 @@ public class ReceiveServiceNowMessageFunctionTests
     }
 
     [TestMethod]
-    [DataRow("{\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]                               // NHS Number missing
-    [DataRow("{\"nhs_number\":null,\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]           // NHS Number null
-    [DataRow("{\"nhs_number\":\"\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]           // NHS Number empty
-    [DataRow("{\"nhs_number\":\"1234567890\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]                           // Forename missing
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":null,\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]        // Forename null
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]        // Forename empty
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]                                    // Family Name missing
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":null,\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]       // Family Name null
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]       // Family Name empty
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"BSO_code\":\"ABC\"}")]                                  // Date of Birth missing
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":null,\"BSO_code\":\"ABC\"}")]           // Date of Birth null
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"\",\"BSO_code\":\"ABC\"}")]           // Date of Birth empty
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"01-01-1980\",\"BSO_code\":\"ABC\"}")] // Date of Birth incorrect date format
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"01-01-1980\"}")]                      // BSO Code missing
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"01-01-1980\",\"BSO_code\":null}")]    // BSO Code null
-    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"01-01-1980\",\"BSO_code\":\"\"}")]    // BSO Code empty
-    public async Task Run_WhenMandatoryPropertyIsMissingOrNullOrEmpty_ReturnsBadRequest(string requestBodyJson)
+    [DataRow("{}")]
+    [DataRow("{\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]           // NHS Number missing
+    [DataRow("{\"nhs_number\":\"1234567890\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]       // Forename missing
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"date_of_birth\":\"1970-01-01\",\"BSO_code\":\"ABC\"}")]                // Family Name missing
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"BSO_code\":\"ABC\"}")]              // Date of Birth missing
+    [DataRow("{\"nhs_number\":\"1234567890\",\"forename_\":\"Charlie\",\"surname_family_name\":\"Bloggs\",\"date_of_birth\":\"01-01-1980\"}")]  // BSO Code missing
+    public async Task Run_WhenMandatoryPropertyIsMissing_ReturnsBadRequest(string requestBodyJson)
     {
         // Arrange
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
@@ -84,5 +67,46 @@ public class ReceiveServiceNowMessageFunctionTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    [DataRow(null, "Charlie", "Bloggs", "1970-01-01", "ABC")]           // NHS Number null
+    [DataRow("", "Charlie", "Bloggs", "1970-01-01", "ABC")]             // NHS Number empty
+    [DataRow("1234567890", null, "Bloggs", "1970-01-01", "ABC")]        // Forename null
+    [DataRow("1234567890", "", "Bloggs", "1970-01-01", "ABC")]          // Forename empty
+    [DataRow("1234567890", "Charlie", null, "1970-01-01", "ABC")]       // Family Name null
+    [DataRow("1234567890", "Charlie", "", "1970-01-01", "ABC")]         // Family Name empty
+    [DataRow("1234567890", "Charlie", "Bloggs", null, "ABC")]           // Date of Birth null
+    [DataRow("1234567890", "Charlie", "Bloggs", "", "ABC")]             // Date of Birth empty
+    [DataRow("1234567890", "Charlie", "Bloggs", "1970", "ABC")]         // Date of Birth invalid value
+    [DataRow("1234567890", "Charlie", "Bloggs", "1970-01-01", null)]    // BSO code null
+    [DataRow("1234567890", "Charlie", "Bloggs", "1970-01-01", "")]      // BSO code empty
+    public async Task Run_WhenMandatoryPropertyIsNullOrEmptyOrInvalidValue_ReturnsBadRequest(
+        string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode)
+    {
+        // Arrange
+        var requestBodyJson = CreateRequestBodyJson(nhsNumber, forename, familyName, dateOfBirth, bsoCode);
+        var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
+        _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
+
+        // Act
+        var result = await _function.Run(_mockHttpRequest.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    private static string CreateRequestBodyJson(string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode)
+    {
+        var obj = new
+        {
+            nhs_number = nhsNumber,
+            forename_ = forename,
+            surname_family_name = familyName,
+            date_of_birth = dateOfBirth,
+            BSO_code = bsoCode
+        };
+
+        return JsonSerializer.Serialize(obj);
     }
 }
