@@ -1,3 +1,4 @@
+
 # Cohort Manager Database Management Guide
 
 ## 0. Create an `appsettings.json` file (required for migrations to run)
@@ -53,16 +54,42 @@ These are:
 
 ---
 
-## 5. Test the migration
+## 5. Run the migration
 
-Reset your local database schema if needed and apply the migration by running:
+You can run migrations using either of the following methods:
+
+### ✅ Option A: Run manually
+
+From within the `DataServices.Migrations` folder:
 
 ```bash
 dotnet run
 ```
 
-(from within the `DataServices.Migrations` folder)
+This applies all pending migrations and seeds reference data if required.
 
-This will apply the new migration and optionally seed any required data.
+### ✅ Option B: Use the VS Code Task (recommended)
+
+Run the **"Run DB Migrations"** task from the VS Code task list.
+
+This runs the following for you:
+
+- Rebuilds the migrations container (if needed)
+- Applies the new migration to your local DB via Docker Compose
+
+Behind the scenes, this is equivalent to:
+
+```bash
+docker compose -f compose.core.yaml up db-migration
+```
+
+Make sure `db-migration` is defined as a service in `compose.core.yaml`.
 
 ---
+
+## ✅ Summary
+
+- Use `dotnet ef migrations add` to generate a migration
+- Use `dotnet run` or the VS Code task to apply it
+- Use `appsettings.json` locally to supply your DB connection string
+
