@@ -303,12 +303,12 @@ function_apps = {
       storage_account_env_var_name = "caasfolder_STORAGE"
       env_vars = {
         app_urls = {
-          ExceptionFunctionURL      = "CreateException"
-          RetrievePdsDemographicURL = "RetrievePDSDemographic"
+          ExceptionFunctionURL           = "CreateException"
+          RetrievePdsDemographicURL      = "RetrievePDSDemographic"
           UnsubscribeNemsSubscriptionUrl = "ManageNemsSubscription"
         }
         static = {
-          MeshCertName = "MeshCert"
+          MeshCertName    = "MeshCert"
           UpdateQueueName = "update-participant-queue"
         }
         storage_containers = {
