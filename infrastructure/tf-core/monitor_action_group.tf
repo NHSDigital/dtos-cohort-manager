@@ -14,6 +14,18 @@ module "monitor_action_group" {
   webhook_receiver    = each.value.webhook_receiver
 }
 
+module "azurerm_monitor_smart_detector_alert_rule" {
+  for_each = local.monitor_action_group_map
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/monitor-smart-detector-alert-rule"
+
+  resource_group_name = azurerm_resource_group.core[each.value.region].name
+  subscription_id = var.TARGET_SUBSCRIPTION_ID
+  service_health_email_id  = module.monitor_action_group[each.key].service_health_email.id
+  detector_name = "testing"
+
+}
+
 locals {
   monitor_action_group_object_list = flatten([
     for region in keys(var.regions) : [
