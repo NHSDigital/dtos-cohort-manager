@@ -10,7 +10,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4813-01",
         "requirementJiraId": "DTOSS-3872",
-        "additionalTags": "@regression @e2e @epic2-medium-priority TC_exceptions NOT resolved on update for ADD"
+        "additionalTags": "@regression @e2e @epic2-med-priority TC_exceptions NOT resolved on update for ADD"
       }
     },
     {
@@ -21,7 +21,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4813-01",
         "requirementJiraId": "DTOSS-3872",
-        "additionalTags": "@regression @e2e @epic2-medium-priority TC_exceptions NOT resolved on update for ADD"
+        "additionalTags": "@regression @e2e @epic2-med-priority TC_exceptions NOT resolved on update for ADD"
       }
     }
   ],
