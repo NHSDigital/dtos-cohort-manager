@@ -1,7 +1,6 @@
-namespace NHS.Screening.ReceiveCaasFile;
+namespace Common;
 
 using System.Collections.Concurrent;
-using Common;
 using Model;
 
 public class AddBatchToQueue : IAddBatchToQueue
@@ -16,7 +15,7 @@ public class AddBatchToQueue : IAddBatchToQueue
 
     public async Task ProcessBatch(ConcurrentQueue<BasicParticipantCsvRecord> batch, string queueName)
     {
-        if (batch != null && batch.Any())
+        if (batch != null && !batch.IsEmpty)
         {
             await AddMessagesAsync(batch, queueName);
         }
@@ -27,15 +26,17 @@ public class AddBatchToQueue : IAddBatchToQueue
         var itemsToAdd = currentBatch;
 
         // List of tasks to handle messages
-        List<Task> tasks = new List<Task>();
-        tasks.Add(Task.Factory.StartNew(() =>
-        {
-            // Process messages while there are items in the queue
-            while (itemsToAdd.TryDequeue(out var item))
+        List<Task> tasks =
+        [
+            Task.Factory.StartNew(async () =>
             {
-                AddMessage(item, queueName);
-            }
-        }));
+                // Process messages while there are items in the queue
+                while (itemsToAdd.TryDequeue(out var item))
+                {
+                    await AddMessage(item, queueName);
+                }
+            }),
+        ];
 
         // Wait for all tasks to complete
         await Task.WhenAll(tasks.ToArray());
