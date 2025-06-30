@@ -5,7 +5,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9990307199",
         "RuleId": 30,
-        "RuleDescription": "Postcode"
+        "RuleDescription": "Postcode invalid"
       },
       "meta": {
         "testJiraId": "@DTOSS-4089-01",
@@ -18,7 +18,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9990322899",
         "RuleId": 30,
-        "RuleDescription": "Postcode"
+        "RuleDescription": "Postcode invalid"
       },
       "meta": {
         "testJiraId": "@DTOSS-4089-01",
@@ -31,7 +31,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9990328064",
         "RuleId": 30,
-        "RuleDescription": "Postcode"
+        "RuleDescription": "Postcode invalid"
       },
       "meta": {
         "testJiraId": "@DTOSS-4089-01",
@@ -44,7 +44,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9990289743",
         "RuleId": 30,
-        "RuleDescription": "Postcode"
+        "RuleDescription": "Postcode invalid"
       },
       "meta": {
         "testJiraId": "@DTOSS-4089-01",
