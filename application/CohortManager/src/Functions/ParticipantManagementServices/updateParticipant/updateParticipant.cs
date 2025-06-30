@@ -47,9 +47,9 @@ public class UpdateParticipantFunction
 
         try
         {
-            var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, _config.DemographicURIGet);
+            var demographicData = await _checkDemographic.GetDemographicAsync(basicParticipantCsvRecord.BasicParticipantData.NhsNumber, _config.DemographicURIGet);
 
-            var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
+            var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.BasicParticipantData, demographicData);
             var participantCsvRecord = new ParticipantCsvRecord
             {
                 Participant = participant,
@@ -84,14 +84,14 @@ public class UpdateParticipantFunction
         catch (Exception ex)
         {
             _logger.LogError(ex, "Update participant failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.BasicParticipantData, basicParticipantCsvRecord.FileName);
         }
     }
 
     private async Task HandleExceptions(string message, BasicParticipantCsvRecord participantRecord)
     {
         _logger.LogError(message);
-        await _handleException.CreateSystemExceptionLog(new SystemException(message), participantRecord.Participant, participantRecord.FileName);
+        await _handleException.CreateSystemExceptionLog(new SystemException(message), participantRecord.BasicParticipantData, participantRecord.FileName);
     }
 
     private async Task<bool> SendToCohortDistribution(Participant participant, string fileName)

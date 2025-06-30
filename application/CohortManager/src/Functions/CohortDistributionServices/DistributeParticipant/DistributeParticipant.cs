@@ -36,7 +36,7 @@ public class DistributeParticipant
         _logger.LogInformation($"Received message: {messageBody}");
         var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(messageBody);
 
-        if (string.IsNullOrWhiteSpace(participantRecord.Participant.ScreeningId) || string.IsNullOrWhiteSpace(participantRecord.Participant.NhsNumber))
+        if (string.IsNullOrWhiteSpace(participantRecord.BasicParticipantData.ScreeningId) || string.IsNullOrWhiteSpace(participantRecord.BasicParticipantData.NhsNumber))
         {
             await HandleExceptionAsync(new ArgumentException("One or more of the required parameters is missing"), participantRecord);
             return;
@@ -51,12 +51,13 @@ public class DistributeParticipant
     [Function(nameof(DistributeParticipantOrchestrator))]
     public async Task DistributeParticipantOrchestrator([OrchestrationTrigger] TaskOrchestrationContext context)
     {
+        _logger.LogInformation("Orchestration started");
         var participantRecord = context.GetInput<BasicParticipantCsvRecord>();
         try
         {
             // Retrieve participant data
-            var participantData = await context.CallActivityAsync<CohortDistributionParticipant>(nameof(Activities.RetrieveParticipantData), participantRecord.Participant);
-            participantData.RecordType = participantRecord.Participant.RecordType;
+            var participantData = await context.CallActivityAsync<CohortDistributionParticipant>(nameof(Activities.RetrieveParticipantData), participantRecord.BasicParticipantData);
+            participantData.RecordType = participantRecord.BasicParticipantData.RecordType;
 
             // Allocate service provider
             string serviceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord);
@@ -97,6 +98,6 @@ public class DistributeParticipant
     private async Task HandleExceptionAsync(Exception ex, BasicParticipantCsvRecord participantRecord)
     {
         _logger.LogError(ex, "Distribute Participant failed");
-        await _exceptionHandler.CreateSystemExceptionLog(ex, participantRecord.Participant, participantRecord.FileName);
+        await _exceptionHandler.CreateSystemExceptionLog(ex, participantRecord.BasicParticipantData, participantRecord.FileName);
     }
 }

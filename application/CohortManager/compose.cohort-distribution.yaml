@@ -12,7 +12,7 @@ services:
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - CohortQueueName=cohort-distribution-queue
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - WEBSITE_HOSTNAME=localhost:8080
+      - WEBSITE_HOSTNAME=distribute-participant:80
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - TransformDataServiceURL=http://transform-data-service:7080/api/TransformDataService
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService

@@ -41,7 +41,7 @@ public class DistributeParticipantActivities
     /// CohortDistributionParticipant, or null if there were any exceptions during execution.
     /// </returns>
     [Function(nameof(RetrieveParticipantData))]
-    public async Task<CohortDistributionParticipant> RetrieveParticipantData(BasicParticipantData participantData)
+    public async Task<CohortDistributionParticipant> RetrieveParticipantData([ActivityTrigger] BasicParticipantData participantData)
     {
         // TODO: if response = OK but data is null, return exception and do not continue processing
         long nhsNumber = long.Parse(participantData.NhsNumber);
@@ -76,11 +76,13 @@ public class DistributeParticipantActivities
     }
 
     [Function(nameof(AllocateServiceProvider))]
-    public async Task<string?> AllocateServiceProvider(string screeningAcronym, string postCode)
+    public async Task<string?> AllocateServiceProvider([ActivityTrigger] string screeningAcronym, string postCode)
     {
         string configFilePath = Path.Combine(Environment.CurrentDirectory, "AllocateServiceProvider", "allocationConfig.json");
+        System.Console.WriteLine(configFilePath);
 
         string configFile = await File.ReadAllTextAsync(configFilePath);
+        System.Console.WriteLine("json: " + configFile);
         var allocationConfigEntries = JsonSerializer.Deserialize<AllocationConfigDataList>(configFile);
 
         string serviceProvider = allocationConfigEntries.ConfigDataList
@@ -94,7 +96,7 @@ public class DistributeParticipantActivities
     }
 
     [Function(nameof(AddParticipant))]
-    public async Task<bool> AddParticipant(CohortDistributionParticipant transformedParticipant)
+    public async Task<bool> AddParticipant([ActivityTrigger] CohortDistributionParticipant transformedParticipant)
     {
         transformedParticipant.Extracted = Convert.ToInt32(_config.IsExtractedToBSSelect).ToString();
         var cohortDistributionParticipantToAdd = transformedParticipant.ToCohortDistribution();

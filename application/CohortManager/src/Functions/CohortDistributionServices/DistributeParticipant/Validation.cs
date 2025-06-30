@@ -58,7 +58,7 @@ public class Validation
             {
                 _logger.LogError("Participant {ParticipantId} triggered a validation rule", participantRecord.Participant.ParticipantId);
 
-                bool updated = await context.CallActivityAsync<bool>(nameof(UpdateExceptionFlag), participantRecord);
+                bool updated = await context.CallActivityAsync<bool>(nameof(UpdateExceptionFlag), participantRecord.Participant.ParticipantId);
 
                 if (!_config.IgnoreParticipantExceptions)
                 {
@@ -81,7 +81,7 @@ public class Validation
     }
 
     [Function(nameof(GetCohortDistributionRecord))]
-    public async Task<CohortDistributionParticipant> GetCohortDistributionRecord(string participantId)
+    public async Task<CohortDistributionParticipant> GetCohortDistributionRecord([ActivityTrigger] string participantId)
     {
         long longParticipantId = long.Parse(participantId);
 
@@ -102,7 +102,7 @@ public class Validation
     }
 
     [Function(nameof(StaticValidation))]
-    public async Task<ValidationExceptionLog> StaticValidation(ValidationRecord validationRecord)
+    public async Task<ValidationExceptionLog> StaticValidation([ActivityTrigger] ValidationRecord validationRecord)
     {
         var request = new ParticipantCsvRecord
         {
@@ -122,7 +122,7 @@ public class Validation
     }
 
     [Function(nameof(LookupValidation))]
-    public async Task<ValidationExceptionLog> LookupValidation(string fileName,
+    public async Task<ValidationExceptionLog> LookupValidation([ActivityTrigger] string fileName,
                                                     CohortDistributionParticipant requestParticipant,
                                                     CohortDistributionParticipant existingParticipant)
     {
@@ -152,7 +152,7 @@ public class Validation
     /// The transformed CohortDistributionParticipant, or null if there were any exceptions during execution.
     /// </returns>
     [Function(nameof(TransformParticipant))]
-    public async Task<CohortDistributionParticipant?> TransformParticipant(string serviceProvider,
+    public async Task<CohortDistributionParticipant?> TransformParticipant([ActivityTrigger] string serviceProvider,
                                                                         CohortDistributionParticipant participantData,
                                                                         CohortDistributionParticipant existingParticipant)
     {
@@ -174,7 +174,7 @@ public class Validation
     }
 
     [Function(nameof(UpdateExceptionFlag))]
-    public async Task<bool> UpdateExceptionFlag(string participantId)
+    public async Task<bool> UpdateExceptionFlag([ActivityTrigger] string participantId)
     {
         var participantManagement = await _participantManagementClient.GetSingle(participantId);
         participantManagement.ExceptionFlag = 1;

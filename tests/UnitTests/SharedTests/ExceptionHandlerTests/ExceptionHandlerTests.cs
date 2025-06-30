@@ -195,7 +195,7 @@ public class ExceptionHandlerTests
         var participantCsvRecord = new BasicParticipantCsvRecord
         {
             FileName = "file.csv",
-            Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
                      .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
@@ -220,7 +220,7 @@ public class ExceptionHandlerTests
         var participantCsvRecord = new BasicParticipantCsvRecord
         {
             FileName = "file.csv",
-            Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
                      .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.InternalServerError });
@@ -245,7 +245,7 @@ public class ExceptionHandlerTests
         var participantCsvRecord = new BasicParticipantCsvRecord
         {
             FileName = "file.csv",
-            Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         string description = "Schema error occurred";
         _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))
@@ -279,7 +279,7 @@ public class ExceptionHandlerTests
         var participantCsvRecord = new BasicParticipantCsvRecord
         {
             FileName = "file.csv",
-            Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         string description = "Schema error occurred";
         _httpClientFunction.Setup(x => x.SendPost(It.IsAny<string>(), It.IsAny<string>()))

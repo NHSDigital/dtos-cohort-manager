@@ -337,7 +337,7 @@ services:
       dockerfile: DemographicServices/DemographicDurableFunction/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7079
-      - WEBSITE_HOSTNAME=localhost:7079
+      - WEBSITE_HOSTNAME=durable-demographic-function:7079
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
