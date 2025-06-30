@@ -64,7 +64,7 @@ public class CreateExceptionTests
 
         // Assert
         Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]
@@ -94,7 +94,7 @@ public class CreateExceptionTests
         // Assert
         Assert.IsNotNull(result);
         _validationExceptionData.Verify(v => v.Create(It.IsAny<ValidationException>()), Times.Once);
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
     private void SetUpRequestBody(string json)
