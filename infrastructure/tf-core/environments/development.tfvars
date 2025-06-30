@@ -213,6 +213,21 @@ diagnostic_settings = {
   metric_enabled = true
 }
 
+monitor_action_group = {
+
+  action_group = {
+    short_name = "SHA"
+    email_receiver = {
+      alert_team = {
+        name                    = "Service_Health_Alerts"
+        email_address           = "england.dtos-azure-health-alerts@nhs.net"
+        use_common_alert_schema = false
+      }
+    }
+  }
+
+}
+
 function_apps = {
   acr_mi_name = "dtos-cohort-manager-acr-push"
   acr_name    = "acrukshubdevcohman"
