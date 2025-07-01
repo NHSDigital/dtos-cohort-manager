@@ -88,7 +88,7 @@ services:
       - inboundBlobName=inbound
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
-      - ParticipantManagementQueueName=participant-management-queue
+      - ParticipantManagementQueueName=participant-management-topic
       - UseNewFunctions=false
 
   # Participant Management Service
@@ -101,8 +101,8 @@ services:
       dockerfile: ParticipantManagementServices/ManageParticipant/Dockerfile
     environment:
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
-      - CohortQueueName=cohort-distribution-queue
-      - ParticipantManagementQueueName=participant-management-queue
+      - CohortQueueName=cohort-distribution-topic
+      - ParticipantManagementQueueName=participant-management-sub
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       
@@ -233,9 +233,9 @@ services:
       dockerfile: ExceptionHandling/ExceptionCreation/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7070
-      - ExceptionTopic="createExceptionTopic"
-      - ExceptionSubscription="exceptionSub"
-      - ServiceBusConnectionString="Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
+      - ExceptionTopic=create-exception-topic
+      - ExceptionSubscription=create-exception-sub
+      - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
       

@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Options;
 using Model;
 using System.Text.Json;
-using Model.Enums;
 using Common;
 using Activities = DistributeParticipantActivities;
 
@@ -36,9 +35,10 @@ public class DistributeParticipant
     /// <returns></returns>
     [Function("DistributeParticipant")]
     public async Task Run(
-   [ServiceBusTrigger("%CohortQueueName%", Connection = "ServiceBusConnectionString")] string messageBody,
-   [DurableClient] DurableTaskClient durableClient,
-   FunctionContext functionContext)
+   [ServiceBusTrigger("%CohortQueueName%", subscriptionName: "%DistributeParticipantSubName%", Connection = "ServiceBusConnectionString")]
+    string messageBody,
+    [DurableClient] DurableTaskClient durableClient,
+    FunctionContext functionContext)
     {
         try
         {
