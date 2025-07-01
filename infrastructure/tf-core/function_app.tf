@@ -102,11 +102,11 @@ locals {
     "${item.service_bus_key}-${item.function_key}" => item
   }
 
-  assigned_identity_ids = concat([
+  assigned_identity_ids = concat(
     [try(module.global_cohort_rbac.global_uami_id, "")],
     try(var.function_apps.cont_registry_use_mi, false) ? [try(data.azurerm_user_assigned_identity.acr_mi.id, "")] : []
     # Add other IDs if required...
-  ])
+  )
 }
 
 # Use the merged map in your resources
