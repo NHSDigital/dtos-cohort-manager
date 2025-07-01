@@ -48,9 +48,9 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
-        var exceptionStatus = GetExceptionStatus(req, "exceptionStatus");
-        var sortOrder = GetSortOrder(req, "sortOrder");
-        var exceptionCategory = GetExceptionCategory(req);
+        var exceptionStatus = GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
+        var sortOrder = GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
+        var exceptionCategory = GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
 
         try
         {
@@ -89,42 +89,22 @@ public class GetValidationExceptions
         );
     }
 
-    private static ExceptionStatus? GetExceptionStatus(HttpRequestData req, string key)
-    {
-        ExceptionStatus? defaultExceptionStatus = ExceptionStatus.All;
-        var queryString = req.Query[key];
-
-        if (string.IsNullOrEmpty(queryString)) return defaultExceptionStatus;
-
-        return int.TryParse(queryString, out int value) ? (ExceptionStatus)value : defaultExceptionStatus;
-    }
-
-    private static SortOrder? GetSortOrder(HttpRequestData req, string key)
-    {
-        SortOrder? defaultSortOrder = SortOrder.Descending;
-        var queryString = req.Query[key];
-
-        if (string.IsNullOrEmpty(queryString)) return defaultSortOrder;
-
-        return int.TryParse(queryString, out int value) ? (SortOrder)value : defaultSortOrder;
-    }
-
     /// <summary>
-    /// Parses exceptionCategory query parameter if it exists. If not it will default to ExceptionCategory.NBO.
-    /// Note: The default behaviour of this API is to only return exceptions categorised as NBO.
+    /// Parses an enum query parameter if it exists. If not, it will return the provided default value.
     /// </summary>
-    /// <param name="req">The request data</param>
-    /// <returns>ExceptionCategory</returns>
-    private static ExceptionCategory GetExceptionCategory(HttpRequestData req)
+    /// <typeparam name="T">The enum type to parse</typeparam>
+    /// <param name="req">The HTTP request data</param>
+    /// <param name="key">The query parameter key name</param>
+    /// <param name="defaultValue">The default value to return if parsing fails or the parameter is missing</param>
+    /// <returns>The parsed enum value or the default value</returns>
+    private static T GetEnumQueryParameter<T>(HttpRequestData req, string key, T defaultValue) where T : struct, Enum
     {
-        var defaultCategory = ExceptionCategory.NBO;
-        var queryString = req.Query["exceptionCategory"];
-
-        if (queryString.IsNullOrEmpty())
+        var queryString = req.Query[key];
+        if (string.IsNullOrEmpty(queryString))
         {
-            return defaultCategory;
+            return defaultValue;
         }
 
-        return int.TryParse(queryString, out int value) ? (ExceptionCategory)value : defaultCategory;
+        return Enum.TryParse<T>(queryString, true, out var result) ? result : defaultValue;
     }
 }
