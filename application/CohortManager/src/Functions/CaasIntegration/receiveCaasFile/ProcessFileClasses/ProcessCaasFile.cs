@@ -136,7 +136,7 @@ public class ProcessCaasFile : IProcessCaasFile
         {
             BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
             FileName = fileName,
-            participant = participant
+            Participant = participant
         };
         // take note: we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
         switch (participant.RecordType?.Trim())

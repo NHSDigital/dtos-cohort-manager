@@ -47,7 +47,7 @@ public class AddNewParticipantTest
         _request = new BasicParticipantCsvRecord
         {
             FileName = "mockFileName",
-            Participant = new BasicParticipantData
+            BasicParticipantData = new BasicParticipantData
             {
                 NhsNumber = "1234567890",
                 ScreeningName = "mockScreeningName"
