@@ -6,7 +6,7 @@ import { runnerBasedEpic1TestScenariosAdd } from '../e2e/epic1-highpriority-test
 import { runnerBasedEpic2TestScenariosAdd } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
 import { runnerBasedEpic2MedTestScenariosAdd } from '../e2e/epic2-medpriority-tests/epic2-med-priority-testsuite-migrated';
 import { runnerBasedEpic3TestScenariosAdd } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
-import { runnerBasedEpic3MedTestScenariosAdd } from '../e2e/epic3-medpriority-tests/epic2-med-priority-testsuite-migrated';
+import { runnerBasedEpic3MedTestScenariosAdd } from '../e2e/epic3-medpriority-tests/epic3-med-priority-testsuite-migrated';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 import { runnerBasedEpic4dTestScenariosAdd } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
 
