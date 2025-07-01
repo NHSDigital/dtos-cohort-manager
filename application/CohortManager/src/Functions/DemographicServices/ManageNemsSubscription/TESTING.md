@@ -51,6 +51,7 @@ Place your `.p12` certificate at `./certs/nhs_signed_client.p12`.
 ### 💻 B. Run Locally with `func start`
 
 1. Navigate to the project directory:
+
    ```bash
    cd application/CohortManager/src/Functions/DemographicServices/ManageNemsSubscription
    ```
@@ -60,6 +61,7 @@ Place your `.p12` certificate at `./certs/nhs_signed_client.p12`.
 3. Add the `nhs_signed_client.p12` file to the root of the ManageNemsSubscription project
 
 4. Run the function app:
+
    ```bash
    func start --verbose
    ```
@@ -115,6 +117,7 @@ Place your `.p12` certificate at `./certs/nhs_signed_client.p12`.
 - Set the path in `NemsLocalCertPath`
 - Make sure Docker or your host has read access
 - To debug loading:
+
   ```csharp
   _logger.LogInformation("Loaded cert: {0}", cert.Subject);
   ```
@@ -127,13 +130,13 @@ Place your `.p12` certificate at `./certs/nhs_signed_client.p12`.
 
 NEMS requires a very specific format:
 
-**Header**
+#### Header
 
 ```json
 { "alg": "none", "typ": "JWT" }
 ```
 
-**Payload**
+#### Payload
 
 ```json
 {
@@ -171,6 +174,7 @@ Where `subscription.json` contains a valid FHIR STU3 Subscription resource.
   - Confirm path and file access
   - Log thumbprint or subject to confirm load
 - Use verbose logs to verify environment variables in Docker:
+
   ```dockerfile
   RUN echo $NemsLocalCertPath
   ```
