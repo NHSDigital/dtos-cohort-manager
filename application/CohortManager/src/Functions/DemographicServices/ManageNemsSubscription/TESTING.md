@@ -128,11 +128,13 @@ Place your `.p12` certificate at `./certs/nhs_signed_client.p12`.
 NEMS requires a very specific format:
 
 **Header**
+
 ```json
 { "alg": "none", "typ": "JWT" }
 ```
 
 **Payload**
+
 ```json
 {
   "iss": "https://nems.nhs.uk",
@@ -176,3 +178,4 @@ Where `subscription.json` contains a valid FHIR STU3 Subscription resource.
 ---
 
 Happy subscribing! 📨
+
