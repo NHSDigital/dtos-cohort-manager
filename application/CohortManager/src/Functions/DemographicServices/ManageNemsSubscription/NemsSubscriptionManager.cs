@@ -159,7 +159,13 @@ public class NemsSubscriptionManager
                 // Handle known duplicate error
                 if (errorContent.Contains("DUPLICATE_REJECTED", StringComparison.OrdinalIgnoreCase))
                 {
-                    var match = Regex.Match(errorContent, @"subscription already exists\s*:\s*([a-fA-F0-9]+)");
+                    var match = Regex.Match(
+                        errorContent,
+                        @"subscription already exists\s*:\s*([a-fA-F0-9]+)",
+                        RegexOptions.None,
+                        TimeSpan.FromMilliseconds(100)
+                    );
+
                     if (match.Success)
                     {
                         var existingId = match.Groups[1].Value;
