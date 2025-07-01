@@ -218,7 +218,7 @@ public class AddNewParticipantTest
     {
         // Arrange
         var errorMessage = "invalid screening name and therefore cannot be processed by the static validation function";
-        _request.Participant.ScreeningName = string.Empty;
+        _request.BasicParticipantData.ScreeningName = string.Empty;
 
         // Act
         await _sut.Run(JsonSerializer.Serialize(_request));
