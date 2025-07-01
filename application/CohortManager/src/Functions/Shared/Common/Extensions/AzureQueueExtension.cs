@@ -72,7 +72,7 @@ public static class AzureQueueExtension
                 }
                 else
                 {
-                    _.AddKeyedScoped<IQueueClient, AzureStorageQueueClient>(keyName);
+                    _.AddKeyedTransient<IQueueClient, AzureStorageQueueClient>(keyName);
                     _.AddTransient<IQueueClientFactory, QueueClientFactory>();
                 }
             });
