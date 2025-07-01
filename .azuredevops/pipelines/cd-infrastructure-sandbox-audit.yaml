@@ -13,7 +13,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 7d1540f568fb00f527e388aa0acfff807c6d367c
+      ref: feat/dtoss-9730-user-assigned-identities
       endpoint: NHSDigital
 
 parameters:
@@ -27,7 +27,7 @@ parameters:
     default: 'Apply'
 
 variables:
-  - group: SBX_audit_backend
+  - group: SBMJ_audit_backend
   - group: DEV_hub_backend_remote_state
   - name: TF_DIRECTORY
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit

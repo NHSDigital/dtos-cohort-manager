@@ -16,7 +16,9 @@ module "functionapp" {
   public_network_access_enabled = var.features.public_network_access_enabled
   vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
 
-  rbac_role_assignments = each.value.rbac_role_assignments
+  # We use the RBAC module to set default roles
+  # rbac_role_assignments = each.value.rbac_role_assignments
+  rbac_role_assignments = []
 
   asp_id = module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].app_service_plan_id
 
@@ -46,7 +48,10 @@ module "functionapp" {
   acr_login_server = data.azurerm_container_registry.acr.login_server
 
   # Use the ACR assigned identity for the Function Apps too:
-  assigned_identity_ids = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
+  # assigned_identity_ids = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
+
+  # use the new global RBACs
+  assigned_identity_ids = local.assigned_identity_ids
 
   image_tag  = var.function_apps.docker_env_tag != "" ? var.function_apps.docker_env_tag : var.docker_image_tag
   image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
@@ -67,6 +72,16 @@ module "functionapp" {
   depends_on = [
     module.azure_service_bus
   ]
+}
+
+
+# Use the merged map in your resources
+resource "azurerm_role_assignment" "function_send_to_topic" {
+  for_each = local.unified_service_bus_object_map
+
+  principal_id         = module.functionapp["${each.value.function_key}-${each.value.service_bus_value.region}"].function_app_sami_id
+  role_definition_name = "Azure Service Bus Data Sender"
+  scope                = module.azure_service_bus[each.value.service_bus_key].namespace_id
 }
 
 locals {
@@ -95,18 +110,15 @@ locals {
     for item in local.unified_service_bus_object_list :
     "${item.service_bus_key}-${item.function_key}" => item
   }
-}
 
-# Use the merged map in your resources
-resource "azurerm_role_assignment" "function_send_to_topic" {
-  for_each = local.unified_service_bus_object_map
+  assigned_identity_ids = compact(
+    concat(
+      [try(module.global_cohort_identity.global_mi_id, "")],
+      try(var.function_apps.cont_registry_use_mi, false) ? [try(data.azurerm_user_assigned_identity.acr_mi.id, "")] : []
+      # Add other IDs if required...
+    )
+  )
 
-  principal_id         = module.functionapp["${each.value.function_key}-${each.value.service_bus_value.region}"].function_app_sami_id
-  role_definition_name = "Azure Service Bus Data Sender"
-  scope                = module.azure_service_bus[each.value.service_bus_key].namespace_id
-}
-
-locals {
   app_settings_common = {
     DOCKER_ENABLE_CI                    = var.function_apps.docker_CI_enable
     FUNCTION_WORKER_RUNTIME             = "dotnet-isolated"
@@ -164,55 +176,41 @@ locals {
             # Database connection string
             length(config.db_connection_string) > 0 ? {
               (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
-            } : {},
-
-            # Service Bus connections are stored in the config as a list of strings, so we need to iterate over them
-            length(config.service_bus_connections) > 0 ? (
-              merge(
-                # First for loop for ServiceBusConnectionString_client_
-                {
-                  for connection in config.service_bus_connections :
-                  "ServiceBusConnectionString_client_${connection}" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
-                },
-                # Second for loop for ServiceBusConnectionString_
-                {
-                  for connection in config.service_bus_connections :
-                  "ServiceBusConnectionString_${connection}__fullyQualifiedNamespace" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
-                }
-              )
-            ) : {}
+            } : {}
           )
 
+          # We don't need these no more since we're using the default UAMI module
+          #
           # These RBAC assignments are for the Function Apps only
-          rbac_role_assignments = flatten([
+          # rbac_role_assignments = flatten([
 
-            # Key Vault
-            var.key_vault != {} && length(config.key_vault_url) > 0 ? [
-              for role in local.rbac_roles_key_vault : {
-                role_definition_name = role
-                scope                = module.key_vault[region].key_vault_id
-              }
-            ] : [],
+          #   # Key Vault
+          #   var.key_vault != {} && length(config.key_vault_url) > 0 ? [
+          #     for role in local.rbac_roles_key_vault : {
+          #       role_definition_name = role
+          #       scope                = module.key_vault[region].key_vault_id
+          #     }
+          #   ] : [],
 
-            # Storage Accounts
-            [
-              for account in keys(var.storage_accounts) : [
-                for role in local.rbac_roles_storage : {
-                  role_definition_name = role
-                  scope                = module.storage["${account}-${region}"].storage_account_id
-                }
-              ]
-            ],
+          #   # Storage Accounts
+          #   [
+          #     for account in keys(var.storage_accounts) : [
+          #       for role in local.rbac_roles_storage : {
+          #         role_definition_name = role
+          #         scope                = module.storage["${account}-${region}"].storage_account_id
+          #       }
+          #     ]
+          #   ],
 
-            # Database
-            [
-              for role in local.rbac_roles_database : {
-                role_definition_name = role
-                scope                = module.azure_sql_server[region].sql_server_id
-              }
-            ]
+          #   # Database
+          #   [
+          #     for role in local.rbac_roles_database : {
+          #       role_definition_name = role
+          #       scope                = module.azure_sql_server[region].sql_server_id
+          #     }
+          #   ]
 
-          ])
+          # ])
         }
       )
     ]
