@@ -70,13 +70,13 @@ public class ExceptionHandler : IExceptionHandler
             RuleId = 0,
             RuleDescription = "Record received was flagged for deletion",
             FileName = participantCsvRecord.FileName,
-            NhsNumber = participantCsvRecord.Participant.NhsNumber,
-            ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
+            NhsNumber = participantCsvRecord.BasicParticipantData.NhsNumber,
+            ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.BasicParticipantData),
             DateCreated = DateTime.Now,
             DateResolved = DateTime.MaxValue,
             ExceptionDate = DateTime.Now,
             Category = (int)ExceptionCategory.DeleteRecord,
-            ScreeningName = participantCsvRecord.Participant.ScreeningName,
+            ScreeningName = participantCsvRecord.BasicParticipantData.ScreeningName,
             CohortName = DefaultCohortName,
             Fatal = 1
 
@@ -96,13 +96,13 @@ public class ExceptionHandler : IExceptionHandler
             RuleId = 0,
             RuleDescription = description,
             FileName = participantCsvRecord.FileName,
-            NhsNumber = participantCsvRecord.Participant.NhsNumber,
-            ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
+            NhsNumber = participantCsvRecord.BasicParticipantData.NhsNumber,
+            ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.BasicParticipantData),
             DateCreated = DateTime.Now,
             DateResolved = DateTime.MaxValue,
             ExceptionDate = DateTime.Now,
             Category = (int)ExceptionCategory.Schema,
-            ScreeningName = participantCsvRecord.Participant.ScreeningName,
+            ScreeningName = participantCsvRecord.BasicParticipantData.ScreeningName,
             CohortName = DefaultCohortName,
             Fatal = 1
 
