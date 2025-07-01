@@ -8,7 +8,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4948-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's TelephoneNumberHome value is truncated to 35 characters"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's TelephoneNumberHome value is truncated to 32 characters"
       }
     }
   ],
