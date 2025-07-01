@@ -2,7 +2,7 @@
   "UserConfig": {
     "Namespaces": [
       {
-        "Name": "cohman-sb",
+        "Name": "sbemulatorns",
           "Topics": [
             {
               "Name": "create-exception-topic",
