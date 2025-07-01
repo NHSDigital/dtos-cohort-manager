@@ -12,14 +12,13 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NHS.CohortManager.ServiceNowMessageService.Models;
 using Common;
 
 public class ServiceNowMessageHandler
     {
         private readonly HttpClient _httpClient;
         private readonly ILogger<ServiceNowMessageHandler> _logger;
-        private readonly SendServiceNowMsgConfig _config;
+        private readonly ServiceNowMessageHandlerConfig _config;
         private readonly ICreateResponse _createResponse;
 
         private string? _cachedAccessToken;
@@ -29,28 +28,13 @@ public class ServiceNowMessageHandler
         public ServiceNowMessageHandler(
             IHttpClientFactory httpClientFactory,
             ILogger<ServiceNowMessageHandler> logger,
-            IOptions<SendServiceNowMsgConfig> sendServiceNowMsgConfig,
+            IOptions<ServiceNowMessageHandlerConfig> sendServiceNowMsgConfig,
             ICreateResponse createResponse)
         {
             _httpClient = httpClientFactory.CreateClient();
             _logger = logger;
             _config = sendServiceNowMsgConfig.Value;
             _createResponse = createResponse;
-        }
-
-        /// <summary>
-        /// Azure Function to receive and log incoming ServiceNow messages.
-        /// </summary>
-        /// <param name="req">The HTTP request containing the incoming message payload.</param>
-        /// <returns>A 200 OK HTTP response containing the original body content.</returns>
-        [Function("ReceiveServiceNowMessage")]
-        public async Task<HttpResponseData> ReceiveServiceNowMessage(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = "servicenow/receive")] HttpRequestData req)
-        {
-            _logger.LogInformation("ReceiveServiceNowMessage function triggered.");
-            string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            _logger.LogInformation("Received body: {Body}", requestBody);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, requestBody);
         }
 
         /// <summary>

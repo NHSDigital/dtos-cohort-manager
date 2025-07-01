@@ -7,32 +7,25 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
 using RulesEngine.Models;
+using Common.Interfaces;
 
 public class ExceptionHandler : IExceptionHandler
 {
+    private readonly IExceptionSender _exceptionSender;
     private readonly ILogger<ExceptionHandler> _logger;
-    private readonly IHttpClientFunction _httpClientFunction;
     private static readonly int DefaultRuleId = 0;
-    private readonly string _createExceptionUrl;
     private const string DefaultCohortName = "";
     private const string DefaultScreeningName = "";
     private const string DefaultErrorRecord = "N/A";
     private const string DefaultFileName = "";
     private const string DefaultNhsNumber = "";
 
-    public ExceptionHandler(ILogger<ExceptionHandler> logger, IHttpClientFunction httpClientFunction)
+    private const string logErrorMessage = "There was an error while logging an exception to the database.";
+
+    public ExceptionHandler(ILogger<ExceptionHandler> logger, IExceptionSender exceptionSender)
     {
-
         _logger = logger;
-        _httpClientFunction = httpClientFunction;
-        _createExceptionUrl = Environment.GetEnvironmentVariable("ExceptionFunctionURL");
-
-        if (_createExceptionUrl == null)
-        {
-            _logger.LogError("ExceptionFunctionURL environment variable is not set.");
-            throw new InvalidOperationException("ExceptionFunctionURL environment variable is not set.");
-        }
-
+        _exceptionSender = exceptionSender;
     }
 
     public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName, string category = "")
@@ -46,7 +39,12 @@ public class ExceptionHandler : IExceptionHandler
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant), category);
 
-        await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(validationException);
+
+        if (!isSentSuccessfully)
+        {
+            _logger.LogError(logErrorMessage);
+        }
     }
 
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
@@ -55,14 +53,14 @@ public class ExceptionHandler : IExceptionHandler
         var screeningName = participant.ScreeningName ?? DefaultScreeningName;
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, JsonSerializer.Serialize(participant));
 
-        await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
+        await _exceptionSender.sendToCreateException(validationException);
     }
 
     public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord)
     {
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, errorRecord);
 
-        await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
+        await _exceptionSender.sendToCreateException(validationException);
     }
 
     public async Task CreateDeletedRecordException(BasicParticipantCsvRecord participantCsvRecord)
@@ -84,13 +82,11 @@ public class ExceptionHandler : IExceptionHandler
 
         };
 
-        var response = await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(exception));
-        if (response.StatusCode != HttpStatusCode.OK)
+        var exceptionSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
+        if (!exceptionSentSuccessfully)
         {
-            _logger.LogError("There was an error while logging an exception to the database.");
+            _logger.LogError(logErrorMessage);
         }
-
-
     }
 
     public async Task CreateSchemaValidationException(BasicParticipantCsvRecord participantCsvRecord, string description)
@@ -112,13 +108,12 @@ public class ExceptionHandler : IExceptionHandler
 
         };
 
-        var response = await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(exception));
-        if (response.StatusCode != HttpStatusCode.OK)
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
+
+        if (!isSentSuccessfully)
         {
-            _logger.LogError("There was an error while logging an exception to the database.");
+            _logger.LogError(logErrorMessage);
         }
-
-
     }
 
 
@@ -144,12 +139,11 @@ public class ExceptionHandler : IExceptionHandler
                 Fatal = 0
             };
 
-            var exceptionJson = JsonSerializer.Serialize(exception);
-            var response = await _httpClientFunction.SendPost(_createExceptionUrl, exceptionJson);
+            var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
 
-            if (response.StatusCode != HttpStatusCode.OK)
+            if (!isSentSuccessfully)
             {
-                _logger.LogError("There was an error while logging a transformation exception to the database");
+                _logger.LogError(logErrorMessage);
             }
         }
     }
@@ -194,10 +188,9 @@ public class ExceptionHandler : IExceptionHandler
                 Fatal = IsFatal
             };
 
-            var exceptionJson = JsonSerializer.Serialize(exception);
-            var response = await _httpClientFunction.SendPost(_createExceptionUrl, exceptionJson);
+            var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
 
-            if (response.StatusCode != HttpStatusCode.OK && response.StatusCode != HttpStatusCode.Created)
+            if (!isSentSuccessfully)
             {
                 _logger.LogError("There was an error while logging an exception to the database");
                 return new ValidationExceptionLog
@@ -226,13 +219,13 @@ public class ExceptionHandler : IExceptionHandler
         var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
 
 
-        var response = await _httpClientFunction.SendPost(_createExceptionUrl, JsonSerializer.Serialize(validationException));
-        if (response.StatusCode != HttpStatusCode.OK)
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(validationException);
+
+        if (!isSentSuccessfully)
         {
-            _logger.LogError("There was an error while logging an exception to the database.");
-            return false;
+            _logger.LogError(logErrorMessage);
         }
-        return true;
+        return isSentSuccessfully;
     }
 
     public async Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId)
@@ -253,12 +246,11 @@ public class ExceptionHandler : IExceptionHandler
             Fatal = 0
         };
 
-        var exceptionJson = JsonSerializer.Serialize(exception);
-        var response = await _httpClientFunction.SendPost(_createExceptionUrl, exceptionJson);
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
 
-        if (response.StatusCode != HttpStatusCode.OK)
+        if (!isSentSuccessfully)
         {
-            _logger.LogError("There was an error while logging a transformation exception to the database");
+            _logger.LogError(logErrorMessage);
         }
 
     }
@@ -355,4 +347,5 @@ public class ExceptionHandler : IExceptionHandler
         string[] nilReturnFileNhsNumbers = { "0", "0000000000" };
         return nilReturnFileNhsNumbers.Contains(nhsNumber);
     }
+
 }
