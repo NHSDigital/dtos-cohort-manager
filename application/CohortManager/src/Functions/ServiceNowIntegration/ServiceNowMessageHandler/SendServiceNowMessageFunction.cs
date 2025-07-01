@@ -14,10 +14,8 @@ public class SendServiceNowMessageFunction
     private readonly ICreateResponse _createResponse;
     private readonly IServiceNowClient _serviceNowHelper;
 
-    public SendServiceNowMessageFunction(
-        ILogger<SendServiceNowMessageFunction> logger,
-        ICreateResponse createResponse,
-        IServiceNowClient serviceNowHelper)
+    public SendServiceNowMessageFunction(ILogger<SendServiceNowMessageFunction> logger,
+        ICreateResponse createResponse, IServiceNowClient serviceNowHelper)
     {
         _logger = logger;
         _createResponse = createResponse;
