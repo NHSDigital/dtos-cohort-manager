@@ -21,6 +21,8 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IExceptionHandler, ExceptionHandler>();
     })
+    .AddExceptionHandler()
+    .AddHttpClient()
     .AddTelemetry()
     .Build();
 
