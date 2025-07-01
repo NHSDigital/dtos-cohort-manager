@@ -60,7 +60,7 @@ public class ManageParticipantTests
         _request = new BasicParticipantCsvRecord
         {
             FileName = "mockFileName",
-            participant = new Participant
+            Participant = new Participant
             {
                 NhsNumber = "9444567877",
                 ScreeningName = "mockScreeningName",
@@ -132,7 +132,7 @@ public class ManageParticipantTests
     public async Task Run_InvalidNhsNumber_CreateExceptionAndReturn()
     {
         // Arrange
-        _request.participant.NhsNumber = "12345";
+        _request.Participant.NhsNumber = "12345";
 
         // Act
         await _sut.Run(JsonSerializer.Serialize(_request));

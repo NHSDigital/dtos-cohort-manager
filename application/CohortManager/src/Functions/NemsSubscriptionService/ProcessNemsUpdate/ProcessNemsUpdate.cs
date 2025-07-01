@@ -158,9 +158,9 @@ public class ProcessNemsUpdate
 
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
-            Participant = _createBasicParticipantData.BasicParticipantData(participant),
+            BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
             FileName = "NemsMessages",
-            participant = participant
+            Participant = participant
         };
 
         updateRecord.Enqueue(basicParticipantCsvRecord);
