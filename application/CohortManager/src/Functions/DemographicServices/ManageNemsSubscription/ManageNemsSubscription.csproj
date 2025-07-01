@@ -19,7 +19,7 @@
     <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.4" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.2" />
     <PackageReference Include="Azure.Security.KeyVault.Certificates" Version="4.5.1" />
-    <PackageReference Include="Azure.Identity" Version="1.13.0" />
+    <PackageReference Include="Azure.Identity" Version="1.14.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
