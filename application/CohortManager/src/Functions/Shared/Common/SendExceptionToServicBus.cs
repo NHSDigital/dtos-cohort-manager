@@ -24,7 +24,7 @@ public class SendExceptionToServiceBus : IExceptionSender
     }
     public async Task<bool> sendToCreateException(ValidationException validationException)
     {
-        var serviceBusTopicName = _serviceBusValidationConfig.ServiceBusTopicName;
+        var serviceBusTopicName = _serviceBusValidationConfig.CreateExceptionTopic;
         if (string.IsNullOrWhiteSpace(serviceBusTopicName))
         {
             _logger.LogError("The service bus topic was not set and therefore we cannot sent exception to topic");

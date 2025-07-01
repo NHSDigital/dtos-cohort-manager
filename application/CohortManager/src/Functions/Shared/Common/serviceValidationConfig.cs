@@ -8,5 +8,5 @@ public class ServiceBusValidationConfig
     public string ServiceBusConnectionString { get; set; }
 
     [Required]
-    public string ServiceBusTopicName { get; set; }
+    public string CreateExceptionTopic { get; set; }
 }
