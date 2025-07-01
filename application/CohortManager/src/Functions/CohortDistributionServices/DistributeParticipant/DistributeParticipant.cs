@@ -40,18 +40,26 @@ public class DistributeParticipant
    [DurableClient] DurableTaskClient durableClient,
    FunctionContext functionContext)
     {
-        _logger.LogInformation($"Received message: {messageBody}");
-        var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(messageBody);
-
-        if (string.IsNullOrWhiteSpace(participantRecord.BasicParticipantData.ScreeningId) || string.IsNullOrWhiteSpace(participantRecord.BasicParticipantData.NhsNumber))
+        try
         {
-            await HandleExceptionAsync(new ArgumentException("One or more of the required parameters is missing"), participantRecord);
-            return;
+            var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(messageBody);
+
+            if (string.IsNullOrWhiteSpace(participantRecord.BasicParticipantData.ScreeningId) || string.IsNullOrWhiteSpace(participantRecord.BasicParticipantData.NhsNumber))
+            {
+                await HandleExceptionAsync(new ArgumentException("One or more of the required parameters is missing"), participantRecord);
+                return;
+            }
+
+            string instanceId = await durableClient.ScheduleNewOrchestrationInstanceAsync(nameof(DistributeParticipantOrchestrator), participantRecord);
+
+            _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to start distribute participant");
+            await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(), "Unknown");
 
-        string instanceId = await durableClient.ScheduleNewOrchestrationInstanceAsync(nameof(DistributeParticipantOrchestrator), participantRecord);
-
-        _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
+        }
     }
 
     /// <summary>
@@ -90,6 +98,7 @@ public class DistributeParticipant
             var transformedParticipant = await context.CallSubOrchestratorAsync<CohortDistributionParticipant?>(nameof(Validation.ValidationOrchestrator), validationRecord);
             if (transformedParticipant is null)
             {
+                _logger.LogError("Failed to transform participant");
                 return;
             }
 

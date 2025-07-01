@@ -8,8 +8,7 @@ public class DistributeParticipantConfig
     public string ServiceBusConnectionString { get; set; }
     [Required]
     public string CohortQueueName { get; set; }
-    [Required]
-    public bool IgnoreParticipantExceptions { get; set; }
+    public bool IgnoreParticipantExceptions { get; set; } = false;
     [Required]
     public string LookupValidationURL { get; set; }
     [Required]
