@@ -61,7 +61,7 @@ public class UnTransformRules : IUnTransformRules
         return participant;
     }
 
-    private string GetGenderName(short genderValue)
+    private static string GetGenderName(short genderValue)
     {
         if (Enum.IsDefined(typeof(Gender), genderValue))
         {
