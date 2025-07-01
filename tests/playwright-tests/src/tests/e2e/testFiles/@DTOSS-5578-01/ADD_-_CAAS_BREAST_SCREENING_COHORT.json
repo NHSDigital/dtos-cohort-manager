@@ -73,6 +73,30 @@
         "requirementJiraId": "DTOSS-3663",
         "additionalTags": "@regression @e2e @epic3-med-priority - Exception when Add takes place with incorrect GP practice code - Check Exception table for NHS Participant 9990792909 with RuleId 3601 and RuleDescription Invalid primary care provider GP practice code"
       }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": "9990755078",
+        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5578-01",
+        "requirementJiraId": "DTOSS-3663",
+        "additionalTags": "@regression @e2e @epic3-med-priority - Exception when Add takes place with incorrect GP practice code - Check Cohort Distribution table for NHS Participant 9990755078 - Expecting no cohort distribution record"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": "9990792909",
+        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5578-01",
+        "requirementJiraId": "DTOSS-3663",
+        "additionalTags": "@regression @e2e @epic3-med-priority - Exception when Add takes place with incorrect GP practice code - Check Cohort Distribution table for NHS Participant 9990792909 - Expecting no cohort distribution record"
+      }
     }
   ],
   "inputParticipantRecord": [
