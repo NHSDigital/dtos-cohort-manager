@@ -103,7 +103,7 @@ locals {
   }
 
   assigned_identity_ids = concat([
-    module.global_rbac.global_uami_id,
+    module.global_cohort_rbac.global_uami_id,
     var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
     # Add other IDs if required...
   ])

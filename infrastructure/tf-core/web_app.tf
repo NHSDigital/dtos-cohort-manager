@@ -111,28 +111,28 @@ locals {
           )
 
           # These RBAC assignments are for the Linux Web Apps only
-          rbac_role_assignments = flatten([
-            var.key_vault != {} && length(config.env_vars.from_key_vault) > 0 ? [
-              for role in local.rbac_roles_key_vault : {
-                role_definition_name = role
-                scope                = module.key_vault[region].key_vault_id
-              }
-            ] : [],
-            [
-              for account in keys(var.storage_accounts) : [
-                for role in local.rbac_roles_storage : {
-                  role_definition_name = role
-                  scope                = module.storage["${account}-${region}"].storage_account_id
-                }
-              ]
-            ],
-            [
-              for role in local.rbac_roles_database : {
-                role_definition_name = role
-                scope                = module.azure_sql_server[region].sql_server_id
-              }
-            ]
-          ])
+          # rbac_role_assignments = flatten([
+          #   var.key_vault != {} && length(config.env_vars.from_key_vault) > 0 ? [
+          #     for role in local.rbac_roles_key_vault : {
+          #       role_definition_name = role
+          #       scope                = module.key_vault[region].key_vault_id
+          #     }
+          #   ] : [],
+          #   [
+          #     for account in keys(var.storage_accounts) : [
+          #       for role in local.rbac_roles_storage : {
+          #         role_definition_name = role
+          #         scope                = module.storage["${account}-${region}"].storage_account_id
+          #       }
+          #     ]
+          #   ],
+          #   [
+          #     for role in local.rbac_roles_database : {
+          #       role_definition_name = role
+          #       scope                = module.azure_sql_server[region].sql_server_id
+          #     }
+          #   ]
+          # ])
         }
       )
     ]
