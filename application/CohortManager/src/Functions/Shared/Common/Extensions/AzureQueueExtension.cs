@@ -1,5 +1,8 @@
 namespace Common;
 
+using Azure.Identity;
+using Hl7.FhirPath.Expressions;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -11,11 +14,19 @@ public static class AzureQueueExtension
     /// </summary>
     public static IHostBuilder AddAzureQueues(this IHostBuilder hostBuilder, bool UseNewFunctions, string serviceBusConnectionString)
     {
-        return hostBuilder.ConfigureServices(_ =>
-        {
+
+
+        hostBuilder.ConfigureServices(_ =>
+            {
             if (UseNewFunctions)
             {
-                _.AddSingleton<IQueueClient>(_ => new AzureServiceBusClient(serviceBusConnectionString));
+                _.AddAzureClients(builder =>
+                {
+                    builder.AddServiceBusClient(serviceBusConnectionString);
+                    builder.UseCredential(new DefaultAzureCredential());
+
+                });
+                _.AddSingleton<IQueueClient, AzureStorageQueueClient>();
             }
             else
             {
@@ -23,6 +34,37 @@ public static class AzureQueueExtension
                 _.AddTransient<IQueueClientFactory, QueueClientFactory>();
             }
         });
+
+        return hostBuilder;
+    }
+     /// <summary>
+    /// Extension method for adding azure queue clients, if UseNewFunctions is set to true, it will inject a service bus queue client,
+    /// otherwise, it will inject a azure storage queue client
+    /// </summary>
+    public static IHostBuilder AddKeyedAzureQueues(this IHostBuilder hostBuilder, bool UseNewFunctions, string serviceBusConnectionString, string keyName)
+    {
+
+
+        hostBuilder.ConfigureServices(_ =>
+            {
+            if (UseNewFunctions)
+            {
+                _.AddAzureClients(builder =>
+                {
+                    builder.AddServiceBusClient(serviceBusConnectionString);
+                    builder.UseCredential(new DefaultAzureCredential());
+
+                });
+                _.AddKeyedSingleton<IQueueClient, AzureStorageQueueClient>(keyName);
+            }
+            else
+            {
+                _.AddKeyedScoped<IQueueClient, AzureStorageQueueClient>(keyName);
+                _.AddTransient<IQueueClientFactory, QueueClientFactory>();
+            }
+        });
+
+        return hostBuilder;
     }
 
     /// <summary>
