@@ -104,6 +104,7 @@ public class HttpClientFunction : IHttpClientFunction
             _logger.LogInformation("Added client certificate for NEMS authentication");
         }
 
+#if DEBUG
         if (bypassCertValidation)
         {
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
@@ -112,6 +113,10 @@ public class HttpClientFunction : IHttpClientFunction
                 return true;
             };
         }
+#else
+// In Release/Production: Never bypass, always validate (default behavior)
+#endif
+
 
         using var client = new HttpClient(handler);
         client.BaseAddress = new Uri(url);
@@ -165,6 +170,7 @@ public class HttpClientFunction : IHttpClientFunction
             handler.ClientCertificates.Add(clientCertificate);
         }
 
+#if DEBUG
         if (bypassCertValidation)
         {
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
@@ -173,6 +179,9 @@ public class HttpClientFunction : IHttpClientFunction
                 return true;
             };
         }
+#else
+// In Release/Production: Never bypass, always validate (default behavior)
+#endif
 
         using var client = new HttpClient(handler);
         client.BaseAddress = new Uri(url);
