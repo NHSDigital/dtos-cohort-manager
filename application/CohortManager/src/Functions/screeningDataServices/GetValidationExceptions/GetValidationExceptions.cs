@@ -48,7 +48,8 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
-        var orderByProperty = GetExceptionSort(req, "orderByProperty");
+        var exceptionStatus = GetExceptionStatus(req, "exceptionStatus");
+        var sortOrder = GetSortOrder(req, "sortOrder");
         var exceptionCategory = GetExceptionCategory(req);
 
         try
@@ -58,7 +59,7 @@ public class GetValidationExceptions
                 return await GetExceptionById(req, exceptionId);
             }
 
-            var exceptions = await _validationData.GetAllExceptions(orderByProperty, exceptionCategory);
+            var exceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
 
             if (exceptions == null || exceptions.Count == 0)
             {
@@ -88,14 +89,24 @@ public class GetValidationExceptions
         );
     }
 
-    private static ExceptionSort? GetExceptionSort(HttpRequestData req, string key)
+    private static ExceptionStatus? GetExceptionStatus(HttpRequestData req, string key)
     {
-        ExceptionSort? defaultExceptionSort = ExceptionSort.DateCreatedOldest;
+        ExceptionStatus? defaultExceptionStatus = ExceptionStatus.All;
         var queryString = req.Query[key];
 
-        if (string.IsNullOrEmpty(queryString)) return defaultExceptionSort;
+        if (string.IsNullOrEmpty(queryString)) return defaultExceptionStatus;
 
-        return int.TryParse(queryString, out int value) ? (ExceptionSort)value : defaultExceptionSort;
+        return int.TryParse(queryString, out int value) ? (ExceptionStatus)value : defaultExceptionStatus;
+    }
+
+    private static SortOrder? GetSortOrder(HttpRequestData req, string key)
+    {
+        SortOrder? defaultSortOrder = SortOrder.Descending;
+        var queryString = req.Query[key];
+
+        if (string.IsNullOrEmpty(queryString)) return defaultSortOrder;
+
+        return int.TryParse(queryString, out int value) ? (SortOrder)value : defaultSortOrder;
     }
 
     /// <summary>

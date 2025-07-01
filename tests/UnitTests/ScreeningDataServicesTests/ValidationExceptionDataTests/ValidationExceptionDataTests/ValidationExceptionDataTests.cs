@@ -35,16 +35,16 @@ public class ValidationExceptionDataTests
     #region GetAllExceptions
 
     [DataRow(null)]
-    [DataRow(ExceptionSort.DateCreatedNewest)]
+    [DataRow(SortOrder.Descending)]
     [TestMethod]
-    public async Task GetAllExceptions_NoOrderByPropertyOrSortByDateCreatedNewest_ReturnsAllExceptionsInDateDescendingOrder(ExceptionSort? orderByProperty)
+    public async Task GetAllFilteredExceptions_NoOrderByPropertyOrSortByDateCreatedNewest_ReturnsAllExceptionsInDateDescendingOrder(SortOrder? orderByProperty)
     {
         // Arrange
         var filteredList = _exceptionList.Where(w => w.Category == (int)_exceptionCategory).ToList();
         _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(filteredList);
 
         // Act
-        var result = await validationExceptionData.GetAllExceptions(orderByProperty, _exceptionCategory);
+        var result = await validationExceptionData.GetAllFilteredExceptions(ExceptionStatus.All, orderByProperty, _exceptionCategory);
 
         // Assert
         result.Should().NotBeNull();
@@ -54,14 +54,14 @@ public class ValidationExceptionDataTests
     }
 
     [TestMethod]
-    public async Task GetAllExceptions_SortByDateCreatedOldest_ReturnsAllExceptionsInDateAscendingOrder()
+    public async Task GetAllFilteredExceptions_SortByDateCreatedOldest_ReturnsAllExceptionsInDateAscendingOrder()
     {
         // Arrange
         var filteredList = _exceptionList.Where(w => w.Category == (int)_exceptionCategory).ToList();
         _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(filteredList);
 
         // Act
-        var result = await validationExceptionData.GetAllExceptions(ExceptionSort.DateCreatedOldest, _exceptionCategory);
+        var result = await validationExceptionData.GetAllFilteredExceptions(ExceptionStatus.All, SortOrder.Ascending, _exceptionCategory);
 
         // Assert
         result.Should().NotBeNull();
@@ -71,32 +71,14 @@ public class ValidationExceptionDataTests
     }
 
     [TestMethod]
-    public async Task GetAllExceptions_SortByExceptionStatusRaised_ReturnsAllExceptionsByRaisedStatusThenDateDescendingOrder()
+    public async Task GetAllFilteredExceptions_SortByExceptionStatusNotRaised_ReturnsAllExceptionsByNotRaisedStatusThenDateDescendingOrder()
     {
         // Arrange
         var filteredList = _exceptionList.Where(w => w.Category == (int)_exceptionCategory).ToList();
         _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(filteredList);
 
         // Act
-        var result = await validationExceptionData.GetAllExceptions(ExceptionSort.ExceptionStatusRaised, _exceptionCategory);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().BeOfType<List<ValidationException>>();
-        result.Should().HaveCount(2);
-        result[0].ServiceNowId.Should().Be("ServiceNow2");
-        result[1].ServiceNowId.Should().Be(null);
-    }
-
-    [TestMethod]
-    public async Task GetAllExceptions_SortByExceptionStatusNotRaised_ReturnsAllExceptionsByNotRaisedStatusThenDateDescendingOrder()
-    {
-        // Arrange
-        var filteredList = _exceptionList.Where(w => w.Category == (int)_exceptionCategory).ToList();
-        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(filteredList);
-
-        // Act
-        var result = await validationExceptionData.GetAllExceptions(ExceptionSort.ExceptionStatusNotRaised, _exceptionCategory);
+        var result = await validationExceptionData.GetAllFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory);
 
         // Assert
         result.Should().NotBeNull();
