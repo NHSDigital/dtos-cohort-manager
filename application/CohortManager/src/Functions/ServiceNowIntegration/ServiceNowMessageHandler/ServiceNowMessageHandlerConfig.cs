@@ -5,15 +5,13 @@ using System.ComponentModel.DataAnnotations;
 public class ServiceNowMessageHandlerConfig
 {
     [Required]
-    public required string UpdateEndpoint { get; set; }
-    [Required]
-    public required string AccessToken { get; set; }
+    public required string ServiceNowRefreshAccessTokenUrl { get; set; }
     [Required]
     public required string ServiceNowUpdateUrl { get; set; }
     [Required]
-    public required string Profile { get; set; }
+    public required string ClientId { get; set; }
     [Required]
-    public required string Definition { get; set; }
+    public required string ClientSecret { get; set; }
     [Required]
-    public required string EndpointPath { get; set; }
+    public required string RefreshToken { get; set; }
 }
