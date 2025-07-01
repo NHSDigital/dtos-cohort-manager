@@ -200,6 +200,37 @@ public class HttpClientFunction : IHttpClientFunction
         return null;
     }
 
+    public async Task<HttpResponseMessage> SendServiceNowAccessTokenRefresh(string url, string cliendId, string clientSecret, string refeshToken)
+    {
+        using var client = _factory.CreateClient();
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        var dict = new Dictionary<string, string>
+        {
+            { "grant_type", "refresh_token" },
+            { "client_id", cliendId },
+            { "client_secret", clientSecret },
+            { "refresh_token", refeshToken }
+        };
+
+        var request = new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Content = new FormUrlEncodedContent(dict)
+        };
+
+        try
+        {
+            var response = await client.SendAsync(request);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
+            throw;
+        }
+    }
+
     public async Task<HttpResponseMessage> SendServiceNowPut(string url, string accesToken, string jsonContent)
     {
         using var client = _factory.CreateClient();

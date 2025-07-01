@@ -1,8 +1,8 @@
-namespace NHS.CohortManager.ServiceNowIntegrationService;
+namespace NHS.CohortManager.ServiceNowIntegrationService.Models;
 
 using System.Text.Json.Serialization;
 
-public class RefreshAccessTokenResponseBody
+public class ServiceNowRefreshAccessTokenResponseBody
 {
     [JsonPropertyName("access_token")]
     public required string AccessToken { get; set; }

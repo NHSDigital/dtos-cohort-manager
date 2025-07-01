@@ -81,4 +81,6 @@ public interface IHttpClientFunction
     /// <param name="url">URL to be used in request.</param>
     /// <returns>HttpResponseMessage<returns>
     Task<HttpResponseMessage> SendServiceNowPut(string url, string accesToken, string jsonContent);
+
+    Task<HttpResponseMessage> SendServiceNowAccessTokenRefresh(string url, string cliendId, string clientSecret, string refeshToken);
 }

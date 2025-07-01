@@ -5,30 +5,23 @@ using System.Text.Json;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using Common;
-using System.Net.Http.Json;
+using NHS.CohortManager.ServiceNowIntegrationService.Models;
 
 public class SendServiceNowMessageFunction
 {
-    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ILogger<SendServiceNowMessageFunction> _logger;
-    private readonly ServiceNowMessageHandlerConfig _config;
     private readonly ICreateResponse _createResponse;
-    private string? _cachedAccessToken;
-    private DateTime _lastTokenRefresh;
-    private static readonly TimeSpan TokenExpiryBuffer = TimeSpan.FromMinutes(55);
+    private readonly IServiceNowClient _serviceNowHelper;
 
     public SendServiceNowMessageFunction(
-        IHttpClientFunction httpClientFunction,
         ILogger<SendServiceNowMessageFunction> logger,
-        IOptions<ServiceNowMessageHandlerConfig> config,
-        ICreateResponse createResponse)
+        ICreateResponse createResponse,
+        IServiceNowClient serviceNowHelper)
     {
-        _httpClientFunction = httpClientFunction;
         _logger = logger;
-        _config = config.Value;
         _createResponse = createResponse;
+        _serviceNowHelper = serviceNowHelper;
     }
 
     /// <summary>
@@ -46,82 +39,51 @@ public class SendServiceNowMessageFunction
     public async Task<HttpResponseData> Run(
         [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "servicenow/send/{sysId}")] HttpRequestData req, string sysId)
     {
-        _logger.LogInformation("SendServiceNowMessage function triggered.");
+        SendServiceNowMessageRequestBody? requestBody;
 
-        var requestBody = await req.ReadAsStringAsync();
-        if (string.IsNullOrWhiteSpace(requestBody))
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Request body is missing or empty.");
-
-        ServiceNowRequestModel? input;
         try
         {
-            input = JsonSerializer.Deserialize<ServiceNowRequestModel>(requestBody);
+            requestBody = await JsonSerializer.DeserializeAsync<SendServiceNowMessageRequestBody>(req.Body);
+
+            if (requestBody == null)
+            {
+                _logger.LogError("Request body deserialised to null");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
         }
-        catch
+        catch (JsonException ex)
         {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "ServiceNow update failed.");
+            _logger.LogError(ex, "Failed to deserialize json request body to type {type}", nameof(SendServiceNowMessageRequestBody));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
-
-        if (string.IsNullOrWhiteSpace(input?.WorkNotes))
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid request payload.");
-
-        var url = $"{_config.ServiceNowUpdateUrl}/{sysId}";
-
-        var payload = new
+        catch (Exception ex)
         {
-            state = input.State,
-            work_notes = input.WorkNotes
-        };
-
-        var json = JsonSerializer.Serialize(payload);
-
-        var token = await GetValidAccessTokenAsync();
-
-        if (token == null)
-        {
+            _logger.LogError(ex, "Unexpected error occured");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
 
-        var response = await _httpClientFunction.SendServiceNowPut(url, token, json);
-
-        if (response.StatusCode == HttpStatusCode.Unauthorized)
+        try
         {
-            _logger.LogWarning("Token expired. Retrying with refreshed token.");
-            token = await RefreshAccessTokenAsync();
-            response = await _httpClientFunction.SendServiceNowPut(url, token, json);
+            var payload = new ServiceNowUpdateRequestBody
+            {
+                State = requestBody.State,
+                WorkNotes = requestBody.WorkNotes
+            };
+
+            var response = await _serviceNowHelper.SendUpdate(sysId, payload);
+
+            if (response == null || !response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Failed to update ServiceNow. StatusCode: {statusCode}", response?.StatusCode.ToString() ?? "Unknown");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            }
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
         }
-
-        var responseBody = await response.Content.ReadAsStringAsync();
-        _logger.LogInformation("ServiceNow Response: {Code} - {Body}", response.StatusCode, responseBody);
-        response.EnsureSuccessStatusCode();
-        return _createResponse.CreateHttpResponse(response.StatusCode, req, responseBody);
-    }
-
-    private async Task<string?> GetValidAccessTokenAsync()
-    {
-        if (_cachedAccessToken == null || DateTime.UtcNow - _lastTokenRefresh > TokenExpiryBuffer)
+        catch (Exception ex)
         {
-            _cachedAccessToken = await RefreshAccessTokenAsync();
-            _lastTokenRefresh = DateTime.UtcNow;
+            _logger.LogError(ex, "Unexpected error occured");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-        return _cachedAccessToken;
-    }
-
-    private async Task<string?> RefreshAccessTokenAsync()
-    {
-        _logger.LogInformation("Refreshing access token...");
-
-        var response = await _httpClientFunction.SendServiceNowAccessTokenRefresh(
-            _config.ServiceNowRefreshAccessTokenUrl, _config.ClientId, _config.ClientSecret, _config.RefreshToken);
-
-        if (response == null || !response.IsSuccessStatusCode)
-        {
-            _logger.LogError("Failed to refresh ServiceNow access token. StatusCode: {statusCode}", response?.StatusCode.ToString() ?? "Unknown");
-            return null;
-        }
-
-        var responseBody = await response.Content.ReadFromJsonAsync<RefreshAccessTokenResponseBody>();
-
-        return responseBody?.AccessToken;
     }
 }
