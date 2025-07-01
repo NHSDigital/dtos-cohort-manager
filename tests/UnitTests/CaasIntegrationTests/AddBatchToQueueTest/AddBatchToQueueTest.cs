@@ -30,7 +30,7 @@ public class AddBatchToQueueTest
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
         BasicParticipantCsvRecord basicParticipantCsvRecord = new BasicParticipantCsvRecord();
         basicParticipantCsvRecord.FileName = "TestFile";
-        basicParticipantCsvRecord.Participant = new BasicParticipantData() { NhsNumber = "1234567890" };
+        basicParticipantCsvRecord.BasicParticipantData = new BasicParticipantData() { NhsNumber = "1234567890" };
         basicParticipantCsvRecord.Participant = new Participant() { NhsNumber = "1234567890" };
 
         var queue = new ConcurrentQueue<BasicParticipantCsvRecord>();
