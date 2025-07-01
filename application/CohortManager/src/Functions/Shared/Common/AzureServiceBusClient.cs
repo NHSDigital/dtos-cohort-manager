@@ -1,25 +1,22 @@
 namespace Common;
 
 using System.Collections.Concurrent;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Azure.Messaging.ServiceBus;
+using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.Logging;
 
 public class AzureServiceBusClient : IQueueClient
 {
     private readonly ServiceBusClient _serviceBusClient;
     private readonly ILogger<AzureServiceBusClient> _logger;
-
     private readonly ConcurrentDictionary<string, ServiceBusSender> _senders = new();
 
-    public AzureServiceBusClient(string connectionString)
+    public AzureServiceBusClient(ILogger<AzureServiceBusClient> logger, ServiceBusClient serviceBusClient)
     {
-        _serviceBusClient = new ServiceBusClient(connectionString);
-        var factory = LoggerFactory.Create(builder =>
-        {
-            builder.AddConsole();
-        });
-        _logger = factory.CreateLogger<AzureServiceBusClient>();
+        _logger = logger;
+        _serviceBusClient = serviceBusClient;
     }
 
 
@@ -33,7 +30,7 @@ public class AzureServiceBusClient : IQueueClient
     /// <returns></returns>
     public async Task<bool> AddAsync<T>(T message, string queueTopicName)
     {
-        var sender = _senders.GetOrAdd(queueTopicName, _serviceBusClient.CreateSender);
+        var sender = _senders.GetOrAdd(queueTopicName, _serviceBusClient.CreateSender(queueTopicName));
 
         try
         {
