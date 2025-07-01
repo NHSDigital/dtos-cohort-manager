@@ -1,4 +1,5 @@
 namespace Model.Enums;
+
 public enum ExceptionCategory
 {
     Non = 0,
@@ -11,5 +12,4 @@ public enum ExceptionCategory
     ParticipantLocationRemainingOutsideOfCohort = 9,
     Schema = 10,
     TransformExecuted = 11,
-
 }

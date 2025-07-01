@@ -90,7 +90,7 @@ public class GetValidationExceptions
 
     private static ExceptionSort? GetExceptionSort(HttpRequestData req, string key)
     {
-        ExceptionSort? defaultExceptionSort = null;
+        ExceptionSort? defaultExceptionSort = ExceptionSort.DateCreatedOldest;
         var queryString = req.Query[key];
 
         if (string.IsNullOrEmpty(queryString)) return defaultExceptionSort;
