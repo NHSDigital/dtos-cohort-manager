@@ -2,6 +2,7 @@ namespace ReconciliationServiceCore;
 
 using System.Threading.Tasks;
 using Common;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -10,7 +11,7 @@ public class InboundMetricClient : IInboundMetricClient
     private readonly ILogger<InboundMetricClient> _logger;
     private readonly IQueueClient _queueClient;
     private readonly InboundMetricClientConfig _config;
-    public InboundMetricClient(ILogger<InboundMetricClient> logger, IQueueClient queueClient, IOptions<InboundMetricClientConfig> config)
+    public InboundMetricClient(ILogger<InboundMetricClient> logger,[FromKeyedServices("InboundMetricQueue")] IQueueClient queueClient, IOptions<InboundMetricClientConfig> config)
     {
         _logger = logger;
         _queueClient = queueClient;
