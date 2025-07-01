@@ -5,7 +5,6 @@ using System.Data;
 using System.Threading.Tasks;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Model;
 using Model.Enums;
 
