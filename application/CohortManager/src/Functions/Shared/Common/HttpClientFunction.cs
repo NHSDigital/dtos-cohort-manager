@@ -3,6 +3,7 @@ namespace Common;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 public class HttpClientFunction : IHttpClientFunction
