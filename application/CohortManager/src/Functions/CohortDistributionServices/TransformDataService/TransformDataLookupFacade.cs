@@ -3,7 +3,6 @@ namespace NHS.CohortManager.CohortDistributionService;
 using DataServices.Client;
 using Model;
 using Common;
-using Model.Enums;
 
 public class TransformDataLookupFacade : ITransformDataLookupFacade
 {
@@ -66,5 +65,4 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 
         return gpPractice.BsoCode;
     }
-
 }
