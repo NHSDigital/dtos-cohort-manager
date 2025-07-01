@@ -51,7 +51,6 @@ public class CreateParticipant : ICreateParticipant
 
         };
     }
-
     
     public CohortDistributionParticipant CreateCohortDistributionParticipantModel(ParticipantManagement participant, Demographic demographic)
     {
