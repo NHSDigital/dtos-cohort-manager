@@ -2,7 +2,7 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
+        "apiEndpoint": "api/CohortDistributionDataService",
         "NhsNumber": "9994402994"
       },
       "meta": {
