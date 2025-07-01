@@ -205,7 +205,7 @@ public class ProcessCaasFileTests
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord()
         {
             FileName = "testFile",
-            Participant = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Amended },
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Amended },
             participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended }
         };
         var arguments = new object[] { basicParticipantCsvRecord, "TestName" };
@@ -255,7 +255,7 @@ public class ProcessCaasFileTests
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord()
         {
             FileName = "testFile",
-            Participant = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Amended },
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Amended },
             participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended }
         };
 
@@ -295,7 +295,7 @@ public class ProcessCaasFileTests
         var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Removed };
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
-            Participant = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
             FileName = "testFile",
             participant = participant
         };
@@ -334,7 +334,7 @@ public class ProcessCaasFileTests
         var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Removed };
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
-            Participant = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
             FileName = "testFile",
             participant = participant
         };
@@ -367,7 +367,7 @@ public class ProcessCaasFileTests
         var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Removed };
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
-            Participant = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
             FileName = "testFile",
             participant = participant
         };

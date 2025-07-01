@@ -51,7 +51,7 @@ public class RemoveParticipant
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
-            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.BasicParticipantData, basicParticipantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 

@@ -134,7 +134,7 @@ public class ProcessCaasFile : IProcessCaasFile
     {
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
-            Participant = _createBasicParticipantData.BasicParticipantData(participant),
+            BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
             FileName = fileName,
             participant = participant
         };
