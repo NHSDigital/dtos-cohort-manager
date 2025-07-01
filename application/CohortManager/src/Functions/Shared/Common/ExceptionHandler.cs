@@ -255,6 +255,33 @@ public class ExceptionHandler : IExceptionHandler
 
     }
 
+    public async Task CreateExceptionLogsForUnTransformRules(CohortDistributionParticipant participant, string ruleName, int ruleId, int category)
+    {
+        var exception = new ValidationException
+        {
+            RuleId = ruleId,
+            RuleDescription = $"Raised an exception log for rule: {ruleName} due to too many demographic fields have changed.",
+            FileName = DefaultFileName,
+            NhsNumber = participant.NhsNumber,
+            ErrorRecord = JsonSerializer.Serialize(participant),
+            DateCreated = DateTime.Now,
+            DateResolved = DateTime.MaxValue,
+            ExceptionDate = DateTime.Now,
+            Category = category,
+            ScreeningName = participant.ScreeningName,
+            CohortName = DefaultCohortName,
+            Fatal = 0
+        };
+
+        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
+
+        if (!isSentSuccessfully)
+        {
+            _logger.LogError(logErrorMessage);
+        }
+
+    }
+
     /// <summary>
     /// Method is used to create a default validation exception for the database
     /// note: errorDescription is the Rule description

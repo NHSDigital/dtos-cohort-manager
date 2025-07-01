@@ -35,4 +35,5 @@ public interface IExceptionHandler
     Task CreateTransformationExceptionLog(IEnumerable<RuleResultTree> transformationErrors, CohortDistributionParticipant participant);
     Task CreateSchemaValidationException(BasicParticipantCsvRecord participantCsvRecord, string description);
     Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId);
+    Task CreateExceptionLogsForUnTransformRules(CohortDistributionParticipant participant, string ruleName, int ruleId, int category);
 }

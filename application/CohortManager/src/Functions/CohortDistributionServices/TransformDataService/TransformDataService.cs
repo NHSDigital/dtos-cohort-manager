@@ -28,13 +28,15 @@ public class TransformDataService
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
     private readonly ITransformDataLookupFacade _dataLookup;
+    private readonly IUnTransformRules _unTransformRules;
 
     public TransformDataService(
         ICreateResponse createResponse,
         IExceptionHandler exceptionHandler,
         ILogger<TransformDataService> logger,
         ITransformReasonForRemoval transformReasonForRemoval,
-        ITransformDataLookupFacade dataLookup
+        ITransformDataLookupFacade dataLookup,
+        IUnTransformRules unTransformRules
     )
     {
         _createResponse = createResponse;
@@ -42,6 +44,7 @@ public class TransformDataService
         _logger = logger;
         _transformReasonForRemoval = transformReasonForRemoval;
         _dataLookup = dataLookup;
+        _unTransformRules = unTransformRules;
     }
 
     [Function("TransformDataService")]
@@ -85,8 +88,11 @@ public class TransformDataService
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
-                participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix,participant);
+                participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix, participant);
 
+            /// Checks if too many demographic fields have changed between the current participant and existing participant records.
+            /// If significant changes are detected, raise an exception log for rules like Rule 35.
+            participant = await _unTransformRules.TooManyDemographicsFieldsChanges(participant, requestBody.ExistingParticipant);
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
             if (participant.NhsNumber != null)
@@ -139,7 +145,7 @@ public class TransformDataService
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
         await HandleExceptions(resultList, participant);
-        await CreateTransformExecutedExceptions(resultList,participant);
+        await CreateTransformExecutedExceptions(resultList, participant);
 
         return participant;
     }
@@ -165,12 +171,12 @@ public class TransformDataService
         bool prefixTransformed = rulesList.Any(r => r.IsSuccess);
         var namePrefixRule = rulesList.Where(result => result.IsSuccess).FirstOrDefault();
 
-        if(namePrefixRule == null)
+        if (namePrefixRule == null)
         {
-            _exceptionHandler.CreateTransformExecutedExceptions(participant,$"Name Prefix Invalid",83);
+            _exceptionHandler.CreateTransformExecutedExceptions(participant, $"Name Prefix Invalid", 83);
             return null;
         }
-        if(namePrefixRule.Rule.RuleName == "0.NamePrefix.NamePrefixValid")
+        if (namePrefixRule.Rule.RuleName == "0.NamePrefix.NamePrefixValid")
         {
             return namePrefix;
         }
@@ -181,7 +187,7 @@ public class TransformDataService
 
         if (prefixTransformed)
         {
-            _exceptionHandler.CreateTransformExecutedExceptions(participant,$"Name Prefix {ruleName}",ruleNumber);
+            _exceptionHandler.CreateTransformExecutedExceptions(participant, $"Name Prefix {ruleName}", ruleNumber);
             return namePrefix;
         }
 
@@ -234,13 +240,13 @@ public class TransformDataService
     {
         var executedTransforms = exceptions.Where(i => i.IsSuccess).ToList();
 
-        foreach(var transform in executedTransforms)
+        foreach (var transform in executedTransforms)
         {
             var ruleDetails = transform.Rule.RuleName.Split('.');
 
             var ruleId = int.Parse(ruleDetails[0]);
             var ruleName = string.Concat(ruleDetails[1..]);
-            await _exceptionHandler.CreateTransformExecutedExceptions(participant,ruleName,ruleId);
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant, ruleName, ruleId);
         }
     }
 
