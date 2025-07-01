@@ -65,6 +65,14 @@ variable "application_full_name" {
   default     = "DToS"
 }
 
+# We apply global RBAC as phase two after Terraform plan, so do not set this value
+# to True during the plan phase.
+variable "enable_global_rbac" {
+  description = "True to enable RBAC assignments for the global User Assigned Managed Identity, False otherwise"
+  type        = bool
+  default     = false
+}
+
 variable "environment" {
   description = "Environment code for deployments"
   type        = string
