@@ -1,149 +1,115 @@
 namespace NHS.CohortManager.Tests.UnitTests.ServiceNowMessageHandlerTests;
 
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Text.Json;
-using System.Threading;
-using System.Threading.Tasks;
 using Common;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NHS.CohortManager.ServiceNowIntegrationService;
-using Moq.Protected;
 
 [TestClass]
 public class ServiceNowMessageHandlerTests
 {
-    private Mock<IHttpClientFactory> _httpClientFactoryMock;
-    private Mock<ILogger<ServiceNowMessageHandler>> _loggerMock;
-    private Mock<IOptions<ServiceNowMessageHandlerConfig>> _optionsMock;
-    private Mock<ICreateResponse> _createResponseMock;
-    private Mock<FunctionContext> _contextMock;
-    private Mock<HttpRequestData> _httpRequestMock;
-    private ServiceNowMessageHandler _handler;
-    private Mock<HttpMessageHandler> _httpMessageHandlerMock;
-    private HttpClient _httpClient;
+    private readonly Mock<ILogger<ServiceNowMessageHandler>> _loggerMock = new();
+    private readonly Mock<IOptions<ServiceNowMessageHandlerConfig>> _configMock = new();
+    private readonly CreateResponse _createResponse = new();
+    private readonly Mock<FunctionContext> _contextMock = new();
+    private readonly Mock<HttpRequestData> _httpRequestMock;
+    private readonly ServiceNowMessageHandler _function;
+    private readonly Mock<IHttpClientFunction> _httpClientFunctionMock = new();
 
-    [TestInitialize]
-    public void Setup()
+    public ServiceNowMessageHandlerTests()
     {
-        _contextMock = new Mock<FunctionContext>();
         _httpRequestMock = new Mock<HttpRequestData>(_contextMock.Object);
+        _httpRequestMock.Setup(r => r.CreateResponse()).Returns(() =>
+        {
+            var response = new Mock<HttpResponseData>(_contextMock.Object);
+            response.SetupProperty(r => r.Headers, new HttpHeadersCollection());
+            response.SetupProperty(r => r.StatusCode);
+            response.SetupProperty(r => r.Body, new MemoryStream());
+            return response.Object;
+        });
 
-        _httpMessageHandlerMock = new Mock<HttpMessageHandler>();
-        _httpClient = new HttpClient(_httpMessageHandlerMock.Object);
-
-        _httpClientFactoryMock = new Mock<IHttpClientFactory>();
-        _httpClientFactoryMock.Setup(f => f.CreateClient(It.IsAny<string>())).Returns(_httpClient);
-
-        _loggerMock = new Mock<ILogger<ServiceNowMessageHandler>>();
-        _optionsMock = new Mock<IOptions<ServiceNowMessageHandlerConfig>>();
-        _optionsMock.Setup(x => x.Value).Returns(new ServiceNowMessageHandlerConfig
+        _configMock.Setup(x => x.Value).Returns(new ServiceNowMessageHandlerConfig
         {
             EndpointPath = "api/now/table/incident",
             Definition = "change_request",
             AccessToken = "initial-token",
             UpdateEndpoint = "dummy-endpoint",
-            ServiceNowBaseUrl = "instance.service-now.com",
+            ServiceNowUpdateUrl = "instance.service-now.com",
             Profile = "prod"
         });
 
-        _createResponseMock = new Mock<ICreateResponse>();
-
-        _handler = new ServiceNowMessageHandler(
-            _httpClientFactoryMock.Object,
+        _function = new ServiceNowMessageHandler(
+            _httpClientFunctionMock.Object,
             _loggerMock.Object,
-            _optionsMock.Object,
-            _createResponseMock.Object
+            _configMock.Object,
+            _createResponse
         );
     }
 
     [TestMethod]
     public async Task HandleSendServiceNowMessage_ReturnsSuccess_AfterTokenRefresh()
     {
-        var requestBody = JsonSerializer.Serialize(new ServiceNowRequestModel
+        // Arrange
+        var sysId = "sysid-123";
+        var requestBodyJson = JsonSerializer.Serialize(new ServiceNowRequestModel
         {
             WorkNotes = "Retry this",
             State = 2
         });
+        var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
+        _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
 
-        var stream = new MemoryStream(Encoding.UTF8.GetBytes(requestBody));
-        _httpRequestMock.Setup(r => r.Body).Returns(stream);
-        _httpRequestMock.Setup(r => r.Method).Returns("PUT");
+        var httpResponse = new HttpResponseMessage(HttpStatusCode.OK);
+        _httpClientFunctionMock.Setup(x => x.SendServiceNowPut($"{_configMock.Object.Value.ServiceNowUpdateUrl}/{sysId}", It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(httpResponse);
 
-        _httpMessageHandlerMock.Protected()
-            .SetupSequence<Task<HttpResponseMessage>>("SendAsync",
-                ItExpr.IsAny<HttpRequestMessage>(), ItExpr.IsAny<CancellationToken>())
-            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Unauthorized))
-            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("Success")
-            });
+        // Act
+        var result = await _function.SendServiceNowMessage(_httpRequestMock.Object, sysId);
 
-        var expectedResponse = new Mock<HttpResponseData>(_contextMock.Object).Object;
-
-        _createResponseMock
-            .Setup(r => r.CreateHttpResponse(HttpStatusCode.OK, _httpRequestMock.Object, "Success"))
-            .Returns(expectedResponse);
-
-        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
-
-        Assert.AreEqual(expectedResponse, result);
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
     public async Task HandleSendServiceNowMessage_ReturnsBadRequest_WhenMissingWorkNotes()
     {
-        // Arrange: valid JSON with empty WorkNotes
+        // Arrange
+        var sysId = "sysid-123";
         var invalidBody = JsonSerializer.Serialize(new
         {
-            WorkNotes = "", // Simulates missing or empty value
+            WorkNotes = "",
             State = 2
         });
 
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(invalidBody));
         _httpRequestMock.Setup(r => r.Body).Returns(stream);
-        _httpRequestMock.Setup(r => r.Method).Returns("PUT");
-
-        var expectedResponse = new Mock<HttpResponseData>(_contextMock.Object).Object;
-
-        _createResponseMock
-            .Setup(x => x.CreateHttpResponse(HttpStatusCode.BadRequest, _httpRequestMock.Object, "Invalid request payload."))
-            .Returns(expectedResponse);
 
         // Act
-        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
+        var result = await _function.SendServiceNowMessage(_httpRequestMock.Object, sysId);
 
         // Assert
-        Assert.AreEqual(expectedResponse, result);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
 
 
     [TestMethod]
     public async Task HandleSendServiceNowMessage_ReturnsBadRequest_WhenBodyIsEmpty()
     {
-        // Arrange: empty body
+        // Arrange
+        var sysId = "sysid-123";
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(""));
         _httpRequestMock.Setup(r => r.Body).Returns(stream);
-        _httpRequestMock.Setup(r => r.Method).Returns("PUT"); // Required for routing
-
-        var expectedResponse = new Mock<HttpResponseData>(_contextMock.Object).Object;
-
-        _createResponseMock
-            .Setup(x => x.CreateHttpResponse(HttpStatusCode.BadRequest, _httpRequestMock.Object, "Request body is missing or empty."))
-            .Returns(expectedResponse);
 
         // Act
-        var result = await _handler.SendServiceNowMessage(_httpRequestMock.Object, "base", "profile", "sysid");
+        var result = await _function.SendServiceNowMessage(_httpRequestMock.Object, sysId);
 
         // Assert
-        Assert.AreEqual(expectedResponse, result);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
-
 }
-

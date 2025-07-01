@@ -72,4 +72,13 @@ public interface IHttpClientFunction
     /// <param name="response">HTTP response message.</param>
     /// <returns>string<returns>
     Task<string> GetResponseText(HttpResponseMessage response);
+
+    /// <summary>
+    /// Sends an HTTP PUT request to the specified ServiceNow URL with the provided JSON and authorization token.
+    /// </summary>
+    /// <param name="subscriptionJson">The body of the request in JSON format.</param>
+    /// <param name="accessToken">The authorization token to be included in the request headers for Bearer authentication.</param>
+    /// <param name="url">URL to be used in request.</param>
+    /// <returns>HttpResponseMessage<returns>
+    Task<HttpResponseMessage> SendServiceNowPut(string url, string accesToken, string jsonContent);
 }

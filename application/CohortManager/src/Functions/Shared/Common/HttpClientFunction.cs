@@ -1,9 +1,9 @@
 namespace Common;
 
 using System.Net;
+using System.Net.Http.Headers;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 public class HttpClientFunction : IHttpClientFunction
@@ -94,7 +94,7 @@ public class HttpClientFunction : IHttpClientFunction
             Content = new StringContent(subscriptionJson, Encoding.UTF8, "application/fhir+json")
         };
 
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", spineAccessToken);
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", spineAccessToken);
         request.Headers.Add("fromASID", fromAsid);
         request.Headers.Add("toASID", toAsid);
         request.Headers.Add("Interaction-ID", "urn:nhs:names:services:nems:CreateSubscription");
@@ -198,5 +198,30 @@ public class HttpClientFunction : IHttpClientFunction
         }
 
         return null;
+    }
+
+    public async Task<HttpResponseMessage> SendServiceNowPut(string url, string accesToken, string jsonContent)
+    {
+        using var client = _factory.CreateClient();
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        var request = new HttpRequestMessage(HttpMethod.Put, url)
+        {
+            Content = new StringContent(jsonContent, Encoding.UTF8, "application/json")
+        };
+
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accesToken);
+
+        try
+        {
+            var response = await client.SendAsync(request);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
+            throw;
+        }
     }
 }

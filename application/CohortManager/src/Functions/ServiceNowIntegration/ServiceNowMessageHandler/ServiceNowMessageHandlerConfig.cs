@@ -9,7 +9,7 @@ public class ServiceNowMessageHandlerConfig
     [Required]
     public required string AccessToken { get; set; }
     [Required]
-    public required string ServiceNowBaseUrl { get; set; }
+    public required string ServiceNowUpdateUrl { get; set; }
     [Required]
     public required string Profile { get; set; }
     [Required]
