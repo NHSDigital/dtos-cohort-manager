@@ -41,7 +41,6 @@ public class ManageParticipant
     [Function(nameof(ManageParticipant))]
     public async Task Run([ServiceBusTrigger("%ParticipantManagementQueueName%", Connection = "ServiceBusConnectionString")] string message)
     {
-        System.Console.WriteLine(message);
         var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(message)!;
         Participant participant = participantRecord.Participant;
         try

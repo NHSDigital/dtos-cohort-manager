@@ -58,7 +58,8 @@ public class CreateParticipantTests
                 PreferredLanguage = "English",
                 IsInterpreterRequired = "0",
                 RecordType = Actions.Amended,
-                ScreeningId = "1"
+                ScreeningId = "1",
+                EligibilityFlag = "1"
             }
         };
 

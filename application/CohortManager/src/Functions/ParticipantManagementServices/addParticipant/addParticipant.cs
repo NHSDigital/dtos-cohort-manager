@@ -121,7 +121,7 @@ public class AddParticipantFunction
 
         if (string.IsNullOrWhiteSpace(participantCsvRecord.Participant.ScreeningName))
         {
-            var errorDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
+            var errorDescription = "Record has an invalid screening name and therefore cannot be processed by the static validation function";
             await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participantCsvRecord.Participant));
 
             return new ValidationExceptionLog()
@@ -136,6 +136,5 @@ public class AddParticipantFunction
         var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
         return responseBody;
-
     }
 }

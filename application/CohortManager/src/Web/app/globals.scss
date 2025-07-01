@@ -1,4 +1,4 @@
-@import "~nhsuk-frontend/packages/nhsuk";
+@use "~nhsuk-frontend/packages/nhsuk";
 
 // Utilities
 
@@ -10,4 +10,18 @@
 
 .nhsuk-header__container {
   padding: 20px 0;
+}
+
+.app-card {
+  padding: 24px;
+}
+
+.app-card > :last-child {
+  margin-bottom: 0;
+}
+
+@media (min-width: 40.0625em) {
+  .app-card {
+    padding: 32px;
+  }
 }

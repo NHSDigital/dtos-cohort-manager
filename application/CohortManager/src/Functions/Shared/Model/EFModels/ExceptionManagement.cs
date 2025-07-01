@@ -88,7 +88,7 @@ public class ExceptionManagement
         string input = validationException.Fatal.ToString();
         return new ExceptionManagement
         {
-            ExceptionId = validationException.ExceptionId ?? 0,
+            ExceptionId = validationException.ExceptionId,
             FileName = validationException.FileName,
             NhsNumber = validationException.NhsNumber,
             DateCreated = validationException.DateCreated ?? DateTime.MaxValue,
