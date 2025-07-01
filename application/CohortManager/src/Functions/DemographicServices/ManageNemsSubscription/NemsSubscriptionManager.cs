@@ -14,8 +14,6 @@ using Model;
 using Common;
 using DataServices.Core;
 using System.Security.Cryptography.X509Certificates;
-using Azure.Security.KeyVault.Certificates;
-using Azure.Identity;
 using Hl7.Fhir.Serialization;
 // Use explicit STU3 aliases to avoid R4 conflicts
 using STU3Subscription = Hl7.Fhir.Model.Subscription;
@@ -29,66 +27,20 @@ public class NemsSubscriptionManager
     private readonly ILogger<NemsSubscriptionManager> _logger;
     private readonly ManageNemsSubscriptionConfig _config;
     private readonly IDataServiceAccessor<NemsSubscription> _nemsSubscriptionAccessor;
+    private readonly X509Certificate2 _nemsCertificate; // injected!
 
     public NemsSubscriptionManager(
         IHttpClientFunction httpClient,
         IOptions<ManageNemsSubscriptionConfig> config,
         ILogger<NemsSubscriptionManager> logger,
-        IDataServiceAccessor<NemsSubscription> nemsSubscriptionAccessor)
+        IDataServiceAccessor<NemsSubscription> nemsSubscriptionAccessor,
+        X509Certificate2 nemsCertificate)
     {
         _httpClient = httpClient;
         _config = config.Value;
         _logger = logger;
         _nemsSubscriptionAccessor = nemsSubscriptionAccessor;
-    }
-
-    /// <summary>
-    /// Loads the NEMS client certificate from Azure Key Vault or local file
-    /// </summary>
-    /// <returns>X509Certificate2 for NEMS client authentication</returns>
-    private async System.Threading.Tasks.Task<X509Certificate2> LoadNemsClientCertificateAsync()
-    {
-        try
-        {
-            // Azure Key Vault
-            if (!string.IsNullOrEmpty(_config.KeyVaultConnectionString))
-            {
-                _logger.LogInformation("Loading NEMS certificate from Azure Key Vault");
-                var certClient = new CertificateClient(
-                    vaultUri: new Uri(_config.KeyVaultConnectionString),
-                    credential: new DefaultAzureCredential()
-                );
-
-                var certificate = await certClient.DownloadCertificateAsync(_config.NemsKeyName);
-                return certificate.Value;
-            }
-            // Local file (development only)
-            else if (!string.IsNullOrEmpty(_config.NemsLocalCertPath))
-            {
-                _logger.LogInformation("Loading NEMS certificate from local file");
-
-                X509Certificate2 certificate;
-                if (!string.IsNullOrEmpty(_config.NemsLocalCertPassword))
-                {
-                    certificate = new X509Certificate2(_config.NemsLocalCertPath, _config.NemsLocalCertPassword);
-                }
-                else
-                {
-                    certificate = new X509Certificate2(_config.NemsLocalCertPath);
-                }
-
-                return certificate;
-            }
-            else
-            {
-                throw new InvalidOperationException("No certificate configuration found. Please configure either KeyVaultConnectionString or NemsLocalCertPath.");
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to load NEMS client certificate");
-            throw;
-        }
+        _nemsCertificate = nemsCertificate;
     }
 
     /// <summary>
@@ -137,14 +89,11 @@ public class NemsSubscriptionManager
                 "patient/Subscription.write"
             );
 
-            // Load client certificate
-            var clientCert = await LoadNemsClientCertificateAsync();
-
             string deleteUrl = $"{_config.NemsFhirEndpoint}/Subscription/{subscriptionId}";
 
             var bypassCert = _config.BypassServerCertificateValidation;
 
-            var response = await _httpClient.SendNemsDelete(deleteUrl, jwtToken, _config.FromAsid, _config.ToAsid, clientCert, bypassCert);
+            var response = await _httpClient.SendNemsDelete(deleteUrl, jwtToken, _config.FromAsid, _config.ToAsid, _nemsCertificate, bypassCert);
 
             return response.IsSuccessStatusCode;
         }
@@ -173,7 +122,6 @@ public class NemsSubscriptionManager
                 "patient/Subscription.write"
             );
 
-            var clientCert = await LoadNemsClientCertificateAsync();
             var url = $"{_config.NemsFhirEndpoint}/Subscription";
             var bypassCert = _config.BypassServerCertificateValidation;
 
@@ -183,7 +131,7 @@ public class NemsSubscriptionManager
                 jwtToken,
                 _config.FromAsid,
                 _config.ToAsid,
-                clientCert,
+                _nemsCertificate,
                 bypassCert
             );
 
@@ -235,7 +183,6 @@ public class NemsSubscriptionManager
             return null;
         }
     }
-
 
     /// <summary>
     /// Deletes a subscription from the NEMS subscriptions table in the cohort manager database.

@@ -56,7 +56,6 @@ public class ManageNemsSubscription
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
             }
 
-            // Validate NHS number format (basic validation)
             if (!IsValidNhsNumber(nhsNumber))
             {
                 _logger.LogError("Invalid NHS number format: {NhsNumber}", nhsNumber);
@@ -67,15 +66,14 @@ public class ManageNemsSubscription
 
             if (success)
             {
-                // Get the subscription ID that was created
                 string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
 
-                _logger.LogInformation("Successfully created subscription for NHS number {NhsNumber}", nhsNumber);
+                _logger.LogInformation("Successfully created subscription for NHS number REDACTED");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"Subscription created successfully. Subscription ID: {subscriptionId}");
             }
             else
             {
-                _logger.LogError("Failed to create subscription for NHS number {NhsNumber}", nhsNumber);
+                _logger.LogError("Failed to create subscription for NHS number REDACTED");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to create subscription in NEMS.");
             }
         }
@@ -115,17 +113,27 @@ public class ManageNemsSubscription
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
             }
 
+            // Check existence first to provide more informative error handling
+            var subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
+
+            if (string.IsNullOrEmpty(subscriptionId))
+            {
+                _logger.LogWarning("No subscription found for NHS number {NhsNumber}", nhsNumber);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No subscription found.");
+            }
+
+            // Attempt to remove only if found
             bool success = await _subscriptionManager.RemoveSubscriptionAsync(nhsNumber);
 
             if (success)
             {
-                _logger.LogInformation("Successfully unsubscribed NHS number {NhsNumber}", nhsNumber);
+                _logger.LogInformation("Successfully unsubscribed NHS number REDACTED");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Successfully unsubscribed");
             }
             else
             {
-                _logger.LogWarning("No subscription found or failed to remove for NHS number {NhsNumber}", nhsNumber);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No subscription found or failed to remove subscription.");
+                _logger.LogError("Failed to remove subscription for NHS number {NhsNumber}", nhsNumber);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to remove subscription.");
             }
         }
         catch (Exception ex)
@@ -134,6 +142,7 @@ public class ManageNemsSubscription
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An error occurred while removing the subscription.");
         }
     }
+
 
     /// <summary>
     /// Function to check the status of a NEMS subscription for a given NHS number
@@ -157,7 +166,6 @@ public class ManageNemsSubscription
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
             }
 
-            // Validate NHS number format
             if (!IsValidNhsNumber(nhsNumber))
             {
                 _logger.LogError("Invalid NHS number format: {NhsNumber}", nhsNumber);

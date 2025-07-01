@@ -7,6 +7,9 @@ using NHS.CohortManager.DemographicServices;
 using DataServices.Database;
 using Model;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography.X509Certificates;
+using Azure.Security.KeyVault.Certificates;
+using Azure.Identity;
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("Program");
@@ -18,6 +21,32 @@ try
     // Use your custom AddConfiguration method that works in other functions
     host.AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config);
 
+    // Load NEMS certificate up-front and inject into DI
+    X509Certificate2 nemsCertificate = null;
+
+    if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
+    {
+        logger.LogInformation("Loading NEMS certificate from Azure Key Vault");
+        var certClient = new CertificateClient(
+            new Uri(config.KeyVaultConnectionString),
+            new DefaultAzureCredential()
+        );
+        var certResult = await certClient.DownloadCertificateAsync(config.NemsKeyName);
+        nemsCertificate = certResult.Value;
+    }
+    else if (!string.IsNullOrEmpty(config.NemsLocalCertPath))
+    {
+        logger.LogInformation("Loading NEMS certificate from local file");
+        if (!string.IsNullOrEmpty(config.NemsLocalCertPassword))
+            nemsCertificate = new X509Certificate2(config.NemsLocalCertPath, config.NemsLocalCertPassword);
+        else
+            nemsCertificate = new X509Certificate2(config.NemsLocalCertPath);
+    }
+    else
+    {
+        throw new InvalidOperationException("No certificate configuration found. Please configure either KeyVaultConnectionString or NemsLocalCertPath.");
+    }
+
     host.ConfigureFunctionsWebApplication();
     host.ConfigureServices(services =>
     {
@@ -25,7 +54,10 @@ try
         services.AddHttpClient();
         services.AddScoped<IHttpClientFunction, HttpClientFunction>();
 
-        // Register NEMS subscription manager
+        // Register the NEMS certificate in DI
+        services.AddSingleton(nemsCertificate);
+
+        // Register NEMS subscription manager (now expects X509Certificate2 injected)
         services.AddScoped<NemsSubscriptionManager>();
 
         // Register response helpers
@@ -41,8 +73,7 @@ try
             string.IsNullOrEmpty(config.MeshMailboxId) ? "NOT_SET" : "SET");
 
         logger.LogInformation("Config Debug -- NemsFhirEndpoint: {0}, FromAsid: {1}, LocalCert: {2}",
-    config.NemsFhirEndpoint, config.FromAsid, config.NemsLocalCertPath);
-
+            config.NemsFhirEndpoint, config.FromAsid, config.NemsLocalCertPath);
 
         // Validate critical configuration
         ValidateConfiguration(config, logger);

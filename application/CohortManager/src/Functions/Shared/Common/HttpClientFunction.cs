@@ -126,22 +126,7 @@ public class HttpClientFunction : IHttpClientFunction
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
         request.Headers.Add("fromASID", fromAsid);
         request.Headers.Add("toASID", toAsid);
-        request.Headers.Add("InteractionID", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiPost"); // Corrected InteractionID
-
-        _logger.LogInformation("Sending NEMS POST to: {Url}", url);
-
-        _logger.LogInformation("Headers:");
-        foreach (var header in request.Headers)
-        {
-            _logger.LogInformation("  {0}: {1}", header.Key, string.Join(",", header.Value));
-        }
-
-        if (request.Content != null)
-        {
-            var contentString = await request.Content.ReadAsStringAsync();
-            _logger.LogInformation("Request Body:\n{0}", contentString);
-        }
-
+        request.Headers.Add("InteractionID", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiPost");
 
         try
         {
@@ -153,7 +138,7 @@ public class HttpClientFunction : IHttpClientFunction
             if (!response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning("NEMS API Error Response: {Response}", responseContent);
+                _logger.LogDebug("NEMS API Error Response: {Response}", responseContent);
             }
 
             return response;
@@ -201,22 +186,6 @@ public class HttpClientFunction : IHttpClientFunction
         request.Headers.Add("toASID", toAsid);
         request.Headers.Add("InteractionID", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiDelete");
 
-
-        _logger.LogInformation("Sending NEMS DELETE to: {Url}", url);
-
-        _logger.LogInformation("Headers:");
-        foreach (var header in request.Headers)
-        {
-            _logger.LogInformation("  {0}: {1}", header.Key, string.Join(",", header.Value));
-        }
-
-        if (request.Content != null)
-        {
-            var contentString = await request.Content.ReadAsStringAsync();
-            _logger.LogInformation("Request Body:\n{0}", contentString);
-        }
-
-
         try
         {
             var response = await client.SendAsync(request);
@@ -226,7 +195,7 @@ public class HttpClientFunction : IHttpClientFunction
             if (!response.IsSuccessStatusCode)
             {
                 var responseContent = await response.Content.ReadAsStringAsync();
-                _logger.LogWarning("NEMS API Error Response: {Response}", responseContent);
+                _logger.LogDebug("NEMS API Error Response: {Response}", responseContent);
             }
             return response;
         }
