@@ -1,49 +1,44 @@
 namespace NHS.CohortManager.CohortDistributionServices;
 
-using System.Net;
 using System.Text.Json;
-using Common;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
-using Model.Enums;
 
 public class DistributeParticipantActivities
 {
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
     private readonly DistributeParticipantConfig _config;
-    private readonly IHttpClientFunction _httpClient;
     private readonly ILogger<DistributeParticipantActivities> _logger;
 
     public DistributeParticipantActivities(IDataServiceClient<CohortDistribution> cohortDistributionClient,
                                            IDataServiceClient<ParticipantManagement> participantManagementClient,
+                                           IDataServiceClient<ParticipantDemographic> participantDemographicClient,
                                            IOptions<DistributeParticipantConfig> config,
-                                           IHttpClientFunction httpClientFunction,
                                            ILogger<DistributeParticipantActivities> logger)
     {
         _cohortDistributionClient = cohortDistributionClient;
         _participantManagementClient = participantManagementClient;
+        _participantDemographicClient = participantDemographicClient;
         _config = config.Value;
-        _httpClient = httpClientFunction;
         _logger = logger;
     }
 
-
-    // TODO: make sure all activities are idempotent
     /// <summary>
-    /// Calls retrieve participant data which constructs a CohortDistributionParticipant
-    /// based on the data from the Participant Management and Demographic tables.
+    /// Constructs a <see cref="CohortDistributionParticipant"/> based on the data
+    /// from the participant management and demographic tables
     /// </summary>
+    /// <param name="participantData"> participant data containing the NHS Number and Screening ID which are used to query the tables</param>
     /// <returns>
-    /// CohortDistributionParticipant, or null if there were any exceptions during execution.
+    /// <see cref="CohortDistributionParticipant"/>, or null if the participant could not be found in either table.
     /// </returns>
     [Function(nameof(RetrieveParticipantData))]
-    public async Task<CohortDistributionParticipant> RetrieveParticipantData([ActivityTrigger] BasicParticipantData participantData)
+    public async Task<CohortDistributionParticipant?> RetrieveParticipantData([ActivityTrigger] BasicParticipantData participantData)
     {
-        // TODO: if response = OK but data is null, return exception and do not continue processing
         long nhsNumber = long.Parse(participantData.NhsNumber);
         long screeningId = long.Parse(participantData.ScreeningId);
 
@@ -51,21 +46,16 @@ public class DistributeParticipantActivities
         var participantManagement = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == nhsNumber &&
                                                                                         p.ScreeningId == screeningId);
 
-        if (participantManagement is null)
+        // Get participant demographic data
+        var participantDemographic = await _participantDemographicClient.GetSingleByFilter(p => p.NhsNumber == nhsNumber);
+
+        if (participantDemographic is null || participantManagement is null)
         {
-            throw new KeyNotFoundException("Could not find participant in the participant management table");
+            return null;
         }
 
-        // Get demographic data
-        Dictionary<string, string> demographicFunctionParams = new() { { "Id", participantData.NhsNumber } };
-
-        var demographicDataJson = await _httpClient.SendGet(_config.DemographicDataFunctionURL, demographicFunctionParams)
-            ?? throw new HttpRequestException("Demographic request failed");
-
-        var demographicData = JsonSerializer.Deserialize<Demographic>(demographicDataJson);
-
         // Create cohort distribution participant
-        CohortDistributionParticipant participant = new(participantManagement, demographicData)
+        CohortDistributionParticipant participant = new(participantManagement, participantDemographic)
         {
             //TODO, This needs to happen elsewhere Hardcoded for now
             ScreeningName = "Breast Screening",
@@ -75,19 +65,22 @@ public class DistributeParticipantActivities
         return participant;
     }
 
+    /// <summary>
+    /// Allocates the participant to a service provider based on the postcode area (1st part of the outcode)
+    /// </summary>
+    /// <param name="participant"></param>
+    /// <returns>A string representing the service provider</returns>
     [Function(nameof(AllocateServiceProvider))]
-    public async Task<string?> AllocateServiceProvider([ActivityTrigger] string screeningAcronym, string postCode)
+    public async Task<string> AllocateServiceProvider([ActivityTrigger] Participant participant)
     {
         string configFilePath = Path.Combine(Environment.CurrentDirectory, "AllocateServiceProvider", "allocationConfig.json");
-        System.Console.WriteLine(configFilePath);
-
         string configFile = await File.ReadAllTextAsync(configFilePath);
-        System.Console.WriteLine("json: " + configFile);
+
         var allocationConfigEntries = JsonSerializer.Deserialize<AllocationConfigDataList>(configFile);
 
         string serviceProvider = allocationConfigEntries.ConfigDataList
-            .Where(item => postCode.StartsWith(item.Postcode, StringComparison.OrdinalIgnoreCase) &&
-                string.Equals(item.ScreeningService, screeningAcronym, StringComparison.OrdinalIgnoreCase))
+            .Where(item => participant.Postcode.StartsWith(item.Postcode, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(item.ScreeningService, participant.ScreeningAcronym, StringComparison.OrdinalIgnoreCase))
             .OrderByDescending(item => item.Postcode.Length)
             .Select(item => item.ServiceProvider)
             .FirstOrDefault() ?? "BS SELECT";
@@ -95,6 +88,11 @@ public class DistributeParticipantActivities
         return serviceProvider;
     }
 
+    /// <summary>
+    /// Adds the participant to the cohort distribution table
+    /// </summary>
+    /// <param name="transformedParticipant"></param>
+    /// <returns>bool, whether or not the add was successful</returns>
     [Function(nameof(AddParticipant))]
     public async Task<bool> AddParticipant([ActivityTrigger] CohortDistributionParticipant transformedParticipant)
     {

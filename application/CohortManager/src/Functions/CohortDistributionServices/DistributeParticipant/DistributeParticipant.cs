@@ -27,6 +27,13 @@ public class DistributeParticipant
         _exceptionHandler = exceptionHandler;
     }
 
+    /// <summary>
+    /// Service Bus triggered start function
+    /// </summary>
+    /// <param name="messageBody"></param>
+    /// <param name="durableClient"></param>
+    /// <param name="functionContext"></param>
+    /// <returns></returns>
     [Function("DistributeParticipant")]
     public async Task Run(
    [ServiceBusTrigger("%CohortQueueName%", Connection = "ServiceBusConnectionString")] string messageBody,
@@ -47,20 +54,28 @@ public class DistributeParticipant
         _logger.LogInformation("Started orchestration with ID = '{instanceId}'.", instanceId);
     }
 
-    // TODO: staic validation
+    /// <summary>
+    /// Orchestrator for the participant distribution process
+    /// </summary>
+    /// <param name="context">Function context containing a <see cref="BasicParticipantCsvRecord"/></param>
     [Function(nameof(DistributeParticipantOrchestrator))]
     public async Task DistributeParticipantOrchestrator([OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        _logger.LogInformation("Orchestration started");
         var participantRecord = context.GetInput<BasicParticipantCsvRecord>();
         try
         {
             // Retrieve participant data
             var participantData = await context.CallActivityAsync<CohortDistributionParticipant>(nameof(Activities.RetrieveParticipantData), participantRecord.BasicParticipantData);
+            if (participantData is null)
+            {
+                await HandleExceptionAsync(new KeyNotFoundException("Could not find participant data"), participantRecord);
+                return;
+            }
+
             participantData.RecordType = participantRecord.BasicParticipantData.RecordType;
 
             // Allocate service provider
-            string serviceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord);
+            string serviceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
 
             // Check if participant has exceptions
             _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", _config.IgnoreParticipantExceptions);

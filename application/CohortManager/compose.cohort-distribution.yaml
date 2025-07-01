@@ -19,7 +19,7 @@ services:
       - CohortDistributionDataServiceUrl=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - LookupValidationURL=http://lookup-validation:7075/api/LookupValidation
       - StaticValidationURL=http://static-validation:7074/api/StaticValidation
-      - DemographicDataFunctionURL=http://demographic-data-management:7076/api/DemographicDataFunction
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - IgnoreParticipantExceptions=false
       - IsExtractedToBSSelect=true
 

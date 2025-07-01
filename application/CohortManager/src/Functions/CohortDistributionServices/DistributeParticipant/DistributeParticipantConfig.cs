@@ -21,6 +21,6 @@ public class DistributeParticipantConfig
     [Required]
     public string CohortDistributionDataServiceUrl { get; set; }
     [Required]
-    public string DemographicDataFunctionURL { get; set; }
+    public string ParticipantDemographicDataServiceUrl { get; set; }
     public bool IsExtractedToBSSelect { get; set; } = false;
 }

@@ -13,5 +13,10 @@
   "concurrency": {
     "dynamicConcurrencyEnabled": true,
     "snapshotPersistenceEnabled": true
+  },
+  "extensions": {
+    "durableTask": {
+      "hubName": "DistributeParticipantTaskHub"
+    }
   }
 }

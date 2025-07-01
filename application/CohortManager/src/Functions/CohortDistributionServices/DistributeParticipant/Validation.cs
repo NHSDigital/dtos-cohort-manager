@@ -24,41 +24,49 @@ public class Validation
                                        IDataServiceClient<ParticipantManagement> participantManagementClient,
                                        IOptions<DistributeParticipantConfig> config,
                                        IHttpClientFunction httpClientFunction,
-                                       ILogger<Validation> logger)
+                                       ILogger<Validation> logger,
+                                       IExceptionHandler exceptionHandler)
     {
         _cohortDistributionClient = cohortDistributionClient;
         _participantManagementClient = participantManagementClient;
         _config = config.Value;
         _httpClient = httpClientFunction;
         _logger = logger;
+        _exceptionHandler = exceptionHandler;
     }
 
-    // TODO: retries
+    /// <summary>
+    /// Orchestration for the validation and trasnformation process
+    /// </summary>
+    /// <param name="context">Context containing a validation record</param>
+    /// <returns>The transformed <see cref="CohortDistributionParticipant"/>, or null if the validation/ transformation failed</returns>
     [Function(nameof(ValidationOrchestrator))]
     public async Task<CohortDistributionParticipant?> ValidationOrchestrator([OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        var participantRecord = context.GetInput<ValidationRecord>();
-        string fileName = context.GetInput<string>();
+        var validationRecord = context.GetInput<ValidationRecord>();
+
         try
         {
             // Get Previous Record From Cohort Distribution
             _logger.LogInformation("Getting previous record from the Cohort Distribution table");
-            var cohortDistRecord = context.CallActivityAsync<CohortDistributionParticipant>(nameof(GetCohortDistributionRecord), participantRecord.Participant.ParticipantId);
+            var previousRecord = await context.CallActivityAsync<CohortDistributionParticipant>(nameof(GetCohortDistributionRecord), validationRecord.Participant.ParticipantId);
+            validationRecord.PreviousParticipantRecord = previousRecord;
 
             // Lookup & Static Validation
             _logger.LogInformation("Validating participant");
             ValidationExceptionLog[] validationResults = await Task.WhenAll(
-                context.CallActivityAsync<ValidationExceptionLog>(nameof(StaticValidation), participantRecord),
-                context.CallActivityAsync<ValidationExceptionLog>(nameof(LookupValidation), participantRecord)
+                context.CallActivityAsync<ValidationExceptionLog>(nameof(StaticValidation), validationRecord),
+                context.CallActivityAsync<ValidationExceptionLog>(nameof(LookupValidation), validationRecord)
             );
 
             var validationResult = new ValidationExceptionLog(validationResults[0], validationResults[1]);
 
+            // Update exception flag and return
             if (validationResult.CreatedException)
             {
-                _logger.LogError("Participant {ParticipantId} triggered a validation rule", participantRecord.Participant.ParticipantId);
+                _logger.LogError("Participant {ParticipantId} triggered a validation rule", validationRecord.Participant.ParticipantId);
 
-                bool updated = await context.CallActivityAsync<bool>(nameof(UpdateExceptionFlag), participantRecord.Participant.ParticipantId);
+                await context.CallActivityAsync(nameof(UpdateExceptionFlag), validationRecord.Participant.ParticipantId);
 
                 if (!_config.IgnoreParticipantExceptions)
                 {
@@ -68,18 +76,23 @@ public class Validation
 
             // Transformation
             _logger.LogInformation("Transforming participant");
-            var transformedParticipant = await context.CallActivityAsync<CohortDistributionParticipant?>(nameof(TransformParticipant), participantRecord);
+            var transformedParticipant = await context.CallActivityAsync<CohortDistributionParticipant?>(nameof(TransformParticipant), validationRecord);
 
             return transformedParticipant;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to validate participant {ParticipantId}", participantRecord.Participant.ParticipantId);
-            await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(participantRecord.Participant), participantRecord.FileName);
+            _logger.LogError(ex, "Failed to validate participant {ParticipantId}", validationRecord.Participant.ParticipantId);
+            await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(validationRecord.Participant), validationRecord.FileName);
             return null;
         }
     }
 
+    /// <summary>
+    /// Gets the most recent cohort distribution record if there is one
+    /// </summary>
+    /// <param name="participantId">The participant ID of the participant, from the participant management table</param>
+    /// <returns>The most recent <see cref="CohortDistributionParticipant"/> record, or a new empty record</returns>
     [Function(nameof(GetCohortDistributionRecord))]
     public async Task<CohortDistributionParticipant> GetCohortDistributionRecord([ActivityTrigger] string participantId)
     {
@@ -101,6 +114,11 @@ public class Validation
         }
     }
 
+    /// <summary>
+    /// Calls static validation
+    /// </summary>
+    /// <param name="validationRecord"></param>
+    /// <returns>A <see cref="ValidationExceptionLog"/> representing if the participant has triggered a rule</returns>
     [Function(nameof(StaticValidation))]
     public async Task<ValidationExceptionLog> StaticValidation([ActivityTrigger] ValidationRecord validationRecord)
     {
@@ -121,16 +139,19 @@ public class Validation
         return exceptionLog;
     }
 
+    /// <summary>
+    /// Calls lookup validation twice, once for lookup rules and once for cohort rules
+    /// </summary>
+    /// <param name="validationRecord"></param>
+    /// <returns>A <see cref="ValidationExceptionLog"/> representing if the participant has triggered a rule</returns>
     [Function(nameof(LookupValidation))]
-    public async Task<ValidationExceptionLog> LookupValidation([ActivityTrigger] string fileName,
-                                                    CohortDistributionParticipant requestParticipant,
-                                                    CohortDistributionParticipant existingParticipant)
+    public async Task<ValidationExceptionLog> LookupValidation([ActivityTrigger] ValidationRecord validationRecord)
     {
         var lookupRequest = new LookupValidationRequestBody
         {
-            NewParticipant = new Participant(requestParticipant),
-            ExistingParticipant = new Participant(existingParticipant),
-            FileName = fileName,
+            NewParticipant = new Participant(validationRecord.Participant),
+            ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
+            FileName = validationRecord.FileName,
             RulesType = RulesType.ParticipantManagement
         };
 
@@ -149,18 +170,17 @@ public class Validation
     /// Calls the Transform Data Service and returns the transformed participant
     /// </summary>
     /// <returns>
-    /// The transformed CohortDistributionParticipant, or null if there were any exceptions during execution.
+    /// The transformed <see cref="CohortDistributionParticipant"/>, or null if there were exceptions during the transformation process
     /// </returns>
     [Function(nameof(TransformParticipant))]
-    public async Task<CohortDistributionParticipant?> TransformParticipant([ActivityTrigger] string serviceProvider,
-                                                                        CohortDistributionParticipant participantData,
-                                                                        CohortDistributionParticipant existingParticipant)
+    public async Task<CohortDistributionParticipant?> TransformParticipant([ActivityTrigger] ValidationRecord validationRecord)
     {
         var transformDataRequestBody = new TransformDataRequestBody()
         {
-            Participant = participantData,
-            ServiceProvider = serviceProvider,
-            ExistingParticipant = existingParticipant.ToCohortDistribution()
+            Participant = validationRecord.Participant,
+            // TODO: is this used?
+            ServiceProvider = validationRecord.Participant.ScreeningServiceId,
+            ExistingParticipant = validationRecord.PreviousParticipantRecord.ToCohortDistribution()
         };
 
         var json = JsonSerializer.Serialize(transformDataRequestBody);
@@ -168,13 +188,19 @@ public class Validation
         var response = await _httpClient.SendPost(_config.TransformDataServiceURL, json);
         response.EnsureSuccessStatusCode();
         string body = await _httpClient.GetResponseText(response);
+
         if (string.IsNullOrEmpty(body)) return null;
 
         return JsonSerializer.Deserialize<CohortDistributionParticipant>(body);
     }
 
+    /// <summary>
+    /// Updates the exception flag in participant management
+    /// </summary>
+    /// <param name="participantId"></param>
+    /// <exception cref="IOException">Thrown if the update fails</exception>
     [Function(nameof(UpdateExceptionFlag))]
-    public async Task<bool> UpdateExceptionFlag([ActivityTrigger] string participantId)
+    public async Task UpdateExceptionFlag([ActivityTrigger] string participantId)
     {
         var participantManagement = await _participantManagementClient.GetSingle(participantId);
         participantManagement.ExceptionFlag = 1;
@@ -184,8 +210,6 @@ public class Validation
         {
             throw new IOException("Failed to update exception flag");
         }
-
-        return true;
     }
 
     /// <summary>
@@ -200,6 +224,7 @@ public class Validation
         var response = await _httpClient.SendPost(_config.LookupValidationURL, json);
         response.EnsureSuccessStatusCode();
         string body = await _httpClient.GetResponseText(response);
+        _logger.LogInformation(body);
 
         var exceptionLog = JsonSerializer.Deserialize<ValidationExceptionLog>(body);
         return exceptionLog;
