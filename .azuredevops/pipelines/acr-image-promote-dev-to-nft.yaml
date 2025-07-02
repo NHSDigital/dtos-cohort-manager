@@ -9,20 +9,11 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 093557aee9d7ffb803106db24f51b7a5ef6f7f50
+      ref: c5b352eaad08403f0addac347b07ede4fa643556
       endpoint: NHSDigital
 
 variables:
   - group: DEV_hub_backend_remote_state
-
-parameters:
-  - name: destEnvironmentShortName
-    displayName: Destination Environment Short Name
-    type: string
-    values:
-    - nft
-    default: nft  
-
 
 stages:
 - stage: db_changes_stage
@@ -74,42 +65,23 @@ stages:
         parameters:
           serviceConnection: $(SERVICE_CONNECTION)
 
-- stage: post_deployment_tests_stage
-  displayName: Post-deployment tests
-  variables:
-  - group: NFT_automation_testing_pipeline
-  jobs:
-  - job: post_deployment_tests
-    displayName: Run post-deployment tests
-    pool:
-      name: private-pool-dev-uks
-
-    steps:
-    - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-      parameters:
-        serviceConnection: $(SERVICE_CONNECTION)
-        testProjectDirectory: 'tests/playwright-tests'
-        testfileDirectory: 'src/tests/e2e/testFiles'
-        testProjectName: 'tests'
-
 - stage: smoke_e2e_tests
   displayName: Run Smoke E2E Tests
   variables:
     - group: NFT_automation_testing_pipeline
-    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
-    jobs:
-      - job: smoke_e2e_tests
+  jobs:
+    - job: smoke_e2e_tests
       pool:
-      name: private-pool-dev-uks
+        name: private-pool-dev-uks
 
       steps:
-      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-      parameters:
-        serviceConnection: $(SERVICE_CONNECTION)
-        testProjectDirectory: 'tests/playwright-tests'
-        testfileDirectory: 'src/tests/e2e/testFiles'
-        testProjectName: 'tests'
-        testType: 'smoke:e2e'
+        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: $(SERVICE_CONNECTION)
+            testProjectDirectory: 'tests/playwright-tests'
+            testfileDirectory: 'src/tests/e2e/testFiles'
+            testProjectName: 'tests'
+            testType: 'smoke:e2e'
       
 - stage: regression_api_tests
   displayName: Run Regression API Tests
@@ -117,19 +89,19 @@ stages:
   condition: succeededOrFailed()
   variables:
     - group: NFT_automation_testing_pipeline  
-    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
-    jobs:
-      - job: regression_api_tests
-        pool:
+  jobs:
+    - job: regression_api_tests
+      pool:
         name: private-pool-dev-uks
-        steps:
+
+      steps:
         - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        parameters:
-          serviceConnection: $(SERVICE_CONNECTION)
-          testProjectDirectory: 'tests/playwright-tests'
-          testfileDirectory: 'src/tests/e2e/testFiles'
-          testProjectName: 'tests'
-          testType: 'regression:api'
+          parameters:
+            serviceConnection: $(SERVICE_CONNECTION)
+            testProjectDirectory: 'tests/playwright-tests'
+            testfileDirectory: 'src/tests/e2e/testFiles'
+            testProjectName: 'tests'
+            testType: 'regression:api'
       
 - stage: regression_e2e_epic1_tests
   displayName: Run Regression E2E Epic1 Tests
@@ -137,13 +109,13 @@ stages:
   condition: succeededOrFailed()
   variables:
     - group: NFT_automation_testing_pipeline 
-    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
-    jobs:
-      - job: regression_e2e_epic1_tests
-        pool:
-          name: private-pool-dev-uks
-          steps:
-          - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+  jobs:
+    - job: regression_e2e_epic1_tests
+      pool:
+        name: private-pool-dev-uks
+
+      steps:
+        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
           parameters:
             serviceConnection: $(SERVICE_CONNECTION)
             testProjectDirectory: 'tests/playwright-tests'
@@ -157,19 +129,19 @@ stages:
   condition: succeededOrFailed()
   variables:
     - group: NFT_automation_testing_pipeline 
-    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
-    jobs:
-      - job: regression_e2e_epic2_tests
-        pool:
-          name: private-pool-dev-uks
-        steps:
+  jobs:
+    - job: regression_e2e_epic2_tests
+      pool:
+        name: private-pool-dev-uks
+
+      steps:
         - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        parameters:
-          serviceConnection: $(SERVICE_CONNECTION)
-          testProjectDirectory: 'tests/playwright-tests'
-          testfileDirectory: 'src/tests/e2e/testFiles'
-          testProjectName: 'tests'
-          testType: 'regression:e2e:epic2'
+          parameters:
+            serviceConnection: $(SERVICE_CONNECTION)
+            testProjectDirectory: 'tests/playwright-tests'
+            testfileDirectory: 'src/tests/e2e/testFiles'
+            testProjectName: 'tests'
+            testType: 'regression:e2e:epic2'
       
 - stage: regression_e2e_epic3_tests
   displayName: Run Regression E2E Epic3 Tests
@@ -177,17 +149,17 @@ stages:
   condition: succeededOrFailed()
   variables:
     - group: NFT_automation_testing_pipeline 
-    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
-    jobs:
-      - job: regression_e2e_epic3_tests
-        pool:
-          name: private-pool-dev-uks
-        steps:
+  jobs:
+    - job: regression_e2e_epic3_tests
+      pool:
+        name: private-pool-dev-uks
+
+      steps:
         - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-        parameters:
-          serviceConnection: $(SERVICE_CONNECTION)
-          testProjectDirectory: 'tests/playwright-tests'
-          testfileDirectory: 'src/tests/e2e/testFiles'
-          testProjectName: 'tests'
-          testType: 'regression:e2e:epic3'
+          parameters:
+            serviceConnection: $(SERVICE_CONNECTION)
+            testProjectDirectory: 'tests/playwright-tests'
+            testfileDirectory: 'src/tests/e2e/testFiles'
+            testProjectName: 'tests'
+            testType: 'regression:e2e:epic3'
       
