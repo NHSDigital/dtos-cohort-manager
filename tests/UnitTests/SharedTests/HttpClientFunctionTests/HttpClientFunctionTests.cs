@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Common;
 using System.Net;
 using Moq.Protected;
+using System.Security.Cryptography.X509Certificates;
 
 [TestClass]
 public class HttpClientFunctionTests
@@ -433,5 +434,32 @@ public class HttpClientFunctionTests
         Assert.IsNotNull(result);
         Assert.AreEqual(_mockContent, result);
     }
+    #endregion
+
+    #region NEMS Methods
+
+    [TestMethod]
+    public void GenerateNemsJwtToken_ValidParameters_ReturnsJwtToken()
+    {
+        // Arrange
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+        var asid = "test-asid";
+        var audience = "https://nems.endpoint";
+        var scope = "patient/Subscription.write";
+
+        // Act
+        var result = _function.GenerateNemsJwtToken(asid, audience, scope);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.IsTrue(result.Contains('.'));
+        Assert.IsTrue(result.EndsWith('.'));
+        
+        // JWT should have 3 parts (header.payload.signature) - signature is empty
+        var parts = result.Split('.');
+        Assert.AreEqual(3, parts.Length);
+        Assert.AreEqual(string.Empty, parts[2]); // Empty signature for unsigned JWT
+    }
+
     #endregion
 }
