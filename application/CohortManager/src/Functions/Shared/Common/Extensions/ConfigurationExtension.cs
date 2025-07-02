@@ -10,8 +10,6 @@ using Microsoft.Extensions.Logging;
 
 public static class ConfigurationExtension
 {
-    private static List<string> _emptyList = new List<string>();
-
     public static IHostBuilder AddConfiguration<T>(this IHostBuilder hostBuilder, string? keyVaultUrl = null) where T: class
     {
         var configuration = CreateConfiguration(keyVaultUrl);
@@ -40,7 +38,6 @@ public static class ConfigurationExtension
         logger.LogInformation("Building Configuration");
         ConfigurationBuilder configBuilder = new ConfigurationBuilder();
         keyVaultUrl ??= Environment.GetEnvironmentVariable("KeyVaultConnectionString");
-
         if(keyVaultUrl != null){
             try
             {
