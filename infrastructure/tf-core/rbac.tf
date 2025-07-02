@@ -1,5 +1,7 @@
 # This module assigns default base roles to the resources specified
 module "global_cohort_rbac" {
+  count = var.enable_global_rbac ? 1: 0
+
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment-global"
 
   identity_prefix = "uami-global"
