@@ -64,7 +64,7 @@ stages:
           - checkout: dtos-devops-templates
 
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
-            parameter:
+            parameters:
               tfCommandOptions: "-var=enable_global_rbac=true -target=module.global_cohort_rbac"
               tfPlanFilename: rbac_plan.tfplan
 
