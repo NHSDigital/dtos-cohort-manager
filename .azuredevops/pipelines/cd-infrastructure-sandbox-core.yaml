@@ -51,18 +51,17 @@ stages:
         steps:
           - checkout: self
           - checkout: dtos-devops-templates
-
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
             parameters:
               tfCommandOptions: "-var=enable_global_rbac=false"
 
-      - job: apply_roles
-        displayName: Apply RBAC roles
+      - job: plan_roles
+        displayName: Plan RBAC roles
+        dependsOn: init_and_plan
         condition: succeeded()
         steps:
           - checkout: self
           - checkout: dtos-devops-templates
-
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
             parameters:
               tfCommandOptions: "-var=enable_global_rbac=true -target=module.global_cohort_rbac"
@@ -71,10 +70,13 @@ stages:
   - stage: terraform_apply
     displayName: Terraform Apply
     dependsOn: [terraform_plan]
-    condition: and(eq('${{ parameters.pipelineAction }}', 'Apply'), eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
+    condition: and(
+      eq('${{ parameters.pipelineAction }}', 'Apply'),
+      eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'),
+      eq(variables['Build.Reason'], 'Manual'))
     jobs:
       - deployment: terraform_apply
-        displayName: Init, get plan artifact, apply
+        displayName: Apply Terraform Plan
         environment: $(ENVIRONMENT)
         strategy:
           runOnce:
@@ -83,6 +85,28 @@ stages:
                 - checkout: self
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+
+  - stage: terraform_apply_roles
+    displayName: Terraform Apply Roles
+    dependsOn: [terraform_plan]
+    condition: and(
+      eq('${{ parameters.pipelineAction }}', 'Apply'),
+      eq(dependencies.terraform_plan.outputs['plan_roles.TerraformPlan.changesPresent'], 'true'),
+      eq(variables['Build.Reason'], 'Manual'))
+    jobs:
+      - deployment: terraform_apply
+        displayName: Apply Planned Roles
+        environment: $(ENVIRONMENT)
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - checkout: dtos-devops-templates
+                - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+                  parameters:
+                    tfCommandOptions: "-var=enable_global_rbac=true -target=module.global_cohort_rbac"
+                    tfPlanFilename: rbac_plan.tfplan
 
   - stage: terraform_destroy
     displayName: Terraform Destroy
