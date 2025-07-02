@@ -53,7 +53,7 @@ stages:
           - checkout: dtos-devops-templates
 
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
-            with:
+            parameters:
               tfCommandOptions: "-var=enable_global_rbac=false"
 
           - ${{ if succeeded() }}:
