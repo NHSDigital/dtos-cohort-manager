@@ -2,10 +2,7 @@ namespace NHS.CohortManager.ParticipantManagementServices;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Microsoft.DurableTask.Client;
-using Microsoft.DurableTask;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Microsoft.Extensions.Options;
 using Common;
 using System.Text.Json;

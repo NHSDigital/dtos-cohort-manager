@@ -57,6 +57,7 @@ public class DistributeParticipantActivities
         // Create cohort distribution participant
         CohortDistributionParticipant participant = new(participantManagement, participantDemographic)
         {
+            RecordType = participantData.RecordType,
             //TODO, This needs to happen elsewhere Hardcoded for now
             ScreeningName = "Breast Screening",
             ScreeningAcronym = "BSS"

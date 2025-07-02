@@ -80,11 +80,6 @@ public class DistributeParticipant
                 return;
             }
 
-            participantData.RecordType = participantRecord.BasicParticipantData.RecordType;
-
-            // Allocate service provider
-            string serviceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
-
             // Check if participant has exceptions
             _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", _config.IgnoreParticipantExceptions);
             if (participantData.ExceptionFlag == 1 && !_config.IgnoreParticipantExceptions)
@@ -92,6 +87,9 @@ public class DistributeParticipant
                 await HandleExceptionAsync(new ArgumentException("Pariticipant has an unresolved exception, will not add to cohort distribution"), participantRecord);
                 return;
             }
+
+            // Allocate service provider
+            string serviceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
 
             // Validation & Transformation
             ValidationRecord validationRecord = new() {FileName = participantRecord.FileName, Participant = participantData}; 
