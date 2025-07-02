@@ -117,12 +117,6 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "lastId"))
                             .Returns(0);
 
-        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(
-            It.IsAny<HttpRequestData>(),
-            It.Is<string>(key => key == "todayOnly"),
-            It.IsAny<bool>()))
-            .Returns(false);
-
         _mockHttpResponseData.StatusCode = HttpStatusCode.NoContent;
 
         _createResponseMock.Setup(r =>
@@ -158,12 +152,6 @@ public class GetValidationExceptionsTests : DatabaseTestBaseSetup<GetValidationE
 
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(It.IsAny<HttpRequestData>(), "lastId"))
                             .Returns(0);
-
-        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(
-            It.IsAny<HttpRequestData>(),
-            It.Is<string>(key => key == "todayOnly"),
-            It.IsAny<bool>()))
-            .Returns(false);
 
         // Setup the mock response with expected error status code
         _mockHttpResponseData.StatusCode = HttpStatusCode.InternalServerError;
