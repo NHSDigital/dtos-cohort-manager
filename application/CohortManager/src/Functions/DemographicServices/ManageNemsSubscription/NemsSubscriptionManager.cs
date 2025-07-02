@@ -292,14 +292,14 @@ public class NemsSubscriptionManager
     }
 
     /// <summary>
-    /// Serializes a subscription object to JSON for sending to NEMS using proper FHIR serialization
+    /// Serializes a subscription object to JSON for sending to NEMS using proper FHIR serialisation
     /// </summary>
-    /// <param name="subscription">The subscription to serialize</param>
+    /// <param name="subscription">The subscription to serialise</param>
     /// <returns>JSON string representation of the subscription</returns>
-    public string SerializeSubscription(STU3Subscription subscription)
+    public static string SerialiseSubscription(STU3Subscription subscription)
     {
-        var serializer = new FhirJsonSerializer();
-        return serializer.SerializeToString(subscription);
+        var serialiser = new FhirJsonSerializer();
+        return serialiser.SerializeToString(subscription);
     }
 
     /// <summary>
@@ -325,7 +325,7 @@ public class NemsSubscriptionManager
             var subscription = CreateSubscription(nhsNumber, eventType);
 
             // Serialize to JSON using FHIR serializer
-            var subscriptionJson = SerializeSubscription(subscription);
+            var subscriptionJson = SerialiseSubscription(subscription);
 
             // Send to NEMS
             var subscriptionId = await SendSubscriptionToNemsAsync(subscriptionJson);
