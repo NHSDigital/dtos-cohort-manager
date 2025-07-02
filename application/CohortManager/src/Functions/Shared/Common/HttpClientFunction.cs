@@ -157,24 +157,16 @@ public class HttpClientFunction : IHttpClientFunction
         request.Headers.Add("toASID", toAsid);
         request.Headers.Add("InteractionID", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiDelete");
 
-        try
-        {
-            var response = await client.SendAsync(request);
+        var response = await client.SendAsync(request);
 
-            _logger.LogInformation("NEMS API Response: {StatusCode}", response.StatusCode);
-            // Log response for debugging
-            if (!response.IsSuccessStatusCode)
-            {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                _logger.LogDebug("NEMS API Error Response: {Response}", responseContent);
-            }
-            return response;
-        }
-        catch (Exception ex)
+        _logger.LogInformation("NEMS API Response: {StatusCode}", response.StatusCode);
+        // Log response for debugging
+        if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError(ex, "Failed to execute NEMS DELETE request to {Url}: {ErrorMessage}", RemoveURLQueryString(url), ex.Message);
-            throw;
+            var responseContent = await response.Content.ReadAsStringAsync();
+            _logger.LogDebug("NEMS API Error Response: {Response}", responseContent);
         }
+        return response;
     }
 
     /// <summary>

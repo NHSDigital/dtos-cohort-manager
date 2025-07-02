@@ -14,11 +14,9 @@ using Azure.Identity;
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("Program");
 
-try
-{
-    var host = new HostBuilder();
+var host = new HostBuilder();
 
-    // Use your custom AddConfiguration method that works in other functions
+    // Load configuration
     host.AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config);
 
     // Load NEMS certificate up-front and inject into DI
@@ -54,10 +52,10 @@ try
         services.AddHttpClient();
         services.AddScoped<IHttpClientFunction, HttpClientFunction>();
 
-        // Register the NEMS certificate in DI
+        // Register NEMS certificate
         services.AddSingleton(nemsCertificate);
 
-        // Register NEMS subscription manager (now expects X509Certificate2 injected)
+        // Register NEMS subscription manager
         services.AddScoped<NemsSubscriptionManager>();
 
         // Register response helpers
@@ -82,14 +80,8 @@ try
     .AddTelemetry()
     .AddExceptionHandler();
 
-    var app = host.Build();
-    await app.RunAsync();
-}
-catch (Exception ex)
-{
-    logger.LogCritical(ex, "Failed to start up NEMS Function: {ErrorMessage}", ex.Message);
-    throw;
-}
+var app = host.Build();
+await app.RunAsync();
 
 /// <summary>
 /// Validates that all required configuration is present
