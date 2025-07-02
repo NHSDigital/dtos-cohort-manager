@@ -172,7 +172,7 @@ public class HttpClientFunction : IHttpClientFunction
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
+            _logger.LogError(ex, "Failed to execute NEMS DELETE request to {Url}: {ErrorMessage}", RemoveURLQueryString(url), ex.Message);
             throw;
         }
     }

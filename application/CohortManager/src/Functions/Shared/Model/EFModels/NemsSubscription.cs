@@ -7,7 +7,7 @@ public class NemsSubscription
 {
     [Key]
     [Column("SUBSCRIPTION_ID", TypeName = "nvarchar(450)")]
-    public string SubscriptionId { get; set; }
+    public required string SubscriptionId { get; set; }
 
     [Required]
     [Column("NHS_NUMBER", TypeName = "bigint")]
