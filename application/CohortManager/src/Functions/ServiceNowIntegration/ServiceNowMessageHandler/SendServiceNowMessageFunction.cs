@@ -12,25 +12,25 @@ public class SendServiceNowMessageFunction
 {
     private readonly ILogger<SendServiceNowMessageFunction> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IServiceNowClient _serviceNowHelper;
+    private readonly IServiceNowClient _serviceNowClient;
 
     public SendServiceNowMessageFunction(ILogger<SendServiceNowMessageFunction> logger,
-        ICreateResponse createResponse, IServiceNowClient serviceNowHelper)
+        ICreateResponse createResponse, IServiceNowClient serviceNowClient)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _serviceNowHelper = serviceNowHelper;
+        _serviceNowClient = serviceNowClient;
     }
 
     /// <summary>
-    /// Azure Function to send a message to the ServiceNow API, with automatic token refresh handling.
+    /// Azure Function to send a message to the ServiceNow API
     /// </summary>
     /// <param name="req">The HTTP request containing the message to be sent.</param>
-    /// <param name="sysId">The ServiceNow system identifier (sys_id) used in the PUT request path.</param>
+    /// <param name="sysId">The ServiceNow case system identifier (sys_id) used in the HTTP request path.</param>
     /// <returns>
     /// An HTTP response indicating the result of the operation:
     ///  - 200 OK for success
-    ///  - 400 Bad Request for invalid input
+    ///  - 400 Bad Request for invalid request body
     ///  - 500 Internal Server Error for unexpected exception
     /// </returns>
     [Function("SendServiceNowMessage")]
@@ -68,7 +68,7 @@ public class SendServiceNowMessageFunction
                 WorkNotes = requestBody.WorkNotes
             };
 
-            var response = await _serviceNowHelper.SendUpdate(sysId, payload);
+            var response = await _serviceNowClient.SendUpdate(sysId, payload);
 
             if (response == null || !response.IsSuccessStatusCode)
             {

@@ -5,7 +5,7 @@ using NHS.CohortManager.ServiceNowIntegrationService.Models;
 public interface IServiceNowClient
 {
     /// <summary>
-    /// Sends an HTTP request update a ServiceNow case.
+    /// Sends an HTTP request to update a ServiceNow case. Automatically handles access token including refresh.
     /// </summary>
     /// <param name="sysId">The ServiceNow case system identifier (sys_id) used in the HTTP request path.</param>
     /// <param name="payload">The ServiceNowUpdateRequestBody that will be sent in the HTTP request body.</param>
