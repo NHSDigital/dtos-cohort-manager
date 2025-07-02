@@ -37,12 +37,14 @@ module "linux_web_app" {
 
   public_dns_zone_rg_name       = data.terraform_remote_state.hub.outputs.public_dns_zone_rg_name
   public_network_access_enabled = var.features.public_network_access_enabled
-  rbac_role_assignments         = each.value.rbac_role_assignments
+  rbac_role_assignments         = lookup(each.value, "rbac_role_assignments", [])
+
   # share_name                 = var.linux_web_app.share_name
   # storage_account_access_key = module.storage["webapp-${each.value.region}"].storage_account_primary_access_key
   # storage_account_name       = module.storage["webapp-${each.value.region}"].storage_account_name
   # storage_name               = var.linux_web_app.storage_name
   # storage_type               = var.linux_web_app.storage_type
+
   vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-webapps"].id
   wildcard_ssl_cert_id       = each.value.custom_domains != null ? module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].wildcard_ssl_cert_id : null
   worker_32bit               = var.linux_web_app.worker_32bit
