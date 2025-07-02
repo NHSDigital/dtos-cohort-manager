@@ -95,27 +95,7 @@ public class HttpClientFunction : IHttpClientFunction
         X509Certificate2 clientCertificate = null,
         bool bypassCertValidation = false)
     {
-        var handler = new HttpClientHandler();
-
-        // Add client certificate for mutual TLS authentication
-        if (clientCertificate != null)
-        {
-            handler.ClientCertificates.Add(clientCertificate);
-            _logger.LogInformation("Added client certificate for NEMS authentication");
-        }
-
-#if DEBUG
-        if (bypassCertValidation)
-        {
-            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
-            {
-                _logger.LogWarning("Bypassing server certificate validation - DO NOT USE IN PRODUCTION");
-                return true;
-            };
-        }
-#else
-// In Release/Production: Never bypass, always validate (default behavior)
-#endif
+        var handler = ConfigureNemsHttpClientHandler(clientCertificate, bypassCertValidation);
 
 
         using var client = new HttpClient(handler);
@@ -163,25 +143,7 @@ public class HttpClientFunction : IHttpClientFunction
         X509Certificate2 clientCertificate = null,
         bool bypassCertValidation = false)
     {
-        var handler = new HttpClientHandler();
-
-        if (clientCertificate != null)
-        {
-            handler.ClientCertificates.Add(clientCertificate);
-        }
-
-#if DEBUG
-        if (bypassCertValidation)
-        {
-            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
-            {
-                _logger.LogWarning("Bypassing server certificate validation - DO NOT USE IN PRODUCTION");
-                return true;
-            };
-        }
-#else
-// In Release/Production: Never bypass, always validate (default behavior)
-#endif
+        var handler = ConfigureNemsHttpClientHandler(clientCertificate, bypassCertValidation);
 
         using var client = new HttpClient(handler);
         client.BaseAddress = new Uri(url);
@@ -341,5 +303,49 @@ public class HttpClientFunction : IHttpClientFunction
         }
 
         return null;
+    }
+
+    private HttpClientHandler ConfigureNemsHttpClientHandler(
+        X509Certificate2 clientCertificate = null,
+        bool bypassCertValidation = false)
+    {
+        var handler = new HttpClientHandler();
+
+        // Add client certificate for mutual TLS authentication
+        if (clientCertificate != null)
+        {
+            handler.ClientCertificates.Add(clientCertificate);
+            _logger.LogInformation("Added client certificate for NEMS authentication");
+        }
+
+#if DEBUG
+        if (bypassCertValidation)
+        {
+            handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+            {
+                _logger.LogWarning("Bypassing server certificate validation - DO NOT USE IN PRODUCTION");
+                
+                // Still perform basic certificate validation even when bypassing
+                if (cert == null)
+                {
+                    _logger.LogError("Server certificate is null");
+                    return false;
+                }
+                
+                // Check if certificate is expired
+                if (cert.NotAfter < DateTime.Now || cert.NotBefore > DateTime.Now)
+                {
+                    _logger.LogError("Server certificate is expired or not yet valid");
+                    return false;
+                }
+                
+                return true;
+            };
+        }
+#else
+// In Release/Production: Never bypass, always validate (default behavior)
+#endif
+
+        return handler;
     }
 }
