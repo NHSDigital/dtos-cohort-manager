@@ -7,6 +7,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-4385-01",
+        "requirementJiraId": "DTOSS-3084",
         "additionalTags": "@regression @e2e @epic2-med-priority Validations Interpreter Null Existing"
       }
     }
