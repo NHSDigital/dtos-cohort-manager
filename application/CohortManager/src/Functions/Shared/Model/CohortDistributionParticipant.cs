@@ -109,7 +109,7 @@ public class CohortDistributionParticipant
         FamilyName = demographic.FamilyName;
         PreviousFamilyName = demographic.PreviousFamilyName;
         DateOfBirth = demographic.DateOfBirth;
-        Gender = (Gender) demographic.Gender;
+        Gender = (Gender) (demographic.Gender ?? 0);
         AddressLine1 = demographic.AddressLine1;
         AddressLine2 = demographic.AddressLine2;
         AddressLine3 = demographic.AddressLine3;
