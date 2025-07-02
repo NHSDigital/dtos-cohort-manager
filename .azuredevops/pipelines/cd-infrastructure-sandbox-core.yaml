@@ -51,7 +51,18 @@ stages:
         steps:
           - checkout: self
           - checkout: dtos-devops-templates
+
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+            with:
+              tfCommandOptions: "-var=enable_global_rbac=false"
+
+          - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+            condition: succeeded()
+            name: secure
+            displayName: Apply global RBAC roles
+            with:
+              tfCommandOptions: "-var=enable_global_rbac=true -target=module.global_cohort_rbac"
+              tfPlanFilename: rbac_plan.tfplan
 
   - stage: terraform_apply
     displayName: Terraform Apply
