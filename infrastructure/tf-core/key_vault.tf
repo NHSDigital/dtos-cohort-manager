@@ -19,7 +19,7 @@ module "key_vault" {
 
   enable_rbac_authorization = true
 
-  # We use the RBAC module to set default roles against a single user assigned managed identity
+  # We use the RBAC module to set default roles
   #rbac_roles                = local.rbac_roles_key_vault
 
   # Private Endpoint Configuration if enabled

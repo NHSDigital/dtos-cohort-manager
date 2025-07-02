@@ -21,7 +21,7 @@ module "storage" {
 
   public_network_access_enabled = each.value.public_network_access_enabled
 
-  # We use the RBAC module to set default roles against a single user assigned managed identity
+  # We use the RBAC module to set default roles
   #rbac_roles = local.rbac_roles_storage
 
   # Private Endpoint Configuration if enabled

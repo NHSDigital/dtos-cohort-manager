@@ -542,3 +542,9 @@ variable "function_app_slots" {
     function_app_slot_enabled = optional(bool, false)
   }))
 }
+
+variable "identity_prefix"{
+  type = string
+  description = "A short custom prefix to assign to this user assigned managed identity"
+  default = ""
+}

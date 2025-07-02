@@ -1,6 +1,8 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "SBX"
+environment           = "SBMJ"
+enable_global_rbac    = true
+identity_prefix       = "global-uami"
 
 features = {
   acr_enabled                          = false
@@ -18,7 +20,7 @@ tags = {
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.126.0.0/16"
+    address_space     = "10.136.0.0/16"
     connect_peering   = true
     subnets = {
       apps = {
@@ -48,8 +50,11 @@ regions = {
         cidr_offset  = 5
       }
       container-app-db-management = {
-        cidr_newbits = 7
-        cidr_offset  = 6
+        cidr_newbits               = 7
+        cidr_offset                = 6
+        delegation_name            = "Microsoft.App"
+        service_delegation_name    = "Microsoft.App/environments"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
       }
     }
   }
@@ -66,8 +71,8 @@ routes = {
         priority              = 900
         action                = "Allow"
         rule_name             = "CohmanToAudit"
-        source_addresses      = ["10.126.0.0/16"]
-        destination_addresses = ["10.127.0.0/16"]
+        source_addresses      = ["10.136.0.0/16"]
+        destination_addresses = ["10.137.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       },
@@ -76,8 +81,8 @@ routes = {
         priority              = 910
         action                = "Allow"
         rule_name             = "AuditToCohman"
-        source_addresses      = ["10.127.0.0/16"]
-        destination_addresses = ["10.126.0.0/16"]
+        source_addresses      = ["10.137.0.0/16"]
+        destination_addresses = ["10.136.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
@@ -93,7 +98,7 @@ routes = {
     route_table_audit = [
       {
         name                   = "AuditToCohman"
-        address_prefix         = "10.126.0.0/16"
+        address_prefix         = "10.16.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -263,8 +268,8 @@ function_apps = {
           recordThresholdForBatching = "3"
           batchDivisionFactor        = "2"
           CheckTimer                 = "100"
-          DemographicURI             = "https://sbx-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
-          GetOrchestrationStatusURL  = "https://sbx-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
+          DemographicURI             = "https://sbmj-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
+          GetOrchestrationStatusURL  = "https://sbmj-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
           AllowDeleteRecords         = true
           UpdateQueueName            = "update-participant-queue"
           maxNumberOfChecks          = "50"
@@ -301,12 +306,12 @@ function_apps = {
       storage_account_env_var_name = "caasfolder_STORAGE"
       env_vars = {
         app_urls = {
-          ExceptionFunctionURL      = "CreateException"
-          RetrievePdsDemographicURL = "RetrievePDSDemographic"
+          ExceptionFunctionURL           = "CreateException"
+          RetrievePdsDemographicURL      = "RetrievePDSDemographic"
           UnsubscribeNemsSubscriptionUrl = "ManageNemsSubscription"
         }
         static = {
-          MeshCertName = "MeshCert"
+          MeshCertName    = "MeshCert"
           UpdateQueueName = "update-participant-queue"
         }
         storage_containers = {
