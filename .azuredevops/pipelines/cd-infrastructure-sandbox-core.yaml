@@ -41,7 +41,7 @@ variables:
 
 stages:
   - stage: terraform_plan
-    displayName: Terraform Plan
+    displayName: Plan Infrastructure
     condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
     variables:
       tfVarsFile: environments/$(ENVIRONMENT).tfvars
@@ -56,14 +56,14 @@ stages:
               tfCommandOptions: "-var=enable_global_rbac=false"
 
   - stage: terraform_apply
-    displayName: Terraform Apply
+    displayName: Apply Infrastructure
     dependsOn: [terraform_plan]
     condition: and(
       eq('${{ parameters.pipelineAction }}', 'Apply'),
       eq(variables['Build.Reason'], 'Manual'))
     jobs:
       - deployment: terraform_apply_plan
-        displayName: Apply Resources Plan
+        displayName: Apply Infrastructure Plan
         environment: $(ENVIRONMENT)
         strategy:
           runOnce:
@@ -74,14 +74,16 @@ stages:
                 - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
   - stage: roles_stage
-    displayName: Plan & Apply RBAC Roles
+    displayName: Secure Infrastructure
     dependsOn: [terraform_apply]
     condition: and(
       eq('${{ parameters.pipelineAction }}', 'Apply'),
       eq(variables['Build.Reason'], 'Manual'))
+    variables:
+      tfVarsFile: environments/$(ENVIRONMENT).tfvars
     jobs:
       - job: plan_roles
-        displayName: Plan RBAC roles
+        displayName: Plan RBAC Roles
         steps:
           - checkout: self
           - checkout: dtos-devops-templates
@@ -95,7 +97,7 @@ stages:
           succeeded(),
           eq(dependencies.plan_roles.outputs['TerraformPlan.changesPresent'], 'true')
           )
-        displayName: Apply Planned Roles
+        displayName: Apply RBAC Roles
         environment: $(ENVIRONMENT)
         strategy:
           runOnce:
@@ -108,7 +110,7 @@ stages:
                     tfPlanFilename: rbac_plan.tfplan
 
   - stage: terraform_destroy
-    displayName: Terraform Destroy
+    displayName: Destroy Infrastructure
     condition: and(eq('${{ parameters.pipelineAction }}', 'Destroy'), eq(variables['Build.Reason'], 'Manual'))
     variables:
       tfVarsFile: environments/$(ENVIRONMENT).tfvars
