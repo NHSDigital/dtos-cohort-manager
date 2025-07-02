@@ -47,7 +47,7 @@ stages:
       tfVarsFile: environments/$(ENVIRONMENT).tfvars
     jobs:
       - job: init_and_plan
-        displayName: Init, plan, store artifact
+        displayName: Init, plan, store artifact and apply roles
         steps:
           - checkout: self
           - checkout: dtos-devops-templates
@@ -56,13 +56,11 @@ stages:
             with:
               tfCommandOptions: "-var=enable_global_rbac=false"
 
-          - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
-            condition: succeeded()
-            name: secure
-            displayName: Apply global RBAC roles
-            with:
-              tfCommandOptions: "-var=enable_global_rbac=true -target=module.global_cohort_rbac"
-              tfPlanFilename: rbac_plan.tfplan
+          - ${{ if succeeded() }}:
+              - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+                parameter:
+                  tfCommandOptions: "-var=enable_global_rbac=true -target=module.global_cohort_rbac"
+                  tfPlanFilename: rbac_plan.tfplan
 
   - stage: terraform_apply
     displayName: Terraform Apply
