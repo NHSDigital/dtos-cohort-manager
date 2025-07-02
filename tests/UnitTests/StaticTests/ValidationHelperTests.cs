@@ -21,7 +21,7 @@ public class ValidationHelperTests
 
     [TestMethod]
     [DataRow(null)]
-    [DataRow("-1234567890")]    
+    [DataRow("-1234567890")]
     [DataRow("1a2b3c4d5e")]
     [DataRow("1234567890")]
     [DataRow("9876543219")]
@@ -57,8 +57,8 @@ public class ValidationHelperTests
     [DataRow("6060-12-23")]
     [DataRow("7070-01-01")]
     [DataRow("dfbgdfdggfggg")]
-    [DataRow("-2000")]   
-    [DataRow(null)]               
+    [DataRow("-2000")]
+    [DataRow(null)]
     public void ValidatePastDate_InvalidPastDate_ReturnsFalse(string pastDate)
     {
         var result = ValidationHelper.ValidatePastDate(pastDate);
@@ -69,7 +69,7 @@ public class ValidationHelperTests
     [TestMethod]
     public void ValidatePastDate_InvalidPastDateAlwaysFuture_ReturnsFalse()
     {
-        var result = ValidationHelper.ValidatePastDate(DateTime.UtcNow.AddDays(1).ToString("dd/MM/yyyy HH:mm:ss"));
+        var result = ValidationHelper.ValidatePastDate(DateTime.Now.AddDays(1).ToString("dd/MM/yyyy HH:mm:ss"));
 
         Assert.IsFalse(result);
     }
