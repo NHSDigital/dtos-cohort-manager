@@ -56,11 +56,11 @@ stages:
             parameters:
               tfCommandOptions: "-var=enable_global_rbac=false"
 
-          - ${{ if succeeded() }}:
-              - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
-                parameter:
-                  tfCommandOptions: "-var=enable_global_rbac=true -target=module.global_cohort_rbac"
-                  tfPlanFilename: rbac_plan.tfplan
+          - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+            condition: succeeded()
+            parameter:
+              tfCommandOptions: "-var=enable_global_rbac=true -target=module.global_cohort_rbac"
+              tfPlanFilename: rbac_plan.tfplan
 
   - stage: terraform_apply
     displayName: Terraform Apply
