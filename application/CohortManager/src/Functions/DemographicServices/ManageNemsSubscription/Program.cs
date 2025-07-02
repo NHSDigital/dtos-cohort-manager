@@ -22,7 +22,7 @@ try
     host.AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config);
 
     // Load NEMS certificate up-front and inject into DI
-    X509Certificate2 nemsCertificate = null;
+    X509Certificate2? nemsCertificate = null;
 
     if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
     {
