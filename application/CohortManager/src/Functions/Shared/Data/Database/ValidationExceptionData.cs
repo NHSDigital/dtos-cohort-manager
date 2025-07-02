@@ -25,18 +25,10 @@ public class ValidationExceptionData : IValidationExceptionData
         _demographicDataServiceClient = demographicDataServiceClient;
     }
 
-    public async Task<List<ValidationException>?> GetAllExceptions(bool todayOnly, ExceptionSort? orderByProperty, ExceptionCategory exceptionCategory)
+    public async Task<List<ValidationException>?> GetAllExceptions(ExceptionSort? orderByProperty, ExceptionCategory exceptionCategory)
     {
         var category = (int)exceptionCategory;
-
-        var exceptions = todayOnly
-            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.DateCreated != null &&
-                                                                      x.DateCreated.Value.Date == DateTime.Today &&
-                                                                      x.Category != null &&
-                                                                      x.Category.Value == category)
-            : await _validationExceptionDataServiceClient.GetByFilter(x => x.Category != null &&
-                                                                      x.Category.Value == category);
-
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.Category != null && x.Category.Value == category);
         var exceptionList = exceptions.Select(s => s.ToValidationException());
 
         return SortExceptions(orderByProperty, exceptionList);
@@ -52,9 +44,7 @@ public class ValidationExceptionData : IValidationExceptionData
             return null;
         }
 
-        long nhsNumber;
-
-        if (!long.TryParse(exception.NhsNumber, out nhsNumber))
+        if (!long.TryParse(exception.NhsNumber, out long nhsNumber))
         {
             throw new FormatException("Unable to parse NHS Number");
         }
