@@ -1,7 +1,7 @@
 
 # Cohort Manager Database Management Guide
 
-## 0. Create an `appsettings.json` file (required for migrations to run)
+## 1. Create an `appsettings.json` file (required for migrations to run)
 
 If it doesn’t already exist, create a file named `appsettings.json` in the root of the `DataServices.Migrations` project with the following content:
 
@@ -12,12 +12,6 @@ If it doesn’t already exist, create a file named `appsettings.json` in the roo
 ```
 
 > 🔒 **Note:** Do not commit this file to source control. Add it to `.gitignore` if it isn’t already.
-
----
-
-## 1. Create the new tables / objects in your local database
-
-Update your local SQL Server database with the desired changes (new tables, columns, etc.).
 
 ---
 
