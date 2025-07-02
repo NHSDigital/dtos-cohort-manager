@@ -92,7 +92,7 @@ public class HttpClientFunction : IHttpClientFunction
         string jwtToken,
         string fromAsid,
         string toAsid,
-        X509Certificate2 clientCertificate = null,
+        X509Certificate2? clientCertificate = null,
         bool bypassCertValidation = false)
     {
         var handler = ConfigureNemsHttpClientHandler(clientCertificate, bypassCertValidation);
@@ -130,7 +130,7 @@ public class HttpClientFunction : IHttpClientFunction
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
+            _logger.LogError(ex, "Failed to execute NEMS POST request to {Url}: {ErrorMessage}", RemoveURLQueryString(url), ex.Message);
             throw;
         }
     }
@@ -140,7 +140,7 @@ public class HttpClientFunction : IHttpClientFunction
         string jwtToken,
         string fromAsid,
         string toAsid,
-        X509Certificate2 clientCertificate = null,
+        X509Certificate2? clientCertificate = null,
         bool bypassCertValidation = false)
     {
         var handler = ConfigureNemsHttpClientHandler(clientCertificate, bypassCertValidation);
@@ -302,11 +302,11 @@ public class HttpClientFunction : IHttpClientFunction
             throw;
         }
 
-        return null;
+        return string.Empty;
     }
 
     private HttpClientHandler ConfigureNemsHttpClientHandler(
-        X509Certificate2 clientCertificate = null,
+        X509Certificate2? clientCertificate = null,
         bool bypassCertValidation = false)
     {
         var handler = new HttpClientHandler();

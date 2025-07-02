@@ -72,7 +72,7 @@ try
             config.OdsCode,
             string.IsNullOrEmpty(config.MeshMailboxId) ? "NOT_SET" : "SET");
 
-        logger.LogInformation("Config Debug -- NemsFhirEndpoint: {0}, FromAsid: {1}, LocalCert: {2}",
+        logger.LogInformation("Config Debug -- NemsFhirEndpoint: {NemsFhirEndpoint}, FromAsid: {FromAsid}, LocalCert: {LocalCert}",
             config.NemsFhirEndpoint, config.FromAsid, config.NemsLocalCertPath);
 
         // Validate critical configuration
@@ -87,7 +87,7 @@ try
 }
 catch (Exception ex)
 {
-    logger.LogCritical(ex, "Failed to start up NEMS Function");
+    logger.LogCritical(ex, "Failed to start up NEMS Function: {ErrorMessage}", ex.Message);
     throw;
 }
 
@@ -117,10 +117,10 @@ static void ValidateConfiguration(ManageNemsSubscriptionConfig config, ILogger l
     if (string.IsNullOrEmpty(config.KeyVaultConnectionString) && string.IsNullOrEmpty(config.NemsLocalCertPath))
         errors.Add("Either KeyVaultConnectionString or NemsLocalCertPath must be configured");
 
-    if (errors.Any())
+    if (errors.Count > 0)
     {
         var errorMessage = "Configuration validation failed:\n" + string.Join("\n", errors.Select(e => $"- {e}"));
-        logger.LogCritical(errorMessage);
+        logger.LogCritical("Configuration validation failed: {ErrorMessage}", errorMessage);
         throw new InvalidOperationException(errorMessage);
     }
 

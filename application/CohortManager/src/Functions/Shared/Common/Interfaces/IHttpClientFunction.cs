@@ -45,7 +45,7 @@ public interface IHttpClientFunction
     /// <param name="toAsid">Target ASID</param>
     /// <param name="clientCertificate">Client certificate for mutual TLS</param>
     /// <returns>HTTP response message</returns>
-    Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string jwtToken, string fromAsid, string toAsid, X509Certificate2 clientCertificate = null, bool bypassCertValidation = false);
+    Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string jwtToken, string fromAsid, string toAsid, X509Certificate2? clientCertificate = null, bool bypassCertValidation = false);
 
     /// <summary>
     /// Sends a DELETE request to NEMS API with proper authentication and headers
@@ -56,7 +56,7 @@ public interface IHttpClientFunction
     /// <param name="toAsid">Target ASID</param>
     /// <param name="clientCertificate">Client certificate for mutual TLS</param>
     /// <returns>HTTP response message</returns>
-    Task<HttpResponseMessage> SendNemsDelete(string url, string jwtToken, string fromAsid, string toAsid, X509Certificate2 clientCertificate = null, bool bypassCertValidation = false);
+    Task<HttpResponseMessage> SendNemsDelete(string url, string jwtToken, string fromAsid, string toAsid, X509Certificate2? clientCertificate = null, bool bypassCertValidation = false);
 
     /// <summary>
     /// Generates an unsigned JWT token for NEMS API authentication
