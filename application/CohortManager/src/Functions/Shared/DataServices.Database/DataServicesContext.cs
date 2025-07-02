@@ -21,6 +21,7 @@ public class DataServicesContext : DbContext
     DbSet<GenderMaster> genderMasters { get; set; }
     DbSet<NemsSubscription> nemsSubscriptions { get; set; }
     DbSet<ServicenowCases> servicenowCases { get; set; }
+    
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
 

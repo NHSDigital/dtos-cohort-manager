@@ -17,33 +17,12 @@ public static class ConfigurationExtension
         var configuration = CreateConfiguration(keyVaultUrl);
         return BuildIOptionsDependency<T>(hostBuilder,configuration);
     }
-    /// <summary>
-    /// Create
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="hostBuilder"></param>
-    /// <param name="config"></param>
-    /// <param name="keyVaultUrl"></param>
-    /// <returns></returns>
     public static IHostBuilder AddConfiguration<T>(this IHostBuilder hostBuilder, out T config, string? keyVaultUrl = null) where T: class
     {
         var configuration = CreateConfiguration(keyVaultUrl);
 
         config = configuration.Get<T>()!;
         return BuildIOptionsDependency<T>(hostBuilder,configuration);
-    }
-    /// <summary>
-    /// Creates and bind configuration that is not registered to IOptions
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="keyVaultUrl"></param>
-    /// <param name="configFilePaths"></param>
-    /// <returns></returns>
-    public static T GetConfiguration<T>(string? keyVaultUrl = null, List<string>? configFilePaths = null) where T: class
-    {
-        var configuration = CreateConfiguration(keyVaultUrl, configFilePaths);
-        return configuration.Get<T>();
-
     }
 
     public static T GetConfiguration<T>(string? keyVaultUrl = null, List<string>? configFilePaths = null) where T: class
@@ -58,14 +37,11 @@ public static class ConfigurationExtension
 
         var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
         var logger = loggerFactory.CreateLogger(nameof(ConfigurationExtension));
-
         logger.LogInformation("Building Configuration");
         ConfigurationBuilder configBuilder = new ConfigurationBuilder();
-
         keyVaultUrl ??= Environment.GetEnvironmentVariable("KeyVaultConnectionString");
 
-        if(keyVaultUrl != null)
-        {
+        if(keyVaultUrl != null){
             try
             {
                 configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential(), new AzureKeyVaultConfigurationOptions());
