@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Common;
+using DataServices.Client;
 using DataServices.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -18,18 +19,23 @@ public class ReconciliationService
     private readonly ILogger<ReconciliationService> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IRequestHandler<InboundMetric> _inboundMetricRequestHandler;
-
     private readonly IDataServiceAccessor<InboundMetric> _inboundMetricDataServiceAccessor;
+    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataService;
+    private readonly IDataServiceClient<ExceptionManagement> _exceptionManagementDataService;
 
     public ReconciliationService(ILogger<ReconciliationService> logger,
         ICreateResponse createResponse,
         IRequestHandler<InboundMetric> inboundMetricRequestHandler,
-        IDataServiceAccessor<InboundMetric> inboundMetricDataServiceAccessor)
+        IDataServiceAccessor<InboundMetric> inboundMetricDataServiceAccessor,
+        IDataServiceClient<CohortDistribution> cohortDistributionDataService,
+        IDataServiceClient<ExceptionManagement> exceptionManagementDataService)
     {
         _logger = logger;
         _createResponse = createResponse;
         _inboundMetricRequestHandler = inboundMetricRequestHandler;
         _inboundMetricDataServiceAccessor = inboundMetricDataServiceAccessor;
+        _cohortDistributionDataService = cohortDistributionDataService;
+        _exceptionManagementDataService = exceptionManagementDataService;
     }
 
     [Function("InboundMetricsTracker")]
@@ -38,9 +44,6 @@ public class ReconciliationService
         ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
     {
-        _logger.LogInformation("Message ID: {id}", message.MessageId);
-        _logger.LogInformation("Message Body: {body}", message.Body);
-        _logger.LogInformation("Message Content-Type: {contentType}", message.ContentType);
 
         var metric = message.Body.ToObjectFromJson<InboundMetricRequest>();
 
@@ -50,10 +53,6 @@ public class ReconciliationService
             await messageActions.DeadLetterMessageAsync(message);
             return;
         }
-
-
-
-        var metricId = Guid.NewGuid();
         var inboundMetric = new InboundMetric
         {
             MetricAuditId = Guid.NewGuid(),
@@ -80,9 +79,25 @@ public class ReconciliationService
     [Function("ReconcileParticipants")]
     public async Task RunAsync([TimerTrigger("%ReconciliationTimer%")] TimerInfo myTimer)
     {
-        _logger.LogInformation("Timer triggered");
-        await Task.CompletedTask;
-        return;
+        DateTime lastRun;
+        if (myTimer.ScheduleStatus is not null)
+        {
+            lastRun = myTimer.ScheduleStatus.Last.ToUniversalTime();
+        }
+        else
+        {
+            lastRun = DateTime.UtcNow.AddHours(-24);
+        }
+        _logger.LogInformation("Reconciling records received since {lastRun}", lastRun);
+
+        var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.RecordInsertDateTime.Value > lastRun);
+        var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => x.RuleId.Value == -2146233088 && x.DateCreated.Value > lastRun);
+
+
+        var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > lastRun);
+
+        _logger.LogInformation("cohort Records Received = {cohort Count}, exceptionCount = {ExceptionCount}, expected count = {expected}",cohortDistributionRecords.Count(), exceptionRecords.Count() , metrics.Sum(x => x.RecordCount));
+
     }
 
     [Function("InboundMetricDataService")]

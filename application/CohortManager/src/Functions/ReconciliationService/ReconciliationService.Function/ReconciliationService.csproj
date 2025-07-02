@@ -18,6 +18,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../../Shared/Common/Common.csproj" />
+    <ProjectReference Include="../../Shared/DataServices.Client/DataServices.Client.csproj" />
     <ProjectReference Include="../../Shared/DataServices.Core/DataServices.Core.csproj" />
     <ProjectReference Include="../../Shared/HealthChecks/HealthChecks.csproj" />
     <ProjectReference Include="../ReconciliationService.Core/ReconciliationServiceCore.csproj" />
