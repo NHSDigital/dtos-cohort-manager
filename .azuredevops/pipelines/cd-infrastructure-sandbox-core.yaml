@@ -105,7 +105,6 @@ stages:
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
                   parameters:
-                    tfCommandOptions: "-var=enable_global_rbac=true -target=module.global_cohort_rbac"
                     tfPlanFilename: rbac_plan.tfplan
 
   - stage: terraform_destroy
