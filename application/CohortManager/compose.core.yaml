@@ -106,7 +106,7 @@ services:
       - ManageParticipantSubName=manage-participant-sub
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      
+
   add-participant:
     container_name: add-participant
     image: cohort-manager-add-participant
@@ -378,9 +378,9 @@ services:
       - ASPNETCORE_URLS=http://*:9092
       - ServiceNowRefreshAccessTokenUrl=https://nhsdigitaldev.service-now.com/oauth_token.do
       - ServiceNowUpdateUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate
-      - ClientId=${SERVICENOW_CLIENT_ID}
-      - ClientSecret=${SERVICENOW_CLIENT_SECRET}
-      - RefreshToken=${SERVICENOW_REFRESH_TOKEN}
+      - ServiceNowClientId=${SERVICENOW_CLIENT_ID}
+      - ServiceNowClientSecret=${SERVICENOW_CLIENT_SECRET}
+      - ServiceNowRefreshToken=${SERVICENOW_REFRESH_TOKEN}
 
   servicenow-cohort-lookup:
     container_name: servicenow-cohort-lookup
