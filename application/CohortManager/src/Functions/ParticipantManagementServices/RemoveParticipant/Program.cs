@@ -1,12 +1,17 @@
 using Common;
+using DataServices.Client;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Model;
 using NHS.Screening.RemoveParticipant;
 
 var host = new HostBuilder()
 .AddConfiguration<RemoveParticipantConfig>(out RemoveParticipantConfig config)
     .ConfigureFunctionsWorkerDefaults()
+    .AddDataServicesHandler()
+        .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
+        .Build()
     .AddTelemetry()
     .ConfigureServices(services =>
     {

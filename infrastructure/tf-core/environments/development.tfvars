@@ -342,7 +342,12 @@ function_apps = {
       app_service_plan_key   = "DefaultPlan"
       env_vars = {
         app_urls = {
-          UpdateParticipant = "UpdateParticipantDetails"
+          UpdateParticipant    = "UpdateParticipantDetails"
+          ExceptionFunctionURL = "CreateException"
+          ParticipantManagementUrl = "ParticipantManagementDataService"
+        }
+        static = {
+          CohortQueueName = "cohort-distribution-queue"
         }
       }
     }

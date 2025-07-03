@@ -3,6 +3,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ParticipantManagementServiceTests;
 using System.Net;
 using System.Text.Json;
 using Common;
+using DataServices.Client;
 using Microsoft.Extensions.Options;
 using Model;
 using Moq;
@@ -16,6 +17,7 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     private static readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private static readonly Mock<IExceptionHandler> _handleException = new();
     private static readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new();
+    private static readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClient = new();
     private static readonly BasicParticipantCsvRecord _participantCsvRecord = new();
     private static readonly Mock<IOptions<RemoveParticipantConfig>> _config = new();
 
@@ -26,6 +28,7 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
         _httpClientFunction.Object,
         _handleException.Object,
         _cohortDistributionHandler.Object,
+        _participantManagementClient.Object,
         _config.Object))
     {
         Environment.SetEnvironmentVariable("markParticipantAsIneligible", "markParticipantAsIneligible");
@@ -37,7 +40,9 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     {
         var testConfig = new RemoveParticipantConfig
         {
-            UpdateParticipant = "UpdateParticipant"
+            UpdateParticipant = "UpdateParticipant",
+            ExceptionFunctionURL = "ExceptionUrl",
+            ParticipantManagementUrl = "ParticipantManagementUrl"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -50,6 +55,7 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
             _httpClientFunction.Object,
             _handleException.Object,
             _cohortDistributionHandler.Object,
+            _participantManagementClient.Object,
             _config.Object);
         _participantCsvRecord.FileName = "TestFile";
         _participantCsvRecord.participant = new Participant() { NhsNumber = "1234567890", ScreeningId = "1", RecordType = Actions.Removed };

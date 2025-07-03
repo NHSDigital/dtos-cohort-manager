@@ -5,5 +5,9 @@ using System.ComponentModel.DataAnnotations;
 public class RemoveParticipantConfig
 {
     [Required]
-    public required string UpdateParticipant {get; set;}
+    public required string UpdateParticipant { get; set; }
+    [Required]
+    public required string ExceptionFunctionURL { get; set; }
+    [Required]
+    public string ParticipantManagementUrl {get; set;}
 }

@@ -351,15 +351,20 @@ function_apps = {
       }
 
       RemoveParticipant = {
-        name_suffix            = "remove-participant"
-        function_endpoint_name = "RemoveParticipant"
-        app_service_plan_key   = "DefaultPlan"
-        env_vars = {
-          app_urls = {
-            UpdateParticipant = "UpdateParticipantDetails"
-          }
+      name_suffix            = "remove-participant"
+      function_endpoint_name = "RemoveParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      env_vars = {
+        app_urls = {
+          UpdateParticipant    = "UpdateParticipantDetails"
+          ExceptionFunctionURL = "CreateException"
+          ParticipantManagementUrl = "ParticipantManagementDataService"
+        }
+        static = {
+          CohortQueueName = "cohort-distribution-queue"
         }
       }
+    }
 
       UpdateParticipant = {
         name_suffix            = "update-participant"

@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
+using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
@@ -18,6 +19,7 @@ public class RemoveParticipant
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _handleException;
     private readonly ICohortDistributionHandler _cohortDistributionHandler;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly RemoveParticipantConfig _config;
 
     public RemoveParticipant(
@@ -26,6 +28,7 @@ public class RemoveParticipant
         IHttpClientFunction httpClientFunction,
         IExceptionHandler handleException,
         ICohortDistributionHandler cohortDistributionHandler,
+        IDataServiceClient<ParticipantManagement> participantManagementClient,
         IOptions<RemoveParticipantConfig> removeParticipantConfig)
     {
         _logger = logger;
@@ -33,6 +36,7 @@ public class RemoveParticipant
         _httpClientFunction = httpClientFunction;
         _handleException = handleException;
         _cohortDistributionHandler = cohortDistributionHandler;
+        _participantManagementClient = participantManagementClient;
         _config = removeParticipantConfig.Value;
     }
 
@@ -63,7 +67,7 @@ public class RemoveParticipant
                 FileName = basicParticipantCsvRecord.FileName,
             };
             participantCsvRecord.Participant.EligibilityFlag = EligibilityFlag.Ineligible; //Mark Participant As Ineligible
-            var ineligibleResponse = await UpdateParticipant(participantCsvRecord);
+            bool ineligibleResponse = await UpdateParticipant(participantCsvRecord);
 
             if (!ineligibleResponse)
             {
@@ -102,14 +106,22 @@ public class RemoveParticipant
 
     private async Task<bool> UpdateParticipant(ParticipantCsvRecord participantCsvRecord)
     {
-        var json = JsonSerializer.Serialize(participantCsvRecord);
-
-        var createResponse = await _httpClientFunction.SendPost(_config.UpdateParticipant, json);
-        if (createResponse.StatusCode == HttpStatusCode.OK)
+        try
         {
-            _logger.LogInformation("Participant updated as ineligible.");
+            long nhsNumber = long.Parse(participantCsvRecord.Participant.NhsNumber);
+            short eligibilityFlag = short.Parse(participantCsvRecord.Participant.EligibilityFlag);
+
+            ParticipantManagement participantManagement = await _participantManagementClient.GetSingleByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == 1);
+            participantManagement.EligibilityFlag = eligibilityFlag;
+            participantManagement.ReasonForRemoval = "ORR";
+            bool markedAsIneligible = await _participantManagementClient.Update(participantManagement);
+            if (!markedAsIneligible) { return false; }
             return true;
         }
-        return false;
+        catch (Exception ex)
+        {
+            _logger.LogError("Within RemoveParticipant the UpdateParticipant function has failed: {ex}", ex);
+            return false;
+        }
     }
 }

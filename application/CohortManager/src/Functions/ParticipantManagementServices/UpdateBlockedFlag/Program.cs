@@ -22,6 +22,8 @@ var host = new HostBuilder()
         services.AddSingleton<IExceptionHandler, ExceptionHandler>();
     })
     .AddTelemetry()
+    .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
