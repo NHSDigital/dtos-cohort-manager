@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.ServiceNowIntegrationService;
 
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
@@ -39,54 +40,63 @@ public class ServiceNowClient : IServiceNowClient
             return null;
         }
 
-        var request = new HttpRequestMessage(HttpMethod.Put, url)
-        {
-            Content = new StringContent(json, Encoding.UTF8, "application/json")
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var request = CreateUpdateRequest(url, json, token);
 
         var response = await httpClient.SendAsync(request);
 
-        if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-            // Token may have expired earlier than expected
-            // Force token refresh and try once more
+            // Token may have expired earlier than expected. Force token refresh and try once more.
             token = await GetAccessTokenAsync(true);
-            var retryRequest = new HttpRequestMessage(HttpMethod.Put, url)
+            if (token == null)
             {
-                Content = new StringContent(json, Encoding.UTF8, "application/json")
-            };
-            retryRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+                return null;
+            }
+            var retryRequest = CreateUpdateRequest(url, json, token);
             response = await httpClient.SendAsync(retryRequest);
         }
 
         return response;
     }
 
+    private static HttpRequestMessage CreateUpdateRequest(string url, string json, string token)
+    {
+        var request = new HttpRequestMessage(HttpMethod.Put, url)
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+        return request;
+    }
+
     private async Task<string?> GetAccessTokenAsync(bool bypassCache = false)
     {
-        string? accessToken;
-
-        if (!bypassCache && _cache.TryGetValue(AccessTokenCacheKey, out accessToken))
+        if (!bypassCache && _cache.TryGetValue(AccessTokenCacheKey, out string? accessToken))
         {
             return accessToken;
         }
 
+        _logger.LogInformation("Refreshing access token...");
         accessToken = await RefreshAccessTokenAsync();
+
+        if (accessToken == null)
+        {
+            return null;
+        }
 
         // ServiceNow access token is valid for 24 hours so setting cache expiry to slightly below
         var expires = new TimeSpan(23, 55, 0);
         var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
-
         _cache.Set(AccessTokenCacheKey, accessToken, cacheEntryOptions);
+
+        _logger.LogInformation("Access token refreshed and cache updated");
 
         return accessToken;
     }
 
     private async Task<string?> RefreshAccessTokenAsync()
     {
-        _logger.LogInformation("Refreshing access token...");
-
         var httpClient = _httpClientFactory.CreateClient();
 
         var dict = new Dictionary<string, string>
@@ -112,6 +122,6 @@ public class ServiceNowClient : IServiceNowClient
 
         var responseBody = await response.Content.ReadFromJsonAsync<ServiceNowRefreshAccessTokenResponseBody>();
 
-        return responseBody?.AccessToken;
+        return responseBody!.AccessToken;
     }
 }
