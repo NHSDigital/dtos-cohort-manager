@@ -1,0 +1,62 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9995446588",
+        "RuleId": 36,
+        "RuleDescription": ""
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-6187-01",
+        "requirementJiraId": "DTOSS-4284",
+        "additionalTags": "@regression @e2e @epic2-high-priority Verify exception when transformation failed for add participant record with partial date field"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 2,
+      "nhs_number": 1211118282,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "A81001",
+      "primary_care_effective_from_date": "20210808",
+      "current_posting": "BD",
+      "current_posting_effective_from_date": "20210808",
+      "name_prefix": "CPT",
+      "given_name": "Jackie",
+      "other_given_name": "Diana",
+      "family_name": "Steve",
+      "previous_family_name": "Stevens",
+      "date_of_birth": "20210808",
+      "gender": 1,
+      "address_line_1": "123 Trent Road",
+      "address_line_2": "TRENT ROAD LANE",
+      "address_line_3": "TRENT CORNER ROAD",
+      "address_line_4": "Oliver ROAD",
+      "address_line_5": "OLIVER CORNER ROAD",
+      "postcode": "AB43 8FJ",
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20210808",
+      "reason_for_removal": "",
+      "reason_for_removal_effective_from_date": "",
+      "date_of_death": "",
+      "death_status": null,
+      "home_telephone_number": "7898908901",
+      "home_telephone_effective_from_date": "20210808",
+      "mobile_telephone_number": "7898908901",
+      "mobile_telephone_effective_from_date": "20210808",
+      "email_address": "test@mail.net",
+      "email_address_effective_from_date": "20210808",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9995446588"
+  ]
+}
