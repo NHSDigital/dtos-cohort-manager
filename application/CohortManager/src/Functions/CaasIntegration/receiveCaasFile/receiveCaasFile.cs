@@ -91,7 +91,7 @@ public class ReceiveCaasFile
                     values.ToList().Clear();
                 }
             }
-            _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.Now);
+            _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.UtcNow);
         }
         catch (Exception ex)
         {
