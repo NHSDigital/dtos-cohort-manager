@@ -12,9 +12,9 @@ public class NemsHttpClientFunction : HttpClientFunction, INemsHttpClientFunctio
     public new static readonly TimeSpan _timeout = TimeSpan.FromSeconds(300);
 
     public NemsHttpClientFunction(
-        ILogger<NemsHttpClientFunction> logger, 
-        IHttpClientFactory factory, 
-        INemsHttpClientProvider nemsHttpClientProvider) 
+        ILogger<NemsHttpClientFunction> logger,
+        IHttpClientFactory factory,
+        INemsHttpClientProvider nemsHttpClientProvider)
         : base(logger, factory)
     {
         _nemsHttpClientProvider = nemsHttpClientProvider;
@@ -44,26 +44,19 @@ public class NemsHttpClientFunction : HttpClientFunction, INemsHttpClientFunctio
         request.Headers.Add("toASID", toAsid);
         request.Headers.Add("InteractionID", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiPost");
 
-        try
+        var response = await client.SendAsync(request);
+
+        _logger.LogInformation("NEMS API Response: {StatusCode}", response.StatusCode);
+
+        // Log response for debugging
+        if (!response.IsSuccessStatusCode)
         {
-            var response = await client.SendAsync(request);
-
-            _logger.LogInformation("NEMS API Response: {StatusCode}", response.StatusCode);
-
-            // Log response for debugging
-            if (!response.IsSuccessStatusCode)
-            {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                _logger.LogDebug("NEMS API Error Response: {Response}", responseContent);
-            }
-
-            return response;
+            var responseContent = await response.Content.ReadAsStringAsync();
+            _logger.LogDebug("NEMS API Error Response: {Response}", responseContent);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to execute NEMS POST request to {Url}: {ErrorMessage}", RemoveURLQueryString(url), ex.Message);
-            throw;
-        }
+
+        return response;
+
     }
 
     public async Task<HttpResponseMessage> SendSubscriptionDelete(
