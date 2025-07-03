@@ -118,7 +118,7 @@ public class RemoveParticipant
         }
         catch (Exception ex)
         {
-            _logger.LogError("Within RemoveParticipant the UpdateParticipant function has failed");
+            _logger.LogError("UpdateParticipant function has failed: {ex}", ex);
             return false;
         }
     }
