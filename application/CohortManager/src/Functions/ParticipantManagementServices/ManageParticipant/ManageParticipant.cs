@@ -2,10 +2,7 @@ namespace NHS.CohortManager.ParticipantManagementServices;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Microsoft.DurableTask.Client;
-using Microsoft.DurableTask;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Microsoft.Extensions.Options;
 using Common;
 using System.Text.Json;
@@ -39,10 +36,10 @@ public class ManageParticipant
     /// </summary>
     /// <param name="message">json string containing the participant record</param>
     [Function(nameof(ManageParticipant))]
-    public async Task Run([ServiceBusTrigger("%ParticipantManagementQueueName%", Connection = "ServiceBusConnectionString")] string message)
+    public async Task Run([ServiceBusTrigger(topicName: "%ParticipantManagementQueueName%", subscriptionName: "%ManageParticipantSubName%", Connection = "ServiceBusConnectionString")] string message)
     {
         var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(message)!;
-        Participant participant = participantRecord.participant;
+        Participant participant = participantRecord.Participant;
         try
         {
             _logger.LogInformation("Recieved manage participant request");

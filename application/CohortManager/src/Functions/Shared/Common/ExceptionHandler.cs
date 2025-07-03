@@ -70,13 +70,13 @@ public class ExceptionHandler : IExceptionHandler
             RuleId = 0,
             RuleDescription = "Record received was flagged for deletion",
             FileName = participantCsvRecord.FileName,
-            NhsNumber = participantCsvRecord.Participant.NhsNumber,
-            ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
-            DateCreated = DateTime.Now,
+            NhsNumber = participantCsvRecord.BasicParticipantData.NhsNumber,
+            ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.BasicParticipantData),
+            DateCreated = DateTime.UtcNow,
             DateResolved = DateTime.MaxValue,
-            ExceptionDate = DateTime.Now,
+            ExceptionDate = DateTime.UtcNow,
             Category = (int)ExceptionCategory.DeleteRecord,
-            ScreeningName = participantCsvRecord.Participant.ScreeningName,
+            ScreeningName = participantCsvRecord.BasicParticipantData.ScreeningName,
             CohortName = DefaultCohortName,
             Fatal = 1
 
@@ -96,13 +96,13 @@ public class ExceptionHandler : IExceptionHandler
             RuleId = 0,
             RuleDescription = description,
             FileName = participantCsvRecord.FileName,
-            NhsNumber = participantCsvRecord.Participant.NhsNumber,
-            ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
-            DateCreated = DateTime.Now,
+            NhsNumber = participantCsvRecord.BasicParticipantData.NhsNumber,
+            ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.BasicParticipantData),
+            DateCreated = DateTime.UtcNow,
             DateResolved = DateTime.MaxValue,
-            ExceptionDate = DateTime.Now,
+            ExceptionDate = DateTime.UtcNow,
             Category = (int)ExceptionCategory.Schema,
-            ScreeningName = participantCsvRecord.Participant.ScreeningName,
+            ScreeningName = participantCsvRecord.BasicParticipantData.ScreeningName,
             CohortName = DefaultCohortName,
             Fatal = 1
 
@@ -130,9 +130,9 @@ public class ExceptionHandler : IExceptionHandler
                 FileName = DefaultFileName,
                 NhsNumber = participant.NhsNumber,
                 ErrorRecord = JsonSerializer.Serialize(participant),
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 DateResolved = null,
-                ExceptionDate = DateTime.Now,
+                ExceptionDate = DateTime.UtcNow,
                 Category = (int)ExceptionCategory.File,
                 ScreeningName = participant.ScreeningName,
                 CohortName = DefaultCohortName,
@@ -179,9 +179,9 @@ public class ExceptionHandler : IExceptionHandler
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
                 ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
-                ExceptionDate = DateTime.Now,
+                ExceptionDate = DateTime.UtcNow,
                 Category = GetCategory(Category),
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
                 CohortName = DefaultCohortName,
@@ -237,9 +237,9 @@ public class ExceptionHandler : IExceptionHandler
             FileName = DefaultFileName,
             NhsNumber = participant.NhsNumber,
             ErrorRecord = JsonSerializer.Serialize(participant),
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             DateResolved = DateTime.MaxValue,
-            ExceptionDate = DateTime.Now,
+            ExceptionDate = DateTime.UtcNow,
             Category = (int)ExceptionCategory.TransformExecuted,
             ScreeningName = participant.ScreeningName,
             CohortName = DefaultCohortName,
@@ -270,7 +270,7 @@ public class ExceptionHandler : IExceptionHandler
             RuleId = DefaultRuleId,
             CohortName = DefaultCohortName,
             NhsNumber = string.IsNullOrEmpty(nhsNumber) ? DefaultNhsNumber : nhsNumber,
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = errorDescription,
@@ -278,7 +278,7 @@ public class ExceptionHandler : IExceptionHandler
             ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 0,
             ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
-            ExceptionDate = DateTime.Now
+            ExceptionDate = DateTime.UtcNow
         };
     }
 
@@ -318,7 +318,7 @@ public class ExceptionHandler : IExceptionHandler
             RuleId = exception.HResult,
             CohortName = DefaultCohortName,
             NhsNumber = string.IsNullOrEmpty(nhsNumber) ? DefaultNhsNumber : nhsNumber,
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = exception.Message,
@@ -326,7 +326,7 @@ public class ExceptionHandler : IExceptionHandler
             ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 1,
             ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
-            ExceptionDate = DateTime.Now
+            ExceptionDate = DateTime.UtcNow
         };
     }
 
