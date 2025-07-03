@@ -15,7 +15,7 @@ public class ServiceNowClient : IServiceNowClient
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<ServiceNowClient> _logger;
     private readonly ServiceNowMessageHandlerConfig _config;
-    private const string TokenCacheKey = "AccessToken";
+    private const string AccessTokenCacheKey = "AccessToken";
 
     public ServiceNowClient(IMemoryCache cache, IHttpClientFactory httpClientFactory,
         ILogger<ServiceNowClient> logger, IOptions<ServiceNowMessageHandlerConfig> config)
@@ -50,27 +50,35 @@ public class ServiceNowClient : IServiceNowClient
         if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {
             // Token may have expired earlier than expected
-            // Refresh the token and try once more
-            token = await GetAccessTokenAsync();
-            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
-            response = await httpClient.SendAsync(request);
+            // Force token refresh and try once more
+            token = await GetAccessTokenAsync(true);
+            var retryRequest = new HttpRequestMessage(HttpMethod.Put, url)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+            retryRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            response = await httpClient.SendAsync(retryRequest);
         }
 
         return response;
     }
 
-    private async Task<string?> GetAccessTokenAsync()
+    private async Task<string?> GetAccessTokenAsync(bool bypassCache = false)
     {
-        if (!_cache.TryGetValue(TokenCacheKey, out string? accessToken))
+        string? accessToken;
+
+        if (!bypassCache && _cache.TryGetValue(AccessTokenCacheKey, out accessToken))
         {
-            accessToken = await RefreshAccessTokenAsync();
-
-            // ServiceNow access token is valid for 24 hours but setting to slightly below
-            var expires = new TimeSpan(23, 55, 0);
-            var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
-
-            _cache.Set(TokenCacheKey, accessToken, cacheEntryOptions);
+            return accessToken;
         }
+
+        accessToken = await RefreshAccessTokenAsync();
+
+        // ServiceNow access token is valid for 24 hours so setting cache expiry to slightly below
+        var expires = new TimeSpan(23, 55, 0);
+        var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
+
+        _cache.Set(AccessTokenCacheKey, accessToken, cacheEntryOptions);
 
         return accessToken;
     }
@@ -96,9 +104,9 @@ public class ServiceNowClient : IServiceNowClient
 
         var response = await httpClient.SendAsync(request);
 
-        if (response == null || !response.IsSuccessStatusCode)
+        if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Failed to refresh ServiceNow access token. StatusCode: {statusCode}", response?.StatusCode.ToString() ?? "Unknown");
+            _logger.LogError("Failed to refresh ServiceNow access token. StatusCode: {statusCode}", response.StatusCode);
             return null;
         }
 

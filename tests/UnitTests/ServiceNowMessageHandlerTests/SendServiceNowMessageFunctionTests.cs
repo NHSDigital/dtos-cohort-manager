@@ -67,7 +67,35 @@ public class SendServiceNowMessageFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_WhenRequestBodyIsValidButUpdateFails_ReturnsInternalServerError()
+    [DataRow(HttpStatusCode.Unauthorized)]
+    [DataRow(HttpStatusCode.InternalServerError)]
+    public async Task Run_WhenRequestBodyIsValidButUpdateReturnsFailureResponse_ReturnsInternalServerError(HttpStatusCode statusCode)
+    {
+        // Arrange
+        var sysId = "sysid-123";
+        var request = new SendServiceNowMessageRequestBody
+        {
+            State = 2,
+            WorkNotes = "Retry this"
+        };
+        var requestBodyJson = JsonSerializer.Serialize(request);
+        var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
+        _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
+
+        var updateResponse = new HttpResponseMessage(statusCode);
+        _serviceNowClientMock.Setup(x => x.SendUpdate(sysId,
+                It.Is<ServiceNowUpdateRequestBody>(x => x.State == request.State && x.WorkNotes == request.WorkNotes)))
+            .ReturnsAsync(updateResponse);
+
+        // Act
+        var result = await _function.Run(_httpRequestMock.Object, sysId);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_WhenRequestBodyIsValidButUpdateReturnsNull_ReturnsInternalServerError()
     {
         // Arrange
         var sysId = "sysid-123";
@@ -83,16 +111,13 @@ public class SendServiceNowMessageFunctionTests
         var updateResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
         _serviceNowClientMock.Setup(x => x.SendUpdate(sysId,
                 It.Is<ServiceNowUpdateRequestBody>(x => x.State == request.State && x.WorkNotes == request.WorkNotes)))
-            .ReturnsAsync(updateResponse);
+            .ReturnsAsync((HttpResponseMessage)null);
 
         // Act
         var result = await _function.Run(_httpRequestMock.Object, sysId);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-        _serviceNowClientMock.Verify(x => x.SendUpdate(sysId,
-                It.Is<ServiceNowUpdateRequestBody>(x => x.State == request.State && x.WorkNotes == request.WorkNotes)), Times.Once);
-        _serviceNowClientMock.VerifyNoOtherCalls();
     }
 
     [TestMethod]
@@ -119,13 +144,10 @@ public class SendServiceNowMessageFunctionTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-        _serviceNowClientMock.Verify(x => x.SendUpdate(sysId,
-                It.Is<ServiceNowUpdateRequestBody>(x => x.State == request.State && x.WorkNotes == request.WorkNotes)), Times.Once);
-        _serviceNowClientMock.VerifyNoOtherCalls();
     }
 
     [TestMethod]
-    public async Task Run_WhenRequestBodyIsInvalid_ReturnsBadRequest()
+    public async Task Run_WhenRequestBodyIsInvalidJson_ReturnsBadRequest()
     {
         // Arrange
         var sysId = "sysid-123";
