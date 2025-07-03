@@ -11,5 +11,7 @@ public class ManageParticipantConfig
     [Required]
     public string ParticipantManagementQueueName { get; set; }
     [Required]
+    public string ManageParticipantSubName { get; set; }
+    [Required]
     public string ParticipantManagementUrl { get; set; }
 }
