@@ -238,12 +238,13 @@ function_apps = {
   health_check_path             = "/api/health"
 
   fa_config = {
+
     ReceiveCaasFile = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
       app_service_plan_key         = "DefaultPlan"
-      producer_to_service_bus      = ["dtoss-nsp"]
       db_connection_string         = "DtOsDatabaseConnectionString"
+      service_bus_connections      = ["internal"]
       storage_account_env_var_name = "caasfolder_STORAGE"
       env_vars = {
         app_urls = {
@@ -266,9 +267,8 @@ function_apps = {
           GetOrchestrationStatusURL  = "https://dev-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
           maxNumberOfChecks          = "50"
           AllowDeleteRecords         = true
-          TopicName                  = "DistributeParticipantQueue"
+          ParticipantManagementTopic = "participant-management"
           UpdateQueueName            = "update-participant-queue"
-          maxNumberOfChecks          = "50"
           UseNewFunctions            = "false"
         }
         storage_containers = {
@@ -426,15 +426,20 @@ function_apps = {
     }
 
     CreateException = {
-      name_suffix            = "create-exception"
-      function_endpoint_name = "CreateException"
-      app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
+      name_suffix             = "create-exception"
+      function_endpoint_name  = "CreateException"
+      app_service_plan_key    = "DefaultPlan"
+      db_connection_string    = "DtOsDatabaseConnectionString"
+      service_bus_connections = ["internal"]
       env_vars = {
         app_urls = {
           DemographicDataServiceURL         = "ParticipantDemographicDataService"
           ExceptionManagementDataServiceURL = "ExceptionManagementDataService"
           GPPracticeDataServiceURL          = "GPPracticeDataService"
+        }
+        static = {
+          CreateExceptionTopic        = "create-exception"
+          CreateExceptionSubscription = "create-exception-CreateException"
         }
       }
     }
@@ -461,10 +466,14 @@ function_apps = {
       function_endpoint_name = "StaticValidation"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
+      service_bus_connections = ["internal"]
       env_vars = {
         app_urls = {
           ExceptionFunctionURL      = "CreateException"
           RemoveOldValidationRecord = "RemoveValidationExceptionData"
+        }
+        static = {
+          CreateExceptionTopic = "create-exception"
         }
         storage_containers = {
           BlobContainerName = "config"
@@ -473,10 +482,11 @@ function_apps = {
     }
 
     LookupValidation = {
-      name_suffix            = "lookup-validation"
-      function_endpoint_name = "LookupValidation"
-      app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
+      name_suffix             = "lookup-validation"
+      function_endpoint_name  = "LookupValidation"
+      app_service_plan_key    = "DefaultPlan"
+      db_connection_string    = "DtOsDatabaseConnectionString"
+      service_bus_connections = ["internal"]
       env_vars = {
         app_urls = {
           ExceptionFunctionURL  = "CreateException"
@@ -801,16 +811,16 @@ function_apps = {
     }
 
     CohortDistributionDataService = {
-      name_suffix            = "cohort-distribution-data-service"
-      function_endpoint_name = "CohortDistributionDataService"
-      app_service_plan_key   = "HighLoadFunctions"
-      db_connection_string   = "DtOsDatabaseConnectionString"
+      name_suffix             = "cohort-distribution-data-service"
+      function_endpoint_name  = "CohortDistributionDataService"
+      app_service_plan_key    = "HighLoadFunctions"
+      db_connection_string    = "DtOsDatabaseConnectionString"
       env_vars = {
         app_urls = {
           ExceptionFunctionURL = "CreateException"
         }
         static = {
-          AcceptableLatencyThresholdMs = "500"
+          AcceptableLatencyThresholdMs   = "500"
         }
       }
     }
@@ -883,7 +893,6 @@ function_apps = {
         }
       }
     }
-
 
     RetrievePDSDemographic = {
       name_suffix            = "retrieve-pds-demographic"
@@ -1039,34 +1048,26 @@ key_vault = {
 }
 
 service_bus = {
-  distribute-participant = {
+  internal = {
     capacity         = 1
     sku_tier         = "Premium"
     max_payload_size = "100mb"
     topics = {
-      cohort-distribution-queue = {
+      cohort-distribution = {
         batched_operations_enabled = true
+        # subscribers                = ["DistributeParticipant"] # Not deployed in Cohort Manager yet
       }
-      add-participant-queue = {
+      create-exception = {
         batched_operations_enabled = true
+        subscribers                = ["CreateException"]
       }
-      update-participant-queue = {
+      participant-management = {
         batched_operations_enabled = true
+        # subscribers                = ["ManageParticipant"] # Not deployed in Cohort Manager yet
       }
     }
   }
 }
-
-# service_bus_subscriptions = {
-#   subscriber_config = {
-#     event-dev-ap = {
-#       subscription_name       = "events-sub"
-#       topic_name              = "events"
-#       namespace_name          = "dtoss-nsp"
-#       subscriber_functionName = "foundryRelay"
-#     }
-#   }
-# }
 
 sqlserver = {
   sql_admin_group_name                 = "sqlsvr_cohman_dev_uks_admin"
