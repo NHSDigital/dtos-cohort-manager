@@ -14,7 +14,6 @@ using NHS.Screening.RemoveParticipant;
 [TestClass]
 public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
 {
-    private static readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private static readonly Mock<IExceptionHandler> _handleException = new();
     private static readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new();
     private static readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClient = new();
@@ -25,7 +24,6 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
     new RemoveParticipant(
         logger,
         response,
-        _httpClientFunction.Object,
         _handleException.Object,
         _cohortDistributionHandler.Object,
         _participantManagementClient.Object,
@@ -47,12 +45,10 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
 
         _config.Setup(c => c.Value).Returns(testConfig);
 
-        _httpClientFunction.Reset();
         _cohortDistributionHandler.Reset();
         _service = new RemoveParticipant(
             _loggerMock.Object,
             _createResponseMock.Object,
-            _httpClientFunction.Object,
             _handleException.Object,
             _cohortDistributionHandler.Object,
             _participantManagementClient.Object,
@@ -74,37 +70,6 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_MarkParticipantAsIneligibleReturnsNonOkStatus_ReturnsInternalServerError()
-    {
-        // Arrange
-        SetupValidRequest();
-        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>()))
-            .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.BadRequest });
-
-        // Act
-        var result = await _service.Run(_request.Object);
-
-        // Assert
-        _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Never);
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Run_MarkParticipantAsIneligibleErrors_ReturnsInternalServerError()
-    {
-        // Arrange
-        SetupValidRequest();
-        _httpClientFunction.Setup(x => x.SendPost(It.Is<string>(s => s.Contains("markParticipantAsIneligible")), It.IsAny<string>())).Throws(new Exception("There was an error"));
-
-        // Act
-        var result = await _service.Run(_request.Object);
-
-        // Assert
-        _cohortDistributionHandler.Verify(x => x.SendToCohortDistributionService(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Participant>()), Times.Never);
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]

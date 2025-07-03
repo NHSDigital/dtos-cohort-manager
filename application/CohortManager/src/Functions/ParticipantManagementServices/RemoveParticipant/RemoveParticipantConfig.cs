@@ -9,5 +9,5 @@ public class RemoveParticipantConfig
     [Required]
     public required string ExceptionFunctionURL { get; set; }
     [Required]
-    public string ParticipantManagementUrl {get; set;}
+    public required string ParticipantManagementUrl {get; set;}
 }
