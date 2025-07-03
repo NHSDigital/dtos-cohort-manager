@@ -122,18 +122,4 @@ public class NemsHttpClientFunction : HttpClientFunction, INemsHttpClientFunctio
         // Unsigned JWT (signature is empty)
         return $"{headerEncoded}.{payloadEncoded}.";
     }
-
-    /// <summary>
-    /// Removes the query string from the URL to prevent us logging sensitive information.
-    /// </summary>
-    private new static string RemoveURLQueryString(string url)
-    {
-        if (string.IsNullOrEmpty(url))
-        {
-            return url;
-        }
-
-        int queryIndex = url.IndexOf('?');
-        return queryIndex >= 0 ? url.Substring(0, queryIndex) : url;
-    }
 }
