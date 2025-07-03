@@ -102,9 +102,9 @@ public class ServiceNowClient : IServiceNowClient
         var dict = new Dictionary<string, string>
         {
             { "grant_type", "refresh_token" },
-            { "client_id", _config.ClientId },
-            { "client_secret", _config.ClientSecret },
-            { "refresh_token", _config.RefreshToken }
+            { "client_id", _config.ServiceNowClientId },
+            { "client_secret", _config.ServiceNowClientSecret },
+            { "refresh_token", _config.ServiceNowRefreshToken }
         };
 
         var request = new HttpRequestMessage(HttpMethod.Post, _config.ServiceNowRefreshAccessTokenUrl)

@@ -885,6 +885,19 @@ function_apps = {
         }
       }
 
+      ServiceNowMessageHandler = {
+        name_suffix            = "servicenow-message-handler"
+        function_endpoint_name = "ServiceNowMessageHandler"
+        app_service_plan_key   = "DefaultPlan"
+        key_vault_url          = "KeyVaultConnectionString"
+        env_vars = {
+          static = {
+            ServiceNowRefreshAccessTokenUrl = "" # TODO: Get value
+            ServiceNowUpdateUrl = "" # TODO: Get value
+          }
+        }
+      }
+
       ServiceNowCohortLookup = {
         name_suffix            = "servicenow-cohort-lookup"
         function_endpoint_name = "ServiceNowCohortLookup"

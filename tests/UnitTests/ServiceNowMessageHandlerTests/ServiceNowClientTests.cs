@@ -32,9 +32,9 @@ public class ServiceNowClientTests
         {
             ServiceNowRefreshAccessTokenUrl = ServiceNowRefreshAccessTokenUrl,
             ServiceNowUpdateUrl = ServiceNowUpdateUrl,
-            ClientId = "123",
-            ClientSecret = "ABC",
-            RefreshToken = "DEF",
+            ServiceNowClientId = "123",
+            ServiceNowClientSecret = "ABC",
+            ServiceNowRefreshToken = "DEF",
         });
         _cache = new MemoryCache(new MemoryCacheOptions());
         _serviceNowClient = new ServiceNowClient(

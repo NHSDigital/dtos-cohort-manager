@@ -872,6 +872,19 @@ function_apps = {
       }
     }
 
+    ServiceNowMessageHandler = {
+      name_suffix            = "servicenow-message-handler"
+      function_endpoint_name = "ServiceNowMessageHandler"
+      app_service_plan_key   = "DefaultPlan"
+      key_vault_url          = "KeyVaultConnectionString"
+      env_vars = {
+        static = {
+          ServiceNowRefreshAccessTokenUrl = "https://nhsdigitaldev.service-now.com/oauth_token.do"
+          ServiceNowUpdateUrl = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+        }
+      }
+    }
+
     ServiceNowCohortLookup = {
       name_suffix            = "servicenow-cohort-lookup"
       function_endpoint_name = "ServiceNowCohortLookup"

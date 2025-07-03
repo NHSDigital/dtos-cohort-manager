@@ -9,9 +9,9 @@ public class ServiceNowMessageHandlerConfig
     [Required]
     public required string ServiceNowUpdateUrl { get; set; }
     [Required]
-    public required string ClientId { get; set; }
+    public required string ServiceNowClientId { get; set; }
     [Required]
-    public required string ClientSecret { get; set; }
+    public required string ServiceNowClientSecret { get; set; }
     [Required]
-    public required string RefreshToken { get; set; }
+    public required string ServiceNowRefreshToken { get; set; }
 }
