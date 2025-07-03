@@ -51,6 +51,10 @@ var host = new HostBuilder();
         // Register HTTP client services
         services.AddHttpClient();
         services.AddScoped<IHttpClientFunction, HttpClientFunction>();
+        
+        // Register NEMS-specific services
+        services.AddScoped<INemsHttpClientProvider, NemsHttpClientProvider>();
+        services.AddScoped<INemsHttpClientFunction, NemsHttpClientFunction>();
 
         // Register NEMS certificate
         services.AddSingleton(nemsCertificate);

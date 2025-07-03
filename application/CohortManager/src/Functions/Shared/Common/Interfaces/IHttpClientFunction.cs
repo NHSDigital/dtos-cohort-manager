@@ -1,7 +1,5 @@
 namespace Common;
 
-using System.Security.Cryptography.X509Certificates;
-
 public interface IHttpClientFunction
 {
     /// <summary>
@@ -34,38 +32,6 @@ public interface IHttpClientFunction
     /// <param name="url">URL to be used in request.</param>
     /// <returns>HttpResponseMessage<returns>
     Task<HttpResponseMessage> SendPdsGet(string url);
-
-    /// <summary>
-    /// Sends a POST request to NEMS API with proper authentication and headers
-    /// </summary>
-    /// <param name="url">NEMS API endpoint URL</param>
-    /// <param name="subscriptionJson">FHIR subscription JSON</param>
-    /// <param name="jwtToken">JWT bearer token</param>
-    /// <param name="fromAsid">Source ASID</param>
-    /// <param name="toAsid">Target ASID</param>
-    /// <param name="clientCertificate">Client certificate for mutual TLS</param>
-    /// <returns>HTTP response message</returns>
-    Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string jwtToken, string fromAsid, string toAsid, X509Certificate2? clientCertificate = null, bool bypassCertValidation = false);
-
-    /// <summary>
-    /// Sends a DELETE request to NEMS API with proper authentication and headers
-    /// </summary>
-    /// <param name="url">NEMS API endpoint URL</param>
-    /// <param name="jwtToken">JWT bearer token</param>
-    /// <param name="fromAsid">Source ASID</param>
-    /// <param name="toAsid">Target ASID</param>
-    /// <param name="clientCertificate">Client certificate for mutual TLS</param>
-    /// <returns>HTTP response message</returns>
-    Task<HttpResponseMessage> SendNemsDelete(string url, string jwtToken, string fromAsid, string toAsid, X509Certificate2? clientCertificate = null, bool bypassCertValidation = false);
-
-    /// <summary>
-    /// Generates an unsigned JWT token for NEMS API authentication
-    /// </summary>
-    /// <param name="asid">Your ASID</param>
-    /// <param name="audience">The NEMS endpoint</param>
-    /// <param name="scope">The required scope</param>
-    /// <returns>Unsigned JWT token string</returns>
-    string GenerateNemsJwtToken(string asid, string audience, string scope);
 
     Task<HttpResponseMessage> SendPut(string url, string data);
     Task<bool> SendDelete(string url);

@@ -23,14 +23,14 @@ using System.Text.RegularExpressions;
 
 public class NemsSubscriptionManager
 {
-    private readonly IHttpClientFunction _httpClient;
+    private readonly INemsHttpClientFunction _httpClient;
     private readonly ILogger<NemsSubscriptionManager> _logger;
     private readonly ManageNemsSubscriptionConfig _config;
     private readonly IDataServiceAccessor<NemsSubscription> _nemsSubscriptionAccessor;
     private readonly X509Certificate2 _nemsCertificate; // injected!
 
     public NemsSubscriptionManager(
-        IHttpClientFunction httpClient,
+        INemsHttpClientFunction httpClient,
         IOptions<ManageNemsSubscriptionConfig> config,
         ILogger<NemsSubscriptionManager> logger,
         IDataServiceAccessor<NemsSubscription> nemsSubscriptionAccessor,
@@ -83,7 +83,7 @@ public class NemsSubscriptionManager
             // Generate JWT token for delete operation - use base URL for audience
             var baseUri = new Uri(_config.NemsFhirEndpoint);
             var baseUrl = $"{baseUri.Scheme}://{baseUri.Host}";
-            var jwtToken = _httpClient.GenerateNemsJwtToken(
+            var jwtToken = _httpClient.GenerateJwtToken(
                 _config.FromAsid,
                 baseUrl,
                 "patient/Subscription.write"
@@ -93,7 +93,7 @@ public class NemsSubscriptionManager
 
             var bypassCert = _config.BypassServerCertificateValidation;
 
-            var response = await _httpClient.SendNemsDelete(deleteUrl, jwtToken, _config.FromAsid, _config.ToAsid, _nemsCertificate, bypassCert);
+            var response = await _httpClient.SendSubscriptionDelete(deleteUrl, jwtToken, _config.FromAsid, _config.ToAsid, _nemsCertificate, bypassCert);
 
             return response.IsSuccessStatusCode;
         }
@@ -116,7 +116,7 @@ public class NemsSubscriptionManager
         try
         {
             var baseUrl = _config.NemsFhirEndpoint.Replace("/STU3", "");
-            var jwtToken = _httpClient.GenerateNemsJwtToken(
+            var jwtToken = _httpClient.GenerateJwtToken(
                 _config.FromAsid,
                 baseUrl,
                 "patient/Subscription.write"
@@ -125,7 +125,7 @@ public class NemsSubscriptionManager
             var url = $"{_config.NemsFhirEndpoint}/Subscription";
             var bypassCert = _config.BypassServerCertificateValidation;
 
-            var response = await _httpClient.SendNemsPost(
+            var response = await _httpClient.SendSubscriptionPost(
                 url,
                 subscriptionJson,
                 jwtToken,
