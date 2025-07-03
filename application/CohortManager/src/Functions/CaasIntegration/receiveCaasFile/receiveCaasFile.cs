@@ -100,7 +100,7 @@ public class ReceiveCaasFile
                 await _inboundMetricClient.LogInboundMetric(name, Convert.ToInt32(rowReader.FileMetaData.NumRows));
 
             }
-            _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.Now);
+            _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.UtcNow);
         }
         catch (Exception ex)
         {

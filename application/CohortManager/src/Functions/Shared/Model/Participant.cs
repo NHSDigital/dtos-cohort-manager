@@ -152,7 +152,7 @@ public class Participant
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = !string.IsNullOrEmpty(IsInterpreterRequired) ? short.Parse(IsInterpreterRequired) : null,
             InvalidFlag = (short?)GetInvalidFlag(),
-            RecordInsertDateTime = DateTime.Now,
+            RecordInsertDateTime = DateTime.UtcNow,
             RecordUpdateDateTime = null,
         };
     }
