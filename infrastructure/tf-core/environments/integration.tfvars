@@ -1057,17 +1057,6 @@ service_bus = {
   }
 }
 
-# service_bus_subscriptions = {
-#   subscriber_config = {
-#     event-dev-ap = {
-#       subscription_name       = "events-sub"
-#       topic_name              = "events"
-#       namespace_name          = "dtoss-nsp"
-#       subscriber_functionName = "foundryRelay"
-#     }
-#   }
-# }
-
 sqlserver = {
   sql_admin_group_name                 = "sqlsvr_cohman_int_uks_admin"
   ad_auth_only                         = true
