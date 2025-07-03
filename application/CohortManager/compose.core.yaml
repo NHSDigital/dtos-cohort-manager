@@ -85,11 +85,10 @@ services:
       - batchDivisionFactor=5
       - UpdateQueueName=update-participant-queue
       - ScreeningLkpDataServiceURL=http://screening-lkp-data-service:8996/api/ScreeningLkpDataService
-      - maxNumberOfChecks=50
       - inboundBlobName=inbound
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
-      - ParticipantManagementQueueName=participant-management-queue
+      - ParticipantManagementQueueName=participant-management-topic
       - UseNewFunctions=false
 
   # Participant Management Service
@@ -102,11 +101,12 @@ services:
       dockerfile: ParticipantManagementServices/ManageParticipant/Dockerfile
     environment:
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
-      - CohortQueueName=cohort-distribution-queue
-      - ParticipantManagementQueueName=participant-management-queue
+      - CohortQueueName=cohort-distribution-topic
+      - ParticipantManagementQueueName=participant-management-topic
+      - ManageParticipantSubName=manage-participant-sub
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-
+      
   add-participant:
     container_name: add-participant
     image: cohort-manager-add-participant
@@ -234,9 +234,9 @@ services:
       dockerfile: ExceptionHandling/ExceptionCreation/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7070
-      - ExceptionTopic="createExceptionTopic"
-      - ExceptionSubscription="exceptionSub"
-      - ServiceBusConnectionString="Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
+      - ExceptionTopic=create-exception-topic
+      - ExceptionSubscription=create-exception-sub
+      - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
 
@@ -370,7 +370,7 @@ services:
       dockerfile: DemographicServices/DemographicDurableFunction/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7079
-      - WEBSITE_HOSTNAME=localhost:7079
+      - WEBSITE_HOSTNAME=durable-demographic-function:7079
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException

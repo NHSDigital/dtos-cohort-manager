@@ -60,6 +60,16 @@ public class HttpClientFunction : IHttpClientFunction
         return await GetAsync(client);
     }
 
+    public async Task<string> SendGetOrThrowAsync(string url)
+    {
+        using var client = _factory.CreateClient();
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        return await GetOrThrowAsync(client);
+    }
+
     public async Task<HttpResponseMessage> SendPdsGet(string url)
     {
         using var client = _factory.CreateClient();
@@ -172,4 +182,16 @@ public class HttpClientFunction : IHttpClientFunction
         return string.Empty;
     }
 
+
+    /// <summary>
+    /// Get method that does not supress errors
+    /// </summary>
+    private async Task<string> GetOrThrowAsync(HttpClient client)
+    {
+        var url = client.BaseAddress?.ToString() ?? string.Empty;
+
+        HttpResponseMessage response = await client.GetAsync(url);
+
+        return await GetResponseText(response);
+    }
 }
