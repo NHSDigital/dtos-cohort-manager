@@ -85,7 +85,7 @@ public class ProcessNemsUpdate
                     SupersededByNhsNumber = retrievedPdsRecord?.NhsNumber,
                     PrimaryCareProvider = null,
                     ReasonForRemoval = "ORR",
-                    RemovalEffectiveFromDate = DateTime.Today.ToString("yyyyMMdd")
+                    RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
                 };
 
                 _logger.LogInformation("NHS numbers do not match, processing the superseded record.");
