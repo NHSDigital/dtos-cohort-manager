@@ -246,7 +246,7 @@ public class ExceptionHandler : IExceptionHandler
             DateCreated = DateTime.Now,
             DateResolved = DateTime.MaxValue,
             ExceptionDate = DateTime.Now,
-            Category = (int)category,  // Cast enum to int
+            Category = (int)category,
             ScreeningName = participant.ScreeningName,
             CohortName = DefaultCohortName,
             Fatal = 0
