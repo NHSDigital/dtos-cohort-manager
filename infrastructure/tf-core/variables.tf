@@ -246,14 +246,10 @@ variable "function_apps" {
       db_connection_string    = optional(string, "")
       service_bus_connections = optional(list(string), [])
       key_vault_url           = optional(string, "")
-      env_vars = optional(object({
-        static             = optional(map(string), {})
-        app_urls           = optional(map(string), {})
-        storage_containers = optional(map(string), {})
-      }), {})
       app_urls = optional(list(object({
         env_var_name     = string
         function_app_key = string
+        endpoint_name    = optional(string, "")
       })), [])
       env_vars_static = optional(map(string), {})
     }))
