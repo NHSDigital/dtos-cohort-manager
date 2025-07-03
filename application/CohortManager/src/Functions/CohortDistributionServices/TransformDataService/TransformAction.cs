@@ -25,7 +25,8 @@ class TransformAction : ActionBase
             var transformFields = context.GetContext<List<TransformFields>>("transformFields");
             if (transformFields == null)
             {
-                throw new ArgumentNullException(nameof(transformFields), "Transform fields cannot be null");
+
+                throw new ArgumentNullException(paramName: nameof(context), message: "Transform fields context value cannot be null");
             }
             var participant = GetParameter<CohortDistributionParticipant>("participant", ruleParameters);
             var databaseParticipant = GetParameter<CohortDistribution>("databaseParticipant", ruleParameters);
@@ -33,7 +34,7 @@ class TransformAction : ActionBase
 
             if (participant == null)
             {
-                throw new ArgumentNullException(nameof(participant), "Participant cannot be null");
+                throw new ArgumentNullException(paramName: nameof(ruleParameters), message: "Participant parameter cannot be null");
             }
 
             foreach (var transformField in transformFields)
