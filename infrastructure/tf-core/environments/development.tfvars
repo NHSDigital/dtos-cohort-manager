@@ -466,6 +466,7 @@ function_apps = {
       function_endpoint_name = "StaticValidation"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
+      service_bus_connections = ["internal"]
       env_vars = {
         app_urls = {
           ExceptionFunctionURL      = "CreateException"
