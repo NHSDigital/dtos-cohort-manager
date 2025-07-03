@@ -299,7 +299,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5221-01-Invalid preferred language code triggers a exception', {
+  test('@DTOSS-5221-01- @to-migrate Invalid preferred language code triggers a exception', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5223',
@@ -311,7 +311,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  testWithAmended('@DTOSS-4946-01-Invalid preferred language code triggers a exception for a Amended Participant', {
+  testWithAmended('@DTOSS-4946-01- @to-migrate Invalid preferred language code triggers a exception for a Amended Participant', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5222',

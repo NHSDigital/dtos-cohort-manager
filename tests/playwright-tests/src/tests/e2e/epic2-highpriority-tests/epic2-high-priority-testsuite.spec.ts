@@ -31,7 +31,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
   });
 
 
-  test('@DTOSS-4099-01-Validate missing address lines', {
+  test('@DTOSS-4099-01 @to-migrate Validate missing address lines', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4099',
@@ -43,7 +43,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     });
   })
 
-  test('@DTOSS-4092-01-Validate null GP Practice Code for a new participant', {
+  test('@DTOSS-4092-01 @to-migrateValidate null GP Practice Code for a new participant', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4092',
@@ -56,7 +56,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
   })
   // End of ADD Tests
 
-  testWithAmended('@DTOSS-4384-01-Update a invalid GP Practice Code for a existing participant', {
+  testWithAmended('@DTOSS-4384-01 @to-migrate Update a invalid GP Practice Code for a existing participant', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4384',
@@ -82,7 +82,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     });
   })
 
-  testWithAmended('@DTOSS-4383-01-Update a valid GP Practice Code for a existing participant', {
+  testWithAmended('@DTOSS-4383-01 @to-migrate Update a valid GP Practice Code for a existing participant', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4383',
@@ -108,7 +108,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     });
   })
 
-  testWithAmended('@DTOSS-5418-01 @Validate_GP_practice_code_empty_and_reason_for_removal_fields_AMENDED_noException', {
+  testWithAmended('@DTOSS-5418-01 @to-migrate @Validate_GP_practice_code_empty_and_reason_for_removal_fields_AMENDED_noException', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-2759',
@@ -128,7 +128,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
 
   });
 
-  testWithAmended('@DTOSS-4561-01 @Validate_GP_practice_code_empty_and_reason_for_removal_fields_AMENDED_Exception', {
+  testWithAmended('@DTOSS-4561-01 @to-migrate @Validate_GP_practice_code_empty_and_reason_for_removal_fields_AMENDED_Exception', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-2759',
@@ -148,7 +148,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
 
   });
 
-  testWithAmended('@DTOSS-4329-01 Validation current posting effective date throw exception when invalid date format given for update participants', {
+  testWithAmended('@DTOSS-4329-01 @to-migrate Validation current posting effective date throw exception when invalid date format given for update participants', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3136',
@@ -195,7 +195,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     });
   });
 
-  testWithAmended('@DTOSS-4090-01 Validate existing participant null GP practice code', {
+  testWithAmended('@DTOSS-4090-01 @to-migrate Validate existing participant null GP practice code', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4090',
@@ -221,7 +221,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     });
   })
 
-  testWithAmended('@DTOSS-4095-01 Validate incompatible value reason for removal exception', {
+  testWithAmended('@DTOSS-4095-01 @to-migrate Validate incompatible value reason for removal exception', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4095',
@@ -247,7 +247,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     });
   })
 
-  testWithAmended('@DTOSS-4094-01 Existing Participant Null Reason for Removal Exception', {
+  testWithAmended('@DTOSS-4094-01 @to-migrate Existing Participant Null Reason for Removal Exception', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4094',
@@ -272,7 +272,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
       await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
   })
-  testWithAmended('@DTOSS-4219-01 Valid Postcode Existing', {
+  testWithAmended('@DTOSS-4219-01 @to-migrate Valid Postcode Existing', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4219',
@@ -298,7 +298,7 @@ test.describe('@regression @e2e @epic2-high-priority Tests', () => {
     });
   })
 
-  testWithAmended('@DTOSS-4220-01 Non_valid_postcode_NOT_NFA_overseas_Existing', {
+  testWithAmended('@DTOSS-4220-01 @to-migrate Non_valid_postcode_NOT_NFA_overseas_Existing', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4220',
