@@ -46,7 +46,7 @@ public class ServiceNowClient : IServiceNowClient
 
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-            // Token may have expired earlier than expected. Force token refresh and try once more.
+            _logger.LogInformation("Update request returned an Unauthorized response, refreshing the access token and retrying the update request...");
             token = await GetAccessTokenAsync(true);
             if (token == null)
             {
