@@ -437,7 +437,7 @@ public class TransformDataServiceTests
     {
         // Arrange
         _requestBody.Participant.PrimaryCareProvider = primaryCareProvider;
-        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString();
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString();
         _requestBody.Participant.InvalidFlag = invalidFlag;
         _requestBody.Participant.RecordType = recordType;
 
@@ -452,7 +452,7 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.Male,
             ReasonForRemoval = "ORR",
-            ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString("yyyyMMdd"),
+            ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd"),
             PrimaryCareProvider = "",
             InvalidFlag = invalidFlag
         };
@@ -545,7 +545,7 @@ public class TransformDataServiceTests
             Gender = Gender.Male,
             PrimaryCareProvider = "",
             ReasonForRemoval = "ORR",
-            ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString("yyyyMMdd")
+            ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
         };
 
         // Act
