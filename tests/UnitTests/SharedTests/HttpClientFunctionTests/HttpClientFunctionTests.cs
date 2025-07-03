@@ -461,5 +461,294 @@ public class HttpClientFunctionTests
         Assert.AreEqual(string.Empty, parts[2]); // Empty signature for unsigned JWT
     }
 
+    [TestMethod]
+    public void GenerateNemsJwtToken_ContainsExpectedClaims_ValidatesPayload()
+    {
+        // Arrange
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+        var asid = "test-asid-123";
+        var audience = "https://test.nhs.uk";
+        var scope = "patient/Subscription.write";
+
+        // Act
+        var result = _function.GenerateNemsJwtToken(asid, audience, scope);
+
+        // Assert
+        var parts = result.Split('.');
+        var payloadJson = System.Text.Encoding.UTF8.GetString(
+            Convert.FromBase64String(parts[1].PadRight((parts[1].Length + 3) & ~3, '=')));
+        
+        // Verify payload contains expected claims
+        Assert.IsTrue(payloadJson.Contains("\"iss\":\"https://nems.nhs.uk\""));
+        Assert.IsTrue(payloadJson.Contains($"\"sub\":\"https://fhir.nhs.uk/Id/accredited-system|{asid}\""));
+        Assert.IsTrue(payloadJson.Contains($"\"aud\":\"{audience}\""));
+        Assert.IsTrue(payloadJson.Contains($"\"scope\":\"{scope}\""));
+        Assert.IsTrue(payloadJson.Contains("\"reason_for_request\":\"directcare\""));
+    }
+
+    [TestMethod]
+    public void GenerateNemsJwtToken_HasValidTimestamps_ExpiresInOneHour()
+    {
+        // Arrange
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+        var beforeCall = DateTimeOffset.UtcNow;
+
+        // Act
+        var result = _function.GenerateNemsJwtToken("asid", "aud", "scope");
+
+        // Assert
+        var afterCall = DateTimeOffset.UtcNow;
+        var parts = result.Split('.');
+        var payloadJson = System.Text.Encoding.UTF8.GetString(
+            Convert.FromBase64String(parts[1].PadRight((parts[1].Length + 3) & ~3, '=')));
+        
+        // Should contain iat and exp claims
+        Assert.IsTrue(payloadJson.Contains("\"iat\":"));
+        Assert.IsTrue(payloadJson.Contains("\"exp\":"));
+        
+        // Parse and verify timestamps are reasonable
+        var iatMatch = System.Text.RegularExpressions.Regex.Match(payloadJson, "\"iat\":(\\d+)");
+        var expMatch = System.Text.RegularExpressions.Regex.Match(payloadJson, "\"exp\":(\\d+)");
+        
+        Assert.IsTrue(iatMatch.Success);
+        Assert.IsTrue(expMatch.Success);
+        
+        var iat = long.Parse(iatMatch.Groups[1].Value);
+        var exp = long.Parse(expMatch.Groups[1].Value);
+        
+        // iat should be around now
+        Assert.IsTrue(iat >= beforeCall.ToUnixTimeSeconds());
+        Assert.IsTrue(iat <= afterCall.ToUnixTimeSeconds());
+        
+        // exp should be about 1 hour (3600 seconds) after iat
+        Assert.AreEqual(3600, exp - iat);
+    }
+
+    [TestMethod]
+    public async Task SendNemsPost_SuccessfulPost_ReturnsOkResponse()
+    {
+        // Arrange
+        var successResponse = new HttpResponseMessage(HttpStatusCode.Created)
+        {
+            Headers = { Location = new Uri("https://nems.endpoint/Subscription/123") }
+        };
+
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Post && 
+                    req.Headers.Authorization != null &&
+                    req.Headers.Contains("fromASID") &&
+                    req.Headers.Contains("toASID")),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(successResponse);
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var result = await _function.SendNemsPost(_mockUrl, _mockContent, "jwt-token", "from-asid", "to-asid");
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task SendNemsPost_FailedPost_ReturnsErrorResponse()
+    {
+        // Arrange
+        var errorResponse = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent("Error content")
+        };
+
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Post),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(errorResponse);
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var result = await _function.SendNemsPost(_mockUrl, _mockContent, "jwt-token", "from-asid", "to-asid");
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task SendNemsPost_ExceptionThrown_ThrowsException()
+    {
+        // Arrange
+        var errorMessage = "Network error";
+
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Post),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ThrowsAsync(new Exception(errorMessage));
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsExceptionAsync<Exception>(() => 
+            _function.SendNemsPost(_mockUrl, _mockContent, "jwt-token", "from-asid", "to-asid"));
+        
+        Assert.AreEqual(errorMessage, exception.Message);
+    }
+
+    [TestMethod]
+    public async Task SendNemsDelete_SuccessfulDelete_ReturnsOkResponse()
+    {
+        // Arrange
+        var successResponse = new HttpResponseMessage(HttpStatusCode.OK);
+
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Delete &&
+                    req.Headers.Authorization != null &&
+                    req.Headers.Contains("fromASID") &&
+                    req.Headers.Contains("toASID")),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(successResponse);
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var result = await _function.SendNemsDelete(_mockUrl, "jwt-token", "from-asid", "to-asid");
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task SendNemsDelete_FailedDelete_ReturnsErrorResponse()
+    {
+        // Arrange
+        var errorResponse = new HttpResponseMessage(HttpStatusCode.NotFound)
+        {
+            Content = new StringContent("Not found")
+        };
+
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Delete),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(errorResponse);
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var result = await _function.SendNemsDelete(_mockUrl, "jwt-token", "from-asid", "to-asid");
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task SendGet_NonOkResponse_ReturnsEmptyString()
+    {
+        // Arrange
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Get),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
+        var httpClient = new HttpClient(_httpMessageHandler.Object);
+        _factory.Setup(_ => _.CreateClient(It.IsAny<string>())).Returns(httpClient);
+
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var result = await _function.SendGet(_mockUrl);
+
+        // Assert
+        Assert.AreEqual(string.Empty, result);
+    }
+
+    [TestMethod]
+    public void RemoveURLQueryString_UrlWithQueryString_RemovesQueryString()
+    {
+        // Arrange
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+        var urlWithQuery = "https://example.com/api?param1=value1&param2=value2";
+
+        // Act - Using reflection to access private method
+        var method = typeof(HttpClientFunction).GetMethod("RemoveURLQueryString", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var result = (string)method.Invoke(null, new object[] { urlWithQuery });
+
+        // Assert
+        Assert.AreEqual("https://example.com/api", result);
+    }
+
+    [TestMethod]
+    public void RemoveURLQueryString_UrlWithoutQueryString_ReturnsOriginalUrl()
+    {
+        // Arrange
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+        var urlWithoutQuery = "https://example.com/api";
+
+        // Act
+        var method = typeof(HttpClientFunction).GetMethod("RemoveURLQueryString", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var result = (string)method.Invoke(null, new object[] { urlWithoutQuery });
+
+        // Assert
+        Assert.AreEqual("https://example.com/api", result);
+    }
+
+    [TestMethod]
+    public void RemoveURLQueryString_EmptyString_ReturnsEmptyString()
+    {
+        // Arrange
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var method = typeof(HttpClientFunction).GetMethod("RemoveURLQueryString", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var result = (string)method.Invoke(null, new object[] { string.Empty });
+
+        // Assert
+        Assert.AreEqual(string.Empty, result);
+    }
+
+    [TestMethod]
+    public void RemoveURLQueryString_NullString_ReturnsNull()
+    {
+        // Arrange
+        _function = new HttpClientFunction(_logger.Object, _factory.Object);
+
+        // Act
+        var method = typeof(HttpClientFunction).GetMethod("RemoveURLQueryString", 
+            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        var result = (string)method.Invoke(null, new object[] { null });
+
+        // Assert
+        Assert.IsNull(result);
+    }
+
     #endregion
 }

@@ -62,7 +62,7 @@ public class NemsSubscriptionManager
 
             return null;
         }
-        catch (RequestFailedException ex)
+        catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to lookup subscription ID");
             return null;
