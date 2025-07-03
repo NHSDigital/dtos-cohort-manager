@@ -2,8 +2,9 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "NhsNumber": "9993425001"
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9993425001,
+        "InvalidFlag":1
       },
       "meta": {
         "testJiraId": "@DTOSS-4398-01",
@@ -13,8 +14,9 @@
     },
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "NhsNumber": "9994245929"
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9994245929,
+        "InvalidFlag":0
       },
       "meta": {
         "testJiraId": "@DTOSS-4398-01",
