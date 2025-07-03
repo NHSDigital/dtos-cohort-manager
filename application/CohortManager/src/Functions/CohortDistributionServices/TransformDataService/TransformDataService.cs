@@ -150,6 +150,8 @@ public class TransformDataService
 
     public async Task<CohortDistributionParticipant> HandleOnlyLogExceptionRulesAsync(CohortDistributionParticipant participant, CohortDistribution databaseParticipant)
     {
+        const string WorkflowName = "OnlyLogException";
+
         var existingParticipant = new CohortDistributionParticipant(databaseParticipant);
         string json = await File.ReadAllTextAsync("onlyLogExceptionRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
@@ -163,27 +165,27 @@ public class TransformDataService
         var re = new RulesEngine.RulesEngine(rules, reSettings);
 
         var ruleParameters = new[] {
-            new RuleParameter("existingParticipant", existingParticipant),
-            new RuleParameter("newParticipant", participant)
-        };
+        new RuleParameter("existingParticipant", existingParticipant),
+        new RuleParameter("newParticipant", participant)
+    };
 
         var resultList = new List<RuleResultTree>();
 
-        // Check if OnlyLogException workflow exists before executing
-        if (re.GetAllRegisteredWorkflowNames().Contains("OnlyLogException"))
+        // Check if workflow exists before executing
+        if (re.GetAllRegisteredWorkflowNames().Contains(WorkflowName))
         {
-            resultList = await re.ExecuteAllRulesAsync("OnlyLogException", ruleParameters);
+            resultList = await re.ExecuteAllRulesAsync(WorkflowName, ruleParameters);
         }
         else
         {
-            _logger.LogWarning("OnlyLogException workflow not found in rules file");
+            _logger.LogWarning($"{WorkflowName} workflow not found in rules file");
         }
 
-        if (re.GetAllRegisteredWorkflowNames().Contains("OnlyLogException"))
+        if (re.GetAllRegisteredWorkflowNames().Contains(WorkflowName))
         {
-            _logger.LogInformation("Executing workflow : OnlyLogException.");
-            var ActionResults = await re.ExecuteAllRulesAsync("OnlyLogException", ruleParameters);
-            resultList.AddRange(ActionResults);
+            _logger.LogInformation($"Executing workflow: {WorkflowName}");
+            var actionResults = await re.ExecuteAllRulesAsync(WorkflowName, ruleParameters);
+            resultList.AddRange(actionResults);
         }
 
         await HandleExceptions(resultList, participant);
