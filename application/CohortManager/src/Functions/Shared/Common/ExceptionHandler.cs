@@ -246,7 +246,7 @@ public class ExceptionHandler : IExceptionHandler
             DateCreated = DateTime.UtcNow,
             DateResolved = DateTime.MaxValue,
             ExceptionDate = DateTime.UtcNow,
-            Category = (int)ExceptionCategory.TransformExecuted,
+            Category = (int)category,
             ScreeningName = participant.ScreeningName,
             CohortName = DefaultCohortName,
             Fatal = 0
