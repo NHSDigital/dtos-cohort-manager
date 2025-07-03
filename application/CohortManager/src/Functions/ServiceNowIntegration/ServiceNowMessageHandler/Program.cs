@@ -12,9 +12,9 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddTransient<IServiceNowClient, ServiceNowClient>();
         services.AddMemoryCache();
+        services.AddHttpClient();
     })
     .AddTelemetry()
-    .AddHttpClient()
     .Build();
 
 await host.RunAsync();
