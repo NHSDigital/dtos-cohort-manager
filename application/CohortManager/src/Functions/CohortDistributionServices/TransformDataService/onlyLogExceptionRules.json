@@ -3,7 +3,7 @@
     "WorkflowName": "OnlyLogException",
     "Rules": [
       {
-        "RuleName": "35.TooManyDemographicsFieldsChanged.Confusion.NonFatal",
+        "RuleName": "35.TooManyDemographicsFieldsChanged.Confusion.NoTransformation",
         "LocalParams": [
           {
             "Name": "NewDateOfBirth",
@@ -14,15 +14,7 @@
             "Expression": "string.IsNullOrEmpty(existingParticipant.DateOfBirth) ? null : existingParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
           }
         ],
-       "Expression": "existingParticipant.ParticipantId != null && ((newParticipant.FamilyName != existingParticipant.FamilyName AND newParticipant.Gender != existingParticipant.Gender) OR (newParticipant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (newParticipant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Significant changes are detected in demographic fields.\""
-            }
-          }
-        }
+       "Expression": "existingParticipant.ParticipantId != null && ((newParticipant.FamilyName != existingParticipant.FamilyName AND newParticipant.Gender != existingParticipant.Gender) OR (newParticipant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (newParticipant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
       }
     ]
   }

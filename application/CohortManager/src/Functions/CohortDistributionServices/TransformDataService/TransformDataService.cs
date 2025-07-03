@@ -85,12 +85,15 @@ public class TransformDataService
 
             //transformation rules where it only raises an exception.
             if (participant.RecordType == Actions.Amended)
+            {
                 participant = await HandleOnlyLogExceptionRulesAsync(participant, requestBody.ExistingParticipant);
+            }
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
+            {
                 participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix, participant);
-
+            }
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
             if (participant.NhsNumber != null)
@@ -171,23 +174,16 @@ public class TransformDataService
 
         var resultList = new List<RuleResultTree>();
 
-        // Check if workflow exists before executing
+        // Check workflow existence ONCE
         if (re.GetAllRegisteredWorkflowNames().Contains(WorkflowName))
         {
+            _logger.LogInformation($"Executing workflow: {WorkflowName}");
             resultList = await re.ExecuteAllRulesAsync(WorkflowName, ruleParameters);
         }
         else
         {
             _logger.LogWarning($"{WorkflowName} workflow not found in rules file");
         }
-
-        if (re.GetAllRegisteredWorkflowNames().Contains(WorkflowName))
-        {
-            _logger.LogInformation($"Executing workflow: {WorkflowName}");
-            var actionResults = await re.ExecuteAllRulesAsync(WorkflowName, ruleParameters);
-            resultList.AddRange(actionResults);
-        }
-
         await HandleExceptions(resultList, participant);
         await CreateTransformExecutedExceptions(resultList, participant);
 
@@ -272,8 +268,7 @@ public class TransformDataService
 
     private async Task HandleExceptions(List<RuleResultTree> exceptions, CohortDistributionParticipant participant)
     {
-        var failedTransforms = exceptions.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
-                                                i.IsSuccess && i.ActionResult.Output == null).ToList();
+        var failedTransforms = exceptions.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) || (!i.Rule.RuleName.Contains("NoTransformation") && i.IsSuccess && i.ActionResult.Output == null)).ToList();
         if (failedTransforms.Any())
         {
             await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);

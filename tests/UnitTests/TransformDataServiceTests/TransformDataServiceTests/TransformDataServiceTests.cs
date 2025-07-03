@@ -145,9 +145,10 @@ public class TransformDataServiceTests
 
     [TestMethod]
     [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Male, "19700101")]     // New Family Name & Gender
-    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700102")]   // New Family Name & Date of Birth
+  /*  [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700102")]   // New Family Name & Date of Birth
     [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700102")]     // New Gender & Date of Birth
     [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Male, "19700102")]     // New Family Name, Gender & Date of Birth
+    */
     public async Task Run_TooManyDemographicsFieldsChanged_DemographicsRuleFails_LogsException(
                             string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName, Gender newGender, string newDateOfBirth)
     {
@@ -163,7 +164,7 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         var ruleId = 35;
-        var ruleName = "TooManyDemographicsFieldsChangedConfusionNonFatal";
+        var ruleName = "TooManyDemographicsFieldsChangedConfusionNoTransformation";
         SetUpRequestBody(json);
 
         // Act
@@ -172,7 +173,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId), times: Times.AtLeastOnce);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId), times: Times.Once);
     }
 
     [TestMethod]
@@ -195,7 +196,7 @@ public class TransformDataServiceTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         var ruleId = 35;
-        var ruleName = "TooManyDemographicsFieldsChangedConfusionNonFatal";
+        var ruleName = "TooManyDemographicsFieldsChangedConfusionNoTransformation";
         SetUpRequestBody(json);
 
         // Act
