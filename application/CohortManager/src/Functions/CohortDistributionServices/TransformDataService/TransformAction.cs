@@ -25,6 +25,7 @@ class TransformAction : ActionBase
             var transformFields = context.GetContext<List<TransformFields>>("transformFields");
             var participant = (CohortDistributionParticipant)ruleParameters.Where(rule => rule.Name == "participant").Select(result => result.Value).FirstOrDefault();
             var databaseParticipant = (CohortDistribution)ruleParameters.Where(rule => rule.Name == "databaseParticipant").Select(result => result.Value).FirstOrDefault();
+            var existingParticipant = (CohortDistributionParticipant)ruleParameters.Where(rule => rule.Name == "existingParticipant").Select(result => result.Value).FirstOrDefault();
 
             foreach (var transformField in transformFields)
             {
@@ -32,7 +33,7 @@ class TransformAction : ActionBase
 
                 if (transformField.isExpression)
                 {
-                    EvaluateExpression(property!, transformField.value, participant, databaseParticipant);
+                    EvaluateExpression(property!, transformField.value, participant, databaseParticipant, existingParticipant);
                 }
                 else
                 {
@@ -64,10 +65,10 @@ class TransformAction : ActionBase
         }
     }
 
-    private static void EvaluateExpression(PropertyInfo property, string expression, CohortDistributionParticipant participant, CohortDistribution databaseParticipant)
+    private static void EvaluateExpression(PropertyInfo property, string expression, CohortDistributionParticipant participant, CohortDistribution databaseParticipant, CohortDistributionParticipant existingParticipant)
     {
         var reParser = new RuleExpressionParser(new ReSettings());
-        var ruleParameters = new RuleParameter[] { new RuleParameter("participant", participant), new RuleParameter("databaseParticipant", databaseParticipant) };
+        var ruleParameters = new RuleParameter[] { new RuleParameter("participant", participant), new RuleParameter("databaseParticipant", databaseParticipant), new RuleParameter("existingParticipant", existingParticipant) };
         var result = reParser.Evaluate<string>(expression, ruleParameters);
 
         property.SetValue(participant, result);

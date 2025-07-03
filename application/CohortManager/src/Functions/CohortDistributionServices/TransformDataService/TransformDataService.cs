@@ -83,12 +83,6 @@ public class TransformDataService
             // Other transformation rules
             participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant);
 
-            //transformation rules where it only raises an exception.
-            if (participant.RecordType == Actions.Amended)
-            {
-                participant = await HandleOnlyLogExceptionRulesAsync(participant, requestBody.ExistingParticipant);
-            }
-
             // Name prefix transformation
             if (participant.NamePrefix != null)
             {
@@ -131,59 +125,21 @@ public class TransformDataService
         var reSettings = new ReSettings
         {
             CustomActions = actions,
-            CustomTypes = [typeof(Actions)],
+            CustomTypes = [typeof(Actions), typeof(CohortDistributionParticipant), typeof(CohortDistribution)],
             UseFastExpressionCompiler = false
         };
 
         var re = new RulesEngine.RulesEngine(rules, reSettings);
-
+        var existingParticipant = new CohortDistributionParticipant(databaseParticipant); // for Rule which are of NoTransform type like Rule 35
         var ruleParameters = new[] {
             new RuleParameter("databaseParticipant", databaseParticipant),
             new RuleParameter("participant", participant),
-            new RuleParameter("dbLookup", _dataLookup)
+            new RuleParameter("dbLookup", _dataLookup),
+            new RuleParameter("existingParticipant", existingParticipant)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
-        await HandleExceptions(resultList, participant);
-        await CreateTransformExecutedExceptions(resultList, participant);
-
-        return participant;
-    }
-
-    public async Task<CohortDistributionParticipant> HandleOnlyLogExceptionRulesAsync(CohortDistributionParticipant participant, CohortDistribution databaseParticipant)
-    {
-        const string WorkflowName = "OnlyLogException";
-
-        var existingParticipant = new CohortDistributionParticipant(databaseParticipant);
-        string json = await File.ReadAllTextAsync("onlyLogExceptionRules.json");
-        var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-
-        var reSettings = new ReSettings
-        {
-            CustomTypes = [typeof(Actions)],
-            UseFastExpressionCompiler = false
-        };
-
-        var re = new RulesEngine.RulesEngine(rules, reSettings);
-
-        var ruleParameters = new[] {
-        new RuleParameter("existingParticipant", existingParticipant),
-        new RuleParameter("newParticipant", participant)
-    };
-
-        var resultList = new List<RuleResultTree>();
-
-        // Check workflow existence ONCE
-        if (re.GetAllRegisteredWorkflowNames().Contains(WorkflowName))
-        {
-            _logger.LogInformation($"Executing workflow: {WorkflowName}");
-            resultList = await re.ExecuteAllRulesAsync(WorkflowName, ruleParameters);
-        }
-        else
-        {
-            _logger.LogWarning($"{WorkflowName} workflow not found in rules file");
-        }
         await HandleExceptions(resultList, participant);
         await CreateTransformExecutedExceptions(resultList, participant);
 

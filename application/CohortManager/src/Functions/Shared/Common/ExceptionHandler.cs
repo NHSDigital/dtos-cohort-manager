@@ -252,7 +252,7 @@ public class ExceptionHandler : IExceptionHandler
             Fatal = 0
         };
 
-        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
+        bool isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
 
         if (!isSentSuccessfully)
         {
