@@ -36,6 +36,9 @@
     <None Update="lookupTransformationRules.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="onlyLogExceptionRules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     </ItemGroup>
     <ItemGroup>
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />

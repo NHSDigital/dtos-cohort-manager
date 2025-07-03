@@ -65,61 +65,50 @@ public class LookupValidation
             var json = await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
-            // Only proceed with rule execution if we have valid rules
-            if (rules != null && rules.Length > 0)
+            var reSettings = new ReSettings
             {
-                var reSettings = new ReSettings
-                {
-                    CustomTypes = [typeof(Actions)],
-                    UseFastExpressionCompiler = false
-                };
-                var re = new RulesEngine.RulesEngine(rules, reSettings);
+                CustomTypes = [typeof(Actions)],
+                UseFastExpressionCompiler = false
+            };
+            var re = new RulesEngine.RulesEngine(rules, reSettings);
 
 
 
-                var ruleParameters = new[] {
+            var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", requestBody.ExistingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
                 new RuleParameter("dbLookup", _dataLookup)
             };
 
-                var resultList = new List<RuleResultTree>();
+            var resultList = new List<RuleResultTree>();
 
-                if (newParticipant.RecordType != Actions.Removed)
-                {
-                    // Check if Common workflow exists before executing
-                    if (re.GetAllRegisteredWorkflowNames().Contains("Common"))
-                    {
-                        resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("Common workflow not found in rules file");
-                    }
-                }
-
-                if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
-                {
-                    _logger.LogInformation("Executing workflow {RecordType}", newParticipant.RecordType);
-                    var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
-                    resultList.AddRange(ActionResults);
-                }
-
-                // Validation rules are logically reversed
-                var validationErrors = resultList.Where(x => !x.IsSuccess);
-
-                if (validationErrors.Any())
-                {
-                    _logger.LogInformation("There was an error in the Validation Rules");
-                    var participantCsvRecord = new ParticipantCsvRecord()
-                    {
-                        Participant = newParticipant,
-                        FileName = requestBody.FileName
-                    };
-                    var exceptionCreated = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(exceptionCreated));
-                }
+            if (newParticipant.RecordType != Actions.Removed && re.GetAllRegisteredWorkflowNames().Contains("Common"))
+            {
+                resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             }
+
+            if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
+            {
+                _logger.LogInformation("Executing workflow {RecordType}", newParticipant.RecordType);
+                var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
+                resultList.AddRange(ActionResults);
+            }
+
+            // Validation rules are logically reversed
+            var validationErrors = resultList.Where(x => !x.IsSuccess);
+
+            if (validationErrors.Any())
+            {
+                _logger.LogInformation("There was an error in the Validation Rules");
+                var participantCsvRecord = new ParticipantCsvRecord()
+                {
+                    Participant = newParticipant,
+                    FileName = requestBody.FileName
+                };
+                var exceptionCreated = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(exceptionCreated));
+            }
+
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
             {
                 IsFatal = false,

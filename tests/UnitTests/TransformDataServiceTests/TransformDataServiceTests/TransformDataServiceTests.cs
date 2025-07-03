@@ -31,7 +31,6 @@ public class TransformDataServiceTests
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<ITransformDataLookupFacade> _transformLookups = new();
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
-    private readonly IUnTransformRules _unTransformRules;
 
     public TransformDataServiceTests()
     {
@@ -68,9 +67,7 @@ public class TransformDataServiceTests
         _transformLookups.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
 
         _transformReasonForRemoval = new TransformReasonForRemoval(_handleException.Object, _transformLookups.Object);
-        _unTransformRules = new UnTransformRules(_handleException.Object);
-
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval, _transformLookups.Object, _unTransformRules);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval, _transformLookups.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -175,7 +172,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateExceptionLogsForUnTransformRules(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId, (int)ExceptionCategory.Confusion), times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId), times: Times.AtLeastOnce);
     }
 
     [TestMethod]
@@ -207,7 +204,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateExceptionLogsForUnTransformRules(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId, (int)ExceptionCategory.Confusion), times: Times.Never);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId), times: Times.Never);
     }
 
 
@@ -312,7 +309,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>()), times: Times.Exactly(14));
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>()), times: Times.Exactly(16));
     }
 
     [TestMethod]

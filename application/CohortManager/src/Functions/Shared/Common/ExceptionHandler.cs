@@ -230,6 +230,12 @@ public class ExceptionHandler : IExceptionHandler
 
     public async Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId)
     {
+        var category = ruleId switch
+        {
+            35 => ExceptionCategory.Confusion,
+            _ => ExceptionCategory.TransformExecuted
+        };
+
         var exception = new ValidationException
         {
             RuleId = ruleId,
@@ -240,46 +246,18 @@ public class ExceptionHandler : IExceptionHandler
             DateCreated = DateTime.Now,
             DateResolved = DateTime.MaxValue,
             ExceptionDate = DateTime.Now,
-            Category = (int)ExceptionCategory.TransformExecuted,
+            Category = (int)category,  // Cast enum to int
             ScreeningName = participant.ScreeningName,
             CohortName = DefaultCohortName,
             Fatal = 0
         };
 
-        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
+        bool isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
 
         if (!isSentSuccessfully)
         {
             _logger.LogError(logErrorMessage);
         }
-
-    }
-
-    public async Task CreateExceptionLogsForUnTransformRules(CohortDistributionParticipant participant, string ruleName, int ruleId, int category)
-    {
-        var exception = new ValidationException
-        {
-            RuleId = ruleId,
-            RuleDescription = $"Raised an exception log for rule: {ruleName} due to too many demographic fields have changed.",
-            FileName = DefaultFileName,
-            NhsNumber = participant.NhsNumber,
-            ErrorRecord = JsonSerializer.Serialize(participant),
-            DateCreated = DateTime.Now,
-            DateResolved = DateTime.MaxValue,
-            ExceptionDate = DateTime.Now,
-            Category = category,
-            ScreeningName = participant.ScreeningName,
-            CohortName = DefaultCohortName,
-            Fatal = 0
-        };
-
-        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
-
-        if (!isSentSuccessfully)
-        {
-            _logger.LogError(logErrorMessage);
-        }
-
     }
 
     /// <summary>

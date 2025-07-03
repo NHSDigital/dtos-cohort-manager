@@ -28,15 +28,13 @@ public class TransformDataService
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
     private readonly ITransformDataLookupFacade _dataLookup;
-    private readonly IUnTransformRules _unTransformRules;
 
     public TransformDataService(
         ICreateResponse createResponse,
         IExceptionHandler exceptionHandler,
         ILogger<TransformDataService> logger,
         ITransformReasonForRemoval transformReasonForRemoval,
-        ITransformDataLookupFacade dataLookup,
-        IUnTransformRules unTransformRules
+        ITransformDataLookupFacade dataLookup
     )
     {
         _createResponse = createResponse;
@@ -44,7 +42,6 @@ public class TransformDataService
         _logger = logger;
         _transformReasonForRemoval = transformReasonForRemoval;
         _dataLookup = dataLookup;
-        _unTransformRules = unTransformRules;
     }
 
     [Function("TransformDataService")]
@@ -86,13 +83,13 @@ public class TransformDataService
             // Other transformation rules
             participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant);
 
+            // return new CohortDistributionParticipant(latestParticipant);
+            participant = await HandleOnlyLogExceptionRulesAsync(participant, requestBody.ExistingParticipant);
+
             // Name prefix transformation
             if (participant.NamePrefix != null)
                 participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix, participant);
 
-            /// Checks if too many demographic fields have changed between the current participant and existing participant records.
-            /// If significant changes are detected, raise an exception log for rules like Rule 35.
-            participant = await _unTransformRules.TooManyDemographicsFieldsChanges(participant, requestBody.ExistingParticipant);
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
             if (participant.NhsNumber != null)
@@ -146,6 +143,50 @@ public class TransformDataService
 
         await HandleExceptions(resultList, participant);
         await CreateTransformExecutedExceptions(resultList, participant);
+
+        return participant;
+    }
+
+    public async Task<CohortDistributionParticipant> HandleOnlyLogExceptionRulesAsync(CohortDistributionParticipant participant, CohortDistribution databaseParticipant)
+    {
+        var existingParticipant = new CohortDistributionParticipant(databaseParticipant);
+        string json = await File.ReadAllTextAsync("onlyLogExceptionRules.json");
+        var rules = JsonSerializer.Deserialize<Workflow[]>(json);
+
+        var reSettings = new ReSettings
+        {
+            CustomTypes = [typeof(Actions)],
+            UseFastExpressionCompiler = false
+        };
+
+        var re = new RulesEngine.RulesEngine(rules, reSettings);
+
+        var ruleParameters = new[] {
+            new RuleParameter("existingParticipant", existingParticipant),
+            new RuleParameter("newParticipant", participant)
+        };
+
+        var resultList = new List<RuleResultTree>();
+
+        // Check if OnlyLogException workflow exists before executing
+        if (re.GetAllRegisteredWorkflowNames().Contains("OnlyLogException"))
+        {
+            resultList = await re.ExecuteAllRulesAsync("OnlyLogException", ruleParameters);
+        }
+        else
+        {
+            _logger.LogWarning("OnlyLogException workflow not found in rules file");
+        }
+
+        if (re.GetAllRegisteredWorkflowNames().Contains("OnlyLogException"))
+        {
+            _logger.LogInformation("Executing workflow : OnlyLogException.");
+            var ActionResults = await re.ExecuteAllRulesAsync("OnlyLogException", ruleParameters);
+            resultList.AddRange(ActionResults);
+        }
+
+        await HandleExceptions(resultList, participant);
+        await CreateTransformExecutedExceptions(resultList,participant);
 
         return participant;
     }

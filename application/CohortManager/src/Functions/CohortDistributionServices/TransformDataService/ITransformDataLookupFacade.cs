@@ -1,6 +1,5 @@
 namespace NHS.CohortManager.CohortDistributionService;
 
-using Model.Enums;
 
 public interface ITransformDataLookupFacade
 {
