@@ -83,8 +83,9 @@ public class TransformDataService
             // Other transformation rules
             participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant);
 
-            // return new CohortDistributionParticipant(latestParticipant);
-            participant = await HandleOnlyLogExceptionRulesAsync(participant, requestBody.ExistingParticipant);
+            //transformation rules where it only raises an exception.
+            if (participant.RecordType == Actions.Amended)
+                participant = await HandleOnlyLogExceptionRulesAsync(participant, requestBody.ExistingParticipant);
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
@@ -186,7 +187,7 @@ public class TransformDataService
         }
 
         await HandleExceptions(resultList, participant);
-        await CreateTransformExecutedExceptions(resultList,participant);
+        await CreateTransformExecutedExceptions(resultList, participant);
 
         return participant;
     }
