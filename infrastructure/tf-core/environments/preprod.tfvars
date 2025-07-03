@@ -356,8 +356,8 @@ function_apps = {
       app_service_plan_key   = "DefaultPlan"
       env_vars = {
         app_urls = {
-          UpdateParticipant    = "UpdateParticipantDetails"
-          ExceptionFunctionURL = "CreateException"
+          UpdateParticipant        = "UpdateParticipantDetails"
+          ExceptionFunctionURL     = "CreateException"
           ParticipantManagementUrl = "ParticipantManagementDataService"
         }
         static = {
