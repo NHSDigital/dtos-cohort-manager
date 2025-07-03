@@ -320,12 +320,12 @@ function_apps = {
       }
       storage_containers = [
         {
-        env_var_name   = "inboundBlobName"
-        container_name = "inbound"
+          env_var_name   = "inboundBlobName"
+          container_name = "inbound"
         },
         {
-        env_var_name   = "fileExceptions"
-        container_name = "inbound-poison"
+          env_var_name   = "fileExceptions"
+          container_name = "inbound-poison"
         }
       ]
     }
