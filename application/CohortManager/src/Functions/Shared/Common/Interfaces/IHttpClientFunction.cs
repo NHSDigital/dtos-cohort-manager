@@ -26,6 +26,16 @@ public interface IHttpClientFunction
     Task<string> SendGet(string url, Dictionary<string, string> parameters);
 
     /// <summary>
+    /// Sends a get request or throws an error
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns>string representing the serialised response body, string.Empty if it returns nothing </returns>
+    /// <exception cref="HttpRequestException"></exception>
+    /// <exception cref="TaskCanceledException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    Task<string> SendGetOrThrowAsync(string url);
+
+    /// <summary>
     /// Performs a GET request to a PDS endpoint using HttpClient.
     /// This is a WIP as additional work is required to use the PDS endpoint from cohort manager. Currently it just uses the PDS sandbox API.
     /// </summary>

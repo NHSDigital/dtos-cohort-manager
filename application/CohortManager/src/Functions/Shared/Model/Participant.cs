@@ -72,6 +72,7 @@ public class Participant
         ScreeningId = cohortDistributionParticipant.ScreeningServiceId;
         CurrentPosting = cohortDistributionParticipant.CurrentPosting;
         EligibilityFlag = cohortDistributionParticipant.EligibilityFlag;
+        InvalidFlag = cohortDistributionParticipant.InvalidFlag;
     }
 
     public Participant(PdsDemographic pdsDemographic)
