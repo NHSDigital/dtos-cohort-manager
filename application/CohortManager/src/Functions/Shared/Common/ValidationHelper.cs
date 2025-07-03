@@ -25,7 +25,7 @@ public static class ValidationHelper
 
         if (date.HasValue)
         {
-            return date < DateTime.Today.AddDays(1);
+            return date < DateTime.UtcNow.Date.AddDays(1);
         }
 
         return false;
@@ -81,8 +81,8 @@ public static class ValidationHelper
     /// </summary>
     /// <param name="postcode">Postcode string (not null)</param>
     /// <returns>bool, whether or not the postcode is valid</returns>
-    /// <remarks> 
-    /// further information for postcode validation can be found in 
+    /// <remarks>
+    /// further information for postcode validation can be found in
     /// ADR-008 on confluence.
     /// </remarks>
     public static bool ValidatePostcode(string postcode)

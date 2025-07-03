@@ -63,7 +63,7 @@ public class RetrieveCohortRequestAuditTests
             {
                 RequestId = new Guid(),
                 StatusCode = "",
-                CreatedDateTime = DateTime.Today
+                CreatedDateTime = DateTime.UtcNow.Date
             }
         });
 
@@ -91,7 +91,7 @@ public class RetrieveCohortRequestAuditTests
             {
                 RequestId = new Guid(),
                 StatusCode = "200",
-                CreatedDateTime = DateTime.Today.AddDays(1)
+                CreatedDateTime = DateTime.UtcNow.Date.AddDays(1)
             }
         });
 
@@ -121,7 +121,7 @@ public class RetrieveCohortRequestAuditTests
             {
                 RequestId = new Guid(),
                 StatusCode = "200",
-                CreatedDateTime = DateTime.Today.AddDays(1)
+                CreatedDateTime = DateTime.UtcNow.Date.AddDays(1)
             }
         });
 
