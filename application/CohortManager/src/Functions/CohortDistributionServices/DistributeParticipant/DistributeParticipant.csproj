@@ -25,6 +25,7 @@
   <ItemGroup>
     <ProjectReference Include="../../Shared/Common/Common.csproj" />
     <ProjectReference Include="..\..\Shared\HealthChecks\HealthChecks.csproj" />
+    <ProjectReference Include="..\..\Shared\DataServices.Client\DataServices.Client.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
@@ -33,6 +34,9 @@
     <None Update="local.settings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+    </None>
+    <None Update="AllocateServiceProvider\allocationConfig.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -25,9 +25,9 @@ public class ValidationExceptionDataTests
         validationExceptionData = new ValidationExceptionData(_logger.Object, _validationExceptionDataServiceClient.Object, _demographicDataServiceClient.Object);
         _exceptionList = new List<ExceptionManagement>
         {
-            new() { ExceptionId = 1, CohortName = "Cohort1", DateCreated = DateTime.Today.AddDays(-2), NhsNumber = "1111111111", RuleDescription = "RuleA", Category = 1, ServiceNowId = "ServiceNow1" },
-            new() { ExceptionId = 2, CohortName = "Cohort2", DateCreated = DateTime.Today.AddDays(-1), NhsNumber = "2222222222", RuleDescription = "RuleB", Category = 3, ServiceNowId = "ServiceNow2" },
-            new() { ExceptionId = 3, CohortName = "Cohort3", DateCreated = DateTime.Today, NhsNumber = "3333333333", RuleDescription = "RuleC", Category = 3, ServiceNowId = null }
+            new() { ExceptionId = 1, CohortName = "Cohort1", DateCreated = DateTime.UtcNow.Date.AddDays(-2), NhsNumber = "1111111111", RuleDescription = "RuleA", Category = 1, ServiceNowId = "ServiceNow1" },
+            new() { ExceptionId = 2, CohortName = "Cohort2", DateCreated = DateTime.UtcNow.Date.AddDays(-1), NhsNumber = "2222222222", RuleDescription = "RuleB", Category = 3, ServiceNowId = "ServiceNow2" },
+            new() { ExceptionId = 3, CohortName = "Cohort3", DateCreated = DateTime.UtcNow.Date, NhsNumber = "3333333333", RuleDescription = "RuleC", Category = 3, ServiceNowId = null }
         };
         _exceptionCategory = ExceptionCategory.NBO;
     }

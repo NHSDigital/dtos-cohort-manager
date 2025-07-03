@@ -315,6 +315,25 @@ function_apps = {
       }
     }
 
+    ManageParticipant = {
+      name_suffix            = "manage-participant"
+      function_endpoint_name = "ManageParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      env_vars = {
+        app_urls = {
+          ExceptionFunctionURL                 = "CreateException"
+          ParticipantManagementUrl             = "ParticipantManagementDataService"
+        }
+        static = {
+          CohortQueueName              = "cohort-distribution-topic"
+          DistributeParticipantSubName = "distribute-participant-sub"
+          IgnoreParticipantExceptions  = "false"
+          IsExtractedToBSSelect        = "false"
+          AcceptableLatencyThresholdMs = "500"
+        }
+      }
+    }
+
     AddParticipant = {
       name_suffix                  = "add-participant"
       function_endpoint_name       = "addParticipant"
@@ -577,6 +596,30 @@ function_apps = {
         static = {
           CohortQueueName              = "cohort-distribution-queue"
           CohortQueueNamePoison        = "cohort-distribution-queue-poison"
+          IgnoreParticipantExceptions  = "false"
+          IsExtractedToBSSelect        = "false"
+          AcceptableLatencyThresholdMs = "500"
+        }
+      }
+    }
+
+    DistributeParticipant = {
+      name_suffix            = "distribute-participant"
+      function_endpoint_name = "DistributeParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      env_vars = {
+        app_urls = {
+          ExceptionFunctionURL                 = "CreateException"
+          ParticipantManagementUrl             = "ParticipantManagementDataService"
+          participantDemographicDataServiceURL = "ParticipantDemographicDataService"
+          CohortDistributionDataServiceURL     = "CohortDistributionDataService"
+          LookupValidationURL                  = "LookupValidation"
+          StaticValidationURL                  = "StaticValidation"
+          TransformDataServiceURL              = "TransformDataService"
+        }
+        static = {
+          CohortQueueName              = "cohort-distribution-topic"
+          DistributeParticipantSubName = "distribute-participant-sub"
           IgnoreParticipantExceptions  = "false"
           IsExtractedToBSSelect        = "false"
           AcceptableLatencyThresholdMs = "500"
