@@ -454,7 +454,7 @@
                 },
                 {
                   "field": "ReasonForRemovalEffectiveFromDate",
-                  "value": "DateTime.Today.ToString(\"yyyyMMdd\")",
+                  "value": "DateTime.UtcNow.Date.ToString(\"yyyyMMdd\")",
                   "isExpression": true
                 }
               ]
@@ -482,7 +482,7 @@
                 },
                 {
                   "field": "ReasonForRemovalEffectiveFromDate",
-                  "value": "DateTime.Today.ToString(\"yyyyMMdd\")",
+                  "value": "DateTime.UtcNow.Date.ToString(\"yyyyMMdd\")",
                   "isExpression": true
                 }
               ]
