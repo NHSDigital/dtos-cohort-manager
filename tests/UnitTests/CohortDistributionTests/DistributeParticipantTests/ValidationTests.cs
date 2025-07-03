@@ -21,7 +21,7 @@ public class ValidationTests
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClient = new();
     private readonly Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionClient = new();
     private readonly Mock<IExceptionHandler> _exceptionHandler = new();
-    private Validation _sut;
+    private ValidateParticipant _sut;
     private readonly Mock<TaskOrchestrationContext> _mockContext = new();
     private CohortDistributionParticipant _cohortDistributionParticipant;
 
@@ -91,12 +91,12 @@ public class ValidationTests
         _mockContext
             .Setup(x => x.CallActivityAsync("UpdateExceptionFlag", It.IsAny<string>(), null));
 
-        _sut = new Validation(
+        _sut = new ValidateParticipant(
             _cohortDistributionClient.Object,
             _participantManagementClient.Object,
             _config.Object,
             _httpClient.Object,
-            NullLogger<Validation>.Instance,
+            NullLogger<ValidateParticipant>.Instance,
             _exceptionHandler.Object);
     }
 
@@ -146,12 +146,12 @@ public class ValidationTests
 
         _config.Setup(x => x.Value).Returns(config);
 
-        _sut = new Validation(
+        _sut = new ValidateParticipant(
             _cohortDistributionClient.Object,
             _participantManagementClient.Object,
             _config.Object,
             _httpClient.Object,
-            NullLogger<Validation>.Instance,
+            NullLogger<ValidateParticipant>.Instance,
             _exceptionHandler.Object);
 
         // Act

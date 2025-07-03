@@ -11,20 +11,20 @@ using Model.Enums;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
 
-public class Validation
+public class ValidateParticipant
 {
     private readonly IHttpClientFunction _httpClient;
-    private readonly ILogger<Validation> _logger;
+    private readonly ILogger<ValidateParticipant> _logger;
     private readonly DistributeParticipantConfig _config;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
     private readonly IExceptionHandler _exceptionHandler;
 
-    public Validation(IDataServiceClient<CohortDistribution> cohortDistributionClient,
+    public ValidateParticipant(IDataServiceClient<CohortDistribution> cohortDistributionClient,
                                        IDataServiceClient<ParticipantManagement> participantManagementClient,
                                        IOptions<DistributeParticipantConfig> config,
                                        IHttpClientFunction httpClientFunction,
-                                       ILogger<Validation> logger,
+                                       ILogger<ValidateParticipant> logger,
                                        IExceptionHandler exceptionHandler)
     {
         _cohortDistributionClient = cohortDistributionClient;

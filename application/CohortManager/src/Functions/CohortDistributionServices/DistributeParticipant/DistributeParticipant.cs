@@ -84,7 +84,7 @@ public class DistributeParticipant
             _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", _config.IgnoreParticipantExceptions);
             if (participantData.ExceptionFlag == 1 && !_config.IgnoreParticipantExceptions)
             {
-                await HandleExceptionAsync(new ArgumentException("Pariticipant has an unresolved exception, will not add to cohort distribution"), participantRecord);
+                await HandleExceptionAsync(new ArgumentException("Participant has an unresolved exception, will not add to cohort distribution"), participantRecord);
                 return;
             }
 
@@ -93,7 +93,7 @@ public class DistributeParticipant
 
             // Validation & Transformation
             ValidationRecord validationRecord = new() {FileName = participantRecord.FileName, Participant = participantData}; 
-            var transformedParticipant = await context.CallSubOrchestratorAsync<CohortDistributionParticipant?>(nameof(Validation.ValidationOrchestrator), validationRecord);
+            var transformedParticipant = await context.CallSubOrchestratorAsync<CohortDistributionParticipant?>(nameof(ValidateParticipant.ValidationOrchestrator), validationRecord);
             if (transformedParticipant is null)
             {
                 _logger.LogError("Failed to transform participant");
