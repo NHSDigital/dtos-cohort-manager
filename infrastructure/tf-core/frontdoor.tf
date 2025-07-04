@@ -40,7 +40,6 @@ module "frontdoor_endpoint" {
     )
   }
   public_dns_zone_rg_name = data.terraform_remote_state.hub.outputs.public_dns_zone_rg_name
-  resource_group_name     = data.terraform_remote_state.hub.outputs.project_rg_names["dtos-${var.application_full_name}-${local.primary_region}"]
   route                   = each.value.route
   security_policies       = each.value.security_policies
 
