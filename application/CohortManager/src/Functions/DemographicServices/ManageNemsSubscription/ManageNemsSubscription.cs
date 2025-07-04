@@ -56,7 +56,7 @@ public class ManageNemsSubscription
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
             }
 
-            if (!IsValidNhsNumber(nhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("Invalid NHS number format: {NhsNumber}", nhsNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
@@ -107,7 +107,7 @@ public class ManageNemsSubscription
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
             }
 
-            if (!IsValidNhsNumber(nhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("Invalid NHS number format: {NhsNumber}", nhsNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
@@ -166,7 +166,7 @@ public class ManageNemsSubscription
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
             }
 
-            if (!IsValidNhsNumber(nhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("Invalid NHS number format: {NhsNumber}", nhsNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
@@ -209,18 +209,4 @@ public class ManageNemsSubscription
         }
     }
 
-    /// <summary>
-    /// Basic NHS number validation
-    /// </summary>
-    /// <param name="nhsNumber">NHS number to validate</param>
-    /// <returns>True if valid format, false otherwise</returns>
-    private static bool IsValidNhsNumber(string nhsNumber)
-    {
-        if (string.IsNullOrEmpty(nhsNumber))
-            return false;
-
-        // Remove spaces and check if it's exactly 10 digits
-        var cleanNumber = nhsNumber.Replace(" ", "");
-        return cleanNumber.Length == 10 && cleanNumber.All(char.IsDigit);
-    }
 }
