@@ -58,7 +58,7 @@ public class ManageNemsSubscription
 
             if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                _logger.LogError("Invalid NHS number format: {NhsNumber}", nhsNumber);
+                _logger.LogError("Invalid NHS number format");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
             }
 
@@ -109,7 +109,7 @@ public class ManageNemsSubscription
 
             if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                _logger.LogError("Invalid NHS number format: {NhsNumber}", nhsNumber);
+                _logger.LogError("Invalid NHS number format");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
             }
 
@@ -118,7 +118,7 @@ public class ManageNemsSubscription
 
             if (string.IsNullOrEmpty(subscriptionId))
             {
-                _logger.LogWarning("No subscription found for NHS number {NhsNumber}", nhsNumber);
+                _logger.LogWarning("No subscription found for NHS number");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No subscription found.");
             }
 
@@ -132,7 +132,7 @@ public class ManageNemsSubscription
             }
             else
             {
-                _logger.LogError("Failed to remove subscription for NHS number {NhsNumber}", nhsNumber);
+                _logger.LogError("Failed to remove subscription for NHS number");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to remove subscription.");
             }
         }
@@ -168,7 +168,7 @@ public class ManageNemsSubscription
 
             if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                _logger.LogError("Invalid NHS number format: {NhsNumber}", nhsNumber);
+                _logger.LogError("Invalid NHS number format");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
             }
 
