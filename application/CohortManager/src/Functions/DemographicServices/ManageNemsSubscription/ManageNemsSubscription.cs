@@ -58,18 +58,15 @@ public class ManageNemsSubscription
 
             bool success = await _subscriptionManager.CreateAndSendSubscriptionAsync(nhsNumber);
 
-            if (success)
-            {
-                string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
-
-                _logger.LogInformation("Successfully created subscription for NHS number REDACTED");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"Subscription created successfully. Subscription ID: {subscriptionId}");
-            }
-            else
+            if (!success)
             {
                 _logger.LogError("Failed to create subscription for NHS number REDACTED");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to create subscription in NEMS.");
             }
+
+            string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
+            _logger.LogInformation("Successfully created subscription for NHS number REDACTED");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"Subscription created successfully. Subscription ID: {subscriptionId}");
         }
         catch (Exception ex)
         {
@@ -113,16 +110,14 @@ public class ManageNemsSubscription
             // Attempt to remove only if found
             bool success = await _subscriptionManager.RemoveSubscriptionAsync(nhsNumber);
 
-            if (success)
-            {
-                _logger.LogInformation("Successfully unsubscribed NHS number REDACTED");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Successfully unsubscribed");
-            }
-            else
+            if (!success)
             {
                 _logger.LogError("Failed to remove subscription for NHS number");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to remove subscription.");
             }
+
+            _logger.LogInformation("Successfully unsubscribed NHS number REDACTED");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Successfully unsubscribed");
         }
         catch (Exception ex)
         {
@@ -156,14 +151,12 @@ public class ManageNemsSubscription
 
             string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
 
-            if (!string.IsNullOrEmpty(subscriptionId))
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"Active subscription found. Subscription ID: {subscriptionId}");
-            }
-            else
+            if (string.IsNullOrEmpty(subscriptionId))
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No subscription found for this NHS number.");
             }
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"Active subscription found. Subscription ID: {subscriptionId}");
         }
         catch (Exception ex)
         {
