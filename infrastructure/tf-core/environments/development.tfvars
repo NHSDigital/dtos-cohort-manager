@@ -1085,26 +1085,26 @@ linux_web_app = {
 
 linux_web_app_slots = []
 
-frontdoor = {
-  endpoint = {
-    cohort = {}
-  }
-  origin_group = {
-    "cohort-origins" = {}
-  }
-  origin = {
-    # Dynamically picks all origins for a specific Web App, adding Private Link connection if enabled
-    FrontEndUi = { # key from var.linux_web_app.linux_web_app_config
-      cdn_frontdoor_origin_group_key = "cohort-origins"
-      certificate_name_check_enabled = true
+frontdoor_endpoint = {
+  cohort = {
+    origin_group = {
+      session_affinity_enabled = false
     }
-  }
-  route = {
-    "cohort-route" = {
-      cdn_frontdoor_endpoint_key       = "cohort"
-      cdn_frontdoor_origin_group_key   = "cohort-origins"
-      cdn_frontdoor_origin_key         = "FrontEndUi" # Reference all origins dynamically retrieved above
-      cdn_frontdoor_custom_domain_keys = []
+    origin = {
+      # Dynamically picks all origins for a specific Web App, adding Private Link connection if enabled (needs manual approval)
+      webapp_key                     = "FrontEndUi" # From var.linux_web_app.linux_web_app_config
+    }
+    custom_domains = {
+      cohort-dev = {
+        host_name     = "cohort-dev.non-live.screening.nhs.uk"
+        dns_zone_name = "non-live.screening.nhs.uk"
+      }
+    }
+    security_policies = {
+      AllowedIPs = {
+        cdn_frontdoor_firewall_policy_name = "wafhubnonliveinternalwhitelist"
+        associated_domain_keys             = ["cohort-dev"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
+      }
     }
   }
 }

@@ -1,57 +1,48 @@
-module "frontdoor" {
-  source = "../../../dtos-devops-templates/infrastructure/modules/cdn-frontdoor"
+module "frontdoor_endpoint" {
+  source = "../../../dtos-devops-templates/infrastructure/modules/cdn-frontdoor-endpoint"
+
+  for_each = var.frontdoor_endpoint
 
   providers = {
-    azurerm = azurerm.hub
+    azurerm     = azurerm.hub # Each project's Front Door profile (with secrets) resides in Hub since it's shared infra with a Non-live/Live deployment pattern
+    azurerm.dns = azurerm.hub
   }
 
-  cdn_frontdoor_profile_id = data.terraform_remote_state.hub.outputs.frontdoor_profile["dtos-${var.application_full_name}"].id
-  endpoint                 = var.frontdoor.endpoint
-  origin_group             = var.frontdoor.origin_group
-  origin                   = local.origin_map
-  resource_group_name      = data.terraform_remote_state.hub.outputs.project_rg_names["dtos-${var.application_full_name}-${local.primary_region}"]
-  route                    = local.route_map
-
-  tags = var.tags
-}
-
-locals {
-  # Dynamically fetch all regional origins for the specified Web Apps. This needs to be dynamic to get the private_link_target_id values.
-  # There may be multiple origins and possibly multiple regions.
-  # We cannot nest for loops inside a map, so first iterate all permutations of both as a list of objects...
-  origins_object_list = flatten([
-    for region in keys(var.regions) : [
-      for origin, config in var.frontdoor.origin : merge(
-        {
-          region       = region # 1st iterator
-          origin       = origin # 2nd iterator
-          hostname     = "${module.regions_config[region].names["linux-web-app"]}-${var.linux_web_app.linux_web_app_config[origin].name_suffix}.azurewebsites.net"
-          private_link = var.features.private_endpoints_enabled ? {
-            # At time of writing (Jun 2025) Private Link connection requests must be approved manually in Portal, see note here:
-            # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs/resources/cdn_frontdoor_origin
-            target_type            = "sites"
-            location               = region
-            private_link_target_id = module.linux_web_app.private_endpoint_id
-          } : null
-        },
-        config # the rest of the key/value pairs for a specific origin
-      )
-    ]
-  ])
-  # ...then project the list of objects into a map with unique keys (combining the iterators), for consumption by a for_each meta argument
-  origin_map = {
-    for object in local.origins_object_list : "${object.origin}-${object.region}" => object
-  }
-
-  # Populate cdn_frontdoor_origin_keys from the dynamic origins interpolated above.
-  route_map = {
-    for route, config in var.frontdoor.route : route => merge(
+  cdn_frontdoor_firewall_policy_rg_name = data.terraform_remote_state.hub.outputs.networking_rg_name[local.primary_region]
+  cdn_frontdoor_profile_id              = data.terraform_remote_state.hub.outputs.frontdoor_profile["dtos-${var.application_full_name}"].id
+  custom_domains = {
+    for k, v in each.value.custom_domains : k => merge(
+      v,
       {
-        for k, v in config : k => v if k != "cdn_frontdoor_origin_key"
-      },
-      {
-        cdn_frontdoor_origin_keys = [ for k, v in local.origin_map : k if v.origin == config.cdn_frontdoor_origin_key ]
+        tls = merge(
+          v.tls,
+          v.tls.certificate_type == "CustomerCertificate" && v.tls.cdn_frontdoor_secret_key != null ? {
+            cdn_frontdoor_secret_id = data.terraform_remote_state.hub.outputs.frontdoor_profile["dtos-${var.application_full_name}"].secrets[v.tls.cdn_frontdoor_secret_key].id
+          } : {}
+        )
       }
     )
   }
+  name         = lower("${var.environment}-${each.key}")
+  origin_group = each.value.origin_group
+  origins = {
+    for region in keys(var.regions) : module.linux_web_app["${each.value.origin.webapp_key}-${region}"].name => merge(
+      each.value.origin,
+      {
+        hostname           = "${module.linux_web_app["${each.value.origin.webapp_key}-${region}"].name}.azurewebsites.net"
+        origin_host_header = "${module.linux_web_app["${each.value.origin.webapp_key}-${region}"].name}.azurewebsites.net"
+        private_link = var.features.private_endpoints_enabled ? {
+          target_type            = "sites"
+          location               = region
+          private_link_target_id = module.linux_web_app["${each.value.origin.webapp_key}-${region}"].id
+        } : null
+      }
+    )
+  }
+  public_dns_zone_rg_name = data.terraform_remote_state.hub.outputs.public_dns_zone_rg_name
+  resource_group_name     = data.terraform_remote_state.hub.outputs.project_rg_names["dtos-${var.application_full_name}-${local.primary_region}"]
+  route                   = each.value.route
+  security_policies       = each.value.security_policies
+
+  tags = var.tags
 }
