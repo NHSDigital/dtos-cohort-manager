@@ -1,0 +1,1598 @@
+﻿[
+  {
+    ScreeningId: 1,
+    NHSNumber: 4018168594,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4045341528,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4053035708,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: DEA,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4053135788,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4085929062,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: DEA,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4102851291,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4103970448,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4115645180,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4117849972,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: DEA,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4131008203,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4141542040,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4162446997,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4167735741,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4173622120,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4179701189,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4181226069,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4197410565,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: DEA,
+    ReasonForRemovalDate: 2025-01-01,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4200225247,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4201983315,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4222079391,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4234896802,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4245190701,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4245664347,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4246633585,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4252603978,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: RDR,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4267475997,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: LDN,
+    ReasonForRemovalDate: 2025-01-01,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4275986377,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4279798001,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4288008727,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4293414797,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: RDI,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4299791061,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4317838877,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4327035416,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4349978402,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4351713178,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4352330191,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: RDR,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4358031722,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4371718892,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4376931209,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4401118316,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4409282638,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: DEA,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4433482234,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4439916619,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4441859783,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4462387430,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: RPR,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4464989802,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4467793437,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4480073698,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4480820558,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4485286320,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4496418436,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4498759591,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4506093208,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4506095111,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4511665095,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4519218543,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4535974500,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4538115533,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4540245953,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: SDN,
+    ReasonForRemovalDate: 2025-01-02
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4540904884,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: SDN,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4541268663,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4547281548,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4551136115,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4554608883,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4561988718,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4565317079,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4588262750,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4590839105,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4626656854,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4627295499,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4630858989,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4634132869,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4635036812,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: DEA,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4640483686,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4641948828,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: SDN,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4654133208,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4682786768,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4698689813,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4713799432,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4718169305,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4721088957,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4724961643,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4753010309,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: RDI,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4754428811,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4756201555,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4762369489,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4763152084,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4771630674,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4781785395,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4785346248,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4787938118,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4788893312,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4795432104,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4809785505,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: DEA,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4817777346,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4824847850,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4830473762,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4833653737,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4845766078,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4846613461,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4849619002,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4857477319,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4859728068,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4863752636,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4864305900,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: RDR,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4884485750,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4894857472,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4915676684,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4916844009,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4919286376,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4928685415,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4950324098,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4953508122,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4956270585,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4966405114,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4970196621,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4973178802,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4973180149,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: SDN,
+    ReasonForRemovalDate: 2025-01-03
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4975906791,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4983062823,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4993678193,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 4996223197,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6008255208,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6024256035,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6029739433,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6039954019,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6046798647,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6058218985,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6068896641,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6071486483,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6079897539,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6117641362,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6127814006,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: DEA,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6172960024,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6173409003,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6174946576,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6191905165,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6269401933,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6311260034,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6313679296,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: SDN,
+    ReasonForRemovalDate: 2025-01-01,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6359821427,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6408352715,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6430248178,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6454675483,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6497541519,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6517100997,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: LDN,
+    ReasonForRemovalDate: 2025-01-01,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6529072829,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6532427659,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: DEA,
+    ReasonForRemovalDate: 2026-01-01,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6539436955,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6541820430,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6552581416,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6555069333,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6574816157,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6576181736,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6595690292,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6603613638,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6611363718,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6632017622,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6641812294,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6660596933,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6670962940,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6674960950,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6686015199,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6698104361,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: SDN,
+    ReasonForRemovalDate: 2025-01-03
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6702787324,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6713731201,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: RDI,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6725626386,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6731026794,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6748552273,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6766273305,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6780366366,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6798226124,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6807750900,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6827746127,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6841986644,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6855382045,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6867212719,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6867521673,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6872787988,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: RPR,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6888699692,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6925222785,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6958088816,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6965572868,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6977828404,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 6992953516,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7022368961,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7023256555,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7027610515,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7032423760,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7048473924,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: RPR,
+    ReasonForRemovalDate: 2025-01-01
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7157970317,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7166234873,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7202585898,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7218241239,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7243817084,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7250974637,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7261316709,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7261316709,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7277090411,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7322271416,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7334425197,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: SDN,
+    ReasonForRemovalDate: 2025-01-02
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7341694319,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7352230343,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: SDN ,
+    ReasonForRemovalDate: 2025-01-01,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7363385254,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7365405309,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7391723835,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7407937982,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7416018471,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ReasonForRemoval: DEAA,
+    ReasonForRemovalDate: 2025-01-01,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7422111011,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7422193514,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7435645613,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7449785412,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7457921788,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7465247659,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7565570672,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7602976460,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7634068853,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7682509007,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7684350773,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7700521131,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7704611844,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7718097153,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7724199329,
+    RecordType: ADD,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7725558284,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7739357464,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7742678500,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7743886263,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7753031732,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7754468573,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7756526651,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7757247756,
+    RecordType: AMENDED,
+    EligibilityFlag: 1,
+    ExceptionFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7778547279,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7786827242,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7788921629,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7811745313,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7830066019,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7831958312,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7848807215,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7853052189,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7862789423,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7863876427,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7870863289,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7886217241,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7892168907,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7926640913,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7936065555,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7962691417,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7980407083,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7983060459,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7987052582,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7990060787,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  },
+  {
+    ScreeningId: 1,
+    NHSNumber: 7998836458,
+    RecordType: AMENDED,
+    EligibilityFlag: 1
+  }
+]

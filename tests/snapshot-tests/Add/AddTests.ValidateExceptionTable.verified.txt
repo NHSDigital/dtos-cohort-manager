@@ -1,0 +1,1534 @@
+﻿[
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: ,
+    RuleId: -2146233088,
+    RuleDescription: Participant data returned from database is missing required fields,
+    Category: 5,
+    ScreeningName: ,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: ,
+    RuleId: -2146233088,
+    RuleDescription: Participant data returned from database is missing required fields,
+    Category: 5,
+    ScreeningName: ,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: ,
+    RuleId: -2146233088,
+    RuleDescription: Participant data returned from database is missing required fields,
+    Category: 5,
+    ScreeningName: ,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: ,
+    RuleId: -2146233088,
+    RuleDescription: Participant data returned from database is missing required fields,
+    Category: 5,
+    ScreeningName: ,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: ,
+    RuleId: -2146233088,
+    RuleDescription: Participant data returned from database is missing required fields,
+    Category: 5,
+    ScreeningName: ,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4018168594,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4018168594,
+    RuleId: 3601,
+    RuleDescription: Invalid primary care provider GP practice code,
+    Category: 1,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4018168594,
+    RuleId: 3602,
+    RuleDescription: Invalid primary care provider GP practice code,
+    Category: 1,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 40203361,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 40203361,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 40203361,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 40203361,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 40203361,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ,
+    NhsNumber: 4045341528,
+    RuleId: 10,
+    RuleDescription: Participant was transformed as transform rule: TruncateAddressLine5ExceedsMaximumLength was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4053135788,
+    RuleId: 83,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4102851291,
+    RuleId: 2,
+    RuleDescription: Participant was transformed as transform rule: TruncateFirstNameExceedsMaximumLength was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4103970448,
+    RuleId: 61,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Major was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4115645180,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4144498484,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ,
+    NhsNumber: 4162446997,
+    RuleId: 52,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Honourable was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4181226069,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4181226069,
+    RuleId: 58,
+    RuleDescription: Missing or invalid Posting,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4222079391,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4245190701,
+    RuleId: -2147024809,
+    RuleDescription: Participant contains illegal characters,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ,
+    NhsNumber: 4246633585,
+    RuleId: 37,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix AirMarshal was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4279798001,
+    RuleId: 83,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4317838877,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4349978402,
+    RuleId: 49,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Father was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4358031722,
+    RuleId: 42,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Captain was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4371718892,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4371718892,
+    RuleId: 58,
+    RuleDescription: Missing or invalid Posting,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4371718892,
+    RuleId: 3602,
+    RuleDescription:
+Error while executing scoped params for rule `3602.CurrentPostingAndPrimaryProvider.BSSelect.NonFatal` - System.NullReferenceException: Object reference not set to an instance of an object.
+   at RulesEngine.RuleCompiler.<>c__DisplayClass11_0.<GetWrappedRuleFunc>b__0(RuleParameter[] ruleParams),
+    Category: 1,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4376931209,
+    RuleId: 48,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Doctor was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4439916619,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4439916619,
+    RuleId: 71,
+    RuleDescription: Address is missing,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4441859783,
+    RuleId: 0,
+    RuleDescription: Participant was transformed as transform rule: OtherGenderNot-0-1-2-or-9 was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4480073698,
+    RuleId: 5,
+    RuleDescription: Participant was transformed as transform rule: TruncatePreviousFamilyNameExceedsMaximumLength was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4485286320,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4519218543,
+    RuleId: 6,
+    RuleDescription: Participant was transformed as transform rule: TruncateAddressLine1ExceedsMaximumLength was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4527563688,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ,
+    NhsNumber: 4565317079,
+    RuleId: 0,
+    RuleDescription: Participant was transformed as transform rule: OtherGenderNot-0-1-2-or-9 was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4588262750,
+    RuleId: 15,
+    RuleDescription: Participant was transformed as transform rule: TruncateMobileNumberExceedsMaximumLength was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4590839105,
+    RuleId: 54,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix HisRoyalHighness was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4626656854,
+    RuleId: 55,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix HerRoyalHighness was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4640483686,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4640483686,
+    RuleId: 57,
+    RuleDescription: Superseded by NHS ID invalid,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4654133208,
+    RuleId: 47,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Dr was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4721088957,
+    RuleId: 77,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Pastor was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4754428811,
+    RuleId: 9,
+    RuleDescription: Participant was transformed as transform rule: TruncateAddressLine4ExceedsMaximumLength was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4756201555,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4771630000,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4771630000,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4771630000,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4771630000,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4771630000,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 47817853955,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 47817853955,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 47817853955,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 47817853955,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 47817853955,
+    RuleId: -2146233088,
+    RuleDescription: Invalid NHS Number was passed in for participant Model.Participant and file ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ,
+    NhsNumber: 4785346248,
+    RuleId: 16,
+    RuleDescription: Participant was transformed as transform rule: TruncateEmailAddressExceedsMaximumLength was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4785733349,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ,
+    NhsNumber: 4788893312,
+    RuleId: 46,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Colonel was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4795432104,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4817777346,
+    RuleId: 83,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4824847850,
+    RuleId: 68,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Countess was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4830473762,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4833653737,
+    RuleId: 80,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Sister was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4846613461,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4846613461,
+    RuleId: 42,
+    RuleDescription: GP practice code invalid,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4846613461,
+    RuleId: 47,
+    RuleDescription: Removal fields incompatible with record type,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4849619002,
+    RuleId: 72,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Bishop was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4859728068,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4859728068,
+    RuleId: 3,
+    RuleDescription: GP practice code and Reason for Removal fields contain incompatible values,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4859728068,
+    RuleId: 42,
+    RuleDescription: GP practice code invalid,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4894857472,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4894857472,
+    RuleId: 58,
+    RuleDescription: Missing or invalid Posting,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4915676684,
+    RuleId: 64,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Mister was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4916844009,
+    RuleId: 74,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Canon was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4919286376,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4953508122,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4953508122,
+    RuleId: 42,
+    RuleDescription: GP practice code invalid,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4953508122,
+    RuleId: 47,
+    RuleDescription: Removal fields incompatible with record type,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4966405114,
+    RuleId: 62,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Master was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4973178802,
+    RuleId: -2147024809,
+    RuleDescription: Participant contains illegal characters,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ,
+    NhsNumber: 4983062823,
+    RuleId: 40,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Brother was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 4993678193,
+    RuleId: 45,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Cdr was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4996223197,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4996223197,
+    RuleId: 17,
+    RuleDescription: Date of birth invalid,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 4996223197,
+    RuleId: 39,
+    RuleDescription: Family Name value missing,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6008255208,
+    RuleId: 73,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Rev was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6024256035,
+    RuleId: 0,
+    RuleDescription: Participant was transformed as transform rule: ValidateLanguageCode was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6068896641,
+    RuleId: 53,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Judge was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6071486483,
+    RuleId: 82,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix WingCommander was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6117641362,
+    RuleId: 73,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Viscount was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6172960024,
+    RuleId: 56,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Baroness was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6173409003,
+    RuleId: 41,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Br was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6311260034,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6408352715,
+    RuleId: 50,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Fath was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6576181736,
+    RuleId: 78,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Rev was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6603613638,
+    RuleId: 44,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Commander was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6660596933,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6670962940,
+    RuleId: 69,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix RtHon was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6686015199,
+    RuleId: 43,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Capt was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6731026794,
+    RuleId: 4,
+    RuleDescription: Participant was transformed as transform rule: TruncateFamilyNameExceedsMaximumLength was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6766273305,
+    RuleId: 60,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix LieutenantColonel was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6780366366,
+    RuleId: 75,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Deacon was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6807750900,
+    RuleId: 39,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Brigadier was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 6827746127,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 6827746127,
+    RuleId: 30,
+    RuleDescription: Postcode invalid,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6888699692,
+    RuleId: 14,
+    RuleDescription: Participant was transformed as transform rule: TruncateTelephoneNumberExceedsMaximumLength was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6925222785,
+    RuleId: 70,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix RightRev was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6958088816,
+    RuleId: 59,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Duke was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6965572868,
+    RuleId: 7,
+    RuleDescription: Participant was transformed as transform rule: TruncateAddressLine2ExceedsMaximumLength was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6977828404,
+    RuleId: 65,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Mstr was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 6992953516,
+    RuleId: 63,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Mast was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7023256555,
+    RuleId: 0,
+    RuleDescription: Participant was transformed as transform rule: OtherInvalidFlagTrueAndNoPrimaryCareProvider was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7093375219,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ,
+    NhsNumber: 7157970317,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix RtRev was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7218241239,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7218241239,
+    RuleId: 40,
+    RuleDescription: First Name value missing,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7250974637,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7250974637,
+    RuleId: 94,
+    RuleDescription: Invalid eligibility flag.,
+    Category: 2,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7277090411,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7277090411,
+    RuleId: 71,
+    RuleDescription: Address is missing,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7290320794,
+    RuleId: 0,
+    RuleDescription: RecordType was not set to an expected value,
+    Category: 10,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ,
+    NhsNumber: 7322271416,
+    RuleId: 76,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Mosignor was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7335805996,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7341694319,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7341694319,
+    RuleId: 17,
+    RuleDescription: Date of birth invalid,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7407937982,
+    RuleId: 57,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Baron was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7435645613,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7435645613,
+    RuleId: 39,
+    RuleDescription: Family Name value missing,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7565570672,
+    RuleId: 58,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Duchess was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7635643460,
+    RuleId: -2146233088,
+    RuleDescription: Invalid effective date found in participant data Model.Participant and file name ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ,
+    NhsNumber: 7700521131,
+    RuleId: 79,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Sqn was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7724199000,
+    RuleId: 0,
+    RuleDescription: a record has failed to process with the NHS Number: REDACTED because of an incorrect record type,
+    Category: 5,
+    ScreeningName: ,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7724199000,
+    RuleId: 0,
+    RuleDescription: a record has failed to process with the NHS Number: REDACTED because of an incorrect record type,
+    Category: 5,
+    ScreeningName: ,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7724199000,
+    RuleId: 0,
+    RuleDescription: a record has failed to process with the NHS Number: REDACTED because of an incorrect record type,
+    Category: 5,
+    ScreeningName: ,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7724199000,
+    RuleId: 0,
+    RuleDescription: a record has failed to process with the NHS Number: REDACTED because of an incorrect record type,
+    Category: 5,
+    ScreeningName: ,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7724199000,
+    RuleId: 0,
+    RuleDescription: a record has failed to process with the NHS Number: REDACTED because of an incorrect record type,
+    Category: 5,
+    ScreeningName: ,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7725558284,
+    RuleId: 67,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Count was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7739357464,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7742678500,
+    RuleId: 8,
+    RuleDescription: Participant was transformed as transform rule: TruncateAddressLine3ExceedsMaximumLength was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7743886263,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7753031732,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7757247756,
+    RuleId: 83,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Invalid was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7786827242,
+    RuleId: 38,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Admiral was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7962691417,
+    RuleId: 71,
+    RuleDescription: Participant was transformed as transform rule: CharacterRules was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7983060459,
+    RuleId: -2146233088,
+    RuleDescription: ,
+    Category: 5,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 1
+  },
+  {
+    FileName: ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet,
+    NhsNumber: 7983060459,
+    RuleId: 57,
+    RuleDescription: Superseded by NHS ID invalid,
+    Category: 3,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7987052582,
+    RuleId: 66,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix Prof was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  },
+  {
+    FileName: ,
+    NhsNumber: 7998836458,
+    RuleId: 51,
+    RuleDescription: Participant was transformed as transform rule: Name Prefix General was executed,
+    Category: 11,
+    ScreeningName: Breast Screening,
+    CohortName: ,
+    IsFatal: 0
+  }
+]
