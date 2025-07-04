@@ -260,6 +260,73 @@ variable "function_apps" {
   })
 }
 
+variable "frontdoor_endpoint" {
+  description = "Configuration for Front Door"
+  type = map(object({
+    origin = object({
+      enabled                        = optional(bool, true)
+      http_port                      = optional(number, 80)  # 1–65535
+      https_port                     = optional(number, 443) # 1–65535
+      priority                       = optional(number, 1)   # 1–5
+      webapp_key                     = string                # From var.linux_web_app.linux_web_app_config
+      weight                         = optional(number, 500) # 1–1000
+    })
+
+    origin_group = optional(object({
+      health_probe = optional(object({
+        interval_in_seconds = number # Required: 1–255
+        path                = optional(string, "/")
+        protocol            = optional(string, "Https")
+        request_type        = optional(string, "HEAD")
+      }))
+
+      load_balancing = optional(object({
+        additional_latency_in_milliseconds = optional(number, 50) # Optional: 0–1000
+        sample_size                        = optional(number, 4)  # Optional: 0–255
+        successful_samples_required        = optional(number, 3)  # Optional: 0–255
+      }), {})
+
+      session_affinity_enabled                                  = optional(bool, true)
+      restore_traffic_time_to_healed_or_new_endpoint_in_minutes = optional(number)
+    }), {})
+
+    custom_domains = optional(map(object({
+      dns_zone_name = string
+      host_name     = string
+
+      tls = optional(object({
+        certificate_type         = optional(string, "ManagedCertificate")
+        cdn_frontdoor_secret_key = optional(string, null) # From var.projects[].frontdoor_profile.secrets in Hub
+      }), {})
+
+      zone_rg_name = optional(string, null)
+    })), {})
+
+    route = optional(object({
+      cache = optional(object({
+        query_string_caching_behavior = optional(string, "IgnoreQueryString") # "IgnoreQueryString" etc.
+        query_strings                 = optional(list(string))
+        compression_enabled           = optional(bool, false)
+        content_types_to_compress     = optional(list(string))
+      }))
+
+      cdn_frontdoor_origin_path = optional(string, null)
+      enabled                   = optional(bool, true)
+      forwarding_protocol       = optional(string, "MatchRequest") # "HttpOnly" | "HttpsOnly" | "MatchRequest"
+      https_redirect_enabled    = optional(bool, false)
+      link_to_default_domain    = optional(bool, false)
+      patterns_to_match         = optional(list(string), ["/*"])
+      supported_protocols       = optional(list(string), ["Https"])
+    }), {})
+
+    security_policies = optional(map(object({
+      associated_domain_keys                = list(string)
+      cdn_frontdoor_firewall_policy_name    = string
+      cdn_frontdoor_firewall_policy_rg_name = optional(string, null)
+    })), {})
+  }))
+}
+
 variable "key_vault" {
   description = "Configuration for the key vault"
   type = object({
