@@ -16,109 +16,70 @@ var logger = loggerFactory.CreateLogger("Program");
 
 var host = new HostBuilder();
 
-    // Load configuration
-    host.AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config);
+// Load configuration
+host.AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config);
 
-    // Load NEMS certificate up-front and inject into DI
-    X509Certificate2? nemsCertificate = null;
+// Load NEMS certificate up-front and inject into DI
+X509Certificate2? nemsCertificate = null;
 
-    if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
-    {
-        logger.LogInformation("Loading NEMS certificate from Azure Key Vault");
-        var certClient = new CertificateClient(
-            new Uri(config.KeyVaultConnectionString),
-            new DefaultAzureCredential()
-        );
-        var certResult = await certClient.DownloadCertificateAsync(config.NemsKeyName);
-        nemsCertificate = certResult.Value;
-    }
-    else if (!string.IsNullOrEmpty(config.NemsLocalCertPath))
-    {
-        logger.LogInformation("Loading NEMS certificate from local file");
-        if (!string.IsNullOrEmpty(config.NemsLocalCertPassword))
-            nemsCertificate = new X509Certificate2(config.NemsLocalCertPath, config.NemsLocalCertPassword);
-        else
-            nemsCertificate = new X509Certificate2(config.NemsLocalCertPath);
-    }
+if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
+{
+    logger.LogInformation("Loading NEMS certificate from Azure Key Vault");
+    var certClient = new CertificateClient(
+        new Uri(config.KeyVaultConnectionString),
+        new DefaultAzureCredential()
+    );
+    var certResult = await certClient.DownloadCertificateAsync(config.NemsKeyName);
+    nemsCertificate = certResult.Value;
+}
+else if (!string.IsNullOrEmpty(config.NemsLocalCertPath))
+{
+    logger.LogInformation("Loading NEMS certificate from local file");
+    if (!string.IsNullOrEmpty(config.NemsLocalCertPassword))
+        nemsCertificate = new X509Certificate2(config.NemsLocalCertPath, config.NemsLocalCertPassword);
     else
-    {
-        throw new InvalidOperationException("No certificate configuration found. Please configure either KeyVaultConnectionString or NemsLocalCertPath.");
-    }
+        nemsCertificate = new X509Certificate2(config.NemsLocalCertPath);
+}
+else
+{
+    throw new InvalidOperationException("No certificate configuration found. Please configure either KeyVaultConnectionString or NemsLocalCertPath.");
+}
 
-    host.ConfigureFunctionsWebApplication();
-    host.ConfigureServices(services =>
-    {
-        // Register HTTP client services
-        services.AddHttpClient();
-        services.AddScoped<IHttpClientFunction, HttpClientFunction>();
-        
-        // Register NEMS-specific services
-        services.AddScoped<INemsHttpClientProvider, NemsHttpClientProvider>();
-        services.AddScoped<INemsHttpClientFunction, NemsHttpClientFunction>();
+host.ConfigureFunctionsWebApplication();
+host.ConfigureServices(services =>
+{
+    // Register HTTP client services
+    services.AddHttpClient();
+    services.AddScoped<IHttpClientFunction, HttpClientFunction>();
 
-        // Register NEMS certificate
-        services.AddSingleton(nemsCertificate);
+    // Register NEMS-specific services
+    services.AddScoped<INemsHttpClientProvider, NemsHttpClientProvider>();
+    services.AddScoped<INemsHttpClientFunction, NemsHttpClientFunction>();
 
-        // Register NEMS subscription manager
-        services.AddScoped<NemsSubscriptionManager>();
+    // Register NEMS certificate
+    services.AddSingleton(nemsCertificate);
 
-        // Register response helpers
-        services.AddSingleton<ICreateResponse, CreateResponse>();
+    // Register NEMS subscription manager
+    services.AddScoped<NemsSubscriptionManager>();
 
-        // Register health checks
-        services.AddDatabaseHealthCheck("NEMSSubscription");
+    // Register response helpers
+    services.AddSingleton<ICreateResponse, CreateResponse>();
 
-        // Log configuration for debugging (without sensitive data)
-        logger.LogInformation("NEMS Configuration loaded - Endpoint: {Endpoint}, ODS: {OdsCode}, MESH: {MeshId}",
-            config.NemsFhirEndpoint,
-            config.OdsCode,
-            string.IsNullOrEmpty(config.MeshMailboxId) ? "NOT_SET" : "SET");
+    // Register health checks
+    services.AddDatabaseHealthCheck("NEMSSubscription");
 
-        logger.LogInformation("Config Debug -- NemsFhirEndpoint: {NemsFhirEndpoint}, FromAsid: {FromAsid}, LocalCert: {LocalCert}",
-            config.NemsFhirEndpoint, config.FromAsid, config.NemsLocalCertPath);
+    // Log configuration for debugging (without sensitive data)
+    logger.LogInformation("NEMS Configuration loaded - Endpoint: {Endpoint}, ODS: {OdsCode}, MESH: {MeshId}",
+        config.NemsFhirEndpoint,
+        config.OdsCode,
+        string.IsNullOrEmpty(config.MeshMailboxId) ? "NOT_SET" : "SET");
 
-        // Validate critical configuration
-        ValidateConfiguration(config, logger);
-    })
-    .AddDataServicesHandler<DataServicesContext>()
-    .AddTelemetry()
-    .AddExceptionHandler();
+    logger.LogInformation("Config Debug -- NemsFhirEndpoint: {NemsFhirEndpoint}, FromAsid: {FromAsid}, LocalCert: {LocalCert}",
+        config.NemsFhirEndpoint, config.FromAsid, config.NemsLocalCertPath);
+})
+.AddDataServicesHandler<DataServicesContext>()
+.AddTelemetry()
+.AddExceptionHandler();
 
 var app = host.Build();
 await app.RunAsync();
-
-/// <summary>
-/// Validates that all required configuration is present
-/// </summary>
-static void ValidateConfiguration(ManageNemsSubscriptionConfig config, ILogger logger)
-{
-    var errors = new List<string>();
-
-    if (string.IsNullOrEmpty(config.NemsFhirEndpoint))
-        errors.Add("NemsFhirEndpoint is required");
-
-    if (string.IsNullOrEmpty(config.FromAsid))
-        errors.Add("FromAsid is required");
-
-    if (string.IsNullOrEmpty(config.ToAsid))
-        errors.Add("ToAsid is required");
-
-    if (string.IsNullOrEmpty(config.OdsCode))
-        errors.Add("OdsCode is required");
-
-    if (string.IsNullOrEmpty(config.MeshMailboxId))
-        errors.Add("MeshMailboxId is required");
-
-    // Certificate configuration - either KeyVault or local cert path
-    if (string.IsNullOrEmpty(config.KeyVaultConnectionString) && string.IsNullOrEmpty(config.NemsLocalCertPath))
-        errors.Add("Either KeyVaultConnectionString or NemsLocalCertPath must be configured");
-
-    if (errors.Count > 0)
-    {
-        var errorMessage = "Configuration validation failed:\n" + string.Join("\n", errors.Select(e => $"- {e}"));
-        logger.LogCritical("Configuration validation failed: {ErrorMessage}", errorMessage);
-        throw new InvalidOperationException(errorMessage);
-    }
-
-    logger.LogInformation("Configuration validation passed");
-}
