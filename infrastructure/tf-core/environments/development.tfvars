@@ -1065,7 +1065,7 @@ linux_web_app = {
           AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
           AUTH_CIS2_CLIENT_ID  = "8257927333.cohort-manager-ui-rg-cohman-dev-uks.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
           AUTH_TRUST_HOST      = "true"
-          NEXTAUTH_URL         = "https://cohort-dev.private.non-live.screening.nhs.uk/api/auth"
+          NEXTAUTH_URL         = "https://cohort-dev.non-live.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
         }
         from_key_vault = {
