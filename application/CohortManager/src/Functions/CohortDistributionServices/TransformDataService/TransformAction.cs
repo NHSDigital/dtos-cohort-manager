@@ -18,42 +18,21 @@ using Model.Enums;
 /// <returns>The transformed participant</returns>
 class TransformAction : ActionBase
 {
-    public override async ValueTask<object?> Run(ActionContext context, RuleParameter[] ruleParameters)
+    public override async ValueTask<object> Run(ActionContext context, RuleParameter[] ruleParameters)
     {
         try
         {
             var transformFields = context.GetContext<List<TransformFields>>("transformFields");
-            if (transformFields == null)
-            {
-
-                throw new ArgumentNullException(paramName: nameof(context), message: "Transform fields context value cannot be null");
-            }
-            var participant = GetParameter<CohortDistributionParticipant>("participant", ruleParameters);
-            var databaseParticipant = GetParameter<CohortDistribution>("databaseParticipant", ruleParameters);
-            var existingParticipant = GetParameter<CohortDistributionParticipant>("existingParticipant", ruleParameters);
-
-            if (participant == null)
-            {
-                throw new ArgumentNullException(paramName: nameof(ruleParameters), message: "Participant parameter cannot be null");
-            }
+            var participant = (CohortDistributionParticipant)ruleParameters.Where(rule => rule.Name == "participant").Select(result => result.Value).FirstOrDefault();
+            var databaseParticipant = (CohortDistribution)ruleParameters.Where(rule => rule.Name == "databaseParticipant").Select(result => result.Value).FirstOrDefault();
 
             foreach (var transformField in transformFields)
             {
-                if (transformField?.field == null)
-                {
-                    continue;
-                }
-
                 var property = typeof(CohortDistributionParticipant).GetProperty(transformField.field);
-
-                if (property == null)
-                {
-                    continue;
-                }
 
                 if (transformField.isExpression)
                 {
-                    EvaluateExpression(property!, transformField.value, participant, databaseParticipant, existingParticipant);
+                    EvaluateExpression(property!, transformField.value, participant, databaseParticipant);
                 }
                 else
                 {
@@ -79,43 +58,18 @@ class TransformAction : ActionBase
             }
             return participant;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             return null;
         }
     }
 
-    private static T? GetParameter<T>(string name, RuleParameter[] ruleParameters) where T : class
+    private static void EvaluateExpression(PropertyInfo property, string expression, CohortDistributionParticipant participant, CohortDistribution databaseParticipant)
     {
-        return ruleParameters.FirstOrDefault(r => r.Name == name)?.Value as T;
-    }
-
-    private static void EvaluateExpression(PropertyInfo property, string expression, CohortDistributionParticipant participant, CohortDistribution? databaseParticipant, CohortDistributionParticipant? existingParticipant)
-    {
-        if (property == null || string.IsNullOrEmpty(expression))
-    {
-        return;
-    }
-
         var reParser = new RuleExpressionParser(new ReSettings());
-        var ruleParameters = new List<RuleParameter>
-        {
-            new RuleParameter("participant", participant)
-        };
+        var ruleParameters = new RuleParameter[] { new RuleParameter("participant", participant), new RuleParameter("databaseParticipant", databaseParticipant) };
+        var result = reParser.Evaluate<string>(expression, ruleParameters);
 
-        if (databaseParticipant != null)
-        {
-            ruleParameters.Add(new RuleParameter("databaseParticipant", databaseParticipant));
-        }
-
-        if (existingParticipant != null)
-        {
-            ruleParameters.Add(new RuleParameter("existingParticipant", existingParticipant));
-        }
-        var result = reParser.Evaluate<string>(expression, ruleParameters.ToArray());
-        if (result != null)
-        {
-            property.SetValue(participant, result);
-        }
+        property.SetValue(participant, result);
     }
 }
