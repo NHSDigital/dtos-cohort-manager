@@ -10,7 +10,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3629-01",
         "requirementJiraId": "DTOSS-3133",
-        "additionalTags": "@regression @e2e @epic1-med-priority Validate Exception For Update when nhs number 9993626554 not in System"
+        "additionalTags": "@regression @e2e @epic2-med-priority Validate Exception For Update when nhs number 9993626554 not in System"
       }
     },
       {
@@ -23,7 +23,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3629-01",
         "requirementJiraId": "DTOSS-3133",
-        "additionalTags": "@regression @e2e @epic1-med-priority Validate Exception For Update when nhs number 9993931888 not in System"
+        "additionalTags": "@regression @e2e @epic2-med-priority Validate Exception For Update when nhs number 9993931888 not in System"
       }
     },
        {
@@ -36,7 +36,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3629-01",
         "requirementJiraId": "DTOSS-3133",
-        "additionalTags": "@regression @e2e @epic1-med-priority Validate Exception For Update when nhs number 9992949600 not in System"
+        "additionalTags": "@regression @e2e @epic2-med-priority Validate Exception For Update when nhs number 9992949600 not in System"
       }
     }
   ],
