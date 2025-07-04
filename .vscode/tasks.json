@@ -74,10 +74,10 @@
       "label": "Run DB Migrations",
       "type": "shell",
       "osx": {
-        "command": "podman compose -f compose.deps.yaml build db-migration && podman compose -f compose.deps.yaml up db-migration"
+        "command": "podman compose -f compose.deps.yaml down db-migration && podman compose -f compose.deps.yaml build db-migration && podman compose -f compose.deps.yaml up db-migration"
       },
       "windows": {
-        "command": "docker compose -f compose.deps.yaml build db-migration && docker compose -f compose.deps.yaml up db-migration",
+        "command": "docker compose -f compose.deps.yaml down db-migration && docker compose -f compose.deps.yaml build db-migration && docker compose -f compose.deps.yaml up db-migration",
         "options": {
           "shell": {
             "executable": "wsl.exe"
