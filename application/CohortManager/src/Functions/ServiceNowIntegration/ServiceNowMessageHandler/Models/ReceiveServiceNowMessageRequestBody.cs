@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.ServiceNowIntegrationService;
+namespace NHS.CohortManager.ServiceNowIntegrationService.Models;
 
 using System.Text.Json.Serialization;
 using Common;

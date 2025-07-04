@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Common;
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
+using NHS.CohortManager.ServiceNowIntegrationService.Models;
 
 public class ReceiveServiceNowMessageFunction
 {

@@ -829,17 +829,6 @@ function_apps = {
         }
       }
 
-      ReceiveServiceNowMessage = {
-        name_suffix            = "receive-service-now-message"
-        function_endpoint_name = "ReceiveServiceNowMessage"
-        app_service_plan_key   = "DefaultPlan"
-        env_vars = {
-          app_urls = {
-            ExceptionFunctionURL = "CreateException"
-          }
-        }
-      }
-
       BsSelectRequestAuditDataService = {
         name_suffix            = "bs-request-audit-data-service"
         function_endpoint_name = "BsSelectRequestAuditDataService"
@@ -881,6 +870,19 @@ function_apps = {
           }
           static = {
             AcceptableLatencyThresholdMs = "500"
+          }
+        }
+      }
+
+      ServiceNowMessageHandler = {
+        name_suffix            = "servicenow-message-handler"
+        function_endpoint_name = "ServiceNowMessageHandler"
+        app_service_plan_key   = "DefaultPlan"
+        key_vault_url          = "KeyVaultConnectionString"
+        env_vars = {
+          static = {
+            ServiceNowRefreshAccessTokenUrl = "" # TODO: Get value
+            ServiceNowUpdateUrl = "" # TODO: Get value
           }
         }
       }
