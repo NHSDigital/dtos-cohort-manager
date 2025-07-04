@@ -331,15 +331,15 @@ public class ManageNemsSubscriptionTests
     }
 
     [TestMethod]
-    public async Task CheckSubscription_ValidNhsNumber_ReturnsOk()
+    public async Task CheckSubscriptionStatus_ValidNhsNumber_ReturnsOk()
     {
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Get);
-        var response = await _sut.CheckSubscription(request.Object);
+        var response = await _sut.CheckSubscriptionStatus(request.Object);
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
     [TestMethod]
-    public async Task CheckSubscription_NoSubscription_ReturnsNotFound()
+    public async Task CheckSubscriptionStatus_NoSubscription_ReturnsNotFound()
     {
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Get);
 
@@ -347,23 +347,23 @@ public class ManageNemsSubscriptionTests
             .Setup(x => x.GetSingle(It.IsAny<Expression<Func<NemsSubscription, bool>>>()))
             .ReturnsAsync((NemsSubscription?)null);
 
-        var response = await _sut.CheckSubscription(request.Object);
+        var response = await _sut.CheckSubscriptionStatus(request.Object);
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [TestMethod]
-    public async Task CheckSubscription_InvalidNhsNumber_ReturnsBadRequest()
+    public async Task CheckSubscriptionStatus_InvalidNhsNumber_ReturnsBadRequest()
     {
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "invalid" } }, HttpMethod.Get);
-        var response = await _sut.CheckSubscription(request.Object);
+        var response = await _sut.CheckSubscriptionStatus(request.Object);
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [TestMethod]
-    public async Task CheckSubscription_MissingNhsNumber_ReturnsBadRequest()
+    public async Task CheckSubscriptionStatus_MissingNhsNumber_ReturnsBadRequest()
     {
         var request = _setupRequest.Setup(null, new NameValueCollection(), HttpMethod.Get);
-        var response = await _sut.CheckSubscription(request.Object);
+        var response = await _sut.CheckSubscriptionStatus(request.Object);
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
 

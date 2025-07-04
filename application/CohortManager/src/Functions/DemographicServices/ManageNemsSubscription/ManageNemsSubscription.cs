@@ -50,16 +50,10 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (string.IsNullOrEmpty(nhsNumber))
-            {
-                _logger.LogError("NHS number is required.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
-            }
-
             if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                _logger.LogError("Invalid NHS number format");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
+                _logger.LogError("NHS number is required and must be valid format");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
             bool success = await _subscriptionManager.CreateAndSendSubscriptionAsync(nhsNumber);
@@ -101,16 +95,10 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (string.IsNullOrEmpty(nhsNumber))
-            {
-                _logger.LogError("NHS number is required.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
-            }
-
             if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                _logger.LogError("Invalid NHS number format");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
+                _logger.LogError("NHS number is required and must be valid format");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
             // Check existence first to provide more informative error handling
@@ -151,8 +139,8 @@ public class ManageNemsSubscription
     /// <returns>
     /// An <see cref="HttpResponseData"/> with subscription details or not found message
     /// </returns>
-    [Function("CheckSubscription")]
-    public async Task<HttpResponseData> CheckSubscription([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    [Function("CheckSubscriptionStatus")]
+    public async Task<HttpResponseData> CheckSubscriptionStatus([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         try
         {
@@ -160,16 +148,10 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (string.IsNullOrEmpty(nhsNumber))
-            {
-                _logger.LogError("NHS number is required.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
-            }
-
             if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                _logger.LogError("Invalid NHS number format");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
+                _logger.LogError("NHS number is required and must be valid format");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
             string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
