@@ -4,13 +4,27 @@
             "validations": {
                 "apiEndpoint": "api/ExceptionManagementDataService",
                 "NhsNumber": "9287322880",
-                "RuleId": 101,
-                "RuleDescription": "CurrentPostingEffectiveFromDate"
+                "RuleId": 54,
+                "RuleDescription": "ValidateBsoCode"
             },
             "meta": {
                 "testJiraId": "@DTOSS-5409-01",
                 "requirementJiraId": "DTOSS-4577",
-                "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception1 for partial date for 9287322880"
+                "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception for participant1 9287322880"
+            }
+        },
+        {
+            "validations": {
+                "apiEndpoint": "api/ParticipantManagementDataService",
+                "NHSNumber": 9287322880,
+                "expectedCount": 1,
+                "RecordType": "AMENDED",
+                "ReasonForRemoval": "RDR"
+            },
+            "meta": {
+                "testJiraId": "@DTOSS-5409-01",
+                "requirementJiraId": "DTOSS-4577",
+                "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception for participant2 9924700848"
             }
         }
     ],
@@ -37,10 +51,10 @@
             "address_line_3": "AddressLine3",
             "address_line_4": "AddressLine4",
             "address_line_5": "AddressLine5",
-            "postcode": "AB43 1AF",
+            "postcode": "",
             "paf_key": "Z3S4Q5X8",
             "address_effective_from_date": "20010101",
-            "reason_for_removal": "RDI",
+            "reason_for_removal": "RDR",
             "reason_for_removal_effective_from_date": "20110909",
             "date_of_death": "",
             "death_status": null,

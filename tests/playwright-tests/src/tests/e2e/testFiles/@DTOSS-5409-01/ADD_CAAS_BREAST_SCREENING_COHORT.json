@@ -9,8 +9,9 @@
             "meta": {
                 "testJiraId": "@DTOSS-5409-01",
                 "requirementJiraId": "DTOSS-4577",
-                "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception1 for partial date for 9287322880"
+                "additionalTags": "@regression @e2e @epic3-med-priority - Validate that participant's record added to the cohort distribution table for 9287322880"
             }
+            
         }
     ],
     "inputParticipantRecord": [
