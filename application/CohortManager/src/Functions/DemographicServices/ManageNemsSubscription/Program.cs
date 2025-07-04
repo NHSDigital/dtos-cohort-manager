@@ -46,40 +46,34 @@ else
 }
 
 host.ConfigureFunctionsWebApplication();
-host.ConfigureServices(services =>
-{
-    // Register HTTP client services
-    services.AddHttpClient();
-    services.AddScoped<IHttpClientFunction, HttpClientFunction>();
+host.AddHttpClient()
+    .AddNemsHttpClient()
+    .ConfigureServices(services =>
+    {
+        // Register NEMS certificate
+        services.AddSingleton(nemsCertificate);
 
-    // Register NEMS-specific services
-    services.AddScoped<INemsHttpClientProvider, NemsHttpClientProvider>();
-    services.AddScoped<INemsHttpClientFunction, NemsHttpClientFunction>();
+        // Register NEMS subscription manager
+        services.AddScoped<NemsSubscriptionManager>();
 
-    // Register NEMS certificate
-    services.AddSingleton(nemsCertificate);
+        // Register response helpers
+        services.AddSingleton<ICreateResponse, CreateResponse>();
 
-    // Register NEMS subscription manager
-    services.AddScoped<NemsSubscriptionManager>();
+        // Register health checks
+        services.AddDatabaseHealthCheck("NEMSSubscription");
 
-    // Register response helpers
-    services.AddSingleton<ICreateResponse, CreateResponse>();
+        // Log configuration for debugging (without sensitive data)
+        logger.LogInformation("NEMS Configuration loaded - Endpoint: {Endpoint}, ODS: {OdsCode}, MESH: {MeshId}",
+            config.NemsFhirEndpoint,
+            config.OdsCode,
+            string.IsNullOrEmpty(config.MeshMailboxId) ? "NOT_SET" : "SET");
 
-    // Register health checks
-    services.AddDatabaseHealthCheck("NEMSSubscription");
-
-    // Log configuration for debugging (without sensitive data)
-    logger.LogInformation("NEMS Configuration loaded - Endpoint: {Endpoint}, ODS: {OdsCode}, MESH: {MeshId}",
-        config.NemsFhirEndpoint,
-        config.OdsCode,
-        string.IsNullOrEmpty(config.MeshMailboxId) ? "NOT_SET" : "SET");
-
-    logger.LogInformation("Config Debug -- NemsFhirEndpoint: {NemsFhirEndpoint}, FromAsid: {FromAsid}, LocalCert: {LocalCert}",
-        config.NemsFhirEndpoint, config.FromAsid, config.NemsLocalCertPath);
-})
-.AddDataServicesHandler<DataServicesContext>()
-.AddTelemetry()
-.AddExceptionHandler();
+        logger.LogInformation("Config Debug -- NemsFhirEndpoint: {NemsFhirEndpoint}, FromAsid: {FromAsid}, LocalCert: {LocalCert}",
+            config.NemsFhirEndpoint, config.FromAsid, config.NemsLocalCertPath);
+    })
+    .AddDataServicesHandler<DataServicesContext>()
+    .AddTelemetry()
+    .AddExceptionHandler();
 
 var app = host.Build();
 await app.RunAsync();

@@ -93,7 +93,17 @@ public class NemsSubscriptionManager
 
             var bypassCert = _config.BypassServerCertificateValidation;
 
-            var response = await _httpClient.SendSubscriptionDelete(deleteUrl, jwtToken, _config.FromAsid, _config.ToAsid, _nemsCertificate, bypassCert);
+            var deleteRequest = new NemsSubscriptionRequest
+            {
+                Url = deleteUrl,
+                JwtToken = jwtToken,
+                FromAsid = _config.FromAsid,
+                ToAsid = _config.ToAsid,
+                ClientCertificate = _nemsCertificate,
+                BypassCertValidation = bypassCert
+            };
+
+            var response = await _httpClient.SendSubscriptionDelete(deleteRequest);
 
             return response.IsSuccessStatusCode;
         }
@@ -125,33 +135,20 @@ public class NemsSubscriptionManager
             var url = $"{_config.NemsFhirEndpoint}/Subscription";
             var bypassCert = _config.BypassServerCertificateValidation;
 
-            var response = await _httpClient.SendSubscriptionPost(
-                url,
-                subscriptionJson,
-                jwtToken,
-                _config.FromAsid,
-                _config.ToAsid,
-                _nemsCertificate,
-                bypassCert
-            );
-
-            if (response.IsSuccessStatusCode)
+            var postRequest = new NemsSubscriptionPostRequest
             {
-                if (response.Headers.Location != null)
-                {
-                    var locationPath = response.Headers.Location.ToString();
-                    var subscriptionId = locationPath.Split('/').LastOrDefault();
+                Url = url,
+                SubscriptionJson = subscriptionJson,
+                JwtToken = jwtToken,
+                FromAsid = _config.FromAsid,
+                ToAsid = _config.ToAsid,
+                ClientCertificate = _nemsCertificate,
+                BypassCertValidation = bypassCert
+            };
 
-                    _logger.LogInformation("Successfully created NEMS subscription with ID: {SubscriptionId}", subscriptionId);
-                    return subscriptionId;
-                }
-                else
-                {
-                    _logger.LogWarning("Subscription created but no Location header found in response");
-                    return null;
-                }
-            }
-            else
+            var response = await _httpClient.SendSubscriptionPost(postRequest);
+
+            if (!response.IsSuccessStatusCode)
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 _logger.LogWarning("NEMS returned error response: {Response}", errorContent);
@@ -172,16 +169,26 @@ public class NemsSubscriptionManager
                         _logger.LogWarning("Subscription already exists in Spine with ID: {Id}", existingId);
                         return existingId;
                     }
-                    else
-                    {
-                        _logger.LogWarning("Duplicate response received but failed to parse existing subscription ID.");
-                    }
+
+                    _logger.LogWarning("Duplicate response received but failed to parse existing subscription ID.");
                 }
 
                 _logger.LogError("Failed to create NEMS subscription. Status: {StatusCode}, Response: {Response}",
                     response.StatusCode, errorContent);
                 return null;
             }
+
+            if (response.Headers.Location == null)
+            {
+                _logger.LogWarning("Subscription created but no Location header found in response");
+                return null;
+            }
+
+            var locationPath = response.Headers.Location.ToString();
+            var subscriptionId = locationPath.Split('/').LastOrDefault();
+
+            _logger.LogInformation("Successfully created NEMS subscription with ID: {SubscriptionId}", subscriptionId);
+            return subscriptionId;
         }
         catch (Exception ex)
         {
@@ -330,26 +337,24 @@ public class NemsSubscriptionManager
             // Send to NEMS
             var subscriptionId = await SendSubscriptionToNemsAsync(subscriptionJson);
 
-            if (!string.IsNullOrEmpty(subscriptionId))
+            if (string.IsNullOrEmpty(subscriptionId))
             {
-                // Save to database
-                var saved = await SaveSubscriptionInDatabase(nhsNumber, subscriptionId);
-
-                if (saved)
-                {
-                    _logger.LogInformation("Successfully created and saved subscription for NHS number {NhsNumber}", nhsNumber);
-                    return true;
-                }
-                else
-                {
-                    _logger.LogError("Failed to save subscription to database for NHS number {NhsNumber}", nhsNumber);
-
-                    // Cleanup: delete from NEMS since database save failed
-                    await DeleteSubscriptionFromNemsAsync(subscriptionId);
-                    return false;
-                }
+                return false;
             }
 
+            // Save to database
+            var saved = await SaveSubscriptionInDatabase(nhsNumber, subscriptionId);
+
+            if (saved)
+            {
+                _logger.LogInformation("Successfully created and saved subscription for NHS number {NhsNumber}", nhsNumber);
+                return true;
+            }
+
+            _logger.LogError("Failed to save subscription to database for NHS number {NhsNumber}", nhsNumber);
+
+            // Cleanup: delete from NEMS since database save failed
+            await DeleteSubscriptionFromNemsAsync(subscriptionId);
             return false;
         }
         catch (Exception ex)

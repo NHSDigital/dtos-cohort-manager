@@ -236,13 +236,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(successResponse);
 
         // Act
@@ -253,12 +247,12 @@ public class NemsSubscriptionManagerTests
         
         // Verify correct URL was called
         _httpClientFunction.Verify(x => x.SendSubscriptionDelete(
-            It.Is<string>(url => url.Contains(subscriptionId)),
-            "test-jwt-token",
-            "TestFromAsid",
-            "TestToAsid",
-            _dummyCert,
-            false),
+            It.Is<NemsSubscriptionRequest>(req => req.Url.Contains(subscriptionId) &&
+                req.JwtToken == "test-jwt-token" &&
+                req.FromAsid == "TestFromAsid" &&
+                req.ToAsid == "TestToAsid" &&
+                req.ClientCertificate == _dummyCert &&
+                req.BypassCertValidation == false)),
             Times.Once);
     }
 
@@ -274,13 +268,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(failResponse);
 
         // Act
@@ -301,13 +289,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ThrowsAsync(new Exception("Network error"));
 
         // Act
@@ -342,14 +324,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
             .ReturnsAsync(successResponse);
 
         // Act
@@ -371,14 +346,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
             .ReturnsAsync(successResponse);
 
         // Act
@@ -404,14 +372,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
             .ReturnsAsync(errorResponse);
 
         // Act
@@ -432,14 +393,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
             .ThrowsAsync(new Exception("Network error"));
 
         // Act
@@ -523,14 +477,7 @@ public class NemsSubscriptionManagerTests
         };
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
             .ReturnsAsync(successResponse);
 
         _nemsSubscriptionAccessor
@@ -565,24 +512,11 @@ public class NemsSubscriptionManagerTests
         };
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
             .ReturnsAsync(successResponse);
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
         _nemsSubscriptionAccessor
@@ -634,13 +568,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
         _nemsSubscriptionAccessor
@@ -675,13 +603,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
 
         _nemsSubscriptionAccessor

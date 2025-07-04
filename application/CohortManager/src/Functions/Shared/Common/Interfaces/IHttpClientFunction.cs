@@ -43,6 +43,12 @@ public interface IHttpClientFunction
     /// <returns>HttpResponseMessage<returns>
     Task<HttpResponseMessage> SendPdsGet(string url);
 
+    /// <summary>
+    /// Performs a PUT request using HttpClient.
+    /// </summary>
+    /// <param name="url">URL to be used in request.</param>
+    /// <param name="data">Data to be sent in request.</param>
+    /// <returns>HttpResponseMessage</returns>
     Task<HttpResponseMessage> SendPut(string url, string data);
     Task<bool> SendDelete(string url);
 

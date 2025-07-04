@@ -6,6 +6,10 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
 
+/// <summary>
+/// NEMS-specific HTTP client function for managing NHS Event Management Service subscriptions.
+/// Inherits from HttpClientFunction to leverage base HTTP functionality while adding NEMS-specific operations.
+/// </summary>
 public class NemsHttpClientFunction : HttpClientFunction, INemsHttpClientFunction
 {
     private readonly INemsHttpClientProvider _nemsHttpClientProvider;
@@ -20,31 +24,29 @@ public class NemsHttpClientFunction : HttpClientFunction, INemsHttpClientFunctio
         _nemsHttpClientProvider = nemsHttpClientProvider;
     }
 
-    public async Task<HttpResponseMessage> SendSubscriptionPost(
-        string url,
-        string subscriptionJson,
-        string jwtToken,
-        string fromAsid,
-        string toAsid,
-        X509Certificate2? clientCertificate = null,
-        bool bypassCertValidation = false)
+    /// <summary>
+    /// Sends a POST request to create a NEMS subscription with proper authentication and headers.
+    /// </summary>
+    /// <param name="request">NEMS subscription POST request object</param>
+    /// <returns>HTTP response from NEMS API</returns>
+    public async Task<HttpResponseMessage> SendSubscriptionPost(NemsSubscriptionPostRequest request)
     {
-        using var client = _nemsHttpClientProvider.CreateClient(clientCertificate, bypassCertValidation);
-        client.BaseAddress = new Uri(url);
+        var client = _nemsHttpClientProvider.CreateClient(request.ClientCertificate, request.BypassCertValidation);
+        client.BaseAddress = new Uri(request.Url);
         client.Timeout = _timeout;
 
-        var request = new HttpRequestMessage(HttpMethod.Post, url)
+        var httpRequest = new HttpRequestMessage(HttpMethod.Post, request.Url)
         {
-            Content = new StringContent(subscriptionJson, Encoding.UTF8, "application/fhir+json")
+            Content = new StringContent(request.SubscriptionJson, Encoding.UTF8, "application/fhir+json")
         };
 
         // Add required NEMS headers
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-        request.Headers.Add("fromASID", fromAsid);
-        request.Headers.Add("toASID", toAsid);
-        request.Headers.Add("InteractionID", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiPost");
+        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.JwtToken);
+        httpRequest.Headers.Add("fromASID", request.FromAsid);
+        httpRequest.Headers.Add("toASID", request.ToAsid);
+        httpRequest.Headers.Add("InteractionID", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiPost");
 
-        var response = await client.SendAsync(request);
+        var response = await client.SendAsync(httpRequest);
 
         _logger.LogInformation("NEMS API Response: {StatusCode}", response.StatusCode);
 
@@ -59,27 +61,26 @@ public class NemsHttpClientFunction : HttpClientFunction, INemsHttpClientFunctio
 
     }
 
-    public async Task<HttpResponseMessage> SendSubscriptionDelete(
-        string url,
-        string jwtToken,
-        string fromAsid,
-        string toAsid,
-        X509Certificate2? clientCertificate = null,
-        bool bypassCertValidation = false)
+    /// <summary>
+    /// Sends a DELETE request to remove a NEMS subscription with proper authentication and headers.
+    /// </summary>
+    /// <param name="request">NEMS subscription DELETE request object</param>
+    /// <returns>HTTP response from NEMS API</returns>
+    public async Task<HttpResponseMessage> SendSubscriptionDelete(NemsSubscriptionRequest request)
     {
-        using var client = _nemsHttpClientProvider.CreateClient(clientCertificate, bypassCertValidation);
-        client.BaseAddress = new Uri(url);
+        var client = _nemsHttpClientProvider.CreateClient(request.ClientCertificate, request.BypassCertValidation);
+        client.BaseAddress = new Uri(request.Url);
         client.Timeout = _timeout;
 
-        var request = new HttpRequestMessage(HttpMethod.Delete, url);
+        var httpRequest = new HttpRequestMessage(HttpMethod.Delete, request.Url);
 
         // Add required NEMS headers for delete
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwtToken);
-        request.Headers.Add("fromASID", fromAsid);
-        request.Headers.Add("toASID", toAsid);
-        request.Headers.Add("InteractionID", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiDelete");
+        httpRequest.Headers.Authorization = new AuthenticationHeaderValue("Bearer", request.JwtToken);
+        httpRequest.Headers.Add("fromASID", request.FromAsid);
+        httpRequest.Headers.Add("toASID", request.ToAsid);
+        httpRequest.Headers.Add("InteractionID", "urn:nhs:names:services:clinicals-sync:SubscriptionsApiDelete");
 
-        var response = await client.SendAsync(request);
+        var response = await client.SendAsync(httpRequest);
 
         _logger.LogInformation("NEMS API Response: {StatusCode}", response.StatusCode);
         // Log response for debugging
@@ -91,6 +92,13 @@ public class NemsHttpClientFunction : HttpClientFunction, INemsHttpClientFunctio
         return response;
     }
 
+    /// <summary>
+    /// Generates an unsigned JWT token for NEMS API authentication.
+    /// </summary>
+    /// <param name="asid">The ASID (Application Service Identifier) for the requesting system</param>
+    /// <param name="audience">The target audience for the token</param>
+    /// <param name="scope">The requested scope for the token</param>
+    /// <returns>Base64-encoded JWT token without signature</returns>
     public string GenerateJwtToken(string asid, string audience, string scope)
     {
         var header = new

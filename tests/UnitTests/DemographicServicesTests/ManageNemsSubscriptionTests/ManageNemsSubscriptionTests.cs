@@ -60,29 +60,14 @@ public class ManageNemsSubscriptionTests
             .ReturnsAsync(true);
 
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionPost(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()
-            ))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
             .ReturnsAsync(new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK
             });
 
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()
-            ))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
         _nemsHttpClientFunction
@@ -159,15 +144,7 @@ public class ManageNemsSubscriptionTests
     {
         // Arrange: Make sure the NEMS POST returns a valid subscriptionId
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionPost(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()
-            ))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
             .ReturnsAsync(new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.Created,
@@ -206,15 +183,7 @@ public class ManageNemsSubscriptionTests
 
 
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionPost(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()
-            ))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
             .ReturnsAsync((HttpResponseMessage)null);
 
         var response = await _sut.Subscribe(request.Object);
@@ -259,14 +228,7 @@ public class ManageNemsSubscriptionTests
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
 
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()
-            ))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(new HttpResponseMessage(nemsStatus));
 
         var response = await _sut.Unsubscribe(request.Object);
@@ -279,14 +241,7 @@ public class ManageNemsSubscriptionTests
     {
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()
-            ))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync((HttpResponseMessage)null);
 
         var response = await _sut.Unsubscribe(request.Object);
@@ -317,14 +272,7 @@ public class ManageNemsSubscriptionTests
     {
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<string>(),
-                It.IsAny<X509Certificate2>(),
-                It.IsAny<bool>()
-            ))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(new HttpResponseMessage(nemsStatus));
         var response = await _sut.Unsubscribe(request.Object);
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);

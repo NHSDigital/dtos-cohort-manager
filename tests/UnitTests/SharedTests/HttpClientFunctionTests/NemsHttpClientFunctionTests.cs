@@ -133,7 +133,17 @@ public class NemsHttpClientFunctionTests
         _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
 
         // Act
-        var result = await _nemsFunction.SendSubscriptionPost(_mockUrl, _mockContent, "jwt-token", "from-asid", "to-asid");
+        var request = new NemsSubscriptionPostRequest
+        {
+            Url = _mockUrl,
+            SubscriptionJson = _mockContent,
+            JwtToken = "jwt-token",
+            FromAsid = "from-asid",
+            ToAsid = "to-asid",
+            ClientCertificate = null!,
+            BypassCertValidation = false
+        };
+        var result = await _nemsFunction.SendSubscriptionPost(request);
 
         // Assert
         Assert.IsNotNull(result);
@@ -163,7 +173,17 @@ public class NemsHttpClientFunctionTests
         _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
 
         // Act
-        var result = await _nemsFunction.SendSubscriptionPost(_mockUrl, _mockContent, "jwt-token", "from-asid", "to-asid");
+        var request = new NemsSubscriptionPostRequest
+        {
+            Url = _mockUrl,
+            SubscriptionJson = _mockContent,
+            JwtToken = "jwt-token",
+            FromAsid = "from-asid",
+            ToAsid = "to-asid",
+            ClientCertificate = null!,
+            BypassCertValidation = false
+        };
+        var result = await _nemsFunction.SendSubscriptionPost(request);
 
         // Assert
         Assert.IsNotNull(result);
@@ -190,8 +210,18 @@ public class NemsHttpClientFunctionTests
         _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
 
         // Act & Assert
+        var request = new NemsSubscriptionPostRequest
+        {
+            Url = _mockUrl,
+            SubscriptionJson = _mockContent,
+            JwtToken = "jwt-token",
+            FromAsid = "from-asid",
+            ToAsid = "to-asid",
+            ClientCertificate = null!,
+            BypassCertValidation = false
+        };
         var exception = await Assert.ThrowsExceptionAsync<Exception>(() => 
-            _nemsFunction.SendSubscriptionPost(_mockUrl, _mockContent, "jwt-token", "from-asid", "to-asid"));
+            _nemsFunction.SendSubscriptionPost(request));
         
         Assert.AreEqual(errorMessage, exception.Message);
     }
@@ -217,7 +247,17 @@ public class NemsHttpClientFunctionTests
         _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
 
         // Act
-        var result = await _nemsFunction.SendSubscriptionPost(_mockUrl, _mockContent, "jwt-token", "from-asid", "to-asid", mockCertificate, false);
+        var request = new NemsSubscriptionPostRequest
+        {
+            Url = _mockUrl,
+            SubscriptionJson = _mockContent,
+            JwtToken = "jwt-token",
+            FromAsid = "from-asid",
+            ToAsid = "to-asid",
+            ClientCertificate = mockCertificate,
+            BypassCertValidation = false
+        };
+        var result = await _nemsFunction.SendSubscriptionPost(request);
 
         // Assert
         Assert.IsNotNull(result);
@@ -250,7 +290,16 @@ public class NemsHttpClientFunctionTests
         _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
 
         // Act
-        var result = await _nemsFunction.SendSubscriptionDelete(_mockUrl, "jwt-token", "from-asid", "to-asid");
+        var request = new NemsSubscriptionRequest
+        {
+            Url = _mockUrl,
+            JwtToken = "jwt-token",
+            FromAsid = "from-asid",
+            ToAsid = "to-asid",
+            ClientCertificate = null!,
+            BypassCertValidation = false
+        };
+        var result = await _nemsFunction.SendSubscriptionDelete(request);
 
         // Assert
         Assert.IsNotNull(result);
@@ -280,7 +329,16 @@ public class NemsHttpClientFunctionTests
         _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
 
         // Act
-        var result = await _nemsFunction.SendSubscriptionDelete(_mockUrl, "jwt-token", "from-asid", "to-asid");
+        var request = new NemsSubscriptionRequest
+        {
+            Url = _mockUrl,
+            JwtToken = "jwt-token",
+            FromAsid = "from-asid",
+            ToAsid = "to-asid",
+            ClientCertificate = null!,
+            BypassCertValidation = false
+        };
+        var result = await _nemsFunction.SendSubscriptionDelete(request);
 
         // Assert
         Assert.IsNotNull(result);
@@ -308,7 +366,16 @@ public class NemsHttpClientFunctionTests
         _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
 
         // Act
-        var result = await _nemsFunction.SendSubscriptionDelete(_mockUrl, "jwt-token", "from-asid", "to-asid", mockCertificate, true);
+        var request = new NemsSubscriptionRequest
+        {
+            Url = _mockUrl,
+            JwtToken = "jwt-token",
+            FromAsid = "from-asid",
+            ToAsid = "to-asid",
+            ClientCertificate = mockCertificate,
+            BypassCertValidation = true
+        };
+        var result = await _nemsFunction.SendSubscriptionDelete(request);
 
         // Assert
         Assert.IsNotNull(result);
@@ -340,7 +407,17 @@ public class NemsHttpClientFunctionTests
         _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
 
         // Act
-        await _nemsFunction.SendSubscriptionPost(_mockUrl, _mockContent, "test-jwt", "test-from-asid", "test-to-asid");
+        var request = new NemsSubscriptionPostRequest
+        {
+            Url = _mockUrl,
+            SubscriptionJson = _mockContent,
+            JwtToken = "test-jwt",
+            FromAsid = "test-from-asid",
+            ToAsid = "test-to-asid",
+            ClientCertificate = null!,
+            BypassCertValidation = false
+        };
+        await _nemsFunction.SendSubscriptionPost(request);
 
         // Assert
         Assert.IsNotNull(capturedRequest);
@@ -382,7 +459,16 @@ public class NemsHttpClientFunctionTests
         _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
 
         // Act
-        await _nemsFunction.SendSubscriptionDelete(_mockUrl, "test-jwt", "test-from-asid", "test-to-asid");
+        var request = new NemsSubscriptionRequest
+        {
+            Url = _mockUrl,
+            JwtToken = "test-jwt",
+            FromAsid = "test-from-asid",
+            ToAsid = "test-to-asid",
+            ClientCertificate = null!,
+            BypassCertValidation = false
+        };
+        await _nemsFunction.SendSubscriptionDelete(request);
 
         // Assert
         Assert.IsNotNull(capturedRequest);
