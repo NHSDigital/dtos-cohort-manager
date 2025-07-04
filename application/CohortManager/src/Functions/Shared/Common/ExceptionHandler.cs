@@ -230,6 +230,12 @@ public class ExceptionHandler : IExceptionHandler
 
     public async Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId)
     {
+        var category = ruleId switch
+        {
+            35 => ExceptionCategory.Confusion,
+            _ => ExceptionCategory.TransformExecuted
+        };
+
         var exception = new ValidationException
         {
             RuleId = ruleId,
@@ -240,19 +246,18 @@ public class ExceptionHandler : IExceptionHandler
             DateCreated = DateTime.UtcNow,
             DateResolved = DateTime.MaxValue,
             ExceptionDate = DateTime.UtcNow,
-            Category = (int)ExceptionCategory.TransformExecuted,
+            Category = (int)category,
             ScreeningName = participant.ScreeningName,
             CohortName = DefaultCohortName,
             Fatal = 0
         };
 
-        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
+        bool isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
 
         if (!isSentSuccessfully)
         {
             _logger.LogError(logErrorMessage);
         }
-
     }
 
     /// <summary>
