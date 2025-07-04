@@ -7,9 +7,11 @@ If it doesn’t already exist, create a file named `appsettings.json` in the roo
 
 ```json
 {
-  "DtOsDatabaseConnectionString": "Server=localhost,1433;Database=DToSDB;User Id=SA;Password=Password123!;TrustServerCertificate=True"
+  "DtOsDatabaseConnectionString": "Server=localhost,1433;Database=DToSDB;User Id=SA;Password=<your-password>;TrustServerCertificate=True"
 }
 ```
+
+Please replace "\<your-password\>" with the database password you've chosen in your local .env file
 
 > 🔒 **Note:** Do not commit this file to source control. Add it to `.gitignore` if it isn’t already.
 

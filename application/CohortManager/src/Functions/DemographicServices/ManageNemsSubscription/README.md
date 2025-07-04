@@ -54,7 +54,7 @@ This service has been added to our `compose.core.yaml` file:
       - ASPNETCORE_URLS=http://*:9081
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
       - NemsLocalCertPath=/certs/nhs_signed_client.p12
-      - NemsLocalCertPassword=Spine2Int
+      - NemsLocalCertPassword=${NEMS_CERT_PASSWORD}
       ...
 ```
 
@@ -110,7 +110,7 @@ Place your `.p12` certificate at `./certs/nhs_signed_client.p12`.
     "OdsCode": "T8T9T",
     "MeshMailboxId": "T8T9TOT001",
     "NemsLocalCertPath": "../nhs_signed_client.p12",
-    "NemsLocalCertPassword": "Spine2Int",
+    "NemsLocalCertPassword": "<your-certificate-password>",
     "SubscriptionProfile": "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1",
     "SubscriptionCriteria": "https://fhir.nhs.uk/Id/nhs-number",
     "DefaultEventTypes": "pds-record-change-1"
