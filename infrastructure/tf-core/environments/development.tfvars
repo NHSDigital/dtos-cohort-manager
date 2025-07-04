@@ -326,9 +326,9 @@ function_apps = {
           ParticipantManagementUrl             = "ParticipantManagementDataService"
         }
         static = {
-          CohortDistributionTopic           = "cohort-distribution"                        # Writes to the cohort distribution topic
-          ParticipantManagementTopic        = "participant-management"                     # Subscribes to the participant management topic - Sam stated you need both topic and Subscription??
-          ParticipantManagementSubscription = "participant-management-ManageParticipant"   # Subscribes to the participant management topic
+          CohortDistributionTopic           = "cohort-distribution"     # Writes to the cohort distribution topic
+          ParticipantManagementTopic        = "participant-management"  # Subscribes to the participant management topic - Sam stated you need both topic and Subscription??
+          ParticipantManagementSubscription = "ManageParticipant"       # Subscribes to the participant management topic
           IgnoreParticipantExceptions       = "false"
           IsExtractedToBSSelect             = "false"
           AcceptableLatencyThresholdMs      = "500"
@@ -597,7 +597,7 @@ function_apps = {
           CohortDistributionDataServiceURL = "CohortDistributionDataService"
         }
         static = {
-          CohortQueueName              = "cohort-distribution-queue"DistributeParticipant
+          CohortQueueName              = "cohort-distribution-queue"
           CohortQueueNamePoison        = "cohort-distribution-queue-poison"
           IgnoreParticipantExceptions  = "false"
           IsExtractedToBSSelect        = "false"
@@ -621,8 +621,8 @@ function_apps = {
           TransformDataServiceURL              = "TransformDataService"
         }
         static = {
-          CohortDistributionTopic        = "cohort-distribution"                         # Subscribes to the cohort distribution topic
-          CohortDistributionSubscription = "cohort-distribution-DistributeParticipant"   # Subscribes to the cohort distribution topic
+          CohortDistributionTopic        = "cohort-distribution"     # Subscribes to the cohort distribution topic
+          CohortDistributionSubscription = "DistributeParticipant"   # Subscribes to the cohort distribution topic
           IgnoreParticipantExceptions    = "false"
           IsExtractedToBSSelect          = "false"
           AcceptableLatencyThresholdMs   = "500"
