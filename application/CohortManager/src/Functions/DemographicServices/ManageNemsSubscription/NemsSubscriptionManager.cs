@@ -269,7 +269,7 @@ public class NemsSubscriptionManager
                 LastUpdated = DateTimeOffset.UtcNow
             },
             Status = STU3Subscription.SubscriptionStatus.Requested,
-            Reason = $"Subscribe to {eventType} events for NHS number {nhsNumber}",
+            Reason = $"Subscribe to {eventType} events for patient",
 
             Criteria = $"/Bundle?type=message&Patient.identifier={_config.SubscriptionCriteria}|{nhsNumber}&MessageHeader.event={eventType}",
 
@@ -323,8 +323,8 @@ public class NemsSubscriptionManager
             var existingSubscriptionId = await LookupSubscriptionIdAsync(nhsNumber);
             if (!string.IsNullOrEmpty(existingSubscriptionId))
             {
-                _logger.LogInformation("Subscription already exists for NHS number {NhsNumber} with ID {SubscriptionId}",
-                    nhsNumber, existingSubscriptionId);
+                _logger.LogInformation("Subscription already exists with ID {SubscriptionId}",
+                    existingSubscriptionId);
                 return true;
             }
 
@@ -347,11 +347,11 @@ public class NemsSubscriptionManager
 
             if (saved)
             {
-                _logger.LogInformation("Successfully created and saved subscription for NHS number {NhsNumber}", nhsNumber);
+                _logger.LogInformation("Successfully created and saved subscription");
                 return true;
             }
 
-            _logger.LogError("Failed to save subscription to database for NHS number {NhsNumber}", nhsNumber);
+            _logger.LogError("Failed to save subscription to database");
 
             // Cleanup: delete from NEMS since database save failed
             await DeleteSubscriptionFromNemsAsync(subscriptionId);
@@ -359,7 +359,7 @@ public class NemsSubscriptionManager
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to create and send subscription for NHS number {NhsNumber}", nhsNumber);
+            _logger.LogError(ex, "Failed to create and send subscription");
             return false;
         }
     }
@@ -377,7 +377,7 @@ public class NemsSubscriptionManager
             var subscriptionId = await LookupSubscriptionIdAsync(nhsNumber);
             if (string.IsNullOrEmpty(subscriptionId))
             {
-                _logger.LogWarning("No subscription found for NHS number {NhsNumber} in database.", nhsNumber);
+                _logger.LogWarning("No subscription found in database");
                 return false;
             }
 
@@ -389,19 +389,19 @@ public class NemsSubscriptionManager
 
             if (nemsDeleted && dbDeleted)
             {
-                _logger.LogInformation("Successfully removed subscription for NHS number {NhsNumber}", nhsNumber);
+                _logger.LogInformation("Successfully removed subscription");
                 return true;
             }
             else
             {
-                _logger.LogWarning("Partial removal for NHS number {NhsNumber}. NEMS: {NemsDeleted}, DB: {DbDeleted}",
-                    nhsNumber, nemsDeleted, dbDeleted);
+                _logger.LogWarning("Partial removal completed. NEMS: {NemsDeleted}, DB: {DbDeleted}",
+                    nemsDeleted, dbDeleted);
                 return false;
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to remove subscription for NHS number {NhsNumber}", nhsNumber);
+            _logger.LogError(ex, "Failed to remove subscription");
             return false;
         }
     }
