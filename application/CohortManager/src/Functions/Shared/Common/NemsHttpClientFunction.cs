@@ -8,19 +8,20 @@ using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// NEMS-specific HTTP client function for managing NHS Event Management Service subscriptions.
-/// Inherits from HttpClientFunction to leverage base HTTP functionality while adding NEMS-specific operations.
+/// Provides specialized operations for NEMS API interactions including client certificates, 
+/// JWT token authentication, and FHIR-compliant subscription management.
 /// </summary>
-public class NemsHttpClientFunction : HttpClientFunction, INemsHttpClientFunction
+public class NemsHttpClientFunction : INemsHttpClientFunction
 {
+    private readonly ILogger<NemsHttpClientFunction> _logger;
     private readonly INemsHttpClientProvider _nemsHttpClientProvider;
-    public new static readonly TimeSpan _timeout = TimeSpan.FromSeconds(300);
+    public static readonly TimeSpan _timeout = TimeSpan.FromSeconds(300);
 
     public NemsHttpClientFunction(
         ILogger<NemsHttpClientFunction> logger,
-        IHttpClientFactory factory,
         INemsHttpClientProvider nemsHttpClientProvider)
-        : base(logger, factory)
     {
+        _logger = logger;
         _nemsHttpClientProvider = nemsHttpClientProvider;
     }
 

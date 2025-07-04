@@ -11,7 +11,6 @@ using System.Security.Cryptography.X509Certificates;
 public class NemsHttpClientFunctionTests
 {
     private readonly Mock<ILogger<NemsHttpClientFunction>> _nemsLogger = new();
-    private readonly Mock<IHttpClientFactory> _factory = new();
     private readonly Mock<INemsHttpClientProvider> _nemsHttpClientProvider = new();
     private readonly Mock<HttpMessageHandler> _httpMessageHandler = new();
     private NemsHttpClientFunction? _nemsFunction;
@@ -23,7 +22,7 @@ public class NemsHttpClientFunctionTests
     public void GenerateJwtToken_ValidParameters_ReturnsJwtToken()
     {
         // Arrange
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
         var asid = "test-asid";
         var audience = "https://nems.endpoint";
         var scope = "patient/Subscription.write";
@@ -46,7 +45,7 @@ public class NemsHttpClientFunctionTests
     public void GenerateJwtToken_ContainsExpectedClaims_ValidatesPayload()
     {
         // Arrange
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
         var asid = "test-asid-123";
         var audience = "https://test.nhs.uk";
         var scope = "patient/Subscription.write";
@@ -71,7 +70,7 @@ public class NemsHttpClientFunctionTests
     public void GenerateJwtToken_HasValidTimestamps_ExpiresInOneHour()
     {
         // Arrange
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
         var beforeCall = DateTimeOffset.UtcNow;
 
         // Act
@@ -130,7 +129,7 @@ public class NemsHttpClientFunctionTests
 
         var httpClient = new HttpClient(_httpMessageHandler.Object);
         _nemsHttpClientProvider.Setup(p => p.CreateClient(null, false)).Returns(httpClient);
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
 
         // Act
         var request = new NemsSubscriptionPostRequest
@@ -170,7 +169,7 @@ public class NemsHttpClientFunctionTests
 
         var httpClient = new HttpClient(_httpMessageHandler.Object);
         _nemsHttpClientProvider.Setup(p => p.CreateClient(null, false)).Returns(httpClient);
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
 
         // Act
         var request = new NemsSubscriptionPostRequest
@@ -207,7 +206,7 @@ public class NemsHttpClientFunctionTests
 
         var httpClient = new HttpClient(_httpMessageHandler.Object);
         _nemsHttpClientProvider.Setup(p => p.CreateClient(null, false)).Returns(httpClient);
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
 
         // Act & Assert
         var request = new NemsSubscriptionPostRequest
@@ -244,7 +243,7 @@ public class NemsHttpClientFunctionTests
 
         var httpClient = new HttpClient(_httpMessageHandler.Object);
         _nemsHttpClientProvider.Setup(p => p.CreateClient(mockCertificate, false)).Returns(httpClient);
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
 
         // Act
         var request = new NemsSubscriptionPostRequest
@@ -287,7 +286,7 @@ public class NemsHttpClientFunctionTests
 
         var httpClient = new HttpClient(_httpMessageHandler.Object);
         _nemsHttpClientProvider.Setup(p => p.CreateClient(null, false)).Returns(httpClient);
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
 
         // Act
         var request = new NemsSubscriptionRequest
@@ -326,7 +325,7 @@ public class NemsHttpClientFunctionTests
 
         var httpClient = new HttpClient(_httpMessageHandler.Object);
         _nemsHttpClientProvider.Setup(p => p.CreateClient(null, false)).Returns(httpClient);
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
 
         // Act
         var request = new NemsSubscriptionRequest
@@ -363,7 +362,7 @@ public class NemsHttpClientFunctionTests
 
         var httpClient = new HttpClient(_httpMessageHandler.Object);
         _nemsHttpClientProvider.Setup(p => p.CreateClient(mockCertificate, true)).Returns(httpClient);
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
 
         // Act
         var request = new NemsSubscriptionRequest
@@ -404,7 +403,7 @@ public class NemsHttpClientFunctionTests
 
         var httpClient = new HttpClient(_httpMessageHandler.Object);
         _nemsHttpClientProvider.Setup(p => p.CreateClient(null, false)).Returns(httpClient);
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
 
         // Act
         var request = new NemsSubscriptionPostRequest
@@ -456,7 +455,7 @@ public class NemsHttpClientFunctionTests
 
         var httpClient = new HttpClient(_httpMessageHandler.Object);
         _nemsHttpClientProvider.Setup(p => p.CreateClient(null, false)).Returns(httpClient);
-        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _factory.Object, _nemsHttpClientProvider.Object);
+        _nemsFunction = new NemsHttpClientFunction(_nemsLogger.Object, _nemsHttpClientProvider.Object);
 
         // Act
         var request = new NemsSubscriptionRequest

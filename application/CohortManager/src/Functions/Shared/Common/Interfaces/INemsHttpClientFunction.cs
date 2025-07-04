@@ -2,7 +2,7 @@ namespace Common;
 
 using System.Security.Cryptography.X509Certificates;
 
-public interface INemsHttpClientFunction : IHttpClientFunction
+public interface INemsHttpClientFunction
 {
     /// <summary>
     /// Sends a POST request to NEMS API with proper authentication and headers
