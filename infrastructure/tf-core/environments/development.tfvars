@@ -326,11 +326,12 @@ function_apps = {
           ParticipantManagementUrl             = "ParticipantManagementDataService"
         }
         static = {
-          CohortQueueName              = "cohort-distribution-topic"
-          DistributeParticipantSubName = "distribute-participant-sub"
-          IgnoreParticipantExceptions  = "false"
-          IsExtractedToBSSelect        = "false"
-          AcceptableLatencyThresholdMs = "500"
+          CohortDistributionTopic           = "cohort-distribution"                        # Writes to the cohort distribution topic
+          ParticipantManagementTopic        = "participant-management"                     # Subscribes to the participant management topic - Sam stated you need both topic and Subscription??
+          ParticipantManagementSubscription = "participant-management-ManageParticipant"   # Subscribes to the participant management topic
+          IgnoreParticipantExceptions       = "false"
+          IsExtractedToBSSelect             = "false"
+          AcceptableLatencyThresholdMs      = "500"
         }
       }
     }
@@ -596,7 +597,7 @@ function_apps = {
           CohortDistributionDataServiceURL = "CohortDistributionDataService"
         }
         static = {
-          CohortQueueName              = "cohort-distribution-queue"
+          CohortQueueName              = "cohort-distribution-queue"DistributeParticipant
           CohortQueueNamePoison        = "cohort-distribution-queue-poison"
           IgnoreParticipantExceptions  = "false"
           IsExtractedToBSSelect        = "false"
@@ -620,11 +621,11 @@ function_apps = {
           TransformDataServiceURL              = "TransformDataService"
         }
         static = {
-          CohortQueueName              = "cohort-distribution-topic"
-          DistributeParticipantSubName = "distribute-participant-sub"
-          IgnoreParticipantExceptions  = "false"
-          IsExtractedToBSSelect        = "false"
-          AcceptableLatencyThresholdMs = "500"
+          CohortDistributionTopic        = "cohort-distribution"                         # Subscribes to the cohort distribution topic
+          CohortDistributionSubscription = "cohort-distribution-DistributeParticipant"   # Subscribes to the cohort distribution topic
+          IgnoreParticipantExceptions    = "false"
+          IsExtractedToBSSelect          = "false"
+          AcceptableLatencyThresholdMs   = "500"
         }
       }
     }
@@ -1098,7 +1099,7 @@ service_bus = {
     topics = {
       cohort-distribution = {
         batched_operations_enabled = true
-        # subscribers                = ["DistributeParticipant"] # Not deployed in Cohort Manager yet
+        subscribers                = ["DistributeParticipant"]
       }
       create-exception = {
         batched_operations_enabled = true
@@ -1106,7 +1107,7 @@ service_bus = {
       }
       participant-management = {
         batched_operations_enabled = true
-        # subscribers                = ["ManageParticipant"] # Not deployed in Cohort Manager yet
+        subscribers                = ["ManageParticipant"]
       }
     }
   }
