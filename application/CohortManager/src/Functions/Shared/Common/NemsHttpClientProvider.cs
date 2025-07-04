@@ -38,9 +38,10 @@ public class NemsHttpClientProvider : INemsHttpClientProvider
             _logger.LogInformation("Added client certificate for NEMS authentication");
         }
 
-#if DEBUG
         if (bypassCertValidation)
         {
+            _logger.LogWarning("Certificate validation bypass requested - USE ONLY IN DEVELOPMENT");
+            
             handler.ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
             {
                 _logger.LogWarning("Bypassing server certificate validation - DO NOT USE IN PRODUCTION");
@@ -62,9 +63,6 @@ public class NemsHttpClientProvider : INemsHttpClientProvider
                 return true;
             };
         }
-#else
-// In Release/Production: Never bypass, always validate (default behavior)
-#endif
 
         return handler;
     }
