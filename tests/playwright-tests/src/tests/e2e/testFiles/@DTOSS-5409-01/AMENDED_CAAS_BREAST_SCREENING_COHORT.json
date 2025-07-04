@@ -24,7 +24,7 @@
             "meta": {
                 "testJiraId": "@DTOSS-5409-01",
                 "requirementJiraId": "DTOSS-4577",
-                "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception for participant2 9924700848"
+                "additionalTags": "@regression @e2e @epic3-med-priority - Validate Management Details for participant1 9287322880"
             }
         }
     ],
