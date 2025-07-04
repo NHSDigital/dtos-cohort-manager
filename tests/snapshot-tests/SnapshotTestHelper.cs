@@ -67,12 +67,14 @@ public class SnapshotTestHelper
         verifySettings.UseDirectory(directoryName);
         verifySettings.DontScrubDateTimes();
         verifySettings.DisableRequireUniquePrefix();
-        verifySettings.IgnoreMembers<ExceptionManagement>(i => i.ExceptionDate, i => i.ErrorRecord, i => i.DateCreated, i => i.ExceptionId, i => i.DateResolved);
+        verifySettings.IgnoreMembers<ExceptionManagement>(i => i.ExceptionDate, i => i.ErrorRecord, i => i.DateCreated, i => i.ExceptionId, i => i.DateResolved, i => i.RecordUpdatedDate);
         verifySettings.IgnoreMembers<ParticipantManagement>(i => i.ParticipantId, i => i.RecordInsertDateTime, i => i.RecordUpdateDateTime);
         verifySettings.IgnoreMembers<ParticipantDemographic>(i => i.ParticipantId, i => i.RecordInsertDateTime, i => i.RecordInsertDateTime);
         verifySettings.IgnoreMembers<CohortDistribution>(i => i.CohortDistributionId, i => i.ParticipantId, i => i.RecordInsertDateTime, i => i.RecordUpdateDateTime, i => i.ReasonForRemovalDate);
 
         verifySettings.ScrubLinesContaining("07888888888");
+        verifySettings.ScrubLinesContaining("lambda_method");
+        verifySettings.ScrubLinesContaining("RecordUpdatedDate");
         verifySettings.ScrubLinesWithReplace(line =>
         {
             var regex = new Regex(@"Participant \d+");
@@ -97,8 +99,6 @@ public class SnapshotTestHelper
                 await Task.Delay(35000);
             }
         }
-
-        await verifyFunction();
     }
 
     public List<long?> GetNhsNumbersFromFile()

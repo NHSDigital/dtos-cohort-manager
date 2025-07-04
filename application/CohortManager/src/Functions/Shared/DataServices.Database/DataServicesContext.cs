@@ -9,12 +9,12 @@ public class DataServicesContext : DbContext
     DbSet<LanguageCode> languageCodes { get; set; }
     DbSet<CurrentPosting> currentPostings { get; set; }
     DbSet<ExcludedSMULookup> excludedSMULookups { get; set; }
-    DbSet<ParticipantManagement> participantManagements { get; set; }
-    DbSet<ParticipantDemographic> participantDemographics { get; set; }
+    public DbSet<ParticipantManagement> ParticipantManagements { get; set; }
+    public DbSet<ParticipantDemographic> ParticipantDemographics { get; set; }
     DbSet<GeneCodeLkp> geneCodeLkps { get; set; }
     DbSet<HigherRiskReferralReasonLkp> higherRiskReferralReasonLkps { get; set; }
-    DbSet<ExceptionManagement> exceptionManagements { get; set; }
-    DbSet<CohortDistribution> cohortDistributions { get; set; }
+    public DbSet<ExceptionManagement> ExceptionManagements { get; set; }
+    public DbSet<CohortDistribution> CohortDistributions { get; set; }
     DbSet<BsSelectRequestAudit> bsSelectRequestAudits { get; set; }
     DbSet<ScreeningLkp> screeningLkps { get; set; }
     DbSet<BsoOrganisation> bsoOrganisations { get; set; }
