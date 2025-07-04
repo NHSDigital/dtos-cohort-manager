@@ -3,7 +3,7 @@ module "service_bus_subscriptions" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/service-bus-subscription"
 
-  subscription_name         = "${each.value.topic_name}-${each.value.subscriber}"
+  subscription_name         = "${each.value.subscriber}"
   max_delivery_count        = each.value.max_delivery_count
   topic_id                  = module.azure_service_bus["${each.value.service_bus_key}"].topic_ids[each.value.topic_name]
   namespace_name            = "${each.value.service_bus_key}"
