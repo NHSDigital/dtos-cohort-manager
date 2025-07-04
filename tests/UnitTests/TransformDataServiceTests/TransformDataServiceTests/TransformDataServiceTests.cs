@@ -17,6 +17,7 @@ using Data.Database;
 using Model.Enums;
 using DataServices.Client;
 using System.Linq.Expressions;
+using System.Globalization;
 
 [TestClass]
 public class TransformDataServiceTests
@@ -66,7 +67,6 @@ public class TransformDataServiceTests
         _transformLookups.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
 
         _transformReasonForRemoval = new TransformReasonForRemoval(_handleException.Object, _transformLookups.Object);
-
         _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval, _transformLookups.Object);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
@@ -142,6 +142,69 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), ruleId), times: Times.Once);
     }
+
+    [TestMethod]
+    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Male, "19700101")]     // New Family Name & Gender
+    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700102")]   // New Family Name & Date of Birth
+    [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700102")]     // New Gender & Date of Birth
+    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Male, "19700102")]     // New Family Name, Gender & Date of Birth
+    public async Task Run_TooManyDemographicsFieldsChanged_DemographicsRuleFails_LogsException(string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName, Gender newGender, string newDateOfBirth)
+    {
+        // Arrange
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.ExistingParticipant.FamilyName = existingFamilyName;
+        _requestBody.ExistingParticipant.ParticipantId = 1234567;
+        _requestBody.ExistingParticipant.Gender = (short)(Gender)existingGender;
+        _requestBody.ExistingParticipant.DateOfBirth = DateTime.ParseExact(existingDateOfBirth, "yyyyMMdd", CultureInfo.InvariantCulture);
+        _requestBody.Participant.FamilyName = newFamilyName;
+        _requestBody.Participant.Gender = newGender;
+        _requestBody.Participant.DateOfBirth = newDateOfBirth;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        var ruleId = 35;
+        var ruleName = "TooManyDemographicsFieldsChangedConfusionNoTransformation";
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId), times: Times.Once);
+    }
+
+    [TestMethod]
+    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700101")]  // New Family Name Only
+    [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700101")]    // New Gender Only
+    [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700102")]  // New Date of Birth Only
+    [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700101")]  // No Change
+    public async Task Run_OneFieldChanged_DemographicsRulePasses_NoExceptionLogs(string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName, Gender newGender, string newDateOfBirth)
+    {
+        // Arrange
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.ExistingParticipant.FamilyName = existingFamilyName;
+        _requestBody.ExistingParticipant.ParticipantId = 1234567;
+        _requestBody.ExistingParticipant.Gender = (short)(Gender)existingGender;
+        _requestBody.ExistingParticipant.DateOfBirth = DateTime.ParseExact(existingDateOfBirth, "yyyyMMdd", CultureInfo.InvariantCulture);
+        _requestBody.Participant.FamilyName = newFamilyName;
+        _requestBody.Participant.Gender = newGender;
+        _requestBody.Participant.DateOfBirth = newDateOfBirth;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        var ruleId = 35;
+        var ruleName = "TooManyDemographicsFieldsChangedConfusionNoTransformation";
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId), times: Times.Never);
+    }
+
 
     [TestMethod]
     public async Task Run_InvalidNamePrefix_SetPrefixToNull()
@@ -437,7 +500,7 @@ public class TransformDataServiceTests
     {
         // Arrange
         _requestBody.Participant.PrimaryCareProvider = primaryCareProvider;
-        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString();
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString();
         _requestBody.Participant.InvalidFlag = invalidFlag;
         _requestBody.Participant.RecordType = recordType;
 
@@ -452,7 +515,7 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.Male,
             ReasonForRemoval = "ORR",
-            ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString("yyyyMMdd"),
+            ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd"),
             PrimaryCareProvider = "",
             InvalidFlag = invalidFlag
         };
@@ -545,7 +608,7 @@ public class TransformDataServiceTests
             Gender = Gender.Male,
             PrimaryCareProvider = "",
             ReasonForRemoval = "ORR",
-            ReasonForRemovalEffectiveFromDate = DateTime.Today.ToString("yyyyMMdd")
+            ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
         };
 
         // Act
@@ -558,7 +621,6 @@ public class TransformDataServiceTests
             .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumber", 60),
             times: Times.Once);
     }
-
 
     private void SetUpRequestBody(string json)
     {

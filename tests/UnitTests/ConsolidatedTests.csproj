@@ -105,6 +105,7 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\TransformDataService\TransformDataService.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\RetrieveParticipantData\RetrieveParticipantData.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\CreateCohortDistribution\CreateCohortDistribution.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\DistributeParticipant\DistributeParticipant.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\DeleteParticipant\DeleteParticipant.csproj" />
   </ItemGroup>

@@ -72,6 +72,7 @@ public class Participant
         ScreeningId = cohortDistributionParticipant.ScreeningServiceId;
         CurrentPosting = cohortDistributionParticipant.CurrentPosting;
         EligibilityFlag = cohortDistributionParticipant.EligibilityFlag;
+        InvalidFlag = cohortDistributionParticipant.InvalidFlag;
     }
 
     public Participant(PdsDemographic pdsDemographic)
@@ -152,7 +153,7 @@ public class Participant
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = !string.IsNullOrEmpty(IsInterpreterRequired) ? short.Parse(IsInterpreterRequired) : null,
             InvalidFlag = (short?)GetInvalidFlag(),
-            RecordInsertDateTime = DateTime.Now,
+            RecordInsertDateTime = DateTime.UtcNow,
             RecordUpdateDateTime = null,
         };
     }

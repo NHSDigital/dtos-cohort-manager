@@ -1,14 +1,9 @@
-
-export function ensureNhsNumbersStartWith999(nhsNumbers: string[]): string[] {
-  return nhsNumbers.map((original) => {
+export function ensureNhsNumbersStartWith999(nhsNumbers: string[]) {
+  nhsNumbers.forEach((original) => {
     let numeric = original.replace(/\D/g, "");
 
-    if (numeric.length < 9) {
-      numeric = numeric.padEnd(9, "0");
-    } else if (numeric.length > 9) {
-      numeric = numeric.slice(numeric.length - 9);
+    if (!numeric.startsWith("999")) {
+      throw new Error(`NHS number must start with 999: ${original}`);
     }
-
-    return "999" + numeric.slice(3);
   });
 }
