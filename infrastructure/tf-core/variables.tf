@@ -264,7 +264,6 @@ variable "frontdoor_endpoint" {
   description = "Configuration for Front Door"
   type = map(object({
     origin = object({
-      certificate_name_check_enabled = bool # must be true for Private Link
       enabled                        = optional(bool, true)
       http_port                      = optional(number, 80)  # 1–65535
       https_port                     = optional(number, 443) # 1–65535
