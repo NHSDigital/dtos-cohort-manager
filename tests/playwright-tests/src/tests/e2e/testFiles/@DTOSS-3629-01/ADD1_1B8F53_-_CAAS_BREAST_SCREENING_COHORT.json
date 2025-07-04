@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9993626554"
+        "NHSNumber": "9993626554"
       },
       "meta": {
         "testJiraId": "@DTOSS-3629-01",
@@ -14,7 +14,7 @@
       {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9993931888"
+        "NHSNumber": "9993931888"
       },
       "meta": {
         "testJiraId": "@DTOSS-3629-01",
@@ -25,7 +25,7 @@
        {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9992949600"
+        "NHSNumber": "9992949600"
       },
       "meta": {
         "testJiraId": "@DTOSS-3629-01",
