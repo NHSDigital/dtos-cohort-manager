@@ -7,7 +7,7 @@ using Microsoft.Extensions.Logging;
 
 public class HttpClientFunction : IHttpClientFunction
 {
-    protected readonly ILogger _logger;
+    private readonly ILogger<HttpClientFunction> _logger;
     private readonly IHttpClientFactory _factory;
     public static readonly TimeSpan _timeout = TimeSpan.FromSeconds(300);
     private const string errorMessage = "Failed to execute request to {Url}, message: {Message}";
