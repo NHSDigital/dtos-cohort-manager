@@ -76,7 +76,7 @@
       "eligibility": true
     },
       {
-      "record_type": "AMENDED",
+      "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 2,
       "nhs_number": 9993931888,
@@ -116,7 +116,7 @@
       "eligibility": true
     },
       {
-      "record_type": "AMENDED",
+      "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 3,
       "nhs_number": 9992949600,
