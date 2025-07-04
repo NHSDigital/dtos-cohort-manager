@@ -16,9 +16,8 @@ module "functionapp" {
   public_network_access_enabled = var.features.public_network_access_enabled
   vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
 
+  # We use the RBAC module to set default roles
   # rbac_role_assignments = each.value.rbac_role_assignments
-
-  # We use the RBAC module to set default roles against a single user assigned managed identity
   rbac_role_assignments = []
 
   asp_id = module.app-service-plan["${each.value.app_service_plan_key}-${each.value.region}"].app_service_plan_id

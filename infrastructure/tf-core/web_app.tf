@@ -37,7 +37,10 @@ module "linux_web_app" {
 
   public_dns_zone_rg_name       = data.terraform_remote_state.hub.outputs.public_dns_zone_rg_name
   public_network_access_enabled = var.features.public_network_access_enabled
-  rbac_role_assignments         = lookup(each.value, "rbac_role_assignments", [])
+
+  # we use the rbac module to assign roles
+  # rbac_role_assignments         = lookup(each.value, "rbac_role_assignments", [])
+  rbac_role_assignments = []
 
   # share_name                 = var.linux_web_app.share_name
   # storage_account_access_key = module.storage["webapp-${each.value.region}"].storage_account_primary_access_key
