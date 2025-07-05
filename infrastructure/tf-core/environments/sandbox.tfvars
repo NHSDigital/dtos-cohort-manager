@@ -1,6 +1,8 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
 environment           = "SBMJ"
+enable_global_rbac    = true
+identity_prefix       = "global-uami"
 
 features = {
   acr_enabled                          = false
@@ -48,8 +50,8 @@ regions = {
         cidr_offset  = 5
       }
       container-app-db-management = {
-        cidr_newbits = 7
-        cidr_offset  = 6
+        cidr_newbits               = 7
+        cidr_offset                = 6
         delegation_name            = "Microsoft.App"
         service_delegation_name    = "Microsoft.App/environments"
         service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
@@ -304,12 +306,12 @@ function_apps = {
       storage_account_env_var_name = "caasfolder_STORAGE"
       env_vars = {
         app_urls = {
-          ExceptionFunctionURL      = "CreateException"
-          RetrievePdsDemographicURL = "RetrievePDSDemographic"
+          ExceptionFunctionURL           = "CreateException"
+          RetrievePdsDemographicURL      = "RetrievePDSDemographic"
           UnsubscribeNemsSubscriptionUrl = "ManageNemsSubscription"
         }
         static = {
-          MeshCertName = "MeshCert"
+          MeshCertName    = "MeshCert"
           UpdateQueueName = "update-participant-queue"
         }
         storage_containers = {

@@ -52,8 +52,6 @@ stages:
           - checkout: self
           - checkout: dtos-devops-templates
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
-            parameters:
-              tfCommandOptions: "-var=enable_global_rbac=false"
 
   - stage: terraform_apply
     displayName: Infrastructure (Apply)
