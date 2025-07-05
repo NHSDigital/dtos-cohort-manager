@@ -41,7 +41,7 @@ variables:
 
 stages:
   - stage: terraform_plan
-    displayName: Plan Infrastructure
+    displayName: Infrastructure (Plan)
     condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
     variables:
       tfVarsFile: environments/$(ENVIRONMENT).tfvars
@@ -56,7 +56,7 @@ stages:
               tfCommandOptions: "-var=enable_global_rbac=false"
 
   - stage: terraform_apply
-    displayName: Apply Infrastructure
+    displayName: Infrastructure (Apply)
     dependsOn: [terraform_plan]
     condition: and(
       eq('${{ parameters.pipelineAction }}', 'Apply'),
@@ -74,7 +74,7 @@ stages:
                 - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
   - stage: terraform_destroy
-    displayName: Destroy Infrastructure
+    displayName: Infrastructure (Remove)
     condition: and(eq('${{ parameters.pipelineAction }}', 'Destroy'), eq(variables['Build.Reason'], 'Manual'))
     variables:
       tfVarsFile: environments/$(ENVIRONMENT).tfvars
