@@ -548,3 +548,9 @@ variable "identity_prefix"{
   description = "A short custom prefix to assign to this user assigned managed identity"
   default = ""
 }
+
+variable "rbac_principal_id" {
+  type = string
+  description = "An identifier of a security principal to apply to all resource role assignments."
+  default = null
+}
