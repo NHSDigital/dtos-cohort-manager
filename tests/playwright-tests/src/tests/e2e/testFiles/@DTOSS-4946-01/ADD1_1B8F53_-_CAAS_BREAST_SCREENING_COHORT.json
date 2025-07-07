@@ -14,7 +14,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NHSNumber": 9997111834,
+        "NhsNumber": 9997111834,
         "PreferredLanguage": "en"
       },
       "meta": {
