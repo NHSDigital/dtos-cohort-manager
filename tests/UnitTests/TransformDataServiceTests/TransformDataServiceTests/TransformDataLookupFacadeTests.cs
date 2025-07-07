@@ -1,6 +1,9 @@
 namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 
+using System.Threading.Tasks;
 using DataServices.Client;
+using FastExpressionCompiler;
+using Hl7.Fhir.Utility;
 using Model;
 using Moq;
 using NHS.CohortManager.CohortDistributionService;
@@ -15,6 +18,8 @@ public class TransformDataLookupFacadeTests
     private readonly Mock<IDataServiceClient<LanguageCode>> _languageCodeClientMock = new();
     private Mock<IDataServiceClient<BsSelectGpPractice>> _gpPracticeClientMock = new();
 
+    private Mock<IDataServiceClient<ExcludedSMULookup>> _excludedSMUClient = new();
+
     public TransformDataLookupFacadeTests()
     {
         _outcodeClientMock
@@ -25,7 +30,7 @@ public class TransformDataLookupFacadeTests
             .Setup(x => x.GetSingle(It.IsAny<string>()))
             .ReturnsAsync(new LanguageCode());
 
-        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object);
+        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object, _excludedSMUClient.Object);
     }
 
     [TestMethod]
@@ -52,7 +57,7 @@ public class TransformDataLookupFacadeTests
         // Arrange
         _outcodeClientMock
             .Setup(x => x.GetSingle(It.IsAny<string>()))
-            .ReturnsAsync((BsSelectOutCode) null);
+            .ReturnsAsync((BsSelectOutCode)null);
 
         string postcode = "LS10 1LT";
 
@@ -71,5 +76,37 @@ public class TransformDataLookupFacadeTests
     {
         // Act & Assert
         Assert.ThrowsException<TransformationException>(() => _sut.ValidateOutcode(postcode));
+    }
+
+    [TestMethod]
+    public async Task Get_ExcludedSMUList_ReturnsNonNullDictionary()
+    {
+
+        var excludedSMUList = new List<ExcludedSMULookup>() { new ExcludedSMULookup() { GpPracticeCode = "A91151" } };
+        _excludedSMUClient.Setup(x => x.GetAll()).ReturnsAsync(excludedSMUList);
+
+
+        await _sut.InitAsync();
+        var excludedSMUDictionary = _sut.ExcludedSMUList();
+
+
+        Assert.IsNotNull(excludedSMUDictionary);
+        Assert.AreEqual(excludedSMUDictionary.GetFirst().Key, excludedSMUList.FirstOrDefault()!.GpPracticeCode);
+    }
+
+    [TestMethod]
+    public async Task Get_ExcludedSMUList_ReturnsNullDictionary()
+    {
+
+        var excludedSMUList = new List<ExcludedSMULookup>() { };
+        _excludedSMUClient.Setup(x => x.GetAll()).ReturnsAsync(excludedSMUList);
+
+
+        await _sut.InitAsync();
+        var excludedSMUDictionary = _sut.ExcludedSMUList();
+
+
+        Assert.IsNotNull(excludedSMUDictionary);
+        Assert.IsTrue(excludedSMUDictionary.Count == 0);
     }
 }

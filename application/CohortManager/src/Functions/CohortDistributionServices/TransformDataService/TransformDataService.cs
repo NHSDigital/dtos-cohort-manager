@@ -124,23 +124,10 @@ public class TransformDataService
     public async Task<CohortDistributionParticipant> TransformParticipantAsync(CohortDistributionParticipant participant,
                                                                             CohortDistribution databaseParticipant)
     {
-
         var excludedSMUList = _dataLookup.ExcludedSMUList();
-        var newParticipant = participant.CurrentPosting == "DMS" && !excludedSMUList.ContainsKey(participant.PrimaryCareProvider) || new string[] { "English", "NHAIS", "Cipher", "ENG", "IM" }.Contains(participant.CurrentPosting);
-        var oldParticipant = databaseParticipant.CurrentPosting == "DMS" && excludedSMUList.ContainsKey(databaseParticipant.PrimaryCareProvider) || new string[] { "Welsh", "NHAIS", "Cipher", "CYM" }.Contains(databaseParticipant.CurrentPosting);
-
-        if (participant.RecordType == Actions.Amended && newParticipant && oldParticipant)
-        {
-            Console.WriteLine("yes");
-        }
-        else
-        {
-            Console.WriteLine("no");
-        }
-
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() },  };
+        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() }, };
         var reSettings = new ReSettings
         {
             CustomActions = actions,
