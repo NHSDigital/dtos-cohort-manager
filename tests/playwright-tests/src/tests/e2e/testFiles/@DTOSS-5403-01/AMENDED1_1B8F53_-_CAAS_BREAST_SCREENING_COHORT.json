@@ -3,12 +3,12 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9994402994"
+        "NHSNumber": "9997113829"
       },
       "meta": {
         "testJiraId": "@DTOSS-5403-01",
         "requirementJiraId": "DTOSS-2757",
-        "additionalTags": "@regression @e2e @epic3-med-priority Tests Verify Amendment is sent for an existing participant with ELIGIBILITY_FLAG is FALSE"
+        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify Amendment is sent for an existing participant with ELIGIBILITY_FLAG is FALSE"
       }
     }
   ],
@@ -17,7 +17,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 9994402994,
+      "nhs_number": 9997113829,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20130319",
@@ -55,6 +55,6 @@
     }
   ],
   "nhsNumbers": [
-    "9994402994"
+    "9997113829"
   ]
 }
