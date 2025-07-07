@@ -142,8 +142,6 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
-        var foo = resultList.Where(x => x.Rule.RuleName == "00.ValidateLanguageCode");
-
         await HandleExceptions(resultList, participant);
         await CreateTransformExecutedExceptions(resultList, participant);
 
