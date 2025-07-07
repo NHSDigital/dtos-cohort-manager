@@ -362,9 +362,10 @@ function_apps = {
     }
 
     ManageParticipant = {
-      name_suffix            = "manage-participant"
-      function_endpoint_name = "ManageParticipant"
-      app_service_plan_key   = "DefaultPlan"
+      name_suffix             = "manage-participant"
+      function_endpoint_name  = "ManageParticipant"
+      app_service_plan_key    = "DefaultPlan"
+      service_bus_connections = ["internal"]
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -378,7 +379,7 @@ function_apps = {
       env_vars_static = {
         CohortDistributionTopic           = "cohort-distribution"     # Writes to the cohort distribution topic
         ParticipantManagementTopic        = "participant-management"  # Subscribes to the participant management topic
-        ParticipantManagementSubscription = "ManageParticipant"       # Subscribes to the participant management topic
+        ManageParticipantSubscription     = "ManageParticipant"       # Subscribes to the participant management topic
         IgnoreParticipantExceptions       = "false"
         IsExtractedToBSSelect             = "false"
         AcceptableLatencyThresholdMs      = "500"
@@ -791,9 +792,10 @@ function_apps = {
     }
 
     DistributeParticipant = {
-      name_suffix            = "distribute-participant"
-      function_endpoint_name = "DistributeParticipant"
-      app_service_plan_key   = "DefaultPlan"
+      name_suffix             = "distribute-participant"
+      function_endpoint_name  = "DistributeParticipant"
+      app_service_plan_key    = "DefaultPlan"
+      service_bus_connections = ["internal"]
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
