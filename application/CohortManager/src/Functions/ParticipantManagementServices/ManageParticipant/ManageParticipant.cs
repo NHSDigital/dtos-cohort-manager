@@ -8,6 +8,7 @@ using Common;
 using System.Text.Json;
 using Model;
 using DataServices.Client;
+using Microsoft.AspNetCore.Components.Web;
 
 public class ManageParticipant
 {
@@ -51,13 +52,14 @@ public class ManageParticipant
             }
 
             long nhsNumber = long.Parse(participant.NhsNumber);
-            short screeningId = short.Parse(participant.ScreeningId);
+            long screeningId = long.Parse(participant.ScreeningId);
 
             var databaseParticipant = await _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId);
 
             bool dataServiceResponse;
             if (databaseParticipant is null)
             {
+                _logger.LogInformation("Participant not in participant management table, adding new record");
                 dataServiceResponse = await _participantManagementClient.Add(participant.ToParticipantManagement());
             }
             else if (databaseParticipant.BlockedFlag == 1)
@@ -67,6 +69,8 @@ public class ManageParticipant
             }
             else
             {
+                _logger.LogInformation("Existing participant managment record found, updating record {ParticipantId}", databaseParticipant.ParticipantId);
+                participant.ParticipantId = databaseParticipant.ParticipantId.ToString();
                 dataServiceResponse = await _participantManagementClient.Update(participant.ToParticipantManagement());
             }
 
