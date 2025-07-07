@@ -37,6 +37,7 @@ public class ServiceNowClient : IServiceNowClient
 
         if (token == null)
         {
+            _logger.LogError("Failed to get valid access token so exiting without sending update request to ServiceNow.");
             return null;
         }
 
@@ -50,6 +51,7 @@ public class ServiceNowClient : IServiceNowClient
             token = await GetAccessTokenAsync(true);
             if (token == null)
             {
+                _logger.LogError("Failed to get valid access token so exiting without sending update request to ServiceNow.");
                 return null;
             }
             var retryRequest = CreateUpdateRequest(url, json, token);
