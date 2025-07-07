@@ -259,7 +259,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5563-01 @not-runner-based - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
+test('@DTOSS-5563-01 @not-runner-based - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
     annotation: [{
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5563',
@@ -290,6 +290,41 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
 
   });
+
+
+  test('@DTOSS-5562-01 @not-runner-based - BS Select - CohortDistribution Requesting data from Cohort Manager with incorrect parameters - RowCount as empty', {
+    annotation: [{
+      type: 'Requirement',
+      description: 'DTOSS-5562',
+    }, {
+      type: 'Defect',
+      description: 'Tests - DTOSS-3650',
+    },]
+  }, async ({ request, testData }) => {
+
+    await test.step('And ADD participant is processed with IsExtracted = 0', async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+
+    });
+
+    await test.step('When Retrieve Cohort BS Select API returns available records with status 200, with RowCount as empty', async () => {
+      const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: ``, screeningServiceId: 1 });
+      const genericValidations = composeValidators(
+        expectStatus(200),
+        validateResponseByStatus()
+      );
+      await genericValidations(response);
+    });
+
+    await test.step('Then BS_SELECT_REQUEST_AUDIT should have an entry for 200', async () => {
+      const response = await getRecordsFromBsSelectRetrieveAudit(request);
+      const lastRecord = response.data[response.data.length - 1];
+      expect(lastRecord?.StatusCode).toBe("200");
+    });
+
+  });
+
+
 
   testWithAmended('@DTOSS-6016-01 @not-runner-based - Should Not Amend Participant Data When Current Posting is Missing', {
     annotation: {
