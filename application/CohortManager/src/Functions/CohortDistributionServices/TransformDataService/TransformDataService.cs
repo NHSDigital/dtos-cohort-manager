@@ -14,16 +14,12 @@ using System.Net;
 using System.Text;
 using Model;
 using Common;
-using Data.Database;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using RulesEngine.Actions;
-using DataServices.Client;
-using System.Configuration;
+
 using System.Threading.Tasks;
-using System.Net.WebSockets;
-using Microsoft.Identity.Client;
-using Hl7.Fhir.Specification.Terminology;
+
 using Hl7.Fhir.Rest;
 
 public class TransformDataService
@@ -33,7 +29,6 @@ public class TransformDataService
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
     private readonly ITransformDataLookupFacade _dataLookup;
-    private List<string> _excludedSMUList;
 
     public TransformDataService(
         ICreateResponse createResponse,
