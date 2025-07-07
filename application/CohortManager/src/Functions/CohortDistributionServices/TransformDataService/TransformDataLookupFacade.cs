@@ -3,6 +3,7 @@ namespace NHS.CohortManager.CohortDistributionService;
 using DataServices.Client;
 using Model;
 using Common;
+using Microsoft.Extensions.Logging;
 
 public class TransformDataLookupFacade : ITransformDataLookupFacade
 {
@@ -10,21 +11,30 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     private readonly IDataServiceClient<BsSelectGpPractice> _bsSelectGPPracticeClient;
     private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
     private readonly IDataServiceClient<ExcludedSMULookup> _excludedSMUClient;
+
     private Dictionary<string, string> _excludedSMUData = new();
 
+    private readonly ILogger<ITransformDataLookupFacade> _logger;
     public TransformDataLookupFacade(IDataServiceClient<BsSelectOutCode> outcodeClient,
                                     IDataServiceClient<BsSelectGpPractice> bsSelectGPPracticeClient,
                                     IDataServiceClient<LanguageCode> languageCodeClient,
-                                    IDataServiceClient<ExcludedSMULookup> excludedSMUClient)
+                                    IDataServiceClient<ExcludedSMULookup> excludedSMUClient,
+                                    ILogger<ITransformDataLookupFacade> logger)
     {
         _outcodeClient = outcodeClient;
         _bsSelectGPPracticeClient = bsSelectGPPracticeClient;
         _languageCodeClient = languageCodeClient;
         _excludedSMUClient = excludedSMUClient;
+        _logger = logger;
     }
 
     public async Task InitAsync()
     {
+        if (_excludedSMUData.Any())
+        {
+            _logger.LogInformation("the excludedSMUData is already cached");
+            return;
+        }
         var result = await _excludedSMUClient.GetAll();
         _excludedSMUData = result
             .Select(x => x.GpPracticeCode)

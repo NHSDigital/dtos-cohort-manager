@@ -150,12 +150,20 @@
         "RuleName": "8.amend.record.transform",
         "LocalParams": [
           {
+            "Name": "IsPrimaryCareProviderNullOnUpdatedParticipant",
+            "Expression": "participant.PrimaryCareProvider == null"
+          },
+          {
+            "Name": "IsPrimaryCareProviderNullDatabaseParticipant",
+            "Expression": "databaseParticipant.PrimaryCareProvider == null"
+          },
+          {
             "Name": "IsNewRecordInSMU",
-            "Expression": "participant.CurrentPosting == \"DMS\" && !excludedSMUList.ContainsKey(participant.PrimaryCareProvider) || new string[] { \"English\", \"NHAIS\", \"Cipher\", \"ENG\", \"IM\" }.Contains(participant.CurrentPosting)"
+            "Expression": "participant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullOnUpdatedParticipant ? false : !excludedSMUList.ContainsKey(participant.PrimaryCareProvider)) || new string[] { \"English\", \"NHAIS\", \"Cipher\", \"ENG\", \"IM\" }.Contains(participant.CurrentPosting)"
           }, 
           {
             "Name": "IsOldRecordInSMU",            
-            "Expression": "databaseParticipant.CurrentPosting == \"DMS\" && excludedSMUList.ContainsKey(databaseParticipant.PrimaryCareProvider) || new string[] { \"Welsh\", \"NHAIS\", \"Cipher\", \"CYM\" }.Contains(databaseParticipant.CurrentPosting)"
+            "Expression": "databaseParticipant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullDatabaseParticipant ? false : excludedSMUList.ContainsKey(databaseParticipant.PrimaryCareProvider)) || new string[] { \"Welsh\", \"NHAIS\", \"Cipher\", \"CYM\" }.Contains(databaseParticipant.CurrentPosting)"
           }
         ],
         "Expression":  "participant.RecordType == Actions.Amended && IsNewRecordInSMU && IsOldRecordInSMU",

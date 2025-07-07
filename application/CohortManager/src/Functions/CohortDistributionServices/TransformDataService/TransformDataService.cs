@@ -17,9 +17,7 @@ using Common;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using RulesEngine.Actions;
-
 using System.Threading.Tasks;
-
 using Hl7.Fhir.Rest;
 
 public class TransformDataService
@@ -50,6 +48,9 @@ public class TransformDataService
     {
         CohortDistributionParticipant participant;
         TransformDataRequestBody requestBody;
+
+
+        await _dataLookup.InitAsync();
 
         try
         {
@@ -120,6 +121,7 @@ public class TransformDataService
                                                                             CohortDistribution databaseParticipant)
     {
         var excludedSMUList = _dataLookup.ExcludedSMUList();
+
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
         var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() }, };

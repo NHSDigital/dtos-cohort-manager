@@ -1,9 +1,11 @@
 namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 
 using System.Threading.Tasks;
+using Castle.Core.Logging;
 using DataServices.Client;
 using FastExpressionCompiler;
 using Hl7.Fhir.Utility;
+using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
 using NHS.CohortManager.CohortDistributionService;
@@ -20,6 +22,8 @@ public class TransformDataLookupFacadeTests
 
     private Mock<IDataServiceClient<ExcludedSMULookup>> _excludedSMUClient = new();
 
+    private Mock<ILogger<ITransformDataLookupFacade>> _logger = new();
+
     public TransformDataLookupFacadeTests()
     {
         _outcodeClientMock
@@ -30,7 +34,7 @@ public class TransformDataLookupFacadeTests
             .Setup(x => x.GetSingle(It.IsAny<string>()))
             .ReturnsAsync(new LanguageCode());
 
-        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object, _excludedSMUClient.Object);
+        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object, _excludedSMUClient.Object, _logger.Object);
     }
 
     [TestMethod]
