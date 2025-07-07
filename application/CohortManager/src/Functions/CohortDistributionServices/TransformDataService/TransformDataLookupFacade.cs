@@ -9,14 +9,31 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     private readonly IDataServiceClient<BsSelectOutCode> _outcodeClient;
     private readonly IDataServiceClient<BsSelectGpPractice> _bsSelectGPPracticeClient;
     private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
+    private readonly IDataServiceClient<ExcludedSMULookup> _excludedSMUClient;
+    private Dictionary<string, string> _excludedSMUData = new();
 
     public TransformDataLookupFacade(IDataServiceClient<BsSelectOutCode> outcodeClient,
                                     IDataServiceClient<BsSelectGpPractice> bsSelectGPPracticeClient,
-                                    IDataServiceClient<LanguageCode> languageCodeClient)
+                                    IDataServiceClient<LanguageCode> languageCodeClient,
+                                    IDataServiceClient<ExcludedSMULookup> excludedSMUClient)
     {
         _outcodeClient = outcodeClient;
         _bsSelectGPPracticeClient = bsSelectGPPracticeClient;
         _languageCodeClient = languageCodeClient;
+        _excludedSMUClient = excludedSMUClient;
+    }
+
+    public async Task InitAsync()
+    {
+        var result = await _excludedSMUClient.GetAll();
+        _excludedSMUData = result
+            .Select(x => x.GpPracticeCode)
+            .ToDictionary(x => x, x => x);
+    }
+
+    public Dictionary<string, string> ExcludedSMUList()
+    {
+        return _excludedSMUData;
     }
 
     public bool ValidateOutcode(string postcode)

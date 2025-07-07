@@ -12,4 +12,6 @@ public class TransformDataServiceConfig
     public string BsSelectGpPracticeUrl { get; set; }
     [Required]
     public string LanguageCodeUrl { get; set; }
+    [Required]
+    public string ExcludedSMULookupUrl { get; set; }
 }

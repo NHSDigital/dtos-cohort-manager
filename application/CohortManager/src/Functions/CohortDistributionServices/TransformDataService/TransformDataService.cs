@@ -20,6 +20,11 @@ using System.Data;
 using RulesEngine.Actions;
 using DataServices.Client;
 using System.Configuration;
+using System.Threading.Tasks;
+using System.Net.WebSockets;
+using Microsoft.Identity.Client;
+using Hl7.Fhir.Specification.Terminology;
+using Hl7.Fhir.Rest;
 
 public class TransformDataService
 {
@@ -28,6 +33,7 @@ public class TransformDataService
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
     private readonly ITransformDataLookupFacade _dataLookup;
+    private List<string> _excludedSMUList;
 
     public TransformDataService(
         ICreateResponse createResponse,
@@ -85,7 +91,7 @@ public class TransformDataService
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
-                participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix,participant);
+                participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix, participant);
 
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
@@ -118,9 +124,23 @@ public class TransformDataService
     public async Task<CohortDistributionParticipant> TransformParticipantAsync(CohortDistributionParticipant participant,
                                                                             CohortDistribution databaseParticipant)
     {
+
+        var excludedSMUList = _dataLookup.ExcludedSMUList();
+        var newParticipant = participant.CurrentPosting == "DMS" && !excludedSMUList.ContainsKey(participant.PrimaryCareProvider) || new string[] { "English", "NHAIS", "Cipher", "ENG", "IM" }.Contains(participant.CurrentPosting);
+        var oldParticipant = databaseParticipant.CurrentPosting == "DMS" && excludedSMUList.ContainsKey(databaseParticipant.PrimaryCareProvider) || new string[] { "Welsh", "NHAIS", "Cipher", "CYM" }.Contains(databaseParticipant.CurrentPosting);
+
+        if (participant.RecordType == Actions.Amended && newParticipant && oldParticipant)
+        {
+            Console.WriteLine("yes");
+        }
+        else
+        {
+            Console.WriteLine("no");
+        }
+
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() } };
+        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() },  };
         var reSettings = new ReSettings
         {
             CustomActions = actions,
@@ -129,21 +149,22 @@ public class TransformDataService
         };
 
         var re = new RulesEngine.RulesEngine(rules, reSettings);
-
         var ruleParameters = new[] {
             new RuleParameter("databaseParticipant", databaseParticipant),
             new RuleParameter("participant", participant),
-            new RuleParameter("dbLookup", _dataLookup)
+            new RuleParameter("dbLookup", _dataLookup),
+            new RuleParameter("excludedSMUList", excludedSMUList)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
+        var foo = resultList.Where(x => x.Rule.RuleName == "00.ValidateLanguageCode");
+
         await HandleExceptions(resultList, participant);
-        await CreateTransformExecutedExceptions(resultList,participant);
+        await CreateTransformExecutedExceptions(resultList, participant);
 
         return participant;
     }
-
     private async Task<string?> TransformNamePrefixAsync(string namePrefix, CohortDistributionParticipant participant)
     {
 
@@ -165,12 +186,12 @@ public class TransformDataService
         bool prefixTransformed = rulesList.Any(r => r.IsSuccess);
         var namePrefixRule = rulesList.Where(result => result.IsSuccess).FirstOrDefault();
 
-        if(namePrefixRule == null)
+        if (namePrefixRule == null)
         {
-            _exceptionHandler.CreateTransformExecutedExceptions(participant,$"Name Prefix Invalid",83);
+            _exceptionHandler.CreateTransformExecutedExceptions(participant, $"Name Prefix Invalid", 83);
             return null;
         }
-        if(namePrefixRule.Rule.RuleName == "0.NamePrefix.NamePrefixValid")
+        if (namePrefixRule.Rule.RuleName == "0.NamePrefix.NamePrefixValid")
         {
             return namePrefix;
         }
@@ -181,7 +202,7 @@ public class TransformDataService
 
         if (prefixTransformed)
         {
-            _exceptionHandler.CreateTransformExecutedExceptions(participant,$"Name Prefix {ruleName}",ruleNumber);
+            _exceptionHandler.CreateTransformExecutedExceptions(participant, $"Name Prefix {ruleName}", ruleNumber);
             return namePrefix;
         }
 
@@ -234,13 +255,13 @@ public class TransformDataService
     {
         var executedTransforms = exceptions.Where(i => i.IsSuccess).ToList();
 
-        foreach(var transform in executedTransforms)
+        foreach (var transform in executedTransforms)
         {
             var ruleDetails = transform.Rule.RuleName.Split('.');
 
             var ruleId = int.Parse(ruleDetails[0]);
             var ruleName = string.Concat(ruleDetails[1..]);
-            await _exceptionHandler.CreateTransformExecutedExceptions(participant,ruleName,ruleId);
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant, ruleName, ruleId);
         }
     }
 

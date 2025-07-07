@@ -16,12 +16,16 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
         .AddDataServiceStaticCachedClient<BsSelectOutCode>(config.BsSelectOutCodeUrl)
         .AddDataServiceStaticCachedClient<BsSelectGpPractice>(config.BsSelectGpPracticeUrl)
         .AddDataServiceStaticCachedClient<LanguageCode>(config.LanguageCodeUrl)
+        .AddDataServiceStaticCachedClient<ExcludedSMULookup>(config.ExcludedSMULookupUrl)
         .Build()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ITransformDataLookupFacade, TransformDataLookupFacade>();
         services.AddSingleton<ITransformReasonForRemoval, TransformReasonForRemoval>();
+        services.AddHostedService<CacheInitializerHostedService>();
+
+
         // Register health checks
         services.AddDatabaseHealthCheck("TransformDataService");
     })
