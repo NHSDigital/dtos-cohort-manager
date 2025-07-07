@@ -1,9 +1,9 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
 environment           = "SBMJ"
-enable_global_rbac    = true
-identity_prefix       = "global-uami"
-rbac_principal_id     = null  # set this to a particular seuciry principal to assign to all role assignments
+use_global_rbac_roles = true
+global_user_identity_prefix       = "global-uami"
+rbac_principal_id     = null # set this to a particular seuciry principal to assign to all role assignments
 
 features = {
   acr_enabled                          = false

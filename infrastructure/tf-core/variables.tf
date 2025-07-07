@@ -67,8 +67,8 @@ variable "application_full_name" {
 
 # We apply global RBAC as phase two after Terraform plan, so do not set this value
 # to True during the plan phase.
-variable "enable_global_rbac" {
-  description = "True to enable RBAC assignments for the global User Assigned Managed Identity, False otherwise"
+variable "use_global_rbac_roles" {
+  description = "True to use default RBAC assignments for the global User Assigned Managed Identity, False otherwise"
   type        = bool
   default     = false
 }
@@ -541,12 +541,6 @@ variable "function_app_slots" {
     function_app_slots_name   = optional(string, "staging")
     function_app_slot_enabled = optional(bool, false)
   }))
-}
-
-variable "identity_prefix"{
-  type = string
-  description = "A short custom prefix to assign to this user assigned managed identity"
-  default = ""
 }
 
 variable "rbac_principal_id" {
