@@ -7,7 +7,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-4946-01",
-        "requirementJiraId": "DTOSS-3082",
+        "requirementJiraId": "old - DTOSS-3082, new - DTOSS-8983",
         "additionalTags": "@regression @e2e @epic3-high-priority Validate addition of participant in management table with nhs number 9997111834"
       }
     },
@@ -19,7 +19,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-4946-01",
-        "requirementJiraId": "DTOSS-3082",
+        "requirementJiraId": "old - DTOSS-3082, new - DTOSS-8983",
         "additionalTags": "@regression @e2e @epic3-high-priority Validate addition of participant in demographic table with nhs number 9997111834"
       }
     }
