@@ -165,7 +165,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5560-01 @not-runner-based - BS Select - Records are received where IsExtracted is set to 0', {
+  test('@DTOSS-5560-01 @not-runner-based @bs-select - Records are received where IsExtracted is set to 0', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3650',
@@ -188,7 +188,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  test('@DTOSS-5561-01 @not-runner-based - BS Select - CohortDistribution_Requesting data from Cohort Manager and set record to extracted and add the request ID to the data table', {
+  test('@DTOSS-5561-01 @not-runner-based @bs-select - CohortDistribution_Requesting data from Cohort Manager and set record to extracted and add the request ID to the data table', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3650',
@@ -225,7 +225,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
-  test('@DTOSS-5584-01 @not-runner-based - BS Select - 204 if IsExtracted is set to 1', {
+  test('@DTOSS-5584-01 @not-runner-based @bs-select - 204 if IsExtracted is set to 1', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3714',
@@ -259,7 +259,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5563-01 @not-runner-based - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
+  test('@DTOSS-5563-01 @not-runner-based @bs-select - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
     annotation: [{
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5563',
@@ -306,8 +306,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-
-  test('@DTOSS-5562-01 @not-runner-based - BS Select - CohortDistribution Requesting data from Cohort Manager with incorrect parameters - RowCount as empty', {
+  test('@DTOSS-5562-01 @not-runner-based @bs-select - CohortDistribution Requesting data from Cohort Manager with incorrect parameters - RowCount as empty', {
     annotation: [{
       type: 'Requirement',
       description: 'DTOSS-5562',
@@ -338,8 +337,6 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
 
   });
-
-
 
   testWithAmended('@DTOSS-6016-01 @not-runner-based - Should Not Amend Participant Data When Current Posting is Missing', {
     annotation: {
