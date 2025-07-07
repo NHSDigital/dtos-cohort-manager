@@ -5,7 +5,7 @@ import {getRecordsFromParticipantManagementService, BlockParticipant} from '../.
 
 test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
 
-  test('@DTOSS-7720-01  @epic4b-block-participant - AC01 - verify records returned matches block request and that NHS ID matches the correct person when 3 point check in cohort', async ({ request }, testInfo) => {
+  test('@DTOSS-7720-01 - AC01 - verify records returned matches block request and that NHS ID matches the correct person when 3 point check in cohort', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
 
