@@ -18,7 +18,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9999111467",
         "RuleId": 101,
-        "RuleDescription": "CurrentPostingEffectiveFromDatee"
+        "RuleDescription": "CurrentPostingEffectiveFromDate"
       },
       "meta": {
         "testJiraId": "@DTOSS-4329-01",
