@@ -3,12 +3,12 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NhsNumber": "9990201897"
+        "NhsNumber": "9997113721"
       },
       "meta": {
         "testJiraId": "@DTOSS-5404-01",
         "requirementJiraId": "DTOSS-2757",
-        "additionalTags": "@regression @e2e @epic3-med-priority Tests Verify addition of participant with NHS number 9990201897"
+        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify addition of participant with NHS number 9997113721"
       }
     }
   ],
@@ -17,7 +17,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 9990201897,
+      "nhs_number": 9997113721,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20130319",
@@ -55,6 +55,6 @@
     }
   ],
   "nhsNumbers": [
-    "9990201897"
+    "9997113721"
   ]
 }
