@@ -85,8 +85,9 @@ public class TransformDataService
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
-                participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix,participant);
-
+            {
+                participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix, participant);
+            }
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
             if (participant.NhsNumber != null)
@@ -124,22 +125,23 @@ public class TransformDataService
         var reSettings = new ReSettings
         {
             CustomActions = actions,
-            CustomTypes = [typeof(Actions)],
+            CustomTypes = [typeof(Actions), typeof(CohortDistributionParticipant), typeof(CohortDistribution)],
             UseFastExpressionCompiler = false
         };
 
         var re = new RulesEngine.RulesEngine(rules, reSettings);
-
+        var existingParticipant = new CohortDistributionParticipant(databaseParticipant); // for Rule which are of NoTransform type like Rule 35
         var ruleParameters = new[] {
             new RuleParameter("databaseParticipant", databaseParticipant),
             new RuleParameter("participant", participant),
-            new RuleParameter("dbLookup", _dataLookup)
+            new RuleParameter("dbLookup", _dataLookup),
+            new RuleParameter("existingParticipant", existingParticipant)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
 
         await HandleExceptions(resultList, participant);
-        await CreateTransformExecutedExceptions(resultList,participant);
+        await CreateTransformExecutedExceptions(resultList, participant);
 
         return participant;
     }
@@ -165,12 +167,12 @@ public class TransformDataService
         bool prefixTransformed = rulesList.Any(r => r.IsSuccess);
         var namePrefixRule = rulesList.Where(result => result.IsSuccess).FirstOrDefault();
 
-        if(namePrefixRule == null)
+        if (namePrefixRule == null)
         {
-            _exceptionHandler.CreateTransformExecutedExceptions(participant,$"Name Prefix Invalid",83);
+            _exceptionHandler.CreateTransformExecutedExceptions(participant, $"Name Prefix Invalid", 83);
             return null;
         }
-        if(namePrefixRule.Rule.RuleName == "0.NamePrefix.NamePrefixValid")
+        if (namePrefixRule.Rule.RuleName == "0.NamePrefix.NamePrefixValid")
         {
             return namePrefix;
         }
@@ -181,7 +183,7 @@ public class TransformDataService
 
         if (prefixTransformed)
         {
-            _exceptionHandler.CreateTransformExecutedExceptions(participant,$"Name Prefix {ruleName}",ruleNumber);
+            _exceptionHandler.CreateTransformExecutedExceptions(participant, $"Name Prefix {ruleName}", ruleNumber);
             return namePrefix;
         }
 
@@ -222,8 +224,7 @@ public class TransformDataService
 
     private async Task HandleExceptions(List<RuleResultTree> exceptions, CohortDistributionParticipant participant)
     {
-        var failedTransforms = exceptions.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
-                                                i.IsSuccess && i.ActionResult.Output == null).ToList();
+        var failedTransforms = exceptions.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) || (!i.Rule.RuleName.Contains("NoTransformation") && i.IsSuccess && i.ActionResult.Output == null)).ToList();
         if (failedTransforms.Any())
         {
             await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
@@ -234,13 +235,13 @@ public class TransformDataService
     {
         var executedTransforms = exceptions.Where(i => i.IsSuccess).ToList();
 
-        foreach(var transform in executedTransforms)
+        foreach (var transform in executedTransforms)
         {
             var ruleDetails = transform.Rule.RuleName.Split('.');
 
             var ruleId = int.Parse(ruleDetails[0]);
             var ruleName = string.Concat(ruleDetails[1..]);
-            await _exceptionHandler.CreateTransformExecutedExceptions(participant,ruleName,ruleId);
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant, ruleName, ruleId);
         }
     }
 
