@@ -144,16 +144,18 @@ public class TransformDataService
         var reSettings = new ReSettings
         {
             CustomActions = actions,
-            CustomTypes = [typeof(Actions)],
+            CustomTypes = [typeof(Actions), typeof(CohortDistributionParticipant), typeof(CohortDistribution)],
             UseFastExpressionCompiler = false
         };
 
         var re = new RulesEngine.RulesEngine(rules, reSettings);
+        var existingParticipant = new CohortDistributionParticipant(databaseParticipant); // for Rule which are of NoTransform type like Rule 35
         var ruleParameters = new[] {
             new RuleParameter("databaseParticipant", databaseParticipant),
             new RuleParameter("participant", participant),
             new RuleParameter("dbLookup", _dataLookup),
-            new RuleParameter("excludedSMUList", excludedSMUList)
+            new RuleParameter("excludedSMUList", excludedSMUList),
+            new RuleParameter("existingParticipant", existingParticipant)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
@@ -243,8 +245,7 @@ public class TransformDataService
 
     private async Task HandleExceptions(List<RuleResultTree> exceptions, CohortDistributionParticipant participant)
     {
-        var failedTransforms = exceptions.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) ||
-                                                i.IsSuccess && i.ActionResult.Output == null).ToList();
+        var failedTransforms = exceptions.Where(i => !string.IsNullOrEmpty(i.ExceptionMessage) || (!i.Rule.RuleName.Contains("NoTransformation") && i.IsSuccess && i.ActionResult.Output == null)).ToList();
         if (failedTransforms.Any())
         {
             await _exceptionHandler.CreateTransformationExceptionLog(failedTransforms, participant);
