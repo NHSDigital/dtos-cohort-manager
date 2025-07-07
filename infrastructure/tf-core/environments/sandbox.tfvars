@@ -268,7 +268,7 @@ function_apps = {
           AllowDeleteRecords         = true
           ParticipantManagementTopic = "participant-management"
           UpdateQueueName            = "update-participant-queue"
-          UseNewFunctions            = true
+          UseNewFunctions            = "false"
         }
         storage_containers = {
           inboundBlobName = "inbound"
