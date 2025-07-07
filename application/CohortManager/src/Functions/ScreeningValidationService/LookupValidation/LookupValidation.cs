@@ -82,7 +82,7 @@ public class LookupValidation
 
             var resultList = new List<RuleResultTree>();
 
-            if (newParticipant.RecordType != Actions.Removed)
+            if (newParticipant.RecordType != Actions.Removed && re.GetAllRegisteredWorkflowNames().Contains("Common"))
             {
                 resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             }

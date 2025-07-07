@@ -6,7 +6,6 @@ using System.Net;
 using System.Threading.Tasks;
 using Common.Interfaces;
 using DataServices.Client;
-using Microsoft.Extensions.Logging;
 using Model;
 using Model.DTO;
 using Model.Enums;
@@ -14,15 +13,12 @@ using NHS.CohortManager.Shared.Utilities;
 
 public class CreateCohortDistributionData : ICreateCohortDistributionData
 {
-    private readonly ILogger<CreateCohortDistributionData> _logger;
-
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataServiceClient;
 
     private readonly IDataServiceClient<BsSelectRequestAudit> _bsSelectRequestAuditDataServiceClient;
 
-    public CreateCohortDistributionData(ILogger<CreateCohortDistributionData> logger, IDataServiceClient<CohortDistribution> cohortDistributionDataServiceClient, IDataServiceClient<BsSelectRequestAudit> bsSelectRequestAuditDataServiceClient)
+    public CreateCohortDistributionData(IDataServiceClient<CohortDistribution> cohortDistributionDataServiceClient, IDataServiceClient<BsSelectRequestAudit> bsSelectRequestAuditDataServiceClient)
     {
-        _logger = logger;
         _cohortDistributionDataServiceClient = cohortDistributionDataServiceClient;
         _bsSelectRequestAuditDataServiceClient = bsSelectRequestAuditDataServiceClient;
     }
@@ -131,7 +127,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         {
             RequestId = requestId,
             StatusCode = statusCode.ToString(),
-            CreatedDateTime = DateTime.Now
+            CreatedDateTime = DateTime.UtcNow
         });
     }
 
@@ -173,7 +169,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         var previousRequest = await _bsSelectRequestAuditDataServiceClient.GetSingleByFilter(x => x.RequestId == requestId);
 
-        if(previousRequest == null)
+        if (previousRequest == null)
         {
             throw new KeyNotFoundException("No RequestId Found");
         }
@@ -186,7 +182,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         var recordToReturn = res.OrderBy(x => x.CreatedDateTime).FirstOrDefault();
 
-        if(recordToReturn == null)
+        if (recordToReturn == null)
         {
             return null;
         }

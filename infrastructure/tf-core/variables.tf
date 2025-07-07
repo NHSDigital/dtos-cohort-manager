@@ -161,6 +161,12 @@ variable "container_app_environments" {
   default     = {}
   type = object({
     instances = optional(map(object({
+      workload_profile = optional(object({
+        name                  = optional(string)
+        workload_profile_type = optional(string)
+        minimum_count         = optional(number, 0)
+        maximum_count         = optional(string, 1)
+      }), {})
       zone_redundancy_enabled = optional(bool, false)
     })), {})
   })
@@ -237,8 +243,14 @@ variable "function_apps" {
           env_var_name   = string
           container_name = string
       })), [])
-      db_connection_string = optional(string, "")
-      key_vault_url        = optional(string, "")
+      db_connection_string    = optional(string, "")
+      service_bus_connections = optional(list(string), [])
+      key_vault_url           = optional(string, "")
+      env_vars = optional(object({
+        static             = optional(map(string), {})
+        app_urls           = optional(map(string), {})
+        storage_containers = optional(map(string), {})
+      }), {})
       app_urls = optional(list(object({
         env_var_name     = string
         function_app_key = string
@@ -453,6 +465,30 @@ variable "sqlserver" {
       end_ip       = string
     })), {})
   })
+}
+
+variable "service_bus" {
+  description = "Configuration for Service Bus namespaces and their topics"
+  default     = {}
+  type = map(object({
+    capacity         = number
+    sku_tier         = string
+    max_payload_size = string
+    topics = map(object({
+      auto_delete_on_idle                     = optional(string, "P10675199DT2H48M5.4775807S")
+      batched_operations_enabled              = optional(bool, false)
+      default_message_ttl                     = optional(string, "P10675199DT2H48M5.4775807S")
+      duplicate_detection_history_time_window = optional(string)
+      partitioning_enabled                    = optional(bool, false)
+      max_message_size_in_kilobytes           = optional(number, 1024)
+      max_size_in_megabytes                   = optional(number, 5120)
+      max_delivery_count                      = optional(number, 10) # Note this actually belongs to the subscription, but is included here for convenience
+      requires_duplicate_detection            = optional(bool, false)
+      support_ordering                        = optional(bool)
+      status                                  = optional(string, "Active")
+      subscribers                             = optional(list(string), []) # List of function apps that will subscribe to this topic
+    }))
+  }))
 }
 
 variable "storage_accounts" {

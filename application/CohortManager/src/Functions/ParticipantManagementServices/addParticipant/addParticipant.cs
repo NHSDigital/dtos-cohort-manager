@@ -53,15 +53,15 @@ public class AddParticipantFunction
         try
         {
             // Get demographic data
-            var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.Participant.NhsNumber, _config.DemographicURIGet);
+            var demographicData = await _getDemographicData.GetDemographicAsync(basicParticipantCsvRecord.BasicParticipantData.NhsNumber, _config.DemographicURIGet);
             if (demographicData == null)
             {
                 _logger.LogInformation("demographic function failed");
-                await _handleException.CreateSystemExceptionLog(new Exception("demographic function failed"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                await _handleException.CreateSystemExceptionLog(new Exception("demographic function failed"), basicParticipantCsvRecord.BasicParticipantData, basicParticipantCsvRecord.FileName);
                 return;
             }
 
-            var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.Participant, demographicData);
+            var participant = _createParticipant.CreateResponseParticipantModel(basicParticipantCsvRecord.BasicParticipantData, demographicData);
             var participantCsvRecord = new ParticipantCsvRecord
             {
                 Participant = participant,
@@ -75,7 +75,7 @@ public class AddParticipantFunction
             if (response.IsFatal)
             {
                 _logger.LogError("A fatal Rule was violated, so the record cannot be added to the database");
-                await _handleException.CreateSystemExceptionLog(null, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                await _handleException.CreateSystemExceptionLog(null, basicParticipantCsvRecord.BasicParticipantData, basicParticipantCsvRecord.FileName);
                 return;
             }
 
@@ -92,7 +92,7 @@ public class AddParticipantFunction
             if (createResponse.StatusCode != HttpStatusCode.OK)
             {
                 _logger.LogError("There was problem posting the participant to the database");
-                await _handleException.CreateSystemExceptionLog(new Exception("There was problem posting the participant to the database"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                await _handleException.CreateSystemExceptionLog(new Exception("There was problem posting the participant to the database"), basicParticipantCsvRecord.BasicParticipantData, basicParticipantCsvRecord.FileName);
                 return;
 
             }
@@ -103,7 +103,7 @@ public class AddParticipantFunction
             if (!cohortDistResponse)
             {
                 _logger.LogError("Participant failed to send to Cohort Distribution Service");
-                await _handleException.CreateSystemExceptionLog(new Exception("Participant failed to send to Cohort Distribution Service"), basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+                await _handleException.CreateSystemExceptionLog(new Exception("Participant failed to send to Cohort Distribution Service"), basicParticipantCsvRecord.BasicParticipantData, basicParticipantCsvRecord.FileName);
                 return;
             }
 
@@ -111,7 +111,7 @@ public class AddParticipantFunction
         catch (Exception ex)
         {
             _logger.LogInformation(ex, "Unable to call function.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.BasicParticipantData, basicParticipantCsvRecord.FileName);
         }
     }
 
@@ -121,7 +121,7 @@ public class AddParticipantFunction
 
         if (string.IsNullOrWhiteSpace(participantCsvRecord.Participant.ScreeningName))
         {
-            var errorDescription = $"A record with Nhs Number: {participantCsvRecord.Participant.NhsNumber} has invalid screening name and therefore cannot be processed by the static validation function";
+            var errorDescription = "Record has an invalid screening name and therefore cannot be processed by the static validation function";
             await _handleException.CreateRecordValidationExceptionLog(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.FileName, errorDescription, "", JsonSerializer.Serialize(participantCsvRecord.Participant));
 
             return new ValidationExceptionLog()
@@ -136,6 +136,5 @@ public class AddParticipantFunction
         var responseBody = JsonSerializer.Deserialize<ValidationExceptionLog>(responseBodyJson);
 
         return responseBody;
-
     }
 }
