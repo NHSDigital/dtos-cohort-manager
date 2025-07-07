@@ -263,6 +263,7 @@ function_apps = {
       function_endpoint_name       = "ReceiveCaasFile"
       app_service_plan_key         = "DefaultPlan"
       db_connection_string         = "DtOsDatabaseConnectionString"
+      service_bus_connections      = ["internal"]
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
         {
@@ -379,6 +380,30 @@ function_apps = {
       }
     }
 
+    ManageParticipant = {
+      name_suffix            = "manage-participant"
+      function_endpoint_name = "ManageParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        }
+      ]
+      env_vars_static = {
+        CohortDistributionTopic           = "cohort-distribution"     # Writes to the cohort distribution topic
+        ParticipantManagementTopic        = "participant-management"  # Subscribes to the participant management topic
+        ParticipantManagementSubscription = "ManageParticipant"       # Subscribes to the participant management topic
+        IgnoreParticipantExceptions       = "false"
+        IsExtractedToBSSelect             = "false"
+        AcceptableLatencyThresholdMs      = "500"
+      }
+    }
+
     AddParticipant = {
       name_suffix                  = "add-participant"
       function_endpoint_name       = "addParticipant"
@@ -411,7 +436,6 @@ function_apps = {
         CohortQueueName = "cohort-distribution-queue"
         AddQueueName    = "add-participant-queue"
       }
-
     }
 
     RemoveParticipant = {
@@ -564,7 +588,7 @@ function_apps = {
       ]
       env_vars_static = {
         CreateExceptionTopic        = "create-exception"
-        CreateExceptionSubscription = "create-exception-CreateException"
+        CreateExceptionSubscription = "CreateException"
       }
     }
 
@@ -621,10 +645,11 @@ function_apps = {
     }
 
     LookupValidation = {
-      name_suffix            = "lookup-validation"
-      function_endpoint_name = "LookupValidation"
-      app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
+      name_suffix             = "lookup-validation"
+      function_endpoint_name  = "LookupValidation"
+      app_service_plan_key    = "DefaultPlan"
+      db_connection_string    = "DtOsDatabaseConnectionString"
+      service_bus_connections = ["internal"]
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -781,6 +806,49 @@ function_apps = {
         IgnoreParticipantExceptions  = "false"
         IsExtractedToBSSelect        = "false"
         AcceptableLatencyThresholdMs = "500"
+      }
+    }
+
+    DistributeParticipant = {
+      name_suffix            = "distribute-participant"
+      function_endpoint_name = "DistributeParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        },
+        {
+          env_var_name     = "participantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
+        },
+        {
+          env_var_name     = "LookupValidationURL"
+          function_app_key = "LookupValidation"
+        },
+        {
+          env_var_name     = "StaticValidationURL"
+          function_app_key = "StaticValidation"
+        },
+        {
+          env_var_name     = "TransformDataServiceURL"
+          function_app_key = "TransformDataService"
+        }
+      ]
+      env_vars_static = {
+        CohortDistributionTopic        = "cohort-distribution"     # Subscribes to the cohort distribution topic
+        CohortDistributionSubscription = "DistributeParticipant"   # Subscribes to the cohort distribution topic
+        IgnoreParticipantExceptions    = "false"
+        IsExtractedToBSSelect          = "false"
+        AcceptableLatencyThresholdMs   = "500"
       }
     }
 
@@ -1322,7 +1390,7 @@ service_bus = {
     topics = {
       cohort-distribution = {
         batched_operations_enabled = true
-        # subscribers                = ["DistributeParticipant"] # Not deployed in Cohort Manager yet
+        subscribers                = ["DistributeParticipant"]
       }
       create-exception = {
         batched_operations_enabled = true
@@ -1330,7 +1398,7 @@ service_bus = {
       }
       participant-management = {
         batched_operations_enabled = true
-        # subscribers                = ["ManageParticipant"] # Not deployed in Cohort Manager yet
+        subscribers                = ["ManageParticipant"]
       }
     }
   }
