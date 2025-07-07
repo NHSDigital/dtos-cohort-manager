@@ -326,11 +326,12 @@ function_apps = {
           ParticipantManagementUrl             = "ParticipantManagementDataService"
         }
         static = {
-          CohortQueueName              = "cohort-distribution-topic"
-          DistributeParticipantSubName = "distribute-participant-sub"
-          IgnoreParticipantExceptions  = "false"
-          IsExtractedToBSSelect        = "false"
-          AcceptableLatencyThresholdMs = "500"
+          CohortDistributionTopic           = "cohort-distribution"     # Writes to the cohort distribution topic
+          ParticipantManagementTopic        = "participant-management"  # Subscribes to the participant management topic
+          ParticipantManagementSubscription = "ManageParticipant"       # Subscribes to the participant management topic
+          IgnoreParticipantExceptions       = "false"
+          IsExtractedToBSSelect             = "false"
+          AcceptableLatencyThresholdMs      = "500"
         }
       }
     }
@@ -458,7 +459,7 @@ function_apps = {
         }
         static = {
           CreateExceptionTopic        = "create-exception"
-          CreateExceptionSubscription = "create-exception-CreateException"
+          CreateExceptionSubscription = "CreateException"
         }
       }
     }
@@ -620,11 +621,11 @@ function_apps = {
           TransformDataServiceURL              = "TransformDataService"
         }
         static = {
-          CohortQueueName              = "cohort-distribution-topic"
-          DistributeParticipantSubName = "distribute-participant-sub"
-          IgnoreParticipantExceptions  = "false"
-          IsExtractedToBSSelect        = "false"
-          AcceptableLatencyThresholdMs = "500"
+          CohortDistributionTopic        = "cohort-distribution"     # Subscribes to the cohort distribution topic
+          CohortDistributionSubscription = "DistributeParticipant"   # Subscribes to the cohort distribution topic
+          IgnoreParticipantExceptions    = "false"
+          IsExtractedToBSSelect          = "false"
+          AcceptableLatencyThresholdMs   = "500"
         }
       }
     }
@@ -1098,7 +1099,7 @@ service_bus = {
     topics = {
       cohort-distribution = {
         batched_operations_enabled = true
-        # subscribers                = ["DistributeParticipant"] # Not deployed in Cohort Manager yet
+        subscribers                = ["DistributeParticipant"]
       }
       create-exception = {
         batched_operations_enabled = true
@@ -1106,7 +1107,7 @@ service_bus = {
       }
       participant-management = {
         batched_operations_enabled = true
-        # subscribers                = ["ManageParticipant"] # Not deployed in Cohort Manager yet
+        subscribers                = ["ManageParticipant"]
       }
     }
   }
