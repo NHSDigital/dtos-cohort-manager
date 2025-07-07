@@ -63,12 +63,13 @@ export const test = base.extend<{
 
     let runTimeParquetFile: string = "";
     if (!parquetFile) {
+      const multiplyRecords = nhsNumbers.length !== (Array.isArray(inputParticipantRecord) ? inputParticipantRecord.length : nhsNumbers.length);
       runTimeParquetFile = await createParquetFromJson(
         nhsNumbers,
         inputParticipantRecord!,
         testFilesPath!,
         "ADD",
-        false
+        multiplyRecords
       );
     }
 

@@ -385,6 +385,26 @@ function_apps = {
       }
     }
 
+    ManageParticipant = {
+      name_suffix            = "manage-participant"
+      function_endpoint_name = "ManageParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      env_vars = {
+        app_urls = {
+          ExceptionFunctionURL                 = "CreateException"
+          ParticipantManagementUrl             = "ParticipantManagementDataService"
+        }
+        static = {
+          CohortDistributionTopic           = "cohort-distribution"     # Writes to the cohort distribution topic
+          ParticipantManagementTopic        = "participant-management"  # Subscribes to the participant management topic
+          ParticipantManagementSubscription = "ManageParticipant"       # Subscribes to the participant management topic
+          IgnoreParticipantExceptions       = "false"
+          IsExtractedToBSSelect             = "false"
+          AcceptableLatencyThresholdMs      = "500"
+        }
+      }
+    }
+
     AddParticipant = {
       name_suffix                  = "add-participant"
       function_endpoint_name       = "addParticipant"
@@ -553,6 +573,7 @@ function_apps = {
       app_service_plan_key    = "DefaultPlan"
       db_connection_string    = "DtOsDatabaseConnectionString"
       service_bus_connections = ["internal"]
+
       app_urls = [
         {
           env_var_name     = "DemographicDataServiceURL"
@@ -830,6 +851,30 @@ function_apps = {
         IgnoreParticipantExceptions    = "false"
         IsExtractedToBSSelect          = "false"
         AcceptableLatencyThresholdMs   = "500"
+      }
+    }
+
+    DistributeParticipant = {
+      name_suffix            = "distribute-participant"
+      function_endpoint_name = "DistributeParticipant"
+      app_service_plan_key   = "DefaultPlan"
+      env_vars = {
+        app_urls = {
+          ExceptionFunctionURL                 = "CreateException"
+          ParticipantManagementUrl             = "ParticipantManagementDataService"
+          participantDemographicDataServiceURL = "ParticipantDemographicDataService"
+          CohortDistributionDataServiceURL     = "CohortDistributionDataService"
+          LookupValidationURL                  = "LookupValidation"
+          StaticValidationURL                  = "StaticValidation"
+          TransformDataServiceURL              = "TransformDataService"
+        }
+        static = {
+          CohortDistributionTopic        = "cohort-distribution"     # Subscribes to the cohort distribution topic
+          CohortDistributionSubscription = "DistributeParticipant"   # Subscribes to the cohort distribution topic
+          IgnoreParticipantExceptions    = "false"
+          IsExtractedToBSSelect          = "false"
+          AcceptableLatencyThresholdMs   = "500"
+        }
       }
     }
 
