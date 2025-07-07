@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9992949600"
+        "NHSNumber": "9997153774"
       },
       "meta": {
         "testJiraId": "@DTOSS-4951-01",
@@ -17,7 +17,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 9992949600,
+      "nhs_number": 9997153774,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "C88007",
       "primary_care_effective_from_date": "20030319",
@@ -55,6 +55,6 @@
     }
   ],
   "nhsNumbers": [
-    "9992949600"
+    "9997153774"
   ]
 }
