@@ -62,7 +62,7 @@ test.afterAll(async () => {
 
 amendData.validations.forEach((validations) => {
 
-  test(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
+  test.only(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
     annotation: [{
       type: 'TestId',
       description: validations.meta?.testJiraId ?? '',
