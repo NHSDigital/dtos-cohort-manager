@@ -3,9 +3,12 @@ import { composeValidators, expectStatus, validateResponseByStatus } from '../..
 import { expect, test } from '../../fixtures/test-fixtures';
 import { validateSqlDatabaseFromAPI } from "../../steps/steps";
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
+import { TestHooks } from '../../hooks/test-hooks';
 
 
 test.describe('@regression @e2e @epic3-med-priority Tests', () => {
+
+  TestHooks.setupAddTestHooks();
   test.only('@DTOSS-5561-01 @not-runner-based @bs-select - CohortDistribution_Requesting data from Cohort Manager and set record to extracted and add the request ID to the data table', {
     annotation: {
       type: 'Requirement',
