@@ -828,11 +828,11 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        CohortDistributionTopic        = "cohort-distribution"     # Subscribes to the cohort distribution topic
-        CohortDistributionSubscription = "DistributeParticipant"   # Subscribes to the cohort distribution topic
-        IgnoreParticipantExceptions    = "false"
-        IsExtractedToBSSelect          = "false"
-        AcceptableLatencyThresholdMs   = "500"
+        CohortDistributionTopic           = "cohort-distribution"     # Subscribes to the cohort distribution topic
+        DistributeParticipantSubscription = "DistributeParticipant"   # Subscribes to the cohort distribution topic
+        IgnoreParticipantExceptions       = "false"
+        IsExtractedToBSSelect             = "false"
+        AcceptableLatencyThresholdMs      = "500"
       }
     }
 
