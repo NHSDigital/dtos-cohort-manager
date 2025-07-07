@@ -17,7 +17,7 @@ var host = new HostBuilder()
         services.AddBasicHealthCheck("ManageParticipant");
     })
     .AddExceptionHandler()
-    .AddAzureQueues(true, config.ServiceBusConnectionString)
+    .AddAzureQueues(true, config.ServiceBusConnectionString_internal)
     .AddTelemetry()
     .Build();
 

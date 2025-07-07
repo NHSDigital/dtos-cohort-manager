@@ -10,8 +10,8 @@ services:
       dockerfile: CohortDistributionServices/DistributeParticipant/Dockerfile
     environment:
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
-      - CohortQueueName=cohort-distribution-topic
-      - DistributeParticipantSubName=distribute-participant-sub
+      - CohortDistributionTopic=cohort-distribution-topic
+      - DistributeParticipantSubscription=distribute-participant-sub
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - WEBSITE_HOSTNAME=distribute-participant:80
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
