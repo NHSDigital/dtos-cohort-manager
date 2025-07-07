@@ -590,6 +590,20 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "35.TooManyDemographicsFieldsChanged.Confusion.NoTransformation",
+        "LocalParams": [
+          {
+            "Name": "NewDateOfBirth",
+            "Expression": "string.IsNullOrEmpty(participant.DateOfBirth) ? null : participant.DateOfBirth.Replace(\"-\", string.Empty)"
+          },
+          {
+            "Name": "ExistingDateOfBirth",
+            "Expression": "string.IsNullOrEmpty(existingParticipant.DateOfBirth) ? null : existingParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
+          }
+        ],
+        "Expression": "participant.RecordType == Actions.Amended && existingParticipant.ParticipantId != null && ((participant.FamilyName != existingParticipant.FamilyName AND participant.Gender != existingParticipant.Gender) OR (participant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
       }
     ]
   }
