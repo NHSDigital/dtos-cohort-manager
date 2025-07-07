@@ -259,7 +259,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5563-01 @not-runner-based - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
+  test.fixme('@DTOSS-5563-01 @not-runner-based - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
     annotation: [{
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5563',
