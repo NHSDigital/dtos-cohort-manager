@@ -3,12 +3,12 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": "9995446588"
+        "NHSNumber": "9997153979"
       },
       "meta": {
         "testJiraId": "@DTOSS-4870-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify update of adressline2 for nhs number 9995446588"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify update of adressline2 for nhs number 9997153979"
       }
     }
   ],
@@ -17,7 +17,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 9995446588,
+      "nhs_number": 9997153979,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20130319",
@@ -55,7 +55,7 @@
     }
   ],
   "nhsNumbers": [
-    "9995446588"
+    "9997153979"
   ]
 }
 
