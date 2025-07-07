@@ -8,6 +8,7 @@ using Common;
 using System.Text.Json;
 using Model;
 using DataServices.Client;
+using Microsoft.AspNetCore.Components.Web;
 
 public class ManageParticipant
 {
@@ -68,7 +69,7 @@ public class ManageParticipant
             }
             else
             {
-                _logger.LogInformation("Existing participant managment record found, updating record");
+                _logger.LogInformation("Existing participant managment record found, updating record {ParticipantId}", databaseParticipant.ParticipantId);
                 participant.ParticipantId = databaseParticipant.ParticipantId.ToString();
                 dataServiceResponse = await _participantManagementClient.Update(participant.ToParticipantManagement());
             }
