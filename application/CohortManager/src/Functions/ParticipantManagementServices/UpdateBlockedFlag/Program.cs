@@ -24,6 +24,8 @@ var host = new HostBuilder()
     .AddExceptionHandler()
     .AddHttpClient()
     .AddTelemetry()
+    .AddExceptionHandler()
+    .AddHttpClient()
     .Build();
 
 await host.RunAsync();

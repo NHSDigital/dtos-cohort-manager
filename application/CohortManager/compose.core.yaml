@@ -141,6 +141,8 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - UpdateParticipant=http://update-participant-details:7069/api/updateParticipantDetails
       - CohortQueueName=cohort-distribution-queue
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
 
   update-participant:
     container_name: update-participant
