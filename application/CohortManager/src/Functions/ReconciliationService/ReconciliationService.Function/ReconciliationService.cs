@@ -96,7 +96,17 @@ public class ReconciliationService
 
         var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > lastRun);
 
-        _logger.LogInformation("cohort Records Received = {cohort Count}, exceptionCount = {ExceptionCount}, expected count = {expected}",cohortDistributionRecords.Count(), exceptionRecords.Count() , metrics.Sum(x => x.RecordCount));
+        _logger.LogInformation("cohort Records Received = {cohort Count}, exceptionCount = {ExceptionCount}, expected count = {expected}", cohortDistributionRecords.Count(), exceptionRecords.Count(), metrics.Sum(x => x.RecordCount));
+
+        var recordsProcessed = exceptionRecords.Count() + cohortDistributionRecords.Count();
+        var recordsExpected = metrics.Sum(x => x.RecordCount);
+
+        if (recordsExpected != recordsProcessed)
+        {
+            _logger.LogCritical("Expected Records {expectedCount} Didn't equal Records Processed {processedCount}", recordsExpected, recordsProcessed);
+        }
+
+        _logger.LogInformation("Next reconciliation runtime is at {nextRun}", myTimer.ScheduleStatus.Next.ToUniversalTime());
 
     }
 
