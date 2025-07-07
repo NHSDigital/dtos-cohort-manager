@@ -14,12 +14,12 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 
     private Dictionary<string, string> _excludedSMUData = new();
 
-    private readonly ILogger<ITransformDataLookupFacade> _logger;
+    private readonly ILogger<TransformDataLookupFacade> _logger;
     public TransformDataLookupFacade(IDataServiceClient<BsSelectOutCode> outcodeClient,
                                     IDataServiceClient<BsSelectGpPractice> bsSelectGPPracticeClient,
                                     IDataServiceClient<LanguageCode> languageCodeClient,
                                     IDataServiceClient<ExcludedSMULookup> excludedSMUClient,
-                                    ILogger<ITransformDataLookupFacade> logger)
+                                    ILogger<TransformDataLookupFacade> logger)
     {
         _outcodeClient = outcodeClient;
         _bsSelectGPPracticeClient = bsSelectGPPracticeClient;
@@ -30,7 +30,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 
     public async Task InitAsync()
     {
-        if (_excludedSMUData.Any())
+        if (_excludedSMUData.Count == 0)
         {
             _logger.LogInformation("the excludedSMUData is already cached");
             return;
