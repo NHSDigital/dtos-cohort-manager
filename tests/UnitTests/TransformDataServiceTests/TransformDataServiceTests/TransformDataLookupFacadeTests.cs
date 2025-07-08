@@ -68,6 +68,8 @@ public class TransformDataLookupFacadeTests
         Assert.IsTrue(result);
     }
 
+
+    [TestMethod]
     public void ValidateOutcode_OutcodeNotFound_ReturnFalse()
     {
         // Arrange
