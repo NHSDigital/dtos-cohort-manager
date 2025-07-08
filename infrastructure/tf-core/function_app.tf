@@ -178,39 +178,6 @@ locals {
               (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
             } : {}
           )
-
-          # We don't need these no more since we're using the default UAMI module
-          #
-          # These RBAC assignments are for the Function Apps only
-          # rbac_role_assignments = flatten([
-
-          #   # Key Vault
-          #   var.key_vault != {} && length(config.key_vault_url) > 0 ? [
-          #     for role in local.rbac_roles_key_vault : {
-          #       role_definition_name = role
-          #       scope                = module.key_vault[region].key_vault_id
-          #     }
-          #   ] : [],
-
-          #   # Storage Accounts
-          #   [
-          #     for account in keys(var.storage_accounts) : [
-          #       for role in local.rbac_roles_storage : {
-          #         role_definition_name = role
-          #         scope                = module.storage["${account}-${region}"].storage_account_id
-          #       }
-          #     ]
-          #   ],
-
-          #   # Database
-          #   [
-          #     for role in local.rbac_roles_database : {
-          #       role_definition_name = role
-          #       scope                = module.azure_sql_server[region].sql_server_id
-          #     }
-          #   ]
-
-          # ])
         }
       )
     ]

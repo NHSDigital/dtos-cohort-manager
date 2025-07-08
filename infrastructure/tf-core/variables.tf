@@ -596,3 +596,8 @@ variable "rbac_principal_id" {
   description = "An identifier of a security principal to apply to all resource role assignments."
   default = null
 }
+
+variable "role_assignment_scope_id" {
+  type = string
+  description = "The resource ID of a subscription, resource group or management group ID to which all custom role assignments will be scoped to."
+}

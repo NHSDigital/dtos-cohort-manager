@@ -21,8 +21,7 @@ module "storage" {
 
   public_network_access_enabled = each.value.public_network_access_enabled
 
-  # We use the RBAC module to set default roles
-  #rbac_roles = local.rbac_roles_storage
+  rbac_roles = local.rbac_storage_roles
 
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
