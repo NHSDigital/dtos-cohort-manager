@@ -3,12 +3,27 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NhsNumber": "9997113225"
+        "NHSNumber": 9997113225,
+        "expectedCount": 1,
+        "RecordType": "ADD"
       },
       "meta": {
         "testJiraId": "@DTOSS-4948-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify adding participant's TelephoneNumberHome value"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify adding participant's TelephoneNumberHome value in ParticipantManagementDataService"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9997113225,
+        "expectedCount": 1,
+        "TelephoneNumberHome": "01234567890"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4948-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify adding participant's TelephoneNumberHome value in CohortDistributionDataService"
       }
     }
   ],
@@ -16,7 +31,7 @@
     {
       "record_type": "ADD",
       "change_time_stamp": null,
-      "serial_change_number": 2,
+      "serial_change_number": 1,
       "nhs_number": 9997113225,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
