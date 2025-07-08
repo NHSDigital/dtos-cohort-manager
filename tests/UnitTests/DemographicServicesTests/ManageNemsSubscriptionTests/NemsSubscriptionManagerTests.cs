@@ -4,7 +4,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NHS.CohortManager.DemographicServices;
+using NHS.CohortManager.DemographicServices.ManageNemsSubscription;
+using NHS.CohortManager.DemographicServices.ManageNemsSubscription.Config;
 using Model;
 using Common;
 using DataServices.Core;
@@ -99,7 +100,7 @@ public class NemsSubscriptionManagerTests
 
         // Assert
         Assert.IsNull(result);
-        
+
         // Verify error was logged
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
@@ -142,7 +143,7 @@ public class NemsSubscriptionManagerTests
 
         // Assert
         Assert.IsFalse(result);
-        
+
         // Verify error was logged
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
@@ -169,10 +170,10 @@ public class NemsSubscriptionManagerTests
 
         // Assert
         Assert.IsTrue(result);
-        
+
         // Verify the subscription was created with correct data
         _nemsSubscriptionAccessor.Verify(x => x.InsertSingle(
-            It.Is<NemsSubscription>(s => 
+            It.Is<NemsSubscription>(s =>
                 s.NhsNumber == long.Parse(nhsNumber) &&
                 s.SubscriptionId == subscriptionId &&
                 s.RecordInsertDateTime.HasValue)),
@@ -213,7 +214,7 @@ public class NemsSubscriptionManagerTests
 
         // Assert
         Assert.IsFalse(result);
-        
+
         // Verify error was logged
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
@@ -244,7 +245,7 @@ public class NemsSubscriptionManagerTests
 
         // Assert
         Assert.IsTrue(result);
-        
+
         // Verify correct URL was called
         _httpClientFunction.Verify(x => x.SendSubscriptionDelete(
             It.Is<NemsSubscriptionRequest>(req => req.Url.Contains(subscriptionId) &&
@@ -297,7 +298,7 @@ public class NemsSubscriptionManagerTests
 
         // Assert
         Assert.IsFalse(result);
-        
+
         // Verify error was logged
         _logger.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),

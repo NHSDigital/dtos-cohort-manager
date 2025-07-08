@@ -1,4 +1,4 @@
-namespace Model;
+namespace NHS.CohortManager.DemographicServices.ManageNemsSubscription.Config;
 
 using System.ComponentModel.DataAnnotations;
 
