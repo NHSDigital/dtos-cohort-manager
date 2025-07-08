@@ -116,17 +116,17 @@ Then('they should see {string} on Report screen',async (text)=>{
 });
 //navigate to contact Us
 When('the user clicks on contact us link', async ()=>{
-   homePage = new HomePage(pageFixture.page)
+  homePage = new HomePage(pageFixture.page)
   await homePage.clickOnContactUs()
 });
 //navigate to terms and conditions
 When('the user clicks on Terms and conditions link', async ()=>{
-   homePage = new HomePage(pageFixture.page)
+  homePage = new HomePage(pageFixture.page)
   await homePage.clicktermsAndconditionsLink()
 });
 //navigate to cookies page
 When('the user clicks on cookies link', async ()=>{
-   homePage = new HomePage(pageFixture.page)
+  homePage = new HomePage(pageFixture.page)
   await homePage.clickOnCookiesLink()
 });
 
