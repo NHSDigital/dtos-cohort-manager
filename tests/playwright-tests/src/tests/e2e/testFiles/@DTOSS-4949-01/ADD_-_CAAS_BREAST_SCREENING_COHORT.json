@@ -2,19 +2,20 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": "9997153723"
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9997153723,
+        "TelephoneNumberMob": "01234567890"
       },
       "meta": {
         "testJiraId": "@DTOSS-4949-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's TelephoneNumberMobile value is truncated to 35 characters"
+        "additionalTags": "@regression @e2e @epic2-med-priority Check Add for Scenario - Verify adding participant's TelephoneNumberMobile value"
       }
     }
   ],
   "inputParticipantRecord": [
-      {
-      "record_type": "AMENDED",
+    {
+      "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 2,
       "nhs_number": 9997153723,
@@ -44,7 +45,7 @@
       "death_status": null,
       "home_telephone_number": "01234567890",
       "home_telephone_effective_from_date": "20200819",
-      "mobile_telephone_number": "01234567890123456890123456789012345",
+      "mobile_telephone_number": "01234567890",
       "mobile_telephone_effective_from_date": "20240502",
       "email_address": "abc123@soup.io",
       "email_address_effective_from_date": "20240502",
