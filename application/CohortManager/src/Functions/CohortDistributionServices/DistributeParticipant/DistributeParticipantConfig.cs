@@ -5,11 +5,11 @@ using System.ComponentModel.DataAnnotations;
 public class DistributeParticipantConfig
 {
     [Required]
-    public string ServiceBusConnectionString { get; set; }
+    public string ServiceBusConnectionString_internal { get; set; }
     [Required]
-    public string CohortQueueName { get; set; }
+    public string CohortDistributionTopic { get; set; }
     [Required]
-    public string DistributeParticipantSubName { get; set; }
+    public string DistributeParticipantSubscription { get; set; }
     public bool IgnoreParticipantExceptions { get; set; } = false;
     [Required]
     public string LookupValidationURL { get; set; }
