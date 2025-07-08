@@ -30,21 +30,6 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
 
 
       };
-      console.log(blockPayload+ ' blockPayload');
-    })
-    // Assert that the participant's blocked flag is set to 1 in participant management table.
-
-
-
-    // Call the block participant function again after set to 1
-    // await test.step(`When BlockParticipant function is invoked after set to 1`, async () => {
-    //   const blockPayload = {
-    //     NhsNumber: nhsNumbers,
-    //     FamilyName: inputParticipantRecord[0].family_name,
-    //     DateOfBirth: inputParticipantRecord[0].date_of_birth
-    //   };
-    // })
-
   });
 
   // Phase 2 test PDS integration
