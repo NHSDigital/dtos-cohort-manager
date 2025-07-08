@@ -279,6 +279,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReconciliationService", "Re
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReconciliationServiceCore", "ReconciliationService\ReconciliationService.Core\ReconciliationServiceCore.csproj", "{2FA18270-A691-444A-BF48-BB1370C594D3}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReconciliationServiceTests", "..\..\..\..\tests\UnitTests\ReconciliationServiceTests\ReconciliationServiceTests.csproj", "{9AC9BD33-7CD4-4AD9-B774-6325306D1600}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1669,6 +1671,18 @@ Global
 		{2FA18270-A691-444A-BF48-BB1370C594D3}.Release|x64.Build.0 = Release|Any CPU
 		{2FA18270-A691-444A-BF48-BB1370C594D3}.Release|x86.ActiveCfg = Release|Any CPU
 		{2FA18270-A691-444A-BF48-BB1370C594D3}.Release|x86.Build.0 = Release|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Debug|x64.Build.0 = Debug|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Debug|x86.Build.0 = Debug|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Release|x64.ActiveCfg = Release|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Release|x64.Build.0 = Release|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Release|x86.ActiveCfg = Release|Any CPU
+		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
