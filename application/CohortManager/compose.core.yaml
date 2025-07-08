@@ -101,9 +101,9 @@ services:
       dockerfile: ParticipantManagementServices/ManageParticipant/Dockerfile
     environment:
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
-      - CohortQueueName=cohort-distribution-topic
-      - ParticipantManagementQueueName=participant-management-topic
-      - ManageParticipantSubName=manage-participant-sub
+      - CohortDistributionTopic=cohort-distribution-topic
+      - ParticipantManagementTopic=participant-management-topic
+      - ManageParticipantSubscription=manage-participant-sub
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       
