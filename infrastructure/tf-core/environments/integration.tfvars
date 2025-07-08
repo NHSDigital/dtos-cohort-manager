@@ -1115,16 +1115,15 @@ function_apps = {
       }
     }
 
-    ReceiveServiceNowMessage = {
-      name_suffix            = "receive-service-now-message"
-      function_endpoint_name = "ReceiveServiceNowMessage"
+    ServiceNowMessageHandler = {
+      name_suffix            = "servicenow-message-handler"
+      function_endpoint_name = "ServiceNowMessageHandler"
       app_service_plan_key   = "DefaultPlan"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
+      key_vault_url          = "KeyVaultConnectionString"
+      env_vars_static = {
+        ServiceNowRefreshAccessTokenUrl = "https://nhsdigitaldev.service-now.com/oauth_token.do"
+        ServiceNowUpdateUrl = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+      }
     }
 
     BsSelectRequestAuditDataService = {
