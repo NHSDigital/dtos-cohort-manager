@@ -19,8 +19,7 @@ module "key_vault" {
 
   enable_rbac_authorization = true
 
-  # We use the RBAC module to set default roles
-  #rbac_roles                = local.rbac_roles_key_vault
+  rbac_roles                = local.rbac_key_vault_roles
 
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
