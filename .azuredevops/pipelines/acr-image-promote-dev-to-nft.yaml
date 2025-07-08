@@ -12,26 +12,35 @@ resources:
       ref: c5b352eaad08403f0addac347b07ede4fa643556
       endpoint: NHSDigital
 
+  pipelines:
+    - pipeline: promote_to_dev
+      source: 'Image Move Pipeline (Push to Dev)'
+      trigger:
+        branches:
+          include:
+            - main
+
 variables:
   - group: DEV_hub_backend_remote_state
 
 stages:
-- stage: manual_intervention_stage
+- stage: manual_validation_stage
   displayName: Manual Approval for Deployment
   jobs:
-    - job: manual_intervention
-      displayName: Manual Intervention Required to Promote Images
+    - job: manual_validation
+      displayName: Manual Approval Required to Promote Images
       variables:
         - group: NFT_image_pipelines
       pool: server
+      condition: ne(variables['Build.Reason'], 'Manual')
       steps:
         - task: ManualValidation@0
-          displayName: Manual Intervention Required to Promote Images from $(SELECT_IMAGE_TAG) to $(ADD_IMAGE_TAG)
+          displayName: Manual Approval Required to Promote Images from $(SELECT_IMAGE_TAG) to $(ADD_IMAGE_TAG)
           inputs:
             instructions: Please review the changes in $(SELECT_IMAGE_TAG) and approve to promote to the $(ADD_IMAGE_TAG) environment.
             timeoutInMinutes: 240
-            # Users who can approve the manual intervention can be a list of email addresses or EntraId groups.
-            notifyUsers: '$(MANUAL_INTERVENTION_USERS)'
+            # Users who can approve the manual validation can be a list of email addresses or EntraId groups.
+            notifyUsers: '$(MANUAL_APPROVAL_USERS)'
 
 - stage: db_changes_stage
   displayName: Database changes
