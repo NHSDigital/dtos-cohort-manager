@@ -48,10 +48,6 @@ public class TransformDataService
     {
         CohortDistributionParticipant participant;
         TransformDataRequestBody requestBody;
-
-
-        await _dataLookup.InitAsync();
-
         try
         {
             string requestBodyJson;
@@ -120,7 +116,7 @@ public class TransformDataService
     public async Task<CohortDistributionParticipant> TransformParticipantAsync(CohortDistributionParticipant participant,
                                                                             CohortDistribution databaseParticipant)
     {
-        var excludedSMUList = _dataLookup.ExcludedSMUList();
+        var excludedSMUList = await _dataLookup.GetCachedExcludedSMUValues();
 
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);

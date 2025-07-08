@@ -8,6 +8,5 @@ public interface ITransformDataLookupFacade
     string GetBsoCode(string postcode);
     public string GetBsoCodeUsingPCP(string primaryCareProvider);
     public bool ValidateLanguageCode(string languageCode);
-    Task InitAsync();
-    Dictionary<string, string> ExcludedSMUList();
+    public Task<Dictionary<string, string>> GetCachedExcludedSMUValues();
 }

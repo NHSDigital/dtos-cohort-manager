@@ -4,6 +4,9 @@ using DataServices.Client;
 using Model;
 using Common;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Caching.Memory;
+using System.Runtime.Caching;
+using Microsoft.Identity.Client;
 
 public class TransformDataLookupFacade : ITransformDataLookupFacade
 {
@@ -11,41 +14,46 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     private readonly IDataServiceClient<BsSelectGpPractice> _bsSelectGPPracticeClient;
     private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
     private readonly IDataServiceClient<ExcludedSMULookup> _excludedSMUClient;
-
-    private Dictionary<string, string> _excludedSMUData = new();
+    private readonly IMemoryCache _memoryCache;
 
     private readonly ILogger<TransformDataLookupFacade> _logger;
     public TransformDataLookupFacade(IDataServiceClient<BsSelectOutCode> outcodeClient,
                                     IDataServiceClient<BsSelectGpPractice> bsSelectGPPracticeClient,
                                     IDataServiceClient<LanguageCode> languageCodeClient,
                                     IDataServiceClient<ExcludedSMULookup> excludedSMUClient,
-                                    ILogger<TransformDataLookupFacade> logger)
+                                    ILogger<TransformDataLookupFacade> logger,
+                                    IMemoryCache memoryCache)
     {
         _outcodeClient = outcodeClient;
         _bsSelectGPPracticeClient = bsSelectGPPracticeClient;
         _languageCodeClient = languageCodeClient;
         _excludedSMUClient = excludedSMUClient;
+        _memoryCache = memoryCache;
         _logger = logger;
     }
 
-    public async Task InitAsync()
+
+    public async Task<Dictionary<string, string>> GetCachedExcludedSMUValues()
     {
-        if (_excludedSMUData.Count == 0)
+        Dictionary<string, string> excludedSMUData;
+
+
+        if (!_memoryCache.TryGetValue("excludedSMUData", out excludedSMUData!))
         {
-            _logger.LogInformation("the excludedSMUData is already cached");
-            return;
+            var allExcludedSMUValues = await _excludedSMUClient.GetAll();
+
+            excludedSMUData = allExcludedSMUValues
+                .Select(x => x.GpPracticeCode)
+                .ToDictionary(x => x, x => x);
+
+            var cacheEntryOptions = new MemoryCacheEntryOptions()
+                .SetSlidingExpiration(TimeSpan.FromHours(24));
+
+            _memoryCache.Set("excludedSMUData", excludedSMUData, cacheEntryOptions);
         }
-        var result = await _excludedSMUClient.GetAll();
-        _excludedSMUData = result
-            .Select(x => x.GpPracticeCode)
-            .ToDictionary(x => x, x => x);
-    }
 
-    public Dictionary<string, string> ExcludedSMUList()
-    {
-        return _excludedSMUData;
+        return excludedSMUData!;
     }
-
     public bool ValidateOutcode(string postcode)
     {
         string outcode = ValidationHelper.ParseOutcode(postcode)

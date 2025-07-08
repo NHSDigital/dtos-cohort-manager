@@ -1,10 +1,14 @@
 namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Castle.Core.Logging;
 using DataServices.Client;
 using FastExpressionCompiler;
 using Hl7.Fhir.Utility;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Model;
 using Moq;
@@ -22,7 +26,9 @@ public class TransformDataLookupFacadeTests
 
     private Mock<IDataServiceClient<ExcludedSMULookup>> _excludedSMUClient = new();
 
-    private Mock<ILogger<ITransformDataLookupFacade>> _logger = new();
+    private Mock<ILogger<TransformDataLookupFacade>> _logger = new();
+
+    private Mock<IMemoryCache> _memoryCache = new();
 
     public TransformDataLookupFacadeTests()
     {
@@ -34,7 +40,13 @@ public class TransformDataLookupFacadeTests
             .Setup(x => x.GetSingle(It.IsAny<string>()))
             .ReturnsAsync(new LanguageCode());
 
-        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object, _excludedSMUClient.Object, _logger.Object);
+        object dummy = new Dictionary<string, string>()
+        {
+            { "A91151", "A91151" }
+        };
+        _memoryCache.Setup(m => m.TryGetValue(It.IsAny<object>(), out dummy)).Returns(true);
+
+        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object, _excludedSMUClient.Object, _logger.Object, _memoryCache.Object);
     }
 
     [TestMethod]
@@ -90,27 +102,11 @@ public class TransformDataLookupFacadeTests
         _excludedSMUClient.Setup(x => x.GetAll()).ReturnsAsync(excludedSMUList);
 
 
-        await _sut.InitAsync();
-        var excludedSMUDictionary = _sut.ExcludedSMUList();
+
+        var excludedSMUDictionary = await _sut.GetCachedExcludedSMUValues();
 
 
         Assert.IsNotNull(excludedSMUDictionary);
         Assert.AreEqual(excludedSMUDictionary.GetFirst().Key, excludedSMUList.FirstOrDefault()!.GpPracticeCode);
-    }
-
-    [TestMethod]
-    public async Task Get_ExcludedSMUList_ReturnsNullDictionary()
-    {
-
-        var excludedSMUList = new List<ExcludedSMULookup>() { };
-        _excludedSMUClient.Setup(x => x.GetAll()).ReturnsAsync(excludedSMUList);
-
-
-        await _sut.InitAsync();
-        var excludedSMUDictionary = _sut.ExcludedSMUList();
-
-
-        Assert.IsNotNull(excludedSMUDictionary);
-        Assert.IsTrue(excludedSMUDictionary.Count == 0);
     }
 }
