@@ -4,7 +4,6 @@
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9997421787,
-        "expectedCount": 1,
         "IsExtracted": 0
       }
     }
