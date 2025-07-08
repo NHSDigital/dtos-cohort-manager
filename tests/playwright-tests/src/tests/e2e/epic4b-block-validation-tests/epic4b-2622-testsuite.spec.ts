@@ -6,11 +6,8 @@ import { TestHooks } from '../../hooks/test-hooks';
 import { getRecordsFromParticipantManagementService } from '../../../api/distributionService/participantService';
 
 
-test.describe.serial(' @api Positive - Block Participant called', async () => {
-
-  TestHooks.setupAllTestHooks();
-
-  test('@DTOSS-7610-01 @smoke @api - @TC1 Verify block a participant', async ({ request }, testInfo) => {
+test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
+   test('@DTOSS-7610-01 AC01 Verify block a participant not processed to COHORT', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
 
