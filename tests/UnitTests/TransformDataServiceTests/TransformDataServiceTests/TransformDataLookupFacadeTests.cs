@@ -40,10 +40,11 @@ public class TransformDataLookupFacadeTests
             .Setup(x => x.GetSingle(It.IsAny<string>()))
             .ReturnsAsync(new LanguageCode());
 
-        object dummy = new Dictionary<string, string>()
+        object dummy = new HashSet<string>()
         {
-            { "A91151", "A91151" }
+            { "A91151" }
         };
+
         _memoryCache.Setup(m => m.TryGetValue(It.IsAny<object>(), out dummy)).Returns(true);
 
         _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object, _excludedSMUClient.Object, _logger.Object, _memoryCache.Object);
@@ -102,7 +103,6 @@ public class TransformDataLookupFacadeTests
 
         var excludedSMUList = new List<ExcludedSMULookup>() { new ExcludedSMULookup() { GpPracticeCode = "A91151" } };
         _excludedSMUClient.Setup(x => x.GetAll()).ReturnsAsync(excludedSMUList);
-
 
 
         var excludedSMUDictionary = await _sut.GetCachedExcludedSMUValues();
