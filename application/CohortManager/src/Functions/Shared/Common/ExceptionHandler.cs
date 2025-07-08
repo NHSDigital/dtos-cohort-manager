@@ -233,6 +233,7 @@ public class ExceptionHandler : IExceptionHandler
         var category = ruleId switch
         {
             35 => ExceptionCategory.Confusion,
+            60 => ExceptionCategory.Superseded,
             _ => ExceptionCategory.TransformExecuted
         };
 

@@ -37,7 +37,7 @@ public class ManageParticipant
     /// </summary>
     /// <param name="message">json string containing the participant record</param>
     [Function(nameof(ManageParticipant))]
-    public async Task Run([ServiceBusTrigger(topicName: "%ParticipantManagementQueueName%", subscriptionName: "%ManageParticipantSubName%", Connection = "ServiceBusConnectionString")] string message)
+    public async Task Run([ServiceBusTrigger(topicName: "%ParticipantManagementTopic%", subscriptionName: "%ManageParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")] string message)
     {
         var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(message)!;
         Participant participant = participantRecord.Participant;
@@ -80,7 +80,7 @@ public class ManageParticipant
                 return;
             }
 
-            await _queueClient.AddAsync(participantRecord, _config.CohortQueueName);
+            await _queueClient.AddAsync(participantRecord, _config.CohortDistributionTopic);
         }
         catch (Exception ex)
         {
