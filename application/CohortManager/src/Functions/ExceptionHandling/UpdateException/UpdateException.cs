@@ -99,6 +99,6 @@ public class UpdateException
     private static void UpdateExceptionRecord(ExceptionManagement exceptionData, UpdateExceptionRequest updateRequest)
     {
         exceptionData.ServiceNowId = updateRequest.ServiceNowNumber; // can be null
-        exceptionData.RecordUpdatedDate = DateTime.Now;
+        exceptionData.RecordUpdatedDate = DateTime.UtcNow;
     }
 }
