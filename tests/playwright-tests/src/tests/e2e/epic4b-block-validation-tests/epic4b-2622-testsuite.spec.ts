@@ -1,9 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../steps/steps';
-import { BlockParticipant} from '../../../api/distributionService/bsSelectService'
-import { TestHooks } from '../../hooks/test-hooks';
-import { getRecordsFromParticipantManagementService } from '../../../api/distributionService/participantService';
+import { getRecordsFromParticipantManagementService, BlockParticipant} from '../../../api/distributionService/bsSelectService'
 
 
 test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
