@@ -70,10 +70,6 @@ public class ManageNemsSubscriptionTests
             .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
-        _nemsHttpClientFunction
-            .Setup(x => x.SendDelete(It.IsAny<string>()))
-            .ReturnsAsync(true);
-
         var requestHandler = new Mock<IRequestHandler<NemsSubscription>>();
 
         var dummyCert = new X509Certificate2();
