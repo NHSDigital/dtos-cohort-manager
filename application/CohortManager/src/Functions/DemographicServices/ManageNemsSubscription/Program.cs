@@ -27,7 +27,7 @@ if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
     logger.LogInformation("Loading NEMS certificate from Azure Key Vault");
     var certClient = new CertificateClient(
         new Uri(config.KeyVaultConnectionString),
-        new DefaultAzureCredential()
+        new ManagedIdentityCredential()
     );
     var certResult = await certClient.DownloadCertificateAsync(config.NemsKeyName);
     nemsCertificate = certResult.Value;
