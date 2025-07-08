@@ -5,8 +5,6 @@ using Model;
 using Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
-using System.Runtime.Caching;
-using Microsoft.Identity.Client;
 
 public class TransformDataLookupFacade : ITransformDataLookupFacade
 {
