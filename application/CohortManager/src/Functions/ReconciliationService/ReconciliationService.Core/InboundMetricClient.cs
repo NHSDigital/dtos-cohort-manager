@@ -20,6 +20,7 @@ public class InboundMetricClient : IInboundMetricClient
 
     public async Task<bool> LogInboundMetric(string source, int recordCount)
     {
+        _logger.LogInformation("Inbound Metric sent from source: {source}", source);
         var metricRequest = new InboundMetricRequest
         {
             AuditProcess = "AuditProcess",

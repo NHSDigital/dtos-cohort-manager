@@ -91,7 +91,7 @@ public class ReconciliationService
         _logger.LogInformation("Reconciling records received since {lastRun}", lastRun);
 
         var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.RecordInsertDateTime.Value > lastRun);
-        var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => x.RuleId.Value == -2146233088 && x.DateCreated.Value > lastRun);
+        var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => (x.RuleId.Value == -2146233088 || x.RuleId.Value == -2147024809 || x.RuleDescription == "RecordType was not set to an expected value") && x.DateCreated.Value > lastRun);
 
 
         var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > lastRun);
