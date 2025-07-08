@@ -63,7 +63,7 @@ public class ManageNemsSubscription
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to create subscription in NEMS.");
             }
 
-            string? subscriptionId = nhsNumber != null ? await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber) : null;
+            string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
             _logger.LogInformation("Successfully created subscription for NHS number REDACTED");
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"Subscription created successfully. Subscription ID: {subscriptionId}");
         }
