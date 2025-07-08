@@ -4,7 +4,7 @@
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9992728167,
-        "InvalidFlag": 0
+        "InterpreterRequired": 0
       },
       "meta": {
         "testJiraId": "@DTOSS-4391-01",
