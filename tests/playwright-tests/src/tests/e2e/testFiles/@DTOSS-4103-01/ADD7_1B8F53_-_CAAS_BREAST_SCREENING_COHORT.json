@@ -9,7 +9,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-4103-01",
-        "requirementJiraId": "DTOSS-4103",
+        "requirementJiraId": "DTOSS-3081",
         "additionalTags": "@regression @e2e @epic2-high-priority - Validate invalid GP Practice Code for a new participant for nhs number 9990601682 RuleId: 3601"
       }
     },
@@ -22,7 +22,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-4103-01",
-        "requirementJiraId": "DTOSS-4103",
+        "requirementJiraId": "DTOSS-3081",
         "additionalTags": "@regression @e2e @epic2-high-priority - Validate invalid GP Practice Code for a new participant for nhs number 9990744653 RuleId: 3601"
       }
     },
@@ -35,7 +35,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-4103-01",
-        "requirementJiraId": "DTOSS-4103",
+        "requirementJiraId": "DTOSS-3081",
         "additionalTags": "@regression @e2e @epic2-high-priority - Validate invalid GP Practice Code for a new participant for nhs number 9990606544 RuleId: 3601"
       }
     },
@@ -48,7 +48,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-4103-01",
-        "requirementJiraId": "DTOSS-4103",
+        "requirementJiraId": "DTOSS-3081",
         "additionalTags": "@regression @e2e @epic2-high-priority - Validate invalid GP Practice Code for a new participant for nhs number 9990645418 RuleId: 3601"
       }
     },
@@ -61,7 +61,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-4103-01",
-        "requirementJiraId": "DTOSS-4103",
+        "requirementJiraId": "DTOSS-3081",
         "additionalTags": "@regression @e2e @epic2-high-priority - Validate invalid GP Practice Code for a new participant for nhs number 9990684057 RuleId: 3601"
       }
     },
@@ -74,7 +74,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-4103-01",
-        "requirementJiraId": "DTOSS-4103",
+        "requirementJiraId": "DTOSS-3081",
         "additionalTags": "@regression @e2e @epic2-high-priority - Validate invalid GP Practice Code for a new participant for nhs number 9990702985 RuleId: 3601"
       }
     },
@@ -87,7 +87,7 @@
       },
       "meta": {
         "testJiraId": "@DTOSS-4103-01",
-        "requirementJiraId": "DTOSS-4103",
+        "requirementJiraId": "DTOSS-3081",
         "additionalTags": "@regression @e2e @epic2-high-priority - Validate invalid GP Practice Code for a new participant for nhs number 9990718679 RuleId: 3601"
       }
     }
