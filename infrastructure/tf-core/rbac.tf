@@ -6,7 +6,7 @@ module "global_cohort_identity" {
   # role up one or more permissions. We'll use those definitions in role assignments
   source = "../../../dtos-devops-templates/infrastructure/modules/managed-identity-roles"
 
-  uai_name            = join("-", compact(["global-cohort-mi", each.key]))
+  uai_name            = join("-", compact(["mi-cohort-manager-global", each.key]))
   location            = each.key
   resource_group_name = azurerm_resource_group.core[each.key].name
   environment         = var.environment
@@ -79,64 +79,5 @@ locals {
     length(join("-", [res.region, res.type, replace(res.id, "/", "_")])) <= 128 ?
     join("-", [res.region, res.type, replace(res.id, "/", "_")]) :
     join("-", [res.region, res.type, substr(md5(res.id), 0, 8)]) => res
-  }
-
-  # These values must match the outputs.tf in templates repo (managed_identity_roles)
-  role_definition_map = {
-    keyvault = "keyvault_role_definition_id"
-    store    = "storage_role_definition_id"
-    sql      = "sql_role_definition_id"
-    func     = "function_role_definition_id"
-  }
-}
-
-# This is for debug purposes
-output "all_resource_ids_debug" {
-  value = local.all_resource_ids
-}
-
-output "debug_key_vault_module" {
-  value = {
-    for k, v in module.key_vault :
-    k => v.key_vault_id
-  }
-}
-
-output "debug_storage_module" {
-  value = {
-    for k, v in module.storage :
-    k => v.storage_account_id
-  }
-}
-
-output "debug_functionapps" {
-  value = {
-    for k, v in module.functionapp :
-    k => v.id
-  }
-}
-
-output "debug_role_assignment_map" {
-  value = {
-    for k, v in local.resource_id_map :
-    k => {
-      region      = v.region
-      type        = v.type
-      scope       = v.id
-      principal   = var.rbac_principal_id != null ? var.rbac_principal_id : try(module.global_cohort_identity[v.region].global_mi_principal_id, "N/A")
-      role_output = try(lookup(module.global_cohort_identity[v.region], lookup(local.role_definition_map, v.type)), "N/A")
-    }
-  }
-}
-
-output "role_definition_ids_by_region" {
-  value = {
-    for region, mod in module.global_cohort_identity :
-    region => {
-      storage = mod.storage_role_definition_id
-      sql     = mod.sql_role_definition_id
-      keyvault = mod.keyvault_role_definition_id
-      func    = mod.function_role_definition_id
-    }
   }
 }
