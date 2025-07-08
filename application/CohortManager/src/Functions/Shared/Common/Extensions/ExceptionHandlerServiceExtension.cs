@@ -21,6 +21,7 @@ public static class ExceptionHandlerServiceExtension
     public static IHostBuilder AddExceptionHandlerWithServiceBus(this IHostBuilder hostBuilder)
     {
         hostBuilder.AddConfiguration<ServiceBusValidationConfig>(out ServiceBusValidationConfig config);
+        hostBuilder.AddKeyedAzureQueues(true, config.serviceBusConnectionString, "Exception");
         return hostBuilder.ConfigureServices(_ =>
         {
             _.AddSingleton<IExceptionHandler, ExceptionHandler>();
