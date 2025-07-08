@@ -12,5 +12,6 @@ public enum ExceptionCategory
     ParticipantLocationRemainingOutsideOfCohort = 9,
     Schema = 10,
     TransformExecuted = 11,
-    Confusion = 12
+    Confusion = 12,
+    Superseded = 13
 }
