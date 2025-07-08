@@ -136,9 +136,8 @@ export default async function Page(props: {
                     </dd>
                     <dd className="nhsuk-summary-list__actions">
                       <a href="#">
-                        Change
+                        Change{" "}
                         <span className="nhsuk-u-visually-hidden">
-                          {" "}
                           ServiceNow Case ID
                         </span>
                       </a>

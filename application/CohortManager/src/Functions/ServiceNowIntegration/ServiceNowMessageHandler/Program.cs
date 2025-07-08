@@ -4,10 +4,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NHS.CohortManager.ServiceNowIntegrationService;
 
-
-
 var host = new HostBuilder()
-    .AddConfiguration<SendServiceNowMsgConfig>()
+    .AddConfiguration<ServiceNowMessageHandlerConfig>()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {

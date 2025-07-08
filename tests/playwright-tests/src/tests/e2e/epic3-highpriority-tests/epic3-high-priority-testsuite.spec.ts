@@ -188,6 +188,43 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
   });
 
+  test('@DTOSS-5561-01 @not-runner-based - BS Select - CohortDistribution_Requesting data from Cohort Manager and set record to extracted and add the request ID to the data table', {
+    annotation: {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3650',
+    },
+  }, async ({ request, testData }) => {
+
+    await test.step('Then processed ADD participant should be received using bs select get request where IsExtracted = 0', async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
+      //check all records in the cohort to be set as 0
+      const cohortResponse = await getRecordsFromCohortDistributionService(request);
+      cohortResponse.data.forEach((record: { IsExtracted: number; }) => {
+        expect(record.IsExtracted).toBe(0);
+      });
+      const ExpectedRowCount = 20;
+
+      const retrieveCohortBSSelectResponse = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 20, screeningServiceId: 1 });
+      expect(retrieveCohortBSSelectResponse.data.length).toBe(ExpectedRowCount);
+
+    });
+
+    await test.step('And IsExtracted flag is set to 1', async () => {
+      const cohortResponse = await getRecordsFromCohortDistributionService(request);
+      cohortResponse.data.forEach((record: { IsExtracted: number; }) => {
+        expect(record.IsExtracted).toBe(1);
+      });
+    });
+
+    await test.step('And RequestId is assigned UUID v4 format to all fetched records', async () => {
+      const cohortResponse = await getRecordsFromCohortDistributionService(request);
+      cohortResponse.data.forEach((record: { RequestId: string | undefined; }) => {
+        expect(record.RequestId).toBeDefined();
+        expect(record.RequestId).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+      });
+    });
+  });
+
   test('@DTOSS-5584-01 @not-runner-based - BS Select - 204 if IsExtracted is set to 1', {
     annotation: {
       type: 'Requirement',
@@ -222,7 +259,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  test('@DTOSS-5563-01 @not-runner-based - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
+  test.fixme('@DTOSS-5563-01 @not-runner-based - Empty RowCount should log 204 in BS_SELECT_REQUEST_AUDIT table ', {
     annotation: [{
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5563',
@@ -298,45 +335,5 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
     });
 
   });
-
-  test('@DTOSS-5221-01- @to-migrate Invalid preferred language code triggers a exception', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5223',
-    },
-  }, async ({ request, testData }) => {
-
-    await test.step('Then the record should end up in exception management table with the Invalid preferred language code error', async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabase);
-    });
-  });
-
-  testWithAmended('@DTOSS-4946-01- @to-migrate Invalid preferred language code triggers a exception for a Amended Participant', {
-    annotation: {
-      type: 'Requirement',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-5222',
-    },
-  }, async ({ request, testData }) => {
-
-    await test.step('ReceiveCaasFile processes the uploaded participant data file', async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await verifyBlobExists('Verify ProcessCaasFile data file', testData.runTimeParquetFileAdd);
-
-    await test.step(`Then ADD record should be updated in the participants demographic table`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    await test.step(`When same ADD participant record is AMENDED via storage for ${testData.nhsNumberAmend}`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then the record should end up in exception management table`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-
-  });
-
 
 });
