@@ -55,7 +55,7 @@ public class ManageNemsSubscription
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
-            bool success = nhsNumber != null ? await _subscriptionManager.CreateAndSendSubscriptionAsync(nhsNumber) : false;
+            bool success = await _subscriptionManager.CreateAndSendSubscriptionAsync(nhsNumber);
 
             if (!success)
             {
@@ -98,7 +98,7 @@ public class ManageNemsSubscription
             }
 
             // Check existence first to provide more informative error handling
-            var subscriptionId =  nhsNumber != null ? await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber) : null;
+            var subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
 
             if (string.IsNullOrEmpty(subscriptionId))
             {
@@ -107,7 +107,7 @@ public class ManageNemsSubscription
             }
 
             // Attempt to remove only if found
-            bool success = nhsNumber != null ? await _subscriptionManager.RemoveSubscriptionAsync(nhsNumber) : false;
+            bool success = await _subscriptionManager.RemoveSubscriptionAsync(nhsNumber);
 
             if (!success)
             {
@@ -148,7 +148,7 @@ public class ManageNemsSubscription
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
-            string? subscriptionId =  nhsNumber != null ? await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber) : null;
+            string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
 
             if (string.IsNullOrEmpty(subscriptionId))
             {
