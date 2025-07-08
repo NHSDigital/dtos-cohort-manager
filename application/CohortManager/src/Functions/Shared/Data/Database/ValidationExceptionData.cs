@@ -72,8 +72,8 @@ public class ValidationExceptionData : IValidationExceptionData
 
         if (validationExceptionToUpdate != null)
         {
-            validationExceptionToUpdate.DateResolved = DateTime.Today;
-            validationExceptionToUpdate.RecordUpdatedDate = DateTime.Now;
+            validationExceptionToUpdate.DateResolved = DateTime.UtcNow.Date;
+            validationExceptionToUpdate.RecordUpdatedDate = DateTime.UtcNow;
             return await _validationExceptionDataServiceClient.Update(validationExceptionToUpdate);
         }
         return false;
