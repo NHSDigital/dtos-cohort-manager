@@ -28,7 +28,7 @@ public class ManageParticipantTests
     {
         var testConfig = new ManageParticipantConfig
         {
-            CohortQueueName = "CohortQueueName"
+            CohortDistributionTopic = "CohortTopicName"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -46,7 +46,7 @@ public class ManageParticipantTests
             .ReturnsAsync((ParticipantManagement)null);
 
         _queueClientMock
-            .Setup(x => x.AddAsync(It.IsAny<ParticipantCsvRecord>(), testConfig.CohortQueueName))
+            .Setup(x => x.AddAsync(It.IsAny<ParticipantCsvRecord>(), testConfig.CohortDistributionTopic))
             .ReturnsAsync(true);
 
         _sut = new ManageParticipant(
@@ -60,7 +60,7 @@ public class ManageParticipantTests
         _request = new BasicParticipantCsvRecord
         {
             FileName = "mockFileName",
-            participant = new Participant
+            Participant = new Participant
             {
                 NhsNumber = "9444567877",
                 ScreeningName = "mockScreeningName",
@@ -132,7 +132,7 @@ public class ManageParticipantTests
     public async Task Run_InvalidNhsNumber_CreateExceptionAndReturn()
     {
         // Arrange
-        _request.participant.NhsNumber = "12345";
+        _request.Participant.NhsNumber = "12345";
 
         // Act
         await _sut.Run(JsonSerializer.Serialize(_request));

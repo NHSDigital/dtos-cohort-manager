@@ -21,8 +21,9 @@
 //
 //   npm run test:regression:e2e:epic3Med
 //
-// This equates to "@epic3-" tags, configured in the package.json at the playwright-tests root location.
+// This equates to "@epic3-med" tags, configured in the package.json at the playwright-tests root location.
 
 
-export const runnerBasedEpic3MedTestScenariosAdd = "@DTOSS-4967-01|@DTOSS-4975-01|@DTOSS-6325-01"
-export const runnerBasedEpic3MedTestScenariosAmended = "@DTOSS-5286-01"
+export const runnerBasedEpic3MedTestScenariosAdd = "@DTOSS-4967-01|@DTOSS-4975-01|@DTOSS-6325-01|@DTOSS-5374-01|@DTOSS-6320-01|@DTOSS-5578-01|@DTOSS-5582-01"
+
+export const runnerBasedEpic3MedTestScenariosAmended = "@DTOSS-5286-01|@DTOSS-5579-01|@DTOSS-5799-01|@DTOSS-5800-01|@DTOSS-5583-01|@DTOSS-5409-01"

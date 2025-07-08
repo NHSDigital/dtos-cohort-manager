@@ -25,7 +25,7 @@ public class RetrieveCohortRequestAuditTests
         // Arrange
         Guid requestId = new Guid();
         string statusCode = "testStatusCode";
-        DateTime dateFrom = DateTime.Now.AddDays(-1);
+        DateTime dateFrom = DateTime.UtcNow.AddDays(-1);
 
         _bsSelectRequestAuditDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<BsSelectRequestAudit, bool>>>())).ReturnsAsync(new List<BsSelectRequestAudit>()
         {
@@ -63,7 +63,7 @@ public class RetrieveCohortRequestAuditTests
             {
                 RequestId = new Guid(),
                 StatusCode = "",
-                CreatedDateTime = DateTime.Today
+                CreatedDateTime = DateTime.UtcNow.Date
             }
         });
 
@@ -83,7 +83,7 @@ public class RetrieveCohortRequestAuditTests
         // Arrange
         string requestId = "";
         string statusCode = "testStatusCode";
-        DateTime dateFrom = DateTime.Now.AddDays(-1);
+        DateTime dateFrom = DateTime.UtcNow.AddDays(-1);
 
         _bsSelectRequestAuditDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<BsSelectRequestAudit, bool>>>())).ReturnsAsync(new List<BsSelectRequestAudit>()
         {
@@ -91,7 +91,7 @@ public class RetrieveCohortRequestAuditTests
             {
                 RequestId = new Guid(),
                 StatusCode = "200",
-                CreatedDateTime = DateTime.Today.AddDays(1)
+                CreatedDateTime = DateTime.UtcNow.Date.AddDays(1)
             }
         });
 
@@ -113,7 +113,7 @@ public class RetrieveCohortRequestAuditTests
         // Arrange
         string requestId = new Guid().ToString();
         string statusCode = "";
-        DateTime dateFrom = DateTime.Now.AddDays(-1);
+        DateTime dateFrom = DateTime.UtcNow.AddDays(-1);
 
         _bsSelectRequestAuditDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<BsSelectRequestAudit, bool>>>())).ReturnsAsync(new List<BsSelectRequestAudit>()
         {
@@ -121,7 +121,7 @@ public class RetrieveCohortRequestAuditTests
             {
                 RequestId = new Guid(),
                 StatusCode = "200",
-                CreatedDateTime = DateTime.Today.AddDays(1)
+                CreatedDateTime = DateTime.UtcNow.Date.AddDays(1)
             }
         });
 
@@ -143,7 +143,7 @@ public class RetrieveCohortRequestAuditTests
         // Arrange
         string requestId = new Guid().ToString();
         string statusCode = "testStatusCode";
-        DateTime dateFrom = DateTime.Now.AddDays(1);
+        DateTime dateFrom = DateTime.UtcNow.AddDays(1);
 
         _bsSelectRequestAuditDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<BsSelectRequestAudit, bool>>>())).ReturnsAsync(new List<BsSelectRequestAudit>());
 
@@ -162,7 +162,7 @@ public class RetrieveCohortRequestAuditTests
         // Arrange
         string requestId = new Guid().ToString();
         string statusCode = "nonExistentStatusCode";
-        DateTime dateFrom = DateTime.Now.AddDays(-1);
+        DateTime dateFrom = DateTime.UtcNow.AddDays(-1);
 
         _bsSelectRequestAuditDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<BsSelectRequestAudit, bool>>>())).ReturnsAsync(new List<BsSelectRequestAudit>());
 

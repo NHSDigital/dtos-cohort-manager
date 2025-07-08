@@ -7,7 +7,8 @@ declare module "next-auth" {
     sid?: string;
     odsCode?: string;
     orgName?: string;
-    roles?: string;
+    workgroups?: string[];
+    workgroups_codes?: string[];
   }
 }
 
