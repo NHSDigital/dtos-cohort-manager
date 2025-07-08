@@ -10,9 +10,6 @@ using Model;
 using Common;
 using Data.Database;
 using Azure.Messaging.ServiceBus;
-using System.Xml;
-using System.Runtime.Serialization;
-
 public class CreateException
 {
     private readonly ILogger<CreateException> _logger;
@@ -45,7 +42,7 @@ public class CreateException
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "could create exception please see database for more details");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "could not create exception please see database for more details");
         }
         catch (Exception ex)
         {
