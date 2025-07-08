@@ -22,8 +22,8 @@ public static class AzureQueueExtension
             {
                 _.AddAzureClients(builder =>
                 {
-                    builder.AddServiceBusClient(serviceBusConnectionString);
-                    builder.UseCredential(new DefaultAzureCredential());
+                    builder.AddServiceBusClient(serviceBusConnectionString)
+                        .WithCredential(new DefaultAzureCredential());
 
                 });
                 _.AddSingleton<IQueueClient, AzureServiceBusClient>();
