@@ -147,7 +147,7 @@
         }
       },
       {
-        "RuleName": "8.amend.record.transform",
+        "RuleName": "8.Amend.Record.Transform",
         "LocalParams": [
           {
             "Name": "IsPrimaryCareProviderNullOnUpdatedParticipant",
