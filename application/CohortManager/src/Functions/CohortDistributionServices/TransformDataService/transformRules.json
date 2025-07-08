@@ -147,7 +147,7 @@
         }
       },
       {
-        "RuleName": "8.Amend.Record.Transform",
+        "RuleName": "8.Transform.UpdatedRecordExcludedAndDMS",
         "LocalParams": [
           {
             "Name": "IsPrimaryCareProviderNullOnUpdatedParticipant",
