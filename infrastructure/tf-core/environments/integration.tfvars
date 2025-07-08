@@ -378,12 +378,12 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        CohortDistributionTopic           = "cohort-distribution"     # Writes to the cohort distribution topic
-        ParticipantManagementTopic        = "participant-management"  # Subscribes to the participant management topic
-        ManageParticipantSubscription     = "ManageParticipant"       # Subscribes to the participant management topic
-        IgnoreParticipantExceptions       = "false"
-        IsExtractedToBSSelect             = "false"
-        AcceptableLatencyThresholdMs      = "500"
+        CohortDistributionTopic       = "cohort-distribution"    # Writes to the cohort distribution topic
+        ParticipantManagementTopic    = "participant-management" # Subscribes to the participant management topic
+        ManageParticipantSubscription = "ManageParticipant"      # Subscribes to the participant management topic
+        IgnoreParticipantExceptions   = "false"
+        IsExtractedToBSSelect         = "false"
+        AcceptableLatencyThresholdMs  = "500"
       }
     }
 
@@ -724,6 +724,10 @@ function_apps = {
         {
           env_var_name     = "LanguageCodeUrl"
           function_app_key = "LanguageCodeDataService"
+        },
+        {
+          env_var_name     = "ExcludedSMULookupUrl"
+          function_app_key = "ExcludedSMUDataService"
         }
       ]
       env_vars_static = {
@@ -828,8 +832,8 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        CohortDistributionTopic           = "cohort-distribution"     # Subscribes to the cohort distribution topic
-        DistributeParticipantSubscription = "DistributeParticipant"   # Subscribes to the cohort distribution topic
+        CohortDistributionTopic           = "cohort-distribution"   # Subscribes to the cohort distribution topic
+        DistributeParticipantSubscription = "DistributeParticipant" # Subscribes to the cohort distribution topic
         IgnoreParticipantExceptions       = "false"
         IsExtractedToBSSelect             = "false"
         AcceptableLatencyThresholdMs      = "500"
