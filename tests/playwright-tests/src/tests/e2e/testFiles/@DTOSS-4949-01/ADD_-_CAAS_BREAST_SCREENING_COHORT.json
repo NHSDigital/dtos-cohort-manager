@@ -9,7 +9,19 @@
       "meta": {
         "testJiraId": "@DTOSS-4949-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Check Add for Scenario - Verify adding participant's TelephoneNumberMobile value"
+        "additionalTags": "@regression @e2e @epic2-med-priority Check Add for Scenario - Verify adding participant's TelephoneNumberMob value"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9997153723,
+        "TelephoneNumberMob": "01234567890"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4949-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Check Add to cohort distribution table with correct TelephoneNumberMob value"
       }
     }
   ],

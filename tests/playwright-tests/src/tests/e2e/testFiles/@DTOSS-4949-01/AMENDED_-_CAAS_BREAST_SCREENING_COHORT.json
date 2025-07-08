@@ -9,7 +9,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4949-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Check Add for Scenario - Verify adding participant's TelephoneNumberMobile value in demographic table"
+        "additionalTags": "@regression @e2e @epic2-med-priority Check Add for Scenario - Verify adding participant's TelephoneNumberMob value in demographic table"
       }
     },
     {
