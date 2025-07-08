@@ -9,7 +9,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: c5b352eaad08403f0addac347b07ede4fa643556
+      ref: 8570bd32f8da7dfbf2f88fcc9190181e4757fcca
       endpoint: NHSDigital
 
 variables:
@@ -68,12 +68,12 @@ stages:
 - stage: smoke_e2e_tests
   displayName: Run Smoke E2E Tests
   variables:
-  - group: INT_automation_testing_pipeline
+    - group: INT_automation_testing_pipeline
   jobs:
     - job: smoke_e2e_tests
       pool:
         name: private-pool-dev-uks
-      
+
       steps:
       - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
         parameters:
@@ -82,18 +82,18 @@ stages:
           testfileDirectory: 'src/tests/e2e/testFiles'
           testProjectName: 'tests'
           testType: 'smoke:e2e'
-            
+
 - stage: regression_api_tests
   displayName: Run Regression API Tests
   dependsOn: smoke_e2e_tests
   condition: succeededOrFailed()
   variables:
-  - group: INT_automation_testing_pipeline  
+    - group: INT_automation_testing_pipeline
   jobs:
     - job: regression_api_tests
       pool:
         name: private-pool-dev-uks
-    
+
       steps:
       - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
         parameters:
@@ -102,13 +102,13 @@ stages:
           testfileDirectory: 'src/tests/e2e/testFiles'
           testProjectName: 'tests'
           testType: 'regression:api'
-            
+
 - stage: regression_e2e_epic1_tests
   displayName: Run Regression E2E Epic1 Tests
   dependsOn: regression_api_tests
   condition: succeededOrFailed()
   variables:
-  - group: INT_automation_testing_pipeline 
+    - group: INT_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic1_tests
       pool:
@@ -122,13 +122,13 @@ stages:
           testfileDirectory: 'src/tests/e2e/testFiles'
           testProjectName: 'tests'
           testType: 'regression:e2e:epic1'
-            
+
 - stage: regression_e2e_epic2_tests
   displayName: Run Regression E2E Epic2 Tests
   dependsOn: regression_e2e_epic1_tests
   condition: succeededOrFailed()
   variables:
-  - group: INT_automation_testing_pipeline 
+    - group: INT_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic2_tests
       pool:
@@ -142,18 +142,18 @@ stages:
           testfileDirectory: 'src/tests/e2e/testFiles'
           testProjectName: 'tests'
           testType: 'regression:e2e:epic2'
-            
+
 - stage: regression_e2e_epic3_tests
   displayName: Run Regression E2E Epic3 Tests
   dependsOn: regression_e2e_epic2_tests
   condition: succeededOrFailed()
   variables:
-  - group: INT_automation_testing_pipeline 
+    - group: INT_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic3_tests
       pool:
         name: private-pool-dev-uks
-    
+
       steps:
       - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
         parameters:
@@ -162,4 +162,3 @@ stages:
           testfileDirectory: 'src/tests/e2e/testFiles'
           testProjectName: 'tests'
           testType: 'regression:e2e:epic3'
-                    
