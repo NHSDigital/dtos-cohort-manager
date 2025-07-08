@@ -90,6 +90,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return isValidToken;
     },
     async jwt({ account, token, profile }) {
+      if (account?.access_token) {
+        try {
+          const response = await fetch(
+            `${process.env.AUTH_CIS2_ISSUER_URL}/openam/oauth2/realms/root/realms/NHSIdentity/realms/Healthcare/userinfo`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${account.access_token}`,
+              },
+            }
+          );
+          if (!response.ok) {
+            throw new Error("Failed to call the userinfo endpoint from CIS2");
+          }
+          const userInfo: Profile = await response.json();
+          token.profile = userInfo;
+        } catch (error) {
+          console.error("Error fetching user info:", error);
+          return token;
+        }
+      }
+
       // Handle test accounts in development
       if (
         process.env.NODE_ENV === "development" &&
@@ -103,7 +125,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           sid: "5678",
           orgName: "Test Org",
           odsCode: "ABC",
-          roles: "Test Role",
+          workgroups: ["Test Workgroup"],
+          workgroups_codes: ["TEST-WG"],
         });
       }
 
@@ -124,9 +147,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             org_code: string;
           }[];
 
-        const [{ role_name: roles }] = nhsid_nrbac_roles as {
-          role_name: string;
-        }[];
+        const workgroups = (nhsid_nrbac_roles as Array<unknown>).flatMap(
+          (role) => (role as { workgroups?: unknown[] }).workgroups || []
+        );
+
+        const workgroups_codes = (nhsid_nrbac_roles as Array<unknown>).flatMap(
+          (role: unknown) =>
+            (role as { workgroups_codes?: unknown[] }).workgroups_codes || []
+        );
 
         Object.assign(token, {
           uid,
@@ -136,15 +164,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           sid: sid ?? undefined,
           orgName,
           odsCode,
-          roles,
+          workgroups,
+          workgroups_codes,
         });
       }
       return token;
     },
     async session({ session, token }: { session: Session; token: JWT }) {
       if (session.user) {
-        const { uid, firstName, lastName, sub, sid, odsCode, orgName, roles } =
-          token;
+        const {
+          uid,
+          firstName,
+          lastName,
+          sub,
+          sid,
+          odsCode,
+          orgName,
+          workgroups,
+          workgroups_codes,
+        } = token;
 
         Object.assign(session.user, {
           uid,
@@ -154,7 +192,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           sid,
           odsCode,
           orgName,
-          roles,
+          workgroups,
+          workgroups_codes,
         });
       }
       return session;

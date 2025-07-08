@@ -3,6 +3,8 @@ import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { fetchExceptions } from "@/app/lib/fetchExceptions";
 import { checkAccess } from "@/app/lib/checkAccess";
+import { formatDate } from "@/app/lib/utils";
+
 import Breadcrumb from "@/app/components/breadcrumb";
 import ParticipantInformationPanel from "@/app/components/participantInformationPanel";
 import Unauthorised from "@/app/components/unauthorised";
@@ -26,17 +28,6 @@ export default async function Page(props: {
     return <Unauthorised />;
   }
 
-  const breadcrumbItems = [
-    {
-      label: "Overview",
-      url: "/",
-    },
-    {
-      label: "Exceptions summary",
-      url: "/exceptions-summary",
-    },
-  ];
-
   const params = await props.params;
   const exceptionId = Number(params.exceptionId);
 
@@ -46,9 +37,10 @@ export default async function Page(props: {
     const exceptionDetails: ExceptionDetails = {
       exceptionId: exceptionId,
       nhsNumber: exception.NhsNumber,
+      surname: exception.ExceptionDetails.FamilyName,
+      forename: exception.ExceptionDetails.GivenName,
       dateCreated: exception.DateCreated,
       shortDescription: exception.RuleDescription,
-      name: `${exception.ExceptionDetails.GivenName} ${exception.ExceptionDetails.FamilyName}`,
       dateOfBirth: exception.ExceptionDetails.DateOfBirth,
       gender: exception.ExceptionDetails.Gender,
       address: `${exception.ExceptionDetails.ParticipantAddressLine1}${
@@ -72,25 +64,25 @@ export default async function Page(props: {
         phoneNumber: exception.ExceptionDetails.TelephoneNumberHome,
         email: exception.ExceptionDetails.EmailAddressHome,
       },
-      gpPracticeCode: exception.ExceptionDetails.GpPracticeCode,
-      gpPracticeAddress: `${exception.ExceptionDetails.GpAddressLine1}${
-        exception.ExceptionDetails.GpAddressLine2
-          ? `, ${exception.ExceptionDetails.GpAddressLine2}`
-          : ""
-      }${
-        exception.ExceptionDetails.GpAddressLine3
-          ? `, ${exception.ExceptionDetails.GpAddressLine3}`
-          : ""
-      }${
-        exception.ExceptionDetails.GpAddressLine4
-          ? `, ${exception.ExceptionDetails.GpAddressLine4}`
-          : ""
-      }${
-        exception.ExceptionDetails.gpAddressLine5
-          ? `, ${exception.ExceptionDetails.gpAddressLine5}`
-          : ""
-      }, ${exception.ExceptionDetails.ParticipantPostCode}`,
+      primaryCareProvider: exception.ExceptionDetails.PrimaryCareProvider,
+      serviceNowId: exception.ServiceNowId ?? "",
+      serviceNowCreatedDate: exception.ServiceNowCreatedDate,
     };
+
+    const breadcrumbItems = [
+      {
+        label: "Home",
+        url: "/",
+      },
+      {
+        label: exceptionDetails.serviceNowId
+          ? "Raised breast screening exceptions"
+          : "Not raised breast screening exceptions",
+        url: exceptionDetails.serviceNowId
+          ? "/exceptions/raised"
+          : "/exceptions",
+      },
+    ];
 
     return (
       <>
@@ -101,9 +93,58 @@ export default async function Page(props: {
               <h1>
                 Exception information{" "}
                 <span className="nhsuk-caption-xl">
-                  Exception ID: {exceptionDetails.exceptionId}
+                  Local reference (exception ID): {exceptionDetails.exceptionId}
                 </span>
               </h1>
+              {exceptionDetails.serviceNowId && (
+                <dl className="nhsuk-summary-list">
+                  <div className="nhsuk-summary-list__row">
+                    <dt className="nhsuk-summary-list__key">
+                      Portal form used
+                    </dt>
+                    <dd className="nhsuk-summary-list__value">
+                      Request to amend incorrect patient PDS record data
+                    </dd>
+                    <dd className="nhsuk-summary-list__actions"></dd>
+                  </div>
+                  <div className="nhsuk-summary-list__row">
+                    <dt className="nhsuk-summary-list__key">
+                      Exception status
+                    </dt>
+                    <dd className="nhsuk-summary-list__value">
+                      {exceptionDetails.serviceNowId ? (
+                        <>
+                          <strong className="nhsuk-tag">Raised</strong> on{" "}
+                          {formatDate(
+                            exceptionDetails.serviceNowCreatedDate ?? ""
+                          )}
+                        </>
+                      ) : (
+                        <strong className="nhsuk-tag nhsuk-tag--grey">
+                          Not raised
+                        </strong>
+                      )}
+                    </dd>
+                    <dd className="nhsuk-summary-list__actions"></dd>
+                  </div>
+                  <div className="nhsuk-summary-list__row">
+                    <dt className="nhsuk-summary-list__key">
+                      ServiceNow Case ID
+                    </dt>
+                    <dd className="nhsuk-summary-list__value">
+                      {exceptionDetails.serviceNowId}
+                    </dd>
+                    <dd className="nhsuk-summary-list__actions">
+                      <a href="#">
+                        Change{" "}
+                        <span className="nhsuk-u-visually-hidden">
+                          ServiceNow Case ID
+                        </span>
+                      </a>
+                    </dd>
+                  </div>
+                </dl>
+              )}
               <ParticipantInformationPanel
                 exceptionDetails={exceptionDetails}
               />
@@ -116,7 +157,7 @@ export default async function Page(props: {
     console.error("Error fetching exception details:", error);
     return (
       <>
-        <Breadcrumb items={breadcrumbItems} />
+        <Breadcrumb items={[{ label: "Home", url: "/" }]} />
         <DataError />
       </>
     );

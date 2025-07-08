@@ -2,29 +2,40 @@ import type { Metadata } from "next";
 import CardGroup from "@/app/components/cardGroup";
 import DataError from "@/app/components/dataError";
 import {
-  fetchExceptions,
-  fetchExceptionsToday,
+  fetchExceptionsNotRaised,
+  fetchExceptionsRaised,
 } from "@/app/lib/fetchExceptions";
 
 export const metadata: Metadata = {
-  title: "Overview - Cohort Manager",
+  title: "Breast screening - Cohort Manager",
 };
 
 export default async function Overview() {
   try {
-    const exceptions = await fetchExceptions();
-    const exceptionsToday = await fetchExceptionsToday();
+    const exceptions = await fetchExceptionsNotRaised();
+    const exceptionsToday = await fetchExceptionsRaised();
 
-    const cards = [
+    const exceptionItems = [
       {
         value: exceptions.TotalItems,
-        label: "Breast screening exceptions",
-        url: "/exceptions-summary",
+        label: "Not raised",
+        description: "Exceptions to be raised with teams",
+        url: "/exceptions",
       },
       {
         value: exceptionsToday.TotalItems,
-        label: "Breast screening exceptions created today",
-        url: `/exceptions-summary/today`,
+        label: "Raised",
+        description: "Access and amend previously raised exceptions",
+        url: `/exceptions/raised`,
+      },
+    ];
+
+    const reportItems = [
+      {
+        value: 0,
+        label: "Reports",
+        description: "To manage investigations into demographic changes",
+        url: "/reports",
       },
     ];
 
@@ -32,11 +43,11 @@ export default async function Overview() {
       <main className="nhsuk-main-wrapper" id="maincontent" role="main">
         <div className="nhsuk-grid-row">
           <div className="nhsuk-grid-column-full">
-            <h1>
-              Breast screening exceptions{" "}
-              <span className="nhsuk-caption-xl">Overview</span>
-            </h1>
-            <CardGroup items={cards} />
+            <h1>Breast screening</h1>
+            <h2>Exceptions</h2>
+            <CardGroup items={exceptionItems} />
+            <h2>Reports</h2>
+            <CardGroup items={reportItems} />
           </div>
         </div>
       </main>

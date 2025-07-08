@@ -10,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   if (session?.user) {
     return {
-      title: `Overview - ${process.env.SERVICE_NAME}`,
+      title: `Breast screening - ${process.env.SERVICE_NAME}`,
     };
   }
 
