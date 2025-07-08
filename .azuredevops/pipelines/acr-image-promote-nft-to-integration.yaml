@@ -95,8 +95,8 @@ stages:
         name: private-pool-dev-uks
     
       steps:
-        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-          parameters:
+      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+        parameters:
           serviceConnection: $(SERVICE_CONNECTION)
           testProjectDirectory: 'tests/playwright-tests'
           testfileDirectory: 'src/tests/e2e/testFiles'
@@ -115,13 +115,13 @@ stages:
         name: private-pool-dev-uks
 
       steps:
-        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-          parameters:
-            serviceConnection: $(SERVICE_CONNECTION)
-            testProjectDirectory: 'tests/playwright-tests'
-            testfileDirectory: 'src/tests/e2e/testFiles'
-            testProjectName: 'tests'
-            testType: 'regression:e2e:epic1'
+      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: $(SERVICE_CONNECTION)
+          testProjectDirectory: 'tests/playwright-tests'
+          testfileDirectory: 'src/tests/e2e/testFiles'
+          testProjectName: 'tests'
+          testType: 'regression:e2e:epic1'
             
 - stage: regression_e2e_epic2_tests
   displayName: Run Regression E2E Epic2 Tests
@@ -135,13 +135,13 @@ stages:
         name: private-pool-dev-uks
 
       steps:
-        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-          parameters:
-            serviceConnection: $(SERVICE_CONNECTION)
-            testProjectDirectory: 'tests/playwright-tests'
-            testfileDirectory: 'src/tests/e2e/testFiles'
-            testProjectName: 'tests'
-            testType: 'regression:e2e:epic2'
+      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: $(SERVICE_CONNECTION)
+          testProjectDirectory: 'tests/playwright-tests'
+          testfileDirectory: 'src/tests/e2e/testFiles'
+          testProjectName: 'tests'
+          testType: 'regression:e2e:epic2'
             
 - stage: regression_e2e_epic3_tests
   displayName: Run Regression E2E Epic3 Tests
@@ -155,11 +155,11 @@ stages:
         name: private-pool-dev-uks
     
       steps:
-        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-          parameters:
-            serviceConnection: $(SERVICE_CONNECTION)
-            testProjectDirectory: 'tests/playwright-tests'
-            testfileDirectory: 'src/tests/e2e/testFiles'
-            testProjectName: 'tests'
-            testType: 'regression:e2e:epic3'
+      - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: $(SERVICE_CONNECTION)
+          testProjectDirectory: 'tests/playwright-tests'
+          testfileDirectory: 'src/tests/e2e/testFiles'
+          testProjectName: 'tests'
+          testType: 'regression:e2e:epic3'
                     

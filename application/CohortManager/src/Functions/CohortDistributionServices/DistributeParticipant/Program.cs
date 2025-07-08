@@ -19,7 +19,7 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("DistributeParticipant");
     })
-    .AddAzureQueues(true, config.ServiceBusConnectionString)
+    .AddAzureQueues(true, config.ServiceBusConnectionString_internal)
     .AddExceptionHandler()
     .AddTelemetry()
     .Build();
