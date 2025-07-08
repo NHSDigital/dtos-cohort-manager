@@ -14,10 +14,10 @@ public class SendExceptionToServiceBus : IExceptionSender
     private readonly IQueueClient _serviceBusHandler;
 
     private readonly ILogger<SendExceptionToServiceBus> _logger;
-    private readonly ServiceBusValidationConfig _serviceBusValidationConfig;
+    private readonly ExceptionServiceBusConfig _serviceBusValidationConfig;
 
 
-    public SendExceptionToServiceBus([FromKeyedServices("Exception")] IQueueClient serviceBusHandler, ILogger<SendExceptionToServiceBus> logger, IOptions<ServiceBusValidationConfig> serviceBusValidationConfig)
+    public SendExceptionToServiceBus([FromKeyedServices("Exception")] IQueueClient serviceBusHandler, ILogger<SendExceptionToServiceBus> logger, IOptions<ExceptionServiceBusConfig> serviceBusValidationConfig)
     {
         _serviceBusHandler = serviceBusHandler;
         _logger = logger;
