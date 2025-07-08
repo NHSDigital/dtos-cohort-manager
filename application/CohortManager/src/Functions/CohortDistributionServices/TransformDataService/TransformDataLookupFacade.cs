@@ -42,6 +42,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
         {
             var allExcludedSMUValues = await _excludedSMUClient.GetAll();
 
+            _logger.LogInformation("now caching excluded SMU data");
             excludedSMUData = allExcludedSMUValues
                 .Select(x => x.GpPracticeCode)
                 .ToDictionary(x => x, x => x);
