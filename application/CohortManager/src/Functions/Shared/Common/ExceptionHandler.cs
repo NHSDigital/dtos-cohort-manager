@@ -72,9 +72,9 @@ public class ExceptionHandler : IExceptionHandler
             FileName = participantCsvRecord.FileName,
             NhsNumber = participantCsvRecord.BasicParticipantData.NhsNumber,
             ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.BasicParticipantData),
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             DateResolved = DateTime.MaxValue,
-            ExceptionDate = DateTime.Now,
+            ExceptionDate = DateTime.UtcNow,
             Category = (int)ExceptionCategory.DeleteRecord,
             ScreeningName = participantCsvRecord.BasicParticipantData.ScreeningName,
             CohortName = DefaultCohortName,
@@ -98,9 +98,9 @@ public class ExceptionHandler : IExceptionHandler
             FileName = participantCsvRecord.FileName,
             NhsNumber = participantCsvRecord.BasicParticipantData.NhsNumber,
             ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.BasicParticipantData),
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             DateResolved = DateTime.MaxValue,
-            ExceptionDate = DateTime.Now,
+            ExceptionDate = DateTime.UtcNow,
             Category = (int)ExceptionCategory.Schema,
             ScreeningName = participantCsvRecord.BasicParticipantData.ScreeningName,
             CohortName = DefaultCohortName,
@@ -130,9 +130,9 @@ public class ExceptionHandler : IExceptionHandler
                 FileName = DefaultFileName,
                 NhsNumber = participant.NhsNumber,
                 ErrorRecord = JsonSerializer.Serialize(participant),
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 DateResolved = null,
-                ExceptionDate = DateTime.Now,
+                ExceptionDate = DateTime.UtcNow,
                 Category = (int)ExceptionCategory.File,
                 ScreeningName = participant.ScreeningName,
                 CohortName = DefaultCohortName,
@@ -179,9 +179,9 @@ public class ExceptionHandler : IExceptionHandler
                 FileName = participantCsvRecord.FileName,
                 NhsNumber = participantCsvRecord.Participant.NhsNumber,
                 ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 DateResolved = DateTime.MaxValue,
-                ExceptionDate = DateTime.Now,
+                ExceptionDate = DateTime.UtcNow,
                 Category = GetCategory(Category),
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
                 CohortName = DefaultCohortName,
@@ -230,6 +230,13 @@ public class ExceptionHandler : IExceptionHandler
 
     public async Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId)
     {
+        var category = ruleId switch
+        {
+            35 => ExceptionCategory.Confusion,
+            60 => ExceptionCategory.Superseded,
+            _ => ExceptionCategory.TransformExecuted
+        };
+
         var exception = new ValidationException
         {
             RuleId = ruleId,
@@ -237,22 +244,21 @@ public class ExceptionHandler : IExceptionHandler
             FileName = DefaultFileName,
             NhsNumber = participant.NhsNumber,
             ErrorRecord = JsonSerializer.Serialize(participant),
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             DateResolved = DateTime.MaxValue,
-            ExceptionDate = DateTime.Now,
-            Category = (int)ExceptionCategory.TransformExecuted,
+            ExceptionDate = DateTime.UtcNow,
+            Category = (int)category,
             ScreeningName = participant.ScreeningName,
             CohortName = DefaultCohortName,
             Fatal = 0
         };
 
-        var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
+        bool isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
 
         if (!isSentSuccessfully)
         {
             _logger.LogError(logErrorMessage);
         }
-
     }
 
     /// <summary>
@@ -270,7 +276,7 @@ public class ExceptionHandler : IExceptionHandler
             RuleId = DefaultRuleId,
             CohortName = DefaultCohortName,
             NhsNumber = string.IsNullOrEmpty(nhsNumber) ? DefaultNhsNumber : nhsNumber,
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = errorDescription,
@@ -278,7 +284,7 @@ public class ExceptionHandler : IExceptionHandler
             ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 0,
             ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
-            ExceptionDate = DateTime.Now
+            ExceptionDate = DateTime.UtcNow
         };
     }
 
@@ -318,7 +324,7 @@ public class ExceptionHandler : IExceptionHandler
             RuleId = exception.HResult,
             CohortName = DefaultCohortName,
             NhsNumber = string.IsNullOrEmpty(nhsNumber) ? DefaultNhsNumber : nhsNumber,
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             FileName = string.IsNullOrEmpty(fileName) ? DefaultFileName : fileName,
             DateResolved = DateTime.MaxValue,
             RuleDescription = exception.Message,
@@ -326,7 +332,7 @@ public class ExceptionHandler : IExceptionHandler
             ScreeningName = string.IsNullOrEmpty(screeningName) ? DefaultScreeningName : screeningName,
             Fatal = 1,
             ErrorRecord = string.IsNullOrEmpty(errorRecord) ? DefaultErrorRecord : errorRecord,
-            ExceptionDate = DateTime.Now
+            ExceptionDate = DateTime.UtcNow
         };
     }
 

@@ -4,8 +4,8 @@ trigger: none
 pr: none
 
 schedules:
-  - cron: "15 9 * * 1-5"   # Every weekday (Mon-Fri) at 09:15 UTC
-    displayName: Weekdays 09:15 run
+  - cron: "15 7 * * 1-5"   # Every weekday (Mon-Fri) at 07:15 UTC i.e 8:15 BST
+    displayName: Weekdays run
     branches:
       include:
         - main           # Change to your default branch if needed
