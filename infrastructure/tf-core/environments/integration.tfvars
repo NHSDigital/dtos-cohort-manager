@@ -1233,14 +1233,12 @@ function_apps = {
           NemsFhirEndpoint = "https://msg.intspineservices.nhs.uk/STU3"
           FromAsid = "200000002527"
           ToAsid = "200000002527"
-          OdsCode = "T8T9T"
-          MeshMailboxId = "T8T9TOT001"
           NemsKeyName = "nems-client-certificate"
           SubscriptionProfile = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
           SubscriptionCriteria = "https://fhir.nhs.uk/Id/nhs-number"
           BypassServerCertificateValidation = "false"
         }
-      app_urls = [
+        app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
