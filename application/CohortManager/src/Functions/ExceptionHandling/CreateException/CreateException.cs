@@ -73,7 +73,9 @@ public class CreateException
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, ex.Message);
+            _logger.LogError("exception could not be added to service bus topic. See dead letter storage for more {exception message} {exception}", ex, ex.Message);
+            await messageActions.DeadLetterMessageAsync(message);
+
         }
     }
 
