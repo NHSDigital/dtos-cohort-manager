@@ -17,7 +17,7 @@
         "NHSNumber": 9990573069
       },
       "meta": {
-        "testJiraId": "@DTOSS-4088-02",
+        "testJiraId": "@DTOSS-4088-01",
         "requirementJiraId": "DTOSS-3033",
         "additionalTags": "@regression @e2e @epic2-high-priority - Validate valid postcode for NHSNumber 9990573069"
       }
@@ -28,7 +28,7 @@
         "NHSNumber": 9990593590
       },
       "meta": {
-        "testJiraId": "@DTOSS-4088-03",
+        "testJiraId": "@DTOSS-4088-01",
         "requirementJiraId": "DTOSS-3033",
         "additionalTags": "@regression @e2e @epic2-high-priority - Validate valid postcode for NHSNumber 9990593590"
       }
