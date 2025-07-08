@@ -21,7 +21,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4949-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's TelephoneNumberMob value is truncated to 35 characters in the cohort distribution table"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's TelephoneNumberMob value is truncated to 32 characters in the cohort distribution table"
       }
     }
   ],
