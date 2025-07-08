@@ -16,6 +16,23 @@ variables:
   - group: DEV_hub_backend_remote_state
 
 stages:
+- stage: manual_intervention_stage
+  displayName: Manual Approval for Deployment
+  jobs:
+    - job: manual_intervention
+      displayName: Manual Intervention Required to Promote Images
+      variables:
+        - group: NFT_image_pipelines
+      pool: server
+      steps:
+        - task: ManualValidation@0
+          displayName: Manual Intervention Required to Promote Images from $(SELECT_IMAGE_TAG) to $(ADD_IMAGE_TAG)
+          inputs:
+            instructions: Please review the changes in $(SELECT_IMAGE_TAG) and approve to promote to the $(ADD_IMAGE_TAG) environment.
+            timeoutInMinutes: 240
+            # Users who can approve the manual intervention can be a list of email addresses or EntraId groups.
+            notifyUsers: '$(MANUAL_INTERVENTION_USERS)'
+
 - stage: db_changes_stage
   displayName: Database changes
   jobs:
@@ -82,13 +99,13 @@ stages:
             testfileDirectory: 'src/tests/e2e/testFiles'
             testProjectName: 'tests'
             testType: 'smoke:e2e'
-      
+
 - stage: regression_api_tests
   displayName: Run Regression API Tests
   dependsOn: smoke_e2e_tests
   condition: succeededOrFailed()
   variables:
-    - group: NFT_automation_testing_pipeline  
+    - group: NFT_automation_testing_pipeline
   jobs:
     - job: regression_api_tests
       pool:
@@ -102,13 +119,13 @@ stages:
             testfileDirectory: 'src/tests/e2e/testFiles'
             testProjectName: 'tests'
             testType: 'regression:api'
-      
+
 - stage: regression_e2e_epic1_tests
   displayName: Run Regression E2E Epic1 Tests
   dependsOn: regression_api_tests
   condition: succeededOrFailed()
   variables:
-    - group: NFT_automation_testing_pipeline 
+    - group: NFT_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic1_tests
       pool:
@@ -122,13 +139,13 @@ stages:
             testfileDirectory: 'src/tests/e2e/testFiles'
             testProjectName: 'tests'
             testType: 'regression:e2e:epic1'
-      
+
 - stage: regression_e2e_epic2_tests
   displayName: Run Regression E2E Epic2 Tests
   dependsOn: regression_e2e_epic1_tests
   condition: succeededOrFailed()
   variables:
-    - group: NFT_automation_testing_pipeline 
+    - group: NFT_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic2_tests
       pool:
@@ -142,13 +159,13 @@ stages:
             testfileDirectory: 'src/tests/e2e/testFiles'
             testProjectName: 'tests'
             testType: 'regression:e2e:epic2'
-      
+
 - stage: regression_e2e_epic3_tests
   displayName: Run Regression E2E Epic3 Tests
   dependsOn: regression_e2e_epic2_tests
   condition: succeededOrFailed()
   variables:
-    - group: NFT_automation_testing_pipeline 
+    - group: NFT_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic3_tests
       pool:
@@ -162,4 +179,3 @@ stages:
             testfileDirectory: 'src/tests/e2e/testFiles'
             testProjectName: 'tests'
             testType: 'regression:e2e:epic3'
-      
