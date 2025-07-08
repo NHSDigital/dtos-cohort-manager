@@ -2,7 +2,7 @@ import { expect } from '@playwright/test';
 import { Given, When, Then } from './fixtures';
 import { HomePage } from '../pages/homePage';
 
-let homePage:HomePage;
+let homePage: HomePage;
 /* Given('the User has logged in to the Cohort manager exceptions UI', async ({}) => {
   // Step: Given the User has logged in to the Cohort manager exceptions UI
   // From: tests/features/home.feature:4:2
@@ -28,28 +28,28 @@ Then('they should be able to view {string} text under the Raised card', async ({
   // From: tests/features/home.feature:12:2
 }); */
 
-Given('the User has logged in to the Cohort manager exceptions UI', async({ page })=>{
+Given('the User has logged in to the Cohort manager exceptions UI', async ({ page }) => {
 
-      homePage = new HomePage(page)
-      await page.goto("/");
-      await homePage.signInwithCredentials('test@test.com','test123')
+  homePage = new HomePage(page)
+  await page.goto("/");
+  await homePage.signInwithCredentials('test@test.com', 'test123')
 
 });
 
- When('they land on the {string}', async ({ page }, title)=>{
+When('they land on the {string}', async ({ page }, title) => {
   await expect(page).toHaveTitle(title);
   await homePage.verifyHeading();
 });
 //Raised verification steps
-Then('they should see Raised as link on raised card',async ({})=>{
+Then('they should see Raised as link on raised card', async ({ }) => {
   await homePage.verifyRaised()
 
 });
-Then('the total number should be displayed on raised',async ({})=>{
+Then('the total number should be displayed on raised', async ({ }) => {
   await homePage.assertRaisedCardNumberIsAtLeast()
 
 });
-Then('they should be able to view {string} text under the Raised card',async ({}, text)=>{
+Then('they should be able to view {string} text under the Raised card', async ({ }, text) => {
   await homePage.verifyRaisedText(text)
 
 });
