@@ -46,11 +46,19 @@ export async function getTestData(scenarioFolderName: string
     const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
     const inputParticipantRecord: Record<string, any> = parsedData.inputParticipantRecord;
 
-    const rawNhsNumbers: string[] = parsedData.validations.map(item =>
-      String(item.validations.NHSNumber || item.validations.NhsNumber)
-    );
+    let nhsNumbers: string[] = [];
+    if (parsedData.inputParticipantRecord.length !== parsedData.nhsNumbers.length) {
+      console.info(`Input participant record length (${parsedData.inputParticipantRecord.length}) does not match NHS numbers length (${parsedData.nhsNumbers.length}). Using NHS numbers from parsed data nhsNumbers property to attempt multiply records when parquet file is created.`);
+      nhsNumbers = parsedData.nhsNumbers;
+    } else {
+      nhsNumbers = parsedData.validations.map(item =>
+        String(item.validations.NHSNumber || item.validations.NhsNumber)
+      );
+    }
 
-    const nhsNumbers = ensureNhsNumbersStartWith999(rawNhsNumbers);
+
+    ensureNhsNumbersStartWith999(nhsNumbers);
+
 
     const uniqueNhsNumbers: string[] = Array.from(new Set(nhsNumbers));
     return [parsedData.validations, uniqueNhsNumbers, parquetFile, inputParticipantRecord, testFilesPath];
