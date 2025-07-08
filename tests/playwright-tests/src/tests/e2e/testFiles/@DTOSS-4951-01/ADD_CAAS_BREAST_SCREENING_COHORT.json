@@ -18,7 +18,7 @@
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9997153774,
         "expectedCount": 1,
-        "EmailAddressHome": "TestEmail@soup.io"
+        "EmailAddressHome": "nhsTest@gmail.com"
       },
       "meta": {
         "testJiraId": "@DTOSS-4951-01",
@@ -61,7 +61,7 @@
       "home_telephone_effective_from_date": "20240502",
       "mobile_telephone_number": "7898908901",
       "mobile_telephone_effective_from_date": "20240502",
-      "email_address": "TestEmail@soup.io",
+      "email_address": "nhsTest@gmail.com",
       "email_address_effective_from_date": "20240502",
       "preferred_language": "en",
       "is_interpreter_required": false,
