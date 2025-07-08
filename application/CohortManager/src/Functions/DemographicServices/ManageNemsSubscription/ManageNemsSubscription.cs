@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.DemographicServices;
 
 using System;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
@@ -50,13 +49,13 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+            if (nhsNumber != null && !ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("NHS number is required and must be valid format");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
-            bool success = await _subscriptionManager.CreateAndSendSubscriptionAsync(nhsNumber);
+            bool success = nhsNumber != null ? await _subscriptionManager.CreateAndSendSubscriptionAsync(nhsNumber) : false;
 
             if (!success)
             {
@@ -64,7 +63,7 @@ public class ManageNemsSubscription
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to create subscription in NEMS.");
             }
 
-            string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
+            string? subscriptionId = nhsNumber != null ? await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber) : null;
             _logger.LogInformation("Successfully created subscription for NHS number REDACTED");
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"Subscription created successfully. Subscription ID: {subscriptionId}");
         }
@@ -92,14 +91,14 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+            if (nhsNumber != null && !ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("NHS number is required and must be valid format");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
             // Check existence first to provide more informative error handling
-            var subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
+            var subscriptionId =  nhsNumber != null ? await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber) : null;
 
             if (string.IsNullOrEmpty(subscriptionId))
             {
@@ -108,7 +107,7 @@ public class ManageNemsSubscription
             }
 
             // Attempt to remove only if found
-            bool success = await _subscriptionManager.RemoveSubscriptionAsync(nhsNumber);
+            bool success = nhsNumber != null ? await _subscriptionManager.RemoveSubscriptionAsync(nhsNumber) : false;
 
             if (!success)
             {
@@ -143,13 +142,13 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+            if (nhsNumber != null && !ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("NHS number is required and must be valid format");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
-            string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
+            string? subscriptionId =  nhsNumber != null ? await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber) : null;
 
             if (string.IsNullOrEmpty(subscriptionId))
             {
