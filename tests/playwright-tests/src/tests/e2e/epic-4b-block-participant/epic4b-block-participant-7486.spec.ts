@@ -24,7 +24,7 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
     // Call the block participant function
     await test.step(`When BlockParticipant function is invoked`, async () => {
       const blockPayload = {
-        NhsNumber: nhsNumbers[0],
+        NhsNumber: nhsNumbers,
         FamilyName: inputParticipantRecord[0].family_name,
         DateOfBirth: inputParticipantRecord[0].date_of_birth
       };
