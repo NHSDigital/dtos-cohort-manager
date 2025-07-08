@@ -56,6 +56,9 @@ export async function getTestData(scenarioFolderName: string
       );
     }
 
+    if (nhsNumbers.length === 0 || nhsNumbers[0] === '') {
+      nhsNumbers = parsedData.nhsNumbers;
+    }
 
     ensureNhsNumbersStartWith999(nhsNumbers);
 
