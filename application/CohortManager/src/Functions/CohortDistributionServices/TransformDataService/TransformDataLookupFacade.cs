@@ -33,9 +33,9 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     }
 
 
-    public async Task<Dictionary<string, string>> GetCachedExcludedSMUValues()
+    public async Task<HashSet<string>> GetCachedExcludedSMUValues()
     {
-        Dictionary<string, string> excludedSMUData;
+        HashSet<string> excludedSMUData;
 
 
         if (!_memoryCache.TryGetValue("excludedSMUData", out excludedSMUData!))
@@ -45,7 +45,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
             _logger.LogInformation("now caching excluded SMU data");
             excludedSMUData = allExcludedSMUValues
                 .Select(x => x.GpPracticeCode)
-                .ToDictionary(x => x, x => x);
+                .ToHashSet();
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
                 .SetSlidingExpiration(TimeSpan.FromHours(24));

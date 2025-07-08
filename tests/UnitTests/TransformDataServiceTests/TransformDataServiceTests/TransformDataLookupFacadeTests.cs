@@ -109,6 +109,6 @@ public class TransformDataLookupFacadeTests
 
 
         Assert.IsNotNull(excludedSMUDictionary);
-        Assert.AreEqual(excludedSMUDictionary.GetFirst().Key, excludedSMUList.FirstOrDefault()!.GpPracticeCode);
+        Assert.AreEqual(excludedSMUDictionary.GetFirst(), excludedSMUList.FirstOrDefault()!.GpPracticeCode);
     }
 }

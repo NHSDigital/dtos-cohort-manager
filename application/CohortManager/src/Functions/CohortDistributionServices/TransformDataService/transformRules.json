@@ -159,11 +159,11 @@
           },
           {
             "Name": "IsNewRecordInSMU",
-            "Expression": "participant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullOnUpdatedParticipant ? false : !excludedSMUList.ContainsKey(participant.PrimaryCareProvider)) || new string[] { \"English\", \"NHAIS\", \"Cipher\", \"ENG\", \"IM\" }.Contains(participant.CurrentPosting)"
+            "Expression": "participant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullOnUpdatedParticipant ? false : !excludedSMUList.Contains(participant.PrimaryCareProvider)) || new string[] { \"English\", \"NHAIS\", \"Cipher\", \"ENG\", \"IM\" }.Contains(participant.CurrentPosting)"
           }, 
           {
             "Name": "IsOldRecordInSMU",            
-            "Expression": "databaseParticipant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullDatabaseParticipant ? false : excludedSMUList.ContainsKey(databaseParticipant.PrimaryCareProvider)) || new string[] { \"Welsh\", \"NHAIS\", \"Cipher\", \"CYM\" }.Contains(databaseParticipant.CurrentPosting)"
+            "Expression": "databaseParticipant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullDatabaseParticipant ? false : excludedSMUList.Contains(databaseParticipant.PrimaryCareProvider)) || new string[] { \"Welsh\", \"NHAIS\", \"Cipher\", \"CYM\" }.Contains(databaseParticipant.CurrentPosting)"
           }
         ],
         "Expression":  "participant.RecordType == Actions.Amended && IsNewRecordInSMU && IsOldRecordInSMU",
