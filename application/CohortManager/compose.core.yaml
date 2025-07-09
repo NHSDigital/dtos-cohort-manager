@@ -88,7 +88,8 @@ services:
       - inboundBlobName=inbound
       - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
-      - ParticipantManagementQueueName=participant-management-topic
+      - ParticipantManagementQueueName=add-participant-queue
+      - ParticipantManagementTopic=participant-management-topic
       - UseNewFunctions=false
 
   # Participant Management Service
