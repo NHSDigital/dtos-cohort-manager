@@ -19,8 +19,8 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
         DateOfBirth: inputParticipantRecord[0].date_of_birth
       };
 
-      const response = await BlockParticipant(request, blockPayload);
       await processFileViaStorage(parquetFile);
+      const response = await BlockParticipant(request, blockPayload);
       expect(response.data[0].BlockedFlag).toBe(1);
     });
 
