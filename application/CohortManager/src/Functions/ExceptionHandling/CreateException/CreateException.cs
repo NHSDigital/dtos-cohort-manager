@@ -64,7 +64,8 @@ public class CreateException
 
             if (!await ProcessException(exception!))
             {
-                _logger.LogError("could create exception please see database for more details");
+                _logger.LogError("could not create exception please see database for more details");
+                await messageActions.DeadLetterMessageAsync(message);
                 return;
             }
 
