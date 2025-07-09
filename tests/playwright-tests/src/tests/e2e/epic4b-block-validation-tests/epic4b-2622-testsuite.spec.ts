@@ -1,7 +1,7 @@
 import { expect, test, testWithAmended } from '../../fixtures/test-fixtures';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
-import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../steps/steps';
-import { getRecordsFromParticipantManagementService, BlockParticipant} from '../../../api/distributionService/bsSelectService'
+import { getApiTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
+import { BlockParticipant} from '../../../api/distributionService/bsSelectService'
 import { TestHooks } from '../../hooks/test-hooks';
 
 test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
@@ -73,6 +73,8 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
       };
 
       const response = await BlockParticipant(request, blockPayload);
+      console.log('BlockParticipant response:', response.data);
+      console.log(response,'response');
       expect(response.data[0].BlockedFlag).toBe(1);
     })
 
