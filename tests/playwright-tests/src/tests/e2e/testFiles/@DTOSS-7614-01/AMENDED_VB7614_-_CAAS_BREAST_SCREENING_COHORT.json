@@ -1,11 +1,5 @@
 {
   "validations": [
-    {
-      "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9995518112
-      }
-    },
       {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
