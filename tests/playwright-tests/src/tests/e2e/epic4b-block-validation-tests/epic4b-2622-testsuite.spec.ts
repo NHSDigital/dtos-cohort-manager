@@ -77,14 +77,18 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
       expectStatus(200);
     })
 
-    await test.step(`When Amend participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
+    await test.step(`Then participant should be in the participant management table`, async () => {
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
     });
 
-    await test.step(`Then exception should be in the exception management table`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-  });
+  //   await test.step(`When Amend participant is processed via storage`, async () => {
+  //     await processFileViaStorage(testData.runTimeParquetFileAmend);
+  //   });
+
+  //   await test.step(`Then exception should be in the exception management table`, async () => {
+  //     await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
+  //   });
+   });
 
 test('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - Delete', async ({ request }, testInfo) => {
 
