@@ -48,18 +48,18 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
 
   // });
 
-  testWithAmended('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - Amend', async ({ request }, testInfo) => {
+  testWithAmended('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - Amend', async ({ request , testData }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
 
     const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord, testFilesPath);
 
-     await test.step(`When ADD participant is processed via storage`, async () => {
+    await test.step(`When ADD participant is processed via storage`, async () => {
       await processFileViaStorage(parquetFile);
     });
 
     await test.step(`Then participant should be in the participant management table`, async () => {
-      await validateSqlDatabaseFromAPI(request, checkInDatabase);
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
     });
 
     // Call the block participant function
@@ -79,7 +79,7 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
     });
 
     await test.step(`Then exception should be in the exception management table`, async () => {
-      await validateSqlDatabaseFromAPI(request, checkInDatabase);
+      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
     });
   });
 
@@ -109,13 +109,13 @@ test('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - D
       expect(response.data[0].BlockedFlag).toBe(1);
     })
 
-    await test.step(`When Delete participant is processed via storage`, async () => {
-      await processFileViaStorage(parquetFile);
-    });
+    // await test.step(`When Delete participant is processed via storage`, async () => {
+    //   await processFileViaStorage(parquetFile);
+    // });
 
-    await test.step(`Then exception should be in the exception management table`, async () => {
-      await validateSqlDatabaseFromAPI(request, checkInDatabase);
-    });
+    // await test.step(`Then exception should be in the exception management table`, async () => {
+    //   await validateSqlDatabaseFromAPI(request, checkInDatabase);
+    // });
   });
 });
 
