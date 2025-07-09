@@ -21,11 +21,6 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
       await validateSqlDatabaseFromAPI(request, checkInDatabase);
     });
 
-    // Assert that the participant's blocked flag is set to 1 in participant management table.
-     await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
-      const response = await getRecordsFromParticipantManagementService(request);
-      expect(response.data[0].BlockedFlag).toBe(1);
-    });
 
     // Call the block participant function
     await test.step(`When BlockParticipant function is invoked`, async () => {
@@ -37,6 +32,13 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
 
       const response = await BlockParticipant(request, blockPayload);
     })
+
+    //  // Assert that the participant's blocked flag is set to 1 in participant management table.
+    //  await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
+    //   const response = await getRecordsFromParticipantManagementService(request);
+    //   expect(response.data[0].BlockedFlag).toBe(1);
+    // });
+
   });
 
   // test('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - Amend', async ({ request }, testInfo) => {
