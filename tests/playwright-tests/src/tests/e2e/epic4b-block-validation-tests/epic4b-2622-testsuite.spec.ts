@@ -1,4 +1,4 @@
-import { expect, test, testWithAmended } from '../../fixtures/test-fixtures';
+import { expect, test, testWithDelete, testWithAmended } from '../../fixtures/test-fixtures';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
 import { BlockParticipant} from '../../../api/distributionService/bsSelectService'
@@ -86,7 +86,7 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
     });
    });
 
-testwithDelete('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - Delete', async ({ request }, testInfo) => {
+testWithDelete('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - Delete', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
 
