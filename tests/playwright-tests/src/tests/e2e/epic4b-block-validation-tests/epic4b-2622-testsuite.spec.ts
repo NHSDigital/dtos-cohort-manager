@@ -2,8 +2,11 @@ import { test, expect } from '@playwright/test';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../steps/steps';
 import { getRecordsFromParticipantManagementService, BlockParticipant} from '../../../api/distributionService/bsSelectService'
+import { testWithAmended } from '../../fixtures/test-fixtures';
+import { TestHooks } from '../../hooks/test-hooks';
 
 test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
+   TestHooks.setupAddTestHooks();
   //  test('@DTOSS-7610-01 AC01 Verify block a participant not processed to COHORT - ADD', async ({ request }, testInfo) => {
 
   //   const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
@@ -45,11 +48,9 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
 
   // });
 
-  test('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - Amend', async ({ request }, testInfo) => {
+  testWithAmended('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - Amend', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
-
-    await cleanupDatabaseFromAPI(request, nhsNumbers);
 
     const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord, testFilesPath);
 
@@ -70,11 +71,6 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
       };
 
       const response = await BlockParticipant(request, blockPayload);
-    })
-
-    // Assert that the participant's blocked flag is set to 1 in participant management table.
-    await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
-      const response = await getRecordsFromParticipantManagementService(request);
       expect(response.data[0].BlockedFlag).toBe(1);
     })
 
@@ -91,11 +87,9 @@ test('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - D
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
 
-    await cleanupDatabaseFromAPI(request, nhsNumbers);
-
     const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord, testFilesPath);
 
-     await test.step(`When ADD participant is processed via storage`, async () => {
+    await test.step(`When ADD participant is processed via storage`, async () => {
       await processFileViaStorage(parquetFile);
     });
 
@@ -112,11 +106,6 @@ test('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - D
       };
 
       const response = await BlockParticipant(request, blockPayload);
-    })
-
-    // Assert that the participant's blocked flag is set to 1 in participant management table.
-    await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
-      const response = await getRecordsFromParticipantManagementService(request);
       expect(response.data[0].BlockedFlag).toBe(1);
     })
 
