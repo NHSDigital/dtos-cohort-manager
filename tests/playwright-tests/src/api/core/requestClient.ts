@@ -22,10 +22,12 @@ export const parseResponse = async <T>(response: any): Promise<ApiResponse<T>> =
   if (status === 200) {
     try {
       data = await response.json();
+      console.info(`✅\t Log API response data: ${JSON.stringify(data)}`);
     }
 
     catch {
       data = await response.text();
+      console.info(`✅\t Log API response text: ${data}`);
     }
   }
 
