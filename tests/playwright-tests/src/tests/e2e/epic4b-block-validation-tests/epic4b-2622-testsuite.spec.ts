@@ -13,7 +13,15 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
     const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord, testFilesPath);
 
     await test.step(`When 1 ADD participant is processed via storage`, async () => {
+      const blockPayload = {
+        NhsNumber: nhsNumbers[0],
+        FamilyName: inputParticipantRecord[0].family_name,
+        DateOfBirth: inputParticipantRecord[0].date_of_birth
+      };
+
+      const response = await BlockParticipant(request, blockPayload);
       await processFileViaStorage(parquetFile);
+      expect(response.data[0].BlockedFlag).toBe(1);
     });
 
     // Assert that the participant is in the participant management table.
@@ -23,15 +31,6 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
 
 
     // Call the block participant function
-    await test.step(`When BlockParticipant function is invoked`, async () => {
-      const blockPayload = {
-        NhsNumber: nhsNumbers[0],
-        FamilyName: inputParticipantRecord[0].family_name,
-        DateOfBirth: inputParticipantRecord[0].date_of_birth
-      };
-
-      const response = await BlockParticipant(request, blockPayload);
-    })
 
     //  // Assert that the participant's blocked flag is set to 1 in participant management table.
     //  await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
