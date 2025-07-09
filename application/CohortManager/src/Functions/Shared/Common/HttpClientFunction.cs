@@ -48,7 +48,17 @@ public class HttpClientFunction : IHttpClientFunction
         return await GetAsync(client);
     }
 
-    public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
+    public async Task<HttpResponseMessage> SendGetResponse(string url)
+    {
+        using var client = _factory.CreateClient();
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        return await client.GetAsync(url);
+    }
+
+    public async Task<string> SendGet(string url, Dictionary<string, string>? parameters)
     {
         using var client = _factory.CreateClient();
 
