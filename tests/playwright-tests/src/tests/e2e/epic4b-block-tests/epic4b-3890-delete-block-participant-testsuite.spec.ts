@@ -5,7 +5,7 @@ import { composeValidators, expectStatus, validateResponseByStatus } from '../..
 import { deleteParticipant } from '../../../api/distributionService/bsSelectService';
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 
-test.describe.serial('@regression @e2e @epic4b Delete-Block-Participant - CohortDistribution Validation', () => {
+test.describe.serial('@regression @e2e @epic4b-block-tests Delete-Block-Participant - CohortDistribution Validation', () => {
   test('@DTOSS-7689-01 - Verify participant is deleted from CohortDistributionDataService', async ({ request }, testInfo) => {
     const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title, 'ADD');
 
