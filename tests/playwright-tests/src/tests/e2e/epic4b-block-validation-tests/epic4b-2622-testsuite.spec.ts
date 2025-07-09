@@ -1,8 +1,7 @@
-import { test, expect } from '@playwright/test';
+import { expect, test, testWithAmended } from '../../fixtures/test-fixtures';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../steps/steps';
 import { getRecordsFromParticipantManagementService, BlockParticipant} from '../../../api/distributionService/bsSelectService'
-import { testWithAmended } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
 
 test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
