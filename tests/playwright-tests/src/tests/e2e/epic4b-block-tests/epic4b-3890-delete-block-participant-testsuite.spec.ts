@@ -1,9 +1,9 @@
 import { test, expect, APIRequestContext } from '@playwright/test';
-import { createParquetFromJson } from '../../../../parquet/parquet-multiplier';
-import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../../steps/steps';
-import { composeValidators, expectStatus, validateResponseByStatus } from '../../../../api/responseValidators';
-import { deleteParticipant } from '../../../../api/distributionService/bsSelectService';
-import { getRecordsFromCohortDistributionService } from '../../../../api/dataService/cohortDistributionService';
+import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
+import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../steps/steps';
+import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
+import { deleteParticipant } from '../../../api/distributionService/bsSelectService';
+import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 
 test.describe.serial('@regression @e2e @epic4b Delete-Block-Participant - CohortDistribution Validation', () => {
   test('@DTOSS-7689-01 - Verify participant is deleted from CohortDistributionDataService', async ({ request }, testInfo) => {
