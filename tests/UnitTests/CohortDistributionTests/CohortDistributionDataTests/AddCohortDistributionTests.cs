@@ -30,7 +30,7 @@ public class AddCohortDistributionTests
             new CohortDistribution
             {
                 ParticipantId = 1,
-                RecordInsertDateTime = DateTime.Today
+                RecordInsertDateTime = DateTime.UtcNow.Date
             }
         };
 
@@ -126,7 +126,7 @@ public class AddCohortDistributionTests
             new CohortDistribution
             {
                 ParticipantId = 1,
-                RecordInsertDateTime = DateTime.Today,
+                RecordInsertDateTime = DateTime.UtcNow.Date,
                 RequestId = requestId
             }
         };

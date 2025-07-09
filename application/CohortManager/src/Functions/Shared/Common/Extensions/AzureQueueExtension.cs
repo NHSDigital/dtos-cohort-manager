@@ -22,11 +22,11 @@ public static class AzureQueueExtension
             {
                 _.AddAzureClients(builder =>
                 {
-                    builder.AddServiceBusClient(serviceBusConnectionString);
-                    builder.UseCredential(new DefaultAzureCredential());
+                    builder.AddServiceBusClient(serviceBusConnectionString)
+                        .WithCredential(new DefaultAzureCredential());
 
                 });
-                _.AddSingleton<IQueueClient, AzureStorageQueueClient>();
+                _.AddSingleton<IQueueClient, AzureServiceBusClient>();
             }
             else
             {
@@ -64,11 +64,11 @@ public static class AzureQueueExtension
                 {
                     _.AddAzureClients(builder =>
                     {
-                        builder.AddServiceBusClient(serviceBusConnectionString);
-                        builder.UseCredential(new DefaultAzureCredential());
+                        builder.AddServiceBusClient(serviceBusConnectionString)
+                            .WithCredential(new DefaultAzureCredential());
 
                     });
-                    _.AddKeyedSingleton<IQueueClient, AzureStorageQueueClient>(keyName);
+                    _.AddKeyedSingleton<IQueueClient, AzureServiceBusClient>(keyName);
                 }
                 else
                 {
