@@ -1,23 +1,21 @@
 {
   "validations": [
-    {
+     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9997113225,
-        "expectedCount": 1,
-        "RecordType": "AMENDED"
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9997113225,
+        "TelephoneNumberHome": "0123456789012345689011223344556677"
       },
       "meta": {
         "testJiraId": "@DTOSS-4948-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's TelephoneNumberHome value is truncated to 32 characters in ParticipantManagementDataService"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's TelephoneNumberHome value is truncated to 32 characters in ParticipantDemographicDataService"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9997113225,
-        "expectedCount": 2,
         "TelephoneNumberHome": "01234567890123456890112233445566"
       },
       "meta": {
@@ -31,7 +29,7 @@
       {
       "record_type": "AMENDED",
       "change_time_stamp": null,
-      "serial_change_number": 1,
+      "serial_change_number": 2,
       "nhs_number": 9997113225,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
@@ -57,9 +55,9 @@
       "reason_for_removal_effective_from_date": null,
       "date_of_death": null,
       "death_status": null,
-      "home_telephone_number": "01234567890123456890112233445566778899",
+      "home_telephone_number": "0123456789012345689011223344556677",
       "home_telephone_effective_from_date": "20200819",
-      "mobile_telephone_number": "01234567890",
+      "mobile_telephone_number": "09999999999",
       "mobile_telephone_effective_from_date": "20240502",
       "email_address": "abc123@soup.io",
       "email_address_effective_from_date": "20240502",

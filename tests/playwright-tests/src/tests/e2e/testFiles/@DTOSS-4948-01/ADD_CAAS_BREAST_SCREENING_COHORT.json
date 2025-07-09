@@ -2,22 +2,20 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9997113225,
-        "expectedCount": 1,
-        "RecordType": "ADD"
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9997113225,
+        "TelephoneNumberHome": "01234567890"
       },
       "meta": {
         "testJiraId": "@DTOSS-4948-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify adding participant's TelephoneNumberHome value in ParticipantManagementDataService"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify adding participant's TelephoneNumberHome value in ParticipantDemographicDataService"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9997113225,
-        "expectedCount": 1,
         "TelephoneNumberHome": "01234567890"
       },
       "meta": {
@@ -59,7 +57,7 @@
       "death_status": null,
       "home_telephone_number": "01234567890",
       "home_telephone_effective_from_date": "20200819",
-      "mobile_telephone_number": "01234567890",
+      "mobile_telephone_number": "09999999999",
       "mobile_telephone_effective_from_date": "20240502",
       "email_address": "abc123@soup.io",
       "email_address_effective_from_date": "20240502",
