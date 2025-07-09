@@ -9,11 +9,20 @@ services:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/DistributeParticipant/Dockerfile
     environment:
-      - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
-      - CohortQueueName=cohort-distribution-queue
+      - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - CohortDistributionTopic=cohort-distribution-topic
+      - DistributeParticipantSubscription=distribute-participant-sub
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - WEBSITE_HOSTNAME=localhost:8080
-
+      - WEBSITE_HOSTNAME=distribute-participant:80
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - TransformDataServiceURL=http://transform-data-service:7080/api/TransformDataService
+      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - CohortDistributionDataServiceUrl=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
+      - LookupValidationURL=http://lookup-validation:7075/api/LookupValidation
+      - StaticValidationURL=http://static-validation:7074/api/StaticValidation
+      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - IgnoreParticipantExceptions=false
+      - IsExtractedToBSSelect=true
 
   retrieve-cohort-distribution-data:
     container_name: retrieve-cohort-distribution-data
