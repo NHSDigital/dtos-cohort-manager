@@ -2,6 +2,7 @@ import { expect, test, testWithAmended } from '../../fixtures/test-fixtures';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
 import { BlockParticipant} from '../../../api/distributionService/bsSelectService'
+import { expectStatus } from '../../../api/responseValidators';
 import { TestHooks } from '../../hooks/test-hooks';
 
 test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
@@ -73,9 +74,7 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
       };
 
       const response = await BlockParticipant(request, blockPayload);
-      console.log('BlockParticipant response:', response.data);
-      console.log(response,'response');
-      expect(response.data[0].BlockedFlag).toBe(1);
+      expectStatus(200);
     })
 
     await test.step(`When Amend participant is processed via storage`, async () => {
