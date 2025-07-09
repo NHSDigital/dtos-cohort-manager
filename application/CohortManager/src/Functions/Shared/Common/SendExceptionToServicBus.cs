@@ -2,6 +2,7 @@
 namespace Common.Interfaces;
 
 using Common;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
@@ -14,7 +15,7 @@ public class SendExceptionToServiceBus : IExceptionSender
     private readonly ServiceBusValidationConfig _serviceBusValidationConfig;
 
 
-    public SendExceptionToServiceBus(IQueueClient serviceBusHandler, ILogger<SendExceptionToServiceBus> logger, IOptions<ServiceBusValidationConfig> serviceBusValidationConfig)
+    public SendExceptionToServiceBus([FromKeyedServices("Exception")] IQueueClient serviceBusHandler, ILogger<SendExceptionToServiceBus> logger, IOptions<ServiceBusValidationConfig> serviceBusValidationConfig)
     {
         _serviceBusHandler = serviceBusHandler;
         _logger = logger;
