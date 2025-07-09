@@ -3,12 +3,38 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NhsNumber": "9997113721"
+        "NHSNumber": 9999868673,
+        "RecordType": "AMENDED",
+        "ExceptionFlag": 0,
+        "EligibilityFlag": 1
       },
       "meta": {
         "testJiraId": "@DTOSS-5404-01",
         "requirementJiraId": "DTOSS-2757",
-        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify addition of participant with NHS number 9997113721"
+        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify EligibilityFlag is set as 1 for Amended participant with NHS number 9999868673 and ExceptionFlag as 0"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9999868673,
+        "GivenName": "SteveName"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5404-01",
+        "requirementJiraId": "DTOSS-2757",
+        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify AMENDED is sent for an existing participant with EligibilityFlag is set as 1 to cohort"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5404-01",
+        "requirementJiraId": "DTOSS-2757",
+        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify AMENDED is sent for an existing participant with EligibilityFlag is set as 1 should have no exceptions"
       }
     }
   ],
@@ -17,14 +43,14 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 9997113721,
+      "nhs_number": 9999868673,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20130319",
       "current_posting": "BD",
       "current_posting_effective_from_date": "20130319",
       "name_prefix": "Mr",
-      "given_name": "Steve",
+      "given_name": "SteveName",
       "other_given_name": "Potter",
       "family_name": "Dominic",
       "previous_family_name": "Stevens",
@@ -55,6 +81,6 @@
     }
   ],
   "nhsNumbers": [
-    "9997113721"
+    "9999868673"
   ]
 }
