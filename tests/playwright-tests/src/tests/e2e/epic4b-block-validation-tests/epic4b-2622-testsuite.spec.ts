@@ -6,7 +6,7 @@ import { testWithAmended } from '../../fixtures/test-fixtures';
 import { TestHooks } from '../../hooks/test-hooks';
 
 test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
-   TestHooks.setupAddTestHooks();
+   TestHooks.setupAllTestHooks();
   //  test('@DTOSS-7610-01 AC01 Verify block a participant not processed to COHORT - ADD', async ({ request }, testInfo) => {
 
   //   const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
