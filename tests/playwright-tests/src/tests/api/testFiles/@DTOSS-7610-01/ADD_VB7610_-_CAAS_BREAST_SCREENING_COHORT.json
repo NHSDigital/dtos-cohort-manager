@@ -54,7 +54,8 @@
       "preferred_language": "en",
       "is_interpreter_required": false,
       "invalid_flag": false,
-      "eligibility": true
+      "eligibility": true,
+      "blocked_flag": 1
     }
   ],
   "nhsNumbers": [
