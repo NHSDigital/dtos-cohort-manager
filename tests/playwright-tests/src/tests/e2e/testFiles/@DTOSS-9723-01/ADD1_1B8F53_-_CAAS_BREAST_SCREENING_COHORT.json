@@ -2,24 +2,13 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9998973597
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-5223-01",
-        "requirementJiraId": "DTOSS-5223",
-        "additionalTags": "@regression @e2e @epic3-high-priority Tests Preferred Language Validation New Participant in Participant Management"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "apiEndpoint": "api/CohortDistributionDataService",
         "NhsNumber": 9998973597,
         "PreferredLanguage": "en"
       },
       "meta": {
-        "testJiraId": "@DTOSS-5223-01",
-        "requirementJiraId": "DTOSS-5223",
+        "testJiraId": "old - DTOSS-5223-01, new - DTOSS-9723-01",
+        "requirementJiraId": "old - DTOSS-3082, new - DTOSS-8983",
         "additionalTags": "@regression @e2e @epic3-high-priority Tests Preferred Language Validation New Participant in Participant Demographic for preferred language"
       }
     }
