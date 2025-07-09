@@ -17,7 +17,7 @@
   ],
   "inputParticipantRecord": [
     {
-      "record_type": "ADD",
+      "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": null,
       "nhs_number": "9995518112",
@@ -27,7 +27,7 @@
       "current_posting": "CH",
       "current_posting_effective_from_date": "20130319",
       "name_prefix": "A.ML",
-      "given_name": "NewTest1Updated",
+      "given_name": "Amend test",
       "other_given_name": "Test",
       "family_name": "Adani1",
       "previous_family_name": "Test2",
