@@ -12,17 +12,22 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
 
     const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord, testFilesPath);
 
-    await test.step(`When 1 ADD participant is processed via storage`, async () => {
-      const blockPayload = {
-        NhsNumber: nhsNumbers[0],
-        FamilyName: inputParticipantRecord[0].family_name,
-        DateOfBirth: inputParticipantRecord[0].date_of_birth
-      };
+    await test.step(`BlockParticipant`, async () => {
 
-      await processFileViaStorage(parquetFile);
-      const response = await BlockParticipant(request, blockPayload);
-      expect(response.data[0].BlockedFlag).toBe(1);
+        const blockPayload = {
+          NhsNumber: nhsNumbers[0],
+          FamilyName: inputParticipantRecord[0].family_name,
+          DateOfBirth: inputParticipantRecord[0].date_of_birth
+        };
+
+        const response = await BlockParticipant(request, blockPayload);
+        expect(response.data[0].BlockedFlag).toBe(1);
     });
+
+    await test.step(`When 1 ADD participant is processed via storage`, async () => {
+      await processFileViaStorage(parquetFile);
+    });
+
 
     // Assert that the participant is in the participant management table.
      await test.step(`Then participant should be in the participant management table`, async () => {
