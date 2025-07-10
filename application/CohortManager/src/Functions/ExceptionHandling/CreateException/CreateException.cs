@@ -35,7 +35,7 @@ public class CreateException
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
                 var requestBody = await reader.ReadToEndAsync();
-                exception = JsonSerializer.Deserialize<ValidationException>(requestBody)!;
+                exception = JsonSerializer.Deserialize<ValidationException>(requestBody);
             }
 
             if (await ProcessException(exception))
