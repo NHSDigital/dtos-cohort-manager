@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="../../../application/CohortManager/src/Functions/ReconciliationService/ReconciliationService.Core/ReconciliationServiceCore.csproj" />
     <ProjectReference Include="../../../application/CohortManager/src/Functions/ReconciliationService/ReconciliationService.Function/ReconciliationService.csproj" />
+    <ProjectReference Include="../../TestUtils/TestUtils.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -22,6 +22,7 @@ var host = new HostBuilder()
     {
         services.AddDatabaseHealthCheck("ReconciliationService");
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddScoped<IReconciliationProcessor, ParticipantReconciliation>();
     })
     .AddTelemetry()
     .Build();

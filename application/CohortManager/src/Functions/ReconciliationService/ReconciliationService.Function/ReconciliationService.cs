@@ -20,26 +20,23 @@ public class ReconciliationService
     private readonly ICreateResponse _createResponse;
     private readonly IRequestHandler<InboundMetric> _inboundMetricRequestHandler;
     private readonly IDataServiceAccessor<InboundMetric> _inboundMetricDataServiceAccessor;
-    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataService;
-    private readonly IDataServiceClient<ExceptionManagement> _exceptionManagementDataService;
+    private readonly IReconciliationProcessor _reconciliationProcessor;
 
     public ReconciliationService(ILogger<ReconciliationService> logger,
         ICreateResponse createResponse,
         IRequestHandler<InboundMetric> inboundMetricRequestHandler,
         IDataServiceAccessor<InboundMetric> inboundMetricDataServiceAccessor,
-        IDataServiceClient<CohortDistribution> cohortDistributionDataService,
-        IDataServiceClient<ExceptionManagement> exceptionManagementDataService)
+        IReconciliationProcessor reconciliationProcessor)
     {
         _logger = logger;
         _createResponse = createResponse;
         _inboundMetricRequestHandler = inboundMetricRequestHandler;
         _inboundMetricDataServiceAccessor = inboundMetricDataServiceAccessor;
-        _cohortDistributionDataService = cohortDistributionDataService;
-        _exceptionManagementDataService = exceptionManagementDataService;
+        _reconciliationProcessor = reconciliationProcessor;
     }
 
     [Function("InboundMetricsTracker")]
-    public async Task Run(
+    public async Task RunInboundMetric(
         [ServiceBusTrigger("%inboundMetricTopic%", "%inboundMetricSub%", Connection = "ServiceBusConnectionString")]
         ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
@@ -69,6 +66,7 @@ public class ReconciliationService
         {
             _logger.LogWarning("Metric failed to add to the database, Message will be deferred");
             await messageActions.DeferMessageAsync(message);
+            return;
         }
 
 
@@ -77,7 +75,7 @@ public class ReconciliationService
     }
 
     [Function("ReconcileParticipants")]
-    public async Task RunAsync([TimerTrigger("%ReconciliationTimer%")] TimerInfo myTimer)
+    public async Task RunReconciliation([TimerTrigger("%ReconciliationTimer%")] TimerInfo myTimer)
     {
         DateTime lastRun;
         if (myTimer.ScheduleStatus is not null)
@@ -88,25 +86,8 @@ public class ReconciliationService
         {
             lastRun = DateTime.UtcNow.AddHours(-24);
         }
-        _logger.LogInformation("Reconciling records received since {lastRun}", lastRun);
+        await _reconciliationProcessor.RunReconciliation(lastRun);
 
-        var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.RecordInsertDateTime.Value > lastRun);
-        var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => (x.RuleId.Value == -2146233088 || x.RuleId.Value == -2147024809 || x.RuleDescription == "RecordType was not set to an expected value") && x.DateCreated.Value > lastRun);
-
-
-        var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > lastRun);
-
-        _logger.LogInformation("cohort Records Received = {cohort Count}, exceptionCount = {ExceptionCount}, expected count = {expected}", cohortDistributionRecords.Count(), exceptionRecords.Count(), metrics.Sum(x => x.RecordCount));
-
-        var recordsProcessed = exceptionRecords.Count() + cohortDistributionRecords.Count();
-        var recordsExpected = metrics.Sum(x => x.RecordCount);
-
-        if (recordsExpected != recordsProcessed)
-        {
-            _logger.LogCritical("Expected Records {expectedCount} Didn't equal Records Processed {processedCount}", recordsExpected, recordsProcessed);
-        }
-
-        _logger.LogInformation("Next reconciliation runtime is at {nextRun}", myTimer.ScheduleStatus.Next.ToUniversalTime());
 
     }
 

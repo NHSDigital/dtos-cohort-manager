@@ -1,5 +1,5 @@
-﻿using System.Runtime.CompilerServices;
-using Castle.Core.Logging;
+﻿
+using System.Threading.Tasks;
 using Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,11 +19,34 @@ public sealed class InboundMetricClientTests
 
     public InboundMetricClientTests()
     {
+        _mockConfig.Setup(x => x.Value).Returns(new InboundMetricClientConfig
+        {
+            InboundMetricTopic = "TopicName",
+            ServiceBusConnectionString = "connectionString"
+        });
         _inboundMetricClient = new InboundMetricClient(_mockLogger.Object, _mockQueueClient.Object, _mockConfig.Object);
 
     }
     [TestMethod]
-    public void TestMethod1()
+    public async Task LogInboundMetric_SendNormalMetric_ReturnsTrue()
     {
+        //arrange
+        _mockQueueClient.Setup(x => x.AddAsync<InboundMetricRequest>(It.IsAny<InboundMetricRequest>(), It.IsAny<string>())).ReturnsAsync(true);
+        //act
+        var result = await _inboundMetricClient.LogInboundMetric("Source", 123);
+
+        //assert
+        Assert.IsTrue(result);
+    }
+    [TestMethod]
+    public async Task LogInboundMetric_CannotAddToQueue_ReturnsFalse()
+    {
+        //arrange
+        _mockQueueClient.Setup(x => x.AddAsync<InboundMetricRequest>(It.IsAny<InboundMetricRequest>(), It.IsAny<string>())).ReturnsAsync(false);
+        //act
+        var result = await _inboundMetricClient.LogInboundMetric("Source", 123);
+
+        //assert
+        Assert.IsFalse(result);
     }
 }
