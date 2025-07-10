@@ -14,12 +14,11 @@ using System.Net;
 using System.Text;
 using Model;
 using Common;
-using Data.Database;
 using Microsoft.Extensions.Logging;
 using System.Data;
 using RulesEngine.Actions;
-using DataServices.Client;
-using System.Configuration;
+using System.Threading.Tasks;
+using Hl7.Fhir.Rest;
 
 public class TransformDataService
 {
@@ -49,7 +48,6 @@ public class TransformDataService
     {
         CohortDistributionParticipant participant;
         TransformDataRequestBody requestBody;
-
         try
         {
             string requestBodyJson;
@@ -85,9 +83,8 @@ public class TransformDataService
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
-            {
                 participant.NamePrefix = await TransformNamePrefixAsync(participant.NamePrefix, participant);
-            }
+
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
             if (participant.NhsNumber != null)
@@ -119,9 +116,11 @@ public class TransformDataService
     public async Task<CohortDistributionParticipant> TransformParticipantAsync(CohortDistributionParticipant participant,
                                                                             CohortDistribution databaseParticipant)
     {
+        var excludedSMUList = await _dataLookup.GetCachedExcludedSMUValues();
+
         string json = await File.ReadAllTextAsync("transformRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() } };
+        var actions = new Dictionary<string, Func<ActionBase>> { { "TransformAction", () => new TransformAction() }, };
         var reSettings = new ReSettings
         {
             CustomActions = actions,
@@ -135,6 +134,7 @@ public class TransformDataService
             new RuleParameter("databaseParticipant", databaseParticipant),
             new RuleParameter("participant", participant),
             new RuleParameter("dbLookup", _dataLookup),
+            new RuleParameter("excludedSMUList", excludedSMUList),
             new RuleParameter("existingParticipant", existingParticipant)
         };
 
@@ -145,7 +145,6 @@ public class TransformDataService
 
         return participant;
     }
-
     private async Task<string?> TransformNamePrefixAsync(string namePrefix, CohortDistributionParticipant participant)
     {
 
