@@ -161,6 +161,12 @@ variable "container_app_environments" {
   default     = {}
   type = object({
     instances = optional(map(object({
+      workload_profile = optional(object({
+        name                  = optional(string)
+        workload_profile_type = optional(string)
+        minimum_count         = optional(number, 0)
+        maximum_count         = optional(string, 1)
+      }), {})
       zone_redundancy_enabled = optional(bool, false)
     })), {})
   })
@@ -238,11 +244,12 @@ variable "function_apps" {
           container_name = string
       })), [])
       db_connection_string    = optional(string, "")
-      producer_to_service_bus = optional(list(string), [])
+      service_bus_connections = optional(list(string), [])
       key_vault_url           = optional(string, "")
       app_urls = optional(list(object({
         env_var_name     = string
         function_app_key = string
+        endpoint_name    = optional(string, "")
       })), [])
       env_vars_static = optional(map(string), {})
     }))
@@ -458,9 +465,8 @@ variable "sqlserver" {
 
 variable "service_bus" {
   description = "Configuration for Service Bus namespaces and their topics"
-  default = {} 
+  default     = {}
   type = map(object({
-    namespace_name   = optional(string)
     capacity         = number
     sku_tier         = string
     max_payload_size = string
@@ -472,27 +478,14 @@ variable "service_bus" {
       partitioning_enabled                    = optional(bool, false)
       max_message_size_in_kilobytes           = optional(number, 1024)
       max_size_in_megabytes                   = optional(number, 5120)
+      max_delivery_count                      = optional(number, 10) # Note this actually belongs to the subscription, but is included here for convenience
       requires_duplicate_detection            = optional(bool, false)
       support_ordering                        = optional(bool)
       status                                  = optional(string, "Active")
-      topic_name                              = optional(string)
+      subscribers                             = optional(list(string), []) # List of function apps that will subscribe to this topic
     }))
   }))
 }
-
-# variable "service_bus_subscriptions" {
-#   description = "Configuration for service bus subscriptions"
-#   type = object({
-#     subscriber_config = map(object({
-#       subscription_name       = string
-#       namespace_name          = optional(string)
-#       topic_name              = string
-#       subscriber_functionName = string
-#     }))
-#   })
-#   default = {}
-# }
-
 
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"
