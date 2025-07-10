@@ -1,0 +1,86 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9999857329",
+        "RuleId": 2,
+        "RuleDescription": "Participant was transformed as transform rule: TruncateFirstNameExceedsMaximumLength was executed"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4156-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify Exception raised when new participant's Given Name more than 100 is given for nhs number 9999857329 with RuleId 2 and Rule Description Participant was transformed as transform rule: TruncateFirstNameExceedsMaximumLength was executed"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9999857329,
+        "GivenName": "PalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalMER"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4156-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify Exception raised when new participant's Given Name more than 100 for nhs number 9999857329 - check participant demographic record is loaded successfully with complete Given Name"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9999857329,
+        "GivenName": "PalmerPalmerPalmerPalmerPalmerPalme"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4156-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify Exception raised when new participant's Given Name more than 100 is given for nhs number 9999857329 - check Cohort table loaded with truncated Given Name to 35 characters"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 2,
+      "nhs_number": 9999857329,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20030319",
+      "current_posting": "BD",
+      "current_posting_effective_from_date": "20130419",
+      "name_prefix": "MRS",
+      "given_name": "PalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalmerPalMER",
+      "other_given_name": "Jude",
+      "family_name": "Dominic",
+      "previous_family_name": "Stevens",
+      "date_of_birth": "19600112",
+      "gender": 1,
+      "address_line_1": "123 Trent Road",
+      "address_line_2": "123 Trent Road",
+      "address_line_3": "123 Trent Road",
+      "address_line_4": "123 Trent Road",
+      "address_line_5": "123 Trent Road",
+      "postcode": "TR43 8JR",
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20031118",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "1234567890",
+      "home_telephone_effective_from_date": "20240502",
+      "mobile_telephone_number": "1234567890",
+      "mobile_telephone_effective_from_date": "20240502",
+      "email_address": "test@gmail.com",
+      "email_address_effective_from_date": "20240502",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9999857329"
+  ]
+}
