@@ -3,7 +3,10 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NhsNumber": "9997111826"
+        "NHSNumber": 9997111826,
+        "ReasonForRemoval": "SDL"
+
+
       },
       "meta": {
         "testJiraId": "@DTOSS-5107-01",
@@ -38,7 +41,7 @@
       "postcode": "AB23 1AF",
       "paf_key": "Z3S4Q5X8",
       "address_effective_from_date": "20010101",
-      "reason_for_removal": "DEA",
+      "reason_for_removal": "SDL",
       "reason_for_removal_effective_from_date": "20120101",
       "date_of_death": "",
       "death_status": null,
