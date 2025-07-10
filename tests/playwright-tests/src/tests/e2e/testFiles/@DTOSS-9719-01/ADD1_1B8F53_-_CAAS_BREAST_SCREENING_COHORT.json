@@ -8,8 +8,8 @@
         "RuleDescription": "Participant was transformed as transform rule: ValidateLanguageCode was executed"
       },
       "meta": {
-        "testJiraId": "old - @DTOSS-5221-01 new - DTOSS-9719-01",
-        "requirementJiraId": "old - DTOSS-3082, new - DTOSS-8983",
+        "testJiraId": "@DTOSS-9719-01",
+        "requirementJiraId": "@DTOSS-8983",
         "additionalTags": "@regression @e2e @epic3-high-priority @Validate exception raised for Invalid preferred language code"
       }
     }
