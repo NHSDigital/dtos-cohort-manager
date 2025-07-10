@@ -5,7 +5,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997111834",
         "RuleId": 0,
-        "RuleDescription": "invalid preferred language code"
+        "RuleDescription": "Participant was transformed as transform rule: ValidateLanguageCode was executed"
       },
       "meta": {
         "testJiraId": "old - DTOSS-4946-01, new - DTOSS-9720-01",
