@@ -2,13 +2,36 @@
   "validations": [
     {
       "validations": {
+        "apiEndpoint": "api/participantManagementDataService",
+        "NHSNumber": 9997113829,
+        "ExceptionFlag": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5403-01",
+        "requirementJiraId": "DTOSS-2757",
+        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify AMENDED addition of participant with NHS number 9997113829; ExceptionFlag as 0"
+      }
+    },
+    {
+      "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9997113829
       },
       "meta": {
         "testJiraId": "@DTOSS-5403-01",
         "requirementJiraId": "DTOSS-2757",
-        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify Amendment is sent for an existing participant with ELIGIBILITY_FLAG is FALSE"
+        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify Amendment is sent for an existing participant"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5403-01",
+        "requirementJiraId": "DTOSS-2757",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify the ExceptionManagementDataService has no exceptions for an AMENDED participant"
       }
     }
   ],

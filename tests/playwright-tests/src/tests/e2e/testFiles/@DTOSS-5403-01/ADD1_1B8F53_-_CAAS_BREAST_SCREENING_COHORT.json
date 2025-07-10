@@ -3,7 +3,9 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9997113829
+        "NHSNumber": 9997113829,
+        "RecordType": "ADD",
+        "ExceptionFlag": 0
       },
       "meta": {
         "testJiraId": "@DTOSS-5403-01",
