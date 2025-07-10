@@ -42,12 +42,12 @@ public class CreateException
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
             }
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "could not create exception please see database for more details");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "could not create exception please see database for more details");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, ex.Message);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, ex.Message);
         }
     }
 
