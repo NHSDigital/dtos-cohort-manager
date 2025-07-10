@@ -2,13 +2,26 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": "9997153162"
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9997153162,
+        "AddressLine5": "AddressLine5AddressLine5Testing35Chars"
       },
       "meta": {
         "testJiraId": "@DTOSS-4874-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's AddressLine4 value is truncated to 35 characters"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's AddressLine5 value in ParticipantDemographicDataService"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9997153162,
+        "AddressLine5": "AddressLine5AddressLine5Testing35Ch"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4874-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's AddressLine5 value truncated to 35 characters in CohortDistributionDataService"
       }
     }
   ],
@@ -30,11 +43,11 @@
       "previous_family_name": "gibbins",
       "date_of_birth": "19600112",
       "gender": 1,
-      "address_line_1": "AddressLine1AddressLine1AddressLine1",
-      "address_line_2": "AddressLine2AddressLine2AddressLine2",
-      "address_line_3": "AddressLine3AddressLine3AddressLine3",
-      "address_line_4": "AddressLine4AddressLine4AddressLine4",
-      "address_line_5": "AddressLine4AddressLine4AddressLine5update",
+      "address_line_1": "AddressLine1AddressLine1",
+      "address_line_2": "AddressLine2AddressLine2",
+      "address_line_3": "AddressLine3AddressLine3",
+      "address_line_4": "AddressLine4AddressLine4",
+      "address_line_5": "AddressLine5AddressLine5Testing35Chars",
       "postcode": "AB43 8JR",
       "paf_key": "Z3S4Q5X8",
       "address_effective_from_date": "20031118",
@@ -58,4 +71,3 @@
     "9997153162"
   ]
 }
-
