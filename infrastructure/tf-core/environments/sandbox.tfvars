@@ -722,10 +722,15 @@ function_apps = {
         {
           env_var_name     = "LanguageCodeUrl"
           function_app_key = "LanguageCodeDataService"
+        },
+        {
+          env_var_name     = "ExcludedSMULookupUrl"
+          function_app_key = "ExcludedSMUDataService"
         }
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        CacheTimeOutHours            = "24"
       }
     }
 
