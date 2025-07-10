@@ -58,8 +58,8 @@ public class ProcessCaasFile : IProcessCaasFile
         DemographicURI = _config.DemographicURI;
         if (_config.UseNewFunctions)
         {
-            AddParticipantQueueName = _config.ParticipantManagementQueueName;
-            UpdateParticipantQueueName = _config.ParticipantManagementQueueName;
+            AddParticipantQueueName = _config.ParticipantManagementTopic;
+            UpdateParticipantQueueName = _config.ParticipantManagementTopic;
         }
         else
         {
@@ -134,9 +134,9 @@ public class ProcessCaasFile : IProcessCaasFile
     {
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
-            Participant = _createBasicParticipantData.BasicParticipantData(participant),
+            BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
             FileName = fileName,
-            participant = participant
+            Participant = participant
         };
         // take note: we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
         switch (participant.RecordType?.Trim())
@@ -192,7 +192,7 @@ public class ProcessCaasFile : IProcessCaasFile
         try
         {
             long nhsNumber;
-            if (!long.TryParse(basicParticipantCsvRecord.participant.NhsNumber, out nhsNumber))
+            if (!long.TryParse(basicParticipantCsvRecord.Participant.NhsNumber, out nhsNumber))
             {
                 throw new FormatException("Unable to parse NHS Number");
             }
@@ -205,7 +205,7 @@ public class ProcessCaasFile : IProcessCaasFile
                 return false;
             }
 
-            var participantForUpdate = basicParticipantCsvRecord.participant.ToParticipantDemographic();
+            var participantForUpdate = basicParticipantCsvRecord.Participant.ToParticipantDemographic();
             participantForUpdate.ParticipantId = participant.ParticipantId;
 
             var updated = await _participantDemographic.Update(participantForUpdate);
@@ -221,7 +221,7 @@ public class ProcessCaasFile : IProcessCaasFile
         catch (Exception ex)
         {
             _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await CreateError(basicParticipantCsvRecord.participant, name);
+            await CreateError(basicParticipantCsvRecord.Participant, name);
         }
         return false;
     }
@@ -246,7 +246,7 @@ public class ProcessCaasFile : IProcessCaasFile
         catch (Exception ex)
         {
             _logger.LogError(ex, "Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await CreateError(basicParticipantCsvRecord.participant, filename);
+            await CreateError(basicParticipantCsvRecord.Participant, filename);
         }
     }
 
