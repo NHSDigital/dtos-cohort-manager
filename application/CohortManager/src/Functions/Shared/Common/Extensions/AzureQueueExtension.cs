@@ -22,9 +22,15 @@ public static class AzureQueueExtension
             {
                 _.AddAzureClients(builder =>
                 {
-                    builder.AddServiceBusClient(serviceBusConnectionString);
-                    builder.UseCredential(new DefaultAzureCredential());
-
+                    if (serviceBusConnectionString.StartsWith("Endpoint="))
+                    {
+                        builder.AddServiceBusClient(serviceBusConnectionString);
+                    }
+                    else
+                    {
+                        builder.AddServiceBusClientWithNamespace(serviceBusConnectionString)
+                            .WithCredential(new DefaultAzureCredential());
+                    }
                 });
                 _.AddSingleton<IQueueClient, AzureServiceBusClient>();
             }
@@ -64,9 +70,15 @@ public static class AzureQueueExtension
                 {
                     _.AddAzureClients(builder =>
                     {
-                        builder.AddServiceBusClient(serviceBusConnectionString)
-                            .WithCredential(new DefaultAzureCredential());
-
+                        if (serviceBusConnectionString.StartsWith("Endpoint="))
+                        {
+                            builder.AddServiceBusClient(serviceBusConnectionString);
+                        }
+                        else
+                        {
+                            builder.AddServiceBusClientWithNamespace(serviceBusConnectionString)
+                                .WithCredential(new DefaultAzureCredential());
+                        }
                     });
                     _.AddKeyedSingleton<IQueueClient, AzureServiceBusClient>(keyName);
                 }
