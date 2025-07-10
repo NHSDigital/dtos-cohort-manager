@@ -53,7 +53,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
                 .ToHashSet();
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromHours(int.Parse(_transformDataServiceConfig.CacheTimeOutHours)));
+                .SetSlidingExpiration(TimeSpan.FromHours(_transformDataServiceConfig.CacheTimeOutHours));
 
             _memoryCache.Set("excludedSMUData", excludedSMUData, cacheEntryOptions);
         }

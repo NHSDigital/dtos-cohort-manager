@@ -37,7 +37,7 @@ public class TransformDataLookupFacadeTests
     {
         var testConfig = new TransformDataServiceConfig
         {
-            CacheTimeOutHours = "24"
+            CacheTimeOutHours = 24
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);

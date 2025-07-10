@@ -15,5 +15,5 @@ public class TransformDataServiceConfig
     [Required]
     public string ExcludedSMULookupUrl { get; set; }
 
-    public string CacheTimeOutHours { get; set; }
+    public int CacheTimeOutHours { get; set; } = 24;
 }
