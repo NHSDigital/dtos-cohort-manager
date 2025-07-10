@@ -14,4 +14,6 @@ public class TransformDataServiceConfig
     public string LanguageCodeUrl { get; set; }
     [Required]
     public string ExcludedSMULookupUrl { get; set; }
+
+    public string CacheTimeOutHours { get; set; }
 }

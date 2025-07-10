@@ -750,6 +750,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        CacheTimeOutHours            = "24"
       }
     }
 
@@ -1144,7 +1145,7 @@ function_apps = {
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
         ServiceNowRefreshAccessTokenUrl = "" # TODO: Get value
-        ServiceNowUpdateUrl = "" # TODO: Get value
+        ServiceNowUpdateUrl             = "" # TODO: Get value
       }
     }
 

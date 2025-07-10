@@ -732,6 +732,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        CacheTimeOutHours            = "24"
       }
     }
 
@@ -1126,7 +1127,7 @@ function_apps = {
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
         ServiceNowRefreshAccessTokenUrl = "https://nhsdigitaldev.service-now.com/oauth_token.do"
-        ServiceNowUpdateUrl = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+        ServiceNowUpdateUrl             = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
       }
     }
 

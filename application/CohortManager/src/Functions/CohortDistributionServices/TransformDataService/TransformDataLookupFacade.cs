@@ -5,6 +5,8 @@ using Model;
 using Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Caching.Memory;
+using Hl7.FhirPath.Sprache;
+using Microsoft.Extensions.Options;
 
 public class TransformDataLookupFacade : ITransformDataLookupFacade
 {
@@ -13,6 +15,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
     private readonly IDataServiceClient<ExcludedSMULookup> _excludedSMUClient;
     private readonly IMemoryCache _memoryCache;
+    private readonly TransformDataServiceConfig _transformDataServiceConfig;
 
     private readonly ILogger<TransformDataLookupFacade> _logger;
     public TransformDataLookupFacade(IDataServiceClient<BsSelectOutCode> outcodeClient,
@@ -20,7 +23,8 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
                                     IDataServiceClient<LanguageCode> languageCodeClient,
                                     IDataServiceClient<ExcludedSMULookup> excludedSMUClient,
                                     ILogger<TransformDataLookupFacade> logger,
-                                    IMemoryCache memoryCache)
+                                    IMemoryCache memoryCache,
+                                    IOptions<TransformDataServiceConfig> transformDataServiceConfig)
     {
         _outcodeClient = outcodeClient;
         _bsSelectGPPracticeClient = bsSelectGPPracticeClient;
@@ -28,17 +32,20 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
         _excludedSMUClient = excludedSMUClient;
         _memoryCache = memoryCache;
         _logger = logger;
+        _transformDataServiceConfig = transformDataServiceConfig.Value;
     }
 
-
+    /// <summary>
+    /// get a hash set of excluded SMU gp practice code  from the cache or creates has set of excluded SMU gp practice codes
+    /// </summary>
+    /// <returns>Task<HashSet<string>></returns>
     public async Task<HashSet<string>> GetCachedExcludedSMUValues()
     {
-        HashSet<string> excludedSMUData;
-
+        HashSet<string> excludedSMUData = new HashSet<string>();
 
         if (!_memoryCache.TryGetValue("excludedSMUData", out excludedSMUData!))
         {
-            var allExcludedSMUValues = await _excludedSMUClient.GetAll();
+            var allExcludedSMUValues = await _excludedSMUClient.GetAll() ?? new List<ExcludedSMULookup>();
 
             _logger.LogInformation("now caching excluded SMU data");
             excludedSMUData = allExcludedSMUValues
@@ -46,7 +53,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
                 .ToHashSet();
 
             var cacheEntryOptions = new MemoryCacheEntryOptions()
-                .SetSlidingExpiration(TimeSpan.FromHours(24));
+                .SetSlidingExpiration(TimeSpan.FromHours(int.Parse(_transformDataServiceConfig.CacheTimeOutHours)));
 
             _memoryCache.Set("excludedSMUData", excludedSMUData, cacheEntryOptions);
         }

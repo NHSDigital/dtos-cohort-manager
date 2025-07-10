@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Moq;
 using NHS.CohortManager.CohortDistributionService;
@@ -28,10 +29,18 @@ public class TransformDataLookupFacadeTests
 
     private Mock<ILogger<TransformDataLookupFacade>> _logger = new();
 
+    private Mock<IOptions<TransformDataServiceConfig>> _config = new();
+
     private Mock<IMemoryCache> _memoryCache = new();
 
     public TransformDataLookupFacadeTests()
     {
+        var testConfig = new TransformDataServiceConfig
+        {
+            CacheTimeOutHours = "24"
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
         _outcodeClientMock
             .Setup(x => x.GetSingle(It.IsAny<string>()))
             .ReturnsAsync(new BsSelectOutCode());
@@ -42,12 +51,11 @@ public class TransformDataLookupFacadeTests
 
         object dummy = new HashSet<string>()
         {
-            { "A91151" }
+            "A91151"
         };
 
         _memoryCache.Setup(m => m.TryGetValue(It.IsAny<object>(), out dummy)).Returns(true);
-
-        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object, _excludedSMUClient.Object, _logger.Object, _memoryCache.Object);
+        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object, _excludedSMUClient.Object, _logger.Object, _memoryCache.Object, _config.Object);
     }
 
     [TestMethod]
