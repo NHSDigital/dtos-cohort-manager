@@ -1,5 +1,4 @@
 import { Locator, Page } from "@playwright/test";
-
 export default class BasePage {
   readonly page: Page;
 
@@ -45,10 +44,20 @@ export default class BasePage {
     }
   }
 
+  async getCardNumber(element: Locator): Promise<Locator> {
+    const card = element;
+    const numberLocator = card.locator('[data-testid="card-number"]');
+    return numberLocator;
+  }
+
+  async getCardDescription(element: Locator): Promise<Locator> {
+    const card = element
+    const descriptionLocator = card.locator('[data-testid="card-description"]');
+    return descriptionLocator;
+  }
+
   // Common method to take a screenshot
   async takeScreenshot(fileName: string) {
     await this.page.screenshot({ path: fileName });
   }
-
-
 }

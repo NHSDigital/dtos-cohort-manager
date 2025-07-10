@@ -1,5 +1,5 @@
 import { defineConfig, devices } from "@playwright/test";
-import { defineBddConfig, cucumberReporter } from "playwright-bdd";
+import { defineBddConfig } from "playwright-bdd";
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -38,7 +38,7 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on",
-    screenshot:"on"
+    screenshot: "on"
   },
 
   /* Configure projects for major browsers */

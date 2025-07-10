@@ -13,8 +13,7 @@
     "test:unit:coverage": "jest --coverage",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
-    "lint": "next lint",
-    "bddtest": "cucumber-js --require-module ts-node/register --require src/cucumberTests/steps/**/*.ts"
+    "lint": "next lint"
   },
   "dependencies": {
     "jwt-decode": "^4.0.0",
@@ -25,7 +24,6 @@
     "react-dom": "19.1.0"
   },
   "devDependencies": {
-
     "@playwright/test": "^1.48.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
