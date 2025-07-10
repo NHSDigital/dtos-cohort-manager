@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 public class ManageParticipantConfig
 {
     [Required]
-    public string ServiceBusConnectionString_internal { get; set; }
+    public string ServiceBusConnectionString_client_internal { get; set; }
     [Required]
     public string CohortDistributionTopic { get; set; }
     [Required]
