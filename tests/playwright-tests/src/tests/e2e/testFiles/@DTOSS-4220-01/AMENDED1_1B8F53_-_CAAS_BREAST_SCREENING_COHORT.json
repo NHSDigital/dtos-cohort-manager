@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9694116414",
+        "NhsNumber": "9997111591",
         "RuleId": 30,
         "RuleDescription": "Postcode invalid"
       },
@@ -16,7 +16,7 @@
         {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9992728167",
+        "NhsNumber": "9997111494",
         "RuleId": 30,
         "RuleDescription": "Postcode invalid"
       },
@@ -29,7 +29,7 @@
         {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9995262320",
+        "NhsNumber": "9997111478",
         "RuleId": 30,
         "RuleDescription": "Postcode invalid"
       },
@@ -41,7 +41,7 @@
     },     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9991742468",
+        "NhsNumber": "9997111370",
         "RuleId": 30,
         "RuleDescription": "Postcode invalid"
       },
@@ -57,7 +57,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 1,
-      "nhs_number": 9694116414,
+      "nhs_number": 9997111591,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20030318",
@@ -97,7 +97,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 1,
-      "nhs_number": 9992728167,
+      "nhs_number": 9997111494,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20030318",
@@ -137,7 +137,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 1,
-      "nhs_number": 9694116414,
+      "nhs_number": 9997111478,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20030318",
@@ -177,7 +177,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 1,
-      "nhs_number": 9991742468,
+      "nhs_number": 9997111370,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20030318",
@@ -215,9 +215,9 @@
   }
   ],
   "nhsNumbers": [
-    "9694116414",
-    "9992728167",
-    "9694116414",
-    "9991742468"
+    "9997111591",
+    "9997111494",
+    "9997111478",
+    "9997111370"
   ]
 }

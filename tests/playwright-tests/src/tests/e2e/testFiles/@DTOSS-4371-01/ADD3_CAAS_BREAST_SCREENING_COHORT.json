@@ -5,7 +5,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9991156011",
         "RuleId": -2146233088,
-        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD3_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4371-01",
@@ -18,7 +18,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9991297111",
         "RuleId": -2146233088,
-        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD3_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4371-01",
@@ -31,7 +31,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9992949600",
         "RuleId": -2146233088,
-        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD3_-_CAAS_BREAST_SCREENING_COHORT.parquet"
+        "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4371-01",

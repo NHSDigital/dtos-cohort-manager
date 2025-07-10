@@ -21,7 +21,6 @@ var host = new HostBuilder()
         services.AddDatabaseHealthCheck("DurableDemographicFunction");
     })
     .AddTelemetry()
-    .AddExceptionHandler()
     .AddDatabaseConnection()
     .AddHttpClient()
     .Build();

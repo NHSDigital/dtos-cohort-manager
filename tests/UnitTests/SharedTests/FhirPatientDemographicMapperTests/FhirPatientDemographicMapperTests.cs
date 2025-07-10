@@ -5,7 +5,6 @@ using Moq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
-using System.Collections.Specialized;
 using Model;
 using Model.Enums;
 
@@ -34,7 +33,7 @@ public class FhirParserHelperTests
             });
     }
 
-    private string LoadTestJson(string filename)
+    private static string LoadTestJson(string filename)
     {
         // Add .json extension if not already present
         string filenameWithExtension = filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase)
@@ -505,5 +504,35 @@ public class FhirParserHelperTests
         Assert.IsNull(result.ReasonForRemoval); // No code available, should be null
         Assert.AreEqual("2020-01-01T00:00:00+00:00", result.RemovalEffectiveFromDate);
         Assert.AreEqual("2021-12-31T00:00:00+00:00", result.RemovalEffectiveToDate);
+    }
+
+    [TestMethod]
+    public void ParseFhirJsonNhsNumber_ValidJson_ReturnsString()
+    {
+        // Arrange
+        string json = LoadTestJson("complete-patient");
+        string expected = "9000000009";
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirJsonNhsNumber(json);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseFhirJsonNhsNumber_InvalidJson_ThrowsException()
+    {
+        // Arrange
+        var json = string.Empty;
+
+        // Act & Assert
+        Assert.ThrowsException<FormatException>(() => _fhirPatientDemographicMapper.ParseFhirJsonNhsNumber(json));
+        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to parse FHIR json")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
     }
 }
