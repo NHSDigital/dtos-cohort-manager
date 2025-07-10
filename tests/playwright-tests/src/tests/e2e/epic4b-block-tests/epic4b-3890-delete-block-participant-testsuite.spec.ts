@@ -2,7 +2,7 @@ import { test, expect, APIRequestContext } from '@playwright/test';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../steps/steps';
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
-import { deleteParticipant } from '../../../api/distributionService/bsSelectService';
+import { BlockParticipant, deleteParticipant, getRecordsFromParticipantManagementService } from '../../../api/distributionService/bsSelectService';
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 
 test.describe.serial('@regression @e2e @epic4b-block-tests Delete-Block-Participant - CohortDistribution Validation', () => {
@@ -17,10 +17,29 @@ test.describe.serial('@regression @e2e @epic4b-block-tests Delete-Block-Particip
       await processFileViaStorage(parquetFile);
     });
 
-    await test.step(`Wait for participant insertion to complete`, async () => {
+    await test.step(`Given for participant insertion to Cohort`, async () => {
       await validateSqlDatabaseFromAPI(request, validations);
     });
 
+    // Call the block participant function
+
+      const payload = {
+        NhsNumber: nhsNumbers[0],
+        FamilyName: inputParticipantRecord[0].family_name,
+        DateOfBirth: inputParticipantRecord[0].date_of_birth
+      };
+
+      await test.step(`When BlockParticipant function is invoked`, async () => {
+          await BlockParticipant(request, payload);
+        })
+
+        // Assert that the participant's blocked flag is set to 1 in participant management table.
+      await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
+          const response = await getRecordsFromParticipantManagementService(request);
+          expect(response.data[0].BlockedFlag).toBe(1);
+        })
+
+   // Call the delete participant function
     await test.step(`When DeleteParticipant function is invoked`, async () => {
       const deletePayload = {
         NhsNumber: nhsNumbers[0],
