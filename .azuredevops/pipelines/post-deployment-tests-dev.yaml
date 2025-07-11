@@ -33,23 +33,23 @@ parameters:
   - name: testTypes
     type: object
     default:
-      - smoke:e2e
-      - regression:api
-      - regression:e2e:epic1
-      - regression:e2e:epic2
-      - regression:e2e:epic3
+      - smoke_e2e
+      - regression_api
+      - regression_e2e_epic1
+      - regression_e2e_epic2
+      - regression_e2e_epic3
 
 stages:
   ${{ each testType in parameters.testTypes }}:
-    - stage: ${{ replace(replace(testType, ':', '_'), '-', '_') }}_stage
+    - stage: ${{ testType }}_stage
       displayName: Run ${{ testType }} Tests
       ${{ if ne(testTypeIndex, 0) }}:
-        dependsOn: ${{ format('{0}_stage', replace(replace(parameters.testTypes[testTypeIndex - 1], ':', '_'), '-', '_')) }}
+        dependsOn: ${{ format('{0}_stage', parameters.testTypes[testTypeIndex - 1]) }}
         condition: succeededOrFailed()
       variables:
         TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
       jobs:
-        - job: ${{ replace(replace(testType, ':', '_'), '-', '_') }}_job
+        - job: ${{ testType }}_job
           pool:
             name: private-pool-dev-uks
           steps:
