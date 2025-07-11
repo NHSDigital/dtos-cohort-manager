@@ -44,7 +44,7 @@ stages:
     - stage: ${{ testType }}_stage
       displayName: Run ${{ testType }} Tests
       ${{ if ne(testTypeIndex, 0) }}:
-        dependsOn: ${{ format('{0}_stage', parameters.testTypes[testTypeIndex - 1]) }}
+        dependsOn: ${{ parameters.testTypes[testTypeIndex - 1] }}_stage
         condition: succeededOrFailed()
       variables:
         TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
