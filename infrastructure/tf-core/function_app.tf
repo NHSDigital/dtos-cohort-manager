@@ -167,11 +167,20 @@ locals {
             } : {},
 
             # Service Bus connections are stored in the config as a list of strings, so we need to iterate over them
-            length(config.service_bus_connections) > 0 ? {
-              for connection in config.service_bus_connections :
-              "ServiceBusConnectionString_${connection}" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
-            } : {}
-
+            length(config.service_bus_connections) > 0 ? (
+              merge(
+                # First for loop for ServiceBusConnectionString_client_
+                {
+                  for connection in config.service_bus_connections :
+                  "ServiceBusConnectionString_client_${connection}" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
+                },
+                # Second for loop for ServiceBusConnectionString_
+                {
+                  for connection in config.service_bus_connections :
+                  "ServiceBusConnectionString_${connection}__fullyQualfiedNamespace" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
+                }
+              )
+            ) : {}
           )
 
           # These RBAC assignments are for the Function Apps only
