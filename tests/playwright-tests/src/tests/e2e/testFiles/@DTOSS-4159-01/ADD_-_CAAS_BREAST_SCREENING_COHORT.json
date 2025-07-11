@@ -3,14 +3,34 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993931888",
-        "RuleId": -2146232060,
-        "RuleDescription": "String or binary data would be truncated in table 'DToSDB.dbo.PARTICIPANT_DEMOGRAPHIC"
+        "NhsNumber": "9993931888"
       },
       "meta": {
         "testJiraId": "@DTOSS-4159-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify Exception raised when new participant's OTHER_GIVEN_NAME more than 100"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify Exception raised when new participant's OTHER_GIVEN_NAME more than 100 - check Exception Table"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9993931888
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4159-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify Exception raised when new participant's OTHER_GIVEN_NAME more than 100 - check Participant Demographic Table"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9993931888
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4159-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify Exception raised when new participant's OTHER_GIVEN_NAME more than 100 - check Cohort Distribution Table"
       }
     }
   ],
