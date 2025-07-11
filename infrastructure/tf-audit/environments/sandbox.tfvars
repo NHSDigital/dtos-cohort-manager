@@ -1,9 +1,10 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "SBX"
+environment           = "SBRK"
 
 tags = {
   Environment = "sandbox"
+  Owner       = "richard.kingston2@nhs.net"
 }
 
 
@@ -17,7 +18,7 @@ features = {
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.127.0.0/16"
+    address_space     = "10.129.0.0/16"
     connect_peering   = true
     subnets = {
       pep = {

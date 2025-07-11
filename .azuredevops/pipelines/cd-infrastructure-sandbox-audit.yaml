@@ -27,7 +27,7 @@ parameters:
     default: 'Apply'
 
 variables:
-  - group: SBX_audit_backend
+  - group: SBRK_audit_backend
   - group: DEV_hub_backend_remote_state
   - name: TF_DIRECTORY
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit

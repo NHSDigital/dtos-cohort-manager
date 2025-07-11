@@ -4,10 +4,6 @@ name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
 trigger: none
 pr: none
 
-pool:
-  #vmImage: ubuntu-latest
-  name: private-pool-dev-uks
-
 resources:
   repositories:
     - repository: dtos-devops-templates
@@ -18,11 +14,13 @@ resources:
 
 stages:
   - stage: terraform_plan
+    pool:
+      name: private-pool-dev-uks
     displayName: Terraform Plan
     condition: eq(variables['Build.Reason'], 'Manual')
     variables:
-      - group: SBX_core_backend
-      - group: SBX_audit_backend_remote_state
+      - group: SBRK_core_backend
+      - group: SBRK_audit_backend_remote_state
       - group: DEV_hub_backend_remote_state
       - name: TF_VERSION
         value: 1.11.4
@@ -53,3 +51,26 @@ stages:
                 - checkout: self
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+
+
+  - stage: db_changes_stage
+    displayName: Database changes
+    variables:
+      - group: DEV_hub_backend_remote_state
+    jobs:
+      - job: db_changes
+        pool:
+          name: private-pool-dev-uks
+        displayName: Apply database changes
+        variables:
+          - group: DEV_core_backend
+          - group: DEV_image_pipelines
+        steps:
+          - checkout: self
+          - checkout: dtos-devops-templates
+          - template: .azuredevops/templates/steps/app-container-job-start.yaml@dtos-devops-templates
+            parameters:
+              serviceConnection: $(SERVICE_CONNECTION)
+              targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+              resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
+              jobName: $(DATABASE_MANAGEMENT_JOB_NAME)
