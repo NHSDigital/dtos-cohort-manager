@@ -35,7 +35,7 @@ public class DistributeParticipant
     /// <returns></returns>
     [Function("DistributeParticipant")]
     public async Task Run(
-   [ServiceBusTrigger(topicName: "%CohortDistributionTopic%", subscriptionName: "%DistributeParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")]
+   [ServiceBusTrigger(topicName: "%CohortDistributionTopic%", subscriptionName: "%DistributeParticipantSubscription%", Connection = "ServiceBusConnectionString_client_internal")]
     string messageBody,
     [DurableClient] DurableTaskClient durableClient,
     FunctionContext functionContext)
@@ -92,7 +92,7 @@ public class DistributeParticipant
             string serviceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
 
             // Validation & Transformation
-            ValidationRecord validationRecord = new() {FileName = participantRecord.FileName, Participant = participantData}; 
+            ValidationRecord validationRecord = new() {FileName = participantRecord.FileName, Participant = participantData};
             var transformedParticipant = await context.CallSubOrchestratorAsync<CohortDistributionParticipant?>(nameof(ValidateParticipant.ValidationOrchestrator), validationRecord);
             if (transformedParticipant is null)
             {
