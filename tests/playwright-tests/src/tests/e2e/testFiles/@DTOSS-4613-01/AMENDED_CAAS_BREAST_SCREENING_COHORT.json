@@ -3,12 +3,25 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": "9997153170"
+        "NhsNumber": 9997153170,
+        "PreviousFamilyName": "My previous family name is Conners and changed now"
       },
       "meta": {
         "testJiraId": "@DTOSS-4613-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority validate PreviousFamilyName value is truncated to 35 characters"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's PreviousFamilyName in ParticipantDemographicDataService"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9997153170,
+        "PreviousFamilyName": "My previous family name is Conners "
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4613-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's PreviousFamilyName value truncated to 35 characters in CohortDistributionDataService"
       }
     }
   ],
