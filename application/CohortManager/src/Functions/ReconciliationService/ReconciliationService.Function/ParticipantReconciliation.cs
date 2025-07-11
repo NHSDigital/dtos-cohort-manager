@@ -30,15 +30,11 @@ public class ParticipantReconciliation : IReconciliationProcessor
     {
         try
         {
-            _logger.LogInformation("Reconciling records received since {lastRun}", fromDate);
-
             var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.RecordInsertDateTime.Value > fromDate);
             var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => (x.RuleId.Value == -2146233088 || x.RuleId.Value == -2147024809 || x.RuleDescription == "RecordType was not set to an expected value") && x.DateCreated.Value > fromDate);
 
 
             var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > fromDate);
-
-            _logger.LogInformation("cohort Records Received = {cohort Count}, exceptionCount = {ExceptionCount}, expected count = {expected}", cohortDistributionRecords.Count(), exceptionRecords.Count(), metrics.Sum(x => x.RecordCount));
 
             var recordsProcessed = exceptionRecords.Count() + cohortDistributionRecords.Count();
             var recordsExpected = metrics.Sum(x => x.RecordCount);
