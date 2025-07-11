@@ -177,7 +177,7 @@ locals {
                 # Second for loop for ServiceBusConnectionString_
                 {
                   for connection in config.service_bus_connections :
-                  "ServiceBusConnectionString_${connection}__fullyQualfiedNamespace" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
+                  "ServiceBusConnectionString_${connection}__fullyQualifiedNamespace" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
                 }
               )
             ) : {}
