@@ -3,12 +3,12 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": 9997311361,
+        "NHSNumber": 9997311361,
         "PreferredLanguage": "en"
       },
       "meta": {
         "testJiraId": "@DTOSS-9723-01",
-        "requirementJiraId": "@DTOSS-8983",
+        "requirementJiraId": "old - DTOSS-3082, new - @DTOSS-8983",
         "additionalTags": "@regression @e2e @epic3-high-priority Tests Preferred Language Validation New Participant in Participant Demographic for preferred language"
       }
     }
