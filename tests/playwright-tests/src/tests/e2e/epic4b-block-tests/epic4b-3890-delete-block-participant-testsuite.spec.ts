@@ -76,42 +76,40 @@ test.describe.serial('@regression @e2e @epic4b-block-tests Delete-Block-Particip
 
     // Call the block participant function
 
-      const payload = {
-        NhsNumber: nhsNumbers[0],
-        FamilyName: inputParticipantRecord[0].family_name,
-        DateOfBirth: inputParticipantRecord[0].date_of_birth
-      };
+    const payload = {
+      NhsNumber: nhsNumbers[0],
+      FamilyName: inputParticipantRecord[0].family_name,
+      DateOfBirth: inputParticipantRecord[0].date_of_birth
+    };
 
     await test.step(`When BlockParticipant function is invoked`, async () => {
-          await BlockParticipant(request, payload);
-         })
+      await BlockParticipant(request, payload);
+    })
 
-        // Assert that the participant's blocked flag is set to 1 in participant management table.
+    // Assert that the participant's blocked flag is set to 1 in participant management table.
     await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
-          const response = await getRecordsFromParticipantManagementService(request);
-          expect(response.data[0].BlockedFlag).toBe(1);
-        })
+      const response = await getRecordsFromParticipantManagementService(request);
+      expect(response.data[0].BlockedFlag).toBe(1);
+    })
 
-   // Call the delete participant function
+    // Call the delete participant function
     await test.step(`When DeleteParticipant function is invoked`, async () => {
       const deletePayload = {
         NhsNumber: nhsNumbers[0],
-        FamilyName: inputParticipantRecord[0].family_name,
+        FamilyName: 'InCorrectFamilyName',
         DateOfBirth: `${inputParticipantRecord[0].date_of_birth.slice(0, 4)}-${inputParticipantRecord[0].date_of_birth.slice(4, 6)}-${inputParticipantRecord[0].date_of_birth.slice(6, 8)}`
       };
 
-      expect(deletePayload.FamilyName).not.toBe('TestFamilyName');
-      if (deletePayload.FamilyName === 'test delete block change') {
-        const response = await deleteParticipant(request, deletePayload);
-        const validators = composeValidators(
-          expectStatus(404)
-        );
-        await validators(response);
-        const lastResponse = await getRecordsFromCohortDistributionService(request);
-        expect(lastResponse.status).toBe(200);
-      } else {
-        throw new Error(`FamilyName was '${deletePayload.FamilyName}', expected 'test delete block change'`);
-      }
+      //Call Delete participant with incorrect family name and rest all values as correct
+      // This should return 404
+      const response = await deleteParticipant(request, deletePayload);
+      const validators = composeValidators(
+        expectStatus(404)
+      );
+      await validators(response);
+      const lastResponse = await getRecordsFromCohortDistributionService(request);
+      expect(lastResponse.status).toBe(200);
+
     });
   });
 });
