@@ -43,7 +43,6 @@ stages:
   - ${{ each testType in parameters.testTypes }}:
       - stage: ${{ testType }}_stage
         displayName: Run ${{ testType }} Tests
-        ${{ if eq(testType, 'smoke_e2e') }}:
         ${{ if eq(testType, 'regression_api') }}:
           dependsOn: smoke_e2e_stage
         ${{ if eq(testType, 'regression_e2e_epic1') }}:
