@@ -89,6 +89,7 @@ Place your `.pfx` certificate at `./certs/nhs_signed_client.pfx`.
 This function uses a nested configuration structure to clearly separate NEMS-specific settings from other MESH integrations. All NEMS-specific configuration values use the `ManageNemsSubscription__` prefix (double underscore), which maps to the nested `ManageNemsSubscription` object in the configuration class.
 
 **Example mapping:**
+
 - `ManageNemsSubscription__NemsFhirEndpoint` → `config.ManageNemsSubscription.NemsFhirEndpoint`
 - `ManageNemsSubscription__MeshMailboxId` → `config.ManageNemsSubscription.MeshMailboxId`
 
@@ -205,7 +206,7 @@ Ensure you keep `nhs_signed_client.pfx` safe and secure. Do not commit it unless
 The function requires the certificate file to be included in the build output:
 
 1. **For local development**: Place `nhs_signed_client.pfx` in the function directory
-2. **For Docker**: Copy the certificate to `./certs/nhs_signed_client.pfx` 
+2. **For Docker**: Copy the certificate to `./certs/nhs_signed_client.pfx`
 3. **Project file**: The `.csproj` must include the certificate for build output:
 
 ```xml
