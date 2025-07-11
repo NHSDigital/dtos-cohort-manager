@@ -7,6 +7,13 @@
         "RuleId": -2147024809,
         "RuleDescription": "File name is invalid, file name: Exception_1B8F53_-_CAAS_BREAST_screening_@.parquet"
       }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": "",
+        "expectedCount": 0
+      }
     }
   ],
   "inputParticipantRecord": [
