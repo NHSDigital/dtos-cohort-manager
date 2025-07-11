@@ -29,12 +29,14 @@ test.describe.serial('@regression @e2e @epic4b-block-tests Delete-Block-Particip
         DateOfBirth: inputParticipantRecord[0].date_of_birth
       };
 
-      await test.step(`When BlockParticipant function is invoked`, async () => {
+    await test.step(`When BlockParticipant function is invoked`, async () => {
           await BlockParticipant(request, payload);
+          console.log(payload, 'payload for block participant');
+          console.log(payload.NhsNumber, 'NHS Number for block participant');
         })
 
         // Assert that the participant's blocked flag is set to 1 in participant management table.
-      await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
+    await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
           const response = await getRecordsFromParticipantManagementService(request);
           expect(response.data[0].BlockedFlag).toBe(1);
         })
