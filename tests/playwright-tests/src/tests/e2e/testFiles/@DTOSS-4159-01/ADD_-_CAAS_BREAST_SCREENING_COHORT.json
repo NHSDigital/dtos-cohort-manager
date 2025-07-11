@@ -3,7 +3,9 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993931888"
+        "NhsNumber": "9993931888",
+        "RuleId": "3",
+        "RuleDescription": "Participant was transformed as transform rule: TruncateOtherGivenNamesExceedsMaximumLength was executed"
       },
       "meta": {
         "testJiraId": "@DTOSS-4159-01",
@@ -14,7 +16,8 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": 9993931888
+        "NhsNumber": 9993931888,
+        "OtherGivenName": "GroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGrover"
       },
       "meta": {
         "testJiraId": "@DTOSS-4159-01",
@@ -25,7 +28,8 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9993931888
+        "NHSNumber": 9993931888,
+        "OtherGivenName": "GroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGrov"
       },
       "meta": {
         "testJiraId": "@DTOSS-4159-01",
