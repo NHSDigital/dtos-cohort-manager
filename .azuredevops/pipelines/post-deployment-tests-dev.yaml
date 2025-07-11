@@ -43,6 +43,9 @@ stages:
   - ${{ each testType in parameters.testTypes }}:
       - stage: ${{ testType }}_stage
         displayName: Run ${{ testType }} Tests
+        ${{ if ne(variables['System.TeamProject'], '') }}:
+          dependsOn: ${{ if eq(testType, 'smoke_e2e') }}[]${{ else }}${{ if eq(testType, 'regression_api') }}smoke_e2e_stage${{ elseif eq(testType, 'regression_e2e_epic1') }}regression_api_stage${{ elseif eq(testType, 'regression_e2e_epic2') }}regression_e2e_epic1_stage${{ elseif eq(testType, 'regression_e2e_epic3') }}regression_e2e_epic2_stage${{ else }}[]${{ endif }}
+        condition: always()
         variables:
           TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
         jobs:
