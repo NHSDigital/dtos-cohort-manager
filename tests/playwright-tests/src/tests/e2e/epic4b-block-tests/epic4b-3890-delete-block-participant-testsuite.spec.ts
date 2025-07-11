@@ -48,8 +48,10 @@ test.describe.serial('@regression @e2e @epic4b-block-tests Delete-Block-Particip
         FamilyName: inputParticipantRecord[0].family_name,
         DateOfBirth: `${inputParticipantRecord[0].date_of_birth.slice(0, 4)}-${inputParticipantRecord[0].date_of_birth.slice(4, 6)}-${inputParticipantRecord[0].date_of_birth.slice(6, 8)}`
       };
-
-      const response = await deleteParticipant(request, payload);
+      console.log(deletePayload, 'payload for delete participant');
+      console.log(deletePayload.NhsNumber, 'NHS Number for delete participant');
+      console.log(payload, 'payload for block participant');
+      const response = await deleteParticipant(request, deletePayload);
 
       const validators = composeValidators(
         expectStatus(200)
