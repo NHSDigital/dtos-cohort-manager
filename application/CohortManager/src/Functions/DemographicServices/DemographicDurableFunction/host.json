@@ -1,23 +1,28 @@
 {
   "version": "2.0",
-  "functionTimeout": "01:00:00", 
+  "functionTimeout": "01:00:00",
   "logging": {
     "applicationInsights": {
       "samplingExcludedTypes": "Request",
       "samplingSettings": {
         "isEnabled": true
       }
+    },
+    "logLevel": {
+      "HealthChecks": "Error",
+      "HealthChecks.Extensions": "Error"
     }
-  }, 
+  },
   "extensions": {
     "durableTask": {
       "storageProvider": {
         "type": "AzureStorage",
-        "maxDurableActivityFunctionTimeout": "30:00:00", 
+        "maxDurableActivityFunctionTimeout": "30:00:00",
         "maxOrchestrationFunctionTimeout": "24:00:00",
         "extendedSessionsEnabled": true,
         "historyRetentionInDays": 90
-      }
+      },
+      "hubName": "DemographicTaskHub"
     }
   }
 }

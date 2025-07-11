@@ -69,28 +69,27 @@ module "functionapp" {
   ]
 }
 
-
 locals {
-  # Filter fa_config to only include those with producer_to_service_bus
+  # Filter fa_config to only include those with service_bus_connections
   service_bus_function_app_map = {
-    for app_key, app_value in var.function_apps.fa_config :
-    app_key => app_value
-    if contains(keys(app_value), "producer_to_service_bus")
+    for function_key, function_values in var.function_apps.fa_config :
+    function_key => function_values
+    if contains(keys(function_values), "service_bus_connections")
+    && (function_values.service_bus_connections != null ? length(function_values.service_bus_connections) > 0 : false)
   }
 
   # There are multiple maps
   # We cannot nest for loops inside a map, so first iterate all permutations as a list of objects...
   unified_service_bus_object_list = flatten([
-    for service_bus_key, service_bus_value in local.azure_service_bus_map : [
+    for service_bus_key, service_bus_value in local.service_bus_map : [
       for function_key, function_values in local.service_bus_function_app_map : merge({
         service_bus_key   = service_bus_key # 1st iterator
         function_key      = function_key    # 2nd iterator
         service_bus_value = service_bus_value
       }, function_values) # the block of key/value pairs for a specific collection
-      if contains(keys(function_values), "producer_to_service_bus")
-      && (function_values.producer_to_service_bus != null ? length(function_values.producer_to_service_bus) > 0 : false)
     ]
   ])
+
   # ...then project them into a map with unique keys (combining the iterators), for consumption by a for_each meta argument
   unified_service_bus_object_map = {
     for item in local.unified_service_bus_object_list :
@@ -105,9 +104,7 @@ resource "azurerm_role_assignment" "function_send_to_topic" {
   principal_id         = module.functionapp["${each.value.function_key}-${each.value.service_bus_value.region}"].function_app_sami_id
   role_definition_name = "Azure Service Bus Data Sender"
   scope                = module.azure_service_bus[each.value.service_bus_key].namespace_id
-
 }
-
 
 locals {
   app_settings_common = {
@@ -133,23 +130,14 @@ locals {
             local.app_settings_common,
             config.env_vars_static,
 
-            # # Dynamic env vars which cannot be stored in tfvars file
-            # function == "example-function" ? {
-            #   EXAMPLE_API_KEY = data.azurerm_key_vault_secret.example[region].versionless_id
-            # } : {},
-
             # Dynamic references to other Function App URLs
             {
               for obj in config.app_urls : obj.env_var_name => format(
                 "https://%s-%s.azurewebsites.net/api/%s",
                 module.regions_config[region].names["function-app"],
                 var.function_apps.fa_config[obj.function_app_key].name_suffix,
-                var.function_apps.fa_config[obj.function_app_key].function_endpoint_name
+                length(obj.endpoint_name) > 0 ? obj.endpoint_name : var.function_apps.fa_config[obj.function_app_key].function_endpoint_name
               )
-            },
-
-            {
-              for key, obj in local.unified_service_bus_object_map : "SERVICE_BUS_NAMESPACE" => "${module.azure_service_bus[obj.service_bus_key].namespace_name}.servicebus.windows.net"
             },
 
             # Dynamic reference to Key Vault
@@ -176,7 +164,14 @@ locals {
             # Database connection string
             length(config.db_connection_string) > 0 ? {
               (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
+            } : {},
+
+            # Service Bus connections are stored in the config as a list of strings, so we need to iterate over them
+            length(config.service_bus_connections) > 0 ? {
+              for connection in config.service_bus_connections :
+              "ServiceBusConnectionString_${connection}" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
             } : {}
+
           )
 
           # These RBAC assignments are for the Function Apps only

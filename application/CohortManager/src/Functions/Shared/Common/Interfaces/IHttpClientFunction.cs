@@ -26,6 +26,16 @@ public interface IHttpClientFunction
     Task<string> SendGet(string url, Dictionary<string, string> parameters);
 
     /// <summary>
+    /// Sends a get request or throws an error
+    /// </summary>
+    /// <param name="url"></param>
+    /// <returns>string representing the serialised response body, string.Empty if it returns nothing </returns>
+    /// <exception cref="HttpRequestException"></exception>
+    /// <exception cref="TaskCanceledException"></exception>
+    /// <exception cref="InvalidOperationException"></exception>
+    Task<string> SendGetOrThrowAsync(string url);
+
+    /// <summary>
     /// Performs a GET request to a PDS endpoint using HttpClient.
     /// This is a WIP as additional work is required to use the PDS endpoint from cohort manager. Currently it just uses the PDS sandbox API.
     /// </summary>
@@ -47,7 +57,7 @@ public interface IHttpClientFunction
     /// - <c>Authorization</c> with a Bearer token,
     /// - <c>fromASID</c> and <c>toASID</c> to specify the sender and receiver ASID values,
     /// - <c>Interaction-ID</c> to specify the interaction ID of the subscription creation process.
-     /// This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. Currently it's just a basic structure.
+    /// This is a WIP as additional work is required to use the NEMS endpoint after onboarding to NemsApi hub. Currently it's just a basic structure.
     /// </remarks>
     Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid);
 

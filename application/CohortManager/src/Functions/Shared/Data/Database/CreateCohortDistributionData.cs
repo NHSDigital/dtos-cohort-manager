@@ -127,7 +127,7 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         {
             RequestId = requestId,
             StatusCode = statusCode.ToString(),
-            CreatedDateTime = DateTime.Now
+            CreatedDateTime = DateTime.UtcNow
         });
     }
 

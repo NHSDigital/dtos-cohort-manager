@@ -205,8 +205,8 @@ public class ProcessCaasFileTests
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord()
         {
             FileName = "testFile",
-            Participant = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Amended },
-            participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended }
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Amended },
+            Participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended }
         };
         var arguments = new object[] { basicParticipantCsvRecord, "TestName" };
 
@@ -255,8 +255,8 @@ public class ProcessCaasFileTests
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord()
         {
             FileName = "testFile",
-            Participant = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Amended },
-            participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended }
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Amended },
+            Participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended }
         };
 
         var response = new ParticipantDemographic { ParticipantId = 1, GivenName = "" };
@@ -295,9 +295,9 @@ public class ProcessCaasFileTests
         var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Removed };
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
-            Participant = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
             FileName = "testFile",
-            participant = participant
+            Participant = participant
         };
 
         _exceptionHandlerMock.Setup(m => m.CreateDeletedRecordException(
@@ -334,9 +334,9 @@ public class ProcessCaasFileTests
         var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Removed };
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
-            Participant = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
             FileName = "testFile",
-            participant = participant
+            Participant = participant
         };
 
         var arguments = new object[] { basicParticipantCsvRecord, "testFile" };
@@ -367,9 +367,9 @@ public class ProcessCaasFileTests
         var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Removed };
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
-            Participant = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
             FileName = "testFile",
-            participant = participant
+            Participant = participant
         };
 
         _exceptionHandlerMock.Setup(m => m.CreateDeletedRecordException(
