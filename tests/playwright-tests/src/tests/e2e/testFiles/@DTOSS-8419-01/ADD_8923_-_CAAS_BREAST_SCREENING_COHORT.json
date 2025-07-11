@@ -1,0 +1,348 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "999715373",
+        "RuleId": 9,
+        "RuleDescription": "NHS number was not supplied in a valid format"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 57,
+        "RuleDescription": "The Superseded by NHS number was not supplied in a valid format"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 1,
+        "RuleDescription": "Record type is not in the expected format"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 58,
+        "RuleDescription": "Missing or invalid Posting"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 16,
+        "RuleDescription": "Missing or invalid Gender"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 14,
+        "RuleDescription": "Invalid reason for removal code"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 30,
+        "RuleDescription": "Invalid postcode"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 3,
+        "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 17,
+        "RuleDescription": "Date of Birth is invalid or missing"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 39,
+        "RuleDescription": "Family Name is missing"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 40,
+        "RuleDescription": "Given Name is missing"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 71,
+        "RuleDescription": "All 5 address lines are missing"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 42,
+        "RuleDescription": "GP Practice code (Primary Care Provider) is mandatory for this update and was not supplied"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 66,
+        "RuleDescription": "Formal Death Status is supplied for a non death Reason for Removal reason"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 19,
+        "RuleDescription": "Reason for Removal Business Effective from Date (Deduction Date) is invalid"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 18,
+        "RuleDescription": "Date of Death is invalid"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 47,
+        "RuleDescription": "A NEW registration received where all of the removal details have not been nullified"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 61,
+        "RuleDescription": "The Invalid Flag received does not contain a valid value."
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 54,
+        "RuleDescription": ""
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 35,
+        "RuleDescription": "The supplied demographics do not match the subjects PI record"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-3477",
+        "additionalTags": ""
+      }
+    },
+        {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 22,
+        "RuleDescription": "Amendment received for a subject who does not exist on the Population Index"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+        {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 36,
+        "RuleDescription": "The GP Practice code does NOT exist in the relevant cohort organisation table"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    },
+           {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 62,
+        "RuleDescription": "'LDN' Reason for Removal received with no Superseded by NHS number"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": ""
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 2,
+      "nhs_number": 9997153723,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "",
+      "primary_care_effective_from_date": "20233",
+      "current_posting": "BD",
+      "current_posting_effective_from_date": "20230",
+      "name_prefix": "Ms",
+      "given_name": "",
+      "other_given_name": "Diana",
+      "family_name": "",
+      "previous_family_name": "Stevens",
+      "date_of_birth": "202033030",
+      "gender": 1,
+      "address_line_1": "",
+      "address_line_2": "",
+      "address_line_3": "",
+      "address_line_4": "",
+      "address_line_5": "",
+      "postcode": "AB4tgvjb8FJ",
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20230",
+      "reason_for_removal": "gybj",
+      "reason_for_removal_effective_from_date": "20205555",
+      "date_of_death": "20205555",
+      "death_status": null,
+      "home_telephone_number": "7898908901",
+      "home_telephone_effective_from_date": "20230",
+      "mobile_telephone_number": "7898908901",
+      "mobile_telephone_effective_from_date": "20230",
+      "email_address": "test@mail.net",
+      "email_address_effective_from_date": "20230",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": "vdvcds",
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9997153723"
+  ]
+}
