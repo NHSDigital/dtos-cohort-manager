@@ -79,8 +79,6 @@ stages:
   dependsOn: regression_api_tests
   condition: succeededOrFailed()
   variables:
-    - name: TARGET_ENVIRONMENT
-      value: ${{ parameters.destEnvironmentShortName }}
     - group: SBX_automation_testing_pipeline
   jobs:
   - job: regression_e2e_epic1_tests
@@ -101,8 +99,6 @@ stages:
   dependsOn: regression_e2e_epic1_tests
   condition: succeededOrFailed()
   variables:
-    - name: TARGET_ENVIRONMENT
-      value: ${{ parameters.destEnvironmentShortName }}
     - group: SBX_automation_testing_pipeline
   jobs:
   - job: regression_e2e_epic2_tests
@@ -123,8 +119,6 @@ stages:
   dependsOn: regression_e2e_epic2_tests
   condition: succeededOrFailed()
   variables:
-    - name: TARGET_ENVIRONMENT
-      value: ${{ parameters.destEnvironmentShortName }}
     - group: SBX_automation_testing_pipeline
   jobs:
   - job: regression_e2e_epic3_tests
