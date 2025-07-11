@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.DemographicServices;
+namespace NHS.CohortManager.DemographicServices.ManageNemsSubscription;
 
 using System;
 using System.Net;
@@ -6,15 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Hl7.Fhir.Model;
-using Hl7.Fhir.Serialization;
-using Microsoft.Extensions.Options;
 using Model;
 using Common;
-using DataServices.Client;
-using Azure.Data.Tables;
 using DataServices.Core;
-using Azure;
 
 public class ManageNemsSubscription
 {
@@ -41,9 +35,7 @@ public class ManageNemsSubscription
     /// Function that creates a subscription in the National Events Management Service (NEMS)
     /// for a participant, identified by their NHS number.
     /// </summary>
-    /// <param name="NhsNumber">
-    /// The NHS number for the participant
-    /// </param>
+    /// <param name="req">HTTP request containing NHS number as query parameter</param>
     /// <returns>
     /// An <see cref="HttpResponseData"/> indicating success (200 OK) with the subscription ID,
     /// or failure with the appropriate HTTP status code and error message.
@@ -57,52 +49,38 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (string.IsNullOrEmpty(nhsNumber))
+            if (nhsNumber == null || !ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                _logger.LogError("NHS number is required.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
+                _logger.LogError("NHS number is required and must be valid format");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
-            // Create subscription object
-            Subscription subscription = _subscriptionManager.CreateSubscription(nhsNumber);
-            string subscriptionJson = new FhirJsonSerializer().SerializeToString(subscription);
+            bool success = await _subscriptionManager.CreateAndSendSubscriptionAsync(nhsNumber);
 
-            // Post to NEMS FHIR endpoint
-            Guid subscriptionId = await _subscriptionManager.SendSubscriptionToNemsAsync(subscriptionJson);
-
-            if (subscriptionId == Guid.Empty)
+            if (!success)
             {
-                _logger.LogError("Failed to create subscription in NEMS.");
+                _logger.LogError("Failed to create subscription for NHS number REDACTED");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to create subscription in NEMS.");
             }
 
-            // Store in SQL Database
-            bool storageSuccess = await _subscriptionManager.SaveSubscriptionInDatabase(nhsNumber, subscriptionId);
-            if (!storageSuccess)
-            {
-                _logger.LogError("Subscription created but failed to store locally.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Subscription created but failed to store locally.");
-            }
-
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, subscriptionId.ToString());
+            string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
+            _logger.LogInformation("Successfully created subscription for NHS number REDACTED");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"Subscription created successfully. Subscription ID: {subscriptionId}");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to create NEMS subscription");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An error occurred while creating the subscription.");
         }
     }
 
     /// <summary>
-    /// Function that creates a subscription in the National Events Management Service (NEMS)
+    /// Function that removes a subscription from the National Events Management Service (NEMS)
     /// for a participant, identified by their NHS number.
     /// </summary>
-    /// <param name="NhsNumber">
-    /// The NHS number for the participant
-    /// </param>
+    /// <param name="req">HTTP request containing NHS number as query parameter</param>
     /// <returns>
-    /// An <see cref="HttpResponseData"/> indicating success (200 OK) with the subscription ID,
-    /// or failure with the appropriate HTTP status code and error message.
+    /// An <see cref="HttpResponseData"/> indicating success (200 OK) or failure with the appropriate HTTP status code and error message.
     /// </returns>
     [Function("Unsubscribe")]
     public async Task<HttpResponseData> Unsubscribe([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
@@ -113,46 +91,81 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (string.IsNullOrEmpty(nhsNumber))
+            if (nhsNumber == null || !ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                _logger.LogError("NHS number is required.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
+                _logger.LogError("NHS number is required and must be valid format");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
+            }
+
+            // Check existence first to provide more informative error handling
+            var subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
+
+            if (string.IsNullOrEmpty(subscriptionId))
+            {
+                _logger.LogWarning("No subscription found for NHS number");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No subscription found.");
+            }
+
+            // Attempt to remove only if found
+            bool success = await _subscriptionManager.RemoveSubscriptionAsync(nhsNumber);
+
+            if (!success)
+            {
+                _logger.LogError("Failed to remove subscription for NHS number");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to remove subscription.");
+            }
+
+            _logger.LogInformation("Successfully unsubscribed NHS number REDACTED");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Successfully unsubscribed");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to unsubscribe from NEMS");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An error occurred while removing the subscription.");
+        }
+    }
+
+
+    /// <summary>
+    /// Function to check the status of a NEMS subscription for a given NHS number
+    /// </summary>
+    /// <param name="req">HTTP request containing NHS number as query parameter</param>
+    /// <returns>
+    /// An <see cref="HttpResponseData"/> with subscription details or not found message
+    /// </returns>
+    [Function("CheckSubscriptionStatus")]
+    public async Task<HttpResponseData> CheckSubscriptionStatus([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    {
+        try
+        {
+            _logger.LogInformation("Received check subscription request");
+
+            string? nhsNumber = req.Query["nhsNumber"];
+
+            if (nhsNumber == null || !ValidationHelper.ValidateNHSNumber(nhsNumber))
+            {
+                _logger.LogError("NHS number is required and must be valid format");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
             string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
 
             if (string.IsNullOrEmpty(subscriptionId))
             {
-                _logger.LogWarning("No subscription record found.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No subscription record found.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No subscription found for this NHS number.");
             }
 
-            bool deleted = await _subscriptionManager.DeleteSubscriptionFromNemsAsync(subscriptionId);
-            if (!deleted)
-            {
-                _logger.LogError("Failed to delete subscription from NEMS.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to delete subscription from NEMS.");
-            }
-
-            var unsubscribed = await _subscriptionManager.DeleteSubscriptionFromDatabaseAsync(nhsNumber);
-            if (!unsubscribed)
-            {
-                _logger.LogError("Failed to unsubscribe from NEMS.");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to unsubscribe from NEMS.");
-            }
-
-            _logger.LogInformation("Successfully unsubscribed.");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Successfully unsubscribed.");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"Active subscription found. Subscription ID: {subscriptionId}");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to unsubscribe from NEMS");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            _logger.LogError(ex, "Error checking subscription status");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An error occurred while checking subscription status.");
         }
     }
 
     /// <summary>
-    /// Data serivce for the NEMS Subscription table.
+    /// Data service for the NEMS Subscription table.
     /// </summary>
     [Function("NemsSubscriptionDataService")]
     public async Task<HttpResponseData> NemsSubscriptionDataService([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "NemsSubscriptionDataService/{*key}")] HttpRequestData req, string? key)
@@ -169,4 +182,5 @@ public class ManageNemsSubscription
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, $"An error has occurred {ex.Message}");
         }
     }
+
 }
