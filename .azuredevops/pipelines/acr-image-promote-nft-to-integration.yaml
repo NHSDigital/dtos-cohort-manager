@@ -68,7 +68,7 @@ stages:
 - stage: smoke_e2e_tests
   displayName: Run Smoke E2E Tests
   variables:
-    - group: INT_automation_testing_pipeline
+  - group: INT_automation_testing_pipeline
   jobs:
     - job: smoke_e2e_tests
       pool:
@@ -88,7 +88,7 @@ stages:
   dependsOn: smoke_e2e_tests
   condition: succeededOrFailed()
   variables:
-    - group: INT_automation_testing_pipeline
+  - group: INT_automation_testing_pipeline
   jobs:
     - job: regression_api_tests
       pool:
@@ -108,7 +108,7 @@ stages:
   dependsOn: regression_api_tests
   condition: succeededOrFailed()
   variables:
-    - group: INT_automation_testing_pipeline
+  - group: INT_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic1_tests
       pool:
@@ -128,7 +128,7 @@ stages:
   dependsOn: regression_e2e_epic1_tests
   condition: succeededOrFailed()
   variables:
-    - group: INT_automation_testing_pipeline
+  - group: INT_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic2_tests
       pool:
@@ -148,7 +148,7 @@ stages:
   dependsOn: regression_e2e_epic2_tests
   condition: succeededOrFailed()
   variables:
-    - group: INT_automation_testing_pipeline
+  - group: INT_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic3_tests
       pool:
