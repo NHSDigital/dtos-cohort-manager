@@ -7,7 +7,7 @@
         "ReasonForRemoval": "SDL"
       },
       "meta": {
-        "testJiraId": "@DTOSS-5404-01",
+        "testJiraId": "@DTOSS-5107-01",
         "requirementJiraId": "DTOSS-2757",
         "additionalTags": "@regression @e2e @epic2-med-priority Tests Reason for Removal is set as SDL"
       }
