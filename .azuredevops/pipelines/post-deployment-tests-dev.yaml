@@ -40,23 +40,23 @@ parameters:
       - regression_e2e_epic3
 
 stages:
-  ${{ each testType in parameters.testTypes }}:
-    - stage: ${{ testType }}_stage
-      displayName: Run ${{ testType }} Tests
-      ${{ if ne(testTypeIndex, 0) }}:
-        dependsOn: ${{ parameters.testTypes[testTypeIndex - 1] }}_stage
-        condition: succeededOrFailed()
-      variables:
-        TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
-      jobs:
-        - job: ${{ testType }}_job
-          pool:
-            name: private-pool-dev-uks
-          steps:
-            - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-              parameters:
-                serviceConnection: sc-cohort-manager-dev
-                testProjectDirectory: "tests/playwright-tests"
-                testfileDirectory: "src/tests/e2e/testFiles"
-                testProjectName: "tests"
-                testType: ${{ testType }}
+  - ${{ each testType in parameters.testTypes }}:
+      - stage: ${{ testType }}_stage
+        displayName: Run ${{ testType }} Tests
+        ${{ if ne(testTypeIndex, 0) }}:
+          dependsOn: ${{ parameters.testTypes[format('{0}', testTypeIndex - 1)] }}_stage
+          condition: succeededOrFailed()
+        variables:
+          TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
+        jobs:
+          - job: ${{ testType }}_job
+            pool:
+              name: private-pool-dev-uks
+            steps:
+              - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+                parameters:
+                  serviceConnection: sc-cohort-manager-dev
+                  testProjectDirectory: "tests/playwright-tests"
+                  testfileDirectory: "src/tests/e2e/testFiles"
+                  testProjectName: "tests"
+                  testType: ${{ testType }}
