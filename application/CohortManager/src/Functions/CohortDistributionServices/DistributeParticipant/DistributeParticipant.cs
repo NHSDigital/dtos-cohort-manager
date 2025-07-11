@@ -35,7 +35,7 @@ public class DistributeParticipant
     /// <returns></returns>
     [Function("DistributeParticipant")]
     public async Task Run(
-   [ServiceBusTrigger(topicName: "%CohortDistributionTopic%", subscriptionName: "%DistributeParticipantSubscription%", Connection = "ServiceBusConnectionString_client_internal")]
+   [ServiceBusTrigger(topicName: "%CohortDistributionTopic%", subscriptionName: "%DistributeParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")]
     string messageBody,
     [DurableClient] DurableTaskClient durableClient,
     FunctionContext functionContext)

@@ -101,7 +101,7 @@ services:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/ManageParticipant/Dockerfile
     environment:
-      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - CohortDistributionTopic=cohort-distribution-topic
       - ParticipantManagementTopic=participant-management-topic

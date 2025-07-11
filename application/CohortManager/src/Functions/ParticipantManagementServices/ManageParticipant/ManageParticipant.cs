@@ -37,7 +37,7 @@ public class ManageParticipant
     /// </summary>
     /// <param name="message">json string containing the participant record</param>
     [Function(nameof(ManageParticipant))]
-    public async Task Run([ServiceBusTrigger(topicName: "%ParticipantManagementTopic%", subscriptionName: "%ManageParticipantSubscription%", Connection = "ServiceBusConnectionString_client_internal")] string message)
+    public async Task Run([ServiceBusTrigger(topicName: "%ParticipantManagementTopic%", subscriptionName: "%ManageParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")] string message)
     {
         var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(message)!;
         Participant participant = participantRecord.Participant;
