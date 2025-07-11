@@ -86,7 +86,7 @@ services:
       - UpdateQueueName=update-participant-queue
       - ScreeningLkpDataServiceURL=http://screening-lkp-data-service:8996/api/ScreeningLkpDataService
       - inboundBlobName=inbound
-      - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
       - ParticipantManagementQueueName=add-participant-queue
       - ParticipantManagementTopic=participant-management-topic
@@ -102,6 +102,7 @@ services:
       dockerfile: ParticipantManagementServices/ManageParticipant/Dockerfile
     environment:
       - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - CohortDistributionTopic=cohort-distribution-topic
       - ParticipantManagementTopic=participant-management-topic
       - ManageParticipantSubscription=manage-participant-sub
@@ -224,24 +225,6 @@ services:
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
       - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
-
-  exception-creation:
-    container_name: create-exception
-    image: cohort-manager-create-exception
-    networks: [cohman-network]
-    profiles: [non-essential]
-    build:
-      context: ./src/Functions/
-      dockerfile: ExceptionHandling/ExceptionCreation/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7070
-      - ExceptionTopic=create-exception-topic
-      - ExceptionSubscription=create-exception-sub
-      - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true
-      - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
-      - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
-
-
 
   update-exception:
     container_name: update-exception
