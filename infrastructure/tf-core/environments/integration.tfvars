@@ -590,8 +590,8 @@ function_apps = {
           function_app_key = "ExceptionManagementDataService"
         },
         {
-          env_var_name     = "GPPracticeDataServiceURL"
-          function_app_key = "GPPracticeDataService"
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
         }
       ]
       env_vars_static = {
@@ -1341,8 +1341,8 @@ linux_web_app = {
       env_vars = {
         static = {
           AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
-          AUTH_CIS2_CLIENT_ID  = "5789849932.cohort-manager-ui-dev.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
           AUTH_TRUST_HOST      = "true"
+          NEXTAUTH_URL         = "https://cohort-int.non-live.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
         }
         from_key_vault = {
@@ -1354,7 +1354,6 @@ linux_web_app = {
         local_urls = {
           # %s becomes the environment and region prefix (e.g. dev-uks)
           EXCEPTIONS_API_URL = "https://%s-get-validation-exceptions.azurewebsites.net"
-          NEXTAUTH_URL       = "https://%s-web.azurewebsites.net/api/auth"
         }
       }
     }
@@ -1362,6 +1361,32 @@ linux_web_app = {
 }
 
 linux_web_app_slots = []
+
+frontdoor_endpoint = {
+  cohort = {
+    origin_group = {
+      session_affinity_enabled = false
+    }
+    origin = {
+      # Dynamically picks all origins for a specific Web App, adding Private Link connection if enabled (needs manual approval)
+      webapp_key = "FrontEndUi" # From var.linux_web_app.linux_web_app_config
+    }
+    custom_domains = {
+      cohort-int = {
+        host_name        = "cohort-int.non-live.screening.nhs.uk"
+        dns_zone_name    = "non-live.screening.nhs.uk"
+        dns_zone_rg_name = "rg-hub-dev-uks-public-dns-zones"
+      }
+    }
+    security_policies = {
+      AllowedIPs = {
+        cdn_frontdoor_firewall_policy_name    = "wafhubnonliveinternalwhitelist"
+        cdn_frontdoor_firewall_policy_rg_name = "rg-hub-dev-uks-hub-networking"
+        associated_domain_keys                = ["cohort-int"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
+      }
+    }
+  }
+}
 
 key_vault = {
   disk_encryption   = true
