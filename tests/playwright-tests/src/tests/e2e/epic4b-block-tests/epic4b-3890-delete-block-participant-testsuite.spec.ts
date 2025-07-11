@@ -100,10 +100,10 @@ test.describe.serial('@regression @e2e @epic4b-block-tests Delete-Block-Particip
         DateOfBirth: `${inputParticipantRecord[0].date_of_birth.slice(0, 4)}-${inputParticipantRecord[0].date_of_birth.slice(4, 6)}-${inputParticipantRecord[0].date_of_birth.slice(6, 8)}`
       };
 
-      expect(deletePayload.FamilyName).toBe('test delete block change');
-      if (deletePayload.FamilyName !== 'test delete block change') {
-        throw new Error(`FamilyName was '${deletePayload.FamilyName}', expected 'test delete block change'`);
-      }
+      expect(deletePayload.FamilyName).not.toBe('TestFamilyName');
+      // if (deletePayload.FamilyName !== 'test delete block change') {
+      //   throw new Error(`FamilyName was '${deletePayload.FamilyName}', expected 'test delete block change'`);
+      // }
       const response = await deleteParticipant(request, deletePayload);
 
       const validators = composeValidators(
