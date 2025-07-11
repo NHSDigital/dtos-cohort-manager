@@ -15,7 +15,7 @@ export default async function Page() {
       <main className="nhsuk-main-wrapper" id="maincontent" role="main">
         <div className="nhsuk-grid-row">
           <div className="nhsuk-grid-column-two-thirds">
-            <h1>Reports</h1>
+            <h1 data-testid="heading-report">Reports</h1>
             <ReportsTable reports={[]} />
           </div>
         </div>
