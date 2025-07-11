@@ -15,13 +15,6 @@ resources:
 variables:
   - group: DEV_hub_backend_remote_state
 
-parameters:
-- name: destEnvironmentShortName
-  displayName: Destination Environment Short Name
-  type: string
-  values:
-  - dev
-  default: dev
 
 stages:
 - stage: db_changes_stage
