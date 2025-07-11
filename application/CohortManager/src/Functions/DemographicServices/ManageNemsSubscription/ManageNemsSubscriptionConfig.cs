@@ -8,6 +8,23 @@ using System.ComponentModel.DataAnnotations;
 public class ManageNemsSubscriptionConfig
 {
     /// <summary>
+    /// ManageNemsSubscription-specific configuration settings
+    /// These will be stored in Key Vault with the "ManageNemsSubscription--" prefix
+    /// </summary>
+    public ManageNemsSubscriptionSettings ManageNemsSubscription { get; set; } = new();
+
+    /// <summary>
+    /// Custom validation to ensure either KeyVault or local cert is configured
+    /// </summary>
+    public bool IsValid => !string.IsNullOrEmpty(ManageNemsSubscription.KeyVaultConnectionString) || !string.IsNullOrEmpty(ManageNemsSubscription.NemsLocalCertPath);
+}
+
+/// <summary>
+/// NEMS-specific configuration settings that will be grouped under ManageNemsSubscription-- in Key Vault
+/// </summary>
+public class ManageNemsSubscriptionSettings
+{
+    /// <summary>
     /// NEMS FHIR API base endpoint
     /// Integration: https://msg.intspineservices.nhs.uk/STU3
     /// Production: Contact NHS Digital for production URLs
@@ -90,9 +107,4 @@ public class ManageNemsSubscriptionConfig
     {
         "pds-record-change-1"
     };
-
-    /// <summary>
-    /// Custom validation to ensure either KeyVault or local cert is configured
-    /// </summary>
-    public bool IsValid => !string.IsNullOrEmpty(KeyVaultConnectionString) || !string.IsNullOrEmpty(NemsLocalCertPath);
 }

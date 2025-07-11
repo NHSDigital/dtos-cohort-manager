@@ -22,7 +22,7 @@ public class NemsSubscriptionManager
 {
     private readonly INemsHttpClientFunction _httpClient;
     private readonly ILogger<NemsSubscriptionManager> _logger;
-    private readonly ManageNemsSubscriptionConfig _config;
+    private readonly ManageNemsSubscriptionSettings _config;
     private readonly IDataServiceAccessor<NemsSubscription> _nemsSubscriptionAccessor;
     private readonly X509Certificate2 _nemsCertificate; // injected!
 
@@ -34,7 +34,7 @@ public class NemsSubscriptionManager
         X509Certificate2 nemsCertificate)
     {
         _httpClient = httpClient;
-        _config = config.Value;
+        _config = config.Value.ManageNemsSubscription;
         _logger = logger;
         _nemsSubscriptionAccessor = nemsSubscriptionAccessor;
         _nemsCertificate = nemsCertificate;

@@ -28,7 +28,7 @@ Before testing locally, ensure you have:
 - [.NET SDK 8+](https://dotnet.microsoft.com/en-us/download)
 - [Azure Functions Core Tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local)
 - Docker or Podman (depending on your OS)
-- A valid `.p12` certificate for NEMS/Spine integration
+- A valid `.pfx` certificate for NEMS/Spine integration
 - A valid `local.settings.json` file (see below)
 - The NEMS FHIR endpoint: `https://msg.intspineservices.nhs.uk/STU3`
 
@@ -53,14 +53,14 @@ This service has been added to our `compose.core.yaml` file:
     environment:
       - ASPNETCORE_URLS=http://*:9081
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
-      - NemsLocalCertPath=/certs/nhs_signed_client.p12
-      - NemsLocalCertPassword=${NEMS_CERT_PASSWORD}
+      - ManageNemsSubscription__NemsLocalCertPath=/certs/nhs_signed_client.pfx
+      - ManageNemsSubscription__NemsLocalCertPassword=${NEMS_CERT_PASSWORD}
       ...
 ```
 
-Place your `.p12` certificate at `./certs/nhs_signed_client.p12`.
+Place your `.pfx` certificate at `./certs/nhs_signed_client.pfx`.
 
-> Ensure the cert is readable by Docker (e.g. `chmod a+rx certs && chmod a+r certs/*.p12`)
+> Ensure the cert is readable by Docker (e.g. `chmod a+rx certs && chmod a+r certs/*.pfx`)
 
 #### 💻 B. Run Locally with `func start`
 
@@ -72,7 +72,7 @@ Place your `.p12` certificate at `./certs/nhs_signed_client.p12`.
 
 2. Add a valid `local.settings.json` (see below)
 
-3. Add the `nhs_signed_client.p12` file to the root of the ManageNemsSubscription project
+3. Add the `nhs_signed_client.pfx` file to the root of the ManageNemsSubscription project
 
 4. Run the function app:
 
@@ -83,6 +83,16 @@ Place your `.p12` certificate at `./certs/nhs_signed_client.p12`.
 ### 🧾 Configuration – `local.settings.json`
 
 > ⚠️ Azure Functions **does not support arrays or nested config** in `local.settings.json`. Use flat key-value strings.
+
+#### 🔧 Configuration Structure
+
+This function uses a nested configuration structure to clearly separate NEMS-specific settings from other MESH integrations. All NEMS-specific configuration values use the `ManageNemsSubscription__` prefix (double underscore), which maps to the nested `ManageNemsSubscription` object in the configuration class.
+
+**Example mapping:**
+- `ManageNemsSubscription__NemsFhirEndpoint` → `config.ManageNemsSubscription.NemsFhirEndpoint`
+- `ManageNemsSubscription__MeshMailboxId` → `config.ManageNemsSubscription.MeshMailboxId`
+
+This approach ensures clear separation in Key Vault and makes it obvious which settings belong to ManageNemsSubscription versus other MESH-enabled functions.
 
 #### ❌ Invalid
 
@@ -104,16 +114,17 @@ Place your `.p12` certificate at `./certs/nhs_signed_client.p12`.
   "Values": {
     "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
     "ASPNETCORE_URLS": "http://*:9081",
-    "NemsFhirEndpoint": "https://msg.intspineservices.nhs.uk/STU3",
-    "FromAsid": "200000002527",
-    "ToAsid": "200000002527",
-    "OdsCode": "T8T9T",
-    "MeshMailboxId": "T8T9TOT001",
-    "NemsLocalCertPath": "../nhs_signed_client.p12",
-    "NemsLocalCertPassword": "<your-certificate-password>",
-    "SubscriptionProfile": "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1",
-    "SubscriptionCriteria": "https://fhir.nhs.uk/Id/nhs-number",
-    "DefaultEventTypes": "pds-record-change-1"
+    "ManageNemsSubscription__NemsFhirEndpoint": "https://msg.intspineservices.nhs.uk/STU3",
+    "ManageNemsSubscription__FromAsid": "<your-from-asid>",
+    "ManageNemsSubscription__ToAsid": "<your-to-asid>",
+    "ManageNemsSubscription__OdsCode": "<your-ods-code>",
+    "ManageNemsSubscription__MeshMailboxId": "<your-mesh-mailbox-id>",
+    "ManageNemsSubscription__NemsLocalCertPath": "./nhs_signed_client.pfx",
+    "ManageNemsSubscription__NemsLocalCertPassword": "<your-certificate-password>",
+    "ManageNemsSubscription__SubscriptionProfile": "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1",
+    "ManageNemsSubscription__SubscriptionCriteria": "https://fhir.nhs.uk/Id/nhs-number",
+    "ManageNemsSubscription__DefaultEventTypes__0": "pds-record-change-1",
+    "ManageNemsSubscription__BypassServerCertificateValidation": "true"
   },
   "Host": {
     "LocalHttpPort": 9081
@@ -123,7 +134,7 @@ Place your `.p12` certificate at `./certs/nhs_signed_client.p12`.
 
 ### 🔐 Certificate Setup
 
-- Use a `.p12` client cert signed for Spine integration
+- Use a `.pfx` client cert signed for Spine integration
 - Set the path in `NemsLocalCertPath`
 - Make sure Docker or your host has read access
 - To debug loading:
@@ -149,13 +160,13 @@ NEMS requires a very specific format:
 ```json
 {
   "iss": "https://nems.nhs.uk",
-  "sub": "https://fhir.nhs.uk/Id/accredited-system|200000002527",
+  "sub": "https://fhir.nhs.uk/Id/accredited-system|<your-asid>",
   "aud": "https://msg.intspineservices.nhs.uk",
   "exp": 1750421408,
   "iat": 1750417808,
   "reason_for_request": "directcare",
   "scope": "patient/Subscription.write",
-  "requesting_system": "https://fhir.nhs.uk/Id/accredited-system|200000002527"
+  "requesting_system": "https://fhir.nhs.uk/Id/accredited-system|<your-asid>"
 }
 ```
 
@@ -164,7 +175,7 @@ You can base64-encode the header and payload manually (no signature).
 #### 📬 Sending the request
 
 ```bash
-curl -X POST "https://msg.intspineservices.nhs.uk/STU3/Subscription"   --cert nhs_signed_client.crt   --key client.key   --insecure   -H "Authorization: Bearer <your-jwt-here>"   -H "fromASID: 200000002527"   -H "toASID: 200000002527"   -H "InteractionID: urn:nhs:names:services:clinicals-sync:SubscriptionsApiPost"   -H "Content-Type: application/fhir+json"   -d @subscription.json
+curl -X POST "https://msg.intspineservices.nhs.uk/STU3/Subscription"   --cert nhs_signed_client.crt   --key client.key   --insecure   -H "Authorization: Bearer <your-jwt-here>"   -H "fromASID: <your-from-asid>"   -H "toASID: <your-to-asid>"   -H "InteractionID: urn:nhs:names:services:clinicals-sync:SubscriptionsApiPost"   -H "Content-Type: application/fhir+json"   -d @subscription.json
 ```
 
 Where `subscription.json` contains a valid FHIR STU3 Subscription resource.
@@ -185,4 +196,31 @@ Where `subscription.json` contains a valid FHIR STU3 Subscription resource.
 
 ## 🔐 Notes
 
-Ensure you keep `nhs_signed_client.p12` safe and secure. Do not commit it unless explicitly permitted.
+Ensure you keep `nhs_signed_client.pfx` safe and secure. Do not commit it unless explicitly permitted.
+
+## 🔧 Additional Configuration Notes
+
+### Certificate File Requirements
+
+The function requires the certificate file to be included in the build output:
+
+1. **For local development**: Place `nhs_signed_client.pfx` in the function directory
+2. **For Docker**: Copy the certificate to `./certs/nhs_signed_client.pfx` 
+3. **Project file**: The `.csproj` must include the certificate for build output:
+
+```xml
+<ItemGroup>
+  <None Update="nhs_signed_client.pfx">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </None>
+</ItemGroup>
+```
+
+### Environment Variable Format
+
+- **Local development**: Use double underscores (`__`) in `local.settings.json`
+- **Docker**: Use double underscores (`__`) in environment variables
+- **Azure Key Vault**: Use double dashes (`--`) for key names (e.g., `ManageNemsSubscription--NemsFhirEndpoint`)
+- **Arrays**: Use indexed syntax like `ManageNemsSubscription__DefaultEventTypes__0`
+
+> ⚠️ **Important**: The configuration system automatically maps between Key Vault's double dash (`--`) format and the application's double underscore (`__`) format. Don't mix these formats in the same environment.

@@ -27,12 +27,15 @@ public class NemsSubscriptionManagerTests
     {
         var config = new ManageNemsSubscriptionConfig
         {
-            NemsFhirEndpoint = "https://test.nems.endpoint/STU3",
-            FromAsid = "TestFromAsid",
-            ToAsid = "TestToAsid",
-            OdsCode = "TestOds",
-            MeshMailboxId = "TestMesh123",
-            BypassServerCertificateValidation = false
+            ManageNemsSubscription = new ManageNemsSubscriptionSettings
+            {
+                NemsFhirEndpoint = "https://test.nems.endpoint/STU3",
+                FromAsid = "TestFromAsid",
+                ToAsid = "TestToAsid",
+                OdsCode = "TestOds",
+                MeshMailboxId = "TestMesh123",
+                BypassServerCertificateValidation = false
+            }
         };
 
         _config.Setup(x => x.Value).Returns(config);

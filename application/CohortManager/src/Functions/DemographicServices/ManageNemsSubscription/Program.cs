@@ -19,26 +19,30 @@ var host = new HostBuilder();
 // Load configuration
 host.AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config);
 
+var nemsConfig = config.ManageNemsSubscription;
+
 // Load NEMS certificate up-front and inject into DI
 X509Certificate2? nemsCertificate = null;
 
-if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
+logger.LogInformation(nemsConfig.NemsLocalCertPath);
+
+if (!string.IsNullOrEmpty(nemsConfig.KeyVaultConnectionString))
 {
     logger.LogInformation("Loading NEMS certificate from Azure Key Vault");
     var certClient = new CertificateClient(
-        new Uri(config.KeyVaultConnectionString),
+        new Uri(nemsConfig.KeyVaultConnectionString),
         new ManagedIdentityCredential()
     );
-    var certResult = await certClient.DownloadCertificateAsync(config.NemsKeyName);
+    var certResult = await certClient.DownloadCertificateAsync(nemsConfig.NemsKeyName);
     nemsCertificate = certResult.Value;
 }
-else if (!string.IsNullOrEmpty(config.NemsLocalCertPath))
+else if (!string.IsNullOrEmpty(nemsConfig.NemsLocalCertPath))
 {
     logger.LogInformation("Loading NEMS certificate from local file");
-    if (!string.IsNullOrEmpty(config.NemsLocalCertPassword))
-        nemsCertificate = new X509Certificate2(config.NemsLocalCertPath, config.NemsLocalCertPassword);
+    if (!string.IsNullOrEmpty(nemsConfig.NemsLocalCertPassword))
+        nemsCertificate = new X509Certificate2(nemsConfig.NemsLocalCertPath, nemsConfig.NemsLocalCertPassword);
     else
-        nemsCertificate = new X509Certificate2(config.NemsLocalCertPath);
+        nemsCertificate = new X509Certificate2(nemsConfig.NemsLocalCertPath);
 }
 else
 {
@@ -64,12 +68,12 @@ host.AddHttpClient()
 
         // Log configuration for debugging (without sensitive data)
         logger.LogInformation("NEMS Configuration loaded - Endpoint: {Endpoint}, ODS: {OdsCode}, MESH: {MeshId}",
-            config.NemsFhirEndpoint,
-            config.OdsCode,
-            string.IsNullOrEmpty(config.MeshMailboxId) ? "NOT_SET" : "SET");
+            nemsConfig.NemsFhirEndpoint,
+            nemsConfig.OdsCode,
+            string.IsNullOrEmpty(nemsConfig.MeshMailboxId) ? "NOT_SET" : "SET");
 
         logger.LogInformation("Config Debug -- NemsFhirEndpoint: {NemsFhirEndpoint}, FromAsid: {FromAsid}, LocalCert: {LocalCert}",
-            config.NemsFhirEndpoint, config.FromAsid, config.NemsLocalCertPath);
+            nemsConfig.NemsFhirEndpoint, nemsConfig.FromAsid, nemsConfig.NemsLocalCertPath);
     })
     .AddDataServicesHandler<DataServicesContext>()
     .AddTelemetry()
