@@ -101,18 +101,17 @@ test.describe.serial('@regression @e2e @epic4b-block-tests Delete-Block-Particip
       };
 
       expect(deletePayload.FamilyName).not.toBe('TestFamilyName');
-      // if (deletePayload.FamilyName !== 'test delete block change') {
-      //   throw new Error(`FamilyName was '${deletePayload.FamilyName}', expected 'test delete block change'`);
-      // }
-      const response = await deleteParticipant(request, deletePayload);
-
-      const validators = composeValidators(
-        expectStatus(404)
-      );
-      await validators(response);
-
-      const lastResponse = await getRecordsFromCohortDistributionService(request);
-      expect(lastResponse.status).toBe(200);
+      if (deletePayload.FamilyName === 'test delete block change') {
+        const response = await deleteParticipant(request, deletePayload);
+        const validators = composeValidators(
+          expectStatus(404)
+        );
+        await validators(response);
+        const lastResponse = await getRecordsFromCohortDistributionService(request);
+        expect(lastResponse.status).toBe(200);
+      } else {
+        throw new Error(`FamilyName was '${deletePayload.FamilyName}', expected 'test delete block change'`);
+      }
     });
   });
 });
