@@ -44,7 +44,7 @@ stages:
     - stage: ${{ replace(replace(testType, ':', '_'), '-', '_') }}_stage
       displayName: Run ${{ testType }} Tests
       ${{ if ne(testTypeIndex, 0) }}:
-        dependsOn: ${{ replace(replace(parameters.testTypes[testTypeIndex - 1], ':', '_'), '-', '_') }}_stage
+        dependsOn: ${{ format('{0}_stage', replace(replace(parameters.testTypes[testTypeIndex - 1], ':', '_'), '-', '_')) }}
         condition: succeededOrFailed()
       variables:
         TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
