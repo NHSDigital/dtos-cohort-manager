@@ -147,6 +147,52 @@
         }
       },
       {
+        "RuleName": "8.Transform.UpdatedRecordExcludedAndDMS",
+        "LocalParams": [
+          {
+            "Name": "IsPrimaryCareProviderNullOnUpdatedParticipant",
+            "Expression": "participant.PrimaryCareProvider == null"
+          },
+          {
+            "Name": "IsPrimaryCareProviderNullDatabaseParticipant",
+            "Expression": "databaseParticipant.PrimaryCareProvider == null"
+          },
+          {
+            "Name": "IsNewRecordInSMU",
+            "Expression": "participant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullOnUpdatedParticipant ? false : !excludedSMUList.Contains(participant.PrimaryCareProvider)) || new string[] { \"English\", \"NHAIS\", \"Cipher\", \"ENG\", \"IM\" }.Contains(participant.CurrentPosting)"
+          }, 
+          {
+            "Name": "IsOldRecordInSMU",            
+            "Expression": "databaseParticipant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullDatabaseParticipant ? false : excludedSMUList.Contains(databaseParticipant.PrimaryCareProvider)) || new string[] { \"Welsh\", \"NHAIS\", \"Cipher\", \"CYM\" }.Contains(databaseParticipant.CurrentPosting)"
+          }
+        ],
+        "Expression":  "participant.RecordType == Actions.Amended && IsNewRecordInSMU && IsOldRecordInSMU",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "PrimaryCareProvider",
+                  "value": null
+                },
+                {
+                  "field": "ReasonForRemoval",
+                  "value": "ORR",
+                  "isExpression": false
+                }, 
+                {
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": "DateTime.Today.ToString(\"yyyyMMdd\")",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
         "RuleName": "9.Truncate.AddressLine4.ExceedsMaximumLength",
         "Expression": "!string.IsNullOrEmpty(participant.AddressLine4) && participant.AddressLine4.Length > 35",
         "Actions": {
@@ -454,7 +500,7 @@
                 },
                 {
                   "field": "ReasonForRemovalEffectiveFromDate",
-                  "value": "DateTime.Today.ToString(\"yyyyMMdd\")",
+                  "value": "DateTime.UtcNow.Date.ToString(\"yyyyMMdd\")",
                   "isExpression": true
                 }
               ]
@@ -482,7 +528,7 @@
                 },
                 {
                   "field": "ReasonForRemovalEffectiveFromDate",
-                  "value": "DateTime.Today.ToString(\"yyyyMMdd\")",
+                  "value": "DateTime.UtcNow.Date.ToString(\"yyyyMMdd\")",
                   "isExpression": true
                 }
               ]
@@ -590,6 +636,20 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "35.TooManyDemographicsFieldsChanged.Confusion.NoTransformation",
+        "LocalParams": [
+          {
+            "Name": "NewDateOfBirth",
+            "Expression": "string.IsNullOrEmpty(participant.DateOfBirth) ? null : participant.DateOfBirth.Replace(\"-\", string.Empty)"
+          },
+          {
+            "Name": "ExistingDateOfBirth",
+            "Expression": "string.IsNullOrEmpty(existingParticipant.DateOfBirth) ? null : existingParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
+          }
+        ],
+        "Expression": "participant.RecordType == Actions.Amended && existingParticipant.ParticipantId != null && ((participant.FamilyName != existingParticipant.FamilyName AND participant.Gender != existingParticipant.Gender) OR (participant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
       }
     ]
   }
