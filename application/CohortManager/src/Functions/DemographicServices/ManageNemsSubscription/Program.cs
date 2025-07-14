@@ -3,9 +3,7 @@ using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Common;
-using NHS.CohortManager.DemographicServices.Config;
 using NHS.CohortManager.DemographicServices;
-using NHS.CohortManager.DemographicServices.Extensions;
 using DataServices.Database;
 using Microsoft.Extensions.Logging;
 

@@ -8,7 +8,6 @@ using Microsoft.Extensions.Options;
 using Model;
 using Moq;
 using NHS.CohortManager.DemographicServices;
-using NHS.CohortManager.DemographicServices.Config;
 using DataServices.Core;
 using System.Linq.Expressions;
 using System.Collections.Specialized;

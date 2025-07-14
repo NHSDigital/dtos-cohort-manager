@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.DemographicServices.Config;
+namespace NHS.CohortManager.DemographicServices;
 
 using System.ComponentModel.DataAnnotations;
 

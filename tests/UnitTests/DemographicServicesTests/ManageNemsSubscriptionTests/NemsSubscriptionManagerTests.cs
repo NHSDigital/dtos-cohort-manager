@@ -5,7 +5,6 @@ using Moq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NHS.CohortManager.DemographicServices;
-using NHS.CohortManager.DemographicServices.Config;
 using Model;
 using Common;
 using DataServices.Core;
