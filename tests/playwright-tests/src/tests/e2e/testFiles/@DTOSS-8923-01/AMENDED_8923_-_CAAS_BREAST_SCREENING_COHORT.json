@@ -18,7 +18,8 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9999261388",
         "RuleId": 3,
-        "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values"
+        "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
@@ -115,6 +116,32 @@
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
         "additionalTags": "@regression @e2e @epic4d-category with RuleID: 22"
+      }
+    },
+      {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9999887279",
+        "RuleId": 22,
+        "RuleDescription": "Amendment received for a subject who does not exist on the Population Index"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8923-01",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 22"
+      }
+    },{
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 62,
+        "RuleDescription": "Reason for removal and superseded NHS ID values incompatible",
+        "Category": 3
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8923-01",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 62"
       }
     }
   ],
@@ -244,7 +271,7 @@
       "change_time_stamp": "20240524000000",
       "serial_change_number": 1,
       "nhs_number": 9996928160,
-      "superseded_by_nhs_number": null,
+      "superseded_by_nhs_number": 9996928160123,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20100101",
       "current_posting": "DMS",
@@ -318,7 +345,8 @@
       "is_interpreter_required": true,
       "invalid_flag": false,
       "eligibility": true
-    },{
+    },
+    {
       "record_type": "AMENDED",
       "change_time_stamp": "20240524000000",
       "serial_change_number": 1,
@@ -361,6 +389,7 @@
   ],
   "nhsNumbers": [
     "9999261388",
-    "9996928160"
+    "9996928160",
+    "9997153723"
   ]
 }

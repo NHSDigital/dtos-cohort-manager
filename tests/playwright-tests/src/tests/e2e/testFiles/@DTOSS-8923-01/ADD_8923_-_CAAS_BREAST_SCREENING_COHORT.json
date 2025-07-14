@@ -3,15 +3,14 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9999261388123",
-        "RuleId": 9,
-        "RuleDescription": "NHS number was not supplied in a valid format",
+        "NhsNumber": "9999261381123",
+        "RuleDescription": "Invalid NHS Number was passed in for participant Model.Participant and file ADD_-_CAAS_BREAST_SCREENING_COHORT.parquet",
         "CATEGORY": 2
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 9"
+        "additionalTags": "@regression @e2e @epic4d-category for Invalid NHS Number"
       }
     },
     {
@@ -19,25 +18,27 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 57,
-        "RuleDescription": "The Superseded by NHS number was not supplied in a valid format"
+        "RuleDescription": "The Superseded by NHS number was not supplied in a valid format",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-categorywith RuleID: 57"
+        "additionalTags": "@regression @e2e @epic4d-categorywith RuleID: 57",
+        "Category": 3
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9999111149",
-        "RuleId": 8,
-        "RuleDescription": "Missing or Invalid Record Type"
+        "RuleDescription": "RecordType was not set to an expected value"
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 8"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: invalid record type",
+        "Category": 10
       }
     },
     {
@@ -50,7 +51,8 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 58"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 58",
+        "Category": 3
       }
     },
     {
@@ -63,7 +65,8 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 16"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 16",
+        "Category": 3
       }
     },
     {
@@ -71,12 +74,13 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 30,
-        "RuleDescription": "Invalid postcode"
+        "RuleDescription": "Postcode invalid"
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 30"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 30",
+        "Category": 3
       }
     },
     {
@@ -84,12 +88,13 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 17,
-        "RuleDescription": "Date of Birth is invalid or missing"
+        "RuleDescription": "Date of birth invalid"
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 17"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 17",
+        "Category": 3
       }
     },
     {
@@ -97,12 +102,14 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 39,
-        "RuleDescription": "Family Name is missing"
+        "RuleDescription": "Family Name value missing",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 39"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 39",
+        "Category": 3
       }
     },
     {
@@ -110,12 +117,13 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 40,
-        "RuleDescription": "Given Name is missing"
+        "RuleDescription": "First Name value missing"
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 40"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 40",
+        "Category": 3
       }
     },
     {
@@ -123,12 +131,13 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 71,
-        "RuleDescription": "All 5 address lines are missing"
+        "RuleDescription": "Address is missing"
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 71"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 71",
+        "Category": 3
       }
     },
     {
@@ -136,12 +145,14 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 42,
-        "RuleDescription": "GP Practice code (Primary Care Provider) is mandatory for this update and was not supplied"
+        "RuleDescription": "GP practice code invalid",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 42"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 42",
+        "Category": 3
       }
     },
     {
@@ -149,7 +160,8 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 47,
-        "RuleDescription": "A NEW registration received where all of the removal details have not been nullified"
+        "RuleDescription": "Removal fields incompatible with record type",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
@@ -183,19 +195,6 @@
         "additionalTags": "@regression @e2e @epic4d-category with RuleID: 11"
       }
     },
-        {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
-        "RuleId": 22,
-        "RuleDescription": "Amendment received for a subject who does not exist on the Population Index"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8923-01",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 22"
-      }
-    },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
@@ -207,19 +206,6 @@
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
         "additionalTags": "@regression @e2e @epic4d-category with RuleID: 36"
-      }
-    },
-           {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
-        "RuleId": 62,
-        "RuleDescription": "'LDN' Reason for Removal received with no Superseded by NHS number"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8923-01",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 62"
       }
     },
     {
@@ -241,8 +227,8 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 99907478389,
-      "superseded_by_nhs_number": null,
+      "nhs_number": 9999111149,
+      "superseded_by_nhs_number": 9999111149123,
       "primary_care_provider": "F83043",
       "primary_care_effective_from_date": "20130319",
       "current_posting": "CH",
@@ -285,7 +271,7 @@
       "superseded_by_nhs_number": null,
       "primary_care_provider": "",
       "primary_care_effective_from_date": "20233",
-      "current_posting": "BD",
+      "current_posting": "ABCD",
       "current_posting_effective_from_date": "20230",
       "name_prefix": "Ms",
       "given_name": "",
@@ -293,7 +279,7 @@
       "family_name": "",
       "previous_family_name": "Stevens",
       "date_of_birth": "202033030",
-      "gender": 1,
+      "gender": 5,
       "address_line_1": "",
       "address_line_2": "",
       "address_line_3": "",
@@ -314,14 +300,14 @@
       "email_address_effective_from_date": "20230",
       "preferred_language": "vb",
       "is_interpreter_required": false,
-      "invalid_flag": "vdvcds",
+      "invalid_flag": true,
       "eligibility": true
     },
     {
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 9999261388123,
+      "nhs_number": 9999261381123,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20230318",
@@ -515,7 +501,7 @@
       "preferred_language": "en",
       "is_interpreter_required": false,
       "invalid_flag": false,
-      "eligibility":""
+      "eligibility":true
     }
   ],
   "nhsNumbers": [
