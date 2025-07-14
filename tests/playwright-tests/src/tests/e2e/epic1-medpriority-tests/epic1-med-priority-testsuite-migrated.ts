@@ -1,4 +1,4 @@
-// For Future Epic 1 High Regression Tests
+// For Future Epic 1 Med Regression Tests
 
 // Note:
 // These tests have been fully migrated to the new and improved test execution orchestration:
@@ -13,17 +13,16 @@
 // Guidance:
 //
 // - First, try adding new tests using the runner.
-// - If custom calls are needed, use new file for test addition. - tests\playwright-tests\src\tests\e2e\epic1-highpriority-tests\epic1-high-priority-testsuite.spec.ts
+// - If custom calls are needed, use new file for test addition. - tests\playwright-tests\src\tests\e2e\epic1-medpriority-tests\epic1-med-priority-testsuite.spec.ts
 //
 // Test Tags:
 // There is no impact to the test tags. The same tags can be used to trigger these tests.
 // For example, to run regression tests, use:
 //
-//   npm run test:regression:e2e:epic1
+//   npm run test:regression_e2e_epic1Med
 //
-// This equates to "@epic1-" tags, configured in the package.json at the playwright-tests root location.
+// This equates to "@epic1-med" tags, configured in the package.json at the playwright-tests root location.
 
 
-export const runnerBasedEpic1TestScenariosAdd = "@DTOSS-3648-01|@DTOSS-3661-01|@DTOSS-3662-01|@DTOSS-3197-01|@DTOSS-3744-01|@DTOSS-3660-01";
-export const runnerBasedEpic1TestScenariosAmend = "@DTOSS-3217-01|@DTOSS-3661-02|@DTOSS-3662-02|@DTOSS-3217-02";
+export const runnerBasedEpic1MedTestScenariosAdd = "@DTOSS-3214-01";
 
