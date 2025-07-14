@@ -3,14 +3,15 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "999715373",
+        "NhsNumber": "9999261388",
         "RuleId": 9,
-        "RuleDescription": "NHS number was not supplied in a valid format"
+        "RuleDescription": "NHS number was not supplied in a valid format",
+        "CATEGORY": 2
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
@@ -21,22 +22,22 @@
         "RuleDescription": "The Superseded by NHS number was not supplied in a valid format"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
-        "RuleId": 1,
-        "RuleDescription": "Record type is not in the expected format"
+        "NhsNumber": "9999111149",
+        "RuleId": 8,
+        "RuleDescription": "Missing or Invalid Record Type"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
@@ -47,9 +48,9 @@
         "RuleDescription": "Missing or invalid Posting"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
@@ -60,22 +61,9 @@
         "RuleDescription": "Missing or invalid Gender"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
-        "RuleId": 14,
-        "RuleDescription": "Invalid reason for removal code"
-      },
-      "meta": {
-        "testJiraId": "",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
@@ -86,22 +74,9 @@
         "RuleDescription": "Invalid postcode"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
-        "RuleId": 3,
-        "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values"
-      },
-      "meta": {
-        "testJiraId": "",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
@@ -112,9 +87,9 @@
         "RuleDescription": "Date of Birth is invalid or missing"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
@@ -125,9 +100,9 @@
         "RuleDescription": "Family Name is missing"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
@@ -138,9 +113,9 @@
         "RuleDescription": "Given Name is missing"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
@@ -151,9 +126,9 @@
         "RuleDescription": "All 5 address lines are missing"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
@@ -164,48 +139,9 @@
         "RuleDescription": "GP Practice code (Primary Care Provider) is mandatory for this update and was not supplied"
       },
       "meta": {
-        "testJiraId": "",
-        "requirementJiraId": "DTOSS-3035",
-        "additionalTags": ""
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
-        "RuleId": 66,
-        "RuleDescription": "Formal Death Status is supplied for a non death Reason for Removal reason"
-      },
-      "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
-        "RuleId": 19,
-        "RuleDescription": "Reason for Removal Business Effective from Date (Deduction Date) is invalid"
-      },
-      "meta": {
-        "testJiraId": "",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
-        "RuleId": 18,
-        "RuleDescription": "Date of Death is invalid"
-      },
-      "meta": {
-        "testJiraId": "",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
@@ -216,9 +152,9 @@
         "RuleDescription": "A NEW registration received where all of the removal details have not been nullified"
       },
       "meta": {
-        "testJiraId": "",
-        "requirementJiraId": "",
-        "additionalTags": ""
+        "testJiraId": "@DTOSS-8923-01",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
@@ -229,48 +165,22 @@
         "RuleDescription": "The Invalid Flag received does not contain a valid value."
       },
       "meta": {
-        "testJiraId": "",
-        "requirementJiraId": "",
-        "additionalTags": ""
+        "testJiraId": "@DTOSS-8923-01",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
-        "RuleId": 54,
-        "RuleDescription": ""
-      },
-      "meta": {
-        "testJiraId": "",
-        "requirementJiraId": "",
-        "additionalTags": ""
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
-        "RuleId": 35,
+        "NhsNumber": "9996216462",
+        "RuleId": 11,
         "RuleDescription": "The supplied demographics do not match the subjects PI record"
       },
       "meta": {
-        "testJiraId": "",
-        "requirementJiraId": "DTOSS-3477",
-        "additionalTags": ""
-      }
-    },
-        {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
-        "RuleId": 22,
-        "RuleDescription": "Amendment received for a subject who does not exist on the Population Index"
-      },
-      "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
         {
@@ -281,12 +191,12 @@
         "RuleDescription": "The GP Practice code does NOT exist in the relevant cohort organisation table"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     },
-           {
+      {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
@@ -294,9 +204,22 @@
         "RuleDescription": "'LDN' Reason for Removal received with no Superseded by NHS number"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": ""
+        "additionalTags": "@regression @e2e @epic4d-category"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997153723",
+        "RuleId": 0,
+        "RuleDescription": "Participant was transformed as transform rule: ValidateLanguageCode was executed"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8923-01",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": "@regression @e2e @epic4d-category"
       }
     }
   ],
@@ -306,27 +229,27 @@
       "change_time_stamp": null,
       "serial_change_number": 2,
       "nhs_number": 9997153723,
-      "superseded_by_nhs_number": null,
+      "superseded_by_nhs_number": 9999261388123,
       "primary_care_provider": "",
       "primary_care_effective_from_date": "20233",
-      "current_posting": "BD",
+      "current_posting": "ABC",
       "current_posting_effective_from_date": "20230",
       "name_prefix": "Ms",
       "given_name": "",
       "other_given_name": "Diana",
       "family_name": "",
       "previous_family_name": "Stevens",
-      "date_of_birth": "202033030",
-      "gender": 1,
+      "date_of_birth": "20290999",
+      "gender": 5,
       "address_line_1": "",
       "address_line_2": "",
       "address_line_3": "",
       "address_line_4": "",
       "address_line_5": "",
-      "postcode": "AB4tgvjb8FJ",
+      "postcode": "AB4tg@FJ",
       "paf_key": "Z3S4Q5X8",
       "address_effective_from_date": "20230",
-      "reason_for_removal": "gybj",
+      "reason_for_removal": "RFR",
       "reason_for_removal_effective_from_date": "20205555",
       "date_of_death": "20205555",
       "death_status": null,
@@ -336,13 +259,217 @@
       "mobile_telephone_effective_from_date": "20230",
       "email_address": "test@mail.net",
       "email_address_effective_from_date": "20230",
-      "preferred_language": "en",
+      "preferred_language": "vb",
       "is_interpreter_required": false,
       "invalid_flag": "vdvcds",
       "eligibility": true
+    },
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 2,
+      "nhs_number": 9999261388123,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20230318",
+      "current_posting": "CH",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "Miss",
+      "given_name": "Smith",
+      "other_given_name": "Brit",
+      "family_name": "Regi",
+      "previous_family_name": "Jane",
+      "date_of_birth": "19600101",
+      "gender": 1,
+      "address_line_1": "AddressLine1",
+      "address_line_2": "AddressLine2",
+      "address_line_3": "AddressLine3",
+      "address_line_4": "AddressLine4",
+      "address_line_5": "AddressLine5",
+      "postcode": "NW2 3UG",
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20250101",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "161999999",
+      "home_telephone_effective_from_date": "20240908",
+      "mobile_telephone_number": "788888888",
+      "mobile_telephone_effective_from_date": "20010101",
+      "email_address": "abc123@soup.io",
+      "email_address_effective_from_date": "20240101",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    },
+    {
+     "record_type": "NEW",
+      "change_time_stamp": null,
+      "serial_change_number": 2,
+      "nhs_number": 9999111149,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20230318",
+      "current_posting": "CH",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "Miss",
+      "given_name": "Smith",
+      "other_given_name": "Brit",
+      "family_name": "Regi",
+      "previous_family_name": "Jane",
+      "date_of_birth": "19600101",
+      "gender": 1,
+      "address_line_1": "AddressLine1",
+      "address_line_2": "AddressLine2",
+      "address_line_3": "AddressLine3",
+      "address_line_4": "AddressLine4",
+      "address_line_5": "AddressLine5",
+      "postcode": "NW2 3UG",
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20250101",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "161999999",
+      "home_telephone_effective_from_date": "20240908",
+      "mobile_telephone_number": "788888888",
+      "mobile_telephone_effective_from_date": "20010101",
+      "email_address": "abc123@soup.io",
+      "email_address_effective_from_date": "20240101",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    },
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 2,
+      "nhs_number": 9999261388,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20230318",
+      "current_posting": "CH",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "Miss",
+      "given_name": "Smith",
+      "other_given_name": "Brit",
+      "family_name": "Regi",
+      "previous_family_name": "Jane",
+      "date_of_birth": "19600101",
+      "gender": 1,
+      "address_line_1": "AddressLine1",
+      "address_line_2": "AddressLine2",
+      "address_line_3": "AddressLine3",
+      "address_line_4": "AddressLine4",
+      "address_line_5": "AddressLine5",
+      "postcode": "NW2 3UG",
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20250101",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "161999999",
+      "home_telephone_effective_from_date": "20240908",
+      "mobile_telephone_number": "788888888",
+      "mobile_telephone_effective_from_date": "20010101",
+      "email_address": "abc123@soup.io",
+      "email_address_effective_from_date": "20240101",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    },
+    {
+      "record_type": "ADD",
+      "change_time_stamp": "20240524000000",
+      "serial_change_number": 1,
+      "nhs_number": 9996928160,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20100101",
+      "current_posting": "DMS",
+      "current_posting_effective_from_date": "20100101",
+      "name_prefix": "MRS",
+      "given_name": "I am Greggs and I have given limit",
+      "other_given_name": "RFR Rule 1",
+      "family_name": "I am conner and I have given limit",
+      "previous_family_name": " I am conner and I have given limit",
+      "date_of_birth": "19800112",
+      "gender": 2,
+      "address_line_1": "My adress 1",
+      "address_line_2": "My adress 2",
+      "address_line_3": "My adress 3",
+      "address_line_4": "My adress 4",
+      "address_line_5": "My adress 5",
+      "postcode": "AB23 1AF",
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20010101",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "016190",
+      "home_telephone_effective_from_date": "20010101",
+      "mobile_telephone_number": "0788888888",
+      "mobile_telephone_effective_from_date": "20010101",
+      "email_address": "abc123@soup.io",
+      "email_address_effective_from_date": "20240101",
+      "preferred_language": "en",
+      "is_interpreter_required": true,
+      "invalid_flag": false,
+      "eligibility": true
+    },
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 1,
+      "nhs_number": 9996216462,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "ABC123",
+      "primary_care_effective_from_date": "20130319",
+      "current_posting": "CH",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "A.ML",
+      "given_name": "NewTest1",
+      "other_given_name": "Test",
+      "family_name": "Adani1",
+      "previous_family_name": "Test2",
+      "date_of_birth": "19700101",
+      "gender": 1,
+      "address_line_1": "247 SpaightSpaightSpTeeeeeeest Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "Test",
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AB43 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20240501",
+      "reason_for_removal": "LDN",
+      "reason_for_removal_effective_from_date": "20240501",
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "01619999999",
+      "home_telephone_effective_from_date": "20240501",
+      "mobile_telephone_number": "07888888888",
+      "mobile_telephone_effective_from_date": "20240501",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20240501",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility":""
     }
   ],
   "nhsNumbers": [
-    "9997153723"
+    "9997153723",
+    "9999111149",
+    "9999261388",
+    "9996928160",
+    "9996216462"
   ]
 }
