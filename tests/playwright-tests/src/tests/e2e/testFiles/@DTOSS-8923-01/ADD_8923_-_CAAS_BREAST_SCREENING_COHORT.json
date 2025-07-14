@@ -16,7 +16,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
+        "NhsNumber": "9999111149",
         "RuleId": 57,
         "RuleDescription": "Superseded by NHS ID invalid",
         "Category": 3
@@ -32,7 +32,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9999111149",
         "RuleDescription": "RecordType was not set to an expected value",
-         "Category": 10
+        "Category": 10
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
@@ -155,7 +155,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
+        "NhsNumber": "9996216462",
         "RuleId": 47,
         "RuleDescription": "Removal fields incompatible with record type",
         "Category": 3
@@ -170,43 +170,28 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
-        "RuleId": 61,
-        "RuleDescription": "The Invalid Flag received does not contain a valid value.",
-        "Category": 3
-
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8923-01",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 61"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9996216462",
-        "RuleId": 11,
-        "RuleDescription": "The supplied demographics do not match the subjects PI record",
+        "RuleId": 3601,
+        "RuleDescription": "Invalid primary care provider GP practice code",
         "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 11"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 3601"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
-        "RuleId": 36,
-        "RuleDescription": "The GP Practice code does NOT exist in the relevant cohort organisation table",
+        "RuleId": 3602,
+        "RuleDescription": "Invalid primary care provider GP practice code",
         "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 36"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 3602"
       }
     },
     {
@@ -221,6 +206,17 @@
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
         "additionalTags": "@regression @e2e @epic4d-category with RuleID: 0"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9996928160
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8923-01",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": "@regression @e2e @epic4d-category go to Cohort for rule 35"
       }
     }
   ],
@@ -436,10 +432,10 @@
       "current_posting": "DMS",
       "current_posting_effective_from_date": "20100101",
       "name_prefix": "MRS",
-      "given_name": "I am Greggs and I have given limit",
-      "other_given_name": "RFR Rule 1",
-      "family_name": "I am conner and I have given limit",
-      "previous_family_name": " I am conner and I have given limit",
+      "given_name": "Greggs",
+      "other_given_name": "Rule",
+      "family_name": "I am conner",
+      "previous_family_name": "test name",
       "date_of_birth": "19800112",
       "gender": 2,
       "address_line_1": "My adress 1",
