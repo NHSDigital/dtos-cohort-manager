@@ -24,5 +24,5 @@
 // This equates to "@epic4d-" tags, configured in the package.json at the playwright-tests root location.
 
 
- export const runnerBasedEpic4dTestScenariosAdd = "@DTOSS-8419-01";
- export const runnerBasedEpic4dTestScenariosAmend = "@DTOSS-8419-01";
+ export const runnerBasedEpic4dTestScenariosAdd = "@DTOSS-8923-01";
+ export const runnerBasedEpic4dTestScenariosAmend = "@DTOSS-8923-01";
