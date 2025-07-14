@@ -96,10 +96,10 @@
       "label": "Restart whole application (incl. non-essential services)",
       "type": "shell",
       "osx": {
-        "command": "podman compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile \"*\" down && podman compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile \"*\" up"
+        "command": "podman compose --profile \"*\" down && podman compose --profile \"*\" up"
       },
       "windows": {
-        "command": "docker compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile \"*\" down && docker compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile \"*\" up",
+        "command": "docker compose --profile \"*\" down && docker compose --profile \"*\" up",
         "options": {
           "shell": {
             "executable": "wsl.exe"
@@ -115,13 +115,13 @@
       }
     },
     {
-      "label": "Build application (all services)",
+      "label": "Build whole application (incl. non-essential services)",
       "type": "shell",
       "osx": {
-        "command": "podman compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile default --profile non-essential --profile ui build"
+        "command": "podman compose --profile \"*\" build"
       },
       "windows": {
-        "command": "docker compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile default --profile non-essential --profile ui build",
+        "command": "docker compose --profile \"*\" build",
         "options": {
           "shell": {
             "executable": "wsl.exe"
