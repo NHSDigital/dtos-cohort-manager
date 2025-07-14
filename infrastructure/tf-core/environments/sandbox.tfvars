@@ -1396,7 +1396,7 @@ sqlserver = {
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
-  db-management-mi-name                = "mi-cohort-manager-db-management-sbrk"
+  db_management_mi_name                = "mi-cohort-manager-db-management-sbrk"
 
   server = {
     sqlversion                    = "12.0"
