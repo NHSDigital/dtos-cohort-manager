@@ -59,11 +59,11 @@ public class ManageNemsSubscription
 
             if (!result.Success)
             {
-                _logger.LogError("Failed to create subscription for NHS number REDACTED: {ErrorMessage}", result.ErrorMessage);
+                _logger.LogError("Failed to create subscription: {ErrorMessage}", result.ErrorMessage);
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to create subscription in NEMS.");
             }
 
-            _logger.LogInformation("Successfully created subscription for NHS number REDACTED");
+            _logger.LogInformation("Successfully created subscription");
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Subscription created successfully. Subscription ID: {result.SubscriptionId}");
         }
         catch (Exception ex)
@@ -114,7 +114,7 @@ public class ManageNemsSubscription
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to remove subscription.");
             }
 
-            _logger.LogInformation("Successfully unsubscribed NHS number REDACTED");
+            _logger.LogInformation("Successfully unsubscribed");
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, "Successfully unsubscribed");
         }
         catch (Exception ex)
