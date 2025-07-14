@@ -25,4 +25,4 @@
 
 
  export const runnerBasedEpic4dTestScenariosAdd = "@DTOSS-8419-01";
- export const runnerBasedEpic4dTestScenariosAmend = "@DTOSS-8419-02";
+ export const runnerBasedEpic4dTestScenariosAmend = "@DTOSS-8419-01";
