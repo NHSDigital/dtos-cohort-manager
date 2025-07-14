@@ -26,16 +26,8 @@ public class AddServiceNowParticipantFunction
     }
 
     [Function(nameof(AddServiceNowParticipantFunction))]
-    public async Task Run([QueueTrigger("%AddServiceNowParticipantQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
+    public async Task Run([QueueTrigger("%AddServiceNowParticipantQueueName%", Connection = "AzureWebJobsStorage")] ServiceNowParticipant participant)
     {
-        var participant = JsonSerializer.Deserialize<ServiceNowParticipant>(jsonFromQueue);
-
-        if (participant == null)
-        {
-            _logger.LogError("Deserialisation of message response to {type} returned null", typeof(ServiceNowParticipant));
-            return;
-        }
-
         try
         {
             var pdsResponse = await _httpClientFunction.SendGetResponse($"{_config.RetrievePdsDemographicURL}?nhsNumber={participant.NhsNumber}");
@@ -56,9 +48,9 @@ public class AddServiceNowParticipantFunction
             }
 
             var jsonString = await pdsResponse.Content.ReadAsStringAsync();
-            var pdsDemographic = JsonSerializer.Deserialize<PdsDemographic>(jsonString);
+            var participantDemographic = JsonSerializer.Deserialize<ParticipantDemographic>(jsonString);
 
-            if (pdsDemographic == null)
+            if (participantDemographic == null)
             {
                 _logger.LogError("Deserialisation of PDS response to {type} returned null", typeof(PdsDemographic));
                 await _handleException.CreateSystemExceptionLog(new Exception($"Deserialisation of PDS response to {typeof(PdsDemographic)} returned null"), participant);
@@ -66,7 +58,7 @@ public class AddServiceNowParticipantFunction
                 return;
             }
 
-            if (pdsDemographic.NhsNumber != participant.NhsNumber)
+            if (participantDemographic.NhsNumber.ToString() != participant.NhsNumber)
             {
                 _logger.LogError("NHS Numbers don't match, NHS Number must have been superseded");
                 await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.MessageType1);
