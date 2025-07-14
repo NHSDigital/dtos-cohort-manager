@@ -334,15 +334,13 @@ services:
         - ManageNemsSubscription__ToAsid=200000002527
         - ManageNemsSubscription__OdsCode=T8T9T
         - ManageNemsSubscription__MeshMailboxId=${NEMS_MESH_MAILBOX_ID}
-        - ManageNemsSubscription__NemsLocalCertPath=/certs/nhs_signed_client.pfx
+        - ManageNemsSubscription__NemsLocalCertPath=./nhs_signed_client.pfx
         - ManageNemsSubscription__NemsLocalCertPassword=${NEMS_CERT_PASSWORD}
         - ManageNemsSubscription__SubscriptionProfile=https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1
         - ManageNemsSubscription__SubscriptionCriteria=https://fhir.nhs.uk/Id/nhs-number
         - ManageNemsSubscription__DefaultEventTypes__0=pds-record-change-1
         - ManageNemsSubscription__BypassServerCertificateValidation=true
         - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      volumes:
-        - ./certs:/certs
       ports:
         - "9081:9081"
 
