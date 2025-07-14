@@ -3,25 +3,40 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9991742468",
+        "NhsNumber": "9990386439",
         "RuleId": 101,
         "RuleDescription": "CurrentPostingEffectiveFromDate"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4328-01",
+        "requirementJiraId": "DTOSS-3136",
+        "additionalTags": "@regression @e2e @epic2-high-priority - Validate current posting effective date throw exception when invalid date format given for new participants for NHS Number 9990386439 - RuleId 101"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9991845666",
+        "NhsNumber": "9990419906",
         "RuleId": 101,
         "RuleDescription": "CurrentPostingEffectiveFromDate"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4328-01",
+        "requirementJiraId": "DTOSS-3136",
+        "additionalTags": "@regression @e2e @epic2-high-priority - Validate current posting effective date throw exception when invalid date format given for new participants for NHS Number 9990419906 - RuleId 101"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9991932887",
+        "NhsNumber": "9990448973",
         "RuleId": 101,
         "RuleDescription": "CurrentPostingEffectiveFromDate"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4328-01",
+        "requirementJiraId": "DTOSS-3136",
+        "additionalTags": "@regression @e2e @epic2-high-priority - Validate current posting effective date throw exception when invalid date format given for new participants for NHS Number 9990448973 - RuleId 101"
       }
     }
   ],
@@ -30,7 +45,7 @@
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 4,
-      "nhs_number": 9991742468,
+      "nhs_number": 9990386439,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20010101",
@@ -70,7 +85,7 @@
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 5,
-      "nhs_number": 9991845666,
+      "nhs_number": 9990419906,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20010101",
@@ -110,7 +125,7 @@
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 6,
-      "nhs_number": 9991932887,
+      "nhs_number": 9990448973,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20010101",
@@ -148,8 +163,8 @@
     }
   ],
   "nhsNumbers": [
-    "9991742468",
-    "9991845666",
-    "9991932887"
+    "9990386439",
+    "9990419906",
+    "9990448973"
   ]
 }

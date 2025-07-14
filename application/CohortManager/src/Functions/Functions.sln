@@ -273,6 +273,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceNowCohortLookup", "S
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServiceNowCohortLookupTests", "..\..\..\..\tests\UnitTests\ServiceNowCohortLookupTests\ServiceNowCohortLookupTests.csproj", "{1DCC2430-46DE-4B21-A9CD-766A9F0CF934}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistributeParticipantTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\DistributeParticipantTests\DistributeParticipantTests.csproj", "{E3071875-C888-26E6-4D50-301F1075AA68}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ReconciliationService", "ReconciliationService", "{C5A9FA3C-5A1E-48B9-BCB5-8CD06FFDC21B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReconciliationService", "ReconciliationService\ReconciliationService.Function\ReconciliationService.csproj", "{1AE6CF75-64AD-45B5-A644-C38F163DC497}"
@@ -1683,6 +1685,18 @@ Global
 		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Release|x64.Build.0 = Release|Any CPU
 		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Release|x86.ActiveCfg = Release|Any CPU
 		{9AC9BD33-7CD4-4AD9-B774-6325306D1600}.Release|x86.Build.0 = Release|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Debug|x64.Build.0 = Debug|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Debug|x86.Build.0 = Debug|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Release|x64.ActiveCfg = Release|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Release|x64.Build.0 = Release|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Release|x86.ActiveCfg = Release|Any CPU
+		{E3071875-C888-26E6-4D50-301F1075AA68}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

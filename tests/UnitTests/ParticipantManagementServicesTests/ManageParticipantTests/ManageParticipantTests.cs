@@ -28,7 +28,7 @@ public class ManageParticipantTests
     {
         var testConfig = new ManageParticipantConfig
         {
-            CohortQueueName = "CohortQueueName"
+            CohortDistributionTopic = "CohortTopicName"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -46,7 +46,7 @@ public class ManageParticipantTests
             .ReturnsAsync((ParticipantManagement)null);
 
         _queueClientMock
-            .Setup(x => x.AddAsync(It.IsAny<ParticipantCsvRecord>(), testConfig.CohortQueueName))
+            .Setup(x => x.AddAsync(It.IsAny<ParticipantCsvRecord>(), testConfig.CohortDistributionTopic))
             .ReturnsAsync(true);
 
         _sut = new ManageParticipant(
