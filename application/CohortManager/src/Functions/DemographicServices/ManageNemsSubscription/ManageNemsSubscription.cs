@@ -49,7 +49,7 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (nhsNumber == null || !ValidationHelper.ValidateNHSNumber(nhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("NHS number is required and must be valid format");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
@@ -90,7 +90,7 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (nhsNumber == null || !ValidationHelper.ValidateNHSNumber(nhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("NHS number is required and must be valid format");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
@@ -141,7 +141,7 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (nhsNumber == null || !ValidationHelper.ValidateNHSNumber(nhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("NHS number is required and must be valid format");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
