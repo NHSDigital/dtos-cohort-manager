@@ -94,7 +94,20 @@
         {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9999111165",
+        "NhsNumber": "9997153723",
+        "RuleId": 42,
+        "RuleDescription": "GP Practice code (Primary Care Provider) is mandatory for this update and was not supplied"
+      },
+      "meta": {
+        "testJiraId": "",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": ""
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9997152220",
         "RuleId": 22,
         "RuleDescription": "Amendment received for a subject who does not exist on the Population Index"
       },
