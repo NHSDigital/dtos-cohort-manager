@@ -983,6 +983,24 @@ function_apps = {
         }
       }
     }
+    ReconciliationService = {
+      name_suffix            = "update-exception"
+      function_endpoint_name = "InboundMetricDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      service_bus_connections      = ["internal"]
+      env_vars = {
+        app_urls = {
+          ExceptionManagementDataServiceURL = "ExceptionManagementDataService"
+          CohortDistributionDataServiceUrl = "CohortDistributionDataService"
+        }
+        static = {
+          ReconciliationTimer = "5/5 * * * *"
+          inboundMetricTopic = "inboundMetricTopic"
+          inboundMetricSub = "inboundMetricSub"
+        }
+      }
+    }
   }
 }
 

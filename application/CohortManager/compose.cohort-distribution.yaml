@@ -143,6 +143,7 @@ services:
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - AcceptableLatencyThresholdMs=500
 
+
 networks:
   cohman-network:
     external: true
