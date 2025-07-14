@@ -1317,9 +1317,9 @@ function_apps = {
           ExceptionManagementDataServiceURL = "ExceptionManagementDataService"
           CohortDistributionDataServiceUrl  = "CohortDistributionDataService"
         }
-        static = {
+        env_vars_static = {
           ReconciliationTimer = "59 23 * * *"
-          inboundMetricTopic  = "inboundMetricTopic"
+          inboundMetricTopic  = "inbound-metric"
           inboundMetricSub    = "inboundMetricSub"
         }
       }
@@ -1431,6 +1431,10 @@ service_bus = {
       participant-management = {
         batched_operations_enabled = true
         subscribers                = ["ManageParticipant"]
+      }
+      inbound-metric = {
+        batched_operations_enabled = true
+        subscribers                = ["inboundMetricSub"]
       }
     }
   }
