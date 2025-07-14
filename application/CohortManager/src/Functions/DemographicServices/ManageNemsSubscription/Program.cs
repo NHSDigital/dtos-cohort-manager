@@ -5,11 +5,9 @@ using Microsoft.Extensions.Hosting;
 using Common;
 using NHS.CohortManager.DemographicServices.ManageNemsSubscription.Config;
 using NHS.CohortManager.DemographicServices.ManageNemsSubscription;
+using NHS.CohortManager.DemographicServices.ManageNemsSubscription.Extensions;
 using DataServices.Database;
 using Microsoft.Extensions.Logging;
-using System.Security.Cryptography.X509Certificates;
-using Azure.Security.KeyVault.Certificates;
-using Azure.Identity;
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("Program");
@@ -22,32 +20,7 @@ host.AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionCo
 var nemsConfig = config.ManageNemsSubscription;
 
 // Load NEMS certificate up-front and inject into DI
-X509Certificate2? nemsCertificate = null;
-
-logger.LogInformation(nemsConfig.NemsLocalCertPath);
-
-if (!string.IsNullOrEmpty(nemsConfig.KeyVaultConnectionString))
-{
-    logger.LogInformation("Loading NEMS certificate from Azure Key Vault");
-    var certClient = new CertificateClient(
-        new Uri(nemsConfig.KeyVaultConnectionString),
-        new ManagedIdentityCredential()
-    );
-    var certResult = await certClient.DownloadCertificateAsync(nemsConfig.NemsKeyName);
-    nemsCertificate = certResult.Value;
-}
-else if (!string.IsNullOrEmpty(nemsConfig.NemsLocalCertPath))
-{
-    logger.LogInformation("Loading NEMS certificate from local file");
-    if (!string.IsNullOrEmpty(nemsConfig.NemsLocalCertPassword))
-        nemsCertificate = new X509Certificate2(nemsConfig.NemsLocalCertPath, nemsConfig.NemsLocalCertPassword);
-    else
-        nemsCertificate = new X509Certificate2(nemsConfig.NemsLocalCertPath);
-}
-else
-{
-    throw new InvalidOperationException("No certificate configuration found. Please configure either KeyVaultConnectionString or NemsLocalCertPath.");
-}
+var nemsCertificate = await nemsConfig.LoadNemsCertificateAsync(logger);
 
 host.ConfigureFunctionsWebApplication();
 host.AddHttpClient()
