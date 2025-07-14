@@ -67,3 +67,26 @@ module "azure_sql_server" {
 
   tags = var.tags
 }
+
+module "managed_identity_sql_db_management" {
+  for_each = var.sqlserver != {} ? var.regions : {}
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/managed-identity"
+
+  uai_name            = var.sqlserver.mi_name_sql_db_management
+  resource_group_name = azurerm_resource_group.core[each.key].name
+  location            = each.key
+
+  tags = var.tags
+}
+
+module "sql_db_management_rbac_assignment" {
+  for_each = var.sqlserver != {} ? var.regions : {}
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
+
+  principal_id         = module.managed_identity_sql_db_management[each.key].principal_id
+  role_definition_name = "Contributor"
+  scope                = module.azure_sql_server[each.key].id
+
+}
