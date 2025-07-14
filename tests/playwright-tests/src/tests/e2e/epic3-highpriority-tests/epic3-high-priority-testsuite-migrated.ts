@@ -19,7 +19,7 @@
 // There is no impact to the test tags. The same tags can be used to trigger these tests.
 // For example, to run regression tests, use:
 //
-//   npm run test:regression:e2e:epic3
+//   npm run test:regression_e2e_epic3
 //
 // This equates to "@epic3-" tags, configured in the package.json at the playwright-tests root location.
 
