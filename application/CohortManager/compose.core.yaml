@@ -319,6 +319,7 @@ services:
       container_name: manage-nems-subscription
       image: cohort-manager-manage-nems-subscription
       networks: [cohman-network]
+      profiles: [non-essential]
       build:
         context: ./src/Functions/
         dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile

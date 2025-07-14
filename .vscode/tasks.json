@@ -93,6 +93,52 @@
       }
     },
     {
+      "label": "Restart application (all services)",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile default --profile non-essential --profile ui down && podman compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile default --profile non-essential --profile ui up"
+      },
+      "windows": {
+        "command": "docker compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile default --profile non-essential --profile ui down && docker compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile default --profile non-essential --profile ui up",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "cwd": "./application/CohortManager"
+      }
+    },
+    {
+      "label": "Build application (all services)",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile default --profile non-essential --profile ui build"
+      },
+      "windows": {
+        "command": "docker compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile default --profile non-essential --profile ui build",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "group": {
+        "kind": "build"
+      },
+      "options": {
+        "cwd": "./application/CohortManager",
+        "statusbar": {
+          "hide": false
+        }
+      }
+    },
+    {
       "label": "Run All Functions",
       "dependsOrder": "parallel",
       "dependsOn": [
