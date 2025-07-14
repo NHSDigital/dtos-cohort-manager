@@ -73,20 +73,6 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9999261388",
-        "RuleId": 3,
-        "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values",
-        "Category": 3
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8923-01",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 3"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9996928160",
         "RuleId": 35,
         "RuleDescription": "The supplied demographics do not match the subjects PI record",
