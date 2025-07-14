@@ -55,6 +55,28 @@
         }
       },
       {
+        "RuleName": "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "EnglishPostingCategory",
+            "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\""
+          },
+          {
+            "Name": "IsExcluded",
+            "Expression": "dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)"
+          }
+        ],
+        "Expression": "!((EnglishPostingCategory || IsExcluded || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting)) && !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"GP practice code does not exist\""
+            }
+          }
+        }
+      },
+      {
         "RuleName": "58.CurrentPosting.NBO.NonFatal",
         "Expression": "ValidCurrentPosting",
         "Actions": {
