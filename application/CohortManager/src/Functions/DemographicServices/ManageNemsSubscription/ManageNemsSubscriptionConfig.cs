@@ -107,4 +107,10 @@ public class ManageNemsSubscriptionSettings
     {
         "pds-record-change-1"
     };
+
+    /// <summary>
+    /// HTTP client timeout in seconds for NEMS API requests
+    /// Default: 300 seconds (5 minutes)
+    /// </summary>
+    public int HttpClientTimeoutSeconds { get; set; } = 300;
 }

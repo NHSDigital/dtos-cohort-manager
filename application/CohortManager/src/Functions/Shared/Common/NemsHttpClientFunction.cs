@@ -15,7 +15,6 @@ public class NemsHttpClientFunction : INemsHttpClientFunction
 {
     private readonly ILogger<NemsHttpClientFunction> _logger;
     private readonly INemsHttpClientProvider _nemsHttpClientProvider;
-    public static readonly TimeSpan _timeout = TimeSpan.FromSeconds(300);
 
     public NemsHttpClientFunction(
         ILogger<NemsHttpClientFunction> logger,
@@ -29,12 +28,13 @@ public class NemsHttpClientFunction : INemsHttpClientFunction
     /// Sends a POST request to create a NEMS subscription with proper authentication and headers.
     /// </summary>
     /// <param name="request">NEMS subscription POST request object</param>
+    /// <param name="timeoutSeconds">HTTP client timeout in seconds. Defaults to 300 seconds (5 minutes)</param>
     /// <returns>HTTP response from NEMS API</returns>
-    public async Task<HttpResponseMessage> SendSubscriptionPost(NemsSubscriptionPostRequest request)
+    public async Task<HttpResponseMessage> SendSubscriptionPost(NemsSubscriptionPostRequest request, int timeoutSeconds = 300)
     {
         var client = _nemsHttpClientProvider.CreateClient(request.ClientCertificate, request.BypassCertValidation);
         client.BaseAddress = new Uri(request.Url);
-        client.Timeout = _timeout;
+        client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
 
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, request.Url)
         {
@@ -66,12 +66,13 @@ public class NemsHttpClientFunction : INemsHttpClientFunction
     /// Sends a DELETE request to remove a NEMS subscription with proper authentication and headers.
     /// </summary>
     /// <param name="request">NEMS subscription DELETE request object</param>
+    /// <param name="timeoutSeconds">HTTP client timeout in seconds. Defaults to 300 seconds (5 minutes)</param>
     /// <returns>HTTP response from NEMS API</returns>
-    public async Task<HttpResponseMessage> SendSubscriptionDelete(NemsSubscriptionRequest request)
+    public async Task<HttpResponseMessage> SendSubscriptionDelete(NemsSubscriptionRequest request, int timeoutSeconds = 300)
     {
         var client = _nemsHttpClientProvider.CreateClient(request.ClientCertificate, request.BypassCertValidation);
         client.BaseAddress = new Uri(request.Url);
-        client.Timeout = _timeout;
+        client.Timeout = TimeSpan.FromSeconds(timeoutSeconds);
 
         var httpRequest = new HttpRequestMessage(HttpMethod.Delete, request.Url);
 

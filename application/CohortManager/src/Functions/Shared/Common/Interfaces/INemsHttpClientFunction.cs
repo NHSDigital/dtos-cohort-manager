@@ -8,6 +8,7 @@ public interface INemsHttpClientFunction
     /// Sends an HTTP POST request to the specified NEMS URL with the provided subscription JSON, headers, and authorization tokens.
     /// </summary>
     /// <param name="request">NEMS subscription POST request object containing the subscription JSON, authorization tokens, ASIDs, and certificates</param>
+    /// <param name="timeoutSeconds">HTTP client timeout in seconds. Defaults to 300 seconds (5 minutes)</param>
     /// <returns>HTTP response message</returns>
     /// <remarks>
     /// This method sends a POST request to the specified NEMS endpoint with a JSON body and the necessary authorization headers.
@@ -17,12 +18,13 @@ public interface INemsHttpClientFunction
     /// - <c>InteractionID</c> to specify the interaction ID of the subscription creation process.
     /// The request uses mutual TLS authentication with client certificates for secure communication with NEMS.
     /// </remarks>
-    Task<HttpResponseMessage> SendSubscriptionPost(NemsSubscriptionPostRequest request);
+    Task<HttpResponseMessage> SendSubscriptionPost(NemsSubscriptionPostRequest request, int timeoutSeconds = 300);
 
     /// <summary>
     /// Sends an HTTP DELETE request to remove a NEMS subscription with proper authentication and headers.
     /// </summary>
     /// <param name="request">NEMS subscription DELETE request object containing the subscription URL, authorization tokens, ASIDs, and certificates</param>
+    /// <param name="timeoutSeconds">HTTP client timeout in seconds. Defaults to 300 seconds (5 minutes)</param>
     /// <returns>HTTP response message</returns>
     /// <remarks>
     /// This method sends a DELETE request to the specified NEMS subscription endpoint with the necessary authorization headers.
@@ -32,7 +34,7 @@ public interface INemsHttpClientFunction
     /// - <c>InteractionID</c> to specify the interaction ID of the subscription deletion process.
     /// The request uses mutual TLS authentication with client certificates for secure communication with NEMS.
     /// </remarks>
-    Task<HttpResponseMessage> SendSubscriptionDelete(NemsSubscriptionRequest request);
+    Task<HttpResponseMessage> SendSubscriptionDelete(NemsSubscriptionRequest request, int timeoutSeconds = 300);
 
     /// <summary>
     /// Generates an unsigned JWT token for NEMS API authentication with required claims and proper structure.

@@ -99,7 +99,7 @@ public class NemsSubscriptionManager
                 BypassCertValidation = bypassCert
             };
 
-            var response = await _httpClient.SendSubscriptionDelete(deleteRequest);
+            var response = await _httpClient.SendSubscriptionDelete(deleteRequest, _config.HttpClientTimeoutSeconds);
 
             return response.IsSuccessStatusCode;
         }
@@ -142,7 +142,7 @@ public class NemsSubscriptionManager
                 BypassCertValidation = bypassCert
             };
 
-            var response = await _httpClient.SendSubscriptionPost(postRequest);
+            var response = await _httpClient.SendSubscriptionPost(postRequest, _config.HttpClientTimeoutSeconds);
 
             if (!response.IsSuccessStatusCode)
             {
