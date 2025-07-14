@@ -37,7 +37,7 @@ public class ReconciliationService
 
     [Function("InboundMetricsTracker")]
     public async Task RunInboundMetric(
-        [ServiceBusTrigger("%inboundMetricTopic%", "%inboundMetricSub%", Connection = "ServiceBusConnectionString")]
+        [ServiceBusTrigger("%inboundMetricTopic%", "%ReconciliationServiceSubscription%", Connection = "ServiceBusConnectionString")]
         ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
     {

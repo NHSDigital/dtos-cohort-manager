@@ -396,7 +396,7 @@ services:
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - inboundMetricTopic=inboundMetricTopic
-      - inboundMetricSub=inboundMetricSub
+      - ReconciliationServiceSubscription=inboundMetricSub
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
       - AcceptableLatencyThresholdMs=500
