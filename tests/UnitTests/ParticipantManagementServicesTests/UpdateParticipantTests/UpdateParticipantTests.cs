@@ -18,7 +18,7 @@ public class UpdateParticipantTests
     private readonly Mock<ICheckDemographic> _checkDemographic = new();
     private readonly CreateParticipant _createParticipant = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
-    private ParticipantCsvRecord _request = new();
+    private BasicParticipantCsvRecord _request = new();
     private readonly Mock<ICohortDistributionHandler> _cohortDistributionHandler = new();
     private readonly Mock<IQueueClient> _azureQueueStorageHelper = new();
     private readonly Mock<IOptions<UpdateParticipantConfig>> _config = new();
@@ -40,7 +40,7 @@ public class UpdateParticipantTests
             .ReturnsAsync(JsonSerializer.Serialize(validationResponse));
 
         _request.FileName = "test.csv";
-        _request.Participant = new Participant()
+        _request.BasicParticipantData = new BasicParticipantData()
         {
             NhsNumber = "9727890016",
             ScreeningName = "BS Select",
@@ -110,7 +110,7 @@ public class UpdateParticipantTests
     public async Task Run_ParticipantIneligible_MarkAsIneligibleAndSendToCohortDistribution()
     {
         // Arrange
-        _request.Participant.EligibilityFlag = EligibilityFlag.Ineligible;
+        _request.BasicParticipantData.EligibilityFlag = EligibilityFlag.Ineligible;
         var sut = new UpdateParticipantFunction(_logger.Object, _httpClientFunction.Object,
                                                 _checkDemographic.Object, _createParticipant,
                                                 _handleException.Object, _cohortDistributionHandler.Object,
