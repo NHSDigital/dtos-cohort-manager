@@ -8,3 +8,6 @@ runs:
       run: |
         # Please do not change this `check=whole-history` setting, as new patterns may be added or history may be rewritten.
         check=current-branch ./scripts/githooks/scan-secrets.sh
+
+
+
