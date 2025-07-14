@@ -147,7 +147,7 @@ public class ValidateParticipant
     [Function(nameof(LookupValidation))]
     public async Task<ValidationExceptionLog> LookupValidation([ActivityTrigger] ValidationRecord validationRecord)
     {
-        var lookupRequest = new LookupValidationRequestBody
+        var request = new LookupValidationRequestBody
         {
             NewParticipant = new Participant(validationRecord.Participant),
             ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
@@ -155,15 +155,12 @@ public class ValidateParticipant
             RulesType = RulesType.ParticipantManagement
         };
 
-        var cohortRequest = lookupRequest;
-        lookupRequest.RulesType = RulesType.CohortDistribution;
+        var lookupTask = CallLookupValidation(request);
 
-        ValidationExceptionLog[] validationResults = await Task.WhenAll(
-            CallLookupValidation(lookupRequest),
-            CallLookupValidation(cohortRequest)
-        );
+        request.RulesType = RulesType.CohortDistribution;
+        var cohortTask = CallLookupValidation(request);
 
-        return new ValidationExceptionLog(validationResults[0], validationResults[1]);
+        return new ValidationExceptionLog(await lookupTask, await cohortTask);
     }
 
     /// <summary>
@@ -224,7 +221,6 @@ public class ValidateParticipant
         var response = await _httpClient.SendPost(_config.LookupValidationURL, json);
         response.EnsureSuccessStatusCode();
         string body = await _httpClient.GetResponseText(response);
-        _logger.LogInformation(body);
 
         var exceptionLog = JsonSerializer.Deserialize<ValidationExceptionLog>(body);
         return exceptionLog;

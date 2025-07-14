@@ -299,7 +299,7 @@ function_apps = {
         UpdateQueueName            = "update-participant-queue"
         ParticipantManagementTopic = "participant-management"
         AllowDeleteRecords         = true
-        UseNewFunctions            = "false"
+        UseNewFunctions            = "true"
       }
       storage_containers = [
         {
