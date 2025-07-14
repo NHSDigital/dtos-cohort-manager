@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "addParticipant": {
+    "ManageServiceNowParticipant": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7140",
+      "commandLineArgs": "--port 7068",
       "launchBrowser": false
     }
   }

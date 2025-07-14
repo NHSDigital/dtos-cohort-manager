@@ -15,9 +15,8 @@ public class ReceiveServiceNowMessageRequestBody
     [NotNullOrEmpty]
     [JsonPropertyName("nhs_number")]
     public required string NhsNumber { get; set; }
-    [NotNullOrEmpty]
     [JsonPropertyName("date_of_birth")]
-    public required string DateOfBirth { get; set; }
+    public required DateOnly DateOfBirth { get; set; }
     [NotNullOrEmpty]
     [JsonPropertyName("BSO_code")]
     public required string BsoCode { get; set; }

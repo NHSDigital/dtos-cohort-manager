@@ -9,14 +9,14 @@ using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
 
-public class ManageServiceNowParticipant
+public class AddServiceNowParticipantFunction
 {
-    private readonly ILogger<ManageServiceNowParticipant> _logger;
+    private readonly ILogger<AddServiceNowParticipantFunction> _logger;
     private readonly ManageServiceNowParticipantConfig _config;
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _handleException;
 
-    public ManageServiceNowParticipant(ILogger<ManageServiceNowParticipant> logger, IOptions<ManageServiceNowParticipantConfig> addParticipantConfig,
+    public AddServiceNowParticipantFunction(ILogger<AddServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> addParticipantConfig,
         IHttpClientFunction httpClientFunction, IExceptionHandler handleException)
     {
         _logger = logger;
@@ -25,8 +25,8 @@ public class ManageServiceNowParticipant
         _handleException = handleException;
     }
 
-    [Function(nameof(ManageServiceNowParticipant))]
-    public async Task Run([QueueTrigger("%ManageServiceNowParticipantQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
+    [Function(nameof(AddServiceNowParticipantFunction))]
+    public async Task Run([QueueTrigger("%AddServiceNowParticipantQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
     {
         var participant = JsonSerializer.Deserialize<ServiceNowParticipant>(jsonFromQueue);
 
@@ -72,6 +72,8 @@ public class ManageServiceNowParticipant
                 await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.MessageType1);
                 return;
             }
+
+            // TODO: DTOSS-8375
         }
         catch (Exception ex)
         {
