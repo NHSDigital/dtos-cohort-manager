@@ -87,6 +87,6 @@ module "sql_db_management_rbac_assignment" {
 
   principal_id         = module.managed_identity_sql_db_management[local.primary_region].principal_id
   role_definition_name = "Contributor"
-  scope                = module.azure_sql_server[each.key].id
+  scope                = module.azure_sql_server[each.key].sql_server_id
 
 }
