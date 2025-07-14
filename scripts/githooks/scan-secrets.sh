@@ -52,7 +52,7 @@ function get-cmd-to-run() {
       cmd="detect --source $dir --verbose --redact"
       ;;
     "current-branch")
-      cmd="detect --source $dir --verbose --redact --log-opts=origin/$branch"
+      cmd="detect --source $dir --verbose --redact --log-opts=$branch"
       ;;
     "last-commit")
       cmd="detect --source $dir --verbose --redact --log-opts -1"
