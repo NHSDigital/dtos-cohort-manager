@@ -53,15 +53,21 @@ public class RetrievePdsDemographic
             var url = string.Format(PdsParticipantUrlFormat, _config.RetrievePdsParticipantURL, nhsNumber);
 
             var response = await _httpClientFunction.SendPdsGet(url);
+            string jsonResponse = "";
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req);
+                var demographicRecordDeletedFromDatabase = await DeleteDemographicRecord(nhsNumber);
+                if (!demographicRecordDeletedFromDatabase)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "could not delete record from database. See logs for more details");
+                }
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "could not find record and successfully deleted from database");
             }
 
             response.EnsureSuccessStatusCode();
 
-            var jsonResponse = await _httpClientFunction.GetResponseText(response);
+            jsonResponse = await _httpClientFunction.GetResponseText(response);
             var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
             var participantDemographic = pdsDemographic.ToParticipantDemographic();
             var upsertResult = await UpsertDemographicRecordFromPDS(participantDemographic);
@@ -107,6 +113,36 @@ public class RetrievePdsDemographic
         }
 
         _logger.LogError("Failed to update Participant Demographic.");
+        return false;
+    }
+
+    private async Task<bool> DeleteDemographicRecord(string nhsNumber)
+    {
+        var nhsNumberParsed = long.TryParse(nhsNumber, out long parsedNhsNumber);
+        if (!nhsNumberParsed)
+        {
+            _logger.LogError("could not parse nhs number when trying to get record for deletion");
+            return false;
+        }
+        var oldParticipantDemographic = await _participantDemographicClient.GetSingleByFilter(i => i.NhsNumber == parsedNhsNumber);
+
+        if (oldParticipantDemographic == null)
+        {
+
+            _logger.LogWarning("Failed to delete Participant Demographic as record did not exist in database");
+            return false;
+        }
+
+        _logger.LogInformation("Participant Demographic record found, attempting to delete  Participant Demographic.");
+        bool updateSuccess = await _participantDemographicClient.Delete(oldParticipantDemographic.ParticipantId.ToString());
+
+        if (updateSuccess)
+        {
+            _logger.LogInformation("Successfully updated Participant Demographic.");
+            return true;
+        }
+
+        _logger.LogError("Failed to delete Participant Demographic.");
         return false;
     }
 }
