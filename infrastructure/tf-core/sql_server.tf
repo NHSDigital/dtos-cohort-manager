@@ -73,7 +73,7 @@ module "managed_identity_sql_db_management" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/managed-identity"
 
-  uai_name            = var.sqlserver.db_management_mi_name
+  uai_name            = "${var.sqlserver.db_management_mi_name}-${lower(each.key)}"
   resource_group_name = azurerm_resource_group.core[each.key].name
   location            = each.key
 
