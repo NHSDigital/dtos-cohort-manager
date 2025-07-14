@@ -92,7 +92,7 @@
         "additionalTags": "@regression @e2e @epic4d-category with RuleID: 35"
       }
     },
-        {
+    {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
@@ -118,19 +118,7 @@
         "additionalTags": "@regression @e2e @epic4d-category with RuleID: 22"
       }
     },
-      {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9999887279",
-        "RuleId": 22,
-        "RuleDescription": "Amendment received for a subject who does not exist on the Population Index"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8923-01",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 22"
-      }
-    },{
+    {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
