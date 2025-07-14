@@ -251,8 +251,6 @@
         "requirementJiraId": "DTOSS-8419",
         "additionalTags": "@smoke @e2e @epic4d-category go to Cohort FOR RULE 62"
       }
-    },"
-      }
     }
   ],
   "inputParticipantRecord": [
