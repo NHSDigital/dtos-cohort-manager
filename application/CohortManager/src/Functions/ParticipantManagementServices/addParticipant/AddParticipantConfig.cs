@@ -5,13 +5,9 @@ using System.ComponentModel.DataAnnotations;
 public class AddParticipantConfig
 {
     [Required]
-    public string DemographicURIGet { get; set; }
+    public string DemographicURIGet {get; set;}
     [Required]
-    public string DSaddParticipant { get; set; }
+    public string DSaddParticipant {get; set;}
     [Required]
-    public string StaticValidationURL { get; set; }
-    [Required]
-    public required string RetrievePdsDemographicURL { get; set; }
-    [Required]
-    public required string SendServiceNowMessageURL { get; set; }
+    public string StaticValidationURL {get; set;}
 }
