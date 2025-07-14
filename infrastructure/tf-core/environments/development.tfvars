@@ -1318,7 +1318,7 @@ function_apps = {
           CohortDistributionDataServiceUrl  = "CohortDistributionDataService"
         }
         static = {
-          ReconciliationTimer = "5/5 * * * *"
+          ReconciliationTimer = "59 23 * * *"
           inboundMetricTopic  = "inboundMetricTopic"
           inboundMetricSub    = "inboundMetricSub"
         }
