@@ -9,11 +9,12 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: c5b352eaad08403f0addac347b07ede4fa643556
+      ref: 8570bd32f8da7dfbf2f88fcc9190181e4757fcca
       endpoint: NHSDigital
 
 variables:
   - group: DEV_hub_backend_remote_state
+
 
 stages:
 - stage: db_changes_stage
@@ -54,7 +55,7 @@ stages:
 - stage: smoke_e2e_tests
   displayName: Run Smoke E2E Tests
   variables:
-  - group: DEV_automation_testing_pipeline
+    - group: DEV_automation_testing_pipeline
   jobs:
     - job: smoke_e2e_tests
       pool:
@@ -73,7 +74,7 @@ stages:
   dependsOn: smoke_e2e_tests
   condition: succeededOrFailed()
   variables:
-  - group: DEV_automation_testing_pipeline
+    - group: DEV_automation_testing_pipeline
   jobs:
     - job: regression_api_tests
       pool:
@@ -92,7 +93,7 @@ stages:
   dependsOn: regression_api_tests
   condition: succeededOrFailed()
   variables:
-  - group: DEV_automation_testing_pipeline
+    - group: DEV_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic1_tests
       pool:
@@ -111,7 +112,7 @@ stages:
   dependsOn: regression_e2e_epic1_tests
   condition: succeededOrFailed()
   variables:
-  - group: DEV_automation_testing_pipeline
+    - group: DEV_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic2_tests
       pool:
@@ -130,7 +131,7 @@ stages:
   dependsOn: regression_e2e_epic2_tests
   condition: succeededOrFailed()
   variables:
-  - group: DEV_automation_testing_pipeline
+    - group: DEV_automation_testing_pipeline
   jobs:
     - job: regression_e2e_epic3_tests
       pool:
