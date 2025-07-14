@@ -97,45 +97,69 @@ public class ManageNemsSubscriptionTests
     [TestMethod]
     public async Task Subscribe_ValidRequest_ReturnsOk()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
+
+        // Act
         var response = await _sut.Subscribe(request.Object);
+
+        // Assert
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
     [TestMethod]
     public async Task Unsubscribe_ValidRequest_ReturnsOk()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
+
+        // Act
         var response = await _sut.Unsubscribe(request.Object);
+
+        // Assert
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
     [TestMethod]
     public async Task Subscribe_InvalidNhsNumber_ReturnsBadRequest()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "" } }, HttpMethod.Post);
+
+        // Act
         var response = await _sut.Subscribe(request.Object);
+
+        // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [TestMethod]
     public async Task Unsubscribe_InvalidNhsNumber_ReturnsBadRequest()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "" } }, HttpMethod.Post);
+
+        // Act
         var response = await _sut.Unsubscribe(request.Object);
+
+        // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [TestMethod]
     public async Task Unsubscribe_SubscriptionNotFound_ReturnsNotFound()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
 
         _nemsSubscriptionAccessor
             .Setup(x => x.GetSingle(It.IsAny<Expression<Func<NemsSubscription, bool>>>()))
             .ReturnsAsync((NemsSubscription?)null);
 
+        // Act
         var response = await _sut.Unsubscribe(request.Object);
+
+        // Assert
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 
@@ -175,18 +199,21 @@ public class ManageNemsSubscriptionTests
     [TestMethod]
     public async Task Subscribe_NemsPostFails_ReturnsInternalServerError()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
 
         _nemsSubscriptionAccessor
             .Setup(x => x.GetSingle(It.IsAny<Expression<Func<NemsSubscription, bool>>>()))
             .ReturnsAsync((NemsSubscription?)null);
 
-
         _nemsHttpClientFunction
             .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
             .ReturnsAsync((HttpResponseMessage)null);
 
+        // Act
         var response = await _sut.Subscribe(request.Object);
+
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 
@@ -225,13 +252,17 @@ public class ManageNemsSubscriptionTests
     [DataRow(HttpStatusCode.Forbidden)]
     public async Task Unsubscribe_DeleteFromNemsFails_ReturnsInternalServerError(HttpStatusCode nemsStatus)
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
 
         _nemsHttpClientFunction
             .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(new HttpResponseMessage(nemsStatus));
 
+        // Act
         var response = await _sut.Unsubscribe(request.Object);
+
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 
@@ -239,12 +270,16 @@ public class ManageNemsSubscriptionTests
     [TestMethod]
     public async Task Unsubscribe_DeleteFromNemsReturnsNull_ReturnsInternalServerError()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
         _nemsHttpClientFunction
             .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync((HttpResponseMessage)null);
 
+        // Act
         var response = await _sut.Unsubscribe(request.Object);
+
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 
@@ -257,11 +292,15 @@ public class ManageNemsSubscriptionTests
     [DataRow("")]
     public async Task Subscribe_Unsubscribe_InvalidNhsNumbers_ReturnsBadRequest(string nhsNumber)
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", nhsNumber } }, HttpMethod.Post);
+        
+        // Act
         var subscribeResponse = await _sut.Subscribe(request.Object);
-        Assert.AreEqual(HttpStatusCode.BadRequest, subscribeResponse.StatusCode);
-
         var unsubscribeResponse = await _sut.Unsubscribe(request.Object);
+        
+        // Assert
+        Assert.AreEqual(HttpStatusCode.BadRequest, subscribeResponse.StatusCode);
         Assert.AreEqual(HttpStatusCode.BadRequest, unsubscribeResponse.StatusCode);
     }
 
@@ -270,54 +309,79 @@ public class ManageNemsSubscriptionTests
     [DataRow((HttpStatusCode)418)]
     public async Task Unsubscribe_DeleteFromNemsWeirdStatus_ReturnsInternalServerError(HttpStatusCode nemsStatus)
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
         _nemsHttpClientFunction
             .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(new HttpResponseMessage(nemsStatus));
+            
+        // Act
         var response = await _sut.Unsubscribe(request.Object);
+        
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 
     [TestMethod]
     public async Task CheckSubscriptionStatus_ValidNhsNumber_ReturnsOk()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Get);
+        
+        // Act
         var response = await _sut.CheckSubscriptionStatus(request.Object);
+        
+        // Assert
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
     [TestMethod]
     public async Task CheckSubscriptionStatus_NoSubscription_ReturnsNotFound()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Get);
 
         _nemsSubscriptionAccessor
             .Setup(x => x.GetSingle(It.IsAny<Expression<Func<NemsSubscription, bool>>>()))
             .ReturnsAsync((NemsSubscription?)null);
 
+        // Act
         var response = await _sut.CheckSubscriptionStatus(request.Object);
+        
+        // Assert
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 
     [TestMethod]
     public async Task CheckSubscriptionStatus_InvalidNhsNumber_ReturnsBadRequest()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "invalid" } }, HttpMethod.Get);
+        
+        // Act
         var response = await _sut.CheckSubscriptionStatus(request.Object);
+        
+        // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [TestMethod]
     public async Task CheckSubscriptionStatus_MissingNhsNumber_ReturnsBadRequest()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection(), HttpMethod.Get);
+        
+        // Act
         var response = await _sut.CheckSubscriptionStatus(request.Object);
+        
+        // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [TestMethod]
     public async Task NemsSubscriptionDataService_ValidRequest_ReturnsOk()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection(), HttpMethod.Get);
         var mockResponse = _createResponse.CreateHttpResponse(HttpStatusCode.OK, request.Object, "Success");
 
@@ -333,13 +397,17 @@ public class ManageNemsSubscriptionTests
             requestHandler.Object
         );
 
+        // Act
         var response = await sut.NemsSubscriptionDataService(request.Object, "test-key");
+        
+        // Assert
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
 
     [TestMethod]
     public async Task NemsSubscriptionDataService_ExceptionThrown_ReturnsInternalServerError()
     {
+        // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection(), HttpMethod.Get);
 
         var requestHandler = new Mock<IRequestHandler<NemsSubscription>>();
@@ -354,7 +422,10 @@ public class ManageNemsSubscriptionTests
             requestHandler.Object
         );
 
+        // Act
         var response = await sut.NemsSubscriptionDataService(request.Object, "test-key");
+        
+        // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 }
