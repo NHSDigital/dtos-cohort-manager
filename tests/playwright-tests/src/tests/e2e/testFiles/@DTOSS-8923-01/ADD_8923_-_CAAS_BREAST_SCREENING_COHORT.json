@@ -5,7 +5,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9999261381123",
         "RuleDescription": "Invalid NHS Number was passed in for participant Model.Participant and file ADD_-_CAAS_BREAST_SCREENING_COHORT.parquet",
-        "CATEGORY": 2
+        "Category": 2
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
@@ -24,21 +24,20 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-categorywith RuleID: 57",
-        "Category": 3
+        "additionalTags": "@regression @e2e @epic4d-categorywith RuleID: 57"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9999111149",
-        "RuleDescription": "RecordType was not set to an expected value"
+        "RuleDescription": "RecordType was not set to an expected value",
+         "Category": 10
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: invalid record type",
-        "Category": 10
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: invalid record type"
       }
     },
     {
@@ -46,13 +45,13 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 58,
-        "RuleDescription": "Missing or invalid Posting"
+        "RuleDescription": "Missing or invalid Posting",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 58",
-        "Category": 3
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 58"
       }
     },
     {
@@ -60,13 +59,13 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 16,
-        "RuleDescription": "Missing or invalid Gender"
+        "RuleDescription": "Missing or invalid Gender",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 16",
-        "Category": 3
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 16"
       }
     },
     {
@@ -74,13 +73,13 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 30,
-        "RuleDescription": "Postcode invalid"
+        "RuleDescription": "Postcode invalid",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 30",
-        "Category": 3
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 30"
       }
     },
     {
@@ -88,13 +87,13 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 17,
-        "RuleDescription": "Date of birth invalid"
+        "RuleDescription": "Date of birth invalid",
+         "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 17",
-        "Category": 3
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 17"
       }
     },
     {
@@ -108,8 +107,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 39",
-        "Category": 3
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 39"
       }
     },
     {
@@ -117,13 +115,13 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 40,
-        "RuleDescription": "First Name value missing"
+        "RuleDescription": "First Name value missing",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 40",
-        "Category": 3
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 40"
       }
     },
     {
@@ -131,13 +129,13 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 71,
-        "RuleDescription": "Address is missing"
+        "RuleDescription": "Address is missing",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 71",
-        "Category": 3
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 71"
       }
     },
     {
@@ -151,8 +149,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 42",
-        "Category": 3
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 42"
       }
     },
     {
@@ -174,7 +171,9 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 61,
-        "RuleDescription": "The Invalid Flag received does not contain a valid value."
+        "RuleDescription": "The Invalid Flag received does not contain a valid value.",
+        "Category": 3
+
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
@@ -187,7 +186,8 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9996216462",
         "RuleId": 11,
-        "RuleDescription": "The supplied demographics do not match the subjects PI record"
+        "RuleDescription": "The supplied demographics do not match the subjects PI record",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
@@ -200,7 +200,8 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 36,
-        "RuleDescription": "The GP Practice code does NOT exist in the relevant cohort organisation table"
+        "RuleDescription": "The GP Practice code does NOT exist in the relevant cohort organisation table",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
@@ -213,7 +214,8 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
         "RuleId": 0,
-        "RuleDescription": "Participant was transformed as transform rule: ValidateLanguageCode was executed"
+        "RuleDescription": "Participant was transformed as transform rule: ValidateLanguageCode was executed",
+        "Category": 3
       },
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
@@ -279,7 +281,7 @@
       "family_name": "",
       "previous_family_name": "Stevens",
       "date_of_birth": "202033030",
-      "gender": 5,
+      "gender": 1,
       "address_line_1": "",
       "address_line_2": "",
       "address_line_3": "",
@@ -502,6 +504,46 @@
       "is_interpreter_required": false,
       "invalid_flag": false,
       "eligibility":true
+    },
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 1,
+      "nhs_number": 9995081229,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20030318",
+      "current_posting": "CH",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "MR",
+      "given_name": "NewTest 1",
+      "other_given_name": "Test",
+      "family_name": "Adani 1",
+      "previous_family_name": "Tester 1",
+      "date_of_birth": "19700101",
+      "gender": 1,
+      "address_line_1": "241 SpaightSpaightSpTeeeeeeest Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "TestAddress",
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AB43 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": null,
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "01619999999",
+      "home_telephone_effective_from_date": "2024",
+      "mobile_telephone_number": "07888888888",
+      "mobile_telephone_effective_from_date": "20240501",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": null,
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
     }
   ],
   "nhsNumbers": [
@@ -509,6 +551,7 @@
     "9996216462",
     "9999261388",
     "9996928160",
-    "9999111149"
+    "9999111149",
+    "9995081229"
   ]
 }
