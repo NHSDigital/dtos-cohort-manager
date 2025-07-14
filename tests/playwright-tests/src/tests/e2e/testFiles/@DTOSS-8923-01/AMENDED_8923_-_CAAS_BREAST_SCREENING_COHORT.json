@@ -10,7 +10,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 14"
       }
     },
     {
@@ -23,7 +23,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 3"
       }
     },
     {
@@ -36,7 +36,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 66"
       }
     },
     {
@@ -49,7 +49,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 19"
       }
     },
     {
@@ -62,7 +62,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 18"
       }
     },
     {
@@ -75,7 +75,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 54"
       }
     },
     {
@@ -88,7 +88,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 35"
       }
     },
         {
@@ -99,9 +99,9 @@
         "RuleDescription": "GP Practice code (Primary Care Provider) is mandatory for this update and was not supplied"
       },
       "meta": {
-        "testJiraId": "",
-        "requirementJiraId": "DTOSS-3035",
-        "additionalTags": ""
+        "testJiraId": "@DTOSS-8923-01",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 42"
       }
     },
     {
@@ -114,7 +114,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 22"
       }
     }
   ],
