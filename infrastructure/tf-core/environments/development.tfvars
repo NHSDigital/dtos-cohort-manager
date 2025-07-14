@@ -1320,7 +1320,7 @@ function_apps = {
         env_vars_static = {
           ReconciliationTimer = "59 23 * * *"
           inboundMetricTopic  = "inbound-metric"
-          inboundMetricSub    = "inboundMetricSub"
+          inboundMetricSub    = "ReconciliationService"
         }
       }
     }
@@ -1434,7 +1434,7 @@ service_bus = {
       }
       inbound-metric = {
         batched_operations_enabled = true
-        subscribers                = ["inboundMetricSub"]
+        subscribers                = ["ReconciliationService"]
       }
     }
   }
