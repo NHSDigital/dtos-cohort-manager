@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.DemographicServices.ManageNemsSubscription;
+namespace NHS.CohortManager.DemographicServices;
 
 using System;
 using System.Net;

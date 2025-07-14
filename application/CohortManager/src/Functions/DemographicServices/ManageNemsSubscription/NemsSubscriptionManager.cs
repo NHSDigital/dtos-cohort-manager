@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.DemographicServices.ManageNemsSubscription;
+namespace NHS.CohortManager.DemographicServices;
 
 using System;
 using System.Linq;
@@ -11,7 +11,7 @@ using Common;
 using DataServices.Core;
 using System.Security.Cryptography.X509Certificates;
 using Hl7.Fhir.Serialization;
-using NHS.CohortManager.DemographicServices.ManageNemsSubscription.Config;
+using NHS.CohortManager.DemographicServices.Config;
 // Use explicit STU3 aliases to avoid R4 conflicts
 using STU3Subscription = Hl7.Fhir.Model.Subscription;
 using STU3Meta = Hl7.Fhir.Model.Meta;

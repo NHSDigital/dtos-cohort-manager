@@ -2,9 +2,9 @@ using System.Security.Cryptography.X509Certificates;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
 using Microsoft.Extensions.Logging;
-using NHS.CohortManager.DemographicServices.ManageNemsSubscription.Config;
+using NHS.CohortManager.DemographicServices.Config;
 
-namespace NHS.CohortManager.DemographicServices.ManageNemsSubscription.Extensions;
+namespace NHS.CohortManager.DemographicServices.Extensions;
 
 public static class CertificateExtensions
 {
