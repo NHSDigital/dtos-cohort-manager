@@ -69,13 +69,13 @@ module "azure_sql_server" {
 }
 
 module "managed_identity_sql_db_management" {
-  for_each = var.sqlserver != {} ? var.regions : {}
+  count = var.sqlserver != {} ? 1 : 0
 
   source = "../../../dtos-devops-templates/infrastructure/modules/managed-identity"
 
-  uai_name            = var.sqlserver.mi_name_sql_db_management
-  resource_group_name = azurerm_resource_group.core[each.key].name
-  location            = each.key
+  uai_name            = var.sqlserver.db_management_mi_name
+  resource_group_name = azurerm_resource_group.core[local.primary_region].name
+  location            = local.primary_region
 
   tags = var.tags
 }
@@ -85,7 +85,7 @@ module "sql_db_management_rbac_assignment" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
-  principal_id         = module.managed_identity_sql_db_management[each.key].principal_id
+  principal_id         = module.managed_identity_sql_db_management[local.primary_region].principal_id
   role_definition_name = "Contributor"
   scope                = module.azure_sql_server[each.key].id
 
