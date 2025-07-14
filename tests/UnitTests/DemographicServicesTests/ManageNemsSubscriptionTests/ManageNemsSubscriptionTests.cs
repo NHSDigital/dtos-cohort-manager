@@ -83,7 +83,7 @@ public class ManageNemsSubscriptionTests
             _config.Object,
             _subscriptionManagerLogger.Object,
             _nemsSubscriptionAccessor.Object,
-            dummyCert // <-- Inject here
+            dummyCert
         );
 
         _sut = new(
@@ -294,11 +294,11 @@ public class ManageNemsSubscriptionTests
     {
         // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", nhsNumber } }, HttpMethod.Post);
-        
+
         // Act
         var subscribeResponse = await _sut.Subscribe(request.Object);
         var unsubscribeResponse = await _sut.Unsubscribe(request.Object);
-        
+
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, subscribeResponse.StatusCode);
         Assert.AreEqual(HttpStatusCode.BadRequest, unsubscribeResponse.StatusCode);
@@ -314,10 +314,10 @@ public class ManageNemsSubscriptionTests
         _nemsHttpClientFunction
             .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
             .ReturnsAsync(new HttpResponseMessage(nemsStatus));
-            
+
         // Act
         var response = await _sut.Unsubscribe(request.Object);
-        
+
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
@@ -327,10 +327,10 @@ public class ManageNemsSubscriptionTests
     {
         // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Get);
-        
+
         // Act
         var response = await _sut.CheckSubscriptionStatus(request.Object);
-        
+
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
@@ -347,7 +347,7 @@ public class ManageNemsSubscriptionTests
 
         // Act
         var response = await _sut.CheckSubscriptionStatus(request.Object);
-        
+
         // Assert
         Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -357,10 +357,10 @@ public class ManageNemsSubscriptionTests
     {
         // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", "invalid" } }, HttpMethod.Get);
-        
+
         // Act
         var response = await _sut.CheckSubscriptionStatus(request.Object);
-        
+
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -370,10 +370,10 @@ public class ManageNemsSubscriptionTests
     {
         // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection(), HttpMethod.Get);
-        
+
         // Act
         var response = await _sut.CheckSubscriptionStatus(request.Object);
-        
+
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -399,7 +399,7 @@ public class ManageNemsSubscriptionTests
 
         // Act
         var response = await sut.NemsSubscriptionDataService(request.Object, "test-key");
-        
+
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
     }
@@ -424,7 +424,7 @@ public class ManageNemsSubscriptionTests
 
         // Act
         var response = await sut.NemsSubscriptionDataService(request.Object, "test-key");
-        
+
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
