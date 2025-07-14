@@ -1318,9 +1318,9 @@ function_apps = {
           CohortDistributionDataServiceUrl  = "CohortDistributionDataService"
         }
         env_vars_static = {
-          ReconciliationTimer = "59 23 * * *"
-          inboundMetricTopic  = "inbound-metric"
-          ReconciliationServiceSubscription    = "ReconciliationService"
+          ReconciliationTimer               = "59 23 * * *"
+          inboundMetricTopic                = "inbound-metric"
+          ReconciliationServiceSubscription = "ReconciliationService"
         }
       }
     }
