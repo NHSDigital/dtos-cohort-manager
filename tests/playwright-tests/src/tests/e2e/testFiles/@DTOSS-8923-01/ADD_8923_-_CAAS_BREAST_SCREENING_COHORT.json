@@ -11,7 +11,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 9"
       }
     },
     {
@@ -24,7 +24,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-categorywith RuleID: 57"
       }
     },
     {
@@ -37,7 +37,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 8"
       }
     },
     {
@@ -50,7 +50,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 58"
       }
     },
     {
@@ -63,7 +63,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 16"
       }
     },
     {
@@ -76,7 +76,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 30"
       }
     },
     {
@@ -89,7 +89,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 17"
       }
     },
     {
@@ -102,7 +102,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 39"
       }
     },
     {
@@ -115,7 +115,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 40"
       }
     },
     {
@@ -128,7 +128,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 71"
       }
     },
     {
@@ -141,7 +141,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 42"
       }
     },
     {
@@ -154,7 +154,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 47"
       }
     },
     {
@@ -167,7 +167,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 61"
       }
     },
     {
@@ -178,9 +178,9 @@
         "RuleDescription": "The supplied demographics do not match the subjects PI record"
       },
       "meta": {
-        "testJiraId": "",
-        "requirementJiraId": "DTOSS-3477",
-        "additionalTags": ""
+        "testJiraId": "@DTOSS-8923-01",
+        "requirementJiraId": "DTOSS-8419",
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 11"
       }
     },
         {
@@ -191,9 +191,9 @@
         "RuleDescription": "Amendment received for a subject who does not exist on the Population Index"
       },
       "meta": {
-        "testJiraId": "",
+        "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 22"
       }
     },
     {
@@ -206,7 +206,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 36"
       }
     },
            {
@@ -219,7 +219,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 62"
       }
     },
     {
@@ -232,7 +232,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category"
+        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 0"
       }
     }
   ],
