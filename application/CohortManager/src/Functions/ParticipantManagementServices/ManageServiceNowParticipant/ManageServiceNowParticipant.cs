@@ -26,7 +26,7 @@ public class ManageServiceNowParticipant
     }
 
     [Function(nameof(ManageServiceNowParticipant))]
-    public async Task Run([QueueTrigger("%ServiceNowAddQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
+    public async Task Run([QueueTrigger("%ManageServiceNowParticipantQueueName%", Connection = "AzureWebJobsStorage")] string jsonFromQueue)
     {
         var participant = JsonSerializer.Deserialize<ServiceNowParticipant>(jsonFromQueue);
 

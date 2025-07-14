@@ -2,7 +2,7 @@ using Common;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NHS.Screening.AddParticipant;
+using NHS.CohortManager.ParticipantManagementServices;
 
 var host = new HostBuilder()
     .AddConfiguration(out ManageServiceNowParticipantConfig config)
