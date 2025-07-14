@@ -35,7 +35,6 @@ try
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
-        services.AddTransient<IExceptionHandler, ExceptionHandler>();
         services.AddTransient<IBlobStorageHelper, BlobStorageHelper>();
         services.AddTransient<ICopyFailedBatchToBlob, CopyFailedBatchToBlob>();
         services.AddScoped<IValidateDates, ValidateDates>();
@@ -44,7 +43,7 @@ try
     })
     .AddTelemetry()
     .AddHttpClient()
-    .AddAzureQueues(config.UseNewFunctions, config.ServiceBusConnectionString)
+    .AddAzureQueues(config.UseNewFunctions, config.ServiceBusConnectionString_client_internal)
     .AddExceptionHandler()
     .AddDatabaseConnection()
     .Build();
@@ -53,5 +52,5 @@ try
 }
 catch (Exception ex)
 {
-    logger.LogCritical(ex, "failed to start up function receive caas file function function");
+    logger.LogCritical(ex, "failed to start up function receive caas file");
 }
