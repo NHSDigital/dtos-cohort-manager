@@ -60,9 +60,9 @@ public class RetrievePdsDemographic
                 var demographicRecordDeletedFromDatabase = await DeleteDemographicRecord(nhsNumber);
                 if (!demographicRecordDeletedFromDatabase)
                 {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "could not delete record from database. See logs for more details");
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "could not delete record from database. See logs for more details.");
                 }
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "could not find record and successfully deleted from database");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "could not find record and successfully deleted from database.");
             }
 
             response.EnsureSuccessStatusCode();
@@ -121,7 +121,7 @@ public class RetrievePdsDemographic
         var nhsNumberParsed = long.TryParse(nhsNumber, out long parsedNhsNumber);
         if (!nhsNumberParsed)
         {
-            _logger.LogError("could not parse nhs number when trying to get record for deletion");
+            _logger.LogError("could not parse nhs number when trying to get record for deletion.");
             return false;
         }
         var oldParticipantDemographic = await _participantDemographicClient.GetSingleByFilter(i => i.NhsNumber == parsedNhsNumber);
@@ -129,7 +129,7 @@ public class RetrievePdsDemographic
         if (oldParticipantDemographic == null)
         {
 
-            _logger.LogWarning("Failed to delete Participant Demographic as record did not exist in database");
+            _logger.LogWarning("Failed to delete Participant Demographic as record did not exist in database.");
             return false;
         }
 
@@ -138,7 +138,7 @@ public class RetrievePdsDemographic
 
         if (updateSuccess)
         {
-            _logger.LogInformation("Successfully updated Participant Demographic.");
+            _logger.LogInformation("Successfully deleted Participant Demographic.");
             return true;
         }
 
