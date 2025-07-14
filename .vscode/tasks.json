@@ -118,10 +118,10 @@
       "label": "Build whole application (incl. non-essential services)",
       "type": "shell",
       "osx": {
-        "command": "podman compose --profile \"*\" build"
+        "command": "podman compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile \"*\" build"
       },
       "windows": {
-        "command": "docker compose --profile \"*\" build",
+        "command": "docker compose -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.data-services.yaml --profile \"*\" build",
         "options": {
           "shell": {
             "executable": "wsl.exe"
