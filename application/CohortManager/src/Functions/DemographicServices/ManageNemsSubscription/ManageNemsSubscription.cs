@@ -52,7 +52,7 @@ public class ManageNemsSubscription
             if (nhsNumber == null || !ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("NHS number is required and must be valid format");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
             var result = await _subscriptionManager.CreateAndSendSubscriptionAsync(nhsNumber);
@@ -60,16 +60,16 @@ public class ManageNemsSubscription
             if (!result.Success)
             {
                 _logger.LogError("Failed to create subscription for NHS number REDACTED: {ErrorMessage}", result.ErrorMessage);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to create subscription in NEMS.");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to create subscription in NEMS.");
             }
 
             _logger.LogInformation("Successfully created subscription for NHS number REDACTED");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"Subscription created successfully. Subscription ID: {result.SubscriptionId}");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Subscription created successfully. Subscription ID: {result.SubscriptionId}");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to create NEMS subscription");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An error occurred while creating the subscription.");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while creating the subscription.");
         }
     }
 
@@ -93,7 +93,7 @@ public class ManageNemsSubscription
             if (nhsNumber == null || !ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("NHS number is required and must be valid format");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
             // Check existence first to provide more informative error handling
@@ -102,7 +102,7 @@ public class ManageNemsSubscription
             if (string.IsNullOrEmpty(subscriptionId))
             {
                 _logger.LogWarning("No subscription found for NHS number");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No subscription found.");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "No subscription found.");
             }
 
             // Attempt to remove only if found
@@ -111,16 +111,16 @@ public class ManageNemsSubscription
             if (!success)
             {
                 _logger.LogError("Failed to remove subscription for NHS number");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to remove subscription.");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to remove subscription.");
             }
 
             _logger.LogInformation("Successfully unsubscribed NHS number REDACTED");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Successfully unsubscribed");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, "Successfully unsubscribed");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to unsubscribe from NEMS");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An error occurred while removing the subscription.");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while removing the subscription.");
         }
     }
 
@@ -144,22 +144,22 @@ public class ManageNemsSubscription
             if (nhsNumber == null || !ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("NHS number is required and must be valid format");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
             string? subscriptionId = await _subscriptionManager.LookupSubscriptionIdAsync(nhsNumber);
 
             if (string.IsNullOrEmpty(subscriptionId))
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "No subscription found for this NHS number.");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "No subscription found for this NHS number.");
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, $"Active subscription found. Subscription ID: {subscriptionId}");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Active subscription found. Subscription ID: {subscriptionId}");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error checking subscription status");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An error occurred while checking subscription status.");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while checking subscription status.");
         }
     }
 
@@ -178,7 +178,7 @@ public class ManageNemsSubscription
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error has occurred in data service");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An error occurred while processing the data service request.");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while processing the data service request.");
         }
     }
 

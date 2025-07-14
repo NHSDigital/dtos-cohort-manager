@@ -54,7 +54,7 @@ public class NemsSubscriptionManager
             var subscription = await _nemsSubscriptionAccessor.GetSingle(i => i.NhsNumber == long.Parse(nhsNumber));
             if (subscription != null)
             {
-                return subscription.SubscriptionId.ToString();
+                return subscription.SubscriptionId;
             }
 
             return null;
@@ -233,7 +233,7 @@ public class NemsSubscriptionManager
             _logger.LogInformation("Start saving the SubscriptionId in the database.");
             var subscription = new NemsSubscription
             {
-                SubscriptionId = subscriptionId, // Parse the actual subscription ID from NEMS
+                SubscriptionId = subscriptionId,
                 NhsNumber = Convert.ToInt64(nhsNumber),
                 RecordInsertDateTime = DateTime.UtcNow
             };
