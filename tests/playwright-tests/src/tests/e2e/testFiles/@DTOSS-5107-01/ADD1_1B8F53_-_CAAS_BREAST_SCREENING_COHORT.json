@@ -9,7 +9,7 @@
       "meta": {
         "testJiraId": "@DTOSS-5107-01",
         "requirementJiraId": "DTOSS-3040",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify addition of participant with nhs number 9997111826"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify addition of participant with nhs number 9997111826 to participant table"
       }
     }
   ],

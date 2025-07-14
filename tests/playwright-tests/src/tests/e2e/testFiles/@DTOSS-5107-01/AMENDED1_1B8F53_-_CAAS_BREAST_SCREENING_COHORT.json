@@ -7,9 +7,9 @@
         "ReasonForRemoval": "DEA"
       },
       "meta": {
-        "testJiraId": "@DTOSS-5404-01",
-        "requirementJiraId": "DTOSS-2757",
-        "additionalTags": "@regression @e2e @epic2-med-priority Tests Reason for Removal is set as SDL"
+        "testJiraId": "@DTOSS-5107-01",
+        "requirementJiraId": "DTOSS-3040",
+        "additionalTags": "@regression @e2e @epic2-med-priority Tests Reason for Removal is set as DEA in cohort table"
       }
     }
   ],
