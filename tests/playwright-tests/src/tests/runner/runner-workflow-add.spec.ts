@@ -8,8 +8,8 @@ import { runnerBasedEpic2MedTestScenariosAdd } from '../e2e/epic2-medpriority-te
 import { runnerBasedEpic3TestScenariosAdd } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
 import { runnerBasedEpic3MedTestScenariosAdd } from '../e2e/epic3-medpriority-tests/epic3-med-priority-testsuite-migrated';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
-import { runnerBasedEpic4dTestScenariosAdd } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
-
+//import { runnerBasedEpic4dTestScenariosAdd } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
+import { runnerBasedEpic4dTestScenariosAmend } from '../e2e/epic4d-validation-tests/epic4d-8419-category-number-validation-testsuite-migrated';
 
 // Tests to run based on TEST_TYPE environment variable
 let scopedTestScenario = "";
