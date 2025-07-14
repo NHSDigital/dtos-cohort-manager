@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "999715373",
+        "NhsNumber": "9999261388123",
         "RuleId": 9,
         "RuleDescription": "NHS number was not supplied in a valid format",
         "CATEGORY": 2
