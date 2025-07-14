@@ -439,7 +439,7 @@ public class NemsSubscriptionManagerTests
     }
 
     [TestMethod]
-    public async Task CreateAndSendSubscriptionAsync_SubscriptionAlreadyExists_ReturnsTrue()
+    public async Task CreateAndSendSubscriptionAsync_SubscriptionAlreadyExists_ReturnsSuccess()
     {
         // Arrange
         var nhsNumber = "1234567890";
@@ -457,11 +457,12 @@ public class NemsSubscriptionManagerTests
         var result = await _sut.CreateAndSendSubscriptionAsync(nhsNumber);
 
         // Assert
-        Assert.IsTrue(result);
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual("existing-subscription-id", result.SubscriptionId);
     }
 
     [TestMethod]
-    public async Task CreateAndSendSubscriptionAsync_SuccessfulCreation_ReturnsTrue()
+    public async Task CreateAndSendSubscriptionAsync_SuccessfulCreation_ReturnsSuccess()
     {
         // Arrange
         var nhsNumber = "1234567890";
@@ -492,11 +493,12 @@ public class NemsSubscriptionManagerTests
         var result = await _sut.CreateAndSendSubscriptionAsync(nhsNumber);
 
         // Assert
-        Assert.IsTrue(result);
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(subscriptionId, result.SubscriptionId);
     }
 
     [TestMethod]
-    public async Task CreateAndSendSubscriptionAsync_DatabaseSaveFails_ReturnsFalse()
+    public async Task CreateAndSendSubscriptionAsync_DatabaseSaveFails_ReturnsFailure()
     {
         // Arrange
         var nhsNumber = "1234567890";
@@ -531,7 +533,8 @@ public class NemsSubscriptionManagerTests
         var result = await _sut.CreateAndSendSubscriptionAsync(nhsNumber);
 
         // Assert
-        Assert.IsFalse(result);
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual("Failed to save subscription to database", result.ErrorMessage);
     }
 
     [TestMethod]
@@ -619,5 +622,172 @@ public class NemsSubscriptionManagerTests
 
         // Assert
         Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public async Task CreateAndSendSubscriptionAsync_NemsApiFailure_ReturnsFailure()
+    {
+        // Arrange
+        var nhsNumber = "1234567890";
+
+        _nemsSubscriptionAccessor
+            .Setup(x => x.GetSingle(It.IsAny<Expression<Func<NemsSubscription, bool>>>()))
+            .ReturnsAsync((NemsSubscription)null);
+
+        _httpClientFunction
+            .Setup(x => x.GenerateJwtToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns("test-jwt-token");
+
+        var failureResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
+
+        _httpClientFunction
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .ReturnsAsync(failureResponse);
+
+        // Act
+        var result = await _sut.CreateAndSendSubscriptionAsync(nhsNumber);
+
+        // Assert
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual("Failed to create subscription in NEMS", result.ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task CreateAndSendSubscriptionAsync_ExceptionThrown_ReturnsFailure()
+    {
+        // Arrange
+        var nhsNumber = "1234567890";
+
+        // Setup the lookup to return null (no existing subscription)
+        _nemsSubscriptionAccessor
+            .Setup(x => x.GetSingle(It.IsAny<Expression<Func<NemsSubscription, bool>>>()))
+            .ReturnsAsync((NemsSubscription)null);
+
+        // Make the HTTP client throw an exception to trigger the outer catch block
+        _httpClientFunction
+            .Setup(x => x.GenerateJwtToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Throws(new Exception("JWT generation failed"));
+
+        // Act
+        var result = await _sut.CreateAndSendSubscriptionAsync(nhsNumber);
+
+        // Assert
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual("Failed to create subscription in NEMS", result.ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task CreateAndSendSubscriptionAsync_DuplicateSubscription_ReturnsExistingId()
+    {
+        // Arrange
+        var nhsNumber = "1234567890";
+        var existingId = "abc123def456";
+
+        _nemsSubscriptionAccessor
+            .Setup(x => x.GetSingle(It.IsAny<Expression<Func<NemsSubscription, bool>>>()))
+            .ReturnsAsync((NemsSubscription)null);
+
+        _httpClientFunction
+            .Setup(x => x.GenerateJwtToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns("test-jwt-token");
+
+        var duplicateResponse = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent($"DUPLICATE_REJECTED subscription already exists: {existingId}")
+        };
+
+        _httpClientFunction
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .ReturnsAsync(duplicateResponse);
+
+        // Mock the database save to succeed for the duplicate subscription
+        _nemsSubscriptionAccessor
+            .Setup(x => x.InsertSingle(It.IsAny<NemsSubscription>()))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _sut.CreateAndSendSubscriptionAsync(nhsNumber);
+
+        // Assert
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(existingId, result.SubscriptionId);
+    }
+
+    [DataTestMethod]
+    [DataRow("DUPLICATE_REJECTED subscription already exists: abc123def456", "abc123def456")]
+    [DataRow("DUPLICATE_REJECTED subscription already exists: 550e8400-e29b-41d4-a716-446655440000", "550e8400-e29b-41d4-a716-446655440000")]
+    [DataRow("DUPLICATE_REJECTED subscription already exists: my-subscription-id-2024", "my-subscription-id-2024")]
+    [DataRow("DUPLICATE_REJECTED subscription already exists: abc123 but something else", "abc123")]
+    [DataRow("DUPLICATE_REJECTED subscription already exists: XYZ789 for patient NHS123456", "XYZ789")]
+    [DataRow("DUPLICATE_REJECTED subscription already exists : spaced-id-123", "spaced-id-123")]
+    [DataRow("DUPLICATE_REJECTED subscription already exists:no-space-id", "no-space-id")]
+    [DataRow("Error: DUPLICATE_REJECTED subscription already exists: prefix-test-456 with additional context", "prefix-test-456")]
+    public async Task CreateAndSendSubscriptionAsync_VariousDuplicateFormats_ExtractsCorrectId(string errorMessage, string expectedId)
+    {
+        // Arrange
+        var nhsNumber = "1234567890";
+
+        _nemsSubscriptionAccessor
+            .Setup(x => x.GetSingle(It.IsAny<Expression<Func<NemsSubscription, bool>>>()))
+            .ReturnsAsync((NemsSubscription)null);
+
+        _httpClientFunction
+            .Setup(x => x.GenerateJwtToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns("test-jwt-token");
+
+        var duplicateResponse = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent(errorMessage)
+        };
+
+        _httpClientFunction
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .ReturnsAsync(duplicateResponse);
+
+        _nemsSubscriptionAccessor
+            .Setup(x => x.InsertSingle(It.IsAny<NemsSubscription>()))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _sut.CreateAndSendSubscriptionAsync(nhsNumber);
+
+        // Assert
+        Assert.IsTrue(result.Success, $"Expected success for message: {errorMessage}");
+        Assert.AreEqual(expectedId, result.SubscriptionId, $"Expected ID '{expectedId}' but got '{result.SubscriptionId}' for message: {errorMessage}");
+    }
+
+    [DataTestMethod]
+    [DataRow("DUPLICATE_REJECTED subscription already exists:")] // No ID after colon
+    [DataRow("DUPLICATE_REJECTED subscription already exists")] // No colon
+    [DataRow("DUPLICATE_REJECTED something else happened")] // Different error format
+    [DataRow("DUPLICATE_REJECTED subscription already exists: ")] // Empty after colon
+    public async Task CreateAndSendSubscriptionAsync_MalformedDuplicateMessages_ReturnsFailure(string errorMessage)
+    {
+        // Arrange
+        var nhsNumber = "1234567890";
+
+        _nemsSubscriptionAccessor
+            .Setup(x => x.GetSingle(It.IsAny<Expression<Func<NemsSubscription, bool>>>()))
+            .ReturnsAsync((NemsSubscription)null);
+
+        _httpClientFunction
+            .Setup(x => x.GenerateJwtToken(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns("test-jwt-token");
+
+        var duplicateResponse = new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            Content = new StringContent(errorMessage)
+        };
+
+        _httpClientFunction
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .ReturnsAsync(duplicateResponse);
+
+        // Act
+        var result = await _sut.CreateAndSendSubscriptionAsync(nhsNumber);
+
+        // Assert
+        Assert.IsFalse(result.Success, $"Expected failure for malformed message: {errorMessage}");
+        Assert.AreEqual("Failed to create subscription in NEMS", result.ErrorMessage);
     }
 }

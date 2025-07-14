@@ -71,9 +71,6 @@ host.AddHttpClient()
             nemsConfig.NemsFhirEndpoint,
             nemsConfig.OdsCode,
             string.IsNullOrEmpty(nemsConfig.MeshMailboxId) ? "NOT_SET" : "SET");
-
-        logger.LogInformation("Config Debug -- NemsFhirEndpoint: {NemsFhirEndpoint}, FromAsid: {FromAsid}, LocalCert: {LocalCert}",
-            nemsConfig.NemsFhirEndpoint, nemsConfig.FromAsid, nemsConfig.NemsLocalCertPath);
     })
     .AddDataServicesHandler<DataServicesContext>()
     .AddTelemetry()

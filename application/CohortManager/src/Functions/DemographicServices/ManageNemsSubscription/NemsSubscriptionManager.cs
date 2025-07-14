@@ -155,7 +155,7 @@ public class NemsSubscriptionManager
                 {
                     var match = Regex.Match(
                         errorContent,
-                        @"subscription already exists\s*:\s*([a-fA-F0-9]+)",
+                        @"subscription already exists\s*:\s*([^\s]+)",
                         RegexOptions.None,
                         TimeSpan.FromMilliseconds(100)
                     );
@@ -307,12 +307,13 @@ public class NemsSubscriptionManager
     }
 
     /// <summary>
-    /// Creates and sends a subscription to NEMS, then saves it to the database
+    /// Creates and sends a subscription to NEMS, then saves it to the database.
+    /// Returns a SubscriptionResult with the subscription ID or error details.
     /// </summary>
     /// <param name="nhsNumber">NHS number to subscribe to</param>
     /// <param name="eventType">Event type to subscribe to</param>
-    /// <returns>True if successful, false otherwise</returns>
-    public async Task<bool> CreateAndSendSubscriptionAsync(string nhsNumber, string eventType = "pds-record-change-1")
+    /// <returns>SubscriptionResult with success status and subscription ID or error message</returns>
+    public async Task<SubscriptionResult> CreateAndSendSubscriptionAsync(string nhsNumber, string eventType = "pds-record-change-1")
     {
         try
         {
@@ -322,7 +323,7 @@ public class NemsSubscriptionManager
             {
                 _logger.LogInformation("Subscription already exists with ID {SubscriptionId}",
                     existingSubscriptionId);
-                return true;
+                return SubscriptionResult.CreateSuccess(existingSubscriptionId);
             }
 
             // Create subscription object using proper FHIR STU3 types
@@ -336,7 +337,7 @@ public class NemsSubscriptionManager
 
             if (string.IsNullOrEmpty(subscriptionId))
             {
-                return false;
+                return SubscriptionResult.CreateFailure("Failed to create subscription in NEMS");
             }
 
             // Save to database
@@ -345,19 +346,19 @@ public class NemsSubscriptionManager
             if (saved)
             {
                 _logger.LogInformation("Successfully created and saved subscription");
-                return true;
+                return SubscriptionResult.CreateSuccess(subscriptionId);
             }
 
             _logger.LogError("Failed to save subscription to database");
 
             // Cleanup: delete from NEMS since database save failed
             await DeleteSubscriptionFromNemsAsync(subscriptionId);
-            return false;
+            return SubscriptionResult.CreateFailure("Failed to save subscription to database");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to create and send subscription");
-            return false;
+            return SubscriptionResult.CreateFailure("An error occurred while creating subscription");
         }
     }
 
