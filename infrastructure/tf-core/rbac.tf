@@ -24,51 +24,43 @@ module "global_cohort_identity_roles" {
   tags              = var.tags
 }
 
+# MJ: Unfortunately, this ('local.resource_id_map') has issues at times when Terry wishes to create NEW
+# resources, so commenting out for now.
+#
 # Now loop through all resources we be interested in and create role
 # assignments between our custom role definitions and the principal id(s)
-resource "azurerm_role_assignment" "global_cohort_mi_role_assignments" {
-  for_each = var.use_global_rbac_roles ? local.resource_id_map: {}
+# resource "azurerm_role_assignment" "global_cohort_mi_role_assignments" {
+#   for_each = var.use_global_rbac_roles ? local.resource_id_map: {}
 
-  # name = join("-", [
-  #   each.value.id,
-  #   local.get_role_local.get_definition_id[each.key],
-  #   sha1(coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region].principal_id))
-  # ])
+#   # name = join("-", [
+#   #   each.value.id,
+#   #   local.get_role_local.get_definition_id[each.key],
+#   #   sha1(coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region].principal_id))
+#   # ])
 
-  principal_id = coalesce(
-    # The user-supplied principal_id takes precedence
-    var.rbac_principal_id,
+#   principal_id = coalesce(
+#     # The user-supplied principal_id takes precedence
+#     var.rbac_principal_id,
 
-    module.global_cohort_identity[each.value.region].principal_id
-  )
+#     module.global_cohort_identity[each.value.region].principal_id
+#   )
 
-  role_definition_id = lookup(
-    {
-      keyvault = module.global_cohort_identity_roles[each.value.region].keyvault_role_definition_id
-      store    = module.global_cohort_identity_roles[each.value.region].storage_role_definition_id
-      sql      = module.global_cohort_identity_roles[each.value.region].sql_role_definition_id
-      func     = module.global_cohort_identity_roles[each.value.region].function_role_definition_id
-    },
-    each.value.type,
+#   role_definition_id = lookup(
+#     {
+#       keyvault = module.global_cohort_identity_roles[each.value.region].keyvault_role_definition_id
+#       store    = module.global_cohort_identity_roles[each.value.region].storage_role_definition_id
+#       sql      = module.global_cohort_identity_roles[each.value.region].sql_role_definition_id
+#       func     = module.global_cohort_identity_roles[each.value.region].function_role_definition_id
+#     },
+#     each.value.type,
 
-    # If we could not find a match, just default to the Reader role
-    module.global_cohort_identity_roles[each.value.region].reader_role_id
-  )
+#     # If we could not find a match, just default to the Reader role
+#     module.global_cohort_identity_roles[each.value.region].reader_role_id
+#   )
 
-  scope = each.value.id
-}
+#   scope = each.value.id
+# }
 
-output "assigned_roles_by_region" {
-  value = {
-    for k, v in azurerm_role_assignment.global_cohort_mi_role_assignments :
-    local.resource_id_map[k].region => {
-      "${local.resource_id_map[k].type}" = {
-        role  = v.role_definition_id
-        scope = v.scope
-      }
-    }
-  }
-}
 locals {
   role_assignment_scope_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
 
