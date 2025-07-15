@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 9656658175,
+        "NhsNumber": "9656658175",
         "RuleId": 3,
         "RuleDescription": "Participant was transformed as transform rule: TruncateOtherGivenNamesExceedsMaximumLength was executed"
       },
