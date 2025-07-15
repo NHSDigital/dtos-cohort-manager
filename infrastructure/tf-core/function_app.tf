@@ -84,6 +84,26 @@ resource "azurerm_role_assignment" "function_send_to_topic" {
   scope                = module.azure_service_bus[each.value.service_bus_key].namespace_id
 }
 
+resource "azurerm_role_assignment" "global_cohort_mi_functionapp_role_assignments" {
+  for_each = var.use_global_rbac_roles ? local.function_app_map: {}
+
+  # name = join("-", [
+  #   each.value.id,
+  #   local.get_role_local.get_definition_id[each.key],
+  #   sha1(coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region].principal_id))
+  # ])
+
+  principal_id = coalesce(
+    # The user-supplied principal_id takes precedence
+    var.rbac_principal_id,
+
+    module.global_cohort_identity[each.value.region].principal_id
+  )
+
+  role_definition_id = module.global_cohort_identity_roles[each.value.region].function_role_definition_id
+  scope = module.functionapp[each.key].id
+}
+
 locals {
   # Filter fa_config to only include those with service_bus_connections
   service_bus_function_app_map = {

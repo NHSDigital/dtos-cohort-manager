@@ -67,26 +67,22 @@ module "azure_sql_server" {
 
   tags = var.tags
 }
+resource "azurerm_role_assignment" "global_cohort_mi_sql_role_assignments" {
+  for_each = var.use_global_rbac_roles ? var.regions : {}
 
-module "managed_identity_sql_db_management" {
-  for_each = var.sqlserver != {} ? var.regions : {}
+  # name = join("-", [
+  #   each.value.id,
+  #   local.get_role_local.get_definition_id[each.key],
+  #   sha1(coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region].principal_id))
+  # ])
 
-  source = "../../../dtos-devops-templates/infrastructure/modules/managed-identity"
+  principal_id = coalesce(
+    # The user-supplied principal_id takes precedence
+    var.rbac_principal_id,
 
-  uai_name            = "${var.sqlserver.db_management_mi_name_prefix}-${lower(var.environment)}-${lower(each.key)}"
-  resource_group_name = azurerm_resource_group.core[each.key].name
-  location            = each.key
+    module.global_cohort_identity[each.key].principal_id
+  )
 
-  tags = var.tags
-}
-
-module "sql_db_management_rbac_assignment" {
-  for_each = var.sqlserver != {} ? var.regions : {}
-
-  source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
-
-  principal_id         = module.managed_identity_sql_db_management[each.key].principal_id
-  role_definition_name = "Contributor"
-  scope                = module.azure_sql_server[each.key].sql_server_id
-
+  role_definition_id = module.global_cohort_identity_roles[each.key].sql_role_definition_id
+  scope = module.azure_sql_server[each.key].sql_server_id
 }

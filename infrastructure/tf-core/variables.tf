@@ -267,6 +267,7 @@ variable "function_apps" {
 
 variable "frontdoor_endpoint" {
   description = "Configuration for Front Door"
+  default = {}
   type = map(object({
     origin = object({
       enabled    = optional(bool, true)
@@ -595,9 +596,4 @@ variable "rbac_principal_id" {
   type = string
   description = "An identifier of a security principal to apply to all resource role assignments."
   default = null
-}
-
-variable "role_assignment_scope_id" {
-  type = string
-  description = "The resource ID of a subscription, resource group or management group ID to which all custom role assignments will be scoped to."
 }
