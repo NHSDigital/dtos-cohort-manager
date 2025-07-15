@@ -27,7 +27,7 @@ export default async function Header({
               width="100"
               focusable="false"
               role="img"
-              aria-label="NHS"
+              aria-hidden="true"
             >
               <title>NHS</title>
               <path

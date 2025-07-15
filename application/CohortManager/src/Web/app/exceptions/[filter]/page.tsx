@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  searchParams?: Promise<{ sortBy?: string }>;
+  readonly searchParams?: Promise<{ readonly sortBy?: string }>;
 }) {
   const session = await auth();
   const isCohortManager = session?.user
