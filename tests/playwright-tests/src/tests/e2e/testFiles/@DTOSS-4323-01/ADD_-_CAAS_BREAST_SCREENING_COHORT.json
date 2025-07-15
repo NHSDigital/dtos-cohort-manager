@@ -16,27 +16,27 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9992949600",
+        "NhsNumber": "9999577962",
         "RuleId": 100,
         "RuleDescription": "PrimaryCareProviderEffectiveFromDate"
       },
       "meta": {
         "testJiraId": "@DTOSS-4323-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority validate a future Business Effective From Date of Primary Care Provider raises exception of RuleId as 100 & RuleDescription as PrimaryCareProviderEffectiveFromDate for participant 9992949600"
+        "additionalTags": "@regression @e2e @epic2-high-priority validate a future Business Effective From Date of Primary Care Provider raises exception of RuleId as 100 & RuleDescription as PrimaryCareProviderEffectiveFromDate for participant 9999577962"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993044431",
+        "NhsNumber": "9999571689",
         "RuleId": 100,
         "RuleDescription": "PrimaryCareProviderEffectiveFromDate"
       },
       "meta": {
         "testJiraId": "@DTOSS-4323-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority validate a future Business Effective From Date of Primary Care Provider raises exception of RuleId as 100 & RuleDescription as PrimaryCareProviderEffectiveFromDate for participant 9993044431"
+        "additionalTags": "@regression @e2e @epic2-high-priority validate a future Business Effective From Date of Primary Care Provider raises exception of RuleId as 100 & RuleDescription as PrimaryCareProviderEffectiveFromDate for participant 9999571689"
       }
     }
   ],
@@ -85,7 +85,7 @@
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 2,
-      "nhs_number": 9992949600,
+      "nhs_number": 9999577962,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "DYNAMIC_DATE_NEXT_MONTH",
@@ -125,7 +125,7 @@
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 3,
-      "nhs_number": 9993044431,
+      "nhs_number": 9999571689,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "DYNAMIC_DATE_NEXT_YEAR",
@@ -164,7 +164,7 @@
   ],
   "nhsNumbers": [
     "9992808462",
-    "9992949600",
-    "9993044431"
+    "9999577962",
+    "9999571689"
   ]
 }

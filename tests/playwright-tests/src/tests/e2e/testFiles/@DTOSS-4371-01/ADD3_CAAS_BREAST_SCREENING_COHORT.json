@@ -16,27 +16,27 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9991297111",
+        "NhsNumber": "9999370616",
         "RuleId": -2146233088,
         "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4371-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate E-mail address Effective From Date format for 9991297111"
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate E-mail address Effective From Date format for 9999370616"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9992949600",
+        "NhsNumber": "9999329535",
         "RuleId": -2146233088,
         "RuleDescription": "Invalid effective date found in participant data Model.Participant and file name ADD_-_CAAS_BREAST_SCREENING_COHORT.parquet"
       },
       "meta": {
         "testJiraId": "@DTOSS-4371-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validate E-mail address Effective From Date format for 9992949600"
+        "additionalTags": "@regression @e2e @epic2-high-priority Validate E-mail address Effective From Date format for 9999329535"
       }
     }
   ],
@@ -85,7 +85,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 9991297111,
+      "nhs_number": 9999370616,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "F84706",
       "primary_care_effective_from_date": "20030318",
@@ -125,7 +125,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 3,
-      "nhs_number": 9992949600,
+      "nhs_number": 9999329535,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "F84706",
       "primary_care_effective_from_date": "20030318",
@@ -164,7 +164,7 @@
   ],
   "nhsNumbers": [
     "9991156011",
-    "9991297111",
-    "9992949600"
+    "9999370616",
+    "9999329535"
   ]
 }

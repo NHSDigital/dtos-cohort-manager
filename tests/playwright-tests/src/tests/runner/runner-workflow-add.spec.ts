@@ -30,6 +30,15 @@ if (TEST_TYPE == 'RegressionEpic1') {
   scopedTestScenario = runnerBasedEpic3MedTestScenariosAdd;
 } else if (TEST_TYPE == 'RegressionEpic4d') {
   scopedTestScenario = runnerBasedEpic4dTestScenariosAdd;
+} else if (TEST_TYPE == 'Regression') {
+  scopedTestScenario = runnerBasedEpic123TestScenariosAdd +
+    "|" + runnerBasedEpic1TestScenariosAdd +
+    "|" + runnerBasedEpic1MedTestScenariosAdd +
+    "|" + runnerBasedEpic2TestScenariosAdd +
+    "|" + runnerBasedEpic2MedTestScenariosAdd +
+    "|" + runnerBasedEpic3TestScenariosAdd +
+    "|" + runnerBasedEpic3MedTestScenariosAdd;
+
 } else {
   scopedTestScenario = runnerBasedEpic123TestScenariosAdd;
 }
@@ -59,7 +68,7 @@ test.afterAll(async () => {
 });
 
 addData.validations.forEach((validations) => {
-  test(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
+  test.only(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
     annotation: [
       { type: 'TestId', description: validations.meta?.testJiraId ?? '' },
       { type: 'RequirementId', description: validations.meta?.requirementJiraId ?? '' },

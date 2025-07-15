@@ -27,6 +27,14 @@ if (TEST_TYPE == 'RegressionEpic1') {
   scopedTestScenario = runnerBasedEpic3MedTestScenariosAmend;
 } else if (TEST_TYPE == 'RegressionEpic4d') {
   scopedTestScenario = runnerBasedEpic4dTestScenariosAmend;
+} else if (TEST_TYPE == 'Regression') {
+  scopedTestScenario = runnerBasedEpic123TestScenariosAddAmend +
+    "|" + runnerBasedEpic1TestScenariosAmend +
+    "|" + runnerBasedEpic2TestScenariosAmend +
+    "|" + runnerBasedEpic2MedTestScenariosAmend +
+    "|" + runnerBasedEpic3TestScenariosAmend +
+    "|" + runnerBasedEpic3MedTestScenariosAmend;
+
 } else {
   scopedTestScenario = runnerBasedEpic123TestScenariosAddAmend;
 }

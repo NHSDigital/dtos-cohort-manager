@@ -3,27 +3,27 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9994669834",
+        "NhsNumber": "9999311563",
         "RuleId": 101,
         "RuleDescription": "CurrentPostingEffectiveFromDate"
       },
       "meta": {
         "testJiraId": "@DTOSS-4330-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority future date exception for current Effective from date for participant 9994669834"
+        "additionalTags": "@regression @e2e @epic2-high-priority future date exception for current Effective from date for participant 9999311563"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9994592416",
+        "NhsNumber": "9999301126",
         "RuleId": 101,
         "RuleDescription": "CurrentPostingEffectiveFromDate"
       },
       "meta": {
         "testJiraId": "@DTOSS-4330-01",
         "requirementJiraId": "DTOSS-3136",
-        "additionalTags": "@regression @e2e @epic2-high-priority future date exception for current Effective from date for participant 9994592416"
+        "additionalTags": "@regression @e2e @epic2-high-priority future date exception for current Effective from date for participant 9999301126"
       }
     },
     {
@@ -45,7 +45,7 @@
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 1,
-      "nhs_number": 9994669834,
+      "nhs_number": 9999311563,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20100101",
@@ -85,7 +85,7 @@
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 2,
-      "nhs_number": 9994592416,
+      "nhs_number": 9999301126,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20100101",
@@ -163,8 +163,8 @@
     }
   ],
   "nhsNumbers": [
-    "9994669834",
-    "9994592416",
+    "9999311563",
+    "9999301126",
     "9994531689"
   ]
 }
