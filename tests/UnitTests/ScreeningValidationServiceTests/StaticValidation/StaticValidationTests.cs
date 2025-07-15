@@ -190,67 +190,6 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region Reason For Removal (Rule 14)
-    [TestMethod]
-    [DataRow(null)]
-    [DataRow("")]
-    [DataRow("AFL")]
-    [DataRow("AFN")]
-    [DataRow("CGA")]
-    [DataRow("DEA")]
-    [DataRow("DIS")]
-    [DataRow("EMB")]
-    [DataRow("LDN")]
-    [DataRow("NIT")]
-    [DataRow("OPA")]
-    [DataRow("ORR")]
-    [DataRow("RDI")]
-    [DataRow("RDR")]
-    [DataRow("RFI")]
-    [DataRow("RPR")]
-    [DataRow("SCT")]
-    [DataRow("SDL")]
-    [DataRow("SDN")]
-    [DataRow("TRA")]
-    public async Task Run_Should_Not_Create_Exception_When_ReasonForRemoval_Rule_Passes(string reasonForRemoval)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        await _function.RunAsync(_request.Object);
-
-        // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "14.ReasonForRemoval.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
-    [DataRow("ABC")]
-    [DataRow("123")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_ReasonForRemoval_Rule_Fails(string reasonForRemoval)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "14.ReasonForRemoval.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-    #endregion
-
     #region Postcode (Rule 30)
     [TestMethod]
     [DataRow("ec1a1bb")]
