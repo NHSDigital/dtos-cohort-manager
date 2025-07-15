@@ -17,7 +17,7 @@ module "global_cohort_identity_roles" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/managed-identity-roles"
 
-  assignable_scopes = [var.role_assignment_scope_id]
+  assignable_scopes = [local.role_assignment_scope_id]
   role_scope_id     = azurerm_resource_group.core[each.value.region].id
   location          = each.key
   environment       = var.environment
@@ -61,6 +61,8 @@ output "assigned_roles_by_region" {
   }
 }
 locals {
+  role_assignment_scope_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+
   all_resource_ids = flatten([
     for region in keys(var.regions) : concat(
       [for kv in try(module.key_vault, []) :
