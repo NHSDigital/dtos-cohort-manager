@@ -52,12 +52,12 @@ stages:
         parameters:
           serviceConnection: $(SERVICE_CONNECTION)
 
-- stage: e2e_tests
-  displayName: Run E2E Tests
+- stage: automated_tests_stage
+  displayName: Run Automated Tests
   variables:
     - group: DEV_automation_testing_pipeline
   jobs:
-    - job: e2e_tests
+    - job: automated_tests_job
       pool:
         name: private-pool-dev-uks
       steps:
