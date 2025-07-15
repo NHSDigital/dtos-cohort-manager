@@ -147,7 +147,7 @@ public class ValidateParticipant
     [Function(nameof(LookupValidation))]
     public async Task<ValidationExceptionLog> LookupValidation([ActivityTrigger] ValidationRecord validationRecord)
     {
-        var request = new LookupValidationRequestBody
+        var lookupRequest = new LookupValidationRequestBody
         {
             NewParticipant = new Participant(validationRecord.Participant),
             ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
@@ -155,12 +155,20 @@ public class ValidateParticipant
             RulesType = RulesType.ParticipantManagement
         };
 
-        var lookupTask = CallLookupValidation(request);
+        var cohortRequest = new LookupValidationRequestBody
+        {
+            NewParticipant = new Participant(validationRecord.Participant),
+            ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
+            FileName = validationRecord.FileName,
+            RulesType = RulesType.CohortDistribution
+        };
 
-        request.RulesType = RulesType.CohortDistribution;
-        var cohortTask = CallLookupValidation(request);
+        ValidationExceptionLog[] validationResults = await Task.WhenAll(
+            CallLookupValidation(lookupRequest),
+            CallLookupValidation(cohortRequest)
+        );
 
-        return new ValidationExceptionLog(await lookupTask, await cohortTask);
+        return new ValidationExceptionLog(validationResults[0], validationResults[1]);
     }
 
     /// <summary>
