@@ -3,14 +3,14 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9656658175",
+        "NhsNumber": 9656658175,
         "RuleId": 3,
         "RuleDescription": "Participant was transformed as transform rule: TruncateOtherGivenNamesExceedsMaximumLength was executed"
       },
       "meta": {
         "testJiraId": "@DTOSS-4585-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify Exception raised when new participant's OTHER_GIVEN_NAME more than 100 - check Exception Table"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify Exception raised when new participant's OTHER_GIVEN_NAME more than 100 - check Exception Table for NHS number 9656658175"
       }
     },
     {
