@@ -72,3 +72,7 @@ data "azurerm_user_assigned_identity" "db-management" {
   name                = "mi-cohort-manager-db-management-${lower(var.environment)}"
   resource_group_name = module.regions_config[each.key].names.resource-group
 }
+
+data "azurerm_subscription" "target_subscription" {
+  name = var.TARGET_
+}
