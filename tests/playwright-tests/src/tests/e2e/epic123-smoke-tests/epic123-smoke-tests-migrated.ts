@@ -19,7 +19,7 @@
 // There is no impact to the test tags. The same tags can be used to trigger these tests.
 // For example, to run smoke tests, use:
 //
-//   npm test
+//   npm run test:smoke_e2e
 //
 // This equates to @smoke @e2e tags, configured in the package.json at the playwright-tests root location.
 //

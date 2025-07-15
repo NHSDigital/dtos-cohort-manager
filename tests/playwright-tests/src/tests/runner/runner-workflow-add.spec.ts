@@ -3,6 +3,7 @@ import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStora
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { runnerBasedEpic123TestScenariosAdd } from '../e2e/epic123-smoke-tests/epic123-smoke-tests-migrated';
 import { runnerBasedEpic1TestScenariosAdd } from '../e2e/epic1-highpriority-tests/epic1-high-priority-testsuite-migrated';
+import { runnerBasedEpic1MedTestScenariosAdd } from '../e2e/epic1-medpriority-tests/epic1-med-priority-testsuite-migrated';
 import { runnerBasedEpic2TestScenariosAdd } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
 import { runnerBasedEpic2MedTestScenariosAdd } from '../e2e/epic2-medpriority-tests/epic2-med-priority-testsuite-migrated';
 import { runnerBasedEpic3TestScenariosAdd } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
@@ -17,6 +18,8 @@ let scopedTestScenario = "";
 const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
 if (TEST_TYPE == 'RegressionEpic1') {
   scopedTestScenario = runnerBasedEpic1TestScenariosAdd;
+} else if (TEST_TYPE == 'RegressionEpic1Med') {
+  scopedTestScenario = runnerBasedEpic1MedTestScenariosAdd;
 } else if (TEST_TYPE == 'RegressionEpic2') {
   scopedTestScenario = runnerBasedEpic2TestScenariosAdd;
 } else if (TEST_TYPE == 'RegressionEpic2Med') {
