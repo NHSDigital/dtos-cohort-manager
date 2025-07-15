@@ -62,7 +62,7 @@ public class RetrievePdsDemographic
                 {
                     return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "could not delete record from database. See logs for more details.");
                 }
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "could not find record and successfully deleted from database.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Record not found in PDS and successfully removed from cohort manager database."););
             }
 
             response.EnsureSuccessStatusCode();
