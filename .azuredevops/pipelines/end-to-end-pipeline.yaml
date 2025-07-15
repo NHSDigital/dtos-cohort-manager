@@ -12,15 +12,28 @@ resources:
       ref: e4e68ea29c4fab7014caf900063fe70f785732f3
       endpoint: NHSDigital
 
+variables:
+  - name: DOCKER_IMAGE_TAG
+    value: development
+
+parameters:
+  - name: pipelineAction
+    displayName: 'Pipeline Action'
+    type: string
+    values:
+      - 'PlanOnly'
+      - 'Apply'
+    default: 'Apply'
+
 stages:
-  - stage: terraform_plan
+  - stage: terraform_plan_SBX
     pool:
       name: private-pool-dev-uks
-    displayName: Terraform Plan
+    displayName: Terraform Plan (SBX)
     condition: eq(variables['Build.Reason'], 'Manual')
     variables:
-      - group: SBRK_core_backend
-      - group: SBRK_audit_backend_remote_state
+      - group: SBX_core_backend
+      - group: SBX_audit_backend_remote_state
       - group: DEV_hub_backend_remote_state
       - name: TF_VERSION
         value: 1.11.4
@@ -33,44 +46,67 @@ stages:
       - name: tfVarsFile
         value: environments/$(ENVIRONMENT).tfvars
     jobs:
-      - job: init_and_plan
-        displayName: Init, plan, store artifact
+      - job: init_and_plan_SBX
+        displayName: Init, plan, store artifact (SBX)
+        condition: in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly')
         steps:
           - checkout: self
           - checkout: dtos-devops-templates
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
-      - deployment: terraform_apply
-        displayName: Init, get plan artifact, apply
-        dependsOn: [init_and_plan]
-        condition: and(eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
-        environment: $(ENVIRONMENT)
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                - checkout: dtos-devops-templates
-                - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+            parameters:
+              tfCommandOptions: '-var="docker_image_tag=$(DOCKER_IMAGE_TAG)"'
+      
+      # Test job to apply the plan
+      - job: terraform_apply
+        displayName: Apply Terraform Plan (SBX)
+        dependsOn: init_and_plan_SBX
+        condition: and(eq(dependencies.terraform_plan_SBX.outputs['init_and_plan_SBX.TerraformPlan.changesPresent'], 'true'), eq('${{ parameters.pipelineAction }}', 'Apply'), eq(variables['Build.Reason'], 'Manual'))
+        steps:
+          - task: AzureCLI@2
+            displayName: Apply Plan
+            inputs:
+              azureSubscription: $(SERVICE_CONNECTION)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "Applying TF Plan..."
 
+      # - deployment: terraform_apply
+      #   displayName: Init, get plan artifact, apply
+      #   dependsOn: [init_and_plan_SBX]
+      #   condition: and(eq(dependencies.terraform_plan_SBX.outputs['init_and_plan_SBX.TerraformPlan.changesPresent'], 'true'), eq('${{ parameters.pipelineAction }}', 'Apply'), eq(variables['Build.Reason'], 'Manual'))
+      #   environment: $(ENVIRONMENT)
+      #   strategy:
+      #     runOnce:
+      #       deploy:
+      #         steps:
+      #           - checkout: self
+      #           - checkout: dtos-devops-templates
+      #           - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
-  - stage: db_changes_stage
-    displayName: Database changes
-    variables:
-      - group: DEV_hub_backend_remote_state
-    jobs:
-      - job: db_changes
+      - job: db_changes_SBX
         pool:
           name: private-pool-dev-uks
-        displayName: Apply database changes
+        displayName: Apply database changes (SBX)
         variables:
-          - group: DEV_core_backend
-          - group: DEV_image_pipelines
+          - group: SBX_core_backend
+          - group: SBX_image_pipelines
         steps:
           - checkout: self
           - checkout: dtos-devops-templates
-          - template: .azuredevops/templates/steps/app-container-job-start.yaml@dtos-devops-templates
-            parameters:
-              serviceConnection: $(SERVICE_CONNECTION)
-              targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
-              resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
-              jobName: $(DATABASE_MANAGEMENT_JOB_NAME)
+          - task: AzureCLI@2
+            displayName: Apply database changes
+            inputs:
+              azureSubscription: $(SERVICE_CONNECTION)
+              scriptType: 'bash'
+              scriptLocation: 'inlineScript'
+              inlineScript: |
+                echo "Applying database changes..."
+
+          # Comment out for testing
+          # - template: .azuredevops/templates/steps/app-container-job-start.yaml@dtos-devops-templates
+          #   parameters:
+          #     serviceConnection: $(SERVICE_CONNECTION)
+          #     targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+          #     resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
+          #     jobName: $(DATABASE_MANAGEMENT_JOB_NAME)

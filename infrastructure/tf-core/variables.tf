@@ -66,7 +66,7 @@ variable "application_full_name" {
 }
 
 variable "docker_image_tag" {
-  description = "Docker image tag to be used for deployments"
+  description = "Docker image tag to be used for application deployments"
   type        = string
   default     = ""
 }
