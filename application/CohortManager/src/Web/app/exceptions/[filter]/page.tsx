@@ -62,7 +62,9 @@ export default async function Page(props: {
         <main className="nhsuk-main-wrapper" id="maincontent" role="main">
           <div className="nhsuk-grid-row">
             <div className="nhsuk-grid-column-full">
-              <h1>Raised breast screening exceptions</h1>
+              <h1 data-testid="heading-raised">
+                Raised breast screening exceptions
+              </h1>
               <div className="nhsuk-card">
                 <div className="nhsuk-card__content">
                   <ExceptionsTable

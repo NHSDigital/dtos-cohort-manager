@@ -297,7 +297,7 @@ function_apps = {
         UpdateQueueName            = "update-participant-queue"
         ParticipantManagementTopic = "participant-management"
         AllowDeleteRecords         = true
-        UseNewFunctions            = "false"
+        UseNewFunctions            = "true"
       }
       storage_containers = [
         {
@@ -638,19 +638,23 @@ function_apps = {
         },
         {
           env_var_name     = "BsSelectGpPracticeUrl"
-          function_app_key = "BsSelectGpPracticeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectGpPractice"
         },
         {
           env_var_name     = "BsSelectOutCodeUrl"
-          function_app_key = "BsSelectOutcodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectOutCode"
         },
         {
           env_var_name     = "CurrentPostingUrl"
-          function_app_key = "CurrentPostingDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "CurrentPosting"
         },
         {
           env_var_name     = "ExcludedSMULookupUrl"
-          function_app_key = "ExcludedSMUDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "ExcludedSMU"
         }
       ]
       storage_containers = [
@@ -713,19 +717,23 @@ function_apps = {
         },
         {
           env_var_name     = "BsSelectOutCodeUrl"
-          function_app_key = "BsSelectOutcodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectOutCode"
         },
         {
           env_var_name     = "BsSelectGpPracticeUrl"
-          function_app_key = "BsSelectGpPracticeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectGpPractice"
         },
         {
           env_var_name     = "LanguageCodeUrl"
-          function_app_key = "LanguageCodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "LanguageCode"
         },
         {
           env_var_name     = "ExcludedSMULookupUrl"
-          function_app_key = "ExcludedSMUDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "ExcludedSMU"
         }
       ]
       env_vars_static = {
