@@ -2,24 +2,23 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9992949600",
-        "RuleId": -2146232060,
-        "RuleDescription": ""
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NhsNumber": "9656658175",
+        "expectedCount": 1
       },
       "meta": {
         "testJiraId": "@DTOSS-4585-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic3-med-priority Verify OtherGivenName is truncated to 100 characters for nhs number 9992949600"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant is added for nhs number 9656658175"
       }
     }
   ],
   "inputParticipantRecord": [
     {
-      "record_type": "AMENDED",
-      "change_time_stamp": null,
+      "record_type": "ADD",
+      "change_time_stamp": 20240524000000,
       "serial_change_number": 2,
-      "nhs_number": 9992949600,
+      "nhs_number": 9656658175,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20030319",
@@ -27,7 +26,7 @@
       "current_posting_effective_from_date": "20130419",
       "name_prefix": "Ms",
       "given_name": "Jackie",
-      "other_given_name": "GroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGroverGrover",
+      "other_given_name": "Grover",
       "family_name": "Dominic",
       "previous_family_name": "Stevens",
       "date_of_birth": "19600112",
@@ -57,6 +56,6 @@
     }
   ],
   "nhsNumbers": [
-    "9992949600"
+    "9656658175"
   ]
 }
