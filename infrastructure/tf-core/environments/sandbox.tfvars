@@ -1,8 +1,11 @@
-application           = "cohman"
-application_full_name = "cohort-manager"
-environment           = "SBMJ"
-use_global_rbac_roles = true
-rbac_principal_id     = null # set this to a particular security principal to assign to all role assignments
+application              = "cohman"
+application_full_name    = "cohort-manager"
+environment              = "SBMJ"
+
+# Global custom roles
+use_global_rbac_roles    = true
+rbac_principal_id        = null # set this to a particular security principal to assign to all role assignments
+role_assignment_scope_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
 
 features = {
   acr_enabled                          = false

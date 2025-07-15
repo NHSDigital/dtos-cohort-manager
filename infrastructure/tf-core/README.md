@@ -12,8 +12,8 @@ The module `rbac.tf` centralises handling of global role based assignments for i
 
 There are two approaches to handling access control in this project's Terraform:
 
-* The _current_ approach. This approach uses `rbac.tf` modules with each resource module located in `devops-templates/infrastructure/modules/xxx`
-* An alternative approach which uses one or more _"global" role definitions_ that contain all necessary permissions for a given resource.
+- The _current_ approach. This approach uses `rbac.tf` modules with each resource module located in `devops-templates/infrastructure/modules/xxx`
+- An alternative approach which uses one or more _"global" role definitions_ that contain all necessary permissions for a given resource.
 
 ### Why custom role definitions?
 
