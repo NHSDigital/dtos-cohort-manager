@@ -144,7 +144,7 @@ public class CallDurableDemographicFuncTests
         _logger.Verify(x => x.Log(
             It.Is<Microsoft.Extensions.Logging.LogLevel>(l => l == Microsoft.Extensions.Logging.LogLevel.Error),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("not sending records to queue")
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("An error occurred: Simulated exception. not sending 1 records to queue")
                 && v.ToString().Contains("Simulated exception")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),

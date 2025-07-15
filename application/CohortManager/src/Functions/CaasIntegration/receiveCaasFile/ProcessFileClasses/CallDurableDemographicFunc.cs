@@ -53,6 +53,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
     /// </remarks>
     public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI, string fileName)
     {
+        var batchSize = participants.Count;
         var responseContent = "";
         if (participants.Count == 0)
         {
@@ -88,7 +89,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
             }
             else
             {
-                _logger.LogError("Check limit reached or demographic function failed {finalStatus}", finalStatus);
+                _logger.LogError("Check limit reached or demographic function failed for a batch of size: {batchSize} {finalStatus}", batchSize, finalStatus);
                 await _copyFailedBatchToBlob.writeBatchToBlob(
                     JsonSerializer.Serialize(participants),
                     new InvalidOperationException("there was an error while adding batch of participants to the demographic table")
@@ -99,7 +100,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred: {Message} not sending records to queue", ex.Message);
+            _logger.LogError(ex, "An error occurred: {Message}. not sending {batchSize} records to queue", ex.Message, batchSize);
             //we process the participant record here in batch so don't have a single record or know why a single record has failed
             await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(), fileName);
 
