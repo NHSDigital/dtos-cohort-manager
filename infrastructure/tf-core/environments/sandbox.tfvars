@@ -48,8 +48,11 @@ regions = {
         cidr_offset  = 5
       }
       container-app-db-management = {
-        cidr_newbits = 7
-        cidr_offset  = 6
+        cidr_newbits               = 7
+        cidr_offset                = 6
+        delegation_name            = "Microsoft.App/environments"
+        service_delegation_name    = "Microsoft.App/environments"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
       }
     }
   }
@@ -123,7 +126,7 @@ app_service_plan = {
       inc_threshold       = 20
       inc_scale_direction = "Increase"
       inc_scale_type      = "ExactCount"
-      inc_scale_value     = 12
+      inc_scale_value     = 2
       inc_scale_cooldown  = "PT10M"
 
       dec_operator        = "LessThan"
@@ -144,13 +147,6 @@ app_service_plan = {
           capacity_min = "1"
           capacity_max = "2"
           capacity_def = "2"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 2
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
         }
       }
     }
@@ -241,11 +237,13 @@ function_apps = {
   health_check_path             = "/api/health"
 
   fa_config = {
+
     ReceiveCaasFile = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
       app_service_plan_key         = "DefaultPlan"
       db_connection_string         = "DtOsDatabaseConnectionString"
+      service_bus_connections      = ["internal"]
       storage_account_env_var_name = "caasfolder_STORAGE"
       app_urls = [
         {
@@ -261,6 +259,10 @@ function_apps = {
           function_app_key = "RemoveParticipant"
         },
         {
+          env_var_name     = "PMSUpdateParticipant"
+          function_app_key = "UpdateParticipant"
+        },
+        {
           env_var_name     = "StaticValidationURL"
           function_app_key = "StaticValidation"
         },
@@ -271,8 +273,32 @@ function_apps = {
         {
           env_var_name     = "ScreeningLkpDataServiceURL"
           function_app_key = "ScreeningLkpDataService"
+        },
+        {
+          env_var_name     = "DemographicURI"
+          function_app_key = "DurableDemographicFunction"
+          endpoint_name    = "DurableDemographicFunction_HttpStart"
+        },
+        {
+          env_var_name     = "GetOrchestrationStatusURL"
+          function_app_key = "DurableDemographicFunction"
+          endpoint_name    = "GetOrchestrationStatus"
         }
-      ],
+
+      ]
+      env_vars_static = {
+        BatchSize                  = "2000"
+        batchDivisionFactor        = "2"
+        CheckTimer                 = "100"
+        delayBetweenChecks         = "50"
+        maxNumberOfChecks          = "50"
+        recordThresholdForBatching = "3"
+        AddQueueName               = "add-participant-queue"
+        UpdateQueueName            = "update-participant-queue"
+        ParticipantManagementTopic = "participant-management"
+        AllowDeleteRecords         = true
+        UseNewFunctions            = "true"
+      }
       storage_containers = [
         {
           env_var_name   = "inboundBlobName"
@@ -283,20 +309,6 @@ function_apps = {
           container_name = "inbound-poison"
         }
       ]
-      env_vars_static = {
-        BatchSize                  = "2000"
-        AddQueueName               = "add-participant-queue"
-        recordThresholdForBatching = "3"
-        batchDivisionFactor        = "2"
-        CheckTimer                 = "100"
-        DemographicURI             = "https://sbx-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
-        GetOrchestrationStatusURL  = "https://sbx-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
-        AllowDeleteRecords         = true
-        UpdateQueueName            = "update-participant-queue"
-        maxNumberOfChecks          = "50"
-        UseNewFunctions            = "false"
-      }
-
     }
 
     RetrieveMeshFile = {
@@ -309,10 +321,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "FileValidationURL"
-          function_app_key = "FileValidation"
         }
       ]
       env_vars_static = {
@@ -334,6 +342,10 @@ function_apps = {
         {
           env_var_name     = "RetrievePdsDemographicURL"
           function_app_key = "RetrievePDSDemographic"
+        },
+        {
+          env_var_name     = "UnsubscribeNemsSubscriptionUrl"
+          function_app_key = "ManageNemsSubscription"
         }
       ],
       storage_containers = [
@@ -342,6 +354,35 @@ function_apps = {
           container_name = "nems-messages"
         }
       ]
+      env_vars_static = {
+        MeshCertName    = "MeshCert"
+        UpdateQueueName = "update-participant-queue"
+      }
+    }
+
+    ManageParticipant = {
+      name_suffix             = "manage-participant"
+      function_endpoint_name  = "ManageParticipant"
+      app_service_plan_key    = "DefaultPlan"
+      service_bus_connections = ["internal"]
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        }
+      ]
+      env_vars_static = {
+        CohortDistributionTopic       = "cohort-distribution"    # Writes to the cohort distribution topic
+        ParticipantManagementTopic    = "participant-management" # Subscribes to the participant management topic
+        ManageParticipantSubscription = "ManageParticipant"      # Subscribes to the participant management topic
+        IgnoreParticipantExceptions   = "false"
+        IsExtractedToBSSelect         = "false"
+        AcceptableLatencyThresholdMs  = "500"
+      }
     }
 
     AddParticipant = {
@@ -376,7 +417,6 @@ function_apps = {
         CohortQueueName = "cohort-distribution-queue"
         AddQueueName    = "add-participant-queue"
       }
-
     }
 
     RemoveParticipant = {
@@ -508,10 +548,11 @@ function_apps = {
     }
 
     CreateException = {
-      name_suffix            = "create-exception"
-      function_endpoint_name = "CreateException"
-      app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
+      name_suffix             = "create-exception"
+      function_endpoint_name  = "CreateException"
+      app_service_plan_key    = "DefaultPlan"
+      db_connection_string    = "DtOsDatabaseConnectionString"
+      service_bus_connections = ["internal"]
       app_urls = [
         {
           env_var_name     = "DemographicDataServiceURL"
@@ -526,6 +567,10 @@ function_apps = {
           function_app_key = "GPPracticeDataService"
         }
       ]
+      env_vars_static = {
+        CreateExceptionTopic        = "create-exception"
+        CreateExceptionSubscription = "CreateException"
+      }
     }
 
     GetValidationExceptions = {
@@ -543,8 +588,8 @@ function_apps = {
           function_app_key = "ExceptionManagementDataService"
         },
         {
-          env_var_name     = "GPPracticeDataServiceURL"
-          function_app_key = "GPPracticeDataService"
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
         }
       ]
       env_vars_static = {
@@ -552,40 +597,12 @@ function_apps = {
       }
     }
 
-    FileValidation = {
-      name_suffix                  = "file-validation"
-      function_endpoint_name       = "FileValidation"
-      app_service_plan_key         = "DefaultPlan"
-      storage_account_env_var_name = "caasfolder_STORAGE"
-      storage_containers = [
-        {
-          env_var_name   = "inboundBlobName"
-          container_name = "inbound"
-        },
-        {
-          env_var_name   = "fileExceptions"
-          container_name = "inbound-poison"
-        }
-      ]
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
-    }
-
     StaticValidation = {
-      name_suffix            = "static-validation"
-      function_endpoint_name = "StaticValidation"
-      app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      storage_containers = [
-        {
-          env_var_name   = "BlobContainerName"
-          container_name = "config"
-        }
-      ]
+      name_suffix             = "static-validation"
+      function_endpoint_name  = "StaticValidation"
+      app_service_plan_key    = "DefaultPlan"
+      db_connection_string    = "DtOsDatabaseConnectionString"
+      service_bus_connections = ["internal"]
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -596,19 +613,24 @@ function_apps = {
           function_app_key = "RemoveValidationExceptionData"
         }
       ]
-    }
-
-    LookupValidation = {
-      name_suffix            = "lookup-validation"
-      function_endpoint_name = "LookupValidation"
-      app_service_plan_key   = "DefaultPlan"
-      db_connection_string   = "DtOsDatabaseConnectionString"
       storage_containers = [
         {
           env_var_name   = "BlobContainerName"
           container_name = "config"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+        CreateExceptionTopic         = "create-exception"
+      }
+    }
+
+    LookupValidation = {
+      name_suffix             = "lookup-validation"
+      function_endpoint_name  = "LookupValidation"
+      app_service_plan_key    = "DefaultPlan"
+      db_connection_string    = "DtOsDatabaseConnectionString"
+      service_bus_connections = ["internal"]
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -629,6 +651,12 @@ function_apps = {
         {
           env_var_name     = "ExcludedSMULookupUrl"
           function_app_key = "ExcludedSMUDataService"
+        }
+      ]
+      storage_containers = [
+        {
+          env_var_name   = "BlobContainerName"
+          container_name = "config"
         }
       ]
     }
@@ -694,10 +722,15 @@ function_apps = {
         {
           env_var_name     = "LanguageCodeUrl"
           function_app_key = "LanguageCodeDataService"
+        },
+        {
+          env_var_name     = "ExcludedSMULookupUrl"
+          function_app_key = "ExcludedSMUDataService"
         }
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        CacheTimeOutHours            = "24"
       }
     }
 
@@ -741,21 +774,17 @@ function_apps = {
           function_app_key = "CreateException"
         },
         {
-          env_var_name     = "ValidateCohortDistributionRecordURL"
-          function_app_key = "ValidateCohortDistributionRecord"
-        },
-        {
           env_var_name     = "LookupValidationURL"
           function_app_key = "LookupValidation"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
         },
         {
           env_var_name     = "CohortDistributionDataServiceURL"
           function_app_key = "CohortDistributionDataService"
         },
-        {
-          env_var_name     = "ParticipantManagementUrl"
-          function_app_key = "ParticipantManagementDataService"
-        }
       ]
       env_vars_static = {
         CohortQueueName              = "cohort-distribution-queue"
@@ -763,6 +792,50 @@ function_apps = {
         IgnoreParticipantExceptions  = "false"
         IsExtractedToBSSelect        = "false"
         AcceptableLatencyThresholdMs = "500"
+      }
+    }
+
+    DistributeParticipant = {
+      name_suffix             = "distribute-participant"
+      function_endpoint_name  = "DistributeParticipant"
+      app_service_plan_key    = "DefaultPlan"
+      service_bus_connections = ["internal"]
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        },
+        {
+          env_var_name     = "participantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
+        },
+        {
+          env_var_name     = "LookupValidationURL"
+          function_app_key = "LookupValidation"
+        },
+        {
+          env_var_name     = "StaticValidationURL"
+          function_app_key = "StaticValidation"
+        },
+        {
+          env_var_name     = "TransformDataServiceURL"
+          function_app_key = "TransformDataService"
+        }
+      ]
+      env_vars_static = {
+        CohortDistributionTopic           = "cohort-distribution"   # Subscribes to the cohort distribution topic
+        DistributeParticipantSubscription = "DistributeParticipant" # Subscribes to the cohort distribution topic
+        IgnoreParticipantExceptions       = "false"
+        IsExtractedToBSSelect             = "false"
+        AcceptableLatencyThresholdMs      = "500"
       }
     }
 
@@ -997,26 +1070,6 @@ function_apps = {
       }
     }
 
-    GetParticipantReferenceData = {
-      name_suffix            = "get-participant-reference-data"
-      function_endpoint_name = "GetParticipantReferenceData"
-      app_service_plan_key   = "DefaultPlan"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "HigherRiskReferralReasonLkpDataServiceUrl"
-          function_app_key = "HigherRiskReferralReasonLkpDataService"
-        },
-        {
-          env_var_name     = "GeneCodeLkpDataServiceUrl"
-          function_app_key = "GeneCodeLkpDataService"
-        }
-      ]
-    }
-
     GeneCodeLkpDataService = {
       name_suffix            = "gene-code-lkp-data-service"
       function_endpoint_name = "GeneCodeLkpDataService"
@@ -1065,16 +1118,15 @@ function_apps = {
       }
     }
 
-    ReceiveServiceNowMessage = {
-      name_suffix            = "receive-service-now-message"
-      function_endpoint_name = "ReceiveServiceNowMessage"
+    ServiceNowMessageHandler = {
+      name_suffix            = "servicenow-message-handler"
+      function_endpoint_name = "ServiceNowMessageHandler"
       app_service_plan_key   = "DefaultPlan"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
+      key_vault_url          = "KeyVaultConnectionString"
+      env_vars_static = {
+        ServiceNowRefreshAccessTokenUrl = "https://nhsdigitaldev.service-now.com/oauth_token.do"
+        ServiceNowUpdateUrl             = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+      }
     }
 
     BsSelectRequestAuditDataService = {
@@ -1110,40 +1162,40 @@ function_apps = {
     }
 
     ServiceNowCasesDataService = {
-       name_suffix            = "servicenow-cases-data-service"
-       function_endpoint_name = "ServiceNowCasesDataService"
-       app_service_plan_key   = "DefaultPlan"
-       db_connection_string   = "DtOsDatabaseConnectionString"
-       app_urls = [
-         {
-           env_var_name     = "ExceptionFunctionURL"
-           function_app_key = "CreateException"
-         }
-       ]
-       env_vars_static = {
-         AcceptableLatencyThresholdMs = "500"
-       }
-     }
+      name_suffix            = "servicenow-cases-data-service"
+      function_endpoint_name = "ServiceNowCasesDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
+    }
 
-     ServiceNowCohortLookup = {
-       name_suffix            = "servicenow-cohort-lookup"
-       function_endpoint_name = "ServiceNowCohortLookup"
-       app_service_plan_key   = "DefaultPlan"
-       app_urls = [
-         {
-           env_var_name     = "ExceptionFunctionURL"
-           function_app_key = "CreateException"
-         },
-         {
-           env_var_name     = "ServiceNowCasesDataServiceURL"
-           function_app_key = "CohortDistributionDataService"
-         },
-         {
-           env_var_name     = "CohortDistributionDataServiceURL"
-           function_app_key = "ParticipantDemographicDataService"
-         }
-       ]
-     }
+    ServiceNowCohortLookup = {
+      name_suffix            = "servicenow-cohort-lookup"
+      function_endpoint_name = "ServiceNowCohortLookup"
+      app_service_plan_key   = "DefaultPlan"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ServiceNowCasesDataServiceURL"
+          function_app_key = "CohortDistributionDataService"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        }
+      ]
+    }
 
     RetrievePDSDemographic = {
       name_suffix            = "retrieve-pds-demographic"
@@ -1153,6 +1205,14 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "CohortDistributionDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ]
       env_vars_static = {
@@ -1165,6 +1225,45 @@ function_apps = {
       function_endpoint_name = "ManageNemsSubscription"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
+      key_vault_url          = "KeyVaultConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+        "ManageNemsSubscription--NemsFhirEndpoint" = "https://msg.intspineservices.nhs.uk/STU3"
+        "ManageNemsSubscription--FromAsid" = "200000002527"
+        "ManageNemsSubscription--ToAsid" = "200000002527"
+        "ManageNemsSubscription--NemsKeyName" = "nems-client-certificate"
+        "ManageNemsSubscription--SubscriptionProfile" = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
+        "ManageNemsSubscription--SubscriptionCriteria" = "https://fhir.nhs.uk/Id/nhs-number"
+        "ManageNemsSubscription--BypassServerCertificateValidation" = "false"
+      }
+    }
+
+    ReferenceDataService = {
+      name_suffix            = "reference-data-service"
+      function_endpoint_name = "ReferenceDataService"
+      app_service_plan_key   = "DefaultPlan"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
+    }
+
+    NemsSubscribe = {
+      name_suffix            = "nems-subscribe"
+      function_endpoint_name = "NemsSubscribe"
+      app_service_plan_key   = "DefaultPlan"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1194,10 +1293,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "FileValidationURL"
-          function_app_key = "FileValidation"
         }
       ]
       env_vars_static = {
@@ -1279,6 +1374,28 @@ key_vault = {
   soft_del_ret_days = 7
   purge_prot        = false
   sku_name          = "standard"
+}
+
+service_bus = {
+  internal = {
+    capacity         = 1
+    sku_tier         = "Premium"
+    max_payload_size = "100mb"
+    topics = {
+      cohort-distribution = {
+        batched_operations_enabled = true
+        subscribers                = ["DistributeParticipant"]
+      }
+      create-exception = {
+        batched_operations_enabled = true
+        subscribers                = ["CreateException"]
+      }
+      participant-management = {
+        batched_operations_enabled = true
+        subscribers                = ["ManageParticipant"]
+      }
+    }
+  }
 }
 
 sqlserver = {
