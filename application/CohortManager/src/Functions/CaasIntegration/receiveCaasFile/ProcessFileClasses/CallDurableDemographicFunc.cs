@@ -99,7 +99,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred: {Message} still sending records to queue", ex.Message);
+            _logger.LogError(ex, "An error occurred: {Message} not sending records to queue", ex.Message);
             //we process the participant record here in batch so don't have a single record or know why a single record has failed
             await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(), fileName);
 
