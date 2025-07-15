@@ -57,7 +57,7 @@ stages:
           - checkout: dtos-devops-templates
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
             parameters:
-              tfCommandOptions: '-var="docker_image_tag=${{ parameters.pipelineAction }}"'
+              tfCommandOptions: '-var="docker_image_tag=${{ parameters.dockerImageTag }}"'
 
   - stage: terraform_apply
     displayName: Terraform Apply
@@ -92,7 +92,7 @@ stages:
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_destroy.yaml@dtos-devops-templates
                   parameters:
-                    tfCommandOptions: '-var="docker_image_tag=${{ parameters.pipelineAction }}"'
+                    tfCommandOptions: '-var="docker_image_tag=${{ parameters.dockerImageTag }}"'
 
                 # - task: AzureCLI@2
                 #   displayName: Clean-up Backend

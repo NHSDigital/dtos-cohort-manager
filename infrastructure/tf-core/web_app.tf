@@ -20,7 +20,7 @@ module "linux_web_app" {
   assigned_identity_ids                                 = var.linux_web_app.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
   cont_registry_use_mi                                  = var.linux_web_app.cont_registry_use_mi
   custom_domains                                        = each.value.custom_domains
-  docker_image_name                                     = "${var.linux_web_app.docker_img_prefix}-${lower(each.value.name_suffix)}:${var.function_apps.docker_env_tag}"
+  docker_image_name                                     = "${var.linux_web_app.docker_img_prefix}-${lower(each.value.name_suffix)}:${var.linux_web_app.docker_env_tag != "" ? var.linux_web_app.docker_env_tag : var.docker_image_tag}"
   health_check_path                                     = var.linux_web_app.health_check_path
   linux_web_app_slots                                   = var.linux_web_app_slots
   log_analytics_workspace_id                            = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]

@@ -33,7 +33,7 @@ module "container-app-job" {
 
   acr_login_server        = data.azurerm_container_registry.acr.login_server
   acr_managed_identity_id = each.value.container_registry_use_mi ? data.azurerm_user_assigned_identity.acr_mi.id : null
-  docker_image            = "${data.azurerm_container_registry.acr.login_server}/${each.value.docker_image}:${each.value.docker_env_tag}"
+  docker_image            = "${data.azurerm_container_registry.acr.login_server}/${each.value.docker_image}:${each.value.docker_env_tag != "" ? each.value.docker_env_tag : var.docker_image_tag}"
 
   environment_variables = {
     "DtOsDatabaseConnectionString" = "Server=tcp:${module.regions_config[each.value.region].names.sql-server}.database.windows.net,1433;Initial Catalog=${var.sqlserver.dbs.cohman.db_name_suffix};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication='Active Directory Managed Identity';User ID=${module.managed_identity_sql_db_management[each.value.region].client_id};"
