@@ -34,10 +34,16 @@ public class ReconciliationService
         _inboundMetricDataServiceAccessor = inboundMetricDataServiceAccessor;
         _reconciliationProcessor = reconciliationProcessor;
     }
-
+    /// <summary>
+    /// Service Bus triggered Function for inbound Metrics
+    /// This receives details of a metric to be reconciled i.e. number of participants expected and will log is to the database
+    /// </summary>
+    /// <param name="message">Message in the format of InboundMetricRequest</param>
+    /// <param name="messageActions">Service Bus Actions to be performed on the received message</param>
+    /// <returns></returns>
     [Function("InboundMetricsTracker")]
     public async Task RunInboundMetric(
-        [ServiceBusTrigger("%inboundMetricTopic%", "%ReconciliationServiceSubscription%", Connection = "ServiceBusConnectionString")]
+        [ServiceBusTrigger("%inboundMetricTopic%", "%ReconciliationServiceSubscription%", Connection = "ServiceBusConnectionString_internal")]
         ServiceBusReceivedMessage message,
         ServiceBusMessageActions messageActions)
     {
@@ -73,7 +79,11 @@ public class ReconciliationService
         await messageActions.CompleteMessageAsync(message);
 
     }
-
+    /// <summary>
+    /// Reconcile Participants will validate that all participants received within a set window matches the number expected (Sent via inbound metrics)
+    /// </summary>
+    /// <param name="myTimer">Timer trigger data</param>
+    /// <returns></returns>
     [Function("ReconcileParticipants")]
     public async Task RunReconciliation([TimerTrigger("%ReconciliationTimer%")] TimerInfo myTimer)
     {
@@ -90,7 +100,12 @@ public class ReconciliationService
 
 
     }
-
+    /// <summary>
+    /// Data Service function for inbound metric database table
+    /// </summary>
+    /// <param name="req"></param>
+    /// <param name="key"></param>
+    /// <returns></returns>
     [Function("InboundMetricDataService")]
     public async Task<HttpResponseData> RunInboundMetricDataService([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "InboundMetricDataService/{*key}")] HttpRequestData req, string? key)
     {
