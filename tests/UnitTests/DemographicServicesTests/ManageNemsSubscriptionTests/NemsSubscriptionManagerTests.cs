@@ -11,6 +11,7 @@ using DataServices.Core;
 using System.Security.Cryptography.X509Certificates;
 using System.Linq.Expressions;
 using System.Net;
+using System.Runtime.CompilerServices;
 
 [TestClass]
 public class NemsSubscriptionManagerTests
