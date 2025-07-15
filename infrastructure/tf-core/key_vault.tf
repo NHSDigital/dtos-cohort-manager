@@ -37,3 +37,23 @@ module "key_vault" {
 
   tags = var.tags
 }
+
+resource "azurerm_role_assignment" "global_cohort_mi_keyvault_role_assignments" {
+  for_each = var.use_global_rbac_roles ? var.regions : {}
+
+  # name = join("-", [
+  #   each.value.id,
+  #   local.get_role_local.get_definition_id[each.key],
+  #   sha1(coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region].principal_id))
+  # ])
+
+  principal_id = coalesce(
+    # The user-supplied principal_id takes precedence
+    var.rbac_principal_id,
+
+    module.global_cohort_identity[each.key].principal_id
+  )
+
+  role_definition_id = module.global_cohort_identity_roles[each.key].keyvault_role_definition_id
+  scope = module.key_vault[each.key].key_vault_id
+}

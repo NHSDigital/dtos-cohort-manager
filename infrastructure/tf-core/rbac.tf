@@ -17,49 +17,57 @@ module "global_cohort_identity_roles" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/managed-identity-roles"
 
-  assignable_scopes = [var.role_assignment_scope_id]
+  ## Assign at the group level
+  assignable_scopes = [azurerm_resource_group.core[each.key].id]
+
+  # Apply to the subscription level
+  role_scope_id     = local.role_assignment_scope_id
+
   location          = each.key
   environment       = var.environment
   tags              = var.tags
 }
 
+# MJ: Unfortunately, this ('local.resource_id_map') has issues at times when Terry wishes to create NEW
+# resources, so commenting out for now.
+#
 # Now loop through all resources we be interested in and create role
 # assignments between our custom role definitions and the principal id(s)
-resource "azurerm_role_assignment" "global_cohort_mi_role_assignments" {
-  for_each = var.use_global_rbac_roles ? local.resource_id_map : {}
+# resource "azurerm_role_assignment" "global_cohort_mi_role_assignments" {
+#   for_each = var.use_global_rbac_roles ? local.resource_id_map: {}
 
-  name = join("-", [
-    each.value.id,
-    local.get_role_definition_id[each.key],
-    sha1(coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region].principal_id))
-  ])
-  principal_id = coalesce(
-    # The user-supplied principal_id takes precedence
-    var.rbac_principal_id,
+#   # name = join("-", [
+#   #   each.value.id,
+#   #   local.get_role_local.get_definition_id[each.key],
+#   #   sha1(coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region].principal_id))
+#   # ])
 
-    module.global_cohort_identity[each.value.region].principal_id
-  )
+#   principal_id = coalesce(
+#     # The user-supplied principal_id takes precedence
+#     var.rbac_principal_id,
 
-  role_definition_id = local.get_role_definition_id[each.key]
-  scope = each.value.id
+#     module.global_cohort_identity[each.value.region].principal_id
+#   )
 
-  # We wanna ensure that all providers know that we need roles BEFORE assignments.
-  # It's for safety.
-  depends_on = [module.global_cohort_identity_roles]
-}
+#   role_definition_id = lookup(
+#     {
+#       keyvault = module.global_cohort_identity_roles[each.value.region].keyvault_role_definition_id
+#       store    = module.global_cohort_identity_roles[each.value.region].storage_role_definition_id
+#       sql      = module.global_cohort_identity_roles[each.value.region].sql_role_definition_id
+#       func     = module.global_cohort_identity_roles[each.value.region].function_role_definition_id
+#     },
+#     each.value.type,
 
-output "assigned_roles_by_region" {
-  value = {
-    for k, v in azurerm_role_assignment.global_cohort_mi_role_assignments :
-    local.resource_id_map[k].region => {
-      "${local.resource_id_map[k].type}" = {
-        role  = v.role_definition_id
-        scope = v.scope
-      }
-    }
-  }
-}
+#     # If we could not find a match, just default to the Reader role
+#     module.global_cohort_identity_roles[each.value.region].reader_role_id
+#   )
+
+#   scope = each.value.id
+# }
+
 locals {
+  role_assignment_scope_id = "/subscriptions/${data.azurerm_client_config.current.subscription_id}"
+
   all_resource_ids = flatten([
     for region in keys(var.regions) : concat(
       [for kv in try(module.key_vault, []) :

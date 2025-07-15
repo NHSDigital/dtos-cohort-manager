@@ -42,6 +42,26 @@ module "storage" {
   tags = var.tags
 }
 
+resource "azurerm_role_assignment" "global_cohort_mi_storage_role_assignments" {
+  for_each = var.use_global_rbac_roles ? local.storage_accounts_map : {}
+
+  # name = join("-", [
+  #   each.value.id,
+  #   local.get_role_local.get_definition_id[each.key],
+  #   sha1(coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region].principal_id))
+  # ])
+
+  principal_id = coalesce(
+    # The user-supplied principal_id takes precedence
+    var.rbac_principal_id,
+
+    module.global_cohort_identity[each.value.region_key].principal_id
+  )
+
+  role_definition_id = module.global_cohort_identity_roles[each.value.region_key].sql_role_definition_id
+  scope = module.storage[each.key].storage_account_id
+}
+
 locals {
   storage_accounts_flatlist = flatten([
     for region_key, region_val in var.regions : [
