@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { checkAccess } from "@/app/lib/checkAccess";
-import { fetchExceptionsNotRaised } from "@/app/lib/fetchExceptions";
+import { fetchExceptionsNotRaisedSorted } from "@/app/lib/fetchExceptions";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
@@ -12,7 +12,11 @@ export const metadata: Metadata = {
   title: `Not raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
 };
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  searchParams?: Promise<{ sortBy?: string }>;
+}) {
   const session = await auth();
   const isCohortManager = session?.user
     ? await checkAccess(session.user.uid)
@@ -23,9 +27,11 @@ export default async function Page() {
   }
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
 
   try {
-    const exceptions = await fetchExceptionsNotRaised();
+    const exceptions = await fetchExceptionsNotRaisedSorted(sortBy);
 
     const exceptionDetails: ExceptionDetails[] = exceptions.Items.map(
       (exception: {
@@ -52,6 +58,41 @@ export default async function Page() {
           <div className="nhsuk-grid-row">
             <div className="nhsuk-grid-column-full">
               <h1>Not raised breast screening exceptions</h1>
+
+              <form method="GET">
+                <div className="nhsuk-form-group app-form-group--inline">
+                  <label className="nhsuk-label" htmlFor="sort-exceptions">
+                    Sort{" "}
+                    <span className="nhsuk-u-visually-hidden">
+                      not raised exceptions{" "}
+                    </span>{" "}
+                    by
+                  </label>
+                  <div className="form-inline-row">
+                    <select
+                      className="nhsuk-select"
+                      id="sort-exceptions"
+                      name="sortBy"
+                      defaultValue={String(sortBy)}
+                    >
+                      <option value="0">
+                        Date exception created (newest first)
+                      </option>
+                      <option value="1">
+                        Date exception created (oldest first)
+                      </option>
+                    </select>
+                    <button
+                      className="nhsuk-button app-button--small"
+                      data-module="nhsuk-button"
+                      type="submit"
+                    >
+                      Apply
+                    </button>
+                  </div>
+                </div>
+              </form>
+
               <div className="nhsuk-card">
                 <div className="nhsuk-card__content">
                   <ExceptionsTable exceptions={exceptionDetails} />
