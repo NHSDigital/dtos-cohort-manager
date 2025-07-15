@@ -244,15 +244,80 @@ variable "function_apps" {
           container_name = string
       })), [])
       db_connection_string    = optional(string, "")
-      producer_to_service_bus = optional(list(string), [])
+      service_bus_connections = optional(list(string), [])
       key_vault_url           = optional(string, "")
       app_urls = optional(list(object({
         env_var_name     = string
         function_app_key = string
+        endpoint_name    = optional(string, "")
       })), [])
       env_vars_static = optional(map(string), {})
     }))
   })
+}
+
+variable "frontdoor_endpoint" {
+  description = "Configuration for Front Door"
+  type = map(object({
+    origin = object({
+      enabled    = optional(bool, true)
+      priority   = optional(number, 1)   # 1–5
+      webapp_key = string                # From var.linux_web_app.linux_web_app_config
+      weight     = optional(number, 500) # 1–1000
+    })
+
+    origin_group = optional(object({
+      health_probe = optional(object({
+        interval_in_seconds = number # Required: 1–255
+        path                = optional(string, "/")
+        protocol            = optional(string, "Https")
+        request_type        = optional(string, "HEAD")
+      }))
+
+      load_balancing = optional(object({
+        additional_latency_in_milliseconds = optional(number, 50) # Optional: 0–1000
+        sample_size                        = optional(number, 4)  # Optional: 0–255
+        successful_samples_required        = optional(number, 3)  # Optional: 0–255
+      }), {})
+
+      session_affinity_enabled                                  = optional(bool, true)
+      restore_traffic_time_to_healed_or_new_endpoint_in_minutes = optional(number)
+    }), {})
+
+    custom_domains = optional(map(object({
+      dns_zone_name    = string
+      dns_zone_rg_name = string
+      host_name        = string
+
+      tls = optional(object({
+        certificate_type         = optional(string, "ManagedCertificate")
+        cdn_frontdoor_secret_key = optional(string, null) # From var.projects[].frontdoor_profile.secrets in Hub
+      }), {})
+    })), {})
+
+    route = optional(object({
+      cache = optional(object({
+        query_string_caching_behavior = optional(string, "IgnoreQueryString") # "IgnoreQueryString" etc.
+        query_strings                 = optional(list(string))
+        compression_enabled           = optional(bool, false)
+        content_types_to_compress     = optional(list(string))
+      }))
+
+      cdn_frontdoor_origin_path = optional(string, null)
+      enabled                   = optional(bool, true)
+      forwarding_protocol       = optional(string, "MatchRequest") # "HttpOnly" | "HttpsOnly" | "MatchRequest"
+      https_redirect_enabled    = optional(bool, false)
+      link_to_default_domain    = optional(bool, false)
+      patterns_to_match         = optional(list(string), ["/*"])
+      supported_protocols       = optional(list(string), ["Https"])
+    }), {})
+
+    security_policies = optional(map(object({
+      associated_domain_keys                = list(string)
+      cdn_frontdoor_firewall_policy_name    = string
+      cdn_frontdoor_firewall_policy_rg_name = string
+    })), {})
+  }))
 }
 
 variable "key_vault" {
@@ -464,9 +529,8 @@ variable "sqlserver" {
 
 variable "service_bus" {
   description = "Configuration for Service Bus namespaces and their topics"
-  default = {}
+  default     = {}
   type = map(object({
-    namespace_name   = optional(string)
     capacity         = number
     sku_tier         = string
     max_payload_size = string
@@ -478,27 +542,14 @@ variable "service_bus" {
       partitioning_enabled                    = optional(bool, false)
       max_message_size_in_kilobytes           = optional(number, 1024)
       max_size_in_megabytes                   = optional(number, 5120)
+      max_delivery_count                      = optional(number, 10) # Note this actually belongs to the subscription, but is included here for convenience
       requires_duplicate_detection            = optional(bool, false)
       support_ordering                        = optional(bool)
       status                                  = optional(string, "Active")
-      topic_name                              = optional(string)
+      subscribers                             = optional(list(string), []) # List of function apps that will subscribe to this topic
     }))
   }))
 }
-
-# variable "service_bus_subscriptions" {
-#   description = "Configuration for service bus subscriptions"
-#   type = object({
-#     subscriber_config = map(object({
-#       subscription_name       = string
-#       namespace_name          = optional(string)
-#       topic_name              = string
-#       subscriber_functionName = string
-#     }))
-#   })
-#   default = {}
-# }
-
 
 variable "storage_accounts" {
   description = "Configuration for the Storage Account, currently used for Function Apps"
