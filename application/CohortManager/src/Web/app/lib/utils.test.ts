@@ -3,7 +3,6 @@ import {
   formatDate,
   formatCompactDate,
   formatPhoneNumber,
-  formatCIS2Roles,
   getCurrentDate,
   formatGenderValue,
 } from "@/app/lib/utils";
@@ -49,26 +48,6 @@ describe("formatPhoneNumber", () => {
     const input = "12345";
     const expectedOutput = "12345";
     expect(formatPhoneNumber(input)).toBe(expectedOutput);
-  });
-});
-
-describe("formatCIS2Roles", () => {
-  it("should format the CIS2 roles as an array of strings", () => {
-    const input = "role1:role2:role3";
-    const expectedOutput = ["role1", "role2", "role3"];
-    expect(formatCIS2Roles(input)).toEqual(expectedOutput);
-  });
-
-  it("should return an empty array if the input is an empty string", () => {
-    const input = "";
-    const expectedOutput: string[] = [];
-    expect(formatCIS2Roles(input)).toEqual(expectedOutput);
-  });
-
-  it("should return an empty array if the input is undefined", () => {
-    const input = undefined;
-    const expectedOutput: string[] = [];
-    expect(formatCIS2Roles(input)).toEqual(expectedOutput);
   });
 });
 

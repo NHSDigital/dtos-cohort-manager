@@ -80,7 +80,7 @@ public class UpdateParticipantDetails
             }
 
             reqParticipant.ParticipantId = existingParticipantData.ParticipantId.ToString();
-            reqParticipant.RecordUpdateDateTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            reqParticipant.RecordUpdateDateTime = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss");
             var ParticipantManagementRecord = reqParticipant.ToParticipantManagement();
 
             //Mark Participant as Eligible/Ineligible

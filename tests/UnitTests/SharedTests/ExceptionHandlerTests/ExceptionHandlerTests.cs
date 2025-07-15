@@ -198,7 +198,7 @@ public class ExceptionHandlerTests
         var participantCsvRecord = new BasicParticipantCsvRecord
         {
             FileName = "file.csv",
-            Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                    .Returns(Task.FromResult(true))
@@ -224,7 +224,7 @@ public class ExceptionHandlerTests
         var participantCsvRecord = new BasicParticipantCsvRecord
         {
             FileName = "file.csv",
-            Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                          .Returns(Task.FromResult(false))
@@ -250,7 +250,7 @@ public class ExceptionHandlerTests
         var participantCsvRecord = new BasicParticipantCsvRecord
         {
             FileName = "file.csv",
-            Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         string description = "Schema error occurred";
         _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
@@ -286,7 +286,7 @@ public class ExceptionHandlerTests
         var participantCsvRecord = new BasicParticipantCsvRecord
         {
             FileName = "file.csv",
-            Participant = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
+            BasicParticipantData = new BasicParticipantData { NhsNumber = "123456789", ScreeningName = "ScreeningTest" }
         };
         string description = "Schema error occurred";
         _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))

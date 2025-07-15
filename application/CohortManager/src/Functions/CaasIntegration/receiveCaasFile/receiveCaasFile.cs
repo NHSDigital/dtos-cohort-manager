@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Common;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
+using Azure.Messaging.ServiceBus;
 
 public class ReceiveCaasFile
 {
@@ -91,7 +92,7 @@ public class ReceiveCaasFile
                     values.ToList().Clear();
                 }
             }
-            _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.Now);
+            _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.UtcNow);
         }
         catch (Exception ex)
         {

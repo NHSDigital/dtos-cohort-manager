@@ -51,7 +51,7 @@ public class RemoveParticipant
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
-            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.BasicParticipantData, basicParticipantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
 
@@ -59,7 +59,7 @@ public class RemoveParticipant
         {
             var participantCsvRecord = new ParticipantCsvRecord
             {
-                Participant = basicParticipantCsvRecord.participant,
+                Participant = basicParticipantCsvRecord.Participant,
                 FileName = basicParticipantCsvRecord.FileName,
             };
             participantCsvRecord.Participant.EligibilityFlag = EligibilityFlag.Ineligible; //Mark Participant As Ineligible
@@ -71,7 +71,7 @@ public class RemoveParticipant
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
-            var cohortDistributionResponse = await SendToCohortDistribution(basicParticipantCsvRecord.participant, participantCsvRecord.FileName);
+            var cohortDistributionResponse = await SendToCohortDistribution(basicParticipantCsvRecord.Participant, participantCsvRecord.FileName);
 
             if (!cohortDistributionResponse)
             {
@@ -86,7 +86,7 @@ public class RemoveParticipant
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unable to call function.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.participant, basicParticipantCsvRecord.FileName);
+            await _handleException.CreateSystemExceptionLog(ex, basicParticipantCsvRecord.Participant, basicParticipantCsvRecord.FileName);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

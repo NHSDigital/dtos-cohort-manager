@@ -3,12 +3,13 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9990368996,
+        "NHSNumber": 9999111599,
         "PostCode": "B20 3TZ"
       },
-      "meta": {
+     "meta": {
         "testJiraId": "@DTOSS-4219-01",
-        "requirementJiraId": "DTOSS-3033"
+        "requirementJiraId": "DTOSS-3033",
+        "additionalTags": "@regression @e2e @epic2-high-priority @Validate update of Postcode for existing participant with nhs number 9999111599"
       }
     }
   ],
@@ -17,7 +18,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 1,
-      "nhs_number": 9990368996,
+      "nhs_number": 9999111599,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20030318",
@@ -55,6 +56,6 @@
     }
   ],
   "nhsNumbers": [
-    "9990368996"
+    "9999111599"
   ]
 }

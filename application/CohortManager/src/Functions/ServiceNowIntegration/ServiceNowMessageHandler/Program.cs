@@ -10,6 +10,9 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
+        services.AddTransient<IServiceNowClient, ServiceNowClient>();
+        services.AddMemoryCache();
+        services.AddHttpClient();
     })
     .AddTelemetry()
     .Build();

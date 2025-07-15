@@ -3,36 +3,61 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9992348437,
+        "NHSNumber": 9990531617,
         "PrimaryCareProvider": "F83043"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4102-01",
+        "requirementJiraId": "DTOSS-3081",
+        "additionalTags": "@regression @e2e @epic2-high-priority - Validate valid GP Practice Code for a new participant PrimaryCareProvider F83043"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9995262320,
+        "NHSNumber": 9990490481,
         "PrimaryCareProvider": "Y03412"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4102-01",
+        "requirementJiraId": "DTOSS-3081",
+        "additionalTags": "@regression @e2e @epic2-high-priority - Validate valid GP Practice Code for a new participant PrimaryCareProvider Y03412"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9991742468,
+        "NHSNumber": 9990487359,
         "PrimaryCareProvider": "K84047"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4102-01",
+        "requirementJiraId": "DTOSS-3081",
+        "additionalTags": "@regression @e2e @epic2-high-priority - Validate valid GP Practice Code for a new participant PrimaryCareProvider K84047"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9991845666,
+        "NHSNumber": 9990476853,
         "PrimaryCareProvider": "J81049"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4102-01",
+        "requirementJiraId": "DTOSS-3081",
+        "additionalTags": "@regression @e2e @epic2-high-priority - Validate valid GP Practice Code for a new participant PrimaryCareProvider J81049"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9998380197,
+        "NHSNumber": 9990458960,
         "PrimaryCareProvider": "M91642"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4102-01",
+        "requirementJiraId": "DTOSS-3081",
+        "additionalTags": "@regression @e2e @epic2-high-priority - Validate valid GP Practice Code for a new participant PrimaryCareProvider M91642"
       }
     }
   ],
@@ -41,7 +66,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9992348437,
+      "nhs_number": 9990531617,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "F83043",
       "primary_care_effective_from_date": "20130319",
@@ -81,7 +106,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9995262320,
+      "nhs_number": 9990490481,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "Y03412",
       "primary_care_effective_from_date": "20130319",
@@ -121,7 +146,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9991742468,
+      "nhs_number": 9990487359,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "K84047",
       "primary_care_effective_from_date": "20130319",
@@ -157,11 +182,11 @@
       "invalid_flag": false,
       "eligibility": true
     },
-            {
+    {
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9991845666,
+      "nhs_number": 9990476853,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "J81049",
       "primary_care_effective_from_date": "20130319",
@@ -201,7 +226,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9998380197,
+      "nhs_number": 9990458960,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "M91642",
       "primary_care_effective_from_date": "20130319",
@@ -239,10 +264,10 @@
     }
   ],
   "nhsNumbers": [
-    "9992348437",
-    "9995262320",
-    "9991742468",
-    "9991845666",
-    "9998380197"
+    "9990531617",
+    "9990490481",
+    "9990487359",
+    "9990476853",
+    "9990458960"
   ]
 }

@@ -10,7 +10,7 @@
       "meta": {
         "testJiraId": "@DTOSS-5111-01",
         "requirementJiraId": "DTOSS-4909",
-        "additionalTags": "@regression @e2e @epic2-medium-priority Tests Verify that an exception raised  when adding participant with eligibility is false"
+        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify that an exception raised  when adding participant with eligibility is false"
       }
     }
   ],

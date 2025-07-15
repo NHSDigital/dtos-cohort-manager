@@ -1,5 +1,5 @@
 module "azure_service_bus" {
-  for_each = local.azure_service_bus_map
+  for_each = local.service_bus_map
 
   source = "../../../dtos-devops-templates/infrastructure/modules/service-bus"
 
@@ -27,7 +27,7 @@ module "azure_service_bus" {
 
 locals {
 
-  azure_service_bus_object_list = flatten([
+  service_bus_object_list = flatten([
     for region in keys(var.regions) : [
       for service_bus_key, service_bus_details in var.service_bus : merge(
         {
@@ -40,8 +40,7 @@ locals {
   ])
 
   # ...then project the list of objects into a map with unique keys (combining the iterators), for consumption by a for_each meta argument
-  azure_service_bus_map = {
-    for object in local.azure_service_bus_object_list : "${object.service_bus_key}-${object.region}" => object
+  service_bus_map = {
+    for object in local.service_bus_object_list : "${object.service_bus_key}-${object.region}" => object
   }
 }
-

@@ -151,7 +151,7 @@ export default function ParticipantInformationPanel({
                   name="service-now-case-id"
                   type="text"
                   aria-describedby="service-now-case-id-hint"
-                  defaultValue={exceptionDetails.serviceNowId || ""}
+                  defaultValue={exceptionDetails.serviceNowId ?? ""}
                 />
               </div>
               <button

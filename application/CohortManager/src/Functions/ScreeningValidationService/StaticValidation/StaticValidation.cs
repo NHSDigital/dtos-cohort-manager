@@ -40,6 +40,7 @@ public class StaticValidation
         _config = staticValidationConfig.Value;
     }
 
+    // TODO: refactor to accept a cohort distribution participant
     [Function("StaticValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {

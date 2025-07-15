@@ -1,0 +1,114 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9993425001,
+        "InvalidFlag":1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4398-01",
+        "requirementJiraId": "DTOSS-3129",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify invalid flag value when true"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9994245929,
+        "InvalidFlag":0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4398-01",
+        "requirementJiraId": "DTOSS-3129",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify invalid flag value when false"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "AMENDED",
+      "change_time_stamp": null,
+      "serial_change_number": 1,
+      "nhs_number": 9993425001,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20130319",
+      "current_posting": "BD",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "Miss",
+      "given_name": "John",
+      "other_given_name": "Reymond",
+      "family_name": "Regans",
+      "previous_family_name": "",
+      "date_of_birth": "19600112",
+      "gender": 1,
+      "address_line_1": "247 Ring Road",
+      "address_line_2": "Eastend",
+      "address_line_3": "Test",
+      "address_line_4": "Ashford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AB43 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20031118",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "1619999998",
+      "home_telephone_effective_from_date": "20240501",
+      "mobile_telephone_number": "7888888889",
+      "mobile_telephone_effective_from_date": "20240501",
+      "email_address": "abc123@soup.io",
+      "email_address_effective_from_date": null,
+      "preferred_language": "en",
+      "is_interpreter_required": true,
+      "invalid_flag": true,
+      "eligibility": true
+    },
+    {
+      "record_type": "AMENDED",
+      "change_time_stamp": null,
+      "serial_change_number": 2,
+      "nhs_number": 9994245929,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20130319",
+      "current_posting": "BD",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "Mr",
+      "given_name": "John",
+      "other_given_name": "Reymond",
+      "family_name": "Regans",
+      "previous_family_name": "",
+      "date_of_birth": "19600112",
+      "gender": 1,
+      "address_line_1": "247 Ring Road",
+      "address_line_2": "Eastend",
+      "address_line_3": "Test",
+      "address_line_4": "Ashford",
+      "address_line_5": "United Kingdom",
+      "postcode": "AB43 8FJ",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20031118",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "1619999998",
+      "home_telephone_effective_from_date": "20240501",
+      "mobile_telephone_number": "7888888889",
+      "mobile_telephone_effective_from_date": "20240501",
+      "email_address": "abc123@soup.io",
+      "email_address_effective_from_date": null,
+      "preferred_language": "en",
+      "is_interpreter_required": true,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9993425001",
+    "9994245929"
+  ]
+}

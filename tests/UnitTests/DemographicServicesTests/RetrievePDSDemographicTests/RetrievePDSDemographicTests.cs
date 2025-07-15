@@ -143,7 +143,69 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     }
 
     [TestMethod]
-    public async Task Run_ValidNhsNumberDoesNotExistInPds_ReturnsNotFound()
+    public async Task Run_ValidNhsNumberDoesNotExistInPdsDeletesOldRecord_ReturnsNotFound()
+    {
+        // Arrange
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
+        _mockHttpClientFunction.Setup(x => x.SendPdsGet($"{_mockConfig.Object.Value.RetrievePdsParticipantURL}/{_validNhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
+        _mockParticipantDemographicClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
+        .ReturnsAsync(new ParticipantDemographic() { ParticipantId = 1 });
+
+        _mockParticipantDemographicClient.Setup(x => x.Delete(It.IsAny<string>())).ReturnsAsync(true);
+
+        // Act
+        var result = await _service.Run(_request.Object);
+
+        // Assert
+
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Successfully deleted Participant Demographic.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+
+        Times.Once);
+        _mockHttpClientFunction.Verify(x => x.SendPdsGet($"{_mockConfig.Object.Value.RetrievePdsParticipantURL}/{_validNhsNumber}"), Times.Once());
+        _mockFhirPatientDemographicMapper.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
+        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ValidNhsNumberDoesNotExistInPdsCannotDeleteOldRecord_ReturnsNotFound()
+    {
+        // Arrange
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
+        _mockHttpClientFunction.Setup(x => x.SendPdsGet($"{_mockConfig.Object.Value.RetrievePdsParticipantURL}/{_validNhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
+
+        _mockParticipantDemographicClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
+        .ReturnsAsync(new ParticipantDemographic() { ParticipantId = 1 });
+
+        _mockParticipantDemographicClient.Setup(x => x.Delete(It.IsAny<string>())).ReturnsAsync(false);
+
+
+        // Act
+        var result = await _service.Run(_request.Object);
+
+        // Assert
+
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Failed to delete Participant Demographic.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+
+        Times.Once);
+        _mockHttpClientFunction.Verify(x => x.SendPdsGet($"{_mockConfig.Object.Value.RetrievePdsParticipantURL}/{_validNhsNumber}"), Times.Once());
+        _mockFhirPatientDemographicMapper.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
+        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ValidNhsNumberDoesNotExistInPdsFindsRecordButFailsToDelete_ReturnsNotFound()
     {
         // Arrange
         SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
@@ -154,9 +216,49 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         var result = await _service.Run(_request.Object);
 
         // Assert
+
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Warning),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Failed to delete Participant Demographic as record did not exist in database.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+
+        Times.Once);
         _mockHttpClientFunction.Verify(x => x.SendPdsGet($"{_mockConfig.Object.Value.RetrievePdsParticipantURL}/{_validNhsNumber}"), Times.Once());
         _mockFhirPatientDemographicMapper.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
         Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+    }
+
+    //There has been an error retrieving PDS participant data.
+
+    [TestMethod]
+    public async Task Run_ValidNhsNumberDoesNotExistInPdsFindsRecordToDeleteThrowsError_InternalServerError()
+    {
+        // Arrange
+        SetupRequestWithQueryParams(new Dictionary<string, string> { { "nhsNumber", _validNhsNumber } });
+        _mockHttpClientFunction.Setup(x => x.SendPdsGet($"{_mockConfig.Object.Value.RetrievePdsParticipantURL}/{_validNhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound));
+
+        _mockParticipantDemographicClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
+        .ReturnsAsync(new ParticipantDemographic() { ParticipantId = 1 });
+
+        _mockParticipantDemographicClient.Setup(x => x.Delete(It.IsAny<string>())).Throws(new Exception());
+
+        // Act
+        var result = await _service.Run(_request.Object);
+
+        // Assert
+
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"There has been an error retrieving PDS participant data.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+
+        Times.Once);
+        _mockHttpClientFunction.Verify(x => x.SendPdsGet($"{_mockConfig.Object.Value.RetrievePdsParticipantURL}/{_validNhsNumber}"), Times.Once());
+        _mockFhirPatientDemographicMapper.Verify(x => x.ParseFhirJson(It.IsAny<string>()), Times.Never());
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
     [TestMethod]

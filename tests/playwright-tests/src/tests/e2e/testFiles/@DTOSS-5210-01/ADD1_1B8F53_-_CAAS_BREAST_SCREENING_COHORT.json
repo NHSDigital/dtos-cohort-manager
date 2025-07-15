@@ -9,7 +9,7 @@
       "meta": {
         "testJiraId": "@DTOSS-5210-01",
         "requirementJiraId": "DTOSS-3128",
-        "additionalTags": "@regression @e2e @epic2-medium-priority Verify incomplete date of death added to ParticipantManagementDataService"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify incomplete date of death added to ParticipantManagementDataService"
       }
     }
   ],

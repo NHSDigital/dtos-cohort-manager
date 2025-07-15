@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.CohortDistributionService;
 
+using Model;
 
 public interface ITransformDataLookupFacade
 {
@@ -7,4 +8,5 @@ public interface ITransformDataLookupFacade
     string GetBsoCode(string postcode);
     public string GetBsoCodeUsingPCP(string primaryCareProvider);
     public bool ValidateLanguageCode(string languageCode);
+    public Task<HashSet<string>> GetCachedExcludedSMUValues();
 }

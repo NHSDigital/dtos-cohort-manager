@@ -3,13 +3,23 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9991845666
+        "NHSNumber": 9999111246
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4094-01",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": "@regression @e2e @epic2-high-priority @Validate addition of participant with nhs number 9999111246 in management table"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": 9991845666
+        "NhsNumber": 9999111246
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4094-01",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": "@regression @e2e @epic2-high-priority @Validate addition of participant with nhs number 9999111246 in demographic table"
       }
     }
   ],
@@ -18,7 +28,7 @@
       "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9991845666,
+      "nhs_number": 9999111246,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20130319",
@@ -56,6 +66,6 @@
     }
   ],
   "nhsNumbers": [
-    "9991845666"
+    "9999111246"
   ]
 }

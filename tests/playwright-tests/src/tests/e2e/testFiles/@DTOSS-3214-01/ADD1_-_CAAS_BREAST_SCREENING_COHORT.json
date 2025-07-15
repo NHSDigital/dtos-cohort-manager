@@ -9,7 +9,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3214-01",
         "requirementJiraId": "DTOSS-2760",
-        "additionalTags": "@regression @e2e @epic1-high-priority CaaS_Update_Count_After_Each_Record_Processed"
+        "additionalTags": "@regression @e2e @epic1-med-priority CaaS_Update_Count_After_Each_Record_Processed"
       }
     },
     {
@@ -22,7 +22,7 @@
        "meta": {
         "testJiraId": "@DTOSS-3214-01",
         "requirementJiraId": "DTOSS-2760",
-        "additionalTags": "@regression @e2e @epic1-high-priority CaaS_Update_Count_After_Each_Record_Processed two"
+        "additionalTags": "@regression @e2e @epic1-med-priority CaaS_Update_Count_After_Each_Record_Processed two"
       }
     },
     {
@@ -34,7 +34,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3214-01",
         "requirementJiraId": "DTOSS-2760",
-        "additionalTags": "@regression @e2e @epic1-high-priority CaaS_Update_Count_After_Each_Record_Processed three"
+        "additionalTags": "@regression @e2e @epic1-med-priority CaaS_Update_Count_After_Each_Record_Processed three"
       }
     }
   ],

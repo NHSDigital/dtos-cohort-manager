@@ -3,14 +3,26 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber":"9995518112",
-        "RuleId":102,
-        "RuleDescription":"UsualAddressEffectiveFromDate"
+        "NhsNumber": "9995518112",
+        "RuleId": 102,
+        "RuleDescription": "UsualAddressEffectiveFromDate"
       },
       "meta": {
         "testJiraId": "@DTOSS-4338-01",
         "requirementJiraId": "DTOSS-3136",
         "additionalTags": "@regression @e2e @epic2-high-priority PI_Validations_BusinessEffectiveDate_FutureDate_ADD_Exception"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9995518112,
+        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4338-01",
+        "requirementJiraId": "DTOSS-3136",
+        "additionalTags": "@regression @e2e @epic2-high-priority Check No participant record in Cohort table for ADD"
       }
     }
   ],

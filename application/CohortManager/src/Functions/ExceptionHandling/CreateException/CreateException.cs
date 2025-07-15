@@ -9,7 +9,7 @@ using System.Text.Json;
 using Model;
 using Common;
 using Data.Database;
-
+using Azure.Messaging.ServiceBus;
 public class CreateException
 {
     private readonly ILogger<CreateException> _logger;
@@ -30,7 +30,6 @@ public class CreateException
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
         ValidationException exception;
-
         try
         {
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
@@ -38,20 +37,57 @@ public class CreateException
                 var requestBody = await reader.ReadToEndAsync();
                 exception = JsonSerializer.Deserialize<ValidationException>(requestBody);
             }
+
+            if (await ProcessException(exception))
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            }
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "could not create exception please see database for more details");
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, ex.Message);
         }
+    }
 
+    [Function("RunCreateException")]
+    public async Task Run(
+      [ServiceBusTrigger(topicName: "%CreateExceptionTopic%", subscriptionName: "%ExceptionSubscription%", Connection = "ServiceBusConnectionString", AutoCompleteMessages = false)]
+        ServiceBusReceivedMessage message,
+       ServiceBusMessageActions messageActions)
+    {
+        try
+        {
+            var body = message.Body;
+            var exception = JsonSerializer.Deserialize<ValidationException>(body)!;
+
+            if (!await ProcessException(exception!))
+            {
+                _logger.LogError("could not create exception please see database for more details");
+                await messageActions.DeadLetterMessageAsync(message);
+                return;
+            }
+
+            await messageActions.CompleteMessageAsync(message);
+            _logger.LogInformation("added exception to database and completed message successfully ");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "exception could not be added to service bus topic. See dead letter storage for more: {ExceptionMessage}", ex.Message);
+            await messageActions.DeadLetterMessageAsync(message);
+
+        }
+    }
+
+
+    private async Task<bool> ProcessException(ValidationException exception)
+    {
         if (await _validationData.Create(exception))
         {
             _logger.LogInformation("The exception record has been created successfully");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req);
+            return true;
         }
-
-        _logger.LogError("The exception record was not inserted into the database: {Exception}", exception);
-        return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        return false;
     }
 }

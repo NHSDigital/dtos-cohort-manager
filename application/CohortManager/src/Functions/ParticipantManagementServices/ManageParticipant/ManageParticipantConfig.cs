@@ -5,11 +5,13 @@ using System.ComponentModel.DataAnnotations;
 public class ManageParticipantConfig
 {
     [Required]
-    public string ServiceBusConnectionString { get; set; }
+    public string ServiceBusConnectionString_client_internal { get; set; }
     [Required]
-    public string CohortQueueName { get; set; }
+    public string CohortDistributionTopic { get; set; }
     [Required]
-    public string ParticipantManagementQueueName { get; set; }
+    public string ParticipantManagementTopic { get; set; }
+    [Required]
+    public string ManageParticipantSubscription { get; set; }
     [Required]
     public string ParticipantManagementUrl { get; set; }
 }

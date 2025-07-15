@@ -11,6 +11,9 @@ using Data.Database;
 using NHS.CohortManager.ExceptionService;
 using System.Text.Json;
 using System.Text;
+using Microsoft.Identity.Client;
+using Azure.Messaging.ServiceBus;
+//using Microsoft.Extensions.Logging;
 
 [TestClass]
 public class CreateExceptionTests
@@ -22,6 +25,10 @@ public class CreateExceptionTests
     private readonly CreateException _function;
     private readonly Mock<ICreateResponse> _createResponse = new();
     private readonly Mock<IValidationExceptionData> _validationExceptionData = new();
+    private readonly Mock<ServiceBusMessageActions> serviceBusMessageActions = new();
+
+
+    ServiceBusReceivedMessage serviceBusMessage;
 
     public CreateExceptionTests()
     {
@@ -50,6 +57,17 @@ public class CreateExceptionTests
             });
 
         var json = JsonSerializer.Serialize(_requestBody);
+
+        var serviceBusMessageBody = JsonSerializer.Serialize(new ValidationException());
+        serviceBusMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(
+              body: new BinaryData(serviceBusMessageBody),
+              messageId: $"id-{1}",
+              partitionKey: "illustrative-partitionKey",
+              correlationId: "illustrative-correlationId",
+              contentType: "illustrative-contentType",
+              replyTo: "illustrative-replyTo"
+              );
+
         SetUpRequestBody(json);
     }
 
@@ -96,6 +114,80 @@ public class CreateExceptionTests
         _validationExceptionData.Verify(v => v.Create(It.IsAny<ValidationException>()), Times.Once);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
+
+    [TestMethod]
+    public async Task Run_ExceptionRecordCreated_CompletesMessage()
+    {
+        _validationExceptionData.Setup(s => s.Create(It.IsAny<ValidationException>())).ReturnsAsync(true);
+
+        await _function.Run(serviceBusMessage, serviceBusMessageActions.Object);
+
+        serviceBusMessageActions.Verify(x => x.CompleteMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), CancellationToken.None), Times.Once);
+        _logger.Verify(x => x.Log(It.Is<Microsoft.Extensions.Logging.LogLevel>(l => l == Microsoft.Extensions.Logging.LogLevel.Information),
+              It.IsAny<EventId>(),
+              It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("added exception to database and completed message successfully")),
+              It.IsAny<Exception>(),
+              It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+          Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_CreateReturnsFalse_SendSMessageToDeadLetter()
+    {
+        _validationExceptionData.Setup(s => s.Create(It.IsAny<ValidationException>())).ReturnsAsync(false);
+
+        await _function.Run(serviceBusMessage, serviceBusMessageActions.Object);
+
+        serviceBusMessageActions.Verify(x => x.DeadLetterMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, null, null, CancellationToken.None), Times.Once);
+        _logger.Verify(x => x.Log(It.Is<Microsoft.Extensions.Logging.LogLevel>(l => l == Microsoft.Extensions.Logging.LogLevel.Error),
+              It.IsAny<EventId>(),
+              It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("could not create exception please see database for more details")),
+              It.IsAny<Exception>(),
+              It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+          Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_CannotParseMessageBody_SendSMessageToDeadLetter()
+    {
+        var serviceBusMessageBody = JsonSerializer.Serialize("dfgfdgfggf");
+        serviceBusMessage = ServiceBusModelFactory.ServiceBusReceivedMessage(
+              body: new BinaryData(serviceBusMessageBody),
+              messageId: $"id-{1}",
+              partitionKey: "illustrative-partitionKey",
+              correlationId: "illustrative-correlationId",
+              contentType: "illustrative-contentType",
+              replyTo: "illustrative-replyTo"
+              );
+
+        await _function.Run(serviceBusMessage, serviceBusMessageActions.Object);
+
+        serviceBusMessageActions.Verify(x => x.DeadLetterMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, null, null, CancellationToken.None), Times.Once);
+        _logger.Verify(x => x.Log(It.Is<Microsoft.Extensions.Logging.LogLevel>(l => l == Microsoft.Extensions.Logging.LogLevel.Error),
+              It.IsAny<EventId>(),
+              It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("exception could not be added to service bus topic. See dead letter storage for more")),
+              It.IsAny<Exception>(),
+              It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+          Times.Once);
+    }
+
+
+    [TestMethod]
+    public async Task Run_CreateThrowsAnError_SendSMessageToDeadLetter()
+    {
+        _validationExceptionData.Setup(s => s.Create(It.IsAny<ValidationException>())).Throws(new Exception("some new error"));
+
+        await _function.Run(serviceBusMessage, serviceBusMessageActions.Object);
+
+        serviceBusMessageActions.Verify(x => x.DeadLetterMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, null, null, CancellationToken.None), Times.Once);
+        _logger.Verify(x => x.Log(It.Is<Microsoft.Extensions.Logging.LogLevel>(l => l == Microsoft.Extensions.Logging.LogLevel.Error),
+              It.IsAny<EventId>(),
+              It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("exception could not be added to service bus topic. See dead letter storage for more")),
+              It.IsAny<Exception>(),
+              It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+          Times.Once);
+    }
+
 
     private void SetUpRequestBody(string json)
     {

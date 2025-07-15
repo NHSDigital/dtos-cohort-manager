@@ -21,7 +21,8 @@
         "maxOrchestrationFunctionTimeout": "24:00:00",
         "extendedSessionsEnabled": true,
         "historyRetentionInDays": 90
-      }
+      },
+      "hubName": "DemographicTaskHub"
     }
   }
 }

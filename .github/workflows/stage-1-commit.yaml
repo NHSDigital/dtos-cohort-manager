@@ -43,6 +43,9 @@ jobs:
         with:
           fetch-depth: 0 # Full history is needed to scan all commits
           submodules: 'true'
+      - name: "Set up git environment"
+        run: |
+          git remote set-head origin --auto
       - name: "Scan secrets"
         uses: ./.github/actions/scan-secrets
   check-file-format:

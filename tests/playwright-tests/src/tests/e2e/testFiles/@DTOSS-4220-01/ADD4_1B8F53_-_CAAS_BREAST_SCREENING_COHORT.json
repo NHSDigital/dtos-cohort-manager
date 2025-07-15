@@ -1,27 +1,47 @@
 {
   "validations": [
     {
-        "validations": {
+      "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9694116414
+        "NHSNumber": 9997111591
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4220-01",
+        "requirementJiraId": "DTOSS-3033",
+        "additionalTags": "@regression @e2e @epic2-high-priority @Validate addition of participant with nhs number 9997111591"
       }
     },
     {
-        "validations": {
+      "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9992728167
+        "NHSNumber": 9997111494
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4220-01",
+        "requirementJiraId": "DTOSS-3033",
+        "additionalTags": "@regression @e2e @epic2-high-priority @Validate addition of participant with nhs number 9997111494"
       }
     },
     {
-        "validations": {
+      "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9995262320
+        "NHSNumber": 9997111478
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4220-01",
+        "requirementJiraId": "DTOSS-3033",
+        "additionalTags": "@regression @e2e @epic2-high-priority @Validate addition of participant with nhs number 9997111478"
       }
     },
-        {
-        "validations": {
+    {
+      "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9991742468
+        "NHSNumber": 9997111370
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4220-01",
+        "requirementJiraId": "DTOSS-3033",
+        "additionalTags": "@regression @e2e @epic2-high-priority @Validate addition of participant with nhs number 9997111370"
       }
     }
   ],
@@ -30,7 +50,7 @@
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 1,
-      "nhs_number": 9694116414,
+      "nhs_number": 9997111591,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20030318",
@@ -66,11 +86,11 @@
       "invalid_flag": false,
       "eligibility": true
     },
-        {
+    {
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 1,
-      "nhs_number": 9992728167,
+      "nhs_number": 9997111494,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20030318",
@@ -106,11 +126,11 @@
       "invalid_flag": false,
       "eligibility": true
     },
-        {
+    {
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 1,
-      "nhs_number": 9995262320,
+      "nhs_number": 9997111478,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20030318",
@@ -146,11 +166,11 @@
       "invalid_flag": false,
       "eligibility": true
     },
-        {
+    {
       "record_type": "ADD",
       "change_time_stamp": 20240524000000,
       "serial_change_number": 1,
-      "nhs_number": 9991742468,
+      "nhs_number": 9997111370,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20030318",
@@ -188,9 +208,9 @@
     }
   ],
   "nhsNumbers": [
-    "9694116414",
-    "9992728167",
-    "9995262320",
-    "9991742468"
+    "9997111591",
+    "9997111494",
+    "9997111478",
+    "9997111370"
   ]
 }

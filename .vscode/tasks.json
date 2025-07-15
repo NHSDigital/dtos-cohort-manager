@@ -71,6 +71,74 @@
       }
     },
     {
+      "label": "Run DB Migrations",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose -f compose.deps.yaml down db-migration && podman compose -f compose.deps.yaml build db-migration && podman compose -f compose.deps.yaml up db-migration"
+      },
+      "windows": {
+        "command": "docker compose -f compose.deps.yaml down db-migration && docker compose -f compose.deps.yaml build db-migration && docker compose -f compose.deps.yaml up db-migration",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "cwd": "./application/CohortManager"
+      }
+    },
+    {
+      "label": "Restart whole application (incl. non-essential services)",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose --profile \"*\" down && podman compose --profile \"*\" up"
+      },
+      "windows": {
+        "command": "docker compose --profile \"*\" down && docker compose --profile \"*\" up",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "cwd": "./application/CohortManager"
+      }
+    },
+    {
+      "label": "Build whole application (incl. non-essential services)",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose down && podman compose -f compose.core.yaml --profile \"*\" build && podman compose -f compose.cohort-distribution.yaml --profile \"*\" build && podman compose -f compose.data-services.yaml --profile \"*\" build"
+      },
+      "windows": {
+        "command": "docker compose down && docker compose -f compose.core.yaml --profile \"*\" build && docker compose -f compose.cohort-distribution.yaml --profile \"*\" build && docker compose -f compose.data-services.yaml --profile \"*\" build",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "group": {
+        "kind": "build"
+      },
+      "options": {
+        "cwd": "./application/CohortManager",
+        "statusbar": {
+          "hide": false
+        }
+      }
+    },
+    {
       "label": "Run All Functions",
       "dependsOrder": "parallel",
       "dependsOn": [

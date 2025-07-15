@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Breadcrumb from "@/app/components/breadcrumb";
-import Link from "next/link";
 
 export const metadata: Metadata = {
   title: "Get help with Cohort Manager - Cohort Manager",

@@ -1,6 +1,16 @@
 namespace NHS.CohortManager.Tests.TransformDataServiceTests;
 
+using System.Threading.Tasks;
+using System.Xml.Linq;
+using Castle.Core.Logging;
 using DataServices.Client;
+using FastExpressionCompiler;
+using Hl7.Fhir.Utility;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 using Moq;
 using NHS.CohortManager.CohortDistributionService;
@@ -15,8 +25,22 @@ public class TransformDataLookupFacadeTests
     private readonly Mock<IDataServiceClient<LanguageCode>> _languageCodeClientMock = new();
     private Mock<IDataServiceClient<BsSelectGpPractice>> _gpPracticeClientMock = new();
 
+    private Mock<IDataServiceClient<ExcludedSMULookup>> _excludedSMUClient = new();
+
+    private Mock<ILogger<TransformDataLookupFacade>> _logger = new();
+
+    private Mock<IOptions<TransformDataServiceConfig>> _config = new();
+
+    private Mock<IMemoryCache> _memoryCache = new();
+
     public TransformDataLookupFacadeTests()
     {
+        var testConfig = new TransformDataServiceConfig
+        {
+            CacheTimeOutHours = 24
+        };
+
+        _config.Setup(c => c.Value).Returns(testConfig);
         _outcodeClientMock
             .Setup(x => x.GetSingle(It.IsAny<string>()))
             .ReturnsAsync(new BsSelectOutCode());
@@ -25,7 +49,13 @@ public class TransformDataLookupFacadeTests
             .Setup(x => x.GetSingle(It.IsAny<string>()))
             .ReturnsAsync(new LanguageCode());
 
-        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object);
+        object dummy = new HashSet<string>()
+        {
+            "A91151"
+        };
+
+        _memoryCache.Setup(m => m.TryGetValue(It.IsAny<object>(), out dummy)).Returns(true);
+        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object, _excludedSMUClient.Object, _logger.Object, _memoryCache.Object, _config.Object);
     }
 
     [TestMethod]
@@ -47,12 +77,14 @@ public class TransformDataLookupFacadeTests
         Assert.IsTrue(result);
     }
 
+
+    [TestMethod]
     public void ValidateOutcode_OutcodeNotFound_ReturnFalse()
     {
         // Arrange
         _outcodeClientMock
             .Setup(x => x.GetSingle(It.IsAny<string>()))
-            .ReturnsAsync((BsSelectOutCode) null);
+            .ReturnsAsync((BsSelectOutCode)null);
 
         string postcode = "LS10 1LT";
 
@@ -71,5 +103,20 @@ public class TransformDataLookupFacadeTests
     {
         // Act & Assert
         Assert.ThrowsException<TransformationException>(() => _sut.ValidateOutcode(postcode));
+    }
+
+    [TestMethod]
+    public async Task Get_ExcludedSMUList_ReturnsNonNullDictionary()
+    {
+
+        var excludedSMUList = new List<ExcludedSMULookup>() { new ExcludedSMULookup() { GpPracticeCode = "A91151" } };
+        _excludedSMUClient.Setup(x => x.GetAll()).ReturnsAsync(excludedSMUList);
+
+
+        var excludedSMUDictionary = await _sut.GetCachedExcludedSMUValues();
+
+
+        Assert.IsNotNull(excludedSMUDictionary);
+        Assert.AreEqual(excludedSMUDictionary.GetFirst(), excludedSMUList.FirstOrDefault()!.GpPracticeCode);
     }
 }

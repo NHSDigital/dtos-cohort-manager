@@ -52,7 +52,7 @@ public class RemoveParticipantTests : DatabaseTestBaseSetup<RemoveParticipant>
             _cohortDistributionHandler.Object,
             _config.Object);
         _participantCsvRecord.FileName = "TestFile";
-        _participantCsvRecord.participant = new Participant() { NhsNumber = "1234567890", ScreeningId = "1", RecordType = Actions.Removed };
+        _participantCsvRecord.Participant = new Participant() { NhsNumber = "1234567890", ScreeningId = "1", RecordType = Actions.Removed };
     }
 
     [DataRow("")]

@@ -36,9 +36,9 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
          {
              ScheduleStatus = new ScheduleStatus
              {
-                 Last = DateTime.Now.AddDays(-1),
-                 Next = DateTime.Now.AddDays(1),
-                 LastUpdated = DateTime.Now
+                 Last = DateTime.UtcNow.AddDays(-1),
+                 Next = DateTime.UtcNow.AddDays(1),
+                 LastUpdated = DateTime.UtcNow
              },
              IsPastDue = false
          };
@@ -53,7 +53,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
              ServicenowId = ServiceNowId,
              NhsNumber = 0, // Invalid NHS number
              Status = ServiceNowStatus.New,
-             RecordUpdateDatetime = DateTime.Now
+             RecordUpdateDatetime = DateTime.UtcNow
          };
 
          _serviceNowCasesClientMock.Setup(x =>
@@ -87,7 +87,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
              ServicenowId = ServiceNowId,
              NhsNumber = validNhsNumberLong,
              Status = ServiceNowStatus.New,
-             RecordUpdateDatetime = DateTime.Now
+             RecordUpdateDatetime = DateTime.UtcNow
          };
 
          _serviceNowCasesClientMock.Setup(x =>
@@ -121,7 +121,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
              ServicenowId = ServiceNowId,
              NhsNumber = validNhsNumberLong,
              Status = ServiceNowStatus.Complete, // Already processed
-             RecordUpdateDatetime = DateTime.Now
+             RecordUpdateDatetime = DateTime.UtcNow
          };
 
          _serviceNowCasesClientMock.Setup(x =>

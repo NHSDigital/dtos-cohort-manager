@@ -4,122 +4,74 @@ trigger: none
 pr: none
 
 schedules:
-  - cron: "15 9 * * 1-5"   # Every weekday (Mon-Fri) at 09:15 UTC
-    displayName: Weekdays 09:15 run
+  - cron: "15 7 * * 1-5" # Every weekday (Mon-Fri) at 07:15 UTC i.e 8:15 BST
+    displayName: Weekdays run
     branches:
       include:
-        - main           # Change to your default branch if needed
+        - main # Change to your default branch if needed
     always: true
 
 resources:
   repositories:
-  - repository: dtos-devops-templates
-    type: github
-    name: NHSDigital/dtos-devops-templates
-    ref: c5b352eaad08403f0addac347b07ede4fa643556
-    endpoint: NHSDigital
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 8570bd32f8da7dfbf2f88fcc9190181e4757fcca
+      endpoint: NHSDigital
 
 variables:
-- group: DEV_automation_testing_pipeline
+  - group: DEV_automation_testing_pipeline
 
 parameters:
-- name: destEnvironmentShortName
-  displayName: Destination Environment Short Name
-  type: string
-  values:
-  - dev
-  default: dev
+  - name: destEnvironmentShortName
+    displayName: Destination Environment Short Name
+    type: string
+    values:
+      - dev
+    default: dev
+
+  - name: testTypes
+    type: object
+    default:
+      - smoke_e2e
+      - regression_api
+      - regression_e2e_epic1
+      - regression_e2e_epic2
+      - regression_e2e_epic3
+      - regression_e2e_epic1Med
+      - regression_e2e_epic2Med
+      - regression_e2e_epic3Med
 
 stages:
-- stage: smoke_e2e_tests
-  displayName: Run Smoke E2E Tests
-  variables:
-    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
-  jobs:
-    - job: smoke_e2e_tests
-      pool:
-        name: private-pool-dev-uks
-      steps:
-        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-          parameters:
-            serviceConnection: sc-cohort-manager-dev
-            testProjectDirectory: 'tests/playwright-tests'
-            testfileDirectory: 'src/tests/e2e/testFiles'
-            testProjectName: 'tests'
-            testType: 'smoke:e2e'
-
-- stage: regression_api_tests
-  displayName: Run Regression API Tests
-  dependsOn: smoke_e2e_tests
-  condition: succeededOrFailed()
-  variables:
-    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
-  jobs:
-    - job: regression_api_tests
-      pool:
-        name: private-pool-dev-uks
-      steps:
-        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-          parameters:
-            serviceConnection: sc-cohort-manager-dev
-            testProjectDirectory: 'tests/playwright-tests'
-            testfileDirectory: 'src/tests/e2e/testFiles'
-            testProjectName: 'tests'
-            testType: 'regression:api'
-
-- stage: regression_e2e_epic1_tests
-  displayName: Run Regression E2E Epic1 Tests
-  dependsOn: regression_api_tests
-  condition: succeededOrFailed()
-  variables:
-    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
-  jobs:
-    - job: regression_e2e_epic1_tests
-      pool:
-        name: private-pool-dev-uks
-      steps:
-        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-          parameters:
-            serviceConnection: sc-cohort-manager-dev
-            testProjectDirectory: 'tests/playwright-tests'
-            testfileDirectory: 'src/tests/e2e/testFiles'
-            testProjectName: 'tests'
-            testType: 'regression:e2e:epic1'
-
-- stage: regression_e2e_epic2_tests
-  displayName: Run Regression E2E Epic2 Tests
-  dependsOn: regression_e2e_epic1_tests
-  condition: succeededOrFailed()
-  variables:
-    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
-  jobs:
-    - job: regression_e2e_epic2_tests
-      pool:
-        name: private-pool-dev-uks
-      steps:
-        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-          parameters:
-            serviceConnection: sc-cohort-manager-dev
-            testProjectDirectory: 'tests/playwright-tests'
-            testfileDirectory: 'src/tests/e2e/testFiles'
-            testProjectName: 'tests'
-            testType: 'regression:e2e:epic2'
-
-- stage: regression_e2e_epic3_tests
-  displayName: Run Regression E2E Epic3 Tests
-  dependsOn: regression_e2e_epic2_tests
-  condition: succeededOrFailed()
-  variables:
-    TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
-  jobs:
-    - job: regression_e2e_epic3_tests
-      pool:
-        name: private-pool-dev-uks
-      steps:
-        - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-          parameters:
-            serviceConnection: sc-cohort-manager-dev
-            testProjectDirectory: 'tests/playwright-tests'
-            testfileDirectory: 'src/tests/e2e/testFiles'
-            testProjectName: 'tests'
-            testType: 'regression:e2e:epic3'
+  - ${{ each testType in parameters.testTypes }}:
+      - stage: ${{ testType }}_stage
+        displayName: Run ${{ testType }} Tests
+        ${{ if eq(testType, 'regression_api') }}:
+          dependsOn: smoke_e2e_stage
+        ${{ if eq(testType, 'regression_e2e_epic1') }}:
+          dependsOn: regression_api_stage
+        ${{ if eq(testType, 'regression_e2e_epic2') }}:
+          dependsOn: regression_e2e_epic1_stage
+        ${{ if eq(testType, 'regression_e2e_epic3') }}:
+          dependsOn: regression_e2e_epic2_stage
+        ${{ if eq(testType, 'regression_e2e_epic1Med') }}:
+          dependsOn: regression_e2e_epic3_stage
+        ${{ if eq(testType, 'regression_e2e_epic2Med') }}:
+          dependsOn: regression_e2e_epic1Med_stage
+        ${{ if eq(testType, 'regression_e2e_epic3Med') }}:
+          dependsOn: regression_e2e_epic2Med_stage
+        condition: succeededOrFailed()
+        variables:
+          TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
+        jobs:
+          - job: ${{ testType }}_job
+            pool:
+              name: private-pool-dev-uks
+            steps:
+              - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+                parameters:
+                  serviceConnection: sc-cohort-manager-dev
+                  testProjectDirectory: "tests/playwright-tests"
+                  testfileDirectory: "src/tests/e2e/testFiles"
+                  testProjectName: "tests"
+                  testType: ${{ testType }}
