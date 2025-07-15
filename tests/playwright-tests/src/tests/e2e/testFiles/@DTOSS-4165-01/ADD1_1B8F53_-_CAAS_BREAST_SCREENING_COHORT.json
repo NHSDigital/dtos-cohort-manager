@@ -7,7 +7,7 @@
         "PreviousFamilyName": "Conner is my Family Name testing 35chars"
       },
       "meta": {
-        "testJiraId": "@DTOSS-4602-01",
+        "testJiraId": "@DTOSS-4165-01",
         "requirementJiraId": "DTOSS-2623",
         "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's PreviousFamilyName in ParticipantDemographicDataService"
       }
@@ -19,7 +19,7 @@
         "PreviousFamilyName": "Conner is my Family Name testing 35"
       },
       "meta": {
-        "testJiraId": "@DTOSS-4602-01",
+        "testJiraId": "@DTOSS-4165-01",
         "requirementJiraId": "DTOSS-2623",
         "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's PreviousFamilyName value truncated to 35 characters in CohortDistributionDataService"
       }
