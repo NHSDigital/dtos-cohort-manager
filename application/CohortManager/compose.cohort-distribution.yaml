@@ -69,7 +69,7 @@ services:
       - BsSelectOutCodeUrl=http://bs-select-outcode-data-service:7881/api/BsSelectOutCodeDataService
       - BsSelectGpPracticeUrl=http://bs-select-gp-practice-data-service:7998/api/BsSelectGpPracticeDataService/
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - LanguageCodeUrl=http://language-code-data-service:7997/api/LanguageCodeDataService
+      - LanguageCodeUrl=http://reference-data-service:7988/api/LanguageCode
       - ExcludedSMULookupUrl=http://localhost:7995/api/ExcludedSMUDataService/
       - AcceptableLatencyThresholdMs=500
 
