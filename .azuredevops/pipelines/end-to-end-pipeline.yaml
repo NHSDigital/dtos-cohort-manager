@@ -12,18 +12,18 @@ resources:
       ref: e4e68ea29c4fab7014caf900063fe70f785732f3
       endpoint: NHSDigital
 
-variables:
-  - name: DOCKER_IMAGE_TAG
-    value: development
-
 parameters:
+  - name: dockerImageTag
+    displayName: 'Docker Image Tag'
+    type: string
+    default: development
   - name: pipelineAction
     displayName: 'Pipeline Action'
     type: string
     values:
       - 'PlanOnly'
-      - 'Apply'
-    default: 'Apply'
+      - 'PlanApply'
+    default: 'PlanApply'
 
 stages:
   - stage: terraform_plan_SBX
@@ -48,19 +48,19 @@ stages:
     jobs:
       - job: init_and_plan_SBX
         displayName: Init, plan, store artifact (SBX)
-        condition: in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly')
+        condition: in('${{ parameters.pipelineAction }}', 'PlanApply', 'PlanOnly')
         steps:
           - checkout: self
           - checkout: dtos-devops-templates
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
             parameters:
-              tfCommandOptions: '-var="docker_image_tag=$(DOCKER_IMAGE_TAG)"'
+              tfCommandOptions: '-var="docker_image_tag=${{ parameters.pipelineAction }}"'
       
       # Test job to apply the plan
       - job: terraform_apply
         displayName: Apply Terraform Plan (SBX)
         dependsOn: init_and_plan_SBX
-        condition: and(eq(dependencies.terraform_plan_SBX.outputs['init_and_plan_SBX.TerraformPlan.changesPresent'], 'true'), eq('${{ parameters.pipelineAction }}', 'Apply'), eq(variables['Build.Reason'], 'Manual'))
+        condition: and(eq(dependencies.terraform_plan_SBX.outputs['init_and_plan_SBX.TerraformPlan.changesPresent'], 'true'), eq('${{ parameters.pipelineAction }}', 'PlanApply'), eq(variables['Build.Reason'], 'Manual'))
         steps:
           - task: AzureCLI@2
             displayName: Apply Plan
@@ -85,9 +85,8 @@ stages:
       #           - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
       - job: db_changes_SBX
-        pool:
-          name: private-pool-dev-uks
         displayName: Apply database changes (SBX)
+        dependsOn: init_and_plan_SBX
         variables:
           - group: SBX_core_backend
           - group: SBX_image_pipelines
