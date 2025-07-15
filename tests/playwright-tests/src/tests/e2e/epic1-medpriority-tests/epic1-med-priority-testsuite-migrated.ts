@@ -1,4 +1,4 @@
-// For Future Epic 4d validation Tests
+// For Future Epic 1 Med Regression Tests
 
 // Note:
 // These tests have been fully migrated to the new and improved test execution orchestration:
@@ -13,16 +13,16 @@
 // Guidance:
 //
 // - First, try adding new tests using the runner.
-// - If custom calls are needed, use new file for test addition. - tests\playwright-tests\src\tests\e2e\epic4d-6045-validation-tests\epic4d-6045-validation-tests.spec.ts
+// - If custom calls are needed, use new file for test addition. - tests\playwright-tests\src\tests\e2e\epic1-medpriority-tests\epic1-med-priority-testsuite.spec.ts
 //
 // Test Tags:
 // There is no impact to the test tags. The same tags can be used to trigger these tests.
 // For example, to run regression tests, use:
 //
-//   npm run test:regression_e2e_epic4d
+//   npm run test:regression_e2e_epic1Med
 //
-// This equates to "@epic4d-" tags, configured in the package.json at the playwright-tests root location.
+// This equates to "@epic1-med" tags, configured in the package.json at the playwright-tests root location.
 
 
- export const runnerBasedEpic4dTestScenariosAdd = "@DTOSS-9492-01|@DTOSS-9494-01|@DTOSS-9496-01|@DTOSS-9498-01";
- export const runnerBasedEpic4dTestScenariosAmend = "@DTOSS-9493-01|@DTOSS-9495-01|@DTOSS-9497-01|@DTOSS-9499-01";
+export const runnerBasedEpic1MedTestScenariosAdd = "@DTOSS-3214-01";
+
