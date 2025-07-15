@@ -185,7 +185,7 @@ variable "container_apps" {
     apps = optional(map(object({
       name_suffix                   = optional(string)
       container_app_environment_key = optional(string)
-      docker_env_tag                = optional(string)
+      docker_env_tag                = optional(string, "")
       docker_image                  = optional(string)
       is_web_app                    = optional(bool, false)
       container_registry_use_mi     = optional(bool, false)
@@ -200,7 +200,7 @@ variable "container_app_jobs" {
     apps = optional(map(object({
       name_suffix                   = optional(string)
       container_app_environment_key = optional(string)
-      docker_env_tag                = optional(string)
+      docker_env_tag                = optional(string, "")
       docker_image                  = optional(string)
       container_registry_use_mi     = optional(bool, false)
     })), {})
@@ -282,7 +282,7 @@ variable "linux_web_app" {
     app_service_logs_disk_quota_mb         = optional(number)
     app_service_logs_retention_period_days = optional(number)
     cont_registry_use_mi                   = bool
-    docker_env_tag                         = string
+    docker_env_tag                         = optional(string, "")
     docker_CI_enable                       = optional(string, "")
     docker_img_prefix                      = string
     enable_appsrv_storage                  = bool
