@@ -15,18 +15,6 @@
         }
       },
       {
-        "RuleName": "14.ReasonForRemoval.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) OR new string[] {\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Reason for removal is invalid\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "30.Postcode.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.Postcode) OR ValidationHelper.ValidatePostcode(participant.Postcode)",
         "Actions": {
