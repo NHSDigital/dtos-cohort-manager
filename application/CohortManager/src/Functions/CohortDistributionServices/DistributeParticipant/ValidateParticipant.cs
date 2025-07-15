@@ -155,8 +155,13 @@ public class ValidateParticipant
             RulesType = RulesType.ParticipantManagement
         };
 
-        var cohortRequest = lookupRequest;
-        lookupRequest.RulesType = RulesType.CohortDistribution;
+        var cohortRequest = new LookupValidationRequestBody
+        {
+            NewParticipant = new Participant(validationRecord.Participant),
+            ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
+            FileName = validationRecord.FileName,
+            RulesType = RulesType.CohortDistribution
+        };
 
         ValidationExceptionLog[] validationResults = await Task.WhenAll(
             CallLookupValidation(lookupRequest),
@@ -224,7 +229,6 @@ public class ValidateParticipant
         var response = await _httpClient.SendPost(_config.LookupValidationURL, json);
         response.EnsureSuccessStatusCode();
         string body = await _httpClient.GetResponseText(response);
-        _logger.LogInformation(body);
 
         var exceptionLog = JsonSerializer.Deserialize<ValidationExceptionLog>(body);
         return exceptionLog;
