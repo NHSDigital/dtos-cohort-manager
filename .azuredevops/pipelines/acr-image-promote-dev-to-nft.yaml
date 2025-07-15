@@ -81,7 +81,7 @@ stages:
             testProjectDirectory: 'tests/playwright-tests'
             testfileDirectory: 'src/tests/e2e/testFiles'
             testProjectName: 'tests'
-            testType: 'smoke:e2e'
+            testType: 'smoke_e2e'
 
 - stage: regression_api_tests
   displayName: Run Regression API Tests
@@ -101,7 +101,7 @@ stages:
             testProjectDirectory: 'tests/playwright-tests'
             testfileDirectory: 'src/tests/e2e/testFiles'
             testProjectName: 'tests'
-            testType: 'regression:api'
+            testType: 'regression_api'
 
 - stage: regression_e2e_epic1_tests
   displayName: Run Regression E2E Epic1 Tests
@@ -121,7 +121,7 @@ stages:
             testProjectDirectory: 'tests/playwright-tests'
             testfileDirectory: 'src/tests/e2e/testFiles'
             testProjectName: 'tests'
-            testType: 'regression:e2e:epic1'
+            testType: 'regression_e2e_epic1'
 
 - stage: regression_e2e_epic2_tests
   displayName: Run Regression E2E Epic2 Tests
@@ -141,7 +141,7 @@ stages:
             testProjectDirectory: 'tests/playwright-tests'
             testfileDirectory: 'src/tests/e2e/testFiles'
             testProjectName: 'tests'
-            testType: 'regression:e2e:epic2'
+            testType: 'regression_e2e_epic2'
 
 - stage: regression_e2e_epic3_tests
   displayName: Run Regression E2E Epic3 Tests
@@ -161,4 +161,4 @@ stages:
             testProjectDirectory: 'tests/playwright-tests'
             testfileDirectory: 'src/tests/e2e/testFiles'
             testProjectName: 'tests'
-            testType: 'regression:e2e:epic3'
+            testType: 'regression_e2e_epic3'
