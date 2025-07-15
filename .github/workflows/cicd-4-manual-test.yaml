@@ -1,4 +1,4 @@
-name: "Manual Cohort Manager Test Stage"
+name: "Manual Cohort Manager Snapshot Test Stage"
 
 on:
   workflow_dispatch:
