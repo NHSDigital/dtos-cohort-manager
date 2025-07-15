@@ -34,20 +34,12 @@ paths = [
 '''tests/e2e-tests/NHS.CohortManager.EndToEndTests/NHS.CohortManager.EndToEndTests.csproj''',
 '''tests/e2e-tests/dtos-cohort-manager-e2e-tests/dtos_cohort_manager_e2e_tests.csproj'''
 ]
+regexes = [
+  '''[0-9]{10}\.cohort-.*\.b099494b-7c49-4d78-9e3c-3a801aac691b\.apps'''
+]
 
 
 [[rules]]
 description = "Slack Webhook URL"
 regex = '''https://hooks\.slack\.com/services/[A-Z0-9]{12}/[A-Z0-9]{12}/[A-Za-z0-9]{25}'''
 tags = ["webhook", "slack"]
-
-[[allowlist.rules]]
-description = "Allow known non-secret CIS2 client IDs for Terraform environments"
-regex = '''[0-9]{10}\.cohort-.*\.b099494b-7c49-4d78-9e3c-3a801aac691b\.apps'''
-paths = [
-    '''infrastructure/tf-core/environments/'''
-]
-commits = [
-    "ae891c5d4a60e474e276a0508d673ccaacbe3741",
-    "3d229b0ed3627b853158e58aeee6848a2f16a185"
-]
