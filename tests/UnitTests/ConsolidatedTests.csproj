@@ -53,6 +53,8 @@
   <!-- Project References -->
   <ItemGroup>
     <!-- Shared Projects -->
+    <ProjectReference Include="../../application/CohortManager/src/Functions/ReconciliationService/ReconciliationService.Core/ReconciliationServiceCore.csproj" />
+    <ProjectReference Include="../../application/CohortManager/src/Functions/ReconciliationService/ReconciliationService.Function/ReconciliationService.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Model\Model.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Data\Data.csproj" />
