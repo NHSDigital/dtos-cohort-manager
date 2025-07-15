@@ -67,4 +67,4 @@ stages:
             testProjectDirectory: 'tests/playwright-tests'
             testfileDirectory: 'src/tests/e2e/testFiles'
             testProjectName: 'tests'
-            testType: 'test:regression_e2e'
+            testType: 'regression_e2e'
