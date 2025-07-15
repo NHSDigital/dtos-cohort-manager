@@ -57,42 +57,9 @@ export default async function Page({
         <main className="nhsuk-main-wrapper" id="maincontent" role="main">
           <div className="nhsuk-grid-row">
             <div className="nhsuk-grid-column-full">
-              <h1>Raised breast screening exceptions</h1>
-
-              <form method="GET">
-                <div className="nhsuk-form-group app-form-group--inline">
-                  <label className="nhsuk-label" htmlFor="sort-exceptions">
-                    Sort{" "}
-                    <span className="nhsuk-u-visually-hidden">
-                      raised exceptions{" "}
-                    </span>{" "}
-                    by
-                  </label>
-                  <div className="form-inline-row">
-                    <select
-                      className="nhsuk-select"
-                      id="sort-exceptions"
-                      name="sortBy"
-                      defaultValue={String(sortBy)}
-                    >
-                      <option value="0">
-                        Status last updated (most recent first)
-                      </option>
-                      <option value="1">
-                        Status last updated (oldest first)
-                      </option>
-                    </select>
-                    <button
-                      className="nhsuk-button app-button--small"
-                      data-module="nhsuk-button"
-                      type="submit"
-                    >
-                      Apply
-                    </button>
-                  </div>
-                </div>
-              </form>
-
+              <h1 data-testid="heading-raised">
+                Raised breast screening exceptions
+              </h1>
               <div className="nhsuk-card">
                 <div className="nhsuk-card__content">
                   <ExceptionsTable

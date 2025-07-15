@@ -11,6 +11,7 @@ using DataServices.Core;
 using System.Security.Cryptography.X509Certificates;
 using System.Linq.Expressions;
 using System.Net;
+using System.Runtime.CompilerServices;
 
 [TestClass]
 public class NemsSubscriptionManagerTests
@@ -239,7 +240,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>(), It.IsAny<int>()))
             .ReturnsAsync(successResponse);
 
         // Act
@@ -255,7 +256,7 @@ public class NemsSubscriptionManagerTests
                 req.FromAsid == "TestFromAsid" &&
                 req.ToAsid == "TestToAsid" &&
                 req.ClientCertificate == _dummyCert &&
-                req.BypassCertValidation == false)),
+                req.BypassCertValidation == false), It.IsAny<int>()),
             Times.Once);
     }
 
@@ -271,7 +272,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>(), It.IsAny<int>()))
             .ReturnsAsync(failResponse);
 
         // Act
@@ -292,7 +293,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>(), It.IsAny<int>()))
             .ThrowsAsync(new Exception("Network error"));
 
         // Act
@@ -327,7 +328,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync(successResponse);
 
         // Act
@@ -349,7 +350,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync(successResponse);
 
         // Act
@@ -375,7 +376,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync(errorResponse);
 
         // Act
@@ -396,7 +397,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ThrowsAsync(new Exception("Network error"));
 
         // Act
@@ -481,7 +482,7 @@ public class NemsSubscriptionManagerTests
         };
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync(successResponse);
 
         _nemsSubscriptionAccessor
@@ -517,11 +518,11 @@ public class NemsSubscriptionManagerTests
         };
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync(successResponse);
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>(), It.IsAny<int>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
         _nemsSubscriptionAccessor
@@ -574,7 +575,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>(), It.IsAny<int>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
         _nemsSubscriptionAccessor
@@ -609,7 +610,7 @@ public class NemsSubscriptionManagerTests
             .Returns("test-jwt-token");
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>(), It.IsAny<int>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.BadRequest));
 
         _nemsSubscriptionAccessor
@@ -640,7 +641,7 @@ public class NemsSubscriptionManagerTests
         var failureResponse = new HttpResponseMessage(HttpStatusCode.BadRequest);
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync(failureResponse);
 
         // Act
@@ -696,7 +697,7 @@ public class NemsSubscriptionManagerTests
         };
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync(duplicateResponse);
 
         // Mock the database save to succeed for the duplicate subscription
@@ -740,7 +741,7 @@ public class NemsSubscriptionManagerTests
         };
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync(duplicateResponse);
 
         _nemsSubscriptionAccessor
@@ -779,7 +780,7 @@ public class NemsSubscriptionManagerTests
         };
 
         _httpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync(duplicateResponse);
 
         // Act
