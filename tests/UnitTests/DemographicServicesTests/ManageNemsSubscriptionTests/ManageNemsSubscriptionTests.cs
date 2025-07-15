@@ -63,14 +63,14 @@ public class ManageNemsSubscriptionTests
             .ReturnsAsync(true);
 
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync(new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK
             });
 
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>(), It.IsAny<int>()))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
         var requestHandler = new Mock<IRequestHandler<NemsSubscription>>();
@@ -167,7 +167,7 @@ public class ManageNemsSubscriptionTests
     {
         // Arrange: Make sure the NEMS POST returns a valid subscriptionId
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync(new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.Created,
@@ -206,7 +206,7 @@ public class ManageNemsSubscriptionTests
             .ReturnsAsync((NemsSubscription?)null);
 
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>()))
+            .Setup(x => x.SendSubscriptionPost(It.IsAny<NemsSubscriptionPostRequest>(), It.IsAny<int>()))
             .ReturnsAsync((HttpResponseMessage)null);
 
         // Act
@@ -255,7 +255,7 @@ public class ManageNemsSubscriptionTests
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
 
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>(), It.IsAny<int>()))
             .ReturnsAsync(new HttpResponseMessage(nemsStatus));
 
         // Act
@@ -272,7 +272,7 @@ public class ManageNemsSubscriptionTests
         // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>(), It.IsAny<int>()))
             .ReturnsAsync((HttpResponseMessage)null);
 
         // Act
@@ -311,7 +311,7 @@ public class ManageNemsSubscriptionTests
         // Arrange
         var request = _setupRequest.Setup(null, new NameValueCollection { { "NhsNumber", ValidNhsNumber.ToString() } }, HttpMethod.Post);
         _nemsHttpClientFunction
-            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>()))
+            .Setup(x => x.SendSubscriptionDelete(It.IsAny<NemsSubscriptionRequest>(), It.IsAny<int>()))
             .ReturnsAsync(new HttpResponseMessage(nemsStatus));
 
         // Act
