@@ -12,4 +12,13 @@ public static class HttpClientExtension
             _.AddTransient<IHttpClientFunction, HttpClientFunction>();
         });
     }
+
+    public static IHostBuilder AddNemsHttpClient(this IHostBuilder hostBuilder)
+    {
+        return hostBuilder.ConfigureServices(_ =>
+        {
+            _.AddTransient<INemsHttpClientProvider, NemsHttpClientProvider>();
+            _.AddTransient<INemsHttpClientFunction, NemsHttpClientFunction>();
+        });
+    }
 }
