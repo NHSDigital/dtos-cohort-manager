@@ -1225,6 +1225,7 @@ function_apps = {
       function_endpoint_name = "ManageNemsSubscription"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
+      key_vault_url          = "KeyVaultConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1233,6 +1234,13 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        "ManageNemsSubscription--NemsFhirEndpoint" = "https://msg.intspineservices.nhs.uk/STU3"
+        "ManageNemsSubscription--FromAsid" = "200000002527"
+        "ManageNemsSubscription--ToAsid" = "200000002527"
+        "ManageNemsSubscription--NemsKeyName" = "nems-client-certificate"
+        "ManageNemsSubscription--SubscriptionProfile" = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
+        "ManageNemsSubscription--SubscriptionCriteria" = "https://fhir.nhs.uk/Id/nhs-number"
+        "ManageNemsSubscription--BypassServerCertificateValidation" = "false"
       }
     }
 
