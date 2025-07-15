@@ -18,21 +18,24 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
     private readonly ILogger<CallDurableDemographicFunc> _logger;
     private readonly HttpClient _httpClient;
     private readonly ICopyFailedBatchToBlob _copyFailedBatchToBlob;
+
+    private readonly IExceptionHandler _exceptionHandler;
     private readonly int _maxNumberOfChecks;
     private TimeSpan _delayBetweenChecks = TimeSpan.FromSeconds(3);
 
     private readonly ReceiveCaasFileConfig _config;
 
 
-    public CallDurableDemographicFunc(IHttpClientFunction httpClientFunction, ILogger<CallDurableDemographicFunc> logger, HttpClient httpClient, ICopyFailedBatchToBlob copyFailedBatchToBlob, IOptions<ReceiveCaasFileConfig> config)
+    public CallDurableDemographicFunc(IHttpClientFunction httpClientFunction, ILogger<CallDurableDemographicFunc> logger, HttpClient httpClient, ICopyFailedBatchToBlob copyFailedBatchToBlob, IExceptionHandler exceptionHandler, IOptions<ReceiveCaasFileConfig> config)
     {
         _config = config.Value;
         _httpClientFunction = httpClientFunction;
         _logger = logger;
         _httpClient = httpClient;
+        _exceptionHandler = exceptionHandler;
+
         _copyFailedBatchToBlob = copyFailedBatchToBlob;
         _maxNumberOfChecks = _config.maxNumberOfChecks;
-
         _httpClient.Timeout = TimeSpan.FromSeconds(300);
     }
 
@@ -48,8 +51,9 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
     /// This method handles posting data, logging, and checking the status of the durable function.
     /// Implements retry logic for status checking.
     /// </remarks>
-    public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI)
+    public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI, string fileName)
     {
+        var batchSize = participants.Count;
         var responseContent = "";
         if (participants.Count == 0)
         {
@@ -85,7 +89,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
             }
             else
             {
-                _logger.LogError("Check limit reached or demographic function failed {finalStatus}", finalStatus);
+                _logger.LogError("Check limit reached or demographic function failed for a batch of size: {BatchSize} {FinalStatus}", batchSize, finalStatus);
                 await _copyFailedBatchToBlob.writeBatchToBlob(
                     JsonSerializer.Serialize(participants),
                     new InvalidOperationException("there was an error while adding batch of participants to the demographic table")
@@ -96,9 +100,16 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
         }
         catch (Exception ex)
         {
-            // we want to do this as we don't want to lose records
-            _logger.LogError(ex, "An error occurred: {Message} still sending records to queue", ex.Message);
-            return true;
+            _logger.LogError(ex, "An error occurred: {Message}. not sending {BatchSize} records to queue", ex.Message, batchSize);
+            //we process the participant record here in batch so don't have a single record or know why a single record has failed
+            await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(), fileName);
+
+            await _copyFailedBatchToBlob.writeBatchToBlob(
+                JsonSerializer.Serialize(participants),
+                new InvalidOperationException("there was an error while adding batch of participants to the demographic table")
+            );
+
+            return false;
         }
     }
 
@@ -134,7 +145,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
         //sometimes the webhook can fail for very annoying reasons but the Orchestration data still exists so we can check for its status
         catch (Exception ex)
         {
-            var getOrchestrationStatusURL = Environment.GetEnvironmentVariable("GetOrchestrationStatusURL");
+            var getOrchestrationStatusURL = _config.GetOrchestrationStatusURL;
 
             if (string.IsNullOrWhiteSpace(getOrchestrationStatusURL))
             {

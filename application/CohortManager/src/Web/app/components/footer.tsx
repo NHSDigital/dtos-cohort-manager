@@ -22,6 +22,7 @@ export default function Footer() {
                     <Link
                       className="nhsuk-footer__list-item-link"
                       href="/contact-us"
+                      data-testid="contact-us-link"
                     >
                       Contact us
                     </Link>
@@ -30,6 +31,7 @@ export default function Footer() {
                     <Link
                       href="/cookies-policy"
                       className="nhsuk-footer__list-item-link"
+                      data-testid="cookies-link"
                     >
                       Cookies
                     </Link>
@@ -38,6 +40,7 @@ export default function Footer() {
                     <Link
                       href="/terms-and-conditions"
                       className="nhsuk-footer__list-item-link"
+                      data-testid="terms-and-conditions-link"
                     >
                       Terms and conditions
                     </Link>

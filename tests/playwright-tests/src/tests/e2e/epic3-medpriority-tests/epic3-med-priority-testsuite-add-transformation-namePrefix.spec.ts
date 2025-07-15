@@ -27,13 +27,13 @@ test.beforeAll(async ({ request }, testInfo) => {
 testCaseBuilder.forEach(async (validations) => {
 
   const testScenarioName = await buildTestScenarioName(validations);
-  test(`@DTOSS-5556-01 @ut ${testScenarioName}`, async ({ request }) => {
-      await validateSqlDatabaseFromAPI(request, [validations]);
+  test(`@DTOSS-5556-01 @regression @e2e @epic3-med-priority - ${testScenarioName}`, async ({ request }) => {
+    await validateSqlDatabaseFromAPI(request, [validations]);
   });
 });
 
 
-async function buildTestScenarioName(validations: any){
+async function buildTestScenarioName(validations: any) {
   const testScenario = validations.validations;
   if (testScenario.NamePrefix == undefined) {
     return `Verify RuleId as ${testScenario.RuleId} & description as ${testScenario.RuleDescription} for NHS participant ${testScenario.NhsNumber}`

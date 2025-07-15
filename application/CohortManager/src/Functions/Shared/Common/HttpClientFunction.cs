@@ -3,7 +3,6 @@ namespace Common;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 public class HttpClientFunction : IHttpClientFunction
@@ -93,33 +92,6 @@ public class HttpClientFunction : IHttpClientFunction
         }
     }
 
-    public async Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid)
-    {
-        using var client = _factory.CreateClient();
-        client.BaseAddress = new Uri(url);
-        client.Timeout = _timeout;
-
-        var request = new HttpRequestMessage(HttpMethod.Post, url)
-        {
-            Content = new StringContent(subscriptionJson, Encoding.UTF8, "application/fhir+json")
-        };
-
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", spineAccessToken);
-        request.Headers.Add("fromASID", fromAsid);
-        request.Headers.Add("toASID", toAsid);
-        request.Headers.Add("Interaction-ID", "urn:nhs:names:services:nems:CreateSubscription");
-
-        try
-        {
-            var response = await client.SendAsync(request);
-            return response;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
-            throw;
-        }
-    }
 
     public async Task<HttpResponseMessage> SendPut(string url, string data)
     {
@@ -174,7 +146,7 @@ public class HttpClientFunction : IHttpClientFunction
     /// <summary>
     /// Removes the query string from the URL to prevent us logging sensitive information.
     /// </summary>
-    private static string RemoveURLQueryString(string url)
+    protected static string RemoveURLQueryString(string url)
     {
         if (string.IsNullOrEmpty(url))
         {
@@ -207,8 +179,9 @@ public class HttpClientFunction : IHttpClientFunction
             throw;
         }
 
-        return null;
+        return string.Empty;
     }
+
 
     /// <summary>
     /// Get method that does not supress errors

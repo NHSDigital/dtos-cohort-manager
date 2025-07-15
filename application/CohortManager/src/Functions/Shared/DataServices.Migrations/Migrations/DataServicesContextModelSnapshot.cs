@@ -733,9 +733,8 @@ namespace DataServices.Migrations.Migrations
 
             modelBuilder.Entity("Model.NemsSubscription", b =>
                 {
-                    b.Property<Guid>("SubscriptionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                    b.Property<string>("SubscriptionId")
+                        .HasColumnType("nvarchar(450)")
                         .HasColumnName("SUBSCRIPTION_ID");
 
                     b.Property<long>("NhsNumber")
