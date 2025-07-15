@@ -12,7 +12,7 @@ import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 
 export const metadata: Metadata = {
-  title: "Raised breast screening exceptions - Cohort Manager",
+  title: `Raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page(props: {
