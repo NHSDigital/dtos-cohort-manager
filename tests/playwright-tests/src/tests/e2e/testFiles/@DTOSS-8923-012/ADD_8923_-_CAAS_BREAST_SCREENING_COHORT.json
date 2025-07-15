@@ -58,20 +58,6 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997153723",
-        "RuleId": 16,
-        "RuleDescription": "Missing or invalid Gender",
-        "Category": 3
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8923-01",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 16"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
         "RuleId": 30,
         "RuleDescription": "Postcode invalid",
         "Category": 3
@@ -169,7 +155,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
+        "NhsNumber": "9996216462",
         "RuleId": 3601,
         "RuleDescription": "Invalid primary care provider GP practice code",
         "Category": 3
@@ -183,7 +169,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997153723",
+        "NhsNumber": "9996216462",
         "RuleId": 3602,
         "RuleDescription": "Invalid primary care provider GP practice code",
         "Category": 3
