@@ -90,7 +90,7 @@ services:
       - fileExceptions=file-exceptions
       - ParticipantManagementQueueName=add-participant-queue
       - ParticipantManagementTopic=participant-management-topic
-      - UseNewFunctions=false
+      - UseNewFunctions=true
 
   # Participant Management Service
   manage-participant:
@@ -120,6 +120,7 @@ services:
       watch:
         - action: rebuild
           path: ./src/Functions/ParticipantManagementServices/addParticipant
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7062
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -138,6 +139,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/RemoveParticipant/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7063
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -151,6 +153,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/updateParticipant/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7065
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -187,6 +190,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/createParticipant/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7066
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
@@ -204,6 +208,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/updateParticipantDetails/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7069
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -296,6 +301,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: DemographicServices/DemographicDataManagementFunction/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7076
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
