@@ -19,7 +19,7 @@ tags = {
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.128.0.0/16"
+    address_space     = "10.130.0.0/16"
     connect_peering   = true
     subnets = {
       apps = {
@@ -70,7 +70,7 @@ routes = {
         priority              = 900
         action                = "Allow"
         rule_name             = "CohmanToAudit"
-        source_addresses      = ["10.128.0.0/16"]
+        source_addresses      = ["10.130.0.0/16"]
         destination_addresses = ["10.129.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
@@ -81,7 +81,7 @@ routes = {
         action                = "Allow"
         rule_name             = "AuditToCohman"
         source_addresses      = ["10.129.0.0/16"]
-        destination_addresses = ["10.128.0.0/16"]
+        destination_addresses = ["10.130.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
@@ -97,7 +97,7 @@ routes = {
     route_table_audit = [
       {
         name                   = "AuditToCohman"
-        address_prefix         = "10.128.0.0/16"
+        address_prefix         = "10.130.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
