@@ -4,6 +4,7 @@ using DataServices.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataServices.Migrations.Migrations
 {
     [DbContext(typeof(DataServicesContext))]
-    partial class DataServicesContextModelSnapshot : ModelSnapshot
+    [Migration("20250630151927_nems-subscription-string-id")]
+    partial class nemssubscriptionstringid
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -893,6 +896,10 @@ namespace DataServices.Migrations.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("BUSINESS_RULE_VERSION");
+
+                    b.Property<short>("CeasedFlag")
+                        .HasColumnType("smallint")
+                        .HasColumnName("CEASED_FLAG");
 
                     b.Property<DateTime?>("DateIrradiated")
                         .HasColumnType("datetime")
