@@ -25,8 +25,8 @@ public class ValidationExceptionDataTests
         validationExceptionData = new ValidationExceptionData(_logger.Object, _validationExceptionDataServiceClient.Object, _demographicDataServiceClient.Object);
         _exceptionList = new List<ExceptionManagement>
         {
-            new() { ExceptionId = 1, CohortName = "Cohort1", DateCreated = DateTime.UtcNow.Date, NhsNumber = "1111111111", RuleDescription = "RuleA", Category = 3, ServiceNowId = "ServiceNow1" },
-            new() { ExceptionId = 2, CohortName = "Cohort2", DateCreated = DateTime.UtcNow.Date.AddDays(-1), NhsNumber = "2222222222", RuleDescription = "RuleB", Category = 3, ServiceNowId = "ServiceNow2" },
+            new() { ExceptionId = 1, CohortName = "Cohort1", DateCreated = DateTime.UtcNow.Date, NhsNumber = "1111111111", RuleDescription = "RuleA", Category = 3, ServiceNowId = "ServiceNow1", ServiceNowCreatedDate = DateTime.UtcNow.Date },
+            new() { ExceptionId = 2, CohortName = "Cohort2", DateCreated = DateTime.UtcNow.Date.AddDays(-1), NhsNumber = "2222222222", RuleDescription = "RuleB", Category = 3, ServiceNowId = "ServiceNow2", ServiceNowCreatedDate = DateTime.UtcNow.Date.AddDays(-1) },
             new() { ExceptionId = 3, CohortName = "Cohort3", DateCreated = DateTime.UtcNow.Date.AddDays(-2), NhsNumber = "3333333333", RuleDescription = "RuleC", Category = 3, ServiceNowId = null },
             new() { ExceptionId = 4, CohortName = "Cohort4", DateCreated = DateTime.Today.AddDays(-3), NhsNumber = "4444444444", RuleDescription = "RuleD", Category = 3, ServiceNowId = null }
         };
@@ -87,7 +87,7 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(2);
-        result.Should().BeInAscendingOrder(o => o.DateCreated);
+        result.Should().BeInAscendingOrder(o => o.ServiceNowCreatedDate);
         result.Should().OnlyContain(e => !string.IsNullOrEmpty(e.ServiceNowId));
         result!.First().ExceptionId.Should().Be(2);
         result!.First().ServiceNowId.Should().Be("ServiceNow2");
@@ -109,7 +109,7 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(2);
-        result.Should().BeInDescendingOrder(o => o.DateCreated);
+        result.Should().BeInDescendingOrder(o => o.ServiceNowCreatedDate);
         result.Should().OnlyContain(e => !string.IsNullOrEmpty(e.ServiceNowId));
         result!.First().ExceptionId.Should().Be(1);
         result!.First().ServiceNowId.Should().Be("ServiceNow1");

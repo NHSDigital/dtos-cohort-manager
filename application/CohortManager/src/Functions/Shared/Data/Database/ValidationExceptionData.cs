@@ -140,6 +140,12 @@ public class ValidationExceptionData : IValidationExceptionData
             _ => list
         };
 
-        return sortOrder == SortOrder.Ascending ? filteredList.OrderBy(x => x.DateCreated).ToList() : filteredList.OrderByDescending(x => x.DateCreated).ToList();
+        Func<ValidationException, DateTime?> dateProperty = status == ExceptionStatus.Raised
+            ? x => x.ServiceNowCreatedDate
+            : x => x.DateCreated;
+
+        return sortOrder == SortOrder.Ascending
+            ? [.. filteredList.OrderBy(dateProperty)]
+            : [.. filteredList.OrderByDescending(dateProperty)];
     }
 }
