@@ -147,28 +147,21 @@ public class ValidateParticipant
     [Function(nameof(LookupValidation))]
     public async Task<ValidationExceptionLog> LookupValidation([ActivityTrigger] ValidationRecord validationRecord)
     {
-        var lookupRequest = new LookupValidationRequestBody
+        var request = new LookupValidationRequestBody
         {
             NewParticipant = new Participant(validationRecord.Participant),
             ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
-            FileName = validationRecord.FileName,
-            RulesType = RulesType.ParticipantManagement
+            FileName = validationRecord.FileName
         };
 
-        var cohortRequest = new LookupValidationRequestBody
-        {
-            NewParticipant = new Participant(validationRecord.Participant),
-            ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
-            FileName = validationRecord.FileName,
-            RulesType = RulesType.CohortDistribution
-        };
+        var json = JsonSerializer.Serialize(request);
 
-        ValidationExceptionLog[] validationResults = await Task.WhenAll(
-            CallLookupValidation(lookupRequest),
-            CallLookupValidation(cohortRequest)
-        );
+        var response = await _httpClient.SendPost(_config.LookupValidationURL, json);
+        response.EnsureSuccessStatusCode();
+        string body = await _httpClient.GetResponseText(response);
 
-        return new ValidationExceptionLog(validationResults[0], validationResults[1]);
+        var exceptionLog = JsonSerializer.Deserialize<ValidationExceptionLog>(body);
+        return exceptionLog;
     }
 
     /// <summary>
@@ -215,22 +208,5 @@ public class ValidateParticipant
         {
             throw new IOException("Failed to update exception flag");
         }
-    }
-
-    /// <summary>
-    /// Calls the lookup validation function
-    /// </summary>
-    /// <param name="request"></param>
-    /// <remarks>Temporary, both calls to lookup validation will be merged</remarks>
-    private async Task<ValidationExceptionLog> CallLookupValidation(LookupValidationRequestBody request)
-    {
-        var json = JsonSerializer.Serialize(request);
-
-        var response = await _httpClient.SendPost(_config.LookupValidationURL, json);
-        response.EnsureSuccessStatusCode();
-        string body = await _httpClient.GetResponseText(response);
-
-        var exceptionLog = JsonSerializer.Deserialize<ValidationExceptionLog>(body);
-        return exceptionLog;
     }
 }
