@@ -86,11 +86,11 @@ services:
       - UpdateQueueName=update-participant-queue
       - ScreeningLkpDataServiceURL=http://screening-lkp-data-service:8996/api/ScreeningLkpDataService
       - inboundBlobName=inbound
-      - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
       - ParticipantManagementQueueName=add-participant-queue
       - ParticipantManagementTopic=participant-management-topic
-      - UseNewFunctions=false
+      - UseNewFunctions=true
 
   # Participant Management Service
   manage-participant:
@@ -120,6 +120,7 @@ services:
       watch:
         - action: rebuild
           path: ./src/Functions/ParticipantManagementServices/addParticipant
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7062
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -138,6 +139,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/RemoveParticipant/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7063
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -151,6 +153,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/updateParticipant/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7065
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -187,6 +190,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/createParticipant/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7066
       - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
@@ -204,6 +208,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/updateParticipantDetails/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7069
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -280,10 +285,10 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7075
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - BsSelectGpPracticeUrl=http://bs-select-gp-practice-data-service:7998/api/BsSelectGpPracticeDataService
-      - BsSelectOutCodeUrl=http://bs-select-outcode-data-service:7881/api/BsSelectOutCodeDataService
-      - CurrentPostingUrl=http://current-posting-data-service:7996/api/CurrentPostingDataService
-      - ExcludedSMULookupUrl=http://excluded-smu-data-service:7995/api/ExcludedSMUDataService
+      - BsSelectGpPracticeUrl=http://reference-data-service:7988/api/BsSelectGpPractice
+      - BsSelectOutCodeUrl=http://reference-data-service:7988/api/BsSelectOutCode
+      - CurrentPostingUrl=http://reference-data-service:7988/api/CurrentPosting
+      - ExcludedSMULookupUrl=http://reference-data-service:7988/api/ExcludedSMU
       - BlobContainerName=rules
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -296,6 +301,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: DemographicServices/DemographicDataManagementFunction/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7076
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -316,22 +322,33 @@ services:
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
 
   manage-nems-subscription:
-    container_name: manage-nems-subscription
-    image: cohort-manager-manage-nems-subscription
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile
-    profiles: [non-essential]
-    environment:
-      - ASPNETCORE_URLS=http://*:9081
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
-      - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
-      - NemsFhirEndpoint=https://localhost:8080/fhir
-      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-    ports:
-      - "9081:9081"
+      container_name: manage-nems-subscription
+      image: cohort-manager-manage-nems-subscription
+      networks: [cohman-network]
+      profiles: [non-essential]
+      build:
+        context: ./src/Functions/
+        dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile
+      environment:
+        - ASPNETCORE_URLS=http://*:9081
+        - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+        - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+        - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+        - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+        - ManageNemsSubscription__NemsFhirEndpoint=https://msg.intspineservices.nhs.uk/STU3
+        - ManageNemsSubscription__FromAsid=200000002527
+        - ManageNemsSubscription__ToAsid=200000002527
+        - ManageNemsSubscription__OdsCode=T8T9T
+        - ManageNemsSubscription__MeshMailboxId=${NEMS_MESH_MAILBOX_ID}
+        - ManageNemsSubscription__NemsLocalCertPath=./nhs_signed_client.pfx
+        - ManageNemsSubscription__NemsLocalCertPassword=${NEMS_CERT_PASSWORD}
+        - ManageNemsSubscription__SubscriptionProfile=https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1
+        - ManageNemsSubscription__SubscriptionCriteria=https://fhir.nhs.uk/Id/nhs-number
+        - ManageNemsSubscription__DefaultEventTypes__0=pds-record-change-1
+        - ManageNemsSubscription__BypassServerCertificateValidation=true
+        - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      ports:
+        - "9081:9081"
 
   durable-demographic-function:
     container_name: durable-demographic-function

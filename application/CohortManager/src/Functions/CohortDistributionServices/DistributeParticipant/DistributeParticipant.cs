@@ -92,7 +92,7 @@ public class DistributeParticipant
             string serviceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
 
             // Validation & Transformation
-            ValidationRecord validationRecord = new() {FileName = participantRecord.FileName, Participant = participantData}; 
+            ValidationRecord validationRecord = new() {FileName = participantRecord.FileName, Participant = participantData};
             var transformedParticipant = await context.CallSubOrchestratorAsync<CohortDistributionParticipant?>(nameof(ValidateParticipant.ValidationOrchestrator), validationRecord);
             if (transformedParticipant is null)
             {
