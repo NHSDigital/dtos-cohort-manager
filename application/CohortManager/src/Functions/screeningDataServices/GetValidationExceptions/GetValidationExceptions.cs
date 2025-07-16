@@ -48,15 +48,18 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
-        var exceptionStatus = GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
-        var sortOrder = GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
-        var exceptionCategory = GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
+        var exceptionStatus = HttpParserHelper.GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
+        var sortOrder = HttpParserHelper.GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
+        var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
 
         try
         {
             if (exceptionId != 0)
             {
-                return await GetExceptionById(req, exceptionId);
+                var exceptionById = await _validationData.GetExceptionById(exceptionId);
+                return exceptionById == null
+                    ? _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req)
+                    : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById));
             }
 
             var exceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
@@ -75,36 +78,5 @@ public class GetValidationExceptions
             _logger.LogError(ex, "Error processing: {Function} validation exceptions request", nameof(GetValidationExceptions));
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-    }
-
-    private async Task<HttpResponseData> GetExceptionById(HttpRequestData req, int exceptionId)
-    {
-        var exceptionById = await _validationData.GetExceptionById(exceptionId);
-        if (exceptionById == null)
-        {
-            _logger.LogError("Validation Exception not found with ID: {ExceptionId}", exceptionId);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-        }
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById)
-        );
-    }
-
-    /// <summary>
-    /// Parses an enum query parameter if it exists. If not, it will return the provided default value.
-    /// </summary>
-    /// <typeparam name="T">The enum type to parse</typeparam>
-    /// <param name="req">The HTTP request data</param>
-    /// <param name="key">The query parameter key name</param>
-    /// <param name="defaultValue">The default value to return if parsing fails or the parameter is missing</param>
-    /// <returns>The parsed enum value or the default value</returns>
-    private static T GetEnumQueryParameter<T>(HttpRequestData req, string key, T defaultValue) where T : struct, Enum
-    {
-        var queryString = req.Query[key];
-        if (string.IsNullOrEmpty(queryString))
-        {
-            return defaultValue;
-        }
-
-        return Enum.TryParse<T>(queryString, true, out var result) ? result : defaultValue;
     }
 }
