@@ -10,7 +10,11 @@ The docker compose has now been split into 4 files due to the size of the applic
 - compose.data-services.yaml - contains the data services
 - compose.yaml - imports the core, cohort distribution, and data services files so they can be interacted with together
 
-Several vscode tasks have been made for common docker operations for Windows and Mac, which you can access by pressing ctrl/ cmd + shift + p entering the command Tasks: Run Task, and searching for either Win or Mac to run the commands
+Several vscode tasks have been made for common docker operations for Windows and Mac, which you can access by pressing ctrl/ cmd + shift + p entering the command Tasks: Run Task, and searching for the appropriate task.
+
+**For most development work, use the "Restart application" task.** This runs the core application services needed for development and testing.
+
+**For testing that requires all services including non-essential ones, use the "Restart whole application (incl. non-essential services)" task.**
 
 You can also download the "Tasks" extension in vscode to quickly run these task from the status bar.
 

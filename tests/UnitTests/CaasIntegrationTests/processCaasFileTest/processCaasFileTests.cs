@@ -83,7 +83,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>()))
             .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
 
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>())).ReturnsAsync(true);
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
 
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
@@ -117,7 +117,7 @@ public class ProcessCaasFileTests
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(It.IsAny<ParticipantsParquetMap>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended });
 
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
         // Act
@@ -198,7 +198,7 @@ public class ProcessCaasFileTests
     {
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
         var updateParticipant = processCaasFile.GetType().GetMethod("UpdateOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -234,7 +234,7 @@ public class ProcessCaasFileTests
         var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.New };
         var currentBatch = new Batch();
 
-        _callDurableFunc.Setup(m => m.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(m => m.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
         var arguments = new object[] { participant, currentBatch, "testFile" };
