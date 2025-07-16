@@ -1,7 +1,7 @@
-Feature: testing Breast screening - Cohort Manager contact us page
+Feature: testing to verify all ac's on Legal pages story-DTOSS-9551
 
   Background:
-    Given the User has login and navigate to contact us page
+    Given the User navigate to contact us page
 
   Scenario: verify navigation to Terms and conditions screen
     When the user clicks on Terms and conditions link

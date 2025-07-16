@@ -27,7 +27,6 @@ Given('the User has login and navigate to terms and conditions page', async ({ p
   homePage = new HomePage(page)
   termsConditionsPage = new TermsConditionsPage(page)
   await page.goto("/");
-  await homePage.signInwithCredentials('test@test.com', 'test123')
   await homePage.clicktermsAndconditionsLink()
   await expect(page).toHaveTitle('Terms and conditions - Cohort Manager');
 

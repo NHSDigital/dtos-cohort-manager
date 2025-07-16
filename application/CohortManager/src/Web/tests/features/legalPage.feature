@@ -1,8 +1,8 @@
 @legalPage
-Feature: testing Breast screening - Cohort Manager Legal pages
+Feature: testing to verify all ac's on Legal pages story-DTOSS-6389
 
   Background:
-    Given the User has login and navigate to terms and conditions page
+    Given the User navigate to terms and conditions page
 
   @smoke
   Scenario: verify navigation to Terms and conditions screen

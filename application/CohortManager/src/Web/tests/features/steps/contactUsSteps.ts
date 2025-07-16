@@ -15,7 +15,6 @@ Given('the User has login and navigate to contact us page', async ({ page }) => 
   homePage = new HomePage(page)
   contactUsPage = new ContactusPage(page)
   await page.goto("/");
-  await homePage.signInwithCredentials('test@test.com', 'test123')
   await homePage.clickOnContactUs()
   await expect(page).toHaveTitle('Get help with Cohort Manager - Cohort Manager');
 
