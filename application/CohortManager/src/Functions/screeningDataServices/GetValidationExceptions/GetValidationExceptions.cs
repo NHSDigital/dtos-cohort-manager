@@ -113,7 +113,7 @@ public class GetValidationExceptions
             var updateResult = await _validationData.UpdateExceptionServiceNowId(updateRequest.ExceptionId, updateRequest.ServiceNowId);
             if (!updateResult)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "Failed to update ServiceNow ID.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, $"Failed to update ServiceNow ID or Exception with ID {updateRequest.ExceptionId} not found .");
             }
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "ServiceNow ID updated successfully.");
