@@ -1,7 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
 environment           = "DEV"
-docker_image_tag      = "development"
 
 features = {
   acr_enabled                          = false

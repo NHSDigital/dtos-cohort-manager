@@ -1,5 +1,6 @@
-application = "cohman"
-environment = "PRE"
+application           = "cohman"
+application_full_name = "cohort-manager"
+environment           = "PRE"
 
 features = {
   acr_enabled                          = false
@@ -10,6 +11,7 @@ features = {
   public_network_access_enabled        = false
 }
 
+# these will be merged with compliance tags in locals.tf
 tags = {
   Environment = "pre-production"
 }
