@@ -1,14 +1,40 @@
 {
-  "validations": [
-     {
+  "validations": [ 
+    {
       "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9420065707
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9420065707,
+        "EmailAddressHome": "nhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTesting100chars@gmail.com"
       },
       "meta": {
         "testJiraId": "@DTOSS-4192-01",
         "requirementJiraId": "DTOSS-2623",
-        "additionalTags": "@regression @e2e @epic2-med-priority Verify Exception raised when new participant's email_address more than 100 - check Cohort Distribution Table"
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's email address in ParticipantDemographicDataService for NHS number 9420065707"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9420065707,
+        "EmailAddressHome": "nhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTesting100"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4192-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify participant's email address is truncated to 90 chars in CohortDistributionDataService for NHS number 9420065707"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9420065707",
+        "RuleId": 16,
+        "RuleDescription": "Participant was transformed as transform rule: TruncateEmailAddressExceedsMaximumLength was executed"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4192-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify Exception raised when new participant's email address more than 100 - check Exception Table for NHS number 9420065707"
       }
     }
   ],
@@ -46,7 +72,7 @@
       "home_telephone_effective_from_date": "20240502",
       "mobile_telephone_number": "7898908901",
       "mobile_telephone_effective_from_date": "20240502",
-      "email_address": "nhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTest@soup.io",
+      "email_address": "nhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTestnhsTesting100chars@gmail.com",
       "email_address_effective_from_date": "20240502",
       "preferred_language": "en",
       "is_interpreter_required": false,
