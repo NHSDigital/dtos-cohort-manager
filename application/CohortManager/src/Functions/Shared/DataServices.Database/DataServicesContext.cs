@@ -86,6 +86,7 @@ public class DataServicesContext : DbContext
             .ToTable("SERVICENOW_CASES", "dbo");
 
         modelBuilder.Entity<InboundMetric>()
-            .ToTable("INBOUND_METRICS", "dbo");
+            .ToTable("INBOUND_METRICS", "dbo")
+            .HasIndex(c => new { c.ReceivedDateTime }, "IX_INBOUND_METRICS_RECEIVEDDATETIME");
     }
 }
