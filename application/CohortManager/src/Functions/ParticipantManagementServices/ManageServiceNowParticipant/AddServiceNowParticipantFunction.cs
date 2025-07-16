@@ -52,7 +52,7 @@ public class AddServiceNowParticipantFunction
 
             if (participantDemographic == null)
             {
-                _logger.LogError("Deserialisation of PDS response to {type} returned null", typeof(ParticipantDemographic));
+                _logger.LogError("Deserialisation of PDS response to {Type} returned null", typeof(ParticipantDemographic));
                 await _handleException.CreateSystemExceptionLog(new Exception($"Deserialisation of PDS response to {typeof(ParticipantDemographic)} returned null"), participant);
                 await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.AddRequestInProgress);
                 return;

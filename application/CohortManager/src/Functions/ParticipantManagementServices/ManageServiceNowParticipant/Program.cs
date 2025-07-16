@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using NHS.CohortManager.ParticipantManagementServices;
 
 var host = new HostBuilder()
-    .AddConfiguration(out ManageServiceNowParticipantConfig config)
+    .AddConfiguration(out ManageServiceNowParticipantConfig _)
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
