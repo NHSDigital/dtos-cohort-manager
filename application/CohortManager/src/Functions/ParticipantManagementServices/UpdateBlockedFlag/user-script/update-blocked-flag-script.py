@@ -38,7 +38,7 @@ def preview_participant(nhs_number, dob, family_name):
         response.raise_for_status()
 
         data = response.json()
-        print("\n🔍 Preview Results:")
+        print("\n Preview Results:")
         for record in data:
             print(json.dumps(record, indent=2))
 
