@@ -139,7 +139,6 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7063
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - UpdateParticipant=http://update-participant-details:7069/api/updateParticipantDetails
       - CohortQueueName=cohort-distribution-queue
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
