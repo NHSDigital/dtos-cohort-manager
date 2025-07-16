@@ -1,3 +1,5 @@
+namespace Model;
+
 public class ServiceNowParticipant
 {
     public required string NhsNumber { get; set; }

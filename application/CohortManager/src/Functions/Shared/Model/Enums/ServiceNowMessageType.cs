@@ -2,7 +2,7 @@ namespace Model.Enums;
 
 public enum ServiceNowMessageType
 {
-    MessageType1,
-    MessageType2,
-    MessageType3
+    UnableToVerifyParticipant = 1,
+    AddRequestInProgress = 2,
+    Success = 3
 }

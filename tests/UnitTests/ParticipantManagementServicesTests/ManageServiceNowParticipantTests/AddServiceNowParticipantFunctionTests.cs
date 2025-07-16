@@ -56,7 +56,7 @@ public class AddServiceNowParticipantFunctionTests
             .Verifiable();
         var expectedRequestBody = new SendServiceNowMessageRequestBody
         {
-            MessageType = ServiceNowMessageType.MessageType1
+            MessageType = ServiceNowMessageType.UnableToVerifyParticipant
         };
         var expectedRequestBodyJson = JsonSerializer.Serialize(expectedRequestBody);
 
@@ -84,7 +84,7 @@ public class AddServiceNowParticipantFunctionTests
             }).Verifiable();
         var expectedRequestBody = new SendServiceNowMessageRequestBody
         {
-            MessageType = ServiceNowMessageType.MessageType1
+            MessageType = ServiceNowMessageType.UnableToVerifyParticipant
         };
         var expectedRequestBodyJson = JsonSerializer.Serialize(expectedRequestBody);
 
@@ -107,7 +107,7 @@ public class AddServiceNowParticipantFunctionTests
             .ReturnsAsync(new HttpResponseMessage(httpStatusCode)).Verifiable();
         var expectedRequestBody = new SendServiceNowMessageRequestBody
         {
-            MessageType = ServiceNowMessageType.MessageType2
+            MessageType = ServiceNowMessageType.AddRequestInProgress
         };
         var expectedRequestBodyJson = JsonSerializer.Serialize(expectedRequestBody);
 
@@ -138,7 +138,7 @@ public class AddServiceNowParticipantFunctionTests
             .ThrowsAsync(expectedException).Verifiable();
         var expectedRequestBody = new SendServiceNowMessageRequestBody
         {
-            MessageType = ServiceNowMessageType.MessageType2
+            MessageType = ServiceNowMessageType.AddRequestInProgress
         };
         var expectedRequestBodyJson = JsonSerializer.Serialize(expectedRequestBody);
 

@@ -35,7 +35,7 @@ public class AddServiceNowParticipantFunction
             if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
             {
                 _logger.LogError("NHS Number not found in PDS, unable to verify participant");
-                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.MessageType1);
+                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.UnableToVerifyParticipant);
                 return;
             }
 
@@ -43,7 +43,7 @@ public class AddServiceNowParticipantFunction
             {
                 _logger.LogError("Request to PDS returned an unexpected response. Status code: {StatusCode}", pdsResponse.StatusCode);
                 await _handleException.CreateSystemExceptionLog(new Exception($"Request to PDS returned an unexpected response. Status code: {pdsResponse.StatusCode}"), participant);
-                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.MessageType2);
+                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.AddRequestInProgress);
                 return;
             }
 
@@ -52,16 +52,16 @@ public class AddServiceNowParticipantFunction
 
             if (participantDemographic == null)
             {
-                _logger.LogError("Deserialisation of PDS response to {type} returned null", typeof(PdsDemographic));
-                await _handleException.CreateSystemExceptionLog(new Exception($"Deserialisation of PDS response to {typeof(PdsDemographic)} returned null"), participant);
-                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.MessageType2);
+                _logger.LogError("Deserialisation of PDS response to {type} returned null", typeof(ParticipantDemographic));
+                await _handleException.CreateSystemExceptionLog(new Exception($"Deserialisation of PDS response to {typeof(ParticipantDemographic)} returned null"), participant);
+                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.AddRequestInProgress);
                 return;
             }
 
             if (participantDemographic.NhsNumber.ToString() != participant.NhsNumber)
             {
                 _logger.LogError("NHS Numbers don't match, NHS Number must have been superseded");
-                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.MessageType1);
+                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.UnableToVerifyParticipant);
                 return;
             }
 
@@ -71,7 +71,7 @@ public class AddServiceNowParticipantFunction
         {
             _logger.LogError(ex, "An unexpected exception occured");
             await _handleException.CreateSystemExceptionLog(ex, participant);
-            await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.MessageType2);
+            await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.AddRequestInProgress);
         }
     }
 
