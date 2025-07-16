@@ -48,14 +48,14 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
-    /*{
+    {
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
     },
     {
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
-    },*/
+    },
 
     /* Test against mobile viewports.*/
     // Windows Browsers
@@ -77,7 +77,7 @@ export default defineConfig({
          browserName: 'firefox',
        },
      },
- 
+
      // macOS Browsers
      {
        name: 'Safari (macOS)',
@@ -97,7 +97,7 @@ export default defineConfig({
          browserName: 'firefox',
        },
      },
- 
+
      // iOS Safari (emulated)
      {
        name: 'Safari (iOS)',
@@ -112,7 +112,7 @@ export default defineConfig({
          browserName: 'webkit', // Still uses WebKit on iOS
        },
      },
- 
+
      // Android Browsers (emulated)
      {
        name: 'Chrome (Android)',
@@ -138,9 +138,5 @@ export default defineConfig({
          hasTouch: undefined,
        },
      },*/
-
-
   ],
-
-
 });
