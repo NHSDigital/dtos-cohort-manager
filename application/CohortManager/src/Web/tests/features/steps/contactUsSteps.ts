@@ -11,7 +11,7 @@ Then('they should navigate to contact us page', async ({ page }) => {
   await expect(page).toHaveTitle('Get help with Cohort Manager - Cohort Manager');
 });
 
-Given('the User has login and navigate to contact us page', async ({ page }) => {
+Given('the User navigate to contact us page', async ({ page }) => {
   homePage = new HomePage(page)
   contactUsPage = new ContactusPage(page)
   await page.goto("/");

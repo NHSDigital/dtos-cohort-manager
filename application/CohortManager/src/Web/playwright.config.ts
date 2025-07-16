@@ -44,11 +44,11 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
-    /*{
+    {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
-    {
+    /*{
       name: "firefox",
       use: { ...devices["Desktop Firefox"] },
     },
@@ -59,85 +59,85 @@ export default defineConfig({
 
     /* Test against mobile viewports.*/
     // Windows Browsers
-    {
-      name: 'Edge (Windows)',
-      use: {
-        channel: 'msedge',
-      },
-    },
-    {
-      name: 'Chrome (Windows)',
-      use: {
-        channel: 'chrome',
-      },
-    },
-    {
-      name: 'Firefox (Windows)',
-      use: {
-        browserName: 'firefox',
-      },
-    },
-
-    // macOS Browsers
-    {
-      name: 'Safari (macOS)',
-      use: {
-        browserName: 'webkit',
-      },
-    },
-    {
-      name: 'Chrome (macOS)',
-      use: {
-        channel: 'chrome',
-      },
-    },
-    {
-      name: 'Firefox (macOS)',
-      use: {
-        browserName: 'firefox',
-      },
-    },
-
-    // iOS Safari (emulated)
-    {
-      name: 'Safari (iOS)',
-      use: {
-        ...devices['iPhone 13'],
-      },
-    },
-    {
-      name: 'Chrome (iOS)',
-      use: {
-        ...devices['iPhone 13'],
-        browserName: 'webkit', // Still uses WebKit on iOS
-      },
-    },
-
-    // Android Browsers (emulated)
-    {
-      name: 'Chrome (Android)',
-      use: {
-        ...devices['Pixel 5'],
-        browserName: 'chromium',
-      },
-    },
-    {
-      name: 'Edge (Android)',
-      use: {
-        ...devices['Pixel 5'],
-        browserName: 'chromium', // Playwright can't simulate Edge exactly, just Chromium
-      },
-    },
-    {
-      name: 'Firefox (Android)',
-      use: {
-        ...devices['Pixel 5'],
-        browserName: 'firefox',
-        isMobile: undefined,
-        deviceScaleFactor: undefined,
-        hasTouch: undefined,
-      },
-    },
+    /* {
+       name: 'Edge (Windows)',
+       use: {
+         channel: 'msedge',
+       },
+     },
+     {
+       name: 'Chrome (Windows)',
+       use: {
+         channel: 'chrome',
+       },
+     },
+     {
+       name: 'Firefox (Windows)',
+       use: {
+         browserName: 'firefox',
+       },
+     },
+ 
+     // macOS Browsers
+     {
+       name: 'Safari (macOS)',
+       use: {
+         browserName: 'webkit',
+       },
+     },
+     {
+       name: 'Chrome (macOS)',
+       use: {
+         channel: 'chrome',
+       },
+     },
+     {
+       name: 'Firefox (macOS)',
+       use: {
+         browserName: 'firefox',
+       },
+     },
+ 
+     // iOS Safari (emulated)
+     {
+       name: 'Safari (iOS)',
+       use: {
+         ...devices['iPhone 13'],
+       },
+     },
+     {
+       name: 'Chrome (iOS)',
+       use: {
+         ...devices['iPhone 13'],
+         browserName: 'webkit', // Still uses WebKit on iOS
+       },
+     },
+ 
+     // Android Browsers (emulated)
+     {
+       name: 'Chrome (Android)',
+       use: {
+         ...devices['Pixel 5'],
+         browserName: 'chromium',
+       },
+     },
+     {
+       name: 'Edge (Android)',
+       use: {
+         ...devices['Pixel 5'],
+         browserName: 'chromium', // Playwright can't simulate Edge exactly, just Chromium
+       },
+     },
+     {
+       name: 'Firefox (Android)',
+       use: {
+         ...devices['Pixel 5'],
+         browserName: 'firefox',
+         isMobile: undefined,
+         deviceScaleFactor: undefined,
+         hasTouch: undefined,
+       },
+     },*/
 
 
   ],

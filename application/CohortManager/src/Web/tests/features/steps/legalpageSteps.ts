@@ -23,7 +23,7 @@ Then('they should navigate to cookies page', async ({ page }) => {
   await expect(page).toHaveTitle('Cookies on Cohort Manager - Cohort Manager');
 
 });
-Given('the User has login and navigate to terms and conditions page', async ({ page }) => {
+Given('the User navigate to terms and conditions page', async ({ page }) => {
   homePage = new HomePage(page)
   termsConditionsPage = new TermsConditionsPage(page)
   await page.goto("/");
