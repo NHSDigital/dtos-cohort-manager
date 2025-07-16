@@ -12,8 +12,10 @@ RUN mkdir -p /home/site/wwwroot && \
     dotnet publish ./DataServices.Core/DataServices.Core.csproj --output /home/site/wwwroot && \
     dotnet publish ./DataServices.Database/DataServices.Database.csproj --output /home/site/wwwroot
 
+COPY ./ReconciliationService/ReconciliationService.Core /ReconciliationService/ReconciliationService.Core
+
 FROM base AS function
-    
+
 COPY ./CaasIntegration/receiveCaasFile /src/dotnet-function-app
 WORKDIR /src/dotnet-function-app
 
