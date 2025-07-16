@@ -1,6 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "PRE"
+environment           = "PROD"
 
 features = {
   acr_enabled                          = false
@@ -13,13 +13,13 @@ features = {
 
 # these will be merged with compliance tags in locals.tf
 tags = {
-  Environment = "pre-production"
+  Environment = "production"
 }
 
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.2.0.0/16"
+    address_space     = "10.4.0.0/16"
     connect_peering   = true
     subnets = {
       apps = {
@@ -67,8 +67,8 @@ routes = {
         priority              = 800
         action                = "Allow"
         rule_name             = "CohmanToAudit"
-        source_addresses      = ["10.2.0.0/16"]
-        destination_addresses = ["10.3.0.0/16"]
+        source_addresses      = ["10.4.0.0/16"]
+        destination_addresses = ["10.5.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       },
@@ -77,8 +77,8 @@ routes = {
         priority              = 810
         action                = "Allow"
         rule_name             = "AuditToCohman"
-        source_addresses      = ["10.3.0.0/16"]
-        destination_addresses = ["10.2.0.0/16"]
+        source_addresses      = ["10.5.0.0/16"]
+        destination_addresses = ["10.4.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
@@ -94,7 +94,7 @@ routes = {
     route_table_audit = [
       {
         name                   = "AuditToCohman"
-        address_prefix         = "10.2.0.0/16"
+        address_prefix         = "10.4.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -224,7 +224,6 @@ container_app_jobs = {
   apps = {
     db-management = {
       container_app_environment_key = "db-management"
-      docker_env_tag                = "preprod"
       docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
     }
@@ -248,7 +247,6 @@ function_apps = {
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "preprod"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage         = "false"
@@ -1349,7 +1347,6 @@ linux_web_app = {
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "integration"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage    = "false"
@@ -1371,7 +1368,7 @@ linux_web_app = {
           AUTH_CIS2_ISSUER_URL = ""
           AUTH_CIS2_CLIENT_ID  = ""
           AUTH_TRUST_HOST      = "true"
-          NEXTAUTH_URL         = "https://cohort-pre.screening.nhs.uk/api/auth"
+          NEXTAUTH_URL         = "https://cohort-prod.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
         }
         from_key_vault = {
@@ -1401,8 +1398,8 @@ frontdoor_endpoint = {
       webapp_key = "FrontEndUi" # From var.linux_web_app.linux_web_app_config
     }
     custom_domains = {
-      cohort-pre = {
-        host_name        = "cohort-pre.screening.nhs.uk"
+      cohort-prod = {
+        host_name        = "cohort-prod.screening.nhs.uk"
         dns_zone_name    = "screening.nhs.uk"
         dns_zone_rg_name = "rg-hub-prod-uks-public-dns-zones"
       }
@@ -1411,7 +1408,7 @@ frontdoor_endpoint = {
       AllowedIPs = {
         cdn_frontdoor_firewall_policy_name    = "wafhubliveinternalwhitelist"
         cdn_frontdoor_firewall_policy_rg_name = "rg-hub-prod-uks-hub-networking"
-        associated_domain_keys                = ["cohort-pre"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
+        associated_domain_keys                = ["cohort-prod"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
       }
     }
   }
@@ -1447,7 +1444,7 @@ service_bus = {
 }
 
 sqlserver = {
-  sql_admin_group_name                 = "sqlsvr_cohman_preprod_uks_admin"
+  sql_admin_group_name                 = "sqlsvr_cohman_prod_uks_admin"
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
