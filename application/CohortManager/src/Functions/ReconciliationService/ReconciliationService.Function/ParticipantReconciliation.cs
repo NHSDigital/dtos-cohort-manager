@@ -30,8 +30,8 @@ public class ParticipantReconciliation : IReconciliationProcessor
     {
         try
         {
-            var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.RecordInsertDateTime.Value > fromDate);
-            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => (x.RuleId.Value == -2146233088 || x.RuleId.Value == -2147024809 || x.RuleDescription == "RecordType was not set to an expected value") && x.DateCreated.Value > fromDate);
+            var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.RecordInsertDateTime!.Value > fromDate);
+            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => (x.RuleId!.Value == -2146233088 || x.RuleId.Value == -2147024809 || x.RuleDescription == "RecordType was not set to an expected value") && x.DateCreated.Value > fromDate);
 
 
             var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > fromDate);
@@ -41,11 +41,11 @@ public class ParticipantReconciliation : IReconciliationProcessor
 
             if (recordsExpected != recordsProcessed)
             {
-                _logger.LogCritical("Expected Records {expectedCount} Didn't equal Records Processed {processedCount}", recordsExpected, recordsProcessed);
+                _logger.LogCritical("Expected Records {ExpectedCount} Didn't equal Records Processed {ProcessedCount}", recordsExpected, recordsProcessed);
             }
             else
             {
-                _logger.LogInformation("Expected Records {expectedCount} equaled Records Processed {processedCount}", recordsExpected, recordsProcessed);
+                _logger.LogInformation("Expected Records {RxpectedCount} equaled Records Processed {ProcessedCount}", recordsExpected, recordsProcessed);
             }
 
             return true;
