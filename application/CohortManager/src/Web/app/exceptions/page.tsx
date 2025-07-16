@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
-import { checkAccess } from "@/app/lib/checkAccess";
+import { getIsCohortManager } from "@/app/lib/access";
 import { fetchExceptionsNotRaised } from "@/app/lib/fetchExceptions";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import Breadcrumb from "@/app/components/breadcrumb";
@@ -14,9 +14,7 @@ export const metadata: Metadata = {
 
 export default async function Page() {
   const session = await auth();
-  const isCohortManager = session?.user
-    ? await checkAccess(session.user.uid)
-    : false;
+  const isCohortManager = await getIsCohortManager(session);
 
   if (!isCohortManager) {
     return <Unauthorised />;

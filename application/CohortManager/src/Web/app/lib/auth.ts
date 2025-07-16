@@ -121,12 +121,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           uid: "testuid",
           firstName: "Test",
           lastName: "User",
+          email: "testuser@nhs.net",
           sub: "1234",
           sid: "5678",
           orgName: "Test Org",
           odsCode: "ABC",
           workgroups: ["Test Workgroup"],
-          workgroups_codes: ["TEST-WG"],
+          workgroups_codes: ["000000000000"],
         });
       }
 
