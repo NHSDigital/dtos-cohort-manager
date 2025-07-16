@@ -99,21 +99,11 @@ public class LookupValidation
 
             if (validationErrors.Any())
             {
-                _logger.LogInformation("There was an error in the Validation Rules");
-                var participantCsvRecord = new ParticipantCsvRecord()
-                {
-                    Participant = newParticipant,
-                    FileName = requestBody.FileName
-                };
-                var exceptionCreated = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(exceptionCreated));
+                string errors = JsonSerializer.Serialize(validationErrors);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, errors);
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            }));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
         }
         catch (Exception ex)
         {

@@ -52,6 +52,14 @@ public class ValidateParticipant
             var previousRecord = await context.CallActivityAsync<CohortDistributionParticipant>(nameof(GetCohortDistributionRecord), validationRecord.Participant.ParticipantId);
             validationRecord.PreviousParticipantRecord = previousRecord;
 
+            // Remove Previous Validation Errors from DB
+            var OldExceptionRecordJson = JsonSerializer.Serialize(new OldExceptionRecord()
+            {
+                NhsNumber = validationRecord.Participant.NhsNumber,
+                ScreeningName = validationRecord.Participant.ScreeningName
+            });
+            await _httpClient.SendPost(_config.RemoveOldValidationRecordUrl, OldExceptionRecordJson);
+
             // Lookup & Static Validation
             _logger.LogInformation("Validating participant");
             ValidationExceptionLog[] validationResults = await Task.WhenAll(

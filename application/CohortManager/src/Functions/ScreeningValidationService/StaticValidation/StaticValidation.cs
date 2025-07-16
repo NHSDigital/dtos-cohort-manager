@@ -82,33 +82,18 @@ public class StaticValidation
 
             var validationErrors = resultList.Where(x => !x.IsSuccess);
 
-            await RemoveOldValidationRecord(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningName);
             if (validationErrors.Any())
             {
-                var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(createExceptionLogResponse));
+                string errors = JsonSerializer.Serialize(validationErrors);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, errors);
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            }));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-    }
-
-    private async Task RemoveOldValidationRecord(string nhsNumber, string screeningName)
-    {
-        var OldExceptionRecordJson = JsonSerializer.Serialize(new OldExceptionRecord()
-        {
-            NhsNumber = nhsNumber,
-            ScreeningName = screeningName
-        });
-        await _httpClientFunction.SendPost(_config.RemoveOldValidationRecord, OldExceptionRecordJson);
     }
 }
