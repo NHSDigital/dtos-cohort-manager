@@ -17,8 +17,12 @@ module "global_cohort_identity_roles" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/managed-identity-roles"
 
-  assignable_scopes = [local.role_assignment_scope_id]
-  role_scope_id     = azurerm_resource_group.core[each.key].id
+  ## Assign at the group level
+  assignable_scopes = [azurerm_resource_group.core[each.key].id]
+
+  # Apply to the subscription level
+  role_scope_id     = local.role_assignment_scope_id
+
   location          = each.key
   environment       = var.environment
   tags              = var.tags
