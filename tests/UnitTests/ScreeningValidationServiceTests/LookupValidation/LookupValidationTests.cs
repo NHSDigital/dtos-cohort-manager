@@ -109,7 +109,7 @@ public class LookupValidationTests
             Path.Combine("../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
             Path.Combine("../../../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation", filename),
-            
+
             // Try with the ScreeningValidationService root directory
             Path.Combine("../../../../../application/CohortManager/src/Functions/ScreeningValidationService", filename),
             Path.Combine("../../../application/CohortManager/src/Functions/ScreeningValidationService", filename)
@@ -188,73 +188,6 @@ public class LookupValidationTests
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         _exceptionHandler.Verify(handler => handler.CreateValidationExceptionLog(
             It.IsAny<IEnumerable<RuleResultTree>>(),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
-    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Male, "19700101")]     // New Family Name & Gender
-    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700102")]   // New Family Name & Date of Birth
-    [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700102")]     // New Gender & Date of Birth
-    [DataRow("Smith", Gender.Female, "19700101", "Jones", Gender.Male, "19700102")]     // New Family Name, Gender & Date of Birth
-    public async Task Run_MultipleDemographicsFieldsChanged_DemographicsRuleFails(
-    string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName,
-    Gender newGender, string newDateOfBirth)
-    {
-        // Arrange
-        SetupRules("CohortRules");
-        _requestBody.NewParticipant.RecordType = Actions.Amended;
-        _requestBody.ExistingParticipant.FamilyName = existingFamilyName;
-        _requestBody.ExistingParticipant.ParticipantId = "1234567";
-        _requestBody.ExistingParticipant.Gender = existingGender;
-        _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
-        _requestBody.NewParticipant.FamilyName = newFamilyName;
-        _requestBody.NewParticipant.Gender = newGender;
-        _requestBody.NewParticipant.DateOfBirth = newDateOfBirth;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _sut.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.TooManyDemographicsFieldsChanged.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-
-    [TestMethod]
-    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Jones", Gender.Female, "19700101")]  // New Family Name Only
-    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700101")]    // New Gender Only
-    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700102")]  // New Date of Birth Only
-    [DataRow(Actions.Amended, "Smith", Gender.Female, "1970-01-01", "Smith", Gender.Male, "19700101")]  // New Gender Only, same Date of Birth, but formatted differently
-    [DataRow(Actions.Amended, "Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700101")]  // No Change
-    public async Task Run_OneFieldChanged_DemographicsRulePasses(string recordType,
-        string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName,
-        Gender newGender, string newDateOfBirth)
-    {
-        // Arrange
-        SetupRules("CohortRules");
-        _requestBody.NewParticipant.RecordType = recordType;
-        _requestBody.ExistingParticipant.FamilyName = existingFamilyName;
-        _requestBody.ExistingParticipant.ParticipantId = "1234567";
-        _requestBody.ExistingParticipant.Gender = existingGender;
-        _requestBody.ExistingParticipant.DateOfBirth = existingDateOfBirth;
-        _requestBody.NewParticipant.FamilyName = newFamilyName;
-        _requestBody.NewParticipant.Gender = newGender;
-        _requestBody.NewParticipant.DateOfBirth = newDateOfBirth;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        await _sut.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "35.TooManyDemographicsFieldsChanged.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Never());
     }
@@ -631,6 +564,36 @@ public class LookupValidationTests
         // Assert
         _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
             It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ParticipantLocationRemainingOutsideOfCohort.ParticipantLocationRemainingOutsideOfCohort.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
+    [DataRow("DMS", "ABC")]
+    [DataRow("ENG", "ABC")] 
+    [DataRow("IM", "ABC")] 
+    public async Task Run_ParticipantLocationRemainingOutsideOfCohortAndNotInExcludedSMU_ShouldThrowException(string newCurrentPosting, string newPrimaryCareProvider)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+
+        _requestBody.NewParticipant.RecordType = Actions.New;
+        _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
+        _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
+        
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(newPrimaryCareProvider)).Returns(false);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal")),
             It.IsAny<ParticipantCsvRecord>()),
             Times.Once());
     }

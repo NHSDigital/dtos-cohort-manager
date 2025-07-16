@@ -4,8 +4,9 @@ import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStora
 import { runnerBasedEpic123TestScenariosAddAmend } from '../e2e/epic123-smoke-tests/epic123-smoke-tests-migrated';
 import { runnerBasedEpic1TestScenariosAmend } from '../e2e/epic1-highpriority-tests/epic1-high-priority-testsuite-migrated';
 import { runnerBasedEpic2TestScenariosAmend } from '../e2e/epic2-highpriority-tests/epic2-high-priority-testsuite-migrated';
+import { runnerBasedEpic2MedTestScenariosAmend } from '../e2e/epic2-medpriority-tests/epic2-med-priority-testsuite-migrated';
 import { runnerBasedEpic3TestScenariosAmend } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
-import { runnerBasedEpic3MedTestScenariosAmended } from '../e2e/epic3-medpriority-tests/epic3-med-priority-testsuite';
+import { runnerBasedEpic3MedTestScenariosAmend } from '../e2e/epic3-medpriority-tests/epic3-med-priority-testsuite-migrated';
 import { runnerBasedEpic4dTestScenariosAmend } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 
@@ -18,10 +19,12 @@ if (TEST_TYPE == 'RegressionEpic1') {
   scopedTestScenario = runnerBasedEpic1TestScenariosAmend;
 } else if (TEST_TYPE == 'RegressionEpic2') {
   scopedTestScenario = runnerBasedEpic2TestScenariosAmend;
+} else if (TEST_TYPE == 'RegressionEpic2Med') {
+  scopedTestScenario = runnerBasedEpic2MedTestScenariosAmend;
 } else if (TEST_TYPE == 'RegressionEpic3') {
   scopedTestScenario = runnerBasedEpic3TestScenariosAmend;
 } else if (TEST_TYPE == 'RegressionEpic3Med') {
-  scopedTestScenario = runnerBasedEpic3MedTestScenariosAmended;
+  scopedTestScenario = runnerBasedEpic3MedTestScenariosAmend;
 } else if (TEST_TYPE == 'RegressionEpic4d') {
   scopedTestScenario = runnerBasedEpic4dTestScenariosAmend;
 } else {
