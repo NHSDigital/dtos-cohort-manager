@@ -16,7 +16,7 @@ module "functionapp" {
   public_network_access_enabled = var.features.public_network_access_enabled
   vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
 
-  # We use the RBAC module to set default roles
+  # Use the custom role definition
   # rbac_role_assignments = each.value.rbac_role_assignments
   rbac_role_assignments = []
 
@@ -49,9 +49,12 @@ module "functionapp" {
 
   # Use the ACR assigned identity for the Function Apps too:
   # assigned_identity_ids = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
-
-  # use the new global RBACs
-  assigned_identity_ids = local.assigned_identity_ids
+  assigned_identity_ids = compact(
+    concat(
+      [module.global_cohort_identity[each.value.region].id],
+      var.function_apps.cont_registry_use_mi == true ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
+    )
+  )
 
   image_tag  = var.function_apps.docker_env_tag != "" ? var.function_apps.docker_env_tag : var.docker_image_tag
   image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
@@ -84,25 +87,25 @@ resource "azurerm_role_assignment" "function_send_to_topic" {
   scope                = module.azure_service_bus[each.value.service_bus_key].namespace_id
 }
 
-resource "azurerm_role_assignment" "global_cohort_mi_functionapp_role_assignments" {
-  for_each = var.use_global_rbac_roles ? local.function_app_map: {}
+# resource "azurerm_role_assignment" "global_cohort_mi_functionapp_role_assignments" {
+#   for_each = var.use_global_rbac_roles ? local.function_app_map: {}
 
-  # name = join("-", [
-  #   each.value.id,
-  #   local.get_role_local.get_definition_id[each.key],
-  #   sha1(coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region].principal_id))
-  # ])
+#   # name = join("-", [
+#   #   each.value.id,
+#   #   local.get_role_local.get_definition_id[each.key],
+#   #   sha1(coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region].principal_id))
+#   # ])
 
-  principal_id = coalesce(
-    # The user-supplied principal_id takes precedence
-    var.rbac_principal_id,
+#   principal_id = coalesce(
+#     # The user-supplied principal_id takes precedence
+#     var.rbac_principal_id,
 
-    module.global_cohort_identity[each.value.region].principal_id
-  )
+#     module.global_cohort_identity[each.value.region].principal_id
+#   )
 
-  role_definition_id = module.global_cohort_identity_roles[each.value.region].function_role_definition_id
-  scope = module.functionapp[each.key].id
-}
+#   role_definition_id = module.global_cohort_identity_roles[each.value.region].function_role_definition_id
+#   scope = module.functionapp[each.key].id
+# }
 
 locals {
   # Filter fa_config to only include those with service_bus_connections
@@ -130,14 +133,6 @@ locals {
     for item in local.unified_service_bus_object_list :
     "${item.service_bus_key}-${item.function_key}" => item
   }
-
-  assigned_identity_ids = compact(
-    concat(
-      [try(module.global_cohort_identity.global_mi_id, "")],
-      try(var.function_apps.cont_registry_use_mi, false) ? [try(data.azurerm_user_assigned_identity.acr_mi.id, "")] : []
-      # Add other IDs if required...
-    )
-  )
 
   app_settings_common = {
     DOCKER_ENABLE_CI                    = var.function_apps.docker_CI_enable

@@ -11,7 +11,7 @@ module "global_cohort_identity" {
   tags                = var.tags
 }
 
-# Assign all the custom role definitions to the Main Identity created above
+# Assign all the custom role definitions to the managed identity created above
 module "global_cohort_identity_roles" {
   for_each = var.use_global_rbac_roles ? var.regions : {}
 
@@ -21,6 +21,7 @@ module "global_cohort_identity_roles" {
   assignable_scopes = [azurerm_resource_group.core[each.key].id]
 
   # Apply to the subscription level
+  role_name         = "Cohort Manager Custom Role (${var.environment})"
   role_scope_id     = local.role_assignment_scope_id
 
   location          = each.key
@@ -28,11 +29,25 @@ module "global_cohort_identity_roles" {
   tags              = var.tags
 }
 
-# MJ: Unfortunately, this ('local.resource_id_map') has issues at times when Terry wishes to create NEW
-# resources, so commenting out for now.
+resource "azurerm_role_assignment" "cohort_identity_resource_group_assignment" {
+  for_each = var.use_global_rbac_roles ? var.regions : {}
+
+  scope                = azurerm_resource_group.core[each.key].id
+  role_definition_id   = module.global_cohort_identity_roles[each.key].role_definition_id
+  principal_id         = module.global_cohort_identity[each.key].principal_id
+
+  depends_on = [module.global_cohort_identity_roles]
+}
+
+# MJ: Unfortunately, 'local.resource_id_map' has issues when Terry wishes to create NEW
+# resources that don't exist. 'local.resource_id_map' uses the "id" of each resource
+# from each module, this causes issues if the resource is "new" because Terry don't know nuffin
+# about the ID of dat resource until it be created.
 #
-# Now loop through all resources we be interested in and create role
-# assignments between our custom role definitions and the principal id(s)
+# Commenting out this block for now unless a better, more stable key can be found, in which case...
+# Glory! Hallelujah, we can once more centralise the repeated role assignments code.
+#
+
 # resource "azurerm_role_assignment" "global_cohort_mi_role_assignments" {
 #   for_each = var.use_global_rbac_roles ? local.resource_id_map: {}
 
