@@ -650,6 +650,24 @@
           }
         ],
         "Expression": "participant.RecordType == Actions.Amended && existingParticipant.ParticipantId != null && ((participant.FamilyName != existingParticipant.FamilyName AND participant.Gender != existingParticipant.Gender) OR (participant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
+      },
+      {
+        "RuleName": "99.EmailContainsInvalidCharacters",
+        "Expression": "participant.EmailAddress.Contains('\\') || participant.EmailAddress.Contains('*') participant.EmailAddress.Contains('£') || participant.EmailAddress.Contains('`') || participant.EmailAddress.Contains('~') || participant.EmailAddress.Contains('|')",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "EmailAddress",
+                  "value": "null"
+                }
+              ]
+            }
+          }
+        }
       }
     ]
   }
