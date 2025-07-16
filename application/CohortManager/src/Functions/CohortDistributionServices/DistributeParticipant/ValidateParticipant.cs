@@ -184,7 +184,7 @@ public class ValidateParticipant
         {
             Participant = validationRecord.Participant,
             // TODO: is this used?
-            ServiceProvider = validationRecord.Participant.ScreeningServiceId,
+            ServiceProvider = validationRecord.ServiceProvider,
             ExistingParticipant = validationRecord.PreviousParticipantRecord.ToCohortDistribution()
         };
 
