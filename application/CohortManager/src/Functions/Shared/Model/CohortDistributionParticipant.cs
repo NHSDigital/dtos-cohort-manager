@@ -137,6 +137,7 @@ public class CohortDistributionParticipant
         CurrentPostingEffectiveFromDate = demographic.CurrentPostingFromDate;
         ExceptionFlag = participant.ExceptionFlag;
         InvalidFlag = demographic.InvalidFlag.ToString();
+        EligibilityFlag = participant.EligibilityFlag.ToString();
     }
 
     public string? RequestId { get; set; }
