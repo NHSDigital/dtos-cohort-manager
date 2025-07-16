@@ -79,7 +79,7 @@ public class ValidationExceptionData : IValidationExceptionData
         return false;
     }
 
-    public async Task<bool> UpdateServiceNowId(int exceptionId, string serviceNowCaseId)
+    public async Task<bool> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId)
     {
         try
         {
@@ -91,7 +91,7 @@ public class ValidationExceptionData : IValidationExceptionData
                 return false;
             }
 
-            exception.ServiceNowId = serviceNowCaseId;
+            exception.ServiceNowId = serviceNowId;
             exception.RecordUpdatedDate = DateTime.UtcNow;
 
             return await _validationExceptionDataServiceClient.Update(exception);
