@@ -1,5 +1,6 @@
-application = "cohman"
-environment = "PRE"
+application           = "cohman"
+application_full_name = "cohort-manager"
+environment           = "PRE"
 
 features = {
   acr_enabled                          = false
@@ -10,6 +11,7 @@ features = {
   public_network_access_enabled        = false
 }
 
+# these will be merged with compliance tags in locals.tf
 tags = {
   Environment = "pre-production"
 }
@@ -658,19 +660,23 @@ function_apps = {
         },
         {
           env_var_name     = "BsSelectGpPracticeUrl"
-          function_app_key = "BsSelectGpPracticeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectGpPractice"
         },
         {
           env_var_name     = "BsSelectOutCodeUrl"
-          function_app_key = "BsSelectOutcodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectOutCode"
         },
         {
           env_var_name     = "CurrentPostingUrl"
-          function_app_key = "CurrentPostingDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "CurrentPosting"
         },
         {
           env_var_name     = "ExcludedSMULookupUrl"
-          function_app_key = "ExcludedSMUDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "ExcludedSMU"
         }
       ]
       storage_containers = [
@@ -733,19 +739,23 @@ function_apps = {
         },
         {
           env_var_name     = "BsSelectOutCodeUrl"
-          function_app_key = "BsSelectOutcodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectOutCode"
         },
         {
           env_var_name     = "BsSelectGpPracticeUrl"
-          function_app_key = "BsSelectGpPracticeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectGpPractice"
         },
         {
           env_var_name     = "LanguageCodeUrl"
-          function_app_key = "LanguageCodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "LanguageCode"
         },
         {
           env_var_name     = "ExcludedSMULookupUrl"
-          function_app_key = "ExcludedSMUDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "ExcludedSMU"
         }
       ]
       env_vars_static = {

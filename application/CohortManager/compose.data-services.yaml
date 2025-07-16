@@ -46,6 +46,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/BsSelectGpPractice/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7998
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -58,6 +59,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/BsSelectOutCode/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7881
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -70,6 +72,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/LanguageCodesDataService/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7997
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -82,6 +85,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/CurrentPostingDataService/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7996
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -94,6 +98,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ExcludedSMULookupDataService/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7995
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -186,7 +191,6 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ReferenceDataService/Dockerfile
-    profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:7988
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

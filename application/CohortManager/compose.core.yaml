@@ -286,10 +286,10 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7075
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - BsSelectGpPracticeUrl=http://bs-select-gp-practice-data-service:7998/api/BsSelectGpPracticeDataService
-      - BsSelectOutCodeUrl=http://bs-select-outcode-data-service:7881/api/BsSelectOutCodeDataService
-      - CurrentPostingUrl=http://current-posting-data-service:7996/api/CurrentPostingDataService
-      - ExcludedSMULookupUrl=http://excluded-smu-data-service:7995/api/ExcludedSMUDataService
+      - BsSelectGpPracticeUrl=http://reference-data-service:7988/api/BsSelectGpPractice
+      - BsSelectOutCodeUrl=http://reference-data-service:7988/api/BsSelectOutCode
+      - CurrentPostingUrl=http://reference-data-service:7988/api/CurrentPosting
+      - ExcludedSMULookupUrl=http://reference-data-service:7988/api/ExcludedSMU
       - BlobContainerName=rules
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

@@ -1,6 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "NFT"
+environment           = "PROD"
 
 features = {
   acr_enabled                          = false
@@ -13,13 +13,13 @@ features = {
 
 # these will be merged with compliance tags in locals.tf
 tags = {
-  Environment = "non-functional testing"
+  Environment = "production"
 }
 
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.103.0.0/16"
+    address_space     = "10.4.0.0/16"
     connect_peering   = true
     subnets = {
       apps = {
@@ -49,11 +49,8 @@ regions = {
         cidr_offset  = 5
       }
       container-app-db-management = {
-        cidr_newbits               = 7
-        cidr_offset                = 6
-        delegation_name            = "Microsoft.App/environments"
-        service_delegation_name    = "Microsoft.App/environments"
-        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+        cidr_newbits = 7
+        cidr_offset  = 6
       }
     }
   }
@@ -67,21 +64,21 @@ routes = {
     network_rules = [
       {
         name                  = "AllowCohmanToAudit"
-        priority              = 900
+        priority              = 800
         action                = "Allow"
         rule_name             = "CohmanToAudit"
-        source_addresses      = ["10.103.0.0/16"]
-        destination_addresses = ["10.104.0.0/16"]
+        source_addresses      = ["10.4.0.0/16"]
+        destination_addresses = ["10.5.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       },
       {
         name                  = "AllowAuditToCohman"
-        priority              = 910
+        priority              = 810
         action                = "Allow"
         rule_name             = "AuditToCohman"
-        source_addresses      = ["10.104.0.0/16"]
-        destination_addresses = ["10.103.0.0/16"]
+        source_addresses      = ["10.5.0.0/16"]
+        destination_addresses = ["10.4.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
@@ -97,7 +94,7 @@ routes = {
     route_table_audit = [
       {
         name                   = "AuditToCohman"
-        address_prefix         = "10.103.0.0/16"
+        address_prefix         = "10.4.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -115,7 +112,7 @@ app_service_plan = {
       metric = "CpuPercentage"
 
       capacity_min = "1"
-      capacity_max = "4"
+      capacity_max = "12"
       capacity_def = "2"
 
       time_grain       = "PT1M"
@@ -127,7 +124,7 @@ app_service_plan = {
       inc_threshold       = 20
       inc_scale_direction = "Increase"
       inc_scale_type      = "ExactCount"
-      inc_scale_value     = 4
+      inc_scale_value     = 12
       inc_scale_cooldown  = "PT10M"
 
       dec_operator        = "LessThan"
@@ -145,9 +142,34 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
-          capacity_max = "4"
-          capacity_def = "2"
+          capacity_min = "20"
+          capacity_max = "20"
+          capacity_def = "20"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 20
+
+          dec_scale_type  = "ChangeCount"
+          dec_scale_value = 1
+        }
+      }
+    }
+    DefaultPlan2 = {
+      autoscale_override = {
+        scaling_rule = {
+          metric = "CpuPercentage"
+
+          capacity_min = "5"
+          capacity_max = "5"
+          capacity_def = "5"
+
+          inc_threshold   = 5
+          dec_threshold   = 5
+          inc_scale_value = 5
+
+          dec_scale_type  = "ChangeCount"
+          dec_scale_value = 1
         }
       }
     }
@@ -156,9 +178,9 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
+          capacity_min = "4"
           capacity_max = "4"
-          capacity_def = "2"
+          capacity_def = "4"
 
           inc_threshold   = 5
           dec_threshold   = 5
@@ -202,7 +224,6 @@ container_app_jobs = {
   apps = {
     db-management = {
       container_app_environment_key = "db-management"
-      docker_env_tag                = "nft"
       docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
     }
@@ -215,8 +236,8 @@ diagnostic_settings = {
 
 function_apps = {
   acr_mi_name = "dtos-cohort-manager-acr-push"
-  acr_name    = "acrukshubdevcohman"
-  acr_rg_name = "rg-hub-dev-uks-cohman"
+  acr_name    = "acrukshubprodcohman"
+  acr_rg_name = "rg-hub-prod-uks-cohman"
 
   app_service_logs_disk_quota_mb         = 35
   app_service_logs_retention_period_days = 7
@@ -226,7 +247,6 @@ function_apps = {
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "nft"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage         = "false"
@@ -238,7 +258,6 @@ function_apps = {
   health_check_path             = "/api/health"
 
   fa_config = {
-
     ReceiveCaasFile = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
@@ -297,7 +316,7 @@ function_apps = {
         AddQueueName               = "add-participant-queue"
         UpdateQueueName            = "update-participant-queue"
         ParticipantManagementTopic = "participant-management"
-        AllowDeleteRecords         = true
+        AllowDeleteRecords         = false
         UseNewFunctions            = "true"
       }
       storage_containers = [
@@ -1133,8 +1152,8 @@ function_apps = {
       app_service_plan_key   = "DefaultPlan"
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
-        ServiceNowRefreshAccessTokenUrl = "https://nhsdigitaldev.service-now.com/oauth_token.do"
-        ServiceNowUpdateUrl             = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+        ServiceNowRefreshAccessTokenUrl = "" # TODO: Get value
+        ServiceNowUpdateUrl             = "" # TODO: Get value
       }
     }
 
@@ -1225,7 +1244,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        RetrievePdsParticipantURL = ""
       }
     }
 
@@ -1234,7 +1253,6 @@ function_apps = {
       function_endpoint_name = "ManageNemsSubscription"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
-      key_vault_url          = "KeyVaultConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1243,13 +1261,6 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
-        "ManageNemsSubscription--NemsFhirEndpoint" = "https://msg.intspineservices.nhs.uk/STU3"
-        "ManageNemsSubscription--FromAsid" = "200000002527"
-        "ManageNemsSubscription--ToAsid" = "200000002527"
-        "ManageNemsSubscription--NemsKeyName" = "nems-client-certificate"
-        "ManageNemsSubscription--SubscriptionProfile" = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
-        "ManageNemsSubscription--SubscriptionCriteria" = "https://fhir.nhs.uk/Id/nhs-number"
-        "ManageNemsSubscription--BypassServerCertificateValidation" = "false"
       }
     }
 
@@ -1321,24 +1332,6 @@ function_apps = {
         }
       ]
     }
-    ReconciliationService = {
-      name_suffix             = "update-exception"
-      function_endpoint_name  = "InboundMetricDataService"
-      app_service_plan_key    = "DefaultPlan"
-      db_connection_string    = "DtOsDatabaseConnectionString"
-      service_bus_connections = ["internal"]
-      env_vars = {
-        app_urls = {
-          ExceptionManagementDataServiceURL = "ExceptionManagementDataService"
-          CohortDistributionDataServiceUrl  = "CohortDistributionDataService"
-        }
-        env_vars_static = {
-          ReconciliationTimer               = "59 23 * * *"
-          inboundMetricTopic                = "inbound-metric"
-          ReconciliationServiceSubscription = "ReconciliationService"
-        }
-      }
-    }
   }
 }
 
@@ -1346,15 +1339,14 @@ function_app_slots = []
 
 linux_web_app = {
   acr_mi_name = "dtos-cohort-manager-acr-push"
-  acr_name    = "acrukshubdevcohman"
-  acr_rg_name = "rg-hub-dev-uks-cohman"
+  acr_name    = "acrukshubprodcohman"
+  acr_rg_name = "rg-hub-prod-uks-cohman"
 
   always_on = true
 
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "nft"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage    = "false"
@@ -1373,10 +1365,10 @@ linux_web_app = {
       app_service_plan_key = "DefaultPlan"
       env_vars = {
         static = {
-          AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
-          AUTH_CIS2_CLIENT_ID  = "5789849932.cohort-manager-ui-dev.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
+          AUTH_CIS2_ISSUER_URL = ""
+          AUTH_CIS2_CLIENT_ID  = ""
           AUTH_TRUST_HOST      = "true"
-          NEXTAUTH_URL         = "https://cohort-nft.non-live.screening.nhs.uk/api/auth"
+          NEXTAUTH_URL         = "https://cohort-prod.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
         }
         from_key_vault = {
@@ -1406,17 +1398,17 @@ frontdoor_endpoint = {
       webapp_key = "FrontEndUi" # From var.linux_web_app.linux_web_app_config
     }
     custom_domains = {
-      cohort-nft = {
-        host_name        = "cohort-nft.non-live.screening.nhs.uk"
-        dns_zone_name    = "non-live.screening.nhs.uk"
-        dns_zone_rg_name = "rg-hub-dev-uks-public-dns-zones"
+      cohort-prod = {
+        host_name        = "cohort-prod.screening.nhs.uk"
+        dns_zone_name    = "screening.nhs.uk"
+        dns_zone_rg_name = "rg-hub-prod-uks-public-dns-zones"
       }
     }
     security_policies = {
       AllowedIPs = {
-        cdn_frontdoor_firewall_policy_name    = "wafhubnonliveinternalwhitelist"
-        cdn_frontdoor_firewall_policy_rg_name = "rg-hub-dev-uks-hub-networking"
-        associated_domain_keys                = ["cohort-nft"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
+        cdn_frontdoor_firewall_policy_name    = "wafhubliveinternalwhitelist"
+        cdn_frontdoor_firewall_policy_rg_name = "rg-hub-prod-uks-hub-networking"
+        associated_domain_keys                = ["cohort-prod"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
       }
     }
   }
@@ -1425,7 +1417,7 @@ frontdoor_endpoint = {
 key_vault = {
   disk_encryption   = true
   soft_del_ret_days = 7
-  purge_prot        = false
+  purge_prot        = true
   sku_name          = "standard"
 }
 
@@ -1447,16 +1439,12 @@ service_bus = {
         batched_operations_enabled = true
         subscribers                = ["ManageParticipant"]
       }
-      inbound-metric = {
-        batched_operations_enabled = true
-        subscribers                = ["ReconciliationService"]
-      }
     }
   }
 }
 
 sqlserver = {
-  sql_admin_group_name                 = "sqlsvr_cohman_nft_uks_admin"
+  sql_admin_group_name                 = "sqlsvr_cohman_prod_uks_admin"
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
@@ -1475,9 +1463,17 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 30
       read_scale           = false
-      sku                  = "S1"
-      storage_account_type = "Local"
+      sku                  = "S12"
+      storage_account_type = "GeoZone"
       zone_redundant       = false
+
+      short_term_retention_policy = 35
+      long_term_retention_policy = {
+        weekly_retention  = "P4W"
+        monthly_retention = "P12M"
+        yearly_retention  = "P10Y"
+        week_of_year      = 1
+      }
     }
   }
 
