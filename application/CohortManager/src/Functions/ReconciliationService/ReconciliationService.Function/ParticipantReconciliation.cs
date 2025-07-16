@@ -45,7 +45,7 @@ public class ParticipantReconciliation : IReconciliationProcessor
             }
             else
             {
-                _logger.LogInformation("Expected Records {RxpectedCount} equaled Records Processed {ProcessedCount}", recordsExpected, recordsProcessed);
+                _logger.LogInformation("Expected Records {ExpectedCount} equaled Records Processed {ProcessedCount}", recordsExpected, recordsProcessed);
             }
 
             return true;
