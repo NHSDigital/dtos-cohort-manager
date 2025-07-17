@@ -25,8 +25,13 @@ public class AddServiceNowParticipantFunction
         _handleException = handleException;
     }
 
+    /// <summary>
+    /// Reads messages from the Add ServiceNow Participant Service Bus topic, adds the record in participant management,
+    /// and sends the record to cohort distribution
+    /// </summary>
+    /// <param name="participant">The participant from ServiceNow</param>
     [Function(nameof(AddServiceNowParticipantFunction))]
-    public async Task Run([QueueTrigger("%AddServiceNowParticipantQueueName%", Connection = "AzureWebJobsStorage")] ServiceNowParticipant participant)
+    public async Task Run([ServiceBusTrigger(topicName: "%AddServiceNowParticipantTopic%", subscriptionName: "%AddServiceNowParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")] ServiceNowParticipant participant)
     {
         try
         {

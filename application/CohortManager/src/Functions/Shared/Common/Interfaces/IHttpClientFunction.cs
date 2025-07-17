@@ -14,7 +14,7 @@ public interface IHttpClientFunction
     /// Performs a GET request using HttpClient.
     /// </summary>
     /// <param name="url">URL to be used in request.</param>
-    /// <returns>string<returns>
+    /// <returns>string</returns>
     Task<string> SendGet(string url);
 
     /// <summary>
@@ -22,14 +22,14 @@ public interface IHttpClientFunction
     /// </summary>
     /// <param name="url">URL to be used in request.</param>
     /// <param name="parameters">Parameters to be added to the url and used in request.</param>
-    /// <returns>string<returns>
+    /// <returns>string</returns>
     Task<string> SendGet(string url, Dictionary<string, string> parameters);
 
     /// <summary>
-    /// Performs a GET request using HttpClient.
+    /// Performs a GET request using HttpClient and returns the HTTP response.
     /// </summary>
     /// <param name="url">URL to be used in request.</param>
-    /// <returns>HttpResponseMessage<returns>
+    /// <returns>HttpResponseMessage</returns>
     Task<HttpResponseMessage> SendGetResponse(string url);
 
     /// <summary>
