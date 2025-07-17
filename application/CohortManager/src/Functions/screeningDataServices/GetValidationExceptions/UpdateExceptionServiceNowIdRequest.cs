@@ -1,4 +1,4 @@
-namespace GetValidationExceptions;
+namespace NHS.CohortManager.ScreeningDataServices;
 
 public class UpdateExceptionServiceNowIdRequest
 {

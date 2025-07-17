@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Common;
 using Common.Interfaces;
 using Data.Database;
-using global::GetValidationExceptions;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
