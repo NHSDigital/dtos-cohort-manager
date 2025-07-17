@@ -85,7 +85,8 @@ public class DistributeParticipantTests
 
         // Assert
         _mockContext
-            .Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null));
+            .Verify(x => x.CallActivityAsync<bool>("AddParticipant",
+                It.Is<CohortDistributionParticipant>(p => p.RecordInsertDateTime != null && p.RecordUpdateDateTime != null), null));
     }
 
     [TestMethod]
