@@ -73,7 +73,6 @@ public class Participant
         CurrentPostingEffectiveFromDate = cohortDistributionParticipant.CurrentPostingEffectiveFromDate;
         EligibilityFlag = cohortDistributionParticipant.EligibilityFlag;
         InvalidFlag = cohortDistributionParticipant.InvalidFlag;
-
     }
 
     public Participant(PdsDemographic pdsDemographic)
