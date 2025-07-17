@@ -12,16 +12,16 @@ using Moq;
 using NHS.CohortManager.ParticipantManagementServices;
 
 [TestClass]
-public class AddServiceNowParticipantFunctionTests
+public class ManageServiceNowParticipantFunctionTests
 {
-    private readonly Mock<ILogger<AddServiceNowParticipantFunction>> _loggerMock = new();
+    private readonly Mock<ILogger<ManageServiceNowParticipantFunction>> _loggerMock = new();
     private readonly Mock<IOptions<ManageServiceNowParticipantConfig>> _configMock = new();
     private readonly Mock<IHttpClientFunction> _httpClientFunctionMock = new();
     private readonly Mock<IExceptionHandler> _handleExceptionMock = new();
     private readonly ServiceNowParticipant _message;
-    private readonly AddServiceNowParticipantFunction _function;
+    private readonly ManageServiceNowParticipantFunction _function;
 
-    public AddServiceNowParticipantFunctionTests()
+    public ManageServiceNowParticipantFunctionTests()
     {
         _message = new ServiceNowParticipant()
         {
@@ -39,7 +39,7 @@ public class AddServiceNowParticipantFunctionTests
         };
         _configMock.Setup(c => c.Value).Returns(config);
 
-        _function = new AddServiceNowParticipantFunction(
+        _function = new ManageServiceNowParticipantFunction(
             _loggerMock.Object,
             _configMock.Object,
             _httpClientFunctionMock.Object,
