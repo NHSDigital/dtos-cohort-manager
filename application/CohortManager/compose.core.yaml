@@ -118,8 +118,8 @@ services:
       dockerfile: ParticipantManagementServices/ManageServiceNowParticipant/Dockerfile
     environment:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - AddServiceNowParticipantTopic=servicenow-participant-add-topic
-      - AddServiceNowParticipantSubscription=add-servicenow-participant-sub
+      - ServiceNowParticipantManagementTopic=servicenow-participant-management-topic
+      - ManageServiceNowParticipantSubscription=manage-servicenow-participant-sub
       - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - RetrievePdsDemographicURL=http://localhost:8082/api/RetrievePDSDemographic

@@ -9,14 +9,14 @@ using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
 
-public class AddServiceNowParticipantFunction
+public class ManageServiceNowParticipantFunction
 {
-    private readonly ILogger<AddServiceNowParticipantFunction> _logger;
+    private readonly ILogger<ManageServiceNowParticipantFunction> _logger;
     private readonly ManageServiceNowParticipantConfig _config;
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _handleException;
 
-    public AddServiceNowParticipantFunction(ILogger<AddServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> addParticipantConfig,
+    public ManageServiceNowParticipantFunction(ILogger<ManageServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> addParticipantConfig,
         IHttpClientFunction httpClientFunction, IExceptionHandler handleException)
     {
         _logger = logger;
@@ -26,12 +26,12 @@ public class AddServiceNowParticipantFunction
     }
 
     /// <summary>
-    /// Reads messages from the Add ServiceNow Participant Service Bus topic, adds the record in participant management,
+    /// Reads messages from the Manage ServiceNow Participant Service Bus topic, checks PDS, adds/updates the record in participant management,
     /// and sends the record to cohort distribution
     /// </summary>
     /// <param name="participant">The participant from ServiceNow</param>
-    [Function(nameof(AddServiceNowParticipantFunction))]
-    public async Task Run([ServiceBusTrigger(topicName: "%AddServiceNowParticipantTopic%", subscriptionName: "%AddServiceNowParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")] ServiceNowParticipant participant)
+    [Function(nameof(ManageServiceNowParticipantFunction))]
+    public async Task Run([ServiceBusTrigger(topicName: "%ServiceNowParticipantManagementTopic%", subscriptionName: "%ManageServiceNowParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")] ServiceNowParticipant participant)
     {
         try
         {

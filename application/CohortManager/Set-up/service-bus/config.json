@@ -49,7 +49,7 @@
             ]
           },
           {
-            "Name": "servicenow-participant-add-topic",
+            "Name": "servicenow-participant-management-topic",
             "Properties": {
               "DefaultMessageTimeToLive": "PT1H",
               "DuplicateDetectionHistoryTimeWindow": "PT20S",
@@ -57,7 +57,7 @@
             },
             "Subscriptions": [
               {
-                "Name": "add-servicenow-participant-sub",
+                "Name": "manage-servicenow-participant-sub",
                 "Properties": {
                   "DeadLetteringOnMessageExpiration": false,
                   "DefaultMessageTimeToLive": "PT1H",
