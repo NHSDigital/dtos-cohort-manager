@@ -478,6 +478,36 @@ public class LookupValidationTests
     }
 
     [TestMethod]
+    [DataRow("DMS", "ABC")]
+    [DataRow("ENG", "ABC")] 
+    [DataRow("IM", "ABC")] 
+    public async Task Run_ParticipantLocationRemainingOutsideOfCohortAndNotInExcludedSMU_ShouldThrowException(string newCurrentPosting, string newPrimaryCareProvider)
+    {
+        // Arrange
+        SetupRules("LookupRules");
+
+        _requestBody.NewParticipant.RecordType = Actions.New;
+        _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
+        _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
+        
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(false);
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(newPrimaryCareProvider)).Returns(false);
+
+        // Act
+        await _sut.RunAsync(_request.Object);
+
+        // Assert
+        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
+            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal")),
+            It.IsAny<ParticipantCsvRecord>()),
+            Times.Once());
+    }
+
+    [TestMethod]
     public async Task Run_BlockedParticipant_CreatesException()
     {
         // Arrange
