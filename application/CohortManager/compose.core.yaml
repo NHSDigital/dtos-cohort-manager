@@ -116,6 +116,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/ManageServiceNowParticipant/Dockerfile
+    profiles: [non-essential]
     environment:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ServiceNowParticipantManagementTopic=servicenow-participant-management-topic
