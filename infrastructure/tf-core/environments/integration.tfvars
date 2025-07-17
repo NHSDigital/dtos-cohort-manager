@@ -299,7 +299,7 @@ function_apps = {
         UpdateQueueName            = "update-participant-queue"
         ParticipantManagementTopic = "participant-management"
         AllowDeleteRecords         = true
-        UseNewFunctions            = "false"
+        UseNewFunctions            = "true"
       }
       storage_containers = [
         {
@@ -378,12 +378,38 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        CohortDistributionTopic           = "cohort-distribution"     # Writes to the cohort distribution topic
-        ParticipantManagementTopic        = "participant-management"  # Subscribes to the participant management topic
-        ManageParticipantSubscription     = "ManageParticipant"       # Subscribes to the participant management topic
-        IgnoreParticipantExceptions       = "false"
-        IsExtractedToBSSelect             = "false"
-        AcceptableLatencyThresholdMs      = "500"
+        CohortDistributionTopic       = "cohort-distribution"    # Writes to the cohort distribution topic
+        ParticipantManagementTopic    = "participant-management" # Subscribes to the participant management topic
+        ManageParticipantSubscription = "ManageParticipant"      # Subscribes to the participant management topic
+        IgnoreParticipantExceptions   = "false"
+        IsExtractedToBSSelect         = "false"
+        AcceptableLatencyThresholdMs  = "500"
+      }
+    }
+
+    ManageServiceNowParticipant = {
+      name_suffix             = "manage-servicenow-participant"
+      function_endpoint_name  = "ManageServiceNowParticipant"
+      app_service_plan_key    = "DefaultPlan"
+      service_bus_connections = ["internal"]
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "RetrievePdsDemographicURL"
+          function_app_key = "RetrievePDSDemographic"
+        },
+        {
+          env_var_name     = "SendServiceNowMessageURL"
+          function_app_key = "ServiceNowMessageHandler"
+          endpoint_name    = "SendServiceNowMessage"
+        }
+      ]
+      env_vars_static = {
+        ServiceNowParticipantManagementTopic    = "servicenow-participant-manage" # Subscribes to the servicenow participant manage topic
+        ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"   # Subscribes to the servicenow participant manage topic
       }
     }
 
@@ -590,8 +616,8 @@ function_apps = {
           function_app_key = "ExceptionManagementDataService"
         },
         {
-          env_var_name     = "GPPracticeDataServiceURL"
-          function_app_key = "GPPracticeDataService"
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
         }
       ]
       env_vars_static = {
@@ -640,19 +666,23 @@ function_apps = {
         },
         {
           env_var_name     = "BsSelectGpPracticeUrl"
-          function_app_key = "BsSelectGpPracticeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectGpPractice"
         },
         {
           env_var_name     = "BsSelectOutCodeUrl"
-          function_app_key = "BsSelectOutcodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectOutCode"
         },
         {
           env_var_name     = "CurrentPostingUrl"
-          function_app_key = "CurrentPostingDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "CurrentPosting"
         },
         {
           env_var_name     = "ExcludedSMULookupUrl"
-          function_app_key = "ExcludedSMUDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "ExcludedSMU"
         }
       ]
       storage_containers = [
@@ -715,19 +745,28 @@ function_apps = {
         },
         {
           env_var_name     = "BsSelectOutCodeUrl"
-          function_app_key = "BsSelectOutcodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectOutCode"
         },
         {
           env_var_name     = "BsSelectGpPracticeUrl"
-          function_app_key = "BsSelectGpPracticeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectGpPractice"
         },
         {
           env_var_name     = "LanguageCodeUrl"
-          function_app_key = "LanguageCodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "LanguageCode"
+        },
+        {
+          env_var_name     = "ExcludedSMULookupUrl"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "ExcludedSMU"
         }
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        CacheTimeOutHours            = "24"
       }
     }
 
@@ -828,8 +867,8 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        CohortDistributionTopic           = "cohort-distribution"     # Subscribes to the cohort distribution topic
-        DistributeParticipantSubscription = "DistributeParticipant"   # Subscribes to the cohort distribution topic
+        CohortDistributionTopic           = "cohort-distribution"   # Subscribes to the cohort distribution topic
+        DistributeParticipantSubscription = "DistributeParticipant" # Subscribes to the cohort distribution topic
         IgnoreParticipantExceptions       = "false"
         IsExtractedToBSSelect             = "false"
         AcceptableLatencyThresholdMs      = "500"
@@ -1122,7 +1161,7 @@ function_apps = {
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
         ServiceNowRefreshAccessTokenUrl = "https://nhsdigitaldev.service-now.com/oauth_token.do"
-        ServiceNowUpdateUrl = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+        ServiceNowUpdateUrl             = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
       }
     }
 
@@ -1222,6 +1261,7 @@ function_apps = {
       function_endpoint_name = "ManageNemsSubscription"
       app_service_plan_key   = "DefaultPlan"
       db_connection_string   = "DtOsDatabaseConnectionString"
+      key_vault_url          = "KeyVaultConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1230,6 +1270,13 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        "ManageNemsSubscription--NemsFhirEndpoint" = "https://msg.intspineservices.nhs.uk/STU3"
+        "ManageNemsSubscription--FromAsid" = "200000002527"
+        "ManageNemsSubscription--ToAsid" = "200000002527"
+        "ManageNemsSubscription--NemsKeyName" = "nems-client-certificate"
+        "ManageNemsSubscription--SubscriptionProfile" = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
+        "ManageNemsSubscription--SubscriptionCriteria" = "https://fhir.nhs.uk/Id/nhs-number"
+        "ManageNemsSubscription--BypassServerCertificateValidation" = "false"
       }
     }
 
@@ -1336,8 +1383,9 @@ linux_web_app = {
       env_vars = {
         static = {
           AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
-          AUTH_CIS2_CLIENT_ID  = "5789849932.cohort-manager-ui-dev.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
+          AUTH_CIS2_CLIENT_ID  = "8871072908.cohort-int-non-live.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
           AUTH_TRUST_HOST      = "true"
+          NEXTAUTH_URL         = "https://cohort-int.non-live.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
         }
         from_key_vault = {
@@ -1349,7 +1397,6 @@ linux_web_app = {
         local_urls = {
           # %s becomes the environment and region prefix (e.g. dev-uks)
           EXCEPTIONS_API_URL = "https://%s-get-validation-exceptions.azurewebsites.net"
-          NEXTAUTH_URL       = "https://%s-web.azurewebsites.net/api/auth"
         }
       }
     }
@@ -1357,6 +1404,32 @@ linux_web_app = {
 }
 
 linux_web_app_slots = []
+
+frontdoor_endpoint = {
+  cohort = {
+    origin_group = {
+      session_affinity_enabled = false
+    }
+    origin = {
+      # Dynamically picks all origins for a specific Web App, adding Private Link connection if enabled (needs manual approval)
+      webapp_key = "FrontEndUi" # From var.linux_web_app.linux_web_app_config
+    }
+    custom_domains = {
+      cohort-int = {
+        host_name        = "cohort-int.non-live.screening.nhs.uk"
+        dns_zone_name    = "non-live.screening.nhs.uk"
+        dns_zone_rg_name = "rg-hub-dev-uks-public-dns-zones"
+      }
+    }
+    security_policies = {
+      AllowedIPs = {
+        cdn_frontdoor_firewall_policy_name    = "wafhubnonliveinternalwhitelist"
+        cdn_frontdoor_firewall_policy_rg_name = "rg-hub-dev-uks-hub-networking"
+        associated_domain_keys                = ["cohort-int"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
+      }
+    }
+  }
+}
 
 key_vault = {
   disk_encryption   = true
@@ -1382,6 +1455,10 @@ service_bus = {
       participant-management = {
         batched_operations_enabled = true
         subscribers                = ["ManageParticipant"]
+      }
+      servicenow-participant-management = {
+        batched_operations_enabled = true
+        subscribers                = ["ManageServiceNowParticipant"]
       }
     }
   }

@@ -1,5 +1,6 @@
-application = "cohman"
-environment = "PRE"
+application           = "cohman"
+application_full_name = "cohort-manager"
+environment           = "PRE"
 
 features = {
   acr_enabled                          = false
@@ -10,6 +11,7 @@ features = {
   public_network_access_enabled        = false
 }
 
+# these will be merged with compliance tags in locals.tf
 tags = {
   Environment = "pre-production"
 }
@@ -317,7 +319,7 @@ function_apps = {
         UpdateQueueName            = "update-participant-queue"
         ParticipantManagementTopic = "participant-management"
         AllowDeleteRecords         = false
-        UseNewFunctions            = "false"
+        UseNewFunctions            = "true"
       }
       storage_containers = [
         {
@@ -396,12 +398,38 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        CohortDistributionTopic           = "cohort-distribution"     # Writes to the cohort distribution topic
-        ParticipantManagementTopic        = "participant-management"  # Subscribes to the participant management topic
-        ManageParticipantSubscription     = "ManageParticipant"       # Subscribes to the participant management topic
-        IgnoreParticipantExceptions       = "false"
-        IsExtractedToBSSelect             = "false"
-        AcceptableLatencyThresholdMs      = "500"
+        CohortDistributionTopic       = "cohort-distribution"    # Writes to the cohort distribution topic
+        ParticipantManagementTopic    = "participant-management" # Subscribes to the participant management topic
+        ManageParticipantSubscription = "ManageParticipant"      # Subscribes to the participant management topic
+        IgnoreParticipantExceptions   = "false"
+        IsExtractedToBSSelect         = "false"
+        AcceptableLatencyThresholdMs  = "500"
+      }
+    }
+
+    ManageServiceNowParticipant = {
+      name_suffix             = "manage-servicenow-participant"
+      function_endpoint_name  = "ManageServiceNowParticipant"
+      app_service_plan_key    = "DefaultPlan"
+      service_bus_connections = ["internal"]
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "RetrievePdsDemographicURL"
+          function_app_key = "RetrievePDSDemographic"
+        },
+        {
+          env_var_name     = "SendServiceNowMessageURL"
+          function_app_key = "ServiceNowMessageHandler"
+          endpoint_name    = "SendServiceNowMessage"
+        }
+      ]
+      env_vars_static = {
+        ServiceNowParticipantManagementTopic    = "servicenow-participant-manage" # Subscribes to the servicenow participant manage topic
+        ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"   # Subscribes to the servicenow participant manage topic
       }
     }
 
@@ -608,8 +636,8 @@ function_apps = {
           function_app_key = "ExceptionManagementDataService"
         },
         {
-          env_var_name     = "GPPracticeDataServiceURL"
-          function_app_key = "GPPracticeDataService"
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
         }
       ]
       env_vars_static = {
@@ -658,19 +686,23 @@ function_apps = {
         },
         {
           env_var_name     = "BsSelectGpPracticeUrl"
-          function_app_key = "BsSelectGpPracticeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectGpPractice"
         },
         {
           env_var_name     = "BsSelectOutCodeUrl"
-          function_app_key = "BsSelectOutcodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectOutCode"
         },
         {
           env_var_name     = "CurrentPostingUrl"
-          function_app_key = "CurrentPostingDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "CurrentPosting"
         },
         {
           env_var_name     = "ExcludedSMULookupUrl"
-          function_app_key = "ExcludedSMUDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "ExcludedSMU"
         }
       ]
       storage_containers = [
@@ -733,19 +765,28 @@ function_apps = {
         },
         {
           env_var_name     = "BsSelectOutCodeUrl"
-          function_app_key = "BsSelectOutcodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectOutCode"
         },
         {
           env_var_name     = "BsSelectGpPracticeUrl"
-          function_app_key = "BsSelectGpPracticeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "BsSelectGpPractice"
         },
         {
           env_var_name     = "LanguageCodeUrl"
-          function_app_key = "LanguageCodeDataService"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "LanguageCode"
+        },
+        {
+          env_var_name     = "ExcludedSMULookupUrl"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "ExcludedSMU"
         }
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        CacheTimeOutHours            = "24"
       }
     }
 
@@ -846,8 +887,8 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        CohortDistributionTopic           = "cohort-distribution"     # Subscribes to the cohort distribution topic
-        DistributeParticipantSubscription = "DistributeParticipant"   # Subscribes to the cohort distribution topic
+        CohortDistributionTopic           = "cohort-distribution"   # Subscribes to the cohort distribution topic
+        DistributeParticipantSubscription = "DistributeParticipant" # Subscribes to the cohort distribution topic
         IgnoreParticipantExceptions       = "false"
         IsExtractedToBSSelect             = "false"
         AcceptableLatencyThresholdMs      = "500"
@@ -1140,7 +1181,7 @@ function_apps = {
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
         ServiceNowRefreshAccessTokenUrl = "" # TODO: Get value
-        ServiceNowUpdateUrl = "" # TODO: Get value
+        ServiceNowUpdateUrl             = "" # TODO: Get value
       }
     }
 
@@ -1356,6 +1397,7 @@ linux_web_app = {
           AUTH_CIS2_ISSUER_URL = ""
           AUTH_CIS2_CLIENT_ID  = ""
           AUTH_TRUST_HOST      = "true"
+          NEXTAUTH_URL         = "https://cohort-pre.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
         }
         from_key_vault = {
@@ -1367,7 +1409,6 @@ linux_web_app = {
         local_urls = {
           # %s becomes the environment and region prefix (e.g. dev-uks)
           EXCEPTIONS_API_URL = "https://%s-get-validation-exceptions.azurewebsites.net"
-          NEXTAUTH_URL       = "https://%s-web.azurewebsites.net/api/auth"
         }
       }
     }
@@ -1375,6 +1416,32 @@ linux_web_app = {
 }
 
 linux_web_app_slots = []
+
+frontdoor_endpoint = {
+  cohort = {
+    origin_group = {
+      session_affinity_enabled = false
+    }
+    origin = {
+      # Dynamically picks all origins for a specific Web App, adding Private Link connection if enabled (needs manual approval)
+      webapp_key = "FrontEndUi" # From var.linux_web_app.linux_web_app_config
+    }
+    custom_domains = {
+      cohort-pre = {
+        host_name        = "cohort-pre.screening.nhs.uk"
+        dns_zone_name    = "screening.nhs.uk"
+        dns_zone_rg_name = "rg-hub-prod-uks-public-dns-zones"
+      }
+    }
+    security_policies = {
+      AllowedIPs = {
+        cdn_frontdoor_firewall_policy_name    = "wafhubliveinternalwhitelist"
+        cdn_frontdoor_firewall_policy_rg_name = "rg-hub-prod-uks-hub-networking"
+        associated_domain_keys                = ["cohort-pre"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
+      }
+    }
+  }
+}
 
 key_vault = {
   disk_encryption   = true
@@ -1400,6 +1467,10 @@ service_bus = {
       participant-management = {
         batched_operations_enabled = true
         subscribers                = ["ManageParticipant"]
+      }
+      servicenow-participant-management = {
+        batched_operations_enabled = true
+        subscribers                = ["ManageServiceNowParticipant"]
       }
     }
   }

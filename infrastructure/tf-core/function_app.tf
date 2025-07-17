@@ -48,7 +48,7 @@ module "functionapp" {
   # Use the ACR assigned identity for the Function Apps too:
   assigned_identity_ids = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
 
-  image_tag  = var.function_apps.docker_env_tag
+  image_tag  = var.function_apps.docker_env_tag != "" ? var.function_apps.docker_env_tag : var.docker_image_tag
   image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
 
   # Private Endpoint Configuration if enabled
@@ -167,11 +167,20 @@ locals {
             } : {},
 
             # Service Bus connections are stored in the config as a list of strings, so we need to iterate over them
-            length(config.service_bus_connections) > 0 ? {
-              for connection in config.service_bus_connections :
-              "ServiceBusConnectionString_${connection}" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
-            } : {}
-
+            length(config.service_bus_connections) > 0 ? (
+              merge(
+                # First for loop for ServiceBusConnectionString_client_
+                {
+                  for connection in config.service_bus_connections :
+                  "ServiceBusConnectionString_client_${connection}" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
+                },
+                # Second for loop for ServiceBusConnectionString_
+                {
+                  for connection in config.service_bus_connections :
+                  "ServiceBusConnectionString_${connection}__fullyQualifiedNamespace" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
+                }
+              )
+            ) : {}
           )
 
           # These RBAC assignments are for the Function Apps only

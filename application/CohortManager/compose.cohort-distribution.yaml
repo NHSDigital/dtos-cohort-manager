@@ -9,7 +9,7 @@ services:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/DistributeParticipant/Dockerfile
     environment:
-      - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - CohortDistributionTopic=cohort-distribution-topic
       - DistributeParticipantSubscription=distribute-participant-sub
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -66,10 +66,11 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7080
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - BsSelectOutCodeUrl=http://bs-select-outcode-data-service:7881/api/BsSelectOutCodeDataService
-      - BsSelectGpPracticeUrl=http://bs-select-gp-practice-data-service:7998/api/BsSelectGpPracticeDataService/
+      - BsSelectOutCodeUrl=http://reference-data-service:7988/api/BsSelectOutCode
+      - BsSelectGpPracticeUrl=http://reference-data-service:7988/api/BsSelectGpPractice
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - LanguageCodeUrl=http://language-code-data-service:7997/api/LanguageCodeDataService
+      - LanguageCodeUrl=http://reference-data-service:7988/api/LanguageCode
+      - ExcludedSMULookupUrl=http://reference-data-service:7988/api/ExcludedSMU
       - AcceptableLatencyThresholdMs=500
 
   allocate-service-provider:
@@ -79,6 +80,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7081
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -90,6 +92,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/CreateCohortDistribution/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7082
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -114,6 +117,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveParticipantData/Dockerfile
+    profiles: [deprecated]
     environment:
       - ASPNETCORE_URLS=http://*:7083
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException

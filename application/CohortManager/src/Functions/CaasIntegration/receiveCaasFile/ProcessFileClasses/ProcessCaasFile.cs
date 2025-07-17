@@ -58,8 +58,8 @@ public class ProcessCaasFile : IProcessCaasFile
         DemographicURI = _config.DemographicURI;
         if (_config.UseNewFunctions)
         {
-            AddParticipantQueueName = _config.ParticipantManagementQueueName;
-            UpdateParticipantQueueName = _config.ParticipantManagementQueueName;
+            AddParticipantQueueName = _config.ParticipantManagementTopic;
+            UpdateParticipantQueueName = _config.ParticipantManagementTopic;
         }
         else
         {
@@ -117,7 +117,7 @@ public class ProcessCaasFile : IProcessCaasFile
             await AddRecordToBatch(participant, currentBatch, name);
         });
 
-        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI))
+        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI, name))
         {
             await AddBatchToQueue(currentBatch, name);
         }
