@@ -10,63 +10,66 @@
 
 The module `rbac.tf` centralises handling of global role based assignments for infrastructure resources in this project. While this is not the _only_ approach to handling roles and permissions, its aim is to help developers better manage access control.
 
+> Please note: the centralised approach is commented out due to non-deterministic keys issue with Terraform in the `all_resource_ids`. Using this method is a preferred approach.
+
 There are two approaches to handling access control in this project's Terraform:
 
-- The _current_ approach. This approach uses `rbac.tf` modules with each resource module located in `devops-templates/infrastructure/modules/xxx`
-- An alternative approach which uses one or more _"global" role definitions_ that contain all necessary permissions for a given resource.
+- The _current_ approach. This approach uses `rbac.tf` modules located in each resource module folder `devops-templates/infrastructure/modules/xxx`
+- An alternative approach that uses a _custom role definition_ with minimal permissions necessary for resource access.
 
 ### Why custom role definitions?
 
-The current security posture prevents the creation of _security groups_. Therefore a similar concept is found using _custom role definitions_. With this approach, we create a single definition that merges the default (least-privilege) permissions, and use the role together with a managed identity to assign to resources like `Key Vault`, `Storage Account`, `SQL Server` and `Function Apps`.
+The current security posture prevents creation of _security groups_. A similar concept is to use _custom role definitions_.
+
+With this approach, we create a single definition that aggregates multiple permissions, and together with a user assigned managed identity, assigns a single role to the parent group housing all resources like `Key Vault`, `Storage Account`, `SQL Server` and `Function Apps`.
 
 ### High-level overview
 
-#### Flow using Custom Roles
+#### Flow using Custom Role Definition
 
 Is this supported? ✅
 How? Do not specify any `rbac_roles` and ensure you set the `var.use_global_rbac_roles` to `true`.
 
 ```mermaid
 flowchart LR
-    markdown@{ shape: docs, label: "Terraform **plan** / **apply**" }
-    rbac@{ shape: doc, label: "rbac.tf" }
-    subgraph managed-identity-roles
+    terraform@{ shape: docs, label: "Terraform **plan** / **apply**" }
+    subgraph SG1[Cohort Manager RBAC]
         direction TB
-        module@{ shape: docs, label: "**managed-identity-roles** module" }
-        load_ids(["Load **resource IDs** in Terraform"])
-        id(["`Create **managed identity**`"])
-        defs(["`Create **role definitions**`"])
-        assign(["`Assign roles to **managed identity** at **resource group** scope`"])
+        module1@{ shape: docs, label: "**rbac.tf** module" }
+        managed_identity(["`Create managed identity`"])
+
+        module1 --> managed_identity
     end
-    markdown --> rbac-->|references|managed-identity-roles
-    module --> load_ids --> id --> defs --> assign
+
+    subgraph SG2["Managed Identities Module"]
+        direction TB
+        module2@{ shape: docs, label: "**managed-identity-roles** module" }
+        defs(["`Create **role definition**`"])
+
+        module2 --> defs
+    end
+
+    assign(["`Assign role and managed identity to **resource group**`"])
+    terraform --> SG1 -->|references|SG2 --> assign
+
 ```
 
-After the roles are assigned to the new "global" identity, the assignments in the Azure Portal will look similar to the following:
+#### How to validate the module
 
-| Role                          | Resource Name                                 | Resource Type    | Principal                        |
-|-------------------------------|-----------------------------------------------|------------------|----------------------------------|
-| Contributor                   | sbmj-uks-manage-nems-subscription             | App Service      | mi-cohort-manager-global-uksouth |
-| Contributor                   | sbmj-uks-delete-participant                   | App Service      | mi-cohort-manager-global-uksouth |
-| Contributor                   | sbmj-uks-create-cohort-distribution           | App Service      | mi-cohort-manager-global-uksouth |
-| Contributor                   | sbmj-uks-retrieve-participant-data            | App Service      | mi-cohort-manager-global-uksouth |
-| Contributor                   | sbmj-uks-servicenow-cohort-lookup             | App Service      | mi-cohort-manager-global-uksouth |
-| Contributor                   | sbmj-uks-file-validation                      | App Service      | mi-cohort-manager-global-uksouth |
-| Contributor                   | sbmj-uks-get-validation-exceptions            | App Service      | mi-cohort-manager-global-uksouth |
-| mi-global-role-keyvault-sbmj  | KV-COHMAN-SBMJ-UKS                            | Key Vault        | mi-cohort-manager-global-uksouth |
-| Contributor                   | sbmj-uks-create-exception                     | App Service      | mi-cohort-manager-global-uksouth |
-| Contributor                   | sbmj-uks-process-nems-update                  | App Service      | mi-cohort-manager-global-uksouth |
-| mi-global-role-storage-sbmj   | stcohmansbmjuksfilexptns                      | Storage Account  | mi-cohort-manager-global-uksouth |
-| Contributor                   | sbmj-uks-transform-data-service               | App Service      | mi-cohort-manager-global-uksouth |
+1. After the custom role definition is created and a role assignment attached to the user assigned managed identity, navigate to the Azure IAM blade of the main resource group.
 
-#### Flow using current approach
+1. Select any relevant resource type in the group, such as SQL Server, Function App, Key Vault, Service Bus Namespace, Storage Account or EventGrid. Navigate to the resource's **IAM** blade.
+
+1. Note that there now exists a role assignment titled **Cohort Manager Custom Role (_env_name_)** for the Cohort Manager User Assigned Identity, scoped to the _resource group_ level.
+
+#### Flow using existing approach
 
 Is this supported still? ✅
 How? Specify the `rbac_roles` and ensure you set the `var.use_global_rbac_roles` to `false`.
 
 ```mermaid
 flowchart LR
-    subgraph functions
+    subgraph FAMod["FunctionsApp Module"]
         direction LR
 
         fa_module@{ shape: docs, label: "**functionapp.tf** module" }
@@ -76,17 +79,16 @@ flowchart LR
         fa_module --> fa_roles
     end
 
-    subgraph storage
+    subgraph STMod["Storage Account Module"]
         direction LR
 
         st_module@{ shape: docs, label: "**storage.tf** module" }
         st_roles(["`Use defined RBAC roles for **storage**`"])
 
         st_module --> st_roles
-
     end
 
-    subgraph web-app
+    subgraph WAMod["WebApp Module"]
         direction LR
 
         wa_module@{ shape: docs, label: "**web_app.tf** module" }
@@ -96,7 +98,7 @@ flowchart LR
         wa_module --> wa_roles
     end
 
-    subgraph keyvault
+    subgraph KVMod["Keyvault Module"]
         direction LR
 
         kv_module@{ shape: docs, label: "**key_vault.tf** module" }
@@ -105,15 +107,15 @@ flowchart LR
         kv_module --> kv_roles
     end
 
-    subgraph templates
+    subgraph Templates["DevOps Templates"]
         fa_rbac@{ shape: docs, label: "function_app/**rbac.tf** module" }
         wa_rbac@{ shape: docs, label: "linux_web_app/**rbac.tf** module" }
         st_rbac@{ shape: docs, label: "storage/**rbac.tf** module"}
         kv_rbac@{ shape: docs, label: "key_vault/**rbac.tf** module"}
     end
 
-    functions --> fa_rbac
-    web-app --> wa_rbac
-    storage --> st_rbac
-    keyvault --> kv_rbac
+    FAMod --> fa_rbac
+    WAMod --> wa_rbac
+    STMod --> st_rbac
+    KVMod --> kv_rbac
 ```
