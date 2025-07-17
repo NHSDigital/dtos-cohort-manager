@@ -1,9 +1,9 @@
-import { test, expect, APIRequestContext } from '@playwright/test';
+import { test, expect } from '@playwright/test';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../steps/steps';
 import { BlockParticipant, UnblockParticipant, getRecordsFromParticipantManagementService } from '../../../api/distributionService/bsSelectService';
 
-test.describe.serial('@regression @e2e @epic4b-block-tests unblock-Block-Participant - CohortDistribution Validation', () => {
+test.describe.serial('@regression @e2e @epic4b-block-tests unblock-block-Participant - CohortDistribution Validation', () => {
     test('@DTOSS-7771-01 AC1 - Verify the ability to Block a participant then Unblock', async ({ request }, testInfo) => {
 
       const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
