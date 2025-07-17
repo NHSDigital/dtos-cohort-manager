@@ -91,6 +91,7 @@ services:
       - ParticipantManagementQueueName=add-participant-queue
       - ParticipantManagementTopic=participant-management-topic
       - UseNewFunctions=true
+      - InboundMetricTopic=InboundMetricTopic
 
   # Participant Management Service
   manage-participant:

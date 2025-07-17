@@ -9,7 +9,7 @@ public static class InboundMetricClientExtension
     public static IHostBuilder AddInboundMetricTracker(this IHostBuilder hostBuilder)
     {
         hostBuilder.AddConfiguration<InboundMetricClientConfig>(out InboundMetricClientConfig config);
-        hostBuilder.AddKeyedAzureQueues(true, config.ServiceBusConnectionString, "InboundMetricQueue");
+        hostBuilder.AddKeyedAzureQueues(true, config.ServiceBusConnectionString_client_internal, "InboundMetricQueue");
         hostBuilder.ConfigureServices(_ =>
         {
             _.AddSingleton<IInboundMetricClient, InboundMetricClient>();

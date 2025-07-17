@@ -299,6 +299,7 @@ function_apps = {
         ParticipantManagementTopic = "participant-management"
         AllowDeleteRecords         = true
         UseNewFunctions            = "true"
+        InboundMetricTopic         = "InboundMetricTopic"
       }
       storage_containers = [
         {
