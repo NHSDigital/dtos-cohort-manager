@@ -48,7 +48,7 @@ module "functionapp" {
   # Use the ACR assigned identity for the Function Apps too:
   assigned_identity_ids = var.function_apps.cont_registry_use_mi ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
 
-  image_tag  = var.function_apps.docker_env_tag
+  image_tag  = var.function_apps.docker_env_tag != "" ? var.function_apps.docker_env_tag : var.docker_image_tag
   image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
 
   # Private Endpoint Configuration if enabled
@@ -69,14 +69,13 @@ module "functionapp" {
   ]
 }
 
-
 locals {
   # Filter fa_config to only include those with service_bus_connections
   service_bus_function_app_map = {
     for function_key, function_values in var.function_apps.fa_config :
     function_key => function_values
     if contains(keys(function_values), "service_bus_connections")
-      && (function_values.service_bus_connections != null ? length(function_values.service_bus_connections) > 0 : false)
+    && (function_values.service_bus_connections != null ? length(function_values.service_bus_connections) > 0 : false)
   }
 
   # There are multiple maps
@@ -105,9 +104,7 @@ resource "azurerm_role_assignment" "function_send_to_topic" {
   principal_id         = module.functionapp["${each.value.function_key}-${each.value.service_bus_value.region}"].function_app_sami_id
   role_definition_name = "Azure Service Bus Data Sender"
   scope                = module.azure_service_bus[each.value.service_bus_key].namespace_id
-
 }
-
 
 locals {
   app_settings_common = {
@@ -133,22 +130,14 @@ locals {
             local.app_settings_common,
             config.env_vars_static,
 
-            # Dynamic env vars which can be stored in tfvars file
+            # Dynamic references to other Function App URLs
             {
-              for k, v in config.env_vars.app_urls : k => format("https://%s-%s.azurewebsites.net/api/%s",
+              for obj in config.app_urls : obj.env_var_name => format(
+                "https://%s-%s.azurewebsites.net/api/%s",
                 module.regions_config[region].names["function-app"],
-                var.function_apps.fa_config[v].name_suffix,
-              var.function_apps.fa_config[v].function_endpoint_name)
-            },
-
-            # Static env vars
-            {
-              for k, v in config.env_vars.static : k => v
-            },
-
-            # Dynamic environment variables per storage container configuration
-            {
-              for k, v in config.env_vars.storage_containers : k => v
+                var.function_apps.fa_config[obj.function_app_key].name_suffix,
+                length(obj.endpoint_name) > 0 ? obj.endpoint_name : var.function_apps.fa_config[obj.function_app_key].function_endpoint_name
+              )
             },
 
             # Dynamic reference to Key Vault
@@ -178,11 +167,20 @@ locals {
             } : {},
 
             # Service Bus connections are stored in the config as a list of strings, so we need to iterate over them
-            length(config.service_bus_connections) > 0 ? {
-              for connection in config.service_bus_connections :
-              "ServiceBusConnectionString_${connection}" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
-            } : {}
-
+            length(config.service_bus_connections) > 0 ? (
+              merge(
+                # First for loop for ServiceBusConnectionString_client_
+                {
+                  for connection in config.service_bus_connections :
+                  "ServiceBusConnectionString_client_${connection}" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
+                },
+                # Second for loop for ServiceBusConnectionString_
+                {
+                  for connection in config.service_bus_connections :
+                  "ServiceBusConnectionString_${connection}__fullyQualifiedNamespace" => "${module.azure_service_bus["${connection}-${region}"].namespace_name}.servicebus.windows.net"
+                }
+              )
+            ) : {}
           )
 
           # These RBAC assignments are for the Function Apps only

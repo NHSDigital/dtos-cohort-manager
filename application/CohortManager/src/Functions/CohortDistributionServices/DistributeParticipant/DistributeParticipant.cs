@@ -11,6 +11,7 @@ using Model;
 using System.Text.Json;
 using Common;
 using Activities = DistributeParticipantActivities;
+using Model.Enums;
 
 public class DistributeParticipant
 {
@@ -35,7 +36,7 @@ public class DistributeParticipant
     /// <returns></returns>
     [Function("DistributeParticipant")]
     public async Task Run(
-   [ServiceBusTrigger(topicName: "%CohortQueueName%", subscriptionName: "%DistributeParticipantSubName%", Connection = "ServiceBusConnectionString")]
+   [ServiceBusTrigger(topicName: "%CohortDistributionTopic%", subscriptionName: "%DistributeParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")]
     string messageBody,
     [DurableClient] DurableTaskClient durableClient,
     FunctionContext functionContext)
@@ -88,11 +89,19 @@ public class DistributeParticipant
                 return;
             }
 
+            ValidationRecord validationRecord = new() { FileName = participantRecord.FileName, Participant = participantData };
+
             // Allocate service provider
-            string serviceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
+            if (string.IsNullOrEmpty(participantData.Postcode))
+            {
+                validationRecord.ServiceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
+            }
+            else
+            {
+                validationRecord.ServiceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
+            }
 
             // Validation & Transformation
-            ValidationRecord validationRecord = new() {FileName = participantRecord.FileName, Participant = participantData}; 
             var transformedParticipant = await context.CallSubOrchestratorAsync<CohortDistributionParticipant?>(nameof(ValidateParticipant.ValidationOrchestrator), validationRecord);
             if (transformedParticipant is null)
             {

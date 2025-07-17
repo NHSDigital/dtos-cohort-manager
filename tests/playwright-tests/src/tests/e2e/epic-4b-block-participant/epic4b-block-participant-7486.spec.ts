@@ -31,6 +31,7 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
 
       };
   });
+});
 
   // Phase 2 test PDS integration
   // test('@DTOSS-7728-01  @epic4b-block-participant - AC02 - verify records returned matches block request and that NHS ID matches the correct person', async ({ request }, testInfo) => {
@@ -78,7 +79,4 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
   //   })
 
   // });
-
-
-})
-
+}
