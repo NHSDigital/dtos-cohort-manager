@@ -1268,14 +1268,14 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        AcceptableLatencyThresholdMs = "500"
-        "NemsFhirEndpoint" = "https://msg.intspineservices.nhs.uk/STU3"
-        "NemsFromAsid" = "200000002527"
-        "NemsToAsid" = "200000002527"
-        "NemsKeyName" = "nems-client-certificate"
-        "NemsSubscriptionProfile" = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
-        "NemsSubscriptionCriteria" = "https://fhir.nhs.uk/Id/nhs-number"
-        "NemsBypassServerCertificateValidation" = "false"
+        AcceptableLatencyThresholdMs          = "500"
+        NemsFhirEndpoint                      = "https://msg.intspineservices.nhs.uk/STU3"
+        NemsFromAsid                          = "200000002527"
+        NemsToAsid                            = "200000002527"
+        NemsKeyName                           = "nems-client-certificate"
+        NemsSubscriptionProfile               = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
+        NemsSubscriptionCriteria              = "https://fhir.nhs.uk/Id/nhs-number"
+        NemsBypassServerCertificateValidation = "false"
       }
     }
 
