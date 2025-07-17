@@ -21,18 +21,21 @@ public class ReconciliationService
     private readonly IRequestHandler<InboundMetric> _inboundMetricRequestHandler;
     private readonly IDataServiceAccessor<InboundMetric> _inboundMetricDataServiceAccessor;
     private readonly IReconciliationProcessor _reconciliationProcessor;
+    private readonly IStateStore _stateStore;
 
     public ReconciliationService(ILogger<ReconciliationService> logger,
         ICreateResponse createResponse,
         IRequestHandler<InboundMetric> inboundMetricRequestHandler,
         IDataServiceAccessor<InboundMetric> inboundMetricDataServiceAccessor,
-        IReconciliationProcessor reconciliationProcessor)
+        IReconciliationProcessor reconciliationProcessor,
+        IStateStore stateStore)
     {
         _logger = logger;
         _createResponse = createResponse;
         _inboundMetricRequestHandler = inboundMetricRequestHandler;
         _inboundMetricDataServiceAccessor = inboundMetricDataServiceAccessor;
         _reconciliationProcessor = reconciliationProcessor;
+        _stateStore = stateStore;
     }
     /// <summary>
     /// Service Bus triggered Function for inbound Metrics
@@ -88,15 +91,26 @@ public class ReconciliationService
     public async Task RunReconciliation([TimerTrigger("%ReconciliationTimer%")] TimerInfo myTimer)
     {
         DateTime lastRun;
-        if (myTimer.ScheduleStatus is not null)
-        {
-            lastRun = myTimer.ScheduleStatus.Last.ToUniversalTime();
-        }
-        else
+        var state = await _stateStore.GetState<ReconciliationRunState>("ReconciliationRunState");
+
+        if (state == null)
         {
             lastRun = DateTime.UtcNow.AddHours(-24);
         }
+        else
+        {
+            lastRun = state.LastRun;
+        }
+
+        var runtime = DateTime.UtcNow;
+
         await _reconciliationProcessor.RunReconciliation(lastRun);
+
+        await _stateStore.SetState<ReconciliationRunState>("ReconciliationRunState", new ReconciliationRunState
+        {
+            LastRun = runtime
+        });
+
 
 
     }

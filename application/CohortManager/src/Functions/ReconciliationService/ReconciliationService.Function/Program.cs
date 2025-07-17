@@ -18,6 +18,7 @@ var host = new HostBuilder()
         .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceUrl)
         .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
     .Build()
+    .AddStateStorage()
     .ConfigureServices(services =>
     {
         services.AddDatabaseHealthCheck("ReconciliationService");
