@@ -67,22 +67,11 @@ module "azure_sql_server" {
 
   tags = var.tags
 }
-resource "azurerm_role_assignment" "global_cohort_mi_sql_role_assignments" {
-  for_each = var.use_global_rbac_roles ? var.regions : {}
+# resource "azurerm_role_assignment" "global_cohort_mi_sql_role_assignments" {
+#   for_each = var.use_global_rbac_roles ? var.regions : {}
 
-  # name = join("-", [
-  #   each.value.id,
-  #   local.get_role_local.get_definition_id[each.key],
-  #   sha1(coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region].principal_id))
-  # ])
-
-  principal_id = coalesce(
-    # The user-supplied principal_id takes precedence
-    var.rbac_principal_id,
-
-    module.global_cohort_identity[each.key].principal_id
-  )
-
-  role_definition_id = module.global_cohort_identity_roles[each.key].sql_role_definition_id
-  scope = module.azure_sql_server[each.key].sql_server_id
-}
+#   # The user-supplied principal_id takes precedence
+#   principal_id = coalesce(var.rbac_principal_id, module.global_cohort_identity[each.key].principal_id)
+#   role_definition_id = module.global_cohort_identity_roles[each.key].sql_role_definition_id
+#   scope = module.azure_sql_server[each.key].sql_server_id
+# }
