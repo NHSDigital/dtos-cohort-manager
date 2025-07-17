@@ -14,7 +14,7 @@ public static class CertificateExtensions
     /// <param name="logger">Logger for diagnostic messages</param>
     /// <returns>The loaded X509Certificate2</returns>
     /// <exception cref="InvalidOperationException">Thrown when no certificate configuration is found</exception>
-    public static async Task<X509Certificate2> LoadNemsCertificateAsync(this ManageNemsSubscriptionSettings config, ILogger logger)
+    public static async Task<X509Certificate2> LoadNemsCertificateAsync(this ManageNemsSubscriptionConfig config, ILogger logger)
     {
         if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
         {
