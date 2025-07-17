@@ -147,7 +147,3 @@ def main():
 if __name__ == "__main__":
     main()
 
-#py --version                      # Check Python version
-#py -m pip install requests        # Install packages
-#py -m pip install python-dotenv requests
-#py script_block_participants.py   # Run your script
