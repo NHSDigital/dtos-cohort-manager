@@ -3,7 +3,7 @@ import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validateSqlDatabaseFromAPI } from '../../steps/steps';
 import { getRecordsFromParticipantManagementService, BlockParticipant } from '../../../api/distributionService/bsSelectService';
 
-test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
+test.describe('@e2e @epic4b-block-tests Tests', async () => {
 
   test('@DTOSS-7720-01 AC01 verify records returned matches block request and that NHS ID matches the correct person when 3 point check in cohort', async ({ request }, testInfo) => {
 
@@ -27,8 +27,6 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
         NhsNumber: nhsNumbers,
         FamilyName: inputParticipantRecord[0].family_name,
         DateOfBirth: inputParticipantRecord[0].date_of_birth
-
-
       };
     });
   });
