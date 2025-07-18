@@ -74,8 +74,9 @@ Therefore in development and test environments you can provide basic credentials
 
 As well as having Authentication to provide access to the service, we limit access to the service using Role based access controls (RBAC) (`lib/checkAccess.ts`).
 
-You need to add a comma separated list of `uid` values of the users you want to be able to able access the Cohort Manager service, to `COHORT_MANAGER_USERS` in the `.env` file.
+You need to add a comma separated list of `workgroup_codes` values of the users you want to be able to able access the Cohort Manager service, to `COHORT_MANAGER_RBAC_CODE` in the `.env` file.
 
 ```text
-COHORT_MANAGER_USERS=uid1,uid2,uid3,uid4
+# CIS2 RBAC
+COHORT_MANAGER_RBAC_CODE=000000000000
 ```
