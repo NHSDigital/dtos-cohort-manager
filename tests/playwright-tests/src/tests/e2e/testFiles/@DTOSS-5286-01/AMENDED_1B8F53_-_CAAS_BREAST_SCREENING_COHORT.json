@@ -35,19 +35,6 @@
         "requirementJiraId": "DTOSS-4286",
         "additionalTags": "@regression @e2e @epic3-med-priority Tests Verify Participant added with Given name value for participant with NHS number 9990200025 - demographic data should have given name value as null"
       }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9990200025",
-        "RuleId": 14,
-        "RuleDescription": "Participant was transformed as transform rule: OtherFirstNameDoesNotExist was executed"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-5286-01",
-        "requirementJiraId": "DTOSS-4286",
-        "additionalTags": "@regression @e2e @epic3-med-priority Tests Verify Participant added with Given name value for participant with NHS number 9990200025 - exception management data should have rule id 14 and rule description as Participant was transformed as transform rule: OtherFirstNameDoesNotExist was executed"
-      }
     }
   ],
   "inputParticipantRecord": [
