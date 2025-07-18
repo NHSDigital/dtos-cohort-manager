@@ -32,20 +32,6 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9996928160",
-        "RuleId": 66,
-        "RuleDescription": "Formal Death Status is supplied for a non death Reason for Removal reason",
-        "Category": 3
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8923-01",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 66"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9996928160",
         "RuleId": 19,
         "RuleDescription": "Reason for removal date invalid",
         "Category": 3
@@ -68,20 +54,6 @@
         "testJiraId": "@DTOSS-8923-01",
         "requirementJiraId": "DTOSS-8419",
         "additionalTags": "@regression @e2e @epic4d-category with RuleID: 18"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9999111262",
-        "RuleId": 35,
-        "RuleDescription": "The supplied demographics do not match the subjects PI record",
-        "Category": 3
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8923-01",
-        "requirementJiraId": "DTOSS-8419",
-        "additionalTags": "@regression @e2e @epic4d-category with RuleID: 35"
       }
     },
     {
