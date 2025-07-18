@@ -1,6 +1,6 @@
-application              = "cohman"
-application_full_name    = "cohort-manager"
-environment              = "SBMJ"
+application           = "cohman"
+application_full_name = "cohort-manager"
+environment           = "SBX"
 
 # Global custom roles
 use_global_rbac_roles    = true
@@ -25,7 +25,7 @@ tags = {
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.136.0.0/16"
+    address_space     = "10.126.0.0/16"
     connect_peering   = true
     subnets = {
       apps = {
@@ -57,7 +57,7 @@ regions = {
       container-app-db-management = {
         cidr_newbits               = 7
         cidr_offset                = 6
-        delegation_name            = "Microsoft.App"
+        delegation_name            = "Microsoft.App/environments"
         service_delegation_name    = "Microsoft.App/environments"
         service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
       }
@@ -76,8 +76,8 @@ routes = {
         priority              = 900
         action                = "Allow"
         rule_name             = "CohmanToAudit"
-        source_addresses      = ["10.136.0.0/16"]
-        destination_addresses = ["10.137.0.0/16"]
+        source_addresses      = ["10.126.0.0/16"]
+        destination_addresses = ["10.127.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       },
@@ -86,8 +86,8 @@ routes = {
         priority              = 910
         action                = "Allow"
         rule_name             = "AuditToCohman"
-        source_addresses      = ["10.137.0.0/16"]
-        destination_addresses = ["10.136.0.0/16"]
+        source_addresses      = ["10.127.0.0/16"]
+        destination_addresses = ["10.126.0.0/16"]
         protocols             = ["TCP", "UDP"]
         destination_ports     = ["443"]
       }
@@ -103,7 +103,7 @@ routes = {
     route_table_audit = [
       {
         name                   = "AuditToCohman"
-        address_prefix         = "10.16.0.0/16"
+        address_prefix         = "10.126.0.0/16"
         next_hop_type          = "VirtualAppliance"
         next_hop_in_ip_address = "" # will be populated with the Firewall Private IP address
       }
@@ -252,34 +252,60 @@ function_apps = {
       db_connection_string         = "DtOsDatabaseConnectionString"
       service_bus_connections      = ["internal"]
       storage_account_env_var_name = "caasfolder_STORAGE"
-      env_vars = {
-        app_urls = {
-          ExceptionFunctionURL       = "CreateException"
-          PMSAddParticipant          = "AddParticipant"
-          PMSRemoveParticipant       = "RemoveParticipant"
-          PMSUpdateParticipant       = "UpdateParticipant"
-          StaticValidationURL        = "StaticValidation"
-          DemographicDataServiceURL  = "ParticipantDemographicDataService"
-          ScreeningLkpDataServiceURL = "ScreeningLkpDataService"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "PMSAddParticipant"
+          function_app_key = "AddParticipant"
+        },
+        {
+          env_var_name     = "PMSRemoveParticipant"
+          function_app_key = "RemoveParticipant"
+        },
+        {
+          env_var_name     = "PMSUpdateParticipant"
+          function_app_key = "UpdateParticipant"
+        },
+        {
+          env_var_name     = "StaticValidationURL"
+          function_app_key = "StaticValidation"
+        },
+        {
+          env_var_name     = "DemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
+        },
+        {
+          env_var_name     = "ScreeningLkpDataServiceURL"
+          function_app_key = "ScreeningLkpDataService"
+        },
+        {
+          env_var_name     = "DemographicURI"
+          function_app_key = "DurableDemographicFunction"
+          endpoint_name    = "DurableDemographicFunction_HttpStart"
+        },
+        {
+          env_var_name     = "GetOrchestrationStatusURL"
+          function_app_key = "DurableDemographicFunction"
+          endpoint_name    = "GetOrchestrationStatus"
         }
-        static = {
-          BatchSize                  = "2000"
-          AddQueueName               = "add-participant-queue"
-          recordThresholdForBatching = "3"
-          batchDivisionFactor        = "2"
-          CheckTimer                 = "100"
-          DemographicURI             = "https://sbmj-uks-durable-demographic-function.azurewebsites.net/api/DurableDemographicFunction_HttpStart/"
-          GetOrchestrationStatusURL  = "https://sbmj-uks-durable-demographic-function.azurewebsites.net/api/GetOrchestrationStatus"
-          AllowDeleteRecords         = true
-          UpdateQueueName            = "update-participant-queue"
-          maxNumberOfChecks          = "50"
-          UseNewFunctions            = "false"
-        }
-        storage_containers = {
-          inboundBlobName = "inbound"
-          fileExceptions  = "inbound-poison"
-        }
+
       ]
+      env_vars_static = {
+        BatchSize                  = "2000"
+        batchDivisionFactor        = "2"
+        CheckTimer                 = "100"
+        delayBetweenChecks         = "50"
+        maxNumberOfChecks          = "50"
+        recordThresholdForBatching = "3"
+        AddQueueName               = "add-participant-queue"
+        UpdateQueueName            = "update-participant-queue"
+        ParticipantManagementTopic = "participant-management"
+        AllowDeleteRecords         = true
+        UseNewFunctions            = "true"
+      }
     }
 
     RetrieveMeshFile = {
@@ -305,23 +331,54 @@ function_apps = {
       app_service_plan_key         = "DefaultPlan"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "caasfolder_STORAGE"
-      env_vars = {
-        app_urls = {
-          ExceptionFunctionURL           = "CreateException"
-          RetrievePdsDemographicURL      = "RetrievePDSDemographic"
-          UnsubscribeNemsSubscriptionUrl = "ManageNemsSubscription"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "RetrievePdsDemographicURL"
+          function_app_key = "RetrievePDSDemographic"
+        },
+        {
+          env_var_name     = "UnsubscribeNemsSubscriptionUrl"
+          function_app_key = "ManageNemsSubscription"
         }
-        static = {
-          MeshCertName    = "MeshCert"
-          UpdateQueueName = "update-participant-queue"
-        }
-        storage_containers = {
-          NemsMessages = "nems-messages"
+      ],
+      storage_containers = [
+        {
+          env_var_name   = "NemsMessages"
+          container_name = "nems-messages"
         }
       ]
       env_vars_static = {
-        ServiceNowParticipantManagementTopic    = "servicenow-participant-manage" # Subscribes to the servicenow participant manage topic
-        ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"   # Subscribes to the servicenow participant manage topic
+        MeshCertName    = "MeshCert"
+        UpdateQueueName = "update-participant-queue"
+      }
+    }
+
+    ManageParticipant = {
+      name_suffix             = "manage-participant"
+      function_endpoint_name  = "ManageParticipant"
+      app_service_plan_key    = "DefaultPlan"
+      service_bus_connections = ["internal"]
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        }
+      ]
+      env_vars_static = {
+        CohortDistributionTopic       = "cohort-distribution"    # Writes to the cohort distribution topic
+        ParticipantManagementTopic    = "participant-management" # Subscribes to the participant management topic
+        ManageParticipantSubscription = "ManageParticipant"      # Subscribes to the participant management topic
+        IgnoreParticipantExceptions   = "false"
+        IsExtractedToBSSelect         = "false"
+        AcceptableLatencyThresholdMs  = "500"
       }
     }
 
