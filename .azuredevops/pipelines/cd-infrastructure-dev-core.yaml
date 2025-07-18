@@ -13,9 +13,15 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: e4e68ea29c4fab7014caf900063fe70f785732f3
+      ref: 7d1540f568fb00f527e388aa0acfff807c6d367c
       endpoint: NHSDigital
 
+parameters:
+  - name: dockerImageTag
+    displayName: 'Docker Image Tag'
+    type: string
+    default: development
+    
 variables:
   - group: DEV_core_backend
   - group: DEV_audit_backend_remote_state
@@ -42,6 +48,8 @@ stages:
           - checkout: self
           - checkout: dtos-devops-templates
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+            parameters:
+              tfCommandOptions: '-var="docker_image_tag=${{ parameters.dockerImageTag }}"'
 
   - stage: terraform_apply
     displayName: Terraform Apply
