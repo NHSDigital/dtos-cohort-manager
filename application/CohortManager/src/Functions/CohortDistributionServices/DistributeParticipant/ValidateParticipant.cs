@@ -141,7 +141,7 @@ public class ValidateParticipant
     }
 
     /// <summary>
-    /// Calls lookup validation twice, once for lookup rules and once for cohort rules
+    /// Calls lookup validation
     /// </summary>
     /// <param name="validationRecord"></param>
     /// <returns>A <see cref="ValidationExceptionLog"/> representing if the participant has triggered a rule</returns>
