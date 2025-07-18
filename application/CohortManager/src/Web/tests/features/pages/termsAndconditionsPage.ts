@@ -2,7 +2,7 @@ import { expect, Locator, Page } from "@playwright/test";
 import BasePage from "./basePage";
 
 
-export class TermsCoditionsPage extends BasePage {
+export class TermsConditionsPage extends BasePage {
   readonly page: Page;
   readonly cisLink: Locator;
   readonly cisandnhstermsLink: Locator;
@@ -11,13 +11,10 @@ export class TermsCoditionsPage extends BasePage {
   constructor(page: Page) {
     super(page)
     this.page = page;
-    this.cisLink = page.locator('//a[normalize-space(text())="Care Identity Service (CIS)"]');
-    this.cisandnhstermsLink = page.locator('//a[normalize-space(text())="CIS and NHS Spine terms and conditions"]')
-    this.cookiesPolicyLink = page.locator('//a[normalize-space(text())="cookies policy"]')
+    this.cisLink = page.locator('[data-testid="CIS-link"]');
+    this.cisandnhstermsLink = page.locator('[data-testid="cis-and-nhs-terms-link"]');
+    this.cookiesPolicyLink = page.locator('[data-testid="cookies-policy-link"]');
   }
-
-
-
   async clickCISLink() {
     await this.clickElement(this.cisLink)
   }
