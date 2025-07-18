@@ -105,8 +105,7 @@ public class CohortDistributionHelper : ICohortDistributionHelper
         {
             NewParticipant = new Participant(requestParticipant),
             ExistingParticipant = new Participant(existingParticipant),
-            FileName = fileName,
-            RulesType = RulesType.CohortDistribution
+            FileName = fileName
         };
 
         var json = JsonSerializer.Serialize(request);
