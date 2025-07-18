@@ -22,7 +22,7 @@ locals {
     # ------------------------
     # TechOps
     # ------------------------
-    ServiceCategory = "Bronze"      # Support tier (Bronze, Silver, Gold, Platinum)
+    ServiceCategory = "Silver"      # Support tier (Bronze, Silver, Gold, Platinum)
     OnOffPattern    = "OfficeHours" # Uptime (AlwaysOn, OfficeHours, MF86, MF95, MF77)
 
     # ------------------------
