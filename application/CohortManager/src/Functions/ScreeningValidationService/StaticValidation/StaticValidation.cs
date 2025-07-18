@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
-using NHS.Screening.StaticValidation;
 using RulesEngine.Models;
 
 public class StaticValidation
@@ -21,23 +20,17 @@ public class StaticValidation
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _handleException;
     private readonly IReadRules _readRules;
-    private readonly IHttpClientFunction _httpClientFunction;
-    private readonly StaticValidationConfig _config;
 
     public StaticValidation(
         ILogger<StaticValidation> logger,
         IExceptionHandler handleException,
         ICreateResponse createResponse,
-        IReadRules readRules,
-        IHttpClientFunction httpClientFunction,
-        IOptions<StaticValidationConfig> staticValidationConfig)
+        IReadRules readRules)
     {
         _logger = logger;
         _handleException = handleException;
         _createResponse = createResponse;
         _readRules = readRules;
-        _httpClientFunction = httpClientFunction;
-        _config = staticValidationConfig.Value;
     }
 
     // TODO: refactor to accept a cohort distribution participant
@@ -84,11 +77,15 @@ public class StaticValidation
 
             if (validationErrors.Any())
             {
-                string errors = JsonSerializer.Serialize(validationErrors);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, errors);
+                var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(createExceptionLogResponse));
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
+            {
+                IsFatal = false,
+                CreatedException = false
+            }));
         }
         catch (Exception ex)
         {

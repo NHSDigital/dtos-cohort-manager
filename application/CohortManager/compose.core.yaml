@@ -72,7 +72,6 @@ services:
       - PMSRemoveParticipant=http://remove-participant:7063/api/RemoveParticipant
       - PMSUpdateParticipant=http://update-participant:7065/api/updateParticipant
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - StaticValidationURL=http://static-validation:7074/api/StaticValidation
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - DemographicURI=http://durable-demographic-function:7079/api/DurableDemographicFunction_HttpStart
       - GetOrchestrationStatusURL=http://durable-demographic-function:7079/api/GetOrchestrationStatus
@@ -270,11 +269,8 @@ services:
       dockerfile: ScreeningValidationService/StaticValidation/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7074
-      - CreateValidationExceptionURL=http://create-exception:7070/api/CreateValidationException
-      - BlobContainerName=rules
-      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - RemoveOldValidationRecord=http://remove-validation-exception-data:7085/api/RemoveValidationExceptionData
+      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
 
   lookup-validation:
     container_name: lookup-validation

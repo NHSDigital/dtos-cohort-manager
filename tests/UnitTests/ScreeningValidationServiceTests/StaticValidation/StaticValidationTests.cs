@@ -14,7 +14,6 @@ using Moq;
 using NHS.CohortManager.ScreeningValidationService;
 using RulesEngine.Models;
 using NHS.CohortManager.Tests.TestUtils;
-using NHS.Screening.StaticValidation;
 using Microsoft.Extensions.Options;
 
 [TestClass]
@@ -29,8 +28,6 @@ public class StaticValidationTests
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly StaticValidation _function;
     private readonly Mock<IReadRules> _readRules = new();
-    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
-    private readonly Mock<IOptions<StaticValidationConfig>> _config = new();
 
     public StaticValidationTests()
     {
@@ -53,20 +50,12 @@ public class StaticValidationTests
         string rulesJson = GetRulesFile("Breast_Screening_staticRules.json");
         _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>())).Returns(Task.FromResult<string>(rulesJson));
 
-        var testConfig = new StaticValidationConfig
-        {
-            RemoveOldValidationRecord = "test"
-        };
-
-        _config.Setup(c => c.Value).Returns(testConfig);
 
         _function = new StaticValidation(
             _logger.Object,
             _handleException.Object,
             _createResponse,
-            _readRules.Object,
-            _httpClientFunction.Object,
-            _config.Object
+            _readRules.Object
         );
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>

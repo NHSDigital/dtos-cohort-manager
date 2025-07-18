@@ -61,7 +61,6 @@ public class ValidateParticipant
                 ScreeningName = validationRecord.Participant.ScreeningName
             });
             
-
             // Lookup & Static Validation
             _logger.LogInformation("Validating participant");
 
@@ -88,6 +87,7 @@ public class ValidateParticipant
             // Transformation
             _logger.LogInformation("Transforming participant");
             var transformedParticipant = await context.CallActivityAsync<CohortDistributionParticipant?>(nameof(TransformParticipant), validationRecord);
+            transformedParticipant.RecordInsertDateTime = previousRecord.RecordInsertDateTime;
 
             return transformedParticipant;
         }
@@ -158,35 +158,28 @@ public class ValidateParticipant
     }
 
     /// <summary>
-    /// Calls lookup validation twice, once for lookup rules and once for cohort rules
+    /// Calls lookup validation
     /// </summary>
     /// <param name="validationRecord"></param>
     /// <returns>A <see cref="ValidationExceptionLog"/> representing if the participant has triggered a rule</returns>
     [Function(nameof(LookupValidation))]
     public async Task<ValidationExceptionLog> LookupValidation([ActivityTrigger] ValidationRecord validationRecord)
     {
-        var lookupRequest = new LookupValidationRequestBody
+        var request = new LookupValidationRequestBody
         {
             NewParticipant = new Participant(validationRecord.Participant),
             ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
-            FileName = validationRecord.FileName,
-            RulesType = RulesType.ParticipantManagement
+            FileName = validationRecord.FileName
         };
 
-        var cohortRequest = new LookupValidationRequestBody
-        {
-            NewParticipant = new Participant(validationRecord.Participant),
-            ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
-            FileName = validationRecord.FileName,
-            RulesType = RulesType.CohortDistribution
-        };
+        var json = JsonSerializer.Serialize(request);
 
-        ValidationExceptionLog[] validationResults = await Task.WhenAll(
-            CallLookupValidation(lookupRequest),
-            CallLookupValidation(cohortRequest)
-        );
+        var response = await _httpClient.SendPost(_config.LookupValidationURL, json);
+        response.EnsureSuccessStatusCode();
+        string body = await _httpClient.GetResponseText(response);
 
-        return new ValidationExceptionLog(validationResults[0], validationResults[1]);
+        var exceptionLog = JsonSerializer.Deserialize<ValidationExceptionLog>(body);
+        return exceptionLog;
     }
 
     /// <summary>
@@ -202,7 +195,7 @@ public class ValidateParticipant
         {
             Participant = validationRecord.Participant,
             // TODO: is this used?
-            ServiceProvider = validationRecord.Participant.ScreeningServiceId,
+            ServiceProvider = validationRecord.ServiceProvider,
             ExistingParticipant = validationRecord.PreviousParticipantRecord.ToCohortDistribution()
         };
 
@@ -234,7 +227,6 @@ public class ValidateParticipant
             throw new IOException("Failed to update exception flag");
         }
     }
-
 
     [Function(nameof(HandleExceptions))]
     public async Task HandleExceptions([ActivityTrigger] (IEnumerable<RuleResultTree> exceptions, ValidationRecord validationRecord) input)
