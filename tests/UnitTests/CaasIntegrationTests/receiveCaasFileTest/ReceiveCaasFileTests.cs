@@ -16,6 +16,7 @@ using NHS.CohortManager.Tests.TestUtils;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Options;
+using ReconciliationServiceCore;
 
 [TestClass]
 public class ReceiveCaasFileTests
@@ -31,6 +32,7 @@ public class ReceiveCaasFileTests
     private readonly Mock<IOptions<ReceiveCaasFileConfig>> _config = new();
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
     private readonly Mock<IBlobStorageHelper> _blobStorageHelperMock = new();
+    private readonly Mock<IInboundMetricClient> _inboundMetricMock = new();
 
     public ReceiveCaasFileTests()
     {
@@ -56,7 +58,8 @@ public class ReceiveCaasFileTests
                                                     _mockScreeningLkpClient.Object,
                                                     _config.Object,
                                                     _blobStorageHelperMock.Object,
-                                                    _exceptionHandlerMock.Object);
+                                                    _exceptionHandlerMock.Object,
+                                                    _inboundMetricMock.Object);
 
         _blobName = "add_1_-_CAAS_BREAST_SCREENING_COHORT.parquet";
 

@@ -91,6 +91,7 @@ services:
       - ParticipantManagementQueueName=add-participant-queue
       - ParticipantManagementTopic=participant-management-topic
       - UseNewFunctions=true
+      - InboundMetricTopic=InboundMetricTopic
 
   # Participant Management Service
   manage-participant:
@@ -247,6 +248,7 @@ services:
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
       - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
+
 
   update-exception:
     container_name: update-exception
@@ -413,6 +415,27 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ServiceNowCasesDataServiceURL=http://servicenow-cases-data-service:9996/api/ServiceNowCasesDataService
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService
+
+  reconciliation-service:
+    container_name: reconciliation-service
+    image: cohort-manager-reconciliation-service
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: ReconciliationService/ReconciliationService.Function/Dockerfile
+    profiles: [non-essential]
+    environment:
+      - ASPNETCORE_URLS=http://*:7162
+      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
+      - ReconciliationTimer=5/5 * * * *
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - inboundMetricTopic=inboundMetricTopic
+      - ReconciliationServiceSubscription=inboundMetricSub
+      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
+      - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
+      - AcceptableLatencyThresholdMs=500
+      - StateBlobContainerName=config
 
   # UI
   web:
