@@ -37,24 +37,6 @@
         }
       },
       {
-        "RuleName": "3602.CurrentPostingAndPrimaryProvider.BSSelect.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "EnglishPostingCategory",
-            "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\""
-          }
-        ],
-        "Expression": "!((EnglishPostingCategory || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting)) && !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Invalid primary care provider GP practice code\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal",
         "LocalParams": [
           {
@@ -75,32 +57,6 @@
             }
           }
         }
-      },
-      {
-        "RuleName": "58.CurrentPosting.NBO.NonFatal",
-        "Expression": "ValidCurrentPosting",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Missing or invalid Posting\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "11.ValidateReasonForRemoval.NBO.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "newRecordType",
-            "Expression": "newParticipant.RecordType == Actions.New"
-          },
-          {
-            "Name": "reasonForRemovalIsLDNOrRC",
-            "Expression": "existingParticipant.ReasonForRemoval == \"LDN\" OR existingParticipant.ReasonForRemoval == \"R/C\""
-          }
-        ],
-        "Expression": "newRecordType OR !reasonForRemovalIsLDNOrRC"
       }
     ]
   },
