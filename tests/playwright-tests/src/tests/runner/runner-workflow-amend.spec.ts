@@ -7,7 +7,8 @@ import { runnerBasedEpic2TestScenariosAmend } from '../e2e/epic2-highpriority-te
 import { runnerBasedEpic2MedTestScenariosAmend } from '../e2e/epic2-medpriority-tests/epic2-med-priority-testsuite-migrated';
 import { runnerBasedEpic3TestScenariosAmend } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
 import { runnerBasedEpic3MedTestScenariosAmend } from '../e2e/epic3-medpriority-tests/epic3-med-priority-testsuite-migrated';
-import { runnerBasedEpic4dTestScenariosAmend } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
+//import { runnerBasedEpic4dTestScenariosAmend } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
+import { runnerBasedEpic4dTestScenariosAmend } from '../e2e/epic4d-validation-tests/epic4d-9774-rule8-transformation-testsuite-migrated';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 
 
