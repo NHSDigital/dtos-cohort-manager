@@ -85,7 +85,6 @@ test('@DTOSS-7615-01 - AC1 - Verify participant is deleted from CohortDistributi
     });
 
     // Call the block participant function
-
       const payload = {
         NhsNumber: nhsNumbers[0],
         FamilyName: inputParticipantRecord[0].family_name,
