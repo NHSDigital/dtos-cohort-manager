@@ -157,16 +157,9 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "4"
+          capacity_min = "1"
           capacity_max = "4"
-          capacity_def = "4"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 4
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
+          capacity_def = "2"
         }
       }
     }
@@ -1474,7 +1467,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 30
       read_scale           = false
-      sku                  = "S12"
+      sku                  = "S2"
       storage_account_type = "GeoZone"
       zone_redundant       = false
 
