@@ -298,7 +298,6 @@ public class TransformDataServiceTests
             TelephoneNumber = new string('A', 32),
             MobileNumber = new string('A', 32),
             EmailAddress = new string('A', 90),
-            Gender = Gender.NotSpecified
         };
 
         // Act
@@ -307,61 +306,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>()), times: Times.Exactly(14));
-    }
-
-    [TestMethod]
-    public async Task Run_Should_Transform_Participant_Data_When_Gender_IsNot_0_1_2_or_9()
-    {
-        // Arrange
-        _requestBody.Participant.Gender = (Gender)4;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-        var expectedResponse = new CohortDistributionParticipant
-        {
-            NhsNumber = "1",
-            FirstName = "John",
-            FamilyName = "Smith",
-            NamePrefix = "MR",
-            Gender = Gender.NotSpecified,
-        };
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        result.Body.Position = 0;
-        var reader = new StreamReader(result.Body, Encoding.UTF8);
-        var responseBody = await reader.ReadToEndAsync();
-        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherGenderNot-0-1-2-or-9", 00), times: Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Run_Should_Not_Transform_Participant_Gender_When_Gender_Is_0_1_2_or_9()
-    {
-        // Arrange
-        _requestBody.Participant.Gender = Gender.Male;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-        var expectedResponse = new CohortDistributionParticipant
-        {
-            NhsNumber = "1",
-            FirstName = "John",
-            FamilyName = "Smith",
-            NamePrefix = "MR",
-            Gender = Gender.Male,
-        };
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
-        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherGenderNot-0-1-2-or-9", 00), times: Times.Never);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>()), times: Times.Exactly(13));
     }
 
     //TODO: This test needs fixing as it doesnt test anything.

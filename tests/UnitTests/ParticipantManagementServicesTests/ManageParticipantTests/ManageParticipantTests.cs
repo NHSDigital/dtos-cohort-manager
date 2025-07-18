@@ -101,7 +101,7 @@ public class ManageParticipantTests
 
         // Assert
         _participantManagementClientMock
-            .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Once);
+            .Verify(x => x.Add(It.Is<ParticipantManagement>(p => p.RecordInsertDateTime != null)), Times.Once);
         _participantManagementClientMock
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
@@ -121,7 +121,7 @@ public class ManageParticipantTests
 
         // Assert
         _participantManagementClientMock
-            .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Once);
+            .Verify(x => x.Update(It.Is<ParticipantManagement>(p => p.RecordUpdateDateTime != null)), Times.Once);
         _participantManagementClientMock
             .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock

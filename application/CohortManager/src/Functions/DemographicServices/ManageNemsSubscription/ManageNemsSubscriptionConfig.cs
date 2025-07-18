@@ -8,23 +8,6 @@ using System.ComponentModel.DataAnnotations;
 public class ManageNemsSubscriptionConfig
 {
     /// <summary>
-    /// ManageNemsSubscription-specific configuration settings
-    /// These will be stored in Key Vault with the "ManageNemsSubscription--" prefix
-    /// </summary>
-    public ManageNemsSubscriptionSettings ManageNemsSubscription { get; set; } = new();
-
-    /// <summary>
-    /// Custom validation to ensure either KeyVault or local cert is configured
-    /// </summary>
-    public bool IsValid => !string.IsNullOrEmpty(ManageNemsSubscription.KeyVaultConnectionString) || !string.IsNullOrEmpty(ManageNemsSubscription.NemsLocalCertPath);
-}
-
-/// <summary>
-/// NEMS-specific configuration settings that will be grouped under ManageNemsSubscription-- in Key Vault
-/// </summary>
-public class ManageNemsSubscriptionSettings
-{
-    /// <summary>
     /// NEMS FHIR API base endpoint
     /// Integration: https://msg.intspineservices.nhs.uk/STU3
     /// Production: Contact NHS Digital for production URLs
@@ -36,29 +19,29 @@ public class ManageNemsSubscriptionSettings
     /// Your organization's ASID (Application Service Instance Identifier)
     /// Example: "200000002527"
     /// </summary>
-    [Required(ErrorMessage = "FromAsid is required")]
-    public string FromAsid { get; set; } = string.Empty;
+    [Required(ErrorMessage = "NemsFromAsid is required")]
+    public string NemsFromAsid { get; set; } = string.Empty;
 
     /// <summary>
     /// Target ASID (usually same as FromAsid for NEMS)
     /// Example: "200000002527"
     /// </summary>
-    [Required(ErrorMessage = "ToAsid is required")]
-    public string ToAsid { get; set; } = string.Empty;
+    [Required(ErrorMessage = "NemsToAsid is required")]
+    public string NemsToAsid { get; set; } = string.Empty;
 
     /// <summary>
     /// Your organization's ODS code
     /// Example: "T8T9T"
     /// </summary>
-    [Required(ErrorMessage = "OdsCode is required")]
-    public string OdsCode { get; set; } = string.Empty;
+    [Required(ErrorMessage = "NemsOdsCode is required")]
+    public string NemsOdsCode { get; set; } = string.Empty;
 
     /// <summary>
     /// Your MESH mailbox ID (CRITICAL: Use full mailbox ID, not just ODS code)
     /// Example: "T8T9TOT001" (NOT just "T8T9T")
     /// </summary>
-    [Required(ErrorMessage = "MeshMailboxId is required")]
-    public string MeshMailboxId { get; set; } = string.Empty;
+    [Required(ErrorMessage = "NemsMeshMailboxId is required")]
+    public string NemsMeshMailboxId { get; set; } = string.Empty;
 
     /// <summary>
     /// Azure Key Vault connection string for certificate storage
@@ -87,23 +70,23 @@ public class ManageNemsSubscriptionSettings
     /// <summary>
     /// FHIR profile for EMS subscriptions
     /// </summary>
-    public string SubscriptionProfile { get; set; } = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1";
+    public string NemsSubscriptionProfile { get; set; } = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1";
 
     /// <summary>
     /// Base criteria for NHS number identifier
     /// </summary>
-    public string SubscriptionCriteria { get; set; } = "https://fhir.nhs.uk/Id/nhs-number";
+    public string NemsSubscriptionCriteria { get; set; } = "https://fhir.nhs.uk/Id/nhs-number";
 
     /// <summary>
     /// Whether to bypass server certificate validation (for development only)
     /// Set to true only during local development
     /// </summary>
-    public bool BypassServerCertificateValidation { get; set; } = false;
+    public bool NemsBypassServerCertificateValidation { get; set; } = false;
 
     /// <summary>
     /// Default event types to subscribe to
     /// </summary>
-    public string[] DefaultEventTypes { get; set; } = new[]
+    public string[] NemsDefaultEventTypes { get; set; } = new[]
     {
         "pds-record-change-1"
     };
@@ -112,5 +95,11 @@ public class ManageNemsSubscriptionSettings
     /// HTTP client timeout in seconds for NEMS API requests
     /// Default: 300 seconds (5 minutes)
     /// </summary>
-    public int HttpClientTimeoutSeconds { get; set; } = 300;
+    public int NemsHttpClientTimeoutSeconds { get; set; } = 300;
+
+    /// <summary>
+    /// Custom validation to ensure either KeyVault or local cert is configured
+    /// </summary>
+    public bool IsValid => !string.IsNullOrEmpty(KeyVaultConnectionString) || !string.IsNullOrEmpty(NemsLocalCertPath);
 }
+

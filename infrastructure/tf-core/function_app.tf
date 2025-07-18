@@ -56,7 +56,7 @@ module "functionapp" {
     )
   )
 
-  image_tag  = var.function_apps.docker_env_tag
+  image_tag  = var.function_apps.docker_env_tag != "" ? var.function_apps.docker_env_tag : var.docker_image_tag
   image_name = "${var.function_apps.docker_img_prefix}-${lower(each.value.name_suffix)}"
 
   # Private Endpoint Configuration if enabled

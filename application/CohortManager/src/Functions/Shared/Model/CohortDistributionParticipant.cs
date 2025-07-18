@@ -128,8 +128,6 @@ public class CohortDistributionParticipant
         IsInterpreterRequired = demographic.InterpreterRequired.ToString();
         ReasonForRemoval = participant.ReasonForRemoval;
         ReasonForRemovalEffectiveFromDate = participant.ReasonForRemovalDate.ToString();
-        RecordInsertDateTime = demographic.RecordInsertDateTime.ToString();
-        RecordUpdateDateTime = participant.RecordUpdateDateTime.ToString();
         ScreeningServiceId = participant.ScreeningId.ToString();
         Extracted = null;
         RecordType = participant.RecordType;
@@ -137,6 +135,7 @@ public class CohortDistributionParticipant
         CurrentPostingEffectiveFromDate = demographic.CurrentPostingFromDate;
         ExceptionFlag = participant.ExceptionFlag;
         InvalidFlag = demographic.InvalidFlag.ToString();
+        EligibilityFlag = participant.EligibilityFlag.ToString();
     }
 
     public string? RequestId { get; set; }

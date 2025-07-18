@@ -15,7 +15,7 @@ var host = new HostBuilder();
 // Load configuration
 host.AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config);
 
-var nemsConfig = config.ManageNemsSubscription;
+var nemsConfig = config;
 
 // Load NEMS certificate up-front and inject into DI
 var nemsCertificate = await nemsConfig.LoadNemsCertificateAsync(logger);
@@ -40,8 +40,8 @@ host.AddHttpClient()
         // Log configuration for debugging (without sensitive data)
         logger.LogInformation("NEMS Configuration loaded - Endpoint: {Endpoint}, ODS: {OdsCode}, MESH: {MeshId}",
             nemsConfig.NemsFhirEndpoint,
-            nemsConfig.OdsCode,
-            string.IsNullOrEmpty(nemsConfig.MeshMailboxId) ? "NOT_SET" : "SET");
+            nemsConfig.NemsOdsCode,
+            string.IsNullOrEmpty(nemsConfig.NemsMeshMailboxId) ? "NOT_SET" : "SET");
     })
     .AddDataServicesHandler<DataServicesContext>()
     .AddTelemetry()

@@ -77,6 +77,10 @@ public class ValidationTests
             .Returns(request);
 
         _mockContext
+            .Setup(x => x.CallActivityAsync<CohortDistributionParticipant>("GetCohortDistributionRecord", It.IsAny<string>(), null))
+            .ReturnsAsync(new CohortDistributionParticipant());
+
+        _mockContext
             .Setup(x => x.CallActivityAsync<ValidationExceptionLog>("LookupValidation", It.IsAny<ValidationRecord>(), null))
             .ReturnsAsync(validationResponseBody);
 

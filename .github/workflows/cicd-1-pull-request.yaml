@@ -126,7 +126,6 @@ jobs:
       environment_tag: ${{ needs.metadata.outputs.environment_tag }}
       function_app_source_code_path: application/CohortManager/src
       project_name: cohort-manager
-      build_all_images: true
     secrets: inherit
   acceptance-stage: # Recommended maximum execution time is 10 minutes
     name: "Acceptance stage"

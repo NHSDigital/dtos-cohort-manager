@@ -29,6 +29,12 @@ variables:
   - name: ENVIRONMENT
     value: integration
 
+parameters:
+  - name: dockerImageTag
+    displayName: 'Docker Image Tag'
+    type: string
+    default: integration
+
 stages:
   - stage: terraform_plan
     displayName: Terraform Plan
@@ -42,6 +48,8 @@ stages:
           - checkout: self
           - checkout: dtos-devops-templates
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+            parameters:
+              tfCommandOptions: '-var="docker_image_tag=${{ parameters.dockerImageTag }}"'
 
   - stage: terraform_apply
     displayName: Terraform Apply

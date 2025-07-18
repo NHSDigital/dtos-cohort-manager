@@ -51,4 +51,23 @@ public class HttpParserHelper : IHttpParserHelper
                 return defaultValue;
         }
     }
+
+    /// <summary>
+    /// Parses an enum query parameter if it exists. If not, it will return the provided default value.
+    /// </summary>
+    /// <typeparam name="T">The enum type to parse</typeparam>
+    /// <param name="req">The HTTP request data</param>
+    /// <param name="key">The query parameter key name</param>
+    /// <param name="defaultValue">The default value to return if parsing fails or the parameter is missing</param>
+    /// <returns>The parsed enum value or the default value</returns>
+    public static T GetEnumQueryParameter<T>(HttpRequestData req, string key, T defaultValue) where T : struct, Enum
+    {
+        var queryString = req.Query[key];
+        if (string.IsNullOrEmpty(queryString))
+        {
+            return defaultValue;
+        }
+
+        return Enum.TryParse<T>(queryString, true, out var result) ? result : defaultValue;
+    }
 }
