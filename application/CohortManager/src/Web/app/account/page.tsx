@@ -3,7 +3,7 @@ import { auth } from "@/app/lib/auth";
 import Breadcrumb from "@/app/components/breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Account and settings - Cohort Manager",
+  title: `Account and settings - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page() {

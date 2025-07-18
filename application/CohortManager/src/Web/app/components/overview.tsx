@@ -1,14 +1,9 @@
-import type { Metadata } from "next";
 import CardGroup from "@/app/components/cardGroup";
 import DataError from "@/app/components/dataError";
 import {
   fetchExceptionsNotRaised,
   fetchExceptionsRaised,
 } from "@/app/lib/fetchExceptions";
-
-export const metadata: Metadata = {
-  title: "Breast screening - Cohort Manager",
-};
 
 export default async function Overview() {
   try {
