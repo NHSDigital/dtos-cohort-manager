@@ -52,7 +52,9 @@ module "functionapp" {
   assigned_identity_ids = compact(
     concat(
       [module.global_cohort_identity[each.value.region].id],
-      var.function_apps.cont_registry_use_mi == true ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
+
+      # We don't need a specific container registry identity since our global role incorporates AcrPull permissions
+      # var.function_apps.cont_registry_use_mi == true ? [data.azurerm_user_assigned_identity.acr_mi.id] : []
     )
   )
 
