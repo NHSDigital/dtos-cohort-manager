@@ -482,8 +482,6 @@ public class LookupValidationTests
     public async Task Run_ParticipantLocationRemainingOutsideOfCohortAndNotInExcludedSMU_ShouldThrowException(string newCurrentPosting, string newPrimaryCareProvider)
     {
         // Arrange
-        SetupRules("LookupRules");
-
         _requestBody.NewParticipant.RecordType = Actions.New;
         _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
         _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
