@@ -1,4 +1,3 @@
-import styles from "@/app/styles/components/signIn.module.scss";
 import { signIn } from "@/app/lib/auth";
 
 import type { JSX } from "react";
@@ -47,12 +46,12 @@ export default function SignIn({
             }}
           >
             <button
-              className={`nhsuk-button app-button--cis2 ${styles["app-button--cis2"]} nhsuk-u-margin-bottom-4`}
+              className="nhsuk-button nhsuk-button--login"
               data-module="nhsuk-button"
               type="submit"
             >
               <svg
-                className="nhsuk-logo"
+                className="nhsuk-button__login-icon"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 80 32"
                 height="27"

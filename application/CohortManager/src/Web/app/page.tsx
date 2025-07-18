@@ -10,12 +10,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
   if (session?.user) {
     return {
-      title: `Breast screening - ${process.env.SERVICE_NAME}`,
+      title: `Breast screening - ${process.env.SERVICE_NAME} - NHS`,
     };
   }
 
   return {
-    title: `Log in with your Care Identity account - ${process.env.SERVICE_NAME}`,
+    title: `${process.env.SERVICE_NAME} - NHS`,
   };
 }
 

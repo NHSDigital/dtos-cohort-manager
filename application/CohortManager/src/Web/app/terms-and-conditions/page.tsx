@@ -3,7 +3,7 @@ import Breadcrumb from "@/app/components/breadcrumb";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Terms and conditions - Cohort Manager",
+  title: `Terms and conditions - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page() {
