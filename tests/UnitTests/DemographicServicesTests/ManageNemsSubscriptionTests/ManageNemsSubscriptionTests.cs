@@ -32,16 +32,13 @@ public class ManageNemsSubscriptionTests
     {
         var config = new ManageNemsSubscriptionConfig
         {
-            ManageNemsSubscription = new ManageNemsSubscriptionSettings
-            {
-                NemsFhirEndpoint = "https://nems.fhir.endpoint",
-                FromAsid = "FromAsid",
-                ToAsid = "ToAsid",
-                SubscriptionProfile = "SubscriptionProfile",
-                SubscriptionCriteria = "SubscriptionCriteria",
-                NemsLocalCertPath = null,
-                NemsLocalCertPassword = null
-            }
+            NemsFhirEndpoint = "https://nems.fhir.endpoint",
+            NemsFromAsid = "FromAsid",
+            NemsToAsid = "ToAsid",
+            NemsSubscriptionProfile = "SubscriptionProfile",
+            NemsSubscriptionCriteria = "SubscriptionCriteria",
+            NemsLocalCertPath = null,
+            NemsLocalCertPassword = null
         };
 
         _config.Setup(x => x.Value).Returns(config);
