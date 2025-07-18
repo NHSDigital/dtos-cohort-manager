@@ -22,7 +22,7 @@ public sealed class InboundMetricClientTests
         _mockConfig.Setup(x => x.Value).Returns(new InboundMetricClientConfig
         {
             InboundMetricTopic = "TopicName",
-            ServiceBusConnectionString = "connectionString"
+            ServiceBusConnectionString_client_internal = "connectionString"
         });
         _inboundMetricClient = new InboundMetricClient(_mockLogger.Object, _mockQueueClient.Object, _mockConfig.Object);
 

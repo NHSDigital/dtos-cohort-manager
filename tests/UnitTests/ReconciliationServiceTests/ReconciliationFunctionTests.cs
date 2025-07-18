@@ -26,6 +26,7 @@ public sealed class ReconciliationFunctionTests
     private readonly Mock<ServiceBusMessageActions> _mockMessageActions = new();
     private readonly ReconciliationService _reconciliationService;
     private readonly Mock<IReconciliationProcessor> _mockReconciliationProcessor = new();
+    private readonly Mock<IStateStore> _mockStateStore = new();
 
     public ReconciliationFunctionTests()
     {
@@ -34,7 +35,8 @@ public sealed class ReconciliationFunctionTests
             _mockCreateResponse.Object,
             _mockRequestHandler.Object,
             _mockInboundMetricAccessor.Object,
-            _mockReconciliationProcessor.Object);
+            _mockReconciliationProcessor.Object,
+            _mockStateStore.Object);
 
     }
     [TestMethod]
