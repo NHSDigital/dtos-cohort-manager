@@ -19,10 +19,10 @@
 // There is no impact to the test tags. The same tags can be used to trigger these tests.
 // For example, to run regression tests, use:
 //
-//   npm run test:regression_e2e_epic4d
+//   npm run test:regression:e2e:epic4d
 //
 // This equates to "@epic4d-" tags, configured in the package.json at the playwright-tests root location.
 
 
-//  export const runnerBasedEpic4dTestScenariosAdd = "@DTOSS-9492-01|@DTOSS-9494-01|@DTOSS-9496-01|@DTOSS-9498-01";
-//  export const runnerBasedEpic4dTestScenariosAmend = "@DTOSS-9493-01|@DTOSS-9495-01|@DTOSS-9497-01|@DTOSS-9499-01";
+ export const runnerBasedEpic4dTestScenariosAdd = "@DTOSS-8923-01";
+ export const runnerBasedEpic4dTestScenariosAmend = "@DTOSS-8923-01";
