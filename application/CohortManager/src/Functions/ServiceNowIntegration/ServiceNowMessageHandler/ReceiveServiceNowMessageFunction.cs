@@ -46,11 +46,11 @@ public class ReceiveServiceNowMessageFunction
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
-            var validationContext = new ValidationContext(requestBody);
+            var validationContext = new ValidationContext(requestBody.VariableData);
             var validationResult = new List<ValidationResult>();
-            bool isRequestBodyValid = Validator.TryValidateObject(requestBody, validationContext, validationResult, true);
+            bool isVariableDataValid = Validator.TryValidateObject(requestBody.VariableData, validationContext, validationResult, true);
 
-            if (!isRequestBodyValid)
+            if (string.IsNullOrWhiteSpace(requestBody.ServiceNowCaseNumber) || !isVariableDataValid)
             {
                 _logger.LogError("Request body failed validation");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);

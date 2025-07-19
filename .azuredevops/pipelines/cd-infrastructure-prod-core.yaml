@@ -20,20 +20,20 @@ parameters:
   - name: dockerImageTag
     displayName: 'Docker Image Tag'
     type: string
-    default: preprod
+    default: production
 
 variables:
-  - group: PRE_core_backend
-  - group: PRE_audit_backend_remote_state
+  - group: PROD_core_backend
+  - group: PROD_audit_backend_remote_state
   - group: PRD_hub_backend_remote_state
-  - name: TF_DIRECTORY
-    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
   - name: TF_VERSION
     value: 1.11.4
   - name: TF_PLAN_ARTIFACT
-    value: tf_plan_core_PRE
+    value: tf_plan_core_PROD
+  - name: TF_DIRECTORY
+    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
   - name: ENVIRONMENT
-    value: preprod
+    value: production
 
 stages:
   - stage: terraform_plan

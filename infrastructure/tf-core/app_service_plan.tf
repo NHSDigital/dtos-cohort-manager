@@ -32,6 +32,7 @@ module "app-service-plan" {
   monitor_diagnostic_setting_appserviceplan_metrics = local.monitor_diagnostic_setting_appserviceplan_metrics
   os_type                                           = lookup(each.value, "os_type", var.app_service_plan.os_type)
   sku_name                                          = lookup(each.value, "sku_name", var.app_service_plan.sku_name)
+  zone_balancing_enabled                            = lookup(each.value, "zone_balancing_enabled", var.app_service_plan.zone_balancing_enabled)
   vnet_integration_subnet_id                        = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
   wildcard_ssl_cert_name                            = each.value.wildcard_ssl_cert_key
   wildcard_ssl_cert_pfx_blob_key_vault_secret_name  = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.certificates[each.value.wildcard_ssl_cert_key].key_vault_certificate[each.value.region].pfx_blob_secret_name : null
