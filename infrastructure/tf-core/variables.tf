@@ -65,6 +65,14 @@ variable "application_full_name" {
   default     = "DToS"
 }
 
+# We apply global RBAC as phase two after Terraform plan, so do not set this value
+# to True during the plan phase.
+variable "use_global_rbac_roles" {
+  description = "True to use default RBAC assignments for the global User Assigned Managed Identity, False otherwise"
+  type        = bool
+  default     = false
+}
+
 variable "docker_image_tag" {
   description = "Docker image tag to be used for application deployments"
   type        = string
@@ -265,6 +273,7 @@ variable "function_apps" {
 
 variable "frontdoor_endpoint" {
   description = "Configuration for Front Door"
+  default = {}
   type = map(object({
     origin = object({
       enabled    = optional(bool, true)
@@ -587,4 +596,10 @@ variable "function_app_slots" {
     function_app_slots_name   = optional(string, "staging")
     function_app_slot_enabled = optional(bool, false)
   }))
+}
+
+variable "rbac_principal_id" {
+  type = string
+  description = "An identifier of a security principal to apply to all resource role assignments."
+  default = null
 }

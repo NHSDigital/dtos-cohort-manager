@@ -68,6 +68,15 @@ module "azure_sql_server" {
   tags = var.tags
 }
 
+    # resource "azurerm_role_assignment" "global_cohort_mi_sql_role_assignments" {
+#   for_each = var.use_global_rbac_roles ? var.regions : {}
+
+#   # The user-supplied principal_id takes precedence
+#   principal_id = coalesce(var.rbac_principal_id, module.global_cohort_identity[each.key].principal_id)
+#   role_definition_id = module.global_cohort_identity_roles[each.key].sql_role_definition_id
+#   scope = module.azure_sql_server[each.key].sql_server_id
+# }
+
 module "managed_identity_sql_db_management" {
   for_each = var.sqlserver != {} ? var.regions : {}
 
@@ -90,3 +99,4 @@ module "sql_db_management_rbac_assignment" {
   scope                = module.azure_sql_server[each.key].sql_server_id
 
 }
+

@@ -18,7 +18,10 @@ module "key_vault" {
   sku_name                 = var.key_vault.sku_name
 
   enable_rbac_authorization = true
-  rbac_roles                = local.rbac_roles_key_vault
+
+  # We use the custom role definition
+  #rbac_roles                = local.rbac_key_vault_roles
+  rbac_roles                = []
 
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
@@ -36,3 +39,12 @@ module "key_vault" {
 
   tags = var.tags
 }
+
+# resource "azurerm_role_assignment" "global_cohort_mi_keyvault_role_assignments" {
+#   for_each = var.use_global_rbac_roles ? var.regions : {}
+
+#   # The user-supplied principal_id takes precedence
+#   principal_id = coalesce(var.rbac_principal_id, module.global_cohort_identity[each.key].principal_id)
+#   role_definition_id = module.global_cohort_identity_roles[each.key].role_definition_id
+#   scope = module.key_vault[each.key].key_vault_id
+# }

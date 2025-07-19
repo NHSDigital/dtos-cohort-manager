@@ -21,7 +21,7 @@ module "storage" {
 
   public_network_access_enabled = each.value.public_network_access_enabled
 
-  rbac_roles = local.rbac_roles_storage
+  rbac_roles = local.rbac_storage_roles
 
   # Private Endpoint Configuration if enabled
   private_endpoint_properties = var.features.private_endpoints_enabled ? {
@@ -41,6 +41,15 @@ module "storage" {
 
   tags = var.tags
 }
+
+# resource "azurerm_role_assignment" "global_cohort_mi_storage_role_assignments" {
+#   for_each = var.use_global_rbac_roles ? local.storage_accounts_map : {}
+
+#   # The user-supplied principal_id takes precedence
+#   principal_id = coalesce(var.rbac_principal_id, module.global_cohort_identity[each.value.region_key].principal_id)
+#   role_definition_id = module.global_cohort_identity_roles[each.value.region_key].sql_role_definition_id
+#   scope = module.storage[each.key].storage_account_id
+# }
 
 locals {
   storage_accounts_flatlist = flatten([
