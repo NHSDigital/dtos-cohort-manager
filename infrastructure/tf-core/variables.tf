@@ -73,6 +73,12 @@ variable "use_global_rbac_roles" {
   default     = false
 }
 
+variable "docker_image_tag" {
+  description = "Docker image tag to be used for application deployments"
+  type        = string
+  default     = ""
+}
+
 variable "environment" {
   description = "Environment code for deployments"
   type        = string

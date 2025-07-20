@@ -60,7 +60,7 @@ flowchart LR
 
 1. Select any relevant resource type in the group, such as SQL Server, Function App, Key Vault, Service Bus Namespace, Storage Account or EventGrid. Navigate to the resource's **IAM** blade.
 
-1. Note that there now exists a role assignment titled **Cohort Manager Custom Role (_env_name_)** for the Cohort Manager User Assigned Identity, scoped to the _resource group_ level.
+1. Note that there now exists a role assignment titled **Cohort Manager Custom Role (_environment name_)** for the Cohort Manager User Assigned Identity, scoped to the _resource group_ level.
 
 #### Flow using existing approach
 
