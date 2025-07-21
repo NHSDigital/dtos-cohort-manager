@@ -3,7 +3,7 @@ import Breadcrumb from "@/app/components/breadcrumb";
 import ReportsTable from "@/app/components/reportsTable";
 
 export const metadata: Metadata = {
-  title: "Reports - Cohort Manager",
+  title: `Reports - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page() {

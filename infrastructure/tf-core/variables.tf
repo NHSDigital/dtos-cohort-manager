@@ -65,6 +65,12 @@ variable "application_full_name" {
   default     = "DToS"
 }
 
+variable "docker_image_tag" {
+  description = "Docker image tag to be used for application deployments"
+  type        = string
+  default     = ""
+}
+
 variable "environment" {
   description = "Environment code for deployments"
   type        = string
@@ -100,6 +106,7 @@ variable "app_service_plan" {
     sku_name                 = optional(string, "P2v3")
     os_type                  = optional(string, "Linux")
     vnet_integration_enabled = optional(bool, false)
+    zone_balancing_enabled   = optional(bool, false)
 
     autoscale = object({
       scaling_rule = object({
@@ -179,7 +186,7 @@ variable "container_apps" {
     apps = optional(map(object({
       name_suffix                   = optional(string)
       container_app_environment_key = optional(string)
-      docker_env_tag                = optional(string)
+      docker_env_tag                = optional(string, "")
       docker_image                  = optional(string)
       is_web_app                    = optional(bool, false)
       container_registry_use_mi     = optional(bool, false)
@@ -194,7 +201,7 @@ variable "container_app_jobs" {
     apps = optional(map(object({
       name_suffix                   = optional(string)
       container_app_environment_key = optional(string)
-      docker_env_tag                = optional(string)
+      docker_env_tag                = optional(string, "")
       docker_image                  = optional(string)
       container_registry_use_mi     = optional(bool, false)
     })), {})
@@ -219,7 +226,7 @@ variable "function_apps" {
     app_service_logs_retention_period_days = optional(number)
     cont_registry_use_mi                   = bool
     docker_CI_enable                       = string
-    docker_env_tag                         = string
+    docker_env_tag                         = optional(string, "")
     docker_img_prefix                      = string
     enable_appsrv_storage                  = bool
     ftps_state                             = string
@@ -340,7 +347,7 @@ variable "linux_web_app" {
     app_service_logs_disk_quota_mb         = optional(number)
     app_service_logs_retention_period_days = optional(number)
     cont_registry_use_mi                   = bool
-    docker_env_tag                         = string
+    docker_env_tag                         = optional(string, "")
     docker_CI_enable                       = optional(string, "")
     docker_img_prefix                      = string
     enable_appsrv_storage                  = bool
@@ -490,6 +497,7 @@ variable "sqlserver" {
     ad_auth_only                         = optional(bool)
     auditing_policy_retention_in_days    = optional(number)
     security_alert_policy_retention_days = optional(number)
+    db_management_mi_name_prefix         = optional(string)
 
     # Server Instance
     server = optional(object({

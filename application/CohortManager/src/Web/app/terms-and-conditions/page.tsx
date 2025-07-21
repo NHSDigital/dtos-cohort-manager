@@ -3,7 +3,7 @@ import Breadcrumb from "@/app/components/breadcrumb";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Terms and conditions - Cohort Manager",
+  title: `Terms and conditions - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page() {
@@ -23,14 +23,24 @@ export default async function Page() {
             <p>
               When you log in to Cohort Manager&apos;s exception visualisation
               user interface (UI), through the{" "}
-              <a href="https://digital.nhs.uk/services/care-identity-service">
+              <a
+                href="https://digital.nhs.uk/services/care-identity-service"
+                data-testid="CIS-link"
+              >
                 Care Identity Service (CIS)
               </a>
               , you are accepting the{" "}
-              <a href="https://digital.nhs.uk/services/care-identity-service/registration-authority-users/registration-authority-help/privacy-notice#terms-and-conditions">
+              <a
+                href="https://digital.nhs.uk/services/care-identity-service/registration-authority-users/registration-authority-help/privacy-notice#terms-and-conditions"
+                data-testid="cis-and-nhs-terms-link"
+              >
                 CIS and NHS Spine terms and conditions
               </a>{" "}
-              and the <Link href="/cookies-policy">cookies policy</Link>.
+              and the{" "}
+              <Link href="/cookies-policy" data-testid="cookies-policy-link">
+                cookies policy
+              </Link>
+              .
             </p>
             <p>
               Your access to participant and exception data will be used solely
