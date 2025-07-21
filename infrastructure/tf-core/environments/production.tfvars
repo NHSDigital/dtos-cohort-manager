@@ -49,8 +49,11 @@ regions = {
         cidr_offset  = 5
       }
       container-app-db-management = {
-        cidr_newbits = 7
-        cidr_offset  = 6
+        cidr_newbits               = 7
+        cidr_offset                = 6
+        delegation_name            = "Microsoft.App/environments"
+        service_delegation_name    = "Microsoft.App/environments"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
       }
     }
   }
@@ -106,13 +109,14 @@ app_service_plan = {
   os_type                  = "Linux"
   sku_name                 = "P3v3"
   vnet_integration_enabled = true
+  zone_balancing_enabled   = true
 
   autoscale = {
     scaling_rule = {
       metric = "CpuPercentage"
 
       capacity_min = "1"
-      capacity_max = "12"
+      capacity_max = "4"
       capacity_def = "2"
 
       time_grain       = "PT1M"
@@ -124,7 +128,7 @@ app_service_plan = {
       inc_threshold       = 20
       inc_scale_direction = "Increase"
       inc_scale_type      = "ExactCount"
-      inc_scale_value     = 12
+      inc_scale_value     = 4
       inc_scale_cooldown  = "PT10M"
 
       dec_operator        = "LessThan"
@@ -142,34 +146,9 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "20"
-          capacity_max = "20"
-          capacity_def = "20"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 20
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
-        }
-      }
-    }
-    DefaultPlan2 = {
-      autoscale_override = {
-        scaling_rule = {
-          metric = "CpuPercentage"
-
-          capacity_min = "5"
-          capacity_max = "5"
-          capacity_def = "5"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 5
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
+          capacity_min = "1"
+          capacity_max = "4"
+          capacity_def = "2"
         }
       }
     }
@@ -178,16 +157,9 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "4"
+          capacity_min = "1"
           capacity_max = "4"
-          capacity_def = "4"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 4
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
+          capacity_def = "2"
         }
       }
     }
@@ -258,6 +230,7 @@ function_apps = {
   health_check_path             = "/api/health"
 
   fa_config = {
+    
     ReceiveCaasFile = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
@@ -1478,6 +1451,7 @@ sqlserver = {
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
+  db_management_mi_name_prefix         = "mi-cohort-manager-db-management"
 
   server = {
     sqlversion                    = "12.0"
@@ -1493,7 +1467,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 30
       read_scale           = false
-      sku                  = "S12"
+      sku                  = "S2"
       storage_account_type = "GeoZone"
       zone_redundant       = false
 
