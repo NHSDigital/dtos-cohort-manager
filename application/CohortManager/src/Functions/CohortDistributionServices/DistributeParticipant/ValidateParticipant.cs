@@ -77,6 +77,7 @@ public class ValidateParticipant
             // Transformation
             _logger.LogInformation("Transforming participant");
             var transformedParticipant = await context.CallActivityAsync<CohortDistributionParticipant?>(nameof(TransformParticipant), validationRecord);
+            transformedParticipant.RecordInsertDateTime = previousRecord.RecordInsertDateTime;
 
             return transformedParticipant;
         }
@@ -140,35 +141,28 @@ public class ValidateParticipant
     }
 
     /// <summary>
-    /// Calls lookup validation twice, once for lookup rules and once for cohort rules
+    /// Calls lookup validation
     /// </summary>
     /// <param name="validationRecord"></param>
     /// <returns>A <see cref="ValidationExceptionLog"/> representing if the participant has triggered a rule</returns>
     [Function(nameof(LookupValidation))]
     public async Task<ValidationExceptionLog> LookupValidation([ActivityTrigger] ValidationRecord validationRecord)
     {
-        var lookupRequest = new LookupValidationRequestBody
+        var request = new LookupValidationRequestBody
         {
             NewParticipant = new Participant(validationRecord.Participant),
             ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
-            FileName = validationRecord.FileName,
-            RulesType = RulesType.ParticipantManagement
+            FileName = validationRecord.FileName
         };
 
-        var cohortRequest = new LookupValidationRequestBody
-        {
-            NewParticipant = new Participant(validationRecord.Participant),
-            ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
-            FileName = validationRecord.FileName,
-            RulesType = RulesType.CohortDistribution
-        };
+        var json = JsonSerializer.Serialize(request);
 
-        ValidationExceptionLog[] validationResults = await Task.WhenAll(
-            CallLookupValidation(lookupRequest),
-            CallLookupValidation(cohortRequest)
-        );
+        var response = await _httpClient.SendPost(_config.LookupValidationURL, json);
+        response.EnsureSuccessStatusCode();
+        string body = await _httpClient.GetResponseText(response);
 
-        return new ValidationExceptionLog(validationResults[0], validationResults[1]);
+        var exceptionLog = JsonSerializer.Deserialize<ValidationExceptionLog>(body);
+        return exceptionLog;
     }
 
     /// <summary>
@@ -184,7 +178,7 @@ public class ValidateParticipant
         {
             Participant = validationRecord.Participant,
             // TODO: is this used?
-            ServiceProvider = validationRecord.Participant.ScreeningServiceId,
+            ServiceProvider = validationRecord.ServiceProvider,
             ExistingParticipant = validationRecord.PreviousParticipantRecord.ToCohortDistribution()
         };
 
@@ -215,22 +209,5 @@ public class ValidateParticipant
         {
             throw new IOException("Failed to update exception flag");
         }
-    }
-
-    /// <summary>
-    /// Calls the lookup validation function
-    /// </summary>
-    /// <param name="request"></param>
-    /// <remarks>Temporary, both calls to lookup validation will be merged</remarks>
-    private async Task<ValidationExceptionLog> CallLookupValidation(LookupValidationRequestBody request)
-    {
-        var json = JsonSerializer.Serialize(request);
-
-        var response = await _httpClient.SendPost(_config.LookupValidationURL, json);
-        response.EnsureSuccessStatusCode();
-        string body = await _httpClient.GetResponseText(response);
-
-        var exceptionLog = JsonSerializer.Deserialize<ValidationExceptionLog>(body);
-        return exceptionLog;
     }
 }

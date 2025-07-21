@@ -2,6 +2,7 @@ namespace Common;
 
 using System.Net;
 using Model;
+using Model.Enums;
 using RulesEngine.Models;
 
 /// <summary>
@@ -23,6 +24,12 @@ public interface IExceptionHandler
     /// <param name="participant">The participant that created the exception.</param>
     /// <param name="fileName">The file name of the file containing the participant.</param>
     Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName);
+    /// <summary>
+    /// Overloaded method to create a system exception given ServiceNowParticipant.
+    /// </summary>
+    /// <param name="exception">The exception to be written to the database.</param>
+    /// <param name="participant">The participant that created the exception.</param>
+    Task CreateSystemExceptionLog(Exception exception, ServiceNowParticipant participant);
     Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord);
     Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord);
     Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord);
@@ -34,5 +41,5 @@ public interface IExceptionHandler
     /// <param name="participant">The participant that caused the exception.</param>
     Task CreateTransformationExceptionLog(IEnumerable<RuleResultTree> transformationErrors, CohortDistributionParticipant participant);
     Task CreateSchemaValidationException(BasicParticipantCsvRecord participantCsvRecord, string description);
-    Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId);
+    Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId, ExceptionCategory? exceptionCategory = null);
 }

@@ -60,6 +60,13 @@ export default async function Page({
               <h1 data-testid="heading-raised">
                 Raised breast screening exceptions
               </h1>
+              <p
+                className="nhsuk-u-text-align-right"
+                data-testid="raised-exception-count"
+              >
+                Showing {exceptionDetails.length} of {exceptions.TotalItems}{" "}
+                results
+              </p>
               <div className="nhsuk-card">
                 <div className="nhsuk-card__content">
                   <ExceptionsTable

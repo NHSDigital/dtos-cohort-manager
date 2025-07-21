@@ -56,6 +56,13 @@ public class ExceptionHandler : IExceptionHandler
         await _exceptionSender.sendToCreateException(validationException);
     }
 
+    public async Task CreateSystemExceptionLog(Exception exception, ServiceNowParticipant participant)
+    {
+        var validationException = CreateDefaultSystemValidationException(participant.NhsNumber, exception, DefaultFileName, DefaultScreeningName, JsonSerializer.Serialize(participant));
+
+        await _exceptionSender.sendToCreateException(validationException);
+    }
+
     public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord)
     {
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, errorRecord);
@@ -228,14 +235,23 @@ public class ExceptionHandler : IExceptionHandler
         return isSentSuccessfully;
     }
 
-    public async Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId)
+    public async Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId, ExceptionCategory? exceptionCategory = null)
     {
-        var category = ruleId switch
+
+        ExceptionCategory category;
+        if (exceptionCategory == null)
         {
-            35 => ExceptionCategory.Confusion,
-            60 => ExceptionCategory.Superseded,
-            _ => ExceptionCategory.TransformExecuted
-        };
+            category = ruleId switch
+            {
+                35 => ExceptionCategory.Confusion,
+                60 => ExceptionCategory.Superseded,
+                _ => ExceptionCategory.TransformExecuted
+            };
+        }
+        else
+        {
+            category = exceptionCategory.Value;
+        }
 
         var exception = new ValidationException
         {
