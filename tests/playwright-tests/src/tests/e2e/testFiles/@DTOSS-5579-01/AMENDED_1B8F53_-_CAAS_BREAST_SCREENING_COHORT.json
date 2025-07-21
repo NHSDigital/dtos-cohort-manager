@@ -30,19 +30,6 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9990267774",
-        "RuleId": 3602,
-        "RuleDescription": "Invalid primary care provider GP practice code"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-5579-01",
-        "requirementJiraId": "DTOSS-5579",
-        "additionalTags": "@regression @e2e @epic3-med-priority - Exception when Amend takes place with incorrect GP practice code as FB1065 - check Rule Id 3602"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9990267774",
         "RuleId": -2146233088,
         "RuleDescriptionDynamic": "Unable to add to cohort distribution. As participant with ParticipantId: x. Has an Exception against it"
       },

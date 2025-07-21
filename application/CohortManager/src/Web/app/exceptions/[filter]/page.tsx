@@ -12,7 +12,7 @@ import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 
 export const metadata: Metadata = {
-  title: "Raised breast screening exceptions - Cohort Manager",
+  title: `Raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page(props: {
@@ -65,6 +65,13 @@ export default async function Page(props: {
               <h1 data-testid="heading-raised">
                 Raised breast screening exceptions
               </h1>
+              <p
+                className="nhsuk-u-text-align-right"
+                data-testid="raised-exception-count"
+              >
+                Showing {exceptionDetails.length} of {exceptions.TotalItems}{" "}
+                results
+              </p>
               <div className="nhsuk-card">
                 <div className="nhsuk-card__content">
                   <ExceptionsTable

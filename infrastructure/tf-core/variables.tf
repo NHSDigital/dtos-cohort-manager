@@ -106,6 +106,7 @@ variable "app_service_plan" {
     sku_name                 = optional(string, "P2v3")
     os_type                  = optional(string, "Linux")
     vnet_integration_enabled = optional(bool, false)
+    zone_balancing_enabled   = optional(bool, false)
 
     autoscale = object({
       scaling_rule = object({
