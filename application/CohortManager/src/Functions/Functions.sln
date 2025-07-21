@@ -229,9 +229,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateException", "Exceptio
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdateExceptionTests", "..\..\..\..\tests\UnitTests\ExceptionHandlingTests\UpdateExceptionTests\UpdateExceptionTests.csproj", "{F954FE6F-4A25-42B9-9B2B-CD79B2715C8A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteParticipant", "CohortDistributionServices\DeleteParticipant\DeleteParticipant.csproj", "{68293DEC-C32E-4CD0-ADD0-EDF273017584}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteParticipant", "ParticipantManagementServices\DeleteParticipant\DeleteParticipant.csproj", "{68293DEC-C32E-4CD0-ADD0-EDF273017584}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteParticipantTests", "..\..\..\..\tests\UnitTests\CohortDistributionTests\DeleteParticipantTests\DeleteParticipantTests.csproj", "{914EFF81-2434-4335-A532-438CDCDE371D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeleteParticipantTests", "..\..\..\..\tests\UnitTests\ParticipantManagementServicesTests\DeleteParticipantTests\DeleteParticipantTests.csproj", "{914EFF81-2434-4335-A532-438CDCDE371D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataServices.Migrations", "Shared\DataServices.Migrations\DataServices.Migrations.csproj", "{43AF1482-6B3E-41C9-BF92-531EB00FEA20}"
 EndProject

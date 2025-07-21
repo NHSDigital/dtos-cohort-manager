@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.CohortDistributionService;
+namespace NHS.CohortManager.ParticipantManagementService;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
