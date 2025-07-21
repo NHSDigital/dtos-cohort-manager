@@ -1,0 +1,57 @@
+{
+  "validations": [
+      {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9995518112",
+        "RuleId": 12,
+        "RuleDescription": "Participant is blocked"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "DEL",
+      "change_time_stamp": null,
+      "serial_change_number": null,
+      "nhs_number": "9995518112",
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": null,
+      "primary_care_effective_from_date": null,
+      "current_posting": null,
+      "current_posting_effective_from_date": null,
+      "name_prefix": null,
+      "given_name": null,
+      "other_given_name": null,
+      "family_name": null,
+      "previous_family_name": null,
+      "date_of_birth": null,
+      "gender": null,
+      "address_line_1": null,
+      "address_line_2": null,
+      "address_line_3": null,
+      "address_line_4": null,
+      "address_line_5": null,
+      "postcode": null,
+      "paf_key": null,
+      "address_effective_from_date": null,
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": null,
+      "home_telephone_effective_from_date": null,
+      "mobile_telephone_number": null,
+      "mobile_telephone_effective_from_date": null,
+      "email_address": null,
+      "email_address_effective_from_date": null,
+      "preferred_language": null,
+      "is_interpreter_required": false,
+      "invalid_flag": true,
+      "eligibility": false
+    }
+  ],
+  "nhsNumbers": [
+    "9995518112"
+  ]
+}
