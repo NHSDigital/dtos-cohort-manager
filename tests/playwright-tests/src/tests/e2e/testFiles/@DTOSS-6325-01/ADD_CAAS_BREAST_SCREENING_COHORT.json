@@ -17,19 +17,6 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9995963809",
-        "RuleId": 42,
-        "RuleDescription": "GP practice code invalid"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-6325-01",
-        "requirementJiraId": "DTOSS-5396",
-        "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception2 for 9995963809"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9995963809",
         "RuleId": -2146233088,
         "RuleDescriptionDynamic": "Unable to add to cohort distribution. As participant with ParticipantId: 3104 Has an Exception against it"
       },
