@@ -30,8 +30,12 @@ public class ParticipantReconciliation : IReconciliationProcessor
     {
         try
         {
+
+            var invalidEffectiveDateRuleId = -2146233088;
+            var participantContainedIllegalCharactersRuleid = -2147024809;
+
             var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.RecordInsertDateTime!.Value > fromDate);
-            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => (x.RuleId!.Value == -2146233088 || x.RuleId.Value == -2147024809 || x.RuleDescription == "RecordType was not set to an expected value") && x.DateCreated!.Value > fromDate);
+            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => (x.RuleId!.Value == invalidEffectiveDateRuleId || x.RuleId.Value == participantContainedIllegalCharactersRuleid || x.RuleDescription == "RecordType was not set to an expected value") && x.DateCreated!.Value > fromDate);
 
 
             var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > fromDate);
