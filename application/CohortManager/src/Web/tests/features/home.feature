@@ -35,3 +35,15 @@ Feature: testing Breast screening - Cohort Manager home page
     And the user clicks on Report link
     Then they should lands on 'Reports - Cohort Manager'
     And they should see 'Reports' on Report screen
+
+  Scenario: verify navigation to Contact us screen
+    And the user clicks on contact us link
+    Then they should navigate to contact us page
+
+  Scenario: verify navigation to Terms and conditions screen
+    And the user clicks on Terms and conditions link
+    Then they should navigate to Terms and conditions page
+
+  Scenario: verify navigation to cookies screen
+    And the user clicks on cookies link
+    Then they should navigate to cookies page
