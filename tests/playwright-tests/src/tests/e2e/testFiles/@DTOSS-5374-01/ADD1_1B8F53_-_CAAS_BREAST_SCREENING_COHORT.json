@@ -102,7 +102,7 @@
         "InterpreterRequired": 1,
         "ReasonForRemoval": null,
         "ReasonForRemovalDate": null,
-        "IsExtracted": 1,
+        "IsExtracted": 0,
         "RecordUpdateDateTime": null
       },
       "meta": {
