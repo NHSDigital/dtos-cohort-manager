@@ -49,8 +49,11 @@ regions = {
         cidr_offset  = 5
       }
       container-app-db-management = {
-        cidr_newbits = 7
-        cidr_offset  = 6
+        cidr_newbits               = 7
+        cidr_offset                = 6
+        delegation_name            = "Microsoft.App/environments"
+        service_delegation_name    = "Microsoft.App/environments"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
       }
     }
   }
@@ -1482,6 +1485,7 @@ sqlserver = {
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
+  db_management_mi_name_prefix         = "mi-cohort-manager-db-management"
 
   server = {
     sqlversion                    = "12.0"

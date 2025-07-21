@@ -16,6 +16,12 @@ resources:
       ref: 7d1540f568fb00f527e388aa0acfff807c6d367c
       endpoint: NHSDigital
 
+parameters:
+  - name: dockerImageTag
+    displayName: 'Docker Image Tag'
+    type: string
+    default: preprod
+
 variables:
   - group: PRE_core_backend
   - group: PRE_audit_backend_remote_state
@@ -28,12 +34,6 @@ variables:
     value: tf_plan_core_PRE
   - name: ENVIRONMENT
     value: preprod
-
-parameters:
-  - name: dockerImageTag
-    displayName: 'Docker Image Tag'
-    type: string
-    default: preprod
 
 stages:
   - stage: terraform_plan

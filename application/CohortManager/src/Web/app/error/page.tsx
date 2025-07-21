@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import AuthError from "@/app/components/authError";
 
 export const metadata: Metadata = {
-  title: `Something went wrong - ${process.env.SERVICE_NAME}`,
+  title: `Something went wrong - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default function AuthErrorPage() {
