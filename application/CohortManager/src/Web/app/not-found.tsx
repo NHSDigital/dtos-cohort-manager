@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "We cannot find the page you’re looking for - Cohort Manager",
+  title: `We cannot find the page you’re looking for - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default function Page() {

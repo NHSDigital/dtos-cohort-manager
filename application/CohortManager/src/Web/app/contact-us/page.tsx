@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Breadcrumb from "@/app/components/breadcrumb";
 
 export const metadata: Metadata = {
-  title: "Get help with Cohort Manager - Cohort Manager",
+  title: `Get help with Cohort Manager - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page() {
