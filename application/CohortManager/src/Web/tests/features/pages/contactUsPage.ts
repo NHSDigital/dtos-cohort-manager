@@ -10,8 +10,8 @@ export class ContactusPage extends BasePage {
   constructor(page: Page) {
     super(page)
     this.page = page;
-    this.technicalsupportLink = page.locator('//a[normalize-space(text())="technical support and general enquiries"]');
-    this.rapidincidentLink = page.locator('//a[normalize-space(text())="report an incident"]')
+    this.technicalsupportLink = page.locator('[data-testid="technical-support-link"]');
+    this.rapidincidentLink = page.locator('[data-testid="report-incident-link"]');
   }
   async clickTechnicalLink() {
     await this.clickElement(this.technicalsupportLink)
