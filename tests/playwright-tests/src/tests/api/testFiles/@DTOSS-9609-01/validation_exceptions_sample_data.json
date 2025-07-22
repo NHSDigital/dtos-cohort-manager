@@ -10,7 +10,7 @@
       }
     }
   ],
-  "validationExceptions": [
+  "inputParticipantRecord": [
     {
       "EXCEPTION_ID": 2,
       "FILE_NAME": "BREAST_SCREENING_20250701_001.csv",

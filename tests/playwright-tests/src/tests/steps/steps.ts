@@ -131,6 +131,16 @@ export async function getApiTestData(scenarioFolderName: string, recordType: str
   });
 }
 
+export async function getApiResponseTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<any> {
+  return test.step(`Creating Input Data from JSON file`, async () => {
+    console.info('🏃‍♂️‍➡️\tRunning test For: ', scenarioFolderName);
+    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
+    const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
+    const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
+    return parsedData.inputParticipantRecord;
+  });
+}
+
 export async function verifyBlobExists(stepName: string, filePath: string) {
   await test.step(stepName, async () => {
     const expectedBlobName = path.basename(filePath);
