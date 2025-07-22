@@ -11,7 +11,7 @@ import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 
 export const metadata: Metadata = {
-  title: "Exception information - Cohort Manager",
+  title: `Exception information - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page(props: {
