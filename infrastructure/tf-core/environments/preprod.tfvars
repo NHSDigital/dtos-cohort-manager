@@ -158,24 +158,6 @@ app_service_plan = {
         }
       }
     }
-    DefaultPlan2 = {
-      autoscale_override = {
-        scaling_rule = {
-          metric = "CpuPercentage"
-
-          capacity_min = "5"
-          capacity_max = "5"
-          capacity_def = "5"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 5
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
-        }
-      }
-    }
     HighLoadFunctions = {
       autoscale_override = {
         scaling_rule = {
