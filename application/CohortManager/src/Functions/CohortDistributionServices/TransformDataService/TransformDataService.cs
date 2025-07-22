@@ -19,6 +19,7 @@ using System.Data;
 using RulesEngine.Actions;
 using System.Threading.Tasks;
 using Hl7.Fhir.Rest;
+using Model.Enums;
 
 public class TransformDataService
 {
@@ -168,7 +169,7 @@ public class TransformDataService
 
         if (namePrefixRule == null)
         {
-            _exceptionHandler.CreateTransformExecutedExceptions(participant, $"Name Prefix Invalid", 83);
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant, $"Name Prefix Invalid", 83, ExceptionCategory.TransformExecuted);
             return null;
         }
         if (namePrefixRule.Rule.RuleName == "0.NamePrefix.NamePrefixValid")
@@ -182,7 +183,7 @@ public class TransformDataService
 
         if (prefixTransformed)
         {
-            _exceptionHandler.CreateTransformExecutedExceptions(participant, $"Name Prefix {ruleName}", ruleNumber);
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant, $"Name Prefix {ruleName}", ruleNumber, ExceptionCategory.TransformExecuted);
             return namePrefix;
         }
 
