@@ -4,6 +4,7 @@ using DataServices.Client;
 using DataServices.Core;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 
 public class ParticipantReconciliation : IReconciliationProcessor
 {
@@ -30,15 +31,13 @@ public class ParticipantReconciliation : IReconciliationProcessor
     {
         try
         {
-
-            var invalidEffectiveDateRuleId = -2146233088;
-            var participantContainedIllegalCharactersRuleid = -2147024809;
+            int transformCategoryCode = (int)ExceptionCategory.TransformExecuted;
 
             var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.RecordInsertDateTime!.Value > fromDate);
-            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => (x.RuleId!.Value == invalidEffectiveDateRuleId || x.RuleId.Value == participantContainedIllegalCharactersRuleid || x.RuleDescription == "RecordType was not set to an expected value") && x.DateCreated!.Value > fromDate);
+            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => x.Category != transformCategoryCode && x.DateCreated!.Value > fromDate);
 
 
-            var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > fromDate);
+            var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > fromDate && x.ProcessName == "AuditProcess");
 
             var recordsProcessed = exceptionRecords.Count() + cohortDistributionRecords.Count();
             var recordsExpected = metrics.Sum(x => x.RecordCount);
