@@ -216,23 +216,23 @@ app_service_plan = {
 }
 
 container_app_environments = {
-  instances = {
-    db-management = {
-      zone_redundancy_enabled = false
-    }
-  }
+  # instances = {
+  #   db-management = {
+  #     zone_redundancy_enabled = false
+  #   }
+  # }
 }
 
-container_app_jobs = {
-  apps = {
-    db-management = {
-      container_app_environment_key = "db-management"
-      docker_env_tag                = "preprod"
-      docker_image                  = "cohort-manager-db-migration"
-      container_registry_use_mi     = true
-    }
-  }
-}
+# container_app_jobs = {
+#   apps = {
+#     db-management = {
+#       container_app_environment_key = "db-management"
+#       docker_env_tag                = "preprod"
+#       docker_image                  = "cohort-manager-db-migration"
+#       container_registry_use_mi     = true
+#     }
+#   }
+# }
 
 diagnostic_settings = {
   metric_enabled = true
