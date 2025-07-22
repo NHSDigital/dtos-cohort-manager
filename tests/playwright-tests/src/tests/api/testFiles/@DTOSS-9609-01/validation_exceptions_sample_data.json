@@ -2,9 +2,7 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/GetValidationExceptions",
-        "expectedCount": 10,
-        "exceptionStatus": 0,
+        "exceptionStatus": 1,
         "sortOrder": 1,
         "exceptionCategory": 3
       }
