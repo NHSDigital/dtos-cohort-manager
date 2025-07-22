@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { fetchExceptions } from "@/app/lib/fetchExceptions";
-import { getIsCohortManager } from "@/app/lib/access";
+import { canAccessCohortManager } from "@/app/lib/access";
 import { formatDate } from "@/app/lib/utils";
 import Breadcrumb from "@/app/components/breadcrumb";
 import ParticipantInformationPanel from "@/app/components/participantInformationPanel";
@@ -19,7 +19,7 @@ export default async function Page(props: {
   }>;
 }) {
   const session = await auth();
-  const isCohortManager = await getIsCohortManager(session);
+  const isCohortManager = await canAccessCohortManager(session);
 
   if (!isCohortManager) {
     return <Unauthorised />;

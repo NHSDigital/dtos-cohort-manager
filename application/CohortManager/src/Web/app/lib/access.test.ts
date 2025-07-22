@@ -1,14 +1,14 @@
-import { getIsCohortManager } from "./access";
+import { canAccessCohortManager } from "./access";
 import { Session } from "next-auth";
 
-describe("getIsCohortManager", () => {
+describe("canAccessCohortManager", () => {
   it("returns true if session user has matching workgroup code", async () => {
     process.env.COHORT_MANAGER_RBAC_CODE = "CODE1,CODE2";
     const session: Session = {
       user: { uid: "test", workgroups_codes: ["CODE2", "OTHER"] },
       expires: "",
     };
-    const result = await getIsCohortManager(session);
+    const result = await canAccessCohortManager(session);
     expect(result).toBe(true);
   });
 
@@ -18,13 +18,13 @@ describe("getIsCohortManager", () => {
       user: { uid: "test", workgroups_codes: ["OTHER", "ANOTHER"] },
       expires: "",
     };
-    const result = await getIsCohortManager(session);
+    const result = await canAccessCohortManager(session);
     expect(result).toBe(false);
   });
 
   it("returns false if session is null", async () => {
     process.env.COHORT_MANAGER_RBAC_CODE = "CODE1";
-    const result = await getIsCohortManager(null);
+    const result = await canAccessCohortManager(null);
     expect(result).toBe(false);
   });
 
@@ -34,7 +34,7 @@ describe("getIsCohortManager", () => {
       user: undefined,
       expires: "",
     };
-    const result = await getIsCohortManager(session);
+    const result = await canAccessCohortManager(session);
     expect(result).toBe(false);
   });
 });
