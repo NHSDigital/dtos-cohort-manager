@@ -5,7 +5,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9992949600",
         "RuleId": 18,
-        "RuleDescription": "DateOfDeath"
+        "RuleDescription": "Date of death invalid"
       },
       "meta": {
         "testJiraId": "@DTOSS-5210-01",

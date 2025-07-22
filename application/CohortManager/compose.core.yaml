@@ -109,6 +109,23 @@ services:
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
+  manage-servicenow-participant:
+    container_name: manage-servicenow-participant
+    image: cohort-manager-manage-servicenow-participant
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/ManageServiceNowParticipant/Dockerfile
+    profiles: [non-essential]
+    environment:
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ServiceNowParticipantManagementTopic=servicenow-participant-management-topic
+      - ManageServiceNowParticipantSubscription=manage-servicenow-participant-sub
+      - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - RetrievePdsDemographicURL=http://localhost:8082/api/RetrievePDSDemographic
+      - SendServiceNowMessageURL=http://localhost:9092/api/servicenow/send
+
   add-participant:
     container_name: add-participant
     image: cohort-manager-add-participant
@@ -181,6 +198,23 @@ services:
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+
+  delete-participant:
+    container_name: delete-participant
+    image: cohort-manager-delete-participant
+    networks: [cohman-network]
+    ports:
+    - "7087:7087"
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/DeleteParticipant/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7087
+      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
+      - AcceptableLatencyThresholdMs=500
+
 
   # Screening Data Service
   create-participant:
@@ -335,17 +369,17 @@ services:
         - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
         - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
         - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
-        - ManageNemsSubscription__NemsFhirEndpoint=https://msg.intspineservices.nhs.uk/STU3
-        - ManageNemsSubscription__FromAsid=200000002527
-        - ManageNemsSubscription__ToAsid=200000002527
-        - ManageNemsSubscription__OdsCode=T8T9T
-        - ManageNemsSubscription__MeshMailboxId=${NEMS_MESH_MAILBOX_ID}
-        - ManageNemsSubscription__NemsLocalCertPath=./nhs_signed_client.pfx
-        - ManageNemsSubscription__NemsLocalCertPassword=${NEMS_CERT_PASSWORD}
-        - ManageNemsSubscription__SubscriptionProfile=https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1
-        - ManageNemsSubscription__SubscriptionCriteria=https://fhir.nhs.uk/Id/nhs-number
-        - ManageNemsSubscription__DefaultEventTypes__0=pds-record-change-1
-        - ManageNemsSubscription__BypassServerCertificateValidation=true
+        - NemsFhirEndpoint=https://msg.intspineservices.nhs.uk/STU3
+        - NemsFromAsid=200000002527
+        - NemsToAsid=200000002527
+        - NemsOdsCode=T8T9T
+        - NemsMeshMailboxId=${NEMS_MESH_MAILBOX_ID}
+        - NemsLocalCertPath=./nhs_signed_client.pfx
+        - NemsLocalCertPassword=${NEMS_CERT_PASSWORD}
+        - NemsSubscriptionProfile=https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1
+        - NemsSubscriptionCriteria=https://fhir.nhs.uk/Id/nhs-number
+        - NemsDefaultEventTypes0=pds-record-change-1
+        - NemsBypassServerCertificateValidation=true
         - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       ports:
         - "9081:9081"

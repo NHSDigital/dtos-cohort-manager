@@ -27,4 +27,4 @@
 // The Epic 4D will be used to track the migration of all Epic 3 High
 
 export const runnerBasedEpic3TestScenariosAdd = "@DTOSS-5539-01|@DTOSS-5348-01|@DTOSS-9723-01|@DTOSS-9719-01";
-export const runnerBasedEpic3TestScenariosAmend = "@DTOSS-5801-01|@DTOSS-5589-01|@DTOSS-5407-01|@DTOSS-5406-01|@DTOSS-5405-01|@DTOSS-9721-01|@DTOSS-5388-01|@DTOSS-5402-01|@DTOSS-9720-01";
+export const runnerBasedEpic3TestScenariosAmend = "@DTOSS-5801-01|@DTOSS-5589-01|@DTOSS-5407-01|@DTOSS-5406-01|@DTOSS-9721-01|@DTOSS-5388-01|@DTOSS-5402-01|@DTOSS-9720-01";

@@ -11,19 +11,26 @@ public interface IHttpClientFunction
     Task<HttpResponseMessage> SendPost(string url, string data);
 
     /// <summary>
-    /// Performs a GET request using HttpClient.
+    /// Performs a GET request using HttpClient and returns the response body as a string or null if the request failed.
     /// </summary>
     /// <param name="url">URL to be used in request.</param>
-    /// <returns>string<returns>
+    /// <returns>string</returns>
     Task<string> SendGet(string url);
 
     /// <summary>
-    /// Performs a GET request using HttpClient.
+    /// Performs a GET request using HttpClient and returns the response body as a string or null if the request failed.
     /// </summary>
     /// <param name="url">URL to be used in request.</param>
     /// <param name="parameters">Parameters to be added to the url and used in request.</param>
-    /// <returns>string<returns>
+    /// <returns>string</returns>
     Task<string> SendGet(string url, Dictionary<string, string> parameters);
+
+    /// <summary>
+    /// Performs a GET request using HttpClient and returns the entire HTTP response.
+    /// </summary>
+    /// <param name="url">URL to be used in request.</param>
+    /// <returns>HttpResponseMessage</returns>
+    Task<HttpResponseMessage> SendGetResponse(string url);
 
     /// <summary>
     /// Sends a get request or throws an error
@@ -50,7 +57,7 @@ public interface IHttpClientFunction
     /// <param name="data">Data to be sent in request.</param>
     /// <returns>HttpResponseMessage</returns>
     Task<HttpResponseMessage> SendPut(string url, string data);
-    
+
     /// <summary>
     /// Performs a DELETE request using HttpClient.
     /// </summary>

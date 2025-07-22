@@ -213,4 +213,92 @@ public class ValidationExceptionDataTests
         result.Should().BeNull();
     }
     #endregion
+
+    #region UpdateExceptionServiceNowId
+    [DataRow(1, "SNW123456", true, true, DisplayName = "Valid exception ID with ServiceNow ID")]
+    [DataRow(1, null, true, true, DisplayName = "Valid exception ID with null ServiceNow ID")]
+    [DataRow(999, "SNW123456", false, false, DisplayName = "Invalid exception ID")]
+    [TestMethod]
+    public async Task UpdateExceptionServiceNowId_VariousScenarios_ReturnsExpectedResult(int exceptionId, string serviceNowId, bool exceptionExists, bool expectedResult)
+    {
+        // Arrange
+        var existingException = exceptionExists ? new ExceptionManagement
+        {
+            ExceptionId = exceptionId,
+            ServiceNowId = "OldServiceNow",
+            RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
+        } : null;
+
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync(existingException);
+        _validationExceptionDataServiceClient.Setup(x => x.Update(It.IsAny<ExceptionManagement>())).ReturnsAsync(true);
+
+        // Act
+        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
+
+        // Assert
+        result.Should().Be(expectedResult);
+
+        if (exceptionExists)
+        {
+            existingException.ServiceNowId.Should().Be(serviceNowId);
+            existingException.RecordUpdatedDate.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(1));
+            _validationExceptionDataServiceClient.Verify(x => x.Update(existingException), Times.Once);
+        }
+        else
+        {
+            _validationExceptionDataServiceClient.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Never);
+            _logger.Verify(
+                x => x.Log(
+                    LogLevel.Warning,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Exception with ID {exceptionId} not found")),
+                    It.IsAny<Exception>(),
+                    It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+                Times.Once);
+        }
+    }
+
+    [TestMethod]
+    public async Task UpdateExceptionServiceNowId_UpdateFails_ReturnsFalse()
+    {
+        // Arrange
+        var exceptionId = 1;
+        var serviceNowId = "SNW123456";
+        var existingException = new ExceptionManagement { ExceptionId = exceptionId };
+
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync(existingException);
+        _validationExceptionDataServiceClient.Setup(x => x.Update(It.IsAny<ExceptionManagement>())).ReturnsAsync(false);
+
+        // Act
+        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [TestMethod]
+    public async Task UpdateExceptionServiceNowId_ExceptionThrown_ReturnsFalseAndLogsError()
+    {
+        // Arrange
+        var exceptionId = 1;
+        var serviceNowId = "SNW123456";
+        var expectedException = new Exception("Database connection failed");
+
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ThrowsAsync(expectedException);
+
+        // Act
+        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
+
+        // Assert
+        result.Should().BeFalse();
+        _logger.Verify(
+            x => x.Log(
+                LogLevel.Error,
+                It.IsAny<EventId>(),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains($"Error updating ServiceNowID for exception {exceptionId}")),
+                expectedException,
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+            Times.Once);
+    }
+    #endregion
 }

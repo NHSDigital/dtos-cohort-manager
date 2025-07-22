@@ -2,19 +2,6 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9999917585",
-        "RuleId": 42,
-        "RuleDescription": "GP practice code invalid"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4092-01",
-        "requirementJiraId": "DTOSS-3035",
-        "additionalTags": "@regression @e2e @epic2-high-priority Verify exception raised for new participant's GP_Practice code value null for nhs number 9999917585"
-      }
-    },
-    {
-      "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
         "NhsNumber": 9999917585,
         "PrimaryCareProvider": null
