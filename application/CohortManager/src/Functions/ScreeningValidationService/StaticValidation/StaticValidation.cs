@@ -62,7 +62,7 @@ public class StaticValidation
             var re = new RulesEngine.RulesEngine(rules, reSettings);
 
             var ruleParameters = new[] {
-                new RuleParameter("participant", participantCsvRecord.Participant),
+                new RuleParameter("participant", participantCsvRecord.Participant)
             };
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
@@ -73,19 +73,15 @@ public class StaticValidation
                 resultList.AddRange(ActionResults);
             }
 
-            var validationErrors = resultList.Where(x => !x.IsSuccess);
+            var validationErrors = resultList.Where(x => !x.IsSuccess).Select(x => new ValidationRuleResult(x));
 
             if (validationErrors.Any())
             {
-                var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(createExceptionLogResponse));
+                string errors = JsonSerializer.Serialize(validationErrors);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, errors);
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            }));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
         }
         catch (Exception ex)
         {

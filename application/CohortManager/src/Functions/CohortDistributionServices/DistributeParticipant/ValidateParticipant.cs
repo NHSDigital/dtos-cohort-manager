@@ -38,7 +38,7 @@ public class ValidateParticipant
     }
 
     /// <summary>
-    /// Orchestration for the validation and trasnformation process
+    /// Orchestrator for the validation and trasnformation process
     /// </summary>
     /// <param name="context">Context containing a validation record</param>
     /// <returns>The transformed <see cref="CohortDistributionParticipant"/>, or null if the validation/ transformation failed</returns>
@@ -63,20 +63,19 @@ public class ValidateParticipant
             
             // Lookup & Static Validation
             _logger.LogInformation("Validating participant");
-
-            var staticTask = context.CallActivityAsync<IEnumerable<RuleResultTree>>(nameof(StaticValidation), validationRecord);
-            var lookupTask = context.CallActivityAsync<IEnumerable<RuleResultTree>>(nameof(LookupValidation), validationRecord);
+            var staticTask = context.CallActivityAsync<List<ValidationRuleResult>>(nameof(StaticValidation), validationRecord);
+            var lookupTask = context.CallActivityAsync<List<ValidationRuleResult>>(nameof(LookupValidation), validationRecord);
 
             await Task.WhenAll(staticTask, lookupTask);
 
-            var validationResult = staticTask.Result.Concat(lookupTask.Result).ToString();
+            var validationResult = staticTask.Result.Concat(lookupTask.Result).ToList();
 
             // Update exception flag and return
             if (validationResult.Any())
             {
-                _logger.LogError("Participant {ParticipantId} triggered a validation rule", validationRecord.Participant.ParticipantId);
+                _logger.LogWarning("Participant {ParticipantId} triggered a validation rule", validationRecord.Participant.ParticipantId);
 
-                await context.CallActivityAsync(nameof(HandleExceptions), (validationResult, validationRecord));
+                await context.CallActivityAsync(nameof(HandleValidationExceptions), new ValidationExceptionRecord(validationRecord, validationResult));
 
                 if (!_config.IgnoreParticipantExceptions)
                 {
@@ -125,6 +124,9 @@ public class ValidateParticipant
         }
     }
 
+    /// <summary>
+    /// Calls the remove old validation exception function
+    /// </summary>
     [Function(nameof(RemoveOldValidationExceptions))]
     public async Task RemoveOldValidationExceptions([ActivityTrigger] OldExceptionRecord request)
     {
@@ -138,7 +140,7 @@ public class ValidateParticipant
     /// <param name="validationRecord"></param>
     /// <returns>A <see cref="ValidationExceptionLog"/> representing if the participant has triggered a rule</returns>
     [Function(nameof(StaticValidation))]
-    public async Task<ValidationExceptionLog> StaticValidation([ActivityTrigger] ValidationRecord validationRecord)
+    public async Task<List<ValidationRuleResult>?> StaticValidation([ActivityTrigger] ValidationRecord validationRecord)
     {
         var request = new ParticipantCsvRecord
         {
@@ -150,9 +152,14 @@ public class ValidateParticipant
 
         var response = await _httpClient.SendPost(_config.StaticValidationURL, json);
         response.EnsureSuccessStatusCode();
+
+        if (response.StatusCode == HttpStatusCode.NoContent)
+        {
+            return new List<ValidationRuleResult>();
+        }
         string body = await _httpClient.GetResponseText(response);
 
-        var exceptionLog = JsonSerializer.Deserialize<ValidationExceptionLog>(body);
+        var exceptionLog = JsonSerializer.Deserialize<List<ValidationRuleResult>>(body);
 
         return exceptionLog;
     }
@@ -163,7 +170,7 @@ public class ValidateParticipant
     /// <param name="validationRecord"></param>
     /// <returns>A <see cref="ValidationExceptionLog"/> representing if the participant has triggered a rule</returns>
     [Function(nameof(LookupValidation))]
-    public async Task<ValidationExceptionLog> LookupValidation([ActivityTrigger] ValidationRecord validationRecord)
+    public async Task<List<ValidationRuleResult>> LookupValidation([ActivityTrigger] ValidationRecord validationRecord)
     {
         var request = new LookupValidationRequestBody
         {
@@ -176,9 +183,14 @@ public class ValidateParticipant
 
         var response = await _httpClient.SendPost(_config.LookupValidationURL, json);
         response.EnsureSuccessStatusCode();
+        if (response.StatusCode == HttpStatusCode.NoContent)
+        {
+            return new List<ValidationRuleResult>();
+        }
+
         string body = await _httpClient.GetResponseText(response);
 
-        var exceptionLog = JsonSerializer.Deserialize<ValidationExceptionLog>(body);
+        var exceptionLog = JsonSerializer.Deserialize<List<ValidationRuleResult>>(body);
         return exceptionLog;
     }
 
@@ -211,34 +223,21 @@ public class ValidateParticipant
     }
 
     /// <summary>
-    /// Updates the exception flag in participant management
+    /// Creates a validation excpetion and updates the exception flag
+    /// in participant management
     /// </summary>
-    /// <param name="participantId"></param>
     /// <exception cref="IOException">Thrown if the update fails</exception>
-    [Function(nameof(UpdateExceptionFlag))]
-    public async Task UpdateExceptionFlag([ActivityTrigger] string participantId)
-    {
-        var participantManagement = await _participantManagementClient.GetSingle(participantId);
-        participantManagement.ExceptionFlag = 1;
-
-        var exceptionFlagUpdated = await _participantManagementClient.Update(participantManagement);
-        if (!exceptionFlagUpdated)
-        {
-            throw new IOException("Failed to update exception flag");
-        }
-    }
-
-    [Function(nameof(HandleExceptions))]
-    public async Task HandleExceptions([ActivityTrigger] (IEnumerable<RuleResultTree> exceptions, ValidationRecord validationRecord) input)
+    [Function(nameof(HandleValidationExceptions))]
+    public async Task HandleValidationExceptions([ActivityTrigger] ValidationExceptionRecord validationExceptionRecord)
     {
         // Send exceptions to DB
         ParticipantCsvRecord participantRecord = new()
         {
-            Participant = new Participant(input.validationRecord.Participant),
-            FileName = input.validationRecord.FileName
+            Participant = new Participant(validationExceptionRecord.ValidationRecord.Participant),
+            FileName = validationExceptionRecord.ValidationRecord.FileName
         };
 
-        var exceptionCreated = await _exceptionHandler.CreateValidationExceptionLog(input.exceptions, participantRecord);
+        var exceptionCreated = await _exceptionHandler.CreateValidationExceptionLog(validationExceptionRecord.ValidationExceptions, participantRecord);
 
         var participantManagement = await _participantManagementClient.GetSingle(participantRecord.Participant.ParticipantId);
         participantManagement.ExceptionFlag = 1;
@@ -248,5 +247,6 @@ public class ValidateParticipant
         {
             throw new IOException("Failed to update exception flag");
         }
+        _logger.LogInformation("Created validation exception and set exception flag to 1 for participant {ParticipantId}", participantRecord.Participant.ParticipantId);
     }
 }

@@ -154,17 +154,17 @@ public class ExceptionHandler : IExceptionHandler
             }
         }
     }
-    public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
+    public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<ValidationRuleResult> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         participantCsvRecord.Participant.ExceptionFlag = "Y";
 
         var foundFatalRule = false;
         foreach (var error in validationErrors)
         {
-            var ruleDetails = error.Rule.RuleName.Split('.');
+            var ruleDetails = error.RuleName.Split('.');
             var ruleId = int.Parse(ruleDetails[0]);
             var Category = ruleDetails[2];
-            var errorMessage = (string)error.ActionResult.Output;
+            var errorMessage = error.RuleDescription;
 
             var IsFatal = ParseFatalRuleType(ruleDetails[3]);
             if (IsFatal == 1)
