@@ -1436,13 +1436,13 @@ frontdoor_endpoint = {
         dns_zone_rg_name = "rg-hub-prod-uks-public-dns-zones"
       }
     }
-    security_policies = {
-      AllowedIPs = {
-        cdn_frontdoor_firewall_policy_name    = "wafhubliveinternalwhitelist"
-        cdn_frontdoor_firewall_policy_rg_name = "rg-hub-prod-uks-hub-networking"
-        associated_domain_keys                = ["cohort-pre"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
-      }
-    }
+    # security_policies = {
+    #   AllowedIPs = {
+    #     cdn_frontdoor_firewall_policy_name    = "wafhubliveinternalwhitelist"
+    #     cdn_frontdoor_firewall_policy_rg_name = "rg-hub-prod-uks-hub-networking"
+    #     associated_domain_keys                = ["cohort-pre"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
+    #   }
+    # }
   }
 }
 
