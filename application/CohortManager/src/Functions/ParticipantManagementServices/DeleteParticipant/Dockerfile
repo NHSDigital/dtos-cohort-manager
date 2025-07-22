@@ -14,7 +14,7 @@ RUN mkdir -p /home/site/wwwroot && \
 
 FROM base AS function
 
-COPY ./CohortDistributionServices/DeleteParticipant /src/dotnet-function-app
+COPY ./ParticipantManagementServices/DeleteParticipant /src/dotnet-function-app
 WORKDIR /src/dotnet-function-app
 
 RUN --mount=type=cache,target=/root/.nuget/packages \

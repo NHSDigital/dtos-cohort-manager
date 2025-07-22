@@ -199,6 +199,23 @@ services:
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
+  delete-participant:
+    container_name: delete-participant
+    image: cohort-manager-delete-participant
+    networks: [cohman-network]
+    ports:
+    - "7087:7087"
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/DeleteParticipant/Dockerfile
+    environment:
+      - ASPNETCORE_URLS=http://*:7087
+      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
+      - AcceptableLatencyThresholdMs=500
+
+
   # Screening Data Service
   create-participant:
     container_name: create-participant
