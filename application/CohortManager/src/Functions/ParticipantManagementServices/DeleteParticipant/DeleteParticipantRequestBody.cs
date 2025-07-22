@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.CohortDistributionService;
+namespace NHS.CohortManager.ParticipantManagementService;
 public class DeleteParticipantRequestBody
 {
     public string? NhsNumber { get; set; }
