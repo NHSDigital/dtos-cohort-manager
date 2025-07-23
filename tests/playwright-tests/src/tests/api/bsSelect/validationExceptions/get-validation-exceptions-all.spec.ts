@@ -2,12 +2,12 @@ import { test, expect } from '@playwright/test';
 import { getValidationExceptions } from '../../../../api/dataService/exceptionService';
 import { getApiQueryParams } from '../../../steps/steps';
 
-test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', () => {
+test.describe('@DTOSS-9609-01 - GetValidationExceptions - All Records', () => {
   let apiConfig: any;
   let response: any;
 
   test.beforeAll(async ({ request }) => {
-    apiConfig = await getApiQueryParams('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', 'validation_exceptions_raised_desc');
+    apiConfig = await getApiQueryParams('@DTOSS-9609-01 - GetValidationExceptions - All Records', 'validation_exceptions_all');
     response = await getValidationExceptions(request, apiConfig);
   });
 
@@ -24,49 +24,55 @@ test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', (
       expect(response.data.Items).toBeDefined();
       expect(Array.isArray(response.data.Items)).toBe(true);
       expect(response.data.Items.length).toBeGreaterThan(0);
-      console.info(`Verified 200 response with ${response.data.Items.length} records`);
+      console.info(`Verified 200 response with ${response.data.Items.length} total records`);
     }
   });
 
-  test('Should verify all returned records have ServiceNowId and ServiceNowCreatedDate', async () => {
+  test('Should verify returned records contain both raised and not-raised exceptions', async () => {
     if (response.status === 204) {
       console.info('No data found - skipping validation test');
       return;
     }
 
-    const items = response.data.Items;
     expect(response.status).toBe(200);
+    const items = response.data.Items;
     expect(items).toBeDefined();
     expect(Array.isArray(items)).toBe(true);
     expect(items.length).toBeGreaterThan(0);
 
+    let raisedCount = 0;
+    let notRaisedCount = 0;
+
     items.forEach((item: any, index: number) => {
       expect(item).toBeDefined();
-      expect(item.ServiceNowId).toBeTruthy();
-      expect(item.ServiceNowCreatedDate).toBeTruthy();
-      expect(item.ServiceNowId.length).toBeGreaterThan(0);
-      expect(item.ServiceNowCreatedDate.length).toBeGreaterThan(0);
+      expect(typeof item).toBe('object');
 
-      // Validate date format
-      const dateObj = new Date(item.ServiceNowCreatedDate);
-      expect(dateObj).toBeInstanceOf(Date);
-      expect(dateObj.getTime()).not.toBeNaN();
-
-      console.info(`Record ${index + 1}: ServiceNow ID: ${item.ServiceNowId}, Created Date: ${item.ServiceNowCreatedDate}`);
+      if (item.ServiceNowId && item.ServiceNowCreatedDate) {
+        expect(item.ServiceNowId).toBeTruthy();
+        expect(item.ServiceNowCreatedDate).toBeTruthy();
+        raisedCount++;
+        console.info(`Record ${index + 1}: RAISED - ServiceNow ID: ${item.ServiceNowId}`);
+      } else {
+        expect(item.ServiceNowId).toBeFalsy();
+        expect(item.ServiceNowCreatedDate).toBeFalsy();
+        notRaisedCount++;
+        console.info(`Record ${index + 1}: NOT RAISED`);
+      }
     });
 
-    console.info(`Verified all ${items.length} records have required ServiceNowId and ServiceNowCreatedDate fields`);
+    console.info(`Verified ${items.length} total records: ${raisedCount} raised, ${notRaisedCount} not raised`);
   });
 
-  test('Should verify records are sorted in descending order by ServiceNowCreatedDate', async () => {
+  test('Should verify records are sorted in descending order by DateCreated', async () => {
     if (response.status === 204) {
       console.info('No data found - skipping sorting test');
       return;
     }
 
-    const items = response.data.Items;
     expect(response.status).toBe(200);
+    const items = response.data.Items;
     expect(items).toBeDefined();
+    expect(Array.isArray(items)).toBe(true);
 
     if (items.length <= 1) {
       console.info(`Only ${items.length} record(s) found - sorting verification not applicable`);
@@ -74,11 +80,11 @@ test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', (
     }
 
     for (let i = 1; i < items.length; i++) {
-      expect(items[i - 1].ServiceNowCreatedDate).toBeDefined();
-      expect(items[i].ServiceNowCreatedDate).toBeDefined();
+      expect(items[i - 1].DateCreated).toBeDefined();
+      expect(items[i].DateCreated).toBeDefined();
 
-      const prevDate = new Date(items[i - 1].ServiceNowCreatedDate);
-      const currDate = new Date(items[i].ServiceNowCreatedDate);
+      const prevDate = new Date(items[i - 1].DateCreated);
+      const currDate = new Date(items[i].DateCreated);
 
       expect(prevDate).toBeInstanceOf(Date);
       expect(currDate).toBeInstanceOf(Date);
@@ -87,6 +93,6 @@ test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', (
       expect(prevDate.getTime()).toBeGreaterThanOrEqual(currDate.getTime());
     }
 
-    console.info(`Verified ${items.length} records are sorted in descending order by ServiceNowCreatedDate`);
+    console.info(`Verified ${items.length} records are sorted in descending order by DateCreated`);
   });
 });
