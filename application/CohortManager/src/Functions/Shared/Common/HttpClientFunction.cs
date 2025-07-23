@@ -40,25 +40,6 @@ public class HttpClientFunction : IHttpClientFunction
         }
     }
 
-    public async Task<HttpResponseMessage> SendPost(string url, HttpContent content)
-    {
-        using var client = _factory.CreateClient();
-
-        client.BaseAddress = new Uri(url);
-        client.Timeout = _timeout;
-
-        try
-        {
-            var response = await client.PostAsync(url, content);
-            return response;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, errorMessage, url, ex.Message);
-            throw;
-        }
-    }
-
     public async Task<string> SendGet(string url)
     {
         using var client = _factory.CreateClient();

@@ -9,9 +9,6 @@ public interface IHttpClientFunction
     /// <param name="data">Data to be sent in request.</param>
     /// <returns>HttpResponseMessage<returns>
     Task<HttpResponseMessage> SendPost(string url, string data);
-
-    Task<HttpResponseMessage> SendPost(string url, HttpContent content);
-
     /// <summary>
     /// Performs a GET request using HttpClient and returns the response body as a string or null if the request failed.
     /// </summary>
