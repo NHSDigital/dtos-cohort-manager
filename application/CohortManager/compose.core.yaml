@@ -123,8 +123,9 @@ services:
       - ManageServiceNowParticipantSubscription=manage-servicenow-participant-sub
       - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
-      - RetrievePdsDemographicURL=http://localhost:8082/api/RetrievePDSDemographic
-      - SendServiceNowMessageURL=http://localhost:9092/api/servicenow/send
+      - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+      - SendServiceNowMessageURL=http://servicenow-message-handler:9092/api/servicenow/send
+      - ParticipantManagementURL=http://participant-management-data-service:7994/api/ParticipantManagementDataService
 
   add-participant:
     container_name: add-participant
@@ -416,6 +417,8 @@ services:
       - ServiceNowClientId=${SERVICENOW_CLIENT_ID}
       - ServiceNowClientSecret=${SERVICENOW_CLIENT_SECRET}
       - ServiceNowRefreshToken=${SERVICENOW_REFRESH_TOKEN}
+    ports:
+      - "9092:9092"
 
   servicenow-cohort-lookup:
     container_name: servicenow-cohort-lookup
