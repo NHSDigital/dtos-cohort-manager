@@ -1,7 +1,8 @@
+namespace Common;
+
 using System.Net;
 using System.Text.Json.Nodes;
 using Apache.Arrow.Ipc;
-using Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 

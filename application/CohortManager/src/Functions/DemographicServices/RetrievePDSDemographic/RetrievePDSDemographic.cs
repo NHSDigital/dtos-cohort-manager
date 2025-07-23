@@ -168,11 +168,6 @@ public class RetrievePdsDemographic
         _logger.LogInformation("Refreshing bearer token...");
         bearerToken = await _authClientCredentials.AccessToken() ?? throw new Exception("Failed to get access token");
 
-        if (bearerToken == null)
-        {
-            return null!;
-        }
-
         var expires = new TimeSpan(0, 10, 0);
         var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
         _memoryCache.Set(AccessTokenCacheKey, bearerToken, cacheEntryOptions);
