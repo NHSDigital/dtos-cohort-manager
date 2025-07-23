@@ -14,7 +14,7 @@ RUN mkdir -p /home/site/wwwroot && \
 
 FROM base AS function
 
-COPY ./CaasIntegration/RetrieveMeshFile /src/dotnet-function-app
+COPY ./NemsSubscriptionService/NemsMeshRetrieval /src/dotnet-function-app
 WORKDIR /src/dotnet-function-app
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
