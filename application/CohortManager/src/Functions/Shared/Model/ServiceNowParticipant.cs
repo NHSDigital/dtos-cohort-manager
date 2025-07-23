@@ -2,7 +2,8 @@ namespace Model;
 
 public class ServiceNowParticipant
 {
-    public required string NhsNumber { get; set; }
+    public required long ScreeningId { get; set; }
+    public required long NhsNumber { get; set; }
     public required string FirstName { get; set; }
     public required string FamilyName { get; set; }
     public required string DateOfBirth { get; set; }
