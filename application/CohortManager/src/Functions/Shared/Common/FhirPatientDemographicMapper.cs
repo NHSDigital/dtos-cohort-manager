@@ -328,8 +328,11 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
                 demographic.IsInterpreterRequired = interpreterBool.Value.Value.ToString();
             }
         }
-        // we can assume that if the language extension is not returned then the person does not require an interpreter
-        demographic.IsInterpreterRequired = "false";
+        else
+        {
+            // we can assume that if the language extension is not returned then the person does not require an interpreter
+            demographic.IsInterpreterRequired = "false";
+        }
     }
 
     private static void MapRemovalInformation(Patient patient, PdsDemographic demographic)
