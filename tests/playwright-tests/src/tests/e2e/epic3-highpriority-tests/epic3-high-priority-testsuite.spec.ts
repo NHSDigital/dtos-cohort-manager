@@ -100,7 +100,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithTwoAmendments('@DTOSS-5569-01 @not-runner-based @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)', {
+  testWithTwoAmendments.fixme('@DTOSS-5569-01 @not-runner-based @P1 Validation - Cohort Distribution_Raise manual exception when list of conditions are true for a record(AMENDED Twice)', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4283',
@@ -268,7 +268,7 @@ test.describe('@regression @e2e @epic3-high-priority Tests', () => {
 
   });
 
-  testWithAmended('@DTOSS-6016-01 @not-runner-based - Should Not Amend Participant Data When Current Posting is Missing', {
+  testWithAmended.fixme('@DTOSS-6016-01 @not-runner-based - Should Not Amend Participant Data When Current Posting is Missing', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6016',

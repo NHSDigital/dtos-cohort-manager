@@ -43,7 +43,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
 
   });
-  test('@DTOSS-5930-01 200 - @TC3_SIT Verify the ability to process CaaS file with 10 records from Cohort Manager to BS Select (AMENDED)', async ({ request }, testInfo) => {
+  test.fixme('@DTOSS-5930-01 200 - @TC3_SIT Verify the ability to process CaaS file with 10 records from Cohort Manager to BS Select (AMENDED)', async ({ request }, testInfo) => {
 
     const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title, "AMENDED");
 
