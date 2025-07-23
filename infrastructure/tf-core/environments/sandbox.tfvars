@@ -2,6 +2,12 @@ application           = "cohman"
 application_full_name = "cohort-manager"
 environment           = "SBX"
 
+# Global custom roles
+use_global_rbac_roles    = true
+
+# set this to a particular security principal to assign to all role assignments
+rbac_principal_id        = null
+
 features = {
   acr_enabled                          = false
   api_management_enabled               = false
@@ -300,16 +306,6 @@ function_apps = {
         AllowDeleteRecords         = true
         UseNewFunctions            = "true"
       }
-      storage_containers = [
-        {
-          env_var_name   = "inboundBlobName"
-          container_name = "inbound"
-        },
-        {
-          env_var_name   = "fileExceptions"
-          container_name = "inbound-poison"
-        }
-      ]
     }
 
     RetrieveMeshFile = {
@@ -456,6 +452,31 @@ function_apps = {
           function_app_key = "UpdateParticipantDetails"
         }
       ]
+    }
+
+    ManageParticipant = {
+      name_suffix             = "manage-participant"
+      function_endpoint_name  = "ManageParticipant"
+      app_service_plan_key    = "DefaultPlan"
+      service_bus_connections = ["internal"]
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "ParticipantManagementUrl"
+          function_app_key = "ParticipantManagementDataService"
+        }
+      ]
+      env_vars_static = {
+        CohortDistributionTopic       = "cohort-distribution"    # Writes to the cohort distribution topic
+        ParticipantManagementTopic    = "participant-management" # Subscribes to the participant management topic
+        ManageParticipantSubscription = "ManageParticipant"      # Subscribes to the participant management topic
+        IgnoreParticipantExceptions   = "false"
+        IsExtractedToBSSelect         = "false"
+        AcceptableLatencyThresholdMs  = "500"
+      }
     }
 
     UpdateParticipant = {
