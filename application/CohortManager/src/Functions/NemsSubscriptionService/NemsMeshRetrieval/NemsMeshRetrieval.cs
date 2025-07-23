@@ -51,7 +51,7 @@ public class NemsMeshRetrieval
         try
         {
             var shouldExecuteHandShake = await ShouldExecuteHandShake();
-            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId, _blobConnectionString, "inbound", shouldExecuteHandShake);
+            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId, _blobConnectionString, _config.InboundContainer, shouldExecuteHandShake);
 
             if (!result)
             {
@@ -74,7 +74,7 @@ public class NemsMeshRetrieval
 
         Dictionary<string, string> configValues;
         TimeSpan handShakeInterval = new TimeSpan(0, 23, 54, 0);
-        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobConnectionString, "config", ConfigFileName);
+        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobConnectionString, _config.ConfigContainer, ConfigFileName);
         if (meshState == null)
         {
 
@@ -140,7 +140,7 @@ public class NemsMeshRetrieval
             using (var stream = GenerateStreamFromString(jsonString))
             {
                 var blobFile = new BlobFile(stream, ConfigFileName);
-                var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString, "config", blobFile, true);
+                var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString, _config.ConfigContainer, blobFile, true);
                 return result;
             }
         }

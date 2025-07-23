@@ -1320,6 +1320,8 @@ function_apps = {
       ]
       env_vars_static = {
         MeshCertName = "MeshCert"
+        InboundContainer = "nems-updates"
+        ConfigContainer = "nems-config"
       }
     }
 
@@ -1518,6 +1520,12 @@ storage_accounts = {
       }
       inbound-poison = {
         container_name = "inbound-poison"
+      }
+      nems-updates = {
+        container_name = "nems-updates"
+      }
+      nems-config = {
+        container_name = "nems-config"
       }
     }
   }
