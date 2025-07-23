@@ -22,10 +22,11 @@ public static class JwtTokenExtension
         {
             var certClient = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
             var keyVaultClient = new SecretClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
-            var PrivateKey = certClient.DownloadCertificate(config.KeyNamePrivateKey);
+
+            var privateKey = certClient.DownloadCertificate(config.KeyNamePrivateKey);
             var APIKey = keyVaultClient.GetSecret(config.KeyNameAPIKey);
 
-            config.PrivateKey = CertificateToString(PrivateKey.Value);
+            config.PrivateKey = CertificateToString(privateKey.Value);
             // this gets the actual value in string format
             config.ClientId = APIKey.Value.Value;
         }

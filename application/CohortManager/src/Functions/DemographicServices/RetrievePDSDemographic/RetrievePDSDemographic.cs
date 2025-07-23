@@ -22,10 +22,8 @@ public class RetrievePdsDemographic
     private readonly RetrievePDSDemographicConfig _config;
     private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
-    private readonly IAuthClientCredentials _authClientCredentials;
-    private readonly IMemoryCache _memoryCache;
+    private readonly IBearerTokenService _bearerTokenService;
     private const string PdsParticipantUrlFormat = "{0}/{1}";
-    private const string AccessTokenCacheKey = "AccessToken";
 
 
     public RetrievePdsDemographic(
@@ -35,8 +33,8 @@ public class RetrievePdsDemographic
         IFhirPatientDemographicMapper fhirPatientDemographicMapper,
         IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig,
         IDataServiceClient<ParticipantDemographic> participantDemographicClient,
-        IAuthClientCredentials authClientCredentials,
-        IMemoryCache memoryCache)
+        IBearerTokenService bearerTokenService
+    )
     {
         _logger = logger;
         _createResponse = createResponse;
@@ -44,8 +42,7 @@ public class RetrievePdsDemographic
         _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
         _config = retrievePDSDemographicConfig.Value;
         _participantDemographicClient = participantDemographicClient;
-        _authClientCredentials = authClientCredentials;
-        _memoryCache = memoryCache;
+        _bearerTokenService = bearerTokenService;
     }
 
     // TODO: Need to send an exception to the EXCEPTION_MANAGEMENT table whenever this function returns a non OK status.
@@ -54,10 +51,10 @@ public class RetrievePdsDemographic
     {
         var nhsNumber = req.Query["nhsNumber"];
 
-        var bearerToken = await getBearerToken();
+        var bearerToken = await _bearerTokenService.GetBearerToken();
         if (bearerToken == null)
         {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "The bearer token could not be ");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "The bearer token could not be found");
         }
 
         if (string.IsNullOrEmpty(nhsNumber) || !ValidationHelper.ValidateNHSNumber(nhsNumber))
@@ -162,28 +159,5 @@ public class RetrievePdsDemographic
         return false;
     }
 
-    private async Task<string> getBearerToken()
-    {
-        if (_memoryCache.TryGetValue(AccessTokenCacheKey, out string? bearerToken))
-        {
-            return bearerToken!;
-        }
 
-        _logger.LogInformation("Refreshing bearer token...");
-        bearerToken = await _authClientCredentials.AccessToken();
-
-        if (bearerToken == null)
-        {
-            return "";
-        }
-
-        var expires = new TimeSpan(0, 10, 0);
-        var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
-        _memoryCache.Set(AccessTokenCacheKey, bearerToken, cacheEntryOptions);
-
-
-        _logger.LogInformation("Received access token");
-
-        return bearerToken;
-    }
 }

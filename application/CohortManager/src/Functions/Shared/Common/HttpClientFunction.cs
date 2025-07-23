@@ -1,9 +1,7 @@
 namespace Common;
 
 using System.Net;
-using System.Security.Policy;
 using System.Text;
-using Azure.Core;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
