@@ -42,6 +42,7 @@ public class UpdateBlockedFlag
     {
         _logger.LogInformation("Block Participant Called");
         return await Main(1, req);
+        
     }
 
     /// <summary>
@@ -77,7 +78,8 @@ public class UpdateBlockedFlag
             }
 
             long nhsNumber = long.Parse(nhsNumberStr);
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumberStr)) {
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumberStr))
+            {
                 throw new InvalidDataException("Invalid NHS Number");
             }
 
@@ -85,14 +87,35 @@ public class UpdateBlockedFlag
             ParticipantDemographic participantDemographic = await _participantDemographicClient
                 .GetSingleByFilter(i => i.NhsNumber == nhsNumber && i.DateOfBirth == dateOfBirth && i.FamilyName == familyName);
 
-            if (participantDemographic == null)
+            ParticipantManagement participantManagement;
+            bool blockFlagUpdated;
+            if (participantDemographic == null && BlockedFlag == 1)
+            {
+                //Search PDS
+                participantManagement = CheckPDS(nhsNumber, dateOfBirth, familyName);   //TODO Remove Mock and add call to PDS.
+                // If PDS returns non 200
+                if (participantManagement == null) //TODO This will become conclave expression when we can call PDS like a DataService
+                {
+                    throw new KeyNotFoundException("Could not find participant");
+                }
+                else
+                {
+                    participantManagement.ScreeningId = 1;
+                    blockFlagUpdated = await _participantManagementClient.Add(participantManagement); 
+                }  
+            }
+            else if (participantDemographic == null && BlockedFlag == 0)
+            {
                 throw new KeyNotFoundException("Could not find participant");
+            }
+            else
+            {
+                participantManagement = await _participantManagementClient.GetSingleByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == 1); // TODO Unhardcode this (Phase 2)
+                // Change blocked flag
+                participantManagement.BlockedFlag = BlockedFlag;
+                blockFlagUpdated = await _participantManagementClient.Update(participantManagement);
+            }
 
-            // Change blocked flag
-            ParticipantManagement participantManagement = await _participantManagementClient.GetSingleByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == 1); // TODO Unhardcode this (Phase 2)
-            participantManagement.BlockedFlag = BlockedFlag;
-
-            bool blockFlagUpdated = await _participantManagementClient.Update(participantManagement);
             if (!blockFlagUpdated)
                 throw new HttpRequestException("Failed to update blocked flag");
 
@@ -120,6 +143,17 @@ public class UpdateBlockedFlag
     {
         _logger.LogError(ex, "An error occurred while processing the request for blocking/unblocking a participant");
         await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, req.Query["NhsNumber"]!, "", "1", req.ToString()!);
+    }
+
+    // THIS IS TEMPORARY UNTIL PDS INTEGRATION IS COMPLETE
+    private static ParticipantManagement CheckPDS(long nhsNumber, string dateOfBirth, string familyName)
+    {
+        ParticipantManagement participant = new()
+        {
+            NHSNumber = nhsNumber,
+        };
+
+        return participant;
     }
     
 }
