@@ -1234,9 +1234,10 @@ function_apps = {
     }
 
     RetrievePDSDemographic = {
-      name_suffix            = "retrieve-pds-demographic"
-      function_endpoint_name = "RetrievePDSDemographic"
-      app_service_plan_key   = "DefaultPlan"
+      name_suffix              = "retrieve-pds-demographic"
+      function_endpoint_name   = "RetrievePDSDemographic"
+      app_service_plan_key     = "DefaultPlan"
+      KeyVaultConnectionString = "KeyVaultConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1256,7 +1257,7 @@ function_apps = {
         Kid                       = "RetrievePdsDemographic-DEV1",
         Audience                  = "https://int.api.service.nhs.uk/oauth2/token",
         AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token",
-        MeshKeyNamePrivateKey     = "PDSPrivatekey"
+        KeyNamePrivateKey         = "PDSPrivatekey"
         KeyNameAPIKey             = "PDSNameAPIKey"
       }
     }
