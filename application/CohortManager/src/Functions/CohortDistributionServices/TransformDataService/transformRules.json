@@ -463,24 +463,6 @@
         }
       },
       {
-        "RuleName": "00.Other.Gender.Not-0-1-2-or-9",
-        "Expression": "participant.Gender != 0 && participant.Gender != 1 && participant.Gender != 2 && participant.Gender != 9",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "TransformAction",
-            "Context": {
-              "transformFields": [
-                {
-                  "field": "Gender",
-                  "value": "9",
-                  "isExpression": false
-                }
-              ]
-            }
-          }
-        }
-      },
-      {
         "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider",
         "Expression": "(!string.IsNullOrEmpty(participant.PrimaryCareProvider) && participant.InvalidFlag  == \"1\") OR participant.RecordType == Actions.Removed",
         "Actions": {

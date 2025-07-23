@@ -27,15 +27,12 @@ public class NemsSubscriptionManagerTests
     {
         var config = new ManageNemsSubscriptionConfig
         {
-            ManageNemsSubscription = new ManageNemsSubscriptionSettings
-            {
-                NemsFhirEndpoint = "https://test.nems.endpoint/STU3",
-                FromAsid = "TestFromAsid",
-                ToAsid = "TestToAsid",
-                OdsCode = "TestOds",
-                MeshMailboxId = "TestMesh123",
-                BypassServerCertificateValidation = false
-            }
+            NemsFhirEndpoint = "https://test.nems.endpoint/STU3",
+            NemsFromAsid = "TestFromAsid",
+            NemsToAsid = "TestToAsid",
+            NemsOdsCode = "TestOds",
+            NemsMeshMailboxId = "TestMesh123",
+            NemsBypassServerCertificateValidation = false
         };
 
         _config.Setup(x => x.Value).Returns(config);
@@ -722,6 +719,11 @@ public class NemsSubscriptionManagerTests
     [DataRow("DUPLICATE_REJECTED subscription already exists : spaced-id-123", "spaced-id-123")]
     [DataRow("DUPLICATE_REJECTED subscription already exists:no-space-id", "no-space-id")]
     [DataRow("Error: DUPLICATE_REJECTED subscription already exists: prefix-test-456 with additional context", "prefix-test-456")]
+    [DataRow("DUPLICATE_REJECTED subscription already exists: \"8965851501ce40bdb85841f84b726d93\"", "8965851501ce40bdb85841f84b726d93")]
+    [DataRow("DUPLICATE_REJECTED subscription already exists: \"8965851501ce40bdb85841f84b726d93\"/>", "8965851501ce40bdb85841f84b726d93")]
+    [DataRow("DUPLICATE_REJECTED subscription already exists: 8965851501ce40bdb85841f84b726d93\"/>", "8965851501ce40bdb85841f84b726d93")]
+    [DataRow("DUPLICATE_REJECTED subscription already exists: \"abc123def456\"/> additional content", "abc123def456")]
+    [DataRow("DUPLICATE_REJECTED subscription already exists: test-id-123\"/> <other>xml</other>", "test-id-123")]
     public async Task CreateAndSendSubscriptionAsync_VariousDuplicateFormats_ExtractsCorrectId(string errorMessage, string expectedId)
     {
         // Arrange
@@ -761,6 +763,9 @@ public class NemsSubscriptionManagerTests
     [DataRow("DUPLICATE_REJECTED subscription already exists")] // No colon
     [DataRow("DUPLICATE_REJECTED something else happened")] // Different error format
     [DataRow("DUPLICATE_REJECTED subscription already exists: ")] // Empty after colon
+    [DataRow("DUPLICATE_REJECTED subscription already exists: <invalid>special@chars</invalid>")] // Invalid characters in ID
+    [DataRow("DUPLICATE_REJECTED subscription already exists: @invalid@id")] // Invalid characters in ID
+    [DataRow("DUPLICATE_REJECTED subscription already exists: \"\"/")] // Empty quoted ID with XML
     public async Task CreateAndSendSubscriptionAsync_MalformedDuplicateMessages_ReturnsFailure(string errorMessage)
     {
         // Arrange

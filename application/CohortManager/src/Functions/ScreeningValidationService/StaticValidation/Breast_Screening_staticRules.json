@@ -3,30 +3,6 @@
     "WorkflowName": "Common",
     "Rules": [
       {
-        "RuleName": "9.NhsNumber.CaaS.Fatal",
-        "Expression": "Regex.IsMatch(participant.NhsNumber, \"^\\\\d{10}$\")",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"NHS ID Invalid\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "57.SupersededByNhsNumber.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.SupersededByNhsNumber) OR Regex.IsMatch(participant.SupersededByNhsNumber, \"^\\\\d{10}$\")",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Superseded by NHS ID invalid\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "8.RecordType.CaaS.NonFatal",
         "Expression": "participant.RecordType == Actions.New OR participant.RecordType == Actions.Amended OR participant.RecordType == Actions.Removed",
         "Actions": {
@@ -34,18 +10,6 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Incorrect record type\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "14.ReasonForRemoval.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) OR new string[] {\"AFL\",\"AFN\",\"CGA\",\"DEA\",\"DIS\",\"EMB\",\"LDN\",\"NIT\",\"OPA\",\"ORR\",\"RDI\",\"RDR\",\"RFI\",\"RPR\",\"SCT\",\"SDL\",\"SDN\",\"TRA\"}.Contains(participant.ReasonForRemoval)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Reason for removal is invalid\""
             }
           }
         }
@@ -111,54 +75,6 @@
         }
       },
       {
-        "RuleName": "42.GPPracticeCode.NBO.NonFatal",
-        "Expression": "participant.RecordType != Actions.New OR !string.IsNullOrEmpty(participant.PrimaryCareProvider)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"GP practice code invalid\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "19.ReasonForRemovalEffectiveFromDate.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.ReasonForRemovalEffectiveFromDate)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Reason for removal date invalid\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "100.PrimaryCareProviderEffectiveFromDate.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.PrimaryCareProviderEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.PrimaryCareProviderEffectiveFromDate)"
-      },
-      {
-        "RuleName": "101.CurrentPostingEffectiveFromDate.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.CurrentPostingEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.CurrentPostingEffectiveFromDate)"
-      },
-      {
-        "RuleName": "102.UsualAddressEffectiveFromDate.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.UsualAddressEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.UsualAddressEffectiveFromDate)"
-      },
-      {
-        "RuleName": "103.TelephoneNumberEffectiveFromDate.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.TelephoneNumberEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.TelephoneNumberEffectiveFromDate)"
-      },
-      {
-        "RuleName": "104.MobileNumberEffectiveFromDate.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.MobileNumberEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.MobileNumberEffectiveFromDate)"
-      },
-      {
-        "RuleName": "105.EmailAddressEffectiveFromDate.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.EmailAddressEffectiveFromDate) OR ValidationHelper.ValidatePastDate(participant.EmailAddressEffectiveFromDate)"
-      },
-      {
         "RuleName": "18.DateOfDeath.NBO.NonFatal",
         "Expression": "string.IsNullOrEmpty(participant.DateOfDeath) OR ValidationHelper.ValidatePastDate(participant.DateOfDeath)",
         "Actions": {
@@ -190,18 +106,6 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Interpreter required does not contain a valid value\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "61.InvalidFlag.NBO.NonFatal",
-        "Expression": "participant.InvalidFlag == \"1\" OR participant.InvalidFlag == \"0\"",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"The Invalid Flag received does not contain a valid value\""
             }
           }
         }

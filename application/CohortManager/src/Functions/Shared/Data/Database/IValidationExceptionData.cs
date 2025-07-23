@@ -9,4 +9,5 @@ public interface IValidationExceptionData
     Task<List<ValidationException>?> GetAllFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory);
     Task<ValidationException?> GetExceptionById(int exceptionId);
     Task<bool> RemoveOldException(string nhsNumber, string screeningName);
+    Task<bool> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId);
 }

@@ -12,19 +12,6 @@
         "requirementJiraId": "DTOSS-6256",
         "additionalTags": "@smoke @e2e Tests Verify file upload handles invalid GP Practice Code Exception with RuleId 3601"
       }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9995446588",
-        "RuleId": 3602,
-        "RuleDescription": "Invalid primary care provider GP practice code"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-6406-01",
-        "requirementJiraId": "DTOSS-5389",
-        "additionalTags": "@smoke @e2e Tests Verify file upload handles invalid GP Practice Code Exception with RuleId 3602"
-      }
     }
   ],
   "inputParticipantRecord": [

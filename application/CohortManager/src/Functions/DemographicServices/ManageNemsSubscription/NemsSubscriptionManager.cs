@@ -21,7 +21,7 @@ public class NemsSubscriptionManager
 {
     private readonly INemsHttpClientFunction _httpClient;
     private readonly ILogger<NemsSubscriptionManager> _logger;
-    private readonly ManageNemsSubscriptionSettings _config;
+    private readonly ManageNemsSubscriptionConfig _config;
     private readonly IDataServiceAccessor<NemsSubscription> _nemsSubscriptionAccessor;
     private readonly X509Certificate2 _nemsCertificate; // injected!
 
@@ -33,7 +33,7 @@ public class NemsSubscriptionManager
         X509Certificate2 nemsCertificate)
     {
         _httpClient = httpClient;
-        _config = config.Value.ManageNemsSubscription;
+        _config = config.Value;
         _logger = logger;
         _nemsSubscriptionAccessor = nemsSubscriptionAccessor;
         _nemsCertificate = nemsCertificate;
@@ -80,26 +80,26 @@ public class NemsSubscriptionManager
             var baseUri = new Uri(_config.NemsFhirEndpoint);
             var baseUrl = $"{baseUri.Scheme}://{baseUri.Host}";
             var jwtToken = _httpClient.GenerateJwtToken(
-                _config.FromAsid,
+                _config.NemsFromAsid,
                 baseUrl,
                 "patient/Subscription.write"
             );
 
             string deleteUrl = $"{_config.NemsFhirEndpoint}/Subscription/{subscriptionId}";
 
-            var bypassCert = _config.BypassServerCertificateValidation;
+            var bypassCert = _config.NemsBypassServerCertificateValidation;
 
             var deleteRequest = new NemsSubscriptionRequest
             {
                 Url = deleteUrl,
                 JwtToken = jwtToken,
-                FromAsid = _config.FromAsid,
-                ToAsid = _config.ToAsid,
+                FromAsid = _config.NemsFromAsid,
+                ToAsid = _config.NemsToAsid,
                 ClientCertificate = _nemsCertificate,
                 BypassCertValidation = bypassCert
             };
 
-            var response = await _httpClient.SendSubscriptionDelete(deleteRequest, _config.HttpClientTimeoutSeconds);
+            var response = await _httpClient.SendSubscriptionDelete(deleteRequest, _config.NemsHttpClientTimeoutSeconds);
 
             return response.IsSuccessStatusCode;
         }
@@ -123,26 +123,26 @@ public class NemsSubscriptionManager
         {
             var baseUrl = _config.NemsFhirEndpoint.Replace("/STU3", "");
             var jwtToken = _httpClient.GenerateJwtToken(
-                _config.FromAsid,
+                _config.NemsFromAsid,
                 baseUrl,
                 "patient/Subscription.write"
             );
 
             var url = $"{_config.NemsFhirEndpoint}/Subscription";
-            var bypassCert = _config.BypassServerCertificateValidation;
+            var bypassCert = _config.NemsBypassServerCertificateValidation;
 
             var postRequest = new NemsSubscriptionPostRequest
             {
                 Url = url,
                 SubscriptionJson = subscriptionJson,
                 JwtToken = jwtToken,
-                FromAsid = _config.FromAsid,
-                ToAsid = _config.ToAsid,
+                FromAsid = _config.NemsFromAsid,
+                ToAsid = _config.NemsToAsid,
                 ClientCertificate = _nemsCertificate,
                 BypassCertValidation = bypassCert
             };
 
-            var response = await _httpClient.SendSubscriptionPost(postRequest, _config.HttpClientTimeoutSeconds);
+            var response = await _httpClient.SendSubscriptionPost(postRequest, _config.NemsHttpClientTimeoutSeconds);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -154,7 +154,7 @@ public class NemsSubscriptionManager
                 {
                     var match = Regex.Match(
                         errorContent,
-                        @"subscription already exists\s*:\s*([^\s]+)",
+                        @"subscription already exists\s*:\s*""?([a-zA-Z0-9-_]+)""?",
                         RegexOptions.None,
                         TimeSpan.FromMilliseconds(100)
                     );
@@ -261,18 +261,18 @@ public class NemsSubscriptionManager
         {
             Meta = new STU3Meta
             {
-                Profile = new[] { _config.SubscriptionProfile },
+                Profile = new[] { _config.NemsSubscriptionProfile },
                 LastUpdated = DateTimeOffset.UtcNow
             },
             Status = STU3Subscription.SubscriptionStatus.Requested,
             Reason = $"Subscribe to {eventType} events for patient",
 
-            Criteria = $"/Bundle?type=message&Patient.identifier={_config.SubscriptionCriteria}|{nhsNumber}&MessageHeader.event={eventType}",
+            Criteria = $"/Bundle?type=message&Patient.identifier={_config.NemsSubscriptionCriteria}|{nhsNumber}&MessageHeader.event={eventType}",
 
             Channel = new STU3Subscription.ChannelComponent
             {
                 Type = STU3Subscription.SubscriptionChannelType.Message, // Use 'message' for MESH delivery
-                Endpoint = _config.MeshMailboxId, // Use MESH mailbox ID, not ODS code
+                Endpoint = _config.NemsMeshMailboxId, // Use MESH mailbox ID, not ODS code
                 Payload = "application/fhir+json"
             }
         };
@@ -285,7 +285,7 @@ public class NemsSubscriptionManager
             new STU3ContactPoint
             {
                 System = STU3ContactPoint.ContactPointSystem.Url,
-                Value = $"https://directory.spineservices.nhs.uk/STU3/Organization/{_config.OdsCode}",
+                Value = $"https://directory.spineservices.nhs.uk/STU3/Organization/{_config.NemsOdsCode}",
                 Use = STU3ContactPoint.ContactPointUse.Work
             }
         };
