@@ -4,9 +4,10 @@ namespace Model.Enums;
 public enum ServiceNowMessageType
 {
     /// <summary>
-    /// Does not match the participant in PDS.
+    /// Participant could not be added because either the details do not match PDS or
+    /// they cannot be added to the cohort because they are blocked.
     /// </summary>
-    UnableToVerifyParticipant = 1,
+    UnableToAddParticipant = 1,
     /// <summary>
     /// Add is in progress but an execption has been encountered.
     /// </summary>
