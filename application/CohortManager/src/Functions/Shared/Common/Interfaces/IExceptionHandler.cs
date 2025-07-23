@@ -29,7 +29,14 @@ public interface IExceptionHandler
     /// <param name="exception">The exception to be written to the database.</param>
     /// <param name="participant">The participant that created the exception.</param>
     Task CreateSystemExceptionLog(Exception exception, ServiceNowParticipant participant);
+    /// <summary>
+    /// Creates one or more validation exceptions.
+    /// </summary>
+    /// <param name="validationErrors">A list of the validation errors</param>
+    /// <param name="participantCsvRecord">The participant that triggered them</param>
     Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<ValidationRuleResult> validationErrors, ParticipantCsvRecord participantCsvRecord);
+    [Obsolete]
+    Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord);
     Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord);
     Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord);
     Task CreateDeletedRecordException(BasicParticipantCsvRecord participantCsvRecord);

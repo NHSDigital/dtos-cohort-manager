@@ -154,6 +154,7 @@ public class ExceptionHandler : IExceptionHandler
             }
         }
     }
+
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<ValidationRuleResult> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         participantCsvRecord.Participant.ExceptionFlag = "Y";
@@ -165,6 +166,69 @@ public class ExceptionHandler : IExceptionHandler
             var ruleId = int.Parse(ruleDetails[0]);
             var Category = ruleDetails[2];
             var errorMessage = error.RuleDescription;
+
+            var IsFatal = ParseFatalRuleType(ruleDetails[3]);
+            if (IsFatal == 1)
+            {
+                foundFatalRule = true;
+                _logger.LogInformation("A Fatal rule has been found and the record with NHD ID: {NhsNumber} will not be added to the database.", participantCsvRecord.Participant.ParticipantId);
+            }
+
+            if (!string.IsNullOrEmpty(error.ExceptionMessage))
+            {
+                errorMessage = error.ExceptionMessage;
+                _logger.LogError("an exception was raised while running the rules. Exception Message: {exceptionMessage}", error.ExceptionMessage);
+            }
+
+            var exception = new ValidationException
+            {
+                RuleId = ruleId,
+                RuleDescription = errorMessage ?? ruleDetails[1],
+                FileName = participantCsvRecord.FileName,
+                NhsNumber = participantCsvRecord.Participant.NhsNumber,
+                ErrorRecord = JsonSerializer.Serialize(participantCsvRecord.Participant),
+                DateCreated = DateTime.UtcNow,
+                DateResolved = DateTime.MaxValue,
+                ExceptionDate = DateTime.UtcNow,
+                Category = GetCategory(Category),
+                ScreeningName = participantCsvRecord.Participant.ScreeningName,
+                CohortName = DefaultCohortName,
+                Fatal = IsFatal
+            };
+
+            var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
+
+            if (!isSentSuccessfully)
+            {
+                _logger.LogError("There was an error while logging an exception to the database");
+                return new ValidationExceptionLog
+                {
+                    IsFatal = foundFatalRule,
+                    CreatedException = false
+                };
+            }
+
+        }
+
+        return new ValidationExceptionLog()
+        {
+            IsFatal = foundFatalRule,
+            CreatedException = true
+        };
+    }
+
+    [Obsolete]
+    public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
+    {
+        participantCsvRecord.Participant.ExceptionFlag = "Y";
+
+        var foundFatalRule = false;
+        foreach (var error in validationErrors)
+        {
+            var ruleDetails = error.Rule.RuleName.Split('.');
+            var ruleId = int.Parse(ruleDetails[0]);
+            var Category = ruleDetails[2];
+            var errorMessage = (string)error.ActionResult.Output;
 
             var IsFatal = ParseFatalRuleType(ruleDetails[3]);
             if (IsFatal == 1)
