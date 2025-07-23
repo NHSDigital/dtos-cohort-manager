@@ -7,7 +7,7 @@ test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', (
   let response: any;
 
   test.beforeAll(async ({ request }) => {
-    apiConfig = await getApiQueryParams('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', 'validation_exceptions_sample_data');
+    apiConfig = await getApiQueryParams('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', 'validation_exceptions_raised_desc');
     response = await getValidationExceptions(request, apiConfig);
   });
 
@@ -16,6 +16,7 @@ test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', (
 
     if (response.status === 204) {
       console.info('Verified 204 response when no data is found');
+      expect(response.data.Items.length).toBe(0)
     } else {
       expect(response.data).toBeDefined();
       expect(response.data.Items).toBeDefined();
@@ -25,7 +26,7 @@ test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', (
     }
   });
 
-  test('Should verify all returned records have ServiceNowId  and ServiceNowCreatedDate', async () => {
+  test('Should verify all returned records have ServiceNowId and ServiceNowCreatedDate', async () => {
     if (response.status === 204) {
       console.info('No data found - skipping validation test');
       return;
@@ -40,7 +41,7 @@ test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', (
       console.info(`Record ${index + 1}: ServiceNow ID: ${item.ServiceNowId }, Created Date: ${item.ServiceNowCreatedDate}`);
     });
 
-    console.info(`Verified all ${items.length} records have required ServiceNowId  and ServiceNowCreatedDate fields`);
+    console.info(`Verified all ${items.length} records have required ServiceNowId and ServiceNowCreatedDate fields`);
   });
 
   test('Should verify records are sorted in descending order by ServiceNowCreatedDate', async () => {
