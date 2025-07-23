@@ -11,6 +11,7 @@ using NHS.CohortManager.DemographicServices;
 using DataServices.Client;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Caching.Memory;
 
 [TestClass]
 public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemographic>
@@ -19,6 +20,10 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     private static readonly Mock<IOptions<RetrievePDSDemographicConfig>> _mockConfig = new();
     private static readonly Mock<IFhirPatientDemographicMapper> _mockFhirPatientDemographicMapper = new();
     private static readonly Mock<IDataServiceClient<ParticipantDemographic>> _mockParticipantDemographicClient = new();
+    private static readonly Mock<IAuthClientCredentials> _authClientCredentials = new();
+    private static readonly Mock<IMemoryCache> _memoryCache = new();
+
+
     private const string _validNhsNumber = "3112728165";
     private const long _validNhsNumberLong = 3112728165;
 
@@ -29,7 +34,9 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         _mockHttpClientFunction.Object,
         _mockFhirPatientDemographicMapper.Object,
         _mockConfig.Object,
-        _mockParticipantDemographicClient.Object))
+        _mockParticipantDemographicClient.Object,
+        _authClientCredentials.Object,
+        _memoryCache.Object))
     {
         CreateHttpResponseMock();
     }
