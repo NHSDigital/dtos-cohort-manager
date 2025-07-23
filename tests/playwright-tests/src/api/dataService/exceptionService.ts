@@ -21,7 +21,7 @@ export const getValidationExceptions = (
 ): Promise<any> => {
   return apiClient.get(
     request,
-    `${config.endpointBsSelectGetValidationExceptions}/${config.routeGetValidationExceptions}`,
+    `${config.endpointBsSelectGetValidationExceptions}${config.routeGetValidationExceptions}`,
     params
   );
 };
