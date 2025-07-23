@@ -27,11 +27,3 @@ The function requires the certificate file to be included in the build output:
 </ItemGroup>
 ```
 
-### Environment Variable Format
-
-- **Local development**: Use double underscores (`__`) in `local.settings.json`
-- **Docker**: Use double underscores (`__`) in environment variables
-- **Azure Key Vault**: Use double dashes (`--`) for key names (e.g., `ManageNemsSubscription--NemsFhirEndpoint`)
-- **Arrays**: Use indexed syntax like `ManageNemsSubscription__DefaultEventTypes__0`
-
-> ⚠️ **Important**: The configuration system automatically maps between Key Vault's double dash (`--`) format and the application's double underscore (`__`) format. Don't mix these formats in the same environment.

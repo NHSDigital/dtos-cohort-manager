@@ -79,6 +79,30 @@ public class ValidationExceptionData : IValidationExceptionData
         return false;
     }
 
+    public async Task<bool> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId)
+    {
+        try
+        {
+            var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
+
+            if (exception == null)
+            {
+                _logger.LogWarning("Exception with ID {ExceptionId} not found", exceptionId);
+                return false;
+            }
+
+            exception.ServiceNowId = serviceNowId;
+            exception.RecordUpdatedDate = DateTime.UtcNow;
+
+            return await _validationExceptionDataServiceClient.Update(exception);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating ServiceNowID for exception {ExceptionId}", exceptionId);
+            return false;
+        }
+    }
+
     private ValidationException? GetExceptionDetails(ValidationException? exception, ParticipantDemographic? participantDemographic)
     {
         if (exception == null)
@@ -140,6 +164,12 @@ public class ValidationExceptionData : IValidationExceptionData
             _ => list
         };
 
-        return sortOrder == SortOrder.Ascending ? filteredList.OrderBy(x => x.DateCreated).ToList() : filteredList.OrderByDescending(x => x.DateCreated).ToList();
+        Func<ValidationException, DateTime?> dateProperty = status == ExceptionStatus.Raised
+            ? x => x.ServiceNowCreatedDate
+            : x => x.DateCreated;
+
+        return sortOrder == SortOrder.Ascending
+            ? [.. filteredList.OrderBy(dateProperty)]
+            : [.. filteredList.OrderByDescending(dateProperty)];
     }
 }

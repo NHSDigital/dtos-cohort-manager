@@ -66,11 +66,11 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7080
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - BsSelectOutCodeUrl=http://bs-select-outcode-data-service:7881/api/BsSelectOutCodeDataService
-      - BsSelectGpPracticeUrl=http://bs-select-gp-practice-data-service:7998/api/BsSelectGpPracticeDataService/
+      - BsSelectOutCodeUrl=http://reference-data-service:7988/api/BsSelectOutCode
+      - BsSelectGpPracticeUrl=http://reference-data-service:7988/api/BsSelectGpPractice
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - LanguageCodeUrl=http://language-code-data-service:7997/api/LanguageCodeDataService
-      - ExcludedSMULookupUrl=http://excluded-smu-data-service:7995/api/ExcludedSMUDataService/
+      - LanguageCodeUrl=http://reference-data-service:7988/api/LanguageCode
+      - ExcludedSMULookupUrl=http://reference-data-service:7988/api/ExcludedSMU
       - AcceptableLatencyThresholdMs=500
 
   remove-validation-exception-data:
@@ -88,21 +88,6 @@ services:
       - GPPracticeDataServiceURL=http://gppractice-data-service:7999/api/GPPracticeDataService/
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  delete-participant:
-    container_name: delete-participant
-    image: cohort-manager-delete-participant
-    networks: [cohman-network]
-    ports:
-    - "7087:7087"
-    build:
-      context: ./src/Functions/
-      dockerfile: CohortDistributionServices/DeleteParticipant/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7087
-      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
-      - AcceptableLatencyThresholdMs=500
 
 networks:
   cohman-network:

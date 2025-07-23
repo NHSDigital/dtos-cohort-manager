@@ -45,15 +45,13 @@ try
         logger.LogInformation("Pulling Mesh Certificate from local File");
         cohortManagerPrivateKey = new X509Certificate2(config.MeshKeyName, config.MeshKeyPassphrase);
 
-        string certsString = File.ReadAllText(config.ServerSideCerts);
+        string certsString = await File.ReadAllTextAsync(config.ServerSideCerts);
         meshCerts = CertificateHelper.GetCertificatesFromString(certsString);
     }
 
     host.ConfigureFunctionsWebApplication();
     host.ConfigureServices(services =>
     {
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
         services
             .AddMeshClient(_ =>
             {

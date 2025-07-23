@@ -26,6 +26,12 @@ parameters:
       - 'Destroy'
     default: 'Apply'
 
+parameters:
+  - name: dockerImageTag
+    displayName: 'Docker Image Tag'
+    type: string
+    default: development
+
 variables:
   - group: SBX_core_backend
   - group: SBX_audit_backend_remote_state
@@ -52,6 +58,8 @@ stages:
           - checkout: self
           - checkout: dtos-devops-templates
           - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+            parameters:
+              tfCommandOptions: '-var="docker_image_tag=${{ parameters.dockerImageTag }}"'
 
   - stage: terraform_apply
     displayName: Terraform Apply

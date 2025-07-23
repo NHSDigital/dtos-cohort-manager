@@ -59,7 +59,7 @@ public class LookupValidation
         {
             newParticipant = requestBody.NewParticipant;
 
-            var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
+            var ruleFileName = $"{newParticipant.ScreeningName}_lookupRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName {RuleFileName}", ruleFileName);
 
             var json = await _readRules.GetRulesFromDirectory(ruleFileName);
@@ -121,19 +121,6 @@ public class LookupValidation
             _logger.LogError(ex, "Error while processing lookup Validation message: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
 
-        }
-    }
-
-    private static string GetValidationRulesName(RulesType rulesType)
-    {
-        switch (rulesType)
-        {
-            case RulesType.CohortDistribution:
-                return "cohortRules.json";
-            case RulesType.ParticipantManagement:
-                return "lookupRules.json";
-            default:
-                return "lookupRules.json";
         }
     }
 }

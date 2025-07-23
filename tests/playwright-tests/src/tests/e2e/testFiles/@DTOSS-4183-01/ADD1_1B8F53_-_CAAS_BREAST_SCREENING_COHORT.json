@@ -1,0 +1,74 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9999168752,
+        "PostCode": "SW2 4AGSWWW"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4183-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify postcode greater than 10 characters gets stored as in the demographic table"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9999168752",
+        "RuleId": 30,
+        "RuleDescription": "Postcode invalid"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4183-01",
+        "requirementJiraId": "DTOSS-2623",
+        "additionalTags": "@regression @e2e @epic2-med-priority Verify postcode greater than 10 characters results in exception in Exception Management for participant record 9999168752"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "ADD",
+      "change_time_stamp": 20250524000000,
+      "serial_change_number": 1,
+      "nhs_number": 9999168752,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20030319",
+      "current_posting": "BD",
+      "current_posting_effective_from_date": "20130419",
+      "name_prefix": "Ms",
+      "given_name": "Jackie",
+      "other_given_name": "Grover",
+      "family_name": "Dominic",
+      "previous_family_name": "Stevens",
+      "date_of_birth": "19600112",
+      "gender": 1,
+      "address_line_1": "123 Trent Road",
+      "address_line_2": "TRENT ROAD LANE",
+      "address_line_3": "TRENT CORNER ROAD",
+      "address_line_4": "Oliver ROAD",
+      "address_line_5": "OLIVER CORNER ROAD",
+      "postcode": "SW2 4AGSWWW",
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20031118",
+      "reason_for_removal": "",
+      "reason_for_removal_effective_from_date": "",
+      "date_of_death": "",
+      "death_status": null,
+      "home_telephone_number": "7898908901",
+      "home_telephone_effective_from_date": "20240502",
+      "mobile_telephone_number": "7898908901",
+      "mobile_telephone_effective_from_date": "20240502",
+      "email_address": "abc123@soup.io",
+      "email_address_effective_from_date": "20240502",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9999168752"
+  ]
+}
