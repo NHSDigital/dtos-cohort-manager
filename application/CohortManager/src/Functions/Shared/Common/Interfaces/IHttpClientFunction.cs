@@ -10,6 +10,8 @@ public interface IHttpClientFunction
     /// <returns>HttpResponseMessage<returns>
     Task<HttpResponseMessage> SendPost(string url, string data);
 
+    Task<HttpResponseMessage> SendPost(string url, HttpContent content);
+
     /// <summary>
     /// Performs a GET request using HttpClient.
     /// </summary>
@@ -41,7 +43,7 @@ public interface IHttpClientFunction
     /// </summary>
     /// <param name="url">URL to be used in request.</param>
     /// <returns>HttpResponseMessage<returns>
-    Task<HttpResponseMessage> SendPdsGet(string url);
+    Task<HttpResponseMessage> SendPdsGet(string url, string AccessToken);
 
     /// <summary>
     /// Performs a PUT request using HttpClient.
@@ -50,7 +52,7 @@ public interface IHttpClientFunction
     /// <param name="data">Data to be sent in request.</param>
     /// <returns>HttpResponseMessage</returns>
     Task<HttpResponseMessage> SendPut(string url, string data);
-    
+
     /// <summary>
     /// Performs a DELETE request using HttpClient.
     /// </summary>

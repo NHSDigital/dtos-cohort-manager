@@ -1,7 +1,9 @@
 namespace Common;
 
 using System.Net;
+using System.Security.Policy;
 using System.Text;
+using Azure.Core;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
 
@@ -29,6 +31,25 @@ public class HttpClientFunction : IHttpClientFunction
         try
         {
             HttpResponseMessage response = await client.PostAsync(url, jsonContent);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, errorMessage, url, ex.Message);
+            throw;
+        }
+    }
+
+    public async Task<HttpResponseMessage> SendPost(string url, HttpContent content)
+    {
+        using var client = _factory.CreateClient();
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        try
+        {
+            var response = await client.PostAsync(url, content);
             return response;
         }
         catch (Exception ex)
@@ -70,12 +91,14 @@ public class HttpClientFunction : IHttpClientFunction
         return await GetOrThrowAsync(client);
     }
 
-    public async Task<HttpResponseMessage> SendPdsGet(string url)
+    public async Task<HttpResponseMessage> SendPdsGet(string url, string accessToken)
     {
         using var client = _factory.CreateClient();
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + accessToken);
         client.DefaultRequestHeaders.Add("X-Request-ID", Guid.NewGuid().ToString());
         client.DefaultRequestHeaders.Add("X-Correlation-ID", Guid.NewGuid().ToString());
         client.DefaultRequestHeaders.Add("Accept", "application/fhir+json");

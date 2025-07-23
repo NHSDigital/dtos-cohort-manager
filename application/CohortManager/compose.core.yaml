@@ -320,6 +320,11 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsParticipantURL=https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - Kid=RetrievePdsDemographic-DEV1
+      - Audience=https://int.api.service.nhs.uk/oauth2/token
+      - AuthTokenURL=https://int.api.service.nhs.uk/oauth2/token
+      - LocalPrivateKeyFileName=RetrievePdsDemographic-DEV1.pem.key
+      - ClientId="Get-private-key-from-NHS-dev-portal"
 
   manage-nems-subscription:
       container_name: manage-nems-subscription

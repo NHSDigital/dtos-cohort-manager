@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.DemographicServices;
 
+using System;
 using System.Net;
 using System.Text.Json;
 using Common;
@@ -7,8 +8,12 @@ using Common.Interfaces;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Threading.Tasks;
+
+
 using Model;
 
 public class RetrievePdsDemographic
@@ -19,7 +24,12 @@ public class RetrievePdsDemographic
     private readonly RetrievePDSDemographicConfig _config;
     private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
+    private readonly IAuthClientCredentials _authClientCredentials;
+
+    private readonly IMemoryCache _memoryCache;
     private const string PdsParticipantUrlFormat = "{0}/{1}";
+    private const string AccessTokenCacheKey = "AccessToken";
+
 
     public RetrievePdsDemographic(
         ILogger<RetrievePdsDemographic> logger,
@@ -27,7 +37,9 @@ public class RetrievePdsDemographic
         IHttpClientFunction httpClientFunction,
         IFhirPatientDemographicMapper fhirPatientDemographicMapper,
         IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig,
-        IDataServiceClient<ParticipantDemographic> participantDemographicClient)
+        IDataServiceClient<ParticipantDemographic> participantDemographicClient,
+        IAuthClientCredentials authClientCredentials,
+        IMemoryCache memoryCache)
     {
         _logger = logger;
         _createResponse = createResponse;
@@ -35,6 +47,8 @@ public class RetrievePdsDemographic
         _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
         _config = retrievePDSDemographicConfig.Value;
         _participantDemographicClient = participantDemographicClient;
+        _authClientCredentials = authClientCredentials;
+        _memoryCache = memoryCache;
     }
 
     // TODO: Need to send an exception to the EXCEPTION_MANAGEMENT table whenever this function returns a non OK status.
@@ -42,6 +56,8 @@ public class RetrievePdsDemographic
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var nhsNumber = req.Query["nhsNumber"];
+
+        var accessToken = await getBearerToken();
 
         if (string.IsNullOrEmpty(nhsNumber) || !ValidationHelper.ValidateNHSNumber(nhsNumber))
         {
@@ -51,8 +67,7 @@ public class RetrievePdsDemographic
         try
         {
             var url = string.Format(PdsParticipantUrlFormat, _config.RetrievePdsParticipantURL, nhsNumber);
-
-            var response = await _httpClientFunction.SendPdsGet(url);
+            var response = await _httpClientFunction.SendPdsGet(url, accessToken);
             string jsonResponse = "";
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -68,6 +83,7 @@ public class RetrievePdsDemographic
             response.EnsureSuccessStatusCode();
 
             jsonResponse = await _httpClientFunction.GetResponseText(response);
+            _logger.LogWarning(jsonResponse);
             var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
             var participantDemographic = pdsDemographic.ToParticipantDemographic();
             var upsertResult = await UpsertDemographicRecordFromPDS(participantDemographic);
@@ -144,5 +160,30 @@ public class RetrievePdsDemographic
 
         _logger.LogError("Failed to delete Participant Demographic.");
         return false;
+    }
+
+    private async Task<string> getBearerToken()
+    {
+        if (_memoryCache.TryGetValue(AccessTokenCacheKey, out string? accessToken))
+        {
+            return accessToken!;
+        }
+
+        _logger.LogInformation("Refreshing access token...");
+        accessToken = await _authClientCredentials.AccessToken() ?? throw new Exception("Failed to get access token");
+
+        if (accessToken == null)
+        {
+            return null!;
+        }
+        
+        var expires = new TimeSpan(0, 10, 0);
+        var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
+        _memoryCache.Set(AccessTokenCacheKey, accessToken, cacheEntryOptions);
+
+
+        _logger.LogInformation($"Received access token: {accessToken}");
+
+        return accessToken;
     }
 }

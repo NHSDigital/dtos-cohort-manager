@@ -1236,7 +1236,12 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL = ""
+        RetrievePdsParticipantURL = "",
+        Kid                       = "",
+        Audience                  = "",
+        AuthTokenURL              = "",
+        MeshKeyNamePrivateKey     = "PDSPrivatekey"
+        KeyNameAPIKey             = "PDSNameAPIKey"
       }
     }
 

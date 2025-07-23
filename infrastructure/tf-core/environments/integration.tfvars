@@ -1218,7 +1218,13 @@ function_apps = {
         }
       ]
       env_vars_static = {
+        RetrievePdsParticipantURL = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient",
+        Kid                       = "RetrievePdsDemographic-INT1",
+        Audience                  = "https://int.api.service.nhs.uk/oauth2/token",
+        AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token",
         RetrievePdsParticipantURL = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        MeshKeyNamePrivateKey     = "PDSPrivatekey"
+        KeyNameAPIKey             = "PDSNameAPIKey"
       }
     }
 
@@ -1235,13 +1241,13 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        AcceptableLatencyThresholdMs = "500"
-        "ManageNemsSubscription--NemsFhirEndpoint" = "https://msg.intspineservices.nhs.uk/STU3"
-        "ManageNemsSubscription--FromAsid" = "200000002527"
-        "ManageNemsSubscription--ToAsid" = "200000002527"
-        "ManageNemsSubscription--NemsKeyName" = "nems-client-certificate"
-        "ManageNemsSubscription--SubscriptionProfile" = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
-        "ManageNemsSubscription--SubscriptionCriteria" = "https://fhir.nhs.uk/Id/nhs-number"
+        AcceptableLatencyThresholdMs                                = "500"
+        "ManageNemsSubscription--NemsFhirEndpoint"                  = "https://msg.intspineservices.nhs.uk/STU3"
+        "ManageNemsSubscription--FromAsid"                          = "200000002527"
+        "ManageNemsSubscription--ToAsid"                            = "200000002527"
+        "ManageNemsSubscription--NemsKeyName"                       = "nems-client-certificate"
+        "ManageNemsSubscription--SubscriptionProfile"               = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
+        "ManageNemsSubscription--SubscriptionCriteria"              = "https://fhir.nhs.uk/Id/nhs-number"
         "ManageNemsSubscription--BypassServerCertificateValidation" = "false"
       }
     }
