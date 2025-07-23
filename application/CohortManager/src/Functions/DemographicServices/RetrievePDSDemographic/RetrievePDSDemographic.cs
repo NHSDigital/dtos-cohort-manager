@@ -83,7 +83,6 @@ public class RetrievePdsDemographic
             response.EnsureSuccessStatusCode();
 
             jsonResponse = await _httpClientFunction.GetResponseText(response);
-            _logger.LogWarning(jsonResponse);
             var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
             var participantDemographic = pdsDemographic.ToParticipantDemographic();
             var upsertResult = await UpsertDemographicRecordFromPDS(participantDemographic);
@@ -176,7 +175,7 @@ public class RetrievePdsDemographic
         {
             return null!;
         }
-        
+
         var expires = new TimeSpan(0, 10, 0);
         var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
         _memoryCache.Set(AccessTokenCacheKey, accessToken, cacheEntryOptions);
