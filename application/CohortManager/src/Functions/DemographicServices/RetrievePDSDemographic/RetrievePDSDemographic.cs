@@ -12,8 +12,6 @@ using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
-
-
 using Model;
 
 public class RetrievePdsDemographic
@@ -25,7 +23,6 @@ public class RetrievePdsDemographic
     private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
     private readonly IAuthClientCredentials _authClientCredentials;
-
     private readonly IMemoryCache _memoryCache;
     private const string PdsParticipantUrlFormat = "{0}/{1}";
     private const string AccessTokenCacheKey = "AccessToken";
@@ -57,7 +54,7 @@ public class RetrievePdsDemographic
     {
         var nhsNumber = req.Query["nhsNumber"];
 
-        var accessToken = await getBearerToken();
+        var bearerToken = await getBearerToken();
 
         if (string.IsNullOrEmpty(nhsNumber) || !ValidationHelper.ValidateNHSNumber(nhsNumber))
         {
@@ -67,7 +64,7 @@ public class RetrievePdsDemographic
         try
         {
             var url = string.Format(PdsParticipantUrlFormat, _config.RetrievePdsParticipantURL, nhsNumber);
-            var response = await _httpClientFunction.SendPdsGet(url, accessToken);
+            var response = await _httpClientFunction.SendPdsGet(url, bearerToken);
             string jsonResponse = "";
 
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -163,26 +160,26 @@ public class RetrievePdsDemographic
 
     private async Task<string> getBearerToken()
     {
-        if (_memoryCache.TryGetValue(AccessTokenCacheKey, out string? accessToken))
+        if (_memoryCache.TryGetValue(AccessTokenCacheKey, out string? bearerToken))
         {
-            return accessToken!;
+            return bearerToken!;
         }
 
-        _logger.LogInformation("Refreshing access token...");
-        accessToken = await _authClientCredentials.AccessToken() ?? throw new Exception("Failed to get access token");
+        _logger.LogInformation("Refreshing bearer token...");
+        bearerToken = await _authClientCredentials.AccessToken() ?? throw new Exception("Failed to get access token");
 
-        if (accessToken == null)
+        if (bearerToken == null)
         {
             return null!;
         }
 
         var expires = new TimeSpan(0, 10, 0);
         var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
-        _memoryCache.Set(AccessTokenCacheKey, accessToken, cacheEntryOptions);
+        _memoryCache.Set(AccessTokenCacheKey, bearerToken, cacheEntryOptions);
 
 
-        _logger.LogInformation($"Received access token: {accessToken}");
+        _logger.LogInformation($"Received access token: {bearerToken}");
 
-        return accessToken;
+        return bearerToken;
     }
 }
