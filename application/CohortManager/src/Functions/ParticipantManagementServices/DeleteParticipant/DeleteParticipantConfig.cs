@@ -5,5 +5,5 @@ using System.ComponentModel.DataAnnotations;
 public class DeleteParticipantConfig
 {
     [Required]
-    public string CohortDistributionDataServiceUrl {get; set;}
+    public required string CohortDistributionDataServiceUrl {get; set;}
 }

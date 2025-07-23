@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { checkAccess } from "@/app/lib/checkAccess";
-import { fetchExceptionsNotRaised } from "@/app/lib/fetchExceptions";
+import { fetchExceptionsNotRaisedSorted } from "@/app/lib/fetchExceptions";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
@@ -12,7 +12,11 @@ export const metadata: Metadata = {
   title: `Not raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
 };
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  readonly searchParams?: Promise<{ readonly sortBy?: string }>;
+}) {
   const session = await auth();
   const isCohortManager = session?.user
     ? await checkAccess(session.user.uid)
@@ -23,9 +27,11 @@ export default async function Page() {
   }
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
 
   try {
-    const exceptions = await fetchExceptionsNotRaised();
+    const exceptions = await fetchExceptionsNotRaisedSorted(sortBy);
 
     const exceptionDetails: ExceptionDetails[] = exceptions.Items.map(
       (exception: {

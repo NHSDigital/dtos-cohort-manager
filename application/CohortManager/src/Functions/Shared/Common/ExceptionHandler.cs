@@ -58,7 +58,7 @@ public class ExceptionHandler : IExceptionHandler
 
     public async Task CreateSystemExceptionLog(Exception exception, ServiceNowParticipant participant)
     {
-        var validationException = CreateDefaultSystemValidationException(participant.NhsNumber, exception, DefaultFileName, DefaultScreeningName, JsonSerializer.Serialize(participant));
+        var validationException = CreateDefaultSystemValidationException(participant.NhsNumber.ToString(), exception, DefaultFileName, DefaultScreeningName, JsonSerializer.Serialize(participant));
 
         await _exceptionSender.sendToCreateException(validationException);
     }

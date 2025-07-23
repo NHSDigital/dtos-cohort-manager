@@ -49,7 +49,7 @@ public class ProcessNemsUpdate
     /// This function returns nothing, only logs information/errors for successful or failing tasks.
     /// </returns>
     [Function(nameof(ProcessNemsUpdate))]
-    public async Task Run([BlobTrigger("nems-messages/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
+    public async Task Run([BlobTrigger("nems-messages/{name}", Connection = "nemsmeshfolder_STORAGE")] Stream blobStream, string name)
     {
         try
         {
