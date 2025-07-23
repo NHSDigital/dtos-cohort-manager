@@ -12,11 +12,13 @@ test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', (
   });
 
   test('Should return 204 if no data is found or 200 with records', async () => {
+    expect(response).toBeDefined();
+    expect(response.status).toBeDefined();
     expect([200, 204]).toContain(response.status);
 
     if (response.status === 204) {
       console.info('Verified 204 response when no data is found');
-      expect(response.data.Items.length).toBe(0)
+      expect(response.data).toBeUndefined();
     } else {
       expect(response.data).toBeDefined();
       expect(response.data.Items).toBeDefined();
@@ -33,12 +35,24 @@ test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', (
     }
 
     const items = response.data.Items;
+    expect(response.status).toBe(200);
+    expect(items).toBeDefined();
+    expect(Array.isArray(items)).toBe(true);
+    expect(items.length).toBeGreaterThan(0);
 
     items.forEach((item: any, index: number) => {
+      expect(item).toBeDefined();
       expect(item.ServiceNowId).toBeTruthy();
-      expect(item.ServiceNowCreatedDate ).toBeTruthy();
+      expect(item.ServiceNowCreatedDate).toBeTruthy();
+      expect(item.ServiceNowId.length).toBeGreaterThan(0);
+      expect(item.ServiceNowCreatedDate.length).toBeGreaterThan(0);
 
-      console.info(`Record ${index + 1}: ServiceNow ID: ${item.ServiceNowId }, Created Date: ${item.ServiceNowCreatedDate}`);
+      // Validate date format
+      const dateObj = new Date(item.ServiceNowCreatedDate);
+      expect(dateObj).toBeInstanceOf(Date);
+      expect(dateObj.getTime()).not.toBeNaN();
+
+      console.info(`Record ${index + 1}: ServiceNow ID: ${item.ServiceNowId}, Created Date: ${item.ServiceNowCreatedDate}`);
     });
 
     console.info(`Verified all ${items.length} records have required ServiceNowId and ServiceNowCreatedDate fields`);
@@ -51,6 +65,8 @@ test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', (
     }
 
     const items = response.data.Items;
+    expect(response.status).toBe(200);
+    expect(items).toBeDefined();
 
     if (items.length <= 1) {
       console.info(`Only ${items.length} record(s) found - sorting verification not applicable`);
@@ -58,9 +74,16 @@ test.describe('@DTOSS-9609-01 - Verify GetValidationExceptions API responses', (
     }
 
     for (let i = 1; i < items.length; i++) {
+      expect(items[i - 1].ServiceNowCreatedDate).toBeDefined();
+      expect(items[i].ServiceNowCreatedDate).toBeDefined();
+
       const prevDate = new Date(items[i - 1].ServiceNowCreatedDate);
       const currDate = new Date(items[i].ServiceNowCreatedDate);
 
+      expect(prevDate).toBeInstanceOf(Date);
+      expect(currDate).toBeInstanceOf(Date);
+      expect(prevDate.getTime()).not.toBeNaN();
+      expect(currDate.getTime()).not.toBeNaN();
       expect(prevDate.getTime()).toBeGreaterThanOrEqual(currDate.getTime());
     }
 
