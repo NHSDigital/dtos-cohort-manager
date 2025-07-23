@@ -4,6 +4,7 @@ namespace Common;
 using System.Security.Cryptography.X509Certificates;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
+using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.Hosting;
 
 public static class JwtTokenExtension
@@ -20,16 +21,18 @@ public static class JwtTokenExtension
         if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
         {
             var certClient = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
+            var keyVaultClient = new SecretClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
             var PrivateKey = certClient.DownloadCertificate(config.KeyNamePrivateKey);
-            var APIKey = certClient.DownloadCertificate(config.KeyNameAPIKey);
+            var APIKey = keyVaultClient.GetSecret(config.KeyNameAPIKey);
 
             config.PrivateKey = CertificateToString(PrivateKey.Value);
-            config.ClientId = CertificateToString(APIKey.Value);
+            // this gets the actual value in string format
+            config.ClientId = APIKey.Value.Value;
         }
         // Local
         else
         {
-            GetPrivateKey(config.LocalPrivateKeyFileName);
+            config.PrivateKey = GetPrivateKey(config.LocalPrivateKeyFileName);
         }
 
         return hostBuilder;

@@ -55,6 +55,10 @@ public class RetrievePdsDemographic
         var nhsNumber = req.Query["nhsNumber"];
 
         var bearerToken = await getBearerToken();
+        if (bearerToken == null)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "The bearer token could not be ");
+        }
 
         if (string.IsNullOrEmpty(nhsNumber) || !ValidationHelper.ValidateNHSNumber(nhsNumber))
         {
@@ -166,14 +170,19 @@ public class RetrievePdsDemographic
         }
 
         _logger.LogInformation("Refreshing bearer token...");
-        bearerToken = await _authClientCredentials.AccessToken() ?? throw new Exception("Failed to get access token");
+        bearerToken = await _authClientCredentials.AccessToken();
+
+        if (bearerToken == null)
+        {
+            return "";
+        }
 
         var expires = new TimeSpan(0, 10, 0);
         var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
         _memoryCache.Set(AccessTokenCacheKey, bearerToken, cacheEntryOptions);
 
 
-        _logger.LogInformation($"Received access token: {bearerToken}");
+        _logger.LogInformation("Received access token");
 
         return bearerToken;
     }

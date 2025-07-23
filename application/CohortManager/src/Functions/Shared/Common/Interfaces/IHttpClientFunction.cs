@@ -47,7 +47,7 @@ public interface IHttpClientFunction
     /// </summary>
     /// <param name="url">URL to be used in request.</param>
     /// <returns>HttpResponseMessage<returns>
-    Task<HttpResponseMessage> SendPdsGet(string url, string AccessToken);
+    Task<HttpResponseMessage> SendPdsGet(string url, string bearerToken);
 
     /// <summary>
     /// Performs a PUT request using HttpClient.

@@ -43,12 +43,11 @@ public class AuthClientCredentials : IAuthClientCredentials
         if (response.StatusCode != HttpStatusCode.OK)
         {
             _logger.LogError(await response.Content.ReadAsStringAsync());
-            throw new Exception("Authentication failed. \n" + response.Content);
+            return null;
         }
 
         var resBody = await response.Content.ReadAsStringAsync();
         var parsed = JsonNode.Parse(resBody);
-        _logger.LogInformation(resBody);
 
         return parsed?["access_token"]?.ToString();
     }
