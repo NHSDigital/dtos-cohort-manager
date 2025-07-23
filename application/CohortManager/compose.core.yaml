@@ -68,29 +68,20 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
       - ASPNETCORE_URLS=http://*:7060
-      - PMSAddParticipant=http://add-participant:7062/api/addParticipant
-      - PMSRemoveParticipant=http://remove-participant:7063/api/RemoveParticipant
-      - PMSUpdateParticipant=http://update-participant:7065/api/updateParticipant
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - StaticValidationURL=http://static-validation:7074/api/StaticValidation
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - DemographicURI=http://durable-demographic-function:7079/api/DurableDemographicFunction_HttpStart
       - GetOrchestrationStatusURL=http://durable-demographic-function:7079/api/GetOrchestrationStatus
       - AllowDeleteRecords=true
-      - AddQueueName=add-participant-queue
       - BatchSize=3500
       - maxNumberOfChecks=50
-      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - recordThresholdForBatching=3
       - batchDivisionFactor=5
-      - UpdateQueueName=update-participant-queue
       - ScreeningLkpDataServiceURL=http://screening-lkp-data-service:8996/api/ScreeningLkpDataService
       - inboundBlobName=inbound
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
-      - ParticipantManagementQueueName=add-participant-queue
       - ParticipantManagementTopic=participant-management-topic
-      - UseNewFunctions=true
 
   # Participant Management Service
   manage-participant:

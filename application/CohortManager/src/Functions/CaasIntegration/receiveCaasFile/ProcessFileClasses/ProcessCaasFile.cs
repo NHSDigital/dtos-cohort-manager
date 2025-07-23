@@ -56,17 +56,6 @@ public class ProcessCaasFile : IProcessCaasFile
         _config = receiveCaasFileConfig.Value;
         _httpClientFunction = httpClientFactory;
         DemographicURI = _config.DemographicURI;
-        if (_config.UseNewFunctions)
-        {
-            AddParticipantQueueName = _config.ParticipantManagementTopic;
-            UpdateParticipantQueueName = _config.ParticipantManagementTopic;
-        }
-        else
-        {
-            AddParticipantQueueName = _config.AddQueueName;
-            UpdateParticipantQueueName = _config.UpdateQueueName;
-        }
-
 
         if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(AddParticipantQueueName) || string.IsNullOrEmpty(UpdateParticipantQueueName))
         {
@@ -172,12 +161,9 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
-        _logger.LogInformation("sending {Count} records to Add queue", currentBatch.AddRecords.Count);
+        _logger.LogInformation("sending {Count} records to queue", currentBatch.AddRecords.Count + currentBatch.UpdateRecords.Count);
 
-        await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, AddParticipantQueueName);
-
-        _logger.LogInformation("sending Update Records {Count} to queue", currentBatch.UpdateRecords.Count);
-        await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, UpdateParticipantQueueName);
+        await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, _config.ParticipantManagementTopic);
 
         foreach (var updateRecords in currentBatch.DeleteRecords)
         {

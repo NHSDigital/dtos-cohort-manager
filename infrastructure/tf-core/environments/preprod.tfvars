@@ -262,7 +262,6 @@ function_apps = {
   worker_32bit                  = false
   health_check_path             = "/api/health"
 
-  fa_config = {
     ReceiveCaasFile = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
@@ -274,18 +273,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "PMSAddParticipant"
-          function_app_key = "AddParticipant"
-        },
-        {
-          env_var_name     = "PMSRemoveParticipant"
-          function_app_key = "RemoveParticipant"
-        },
-        {
-          env_var_name     = "PMSUpdateParticipant"
-          function_app_key = "UpdateParticipant"
         },
         {
           env_var_name     = "StaticValidationURL"
@@ -318,11 +305,7 @@ function_apps = {
         delayBetweenChecks         = "50"
         maxNumberOfChecks          = "50"
         recordThresholdForBatching = "3"
-        AddQueueName               = "add-participant-queue"
-        UpdateQueueName            = "update-participant-queue"
         ParticipantManagementTopic = "participant-management"
-        AllowDeleteRecords         = false
-        UseNewFunctions            = "true"
       }
       storage_containers = [
         {

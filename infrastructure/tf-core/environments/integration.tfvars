@@ -253,18 +253,6 @@ function_apps = {
           function_app_key = "CreateException"
         },
         {
-          env_var_name     = "PMSAddParticipant"
-          function_app_key = "AddParticipant"
-        },
-        {
-          env_var_name     = "PMSRemoveParticipant"
-          function_app_key = "RemoveParticipant"
-        },
-        {
-          env_var_name     = "PMSUpdateParticipant"
-          function_app_key = "UpdateParticipant"
-        },
-        {
           env_var_name     = "StaticValidationURL"
           function_app_key = "StaticValidation"
         },
@@ -295,11 +283,8 @@ function_apps = {
         delayBetweenChecks         = "50"
         maxNumberOfChecks          = "50"
         recordThresholdForBatching = "3"
-        AddQueueName               = "add-participant-queue"
-        UpdateQueueName            = "update-participant-queue"
         ParticipantManagementTopic = "participant-management"
         AllowDeleteRecords         = true
-        UseNewFunctions            = "true"
       }
       storage_containers = [
         {
