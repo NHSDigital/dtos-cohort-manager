@@ -9,7 +9,7 @@ using NHS.CohortManager.ParticipantManagementServices;
 var host = new HostBuilder()
     .AddConfiguration(out ManageServiceNowParticipantConfig config)
         .AddDataServicesHandler()
-        .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
+        .AddDataService<ParticipantManagement>(config.ParticipantManagementURL)
         .Build()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>

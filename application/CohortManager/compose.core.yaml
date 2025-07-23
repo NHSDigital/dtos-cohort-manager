@@ -125,7 +125,7 @@ services:
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
       - SendServiceNowMessageURL=http://servicenow-message-handler:9092/api/servicenow/send
-      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - ParticipantManagementURL=http://participant-management-data-service:7994/api/ParticipantManagementDataService
 
   add-participant:
     container_name: add-participant

@@ -38,7 +38,7 @@ public class ManageServiceNowParticipantFunction
     {
         try
         {
-            var pdsResponse = await _httpClientFunction.SendGetResponse($"{_config.RetrievePdsDemographicUrl}?nhsNumber={serviceNowParticipant.NhsNumber}");
+            var pdsResponse = await _httpClientFunction.SendGetResponse($"{_config.RetrievePdsDemographicURL}?nhsNumber={serviceNowParticipant.NhsNumber}");
 
             if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
             {
@@ -145,7 +145,7 @@ public class ManageServiceNowParticipantFunction
 
     private async Task SendSeviceNowMessage(string serviceNowRecordNumber, ServiceNowMessageType servicenowMessageType)
     {
-        var url = $"{_config.SendServiceNowMessageUrl}/{serviceNowRecordNumber}";
+        var url = $"{_config.SendServiceNowMessageURL}/{serviceNowRecordNumber}";
         var requestBody = new SendServiceNowMessageRequestBody
         {
             MessageType = servicenowMessageType

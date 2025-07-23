@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations;
 public class ManageServiceNowParticipantConfig
 {
     [Required, Url]
-    public required string RetrievePdsDemographicUrl { get; set; }
+    public required string RetrievePdsDemographicURL { get; set; }
     [Required, Url]
-    public required string SendServiceNowMessageUrl { get; set; }
+    public required string SendServiceNowMessageURL { get; set; }
     [Required, Url]
-    public required string ParticipantManagementUrl { get; set; }
+    public required string ParticipantManagementURL { get; set; }
 }
