@@ -17,7 +17,7 @@ public class ValidationRuleResult
     public ValidationRuleResult(RuleResultTree ruleResultTree)
     {
         RuleName = ruleResultTree.Rule.RuleName;
-        RuleDescription = ruleResultTree.ActionResult.Output.ToString();
+        RuleDescription = ruleResultTree.ActionResult?.Output?.ToString();
         ExceptionMessage = ruleResultTree.ExceptionMessage;
     }
 }

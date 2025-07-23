@@ -15,6 +15,7 @@ using NHS.CohortManager.ScreeningValidationService;
 using RulesEngine.Models;
 using NHS.CohortManager.Tests.TestUtils;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Logging.Abstractions;
 
 [TestClass]
 public class StaticValidationTests
@@ -27,35 +28,20 @@ public class StaticValidationTests
     private readonly ServiceCollection _serviceCollection = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
     private readonly StaticValidation _function;
-    private readonly Mock<IReadRules> _readRules = new();
 
     public StaticValidationTests()
     {
-        Environment.SetEnvironmentVariable("CreateValidationExceptionURL", "CreateValidationExceptionURL");
-
         _request = new Mock<HttpRequestData>(_context.Object);
 
         var serviceProvider = _serviceCollection.BuildServiceProvider();
 
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
-        _handleException.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
-            .Returns(Task.FromResult(new ValidationExceptionLog()
-            {
-                IsFatal = true,
-                CreatedException = true
-            })).Verifiable();
-
-        // Get the rules file from either of two possible locations
-        string rulesJson = GetRulesFile("Breast_Screening_staticRules.json");
-        _readRules.Setup(x => x.GetRulesFromDirectory(It.IsAny<string>())).Returns(Task.FromResult<string>(rulesJson));
-
-
         _function = new StaticValidation(
             _logger.Object,
             _handleException.Object,
             _createResponse,
-            _readRules.Object
+            new ReadRules(new NullLogger<ReadRules>())
         );
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
@@ -71,54 +57,35 @@ public class StaticValidationTests
         {
             FileName = "test",
             Participant = new Participant()
+            {
+                ScreeningName = "Breast Screening",
+                NhsNumber = "1211111881",
+                RecordType = Actions.New,
+                AddressLine1 = "Address1",
+                AddressLine2 = "Address2",
+                AddressLine3 = "Address3",
+                AddressLine4 = "Address4",
+                AddressLine5 = "Address5",
+                PrimaryCareProvider = "E85121",
+                DateOfBirth = "20130112",
+                FirstName = "Test",
+                FamilyName = "Test",
+                InvalidFlag = "0",
+                IsInterpreterRequired = "0",
+                CurrentPosting = "ABC",
+                EligibilityFlag = "1"
+            }
         };
-    }
-
-    // Helper method to find the rules file in either location
-    private string GetRulesFile(string filename)
-    {
-        // Try the original path first
-        try
-        {
-            string originalPath = "../../../../../../../application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation/" + filename;
-            string fullOriginalPath = Path.GetFullPath(originalPath);
-            if (File.Exists(fullOriginalPath))
-            {
-                return File.ReadAllText(fullOriginalPath);
-            }
-        }
-        catch
-        {
-            // Ignore any errors and try the alternative path
-        }
-
-        // Try the alternative path
-        try
-        {
-            string alternativePath = "../../../../../application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation/" + filename;
-            string fullAlternativePath = Path.GetFullPath(alternativePath);
-            if (File.Exists(fullAlternativePath))
-            {
-                return File.ReadAllText(fullAlternativePath);
-            }
-        }
-        catch
-        {
-            // Ignore any errors
-        }
-
-        // If we get here, we couldn't find the file - throw a descriptive exception
-        throw new FileNotFoundException($"Could not find rules file: {filename} in either of the expected locations.");
     }
 
     [TestMethod]
     public async Task Run_Should_Return_InternalServerError_When_Request_Body_Empty()
     {
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 
     [TestMethod]
@@ -128,39 +95,38 @@ public class StaticValidationTests
         SetUpRequestBody("Invalid request body");
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
     }
 
     #region Record Type (Rule 8)
     [TestMethod]
-    [DataRow("ADD")]
-    [DataRow("AMENDED")]
-    [DataRow("REMOVED")]
-    public async Task Run_Should_Not_Create_Exception_When_RecordType_Rule_Passes(string recordType)
+    [DataRow(Actions.New, "1")]
+    [DataRow(Actions.Amended, "1")]
+    [DataRow(Actions.Removed, "0")]
+    public async Task Run_ValidRecordType_ReturnNoContent(string recordType, string eligibilityFlag)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordType;
+        _participantCsvRecord.Participant.EligibilityFlag = eligibilityFlag;
+
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "8.RecordType")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
     [DataRow("Newish")]
-    public async Task Run_Should_Return_Create_And_Create_Exception_When_RecordType_Rule_Fails(string recordType)
+    public async Task Run_InvalidRecordType_ReturnValidationException(string recordType)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordType;
@@ -168,14 +134,11 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "8.RecordType.CaaS.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "8.RecordType.CaaS.NonFatal");
     }
     #endregion
 
@@ -198,7 +161,7 @@ public class StaticValidationTests
     [DataRow("ZZ99 9FZ")]
     [DataRow("ZZ999FZ")]
     [DataRow("ZZ99 3WZ")]
-    public async Task Run_ValidPostcode_PostcodeRulePasses(string postcode)
+    public async Task Run_ValidPostcode_ReturnNoContent(string postcode)
     {
         // Arrange
         _participantCsvRecord.Participant.Postcode = postcode;
@@ -206,13 +169,10 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "30.Postcode")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
@@ -224,7 +184,7 @@ public class StaticValidationTests
     [DataRow("ZZ9 4LZ")]
     [DataRow("Z99 4")]
     [DataRow("ZzZ99 LZ")]
-    public async Task Run_InvalidPostcode_PostcodeRuleFailsAndExceptionCreated(string postcode)
+    public async Task Run_InvalidPostcode_ReturnValidationException(string postcode)
     {
         // Arrange
         _participantCsvRecord.Participant.Postcode = postcode;
@@ -232,20 +192,17 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "30.Postcode.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "30.Postcode.NBO.NonFatal");
     }
     #endregion
 
     #region NewParticipantWithNoAddress (Rule 19)
     [TestMethod]
-    public async Task Run_Should_Not_Create_Exception_When_NewParticipantWithNoAddress_Rule_Passes()
+    public async Task Run_AddWithAdress_ReturnNoContent()
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = Actions.New;
@@ -258,17 +215,14 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "71.NewParticipantWithNoAddress")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
-    public async Task Run_Should_Create_Exception_When_NewParticipantWithNoAddress_Rule_Fails()
+    public async Task Run_AddWithEmptyAddress_ReturnValidationException()
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = Actions.New;
@@ -281,18 +235,15 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "71.NewParticipantWithNoAddress.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "71.NewParticipantWithNoAddress.NBO.NonFatal");
     }
 
     [TestMethod]
-    public async Task Run_Should_Not_Create_Exception_When_RecordType_Is_Not_New_And_Address_Is_Empty()
+    public async Task Run_AmendWithEmptyAddress_ReturnNoContent()
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = Actions.Amended;
@@ -305,13 +256,10 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "71.NewParticipantWithNoAddress.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
     #endregion
 
@@ -319,28 +267,26 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow("ABC", null)]
     [DataRow(null, "123")]
-    public async Task Run_Should_Not_Create_Exception_When_PrimaryCareProviderAndReasonForRemoval_Rule_Passes(string primaryCareProvider, string reasonForRemoval)
+    public async Task Run_CompatiblePcpAndRfr_ReturnNoContent(string primaryCareProvider, string reasonForRemoval)
     {
         // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.Amended;
         _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
         _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.PrimaryCareProviderAndReasonForRemoval")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
     [DataRow(null, null)]
     [DataRow("ABC", "123")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_PrimaryCareProviderAndReasonForRemoval_Rule_Fails(string primaryCareProvider, string reasonForRemoval)
+    public async Task Run_IncompatiblePcpAndRfr_ReturnValidationException(string primaryCareProvider, string reasonForRemoval)
     {
         // Arrange
         _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
@@ -349,14 +295,11 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3.PrimaryCareProviderAndReasonForRemoval.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "3.PrimaryCareProviderAndReasonForRemoval.NBO.NonFatal");
     }
     #endregion
 
@@ -365,7 +308,7 @@ public class StaticValidationTests
     [DataRow("19700101")]   // ccyymmdd
     [DataRow("197001")]     // ccyymm
     [DataRow("1970")]       // ccyy
-    public async Task Run_Should_Not_Create_Exception_When_DateOfBirth_Rule_Passes(string dateOfBirth)
+    public async Task Run_ValidDateOfBirth_ReturnNoContent(string dateOfBirth)
     {
         // Arrange
         _participantCsvRecord.Participant.DateOfBirth = dateOfBirth;
@@ -373,13 +316,10 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "17.DateOfBirth")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
@@ -389,7 +329,7 @@ public class StaticValidationTests
     [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
     [DataRow("1970023")]    // Incorrect format
     [DataRow("197013")]     // Not a real date or incorrect format
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_DateOfBirth_Rule_Fails(string dateOfBirth)
+    public async Task Run_InvalidDateOfBirth_ReturnValidationException(string dateOfBirth)
     {
         // Arrange
         _participantCsvRecord.Participant.DateOfBirth = dateOfBirth;
@@ -397,14 +337,11 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "17.DateOfBirth.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "17.DateOfBirth.NBO.NonFatal");
     }
     #endregion
 
@@ -416,7 +353,7 @@ public class StaticValidationTests
     [DataRow("Zeta-Jones")]
     [DataRow("Bonham Carter")]
     [DataRow("Venkatasubramanian")]
-    public async Task Run_Should_Not_Create_Exception_When_FamilyName_Rule_Passes(string familyName)
+    public async Task Run_ValidFamilyName_ReturnNoContent(string familyName)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = Actions.New;
@@ -425,19 +362,16 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "39.FamilyName")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_FamilyName_Rule_Fails(string familyName)
+    public async Task Run_InvalidFamilyName_ReturnValidationException(string familyName)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = Actions.New;
@@ -446,14 +380,11 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "39.FamilyName.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "39.FamilyName.NBO.NonFatal");
     }
     #endregion
 
@@ -463,7 +394,7 @@ public class StaticValidationTests
     [DataRow("Jean-Luc")]
     [DataRow("Sarah Jane")]
     [DataRow("Bartholomew")]
-    public async Task Run_Should_Not_Create_Exception_When_GivenName_Rule_Passes(string givenName)
+    public async Task Run_ValidFirstName_ReturnNoContent(string givenName)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = Actions.New;
@@ -472,19 +403,16 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "40.FirstName")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_FirstName_Rule_Fails(string firstName)
+    public async Task Run_InvalidFirstName_ReturnValidationExceptions(string firstName)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = Actions.New;
@@ -493,44 +421,39 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "40.FirstName.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "40.FirstName.NBO.NonFatal");
     }
     #endregion
 
     #region Death Status (Rule 66)
     [TestMethod]
     [DataRow("AMENDED", Status.Formal, "DEA")]
-    public async Task Run_Should_Not_Create_Exception_When_DeathStatus_Rule_Passes(string recordType, Status deathStatus, string reasonForRemoval)
+    public async Task Run_ValidDeathStatus_ReturnNoContent(string recordType, Status deathStatus, string reasonForRemoval)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordType;
         _participantCsvRecord.Participant.DeathStatus = deathStatus;
         _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
+        _participantCsvRecord.Participant.PrimaryCareProvider = null;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "66.DeathStatus")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
     [DataRow("AMENDED", Status.Formal, null)]
     [DataRow("AMENDED", Status.Formal, "")]
     [DataRow("AMENDED", Status.Formal, "AFL")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_DeathStatus_Rule_Fails(string recordType, Status deathStatus, string reasonForRemoval)
+    public async Task Run_InvalidDeathStatus_ReturnValidationException(string recordType, Status deathStatus, string reasonForRemoval)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordType;
@@ -540,14 +463,11 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "66.DeathStatus.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "66.DeathStatus.NBO.NonFatal");
     }
     #endregion
 
@@ -558,21 +478,20 @@ public class StaticValidationTests
     [DataRow("19700101")]   // ccyymmdd
     [DataRow("197001")]     // ccyymm
     [DataRow("1970")]       // ccyy
-    public async Task Run_Should_Not_Create_Exception_When_DateOfDeath_Rule_Passes(string date)
+    public async Task Run_ValidDateOfDeath_ReturnNoContent(string date)
     {
         // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.Removed;
         _participantCsvRecord.Participant.DateOfDeath = date;
+        _participantCsvRecord.Participant.EligibilityFlag = "0";
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "18.DateOfDeath")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
@@ -580,57 +499,55 @@ public class StaticValidationTests
     [DataRow("19700229")]   // Not a real date (1970 was not a leap year)
     [DataRow("1970023")]    // Incorrect format
     [DataRow("197013")]     // Not a real date or incorrect format
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_DateOfDeath_Rule_Fails(string date)
+    public async Task Run_InvalidDateOfDeath_ReturnValidationException(string date)
     {
         // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.Removed;
         _participantCsvRecord.Participant.DateOfDeath = date;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "18.DateOfDeath.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "18.DateOfDeath.NBO.NonFatal");
     }
     #endregion
 
     #region New Participant with Reason For Removal, Removal Date or Date Of Death (Rule 47)
     [TestMethod]
-    [DataRow("ADD", null, null, null)]
-    [DataRow("ADD", "", "", "")]
-    [DataRow("AMENDED", "DEA", "20240101", "20240101")]
-    [DataRow("REMOVED", "DEA", "20240101", "20240101")]
-    public async Task Run_Should_Not_Create_Exception_When_NewParticipantRemovalOrDeath_Rule_Passes(
-        string recordType, string reasonForRemoval, string removalDate, string dateOfDeath)
+    [DataRow(Actions.New, null, null, null, "EA123AB", "1")]
+    [DataRow(Actions.New, "", "", "", "EA123AB", "1")]
+    [DataRow(Actions.Amended, "DEA", "20240101", "20240101", null, "1")]
+    [DataRow(Actions.Removed, "DEA", "20240101", "20240101", null, "0")]
+    public async Task Run_ValidRfrAndDeathDate_ReturnNoContent(
+        string recordType, string reasonForRemoval, string removalDate, string dateOfDeath, string pcp, string eligibilityFlag)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordType;
         _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
         _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = removalDate;
         _participantCsvRecord.Participant.DateOfDeath = dateOfDeath;
+        _participantCsvRecord.Participant.PrimaryCareProvider = pcp;
+        _participantCsvRecord.Participant.EligibilityFlag = eligibilityFlag;
+
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "47.NewParticipantWithRemovalOrDeath")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
     [DataRow("ADD", "DEA", null, null)]
     [DataRow("ADD", null, "20240101", null)]
     [DataRow("ADD", null, null, "20240101")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_NewParticipantRemovalOrDeath_Rule_Fails(
+    public async Task Run_AddRecordWithRfrOrDateOfDeath_ReturnValidationException(
         string recordType, string reasonForRemoval, string removalDate, string dateOfDeath)
     {
         // Arrange
@@ -642,14 +559,11 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "47.NewParticipantWithRemovalOrDeath.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "47.NewParticipantWithRemovalOrDeath.NBO.NonFatal");
     }
     #endregion
 
@@ -657,7 +571,7 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow("1")]
     [DataRow("0")]
-    public async Task Run_Should_Not_Create_Exception_When_IsInterpreterRequired_Rule_Passes(string isInterpreterRequired)
+    public async Task Run_ValidInterpreterRequiredFlag_ReturnNoContent(string isInterpreterRequired)
     {
         // Arrange
         _participantCsvRecord.Participant.IsInterpreterRequired = isInterpreterRequired;
@@ -665,20 +579,16 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "49.IsInterpreterRequired.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
     [DataRow(null)]
     [DataRow("ABC")]
-    [DataRow("ABC")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_When_IsInterpreterRequired_Rule_Fails(string isInterpreterRequired)
+    public async Task Run_InvalidInterpreterRequiredFlag_ReturnValidationExcpetion(string isInterpreterRequired)
     {
         // Arrange
         _participantCsvRecord.Participant.IsInterpreterRequired = isInterpreterRequired;
@@ -686,45 +596,40 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "49.InterpreterCheck.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "49.InterpreterCheck.NBO.NonFatal");
     }
     #endregion
+
     #region Validate Reason For Removal (Rule 62)
     [TestMethod]
-    [DataRow("123456", "LDN")]
-    [DataRow(null, "ABC")]
-    [DataRow(null, null)]
-    public async Task Run_Should_Not_Create_Exception_When_Validate_Reason_For_Removal_Rule_Passes(string? supersededByNhsNumber, string? ReasonForRemoval)
+    [DataRow("123456", "LDN", null)]
+    [DataRow(null, "ABC", null)]
+    [DataRow(null, null, "EC12AB")]
+    public async Task Run_ValidRfr_ReturnNoContent(string? supersededByNhsNumber, string? ReasonForRemoval, string? pcp)
     {
-
-
         // Arrange
         _participantCsvRecord.Participant.SupersededByNhsNumber = supersededByNhsNumber;
         _participantCsvRecord.Participant.ReasonForRemoval = ReasonForRemoval;
+        _participantCsvRecord.Participant.PrimaryCareProvider = pcp;
+        _participantCsvRecord.Participant.RecordType = Actions.Amended;
 
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "62.ValidateReasonForRemoval")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
     [DataRow(null, "LDN")]
-    public async Task Run_Should_Return_Created_And_Create_Exception_Validate_Reason_For_Removal_Rule_Fails(string? supersededByNhsNumber, string ReasonForRemoval)
+    public async Task Run_InvalidRfr_ReturnValidationException(string? supersededByNhsNumber, string ReasonForRemoval)
     {
         // Arrange
         _participantCsvRecord.Participant.SupersededByNhsNumber = supersededByNhsNumber;
@@ -733,14 +638,11 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "62.ValidateReasonForRemoval.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "62.ValidateReasonForRemoval.NBO.NonFatal");
     }
     #endregion
     private void SetUpRequestBody(string json)
@@ -754,7 +656,7 @@ public class StaticValidationTests
     #region Supplied Posting is Null Validation (Rule 53)
     [TestMethod]
     [DataRow(null, "E85121")]
-    public async Task Run_CurrentPostingAndPrimaryCareProvider_CreatesException(string? currentPosting, string? primaryCareProvider)
+    public async Task Run_IncompatibleCurrentPostingAndPrimaryCareProvider_ReturnValidationException(string? currentPosting, string? primaryCareProvider)
     {
         // Arrange
         _participantCsvRecord.Participant.CurrentPosting = currentPosting;
@@ -763,35 +665,32 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "53.CurrentPostingAndPrimaryCareProvider.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "53.CurrentPostingAndPrimaryCareProvider.NBO.NonFatal");
     }
 
     [TestMethod]
-    [DataRow("BAA", "E85121")]
-    [DataRow("BAA", null)]
-    [DataRow(null, null)]
-    public async Task Run_CurrentPostingAndPrimaryCareProvider_DoesNotCreateException(string? currentPosting, string? primaryCareProvider)
+    [DataRow("BAA", "E85121", null)]
+    [DataRow("BAA", null, "DEA")]
+    [DataRow(null, null, "DEA")]
+    public async Task Run_CompatibleCurrentPostingAndPrimaryCareProvider_ReturnNoContent(string? currentPosting, string? primaryCareProvider, string? rfr)
     {
         // Arrange
         _participantCsvRecord.Participant.CurrentPosting = currentPosting;
         _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
+        _participantCsvRecord.Participant.ReasonForRemoval = rfr;
+        _participantCsvRecord.Participant.RecordType = Actions.Amended;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "53.CurrentPostingAndPrimaryCareProvider.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
     #endregion
 
@@ -799,7 +698,7 @@ public class StaticValidationTests
     [TestMethod]
     [DataRow(Actions.New, "0")]
     [DataRow(Actions.Removed, "1")]
-    public async Task Run_InvalidEligibilityFlag_ShouldThrowException(string recordType, string eligibilityFlag)
+    public async Task Run_InvalidEligibilityFlag_ReturnValidationException(string recordType, string eligibilityFlag)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordType;
@@ -808,20 +707,18 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "94.EligibilityFlag.CaaS.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "94.EligibilityFlag.CaaS.NonFatal");
     }
 
     [TestMethod]
     [DataRow(Actions.New, "1")]
     [DataRow(Actions.Removed, "0")]
     [DataRow(Actions.Amended, "1")]
-    public async Task Run_ValidEligibilityFlag_ShouldNotThrowException(string recordType, string eligibilityFlag)
+    public async Task Run_ValidEligibilityFlag_ReturnNoContent(string recordType, string eligibilityFlag)
     {
         // Arrange
         _participantCsvRecord.Participant.RecordType = recordType;
@@ -830,47 +727,24 @@ public class StaticValidationTests
         SetUpRequestBody(json);
 
         // Act
-        await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        _handleException.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "94.EligibilityFlag.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
     #endregion
 
     [TestMethod]
-    public async Task Run_ValidParticipantFile_ReturnsOK()
+    public async Task Run_ValidParticipantFile_ReturnNoContent()
     {
         // Arrange
-        _participantCsvRecord.Participant.NhsNumber = "1211111881";
-        _participantCsvRecord.Participant.RecordType = Actions.New;
-        _participantCsvRecord.Participant.AddressLine1 = "Address1";
-        _participantCsvRecord.Participant.AddressLine2 = "Address2";
-        _participantCsvRecord.Participant.AddressLine3 = "Address3";
-        _participantCsvRecord.Participant.AddressLine4 = "Address4";
-        _participantCsvRecord.Participant.AddressLine5 = "Address5";
-        _participantCsvRecord.Participant.PrimaryCareProvider = "E85121";
-        _participantCsvRecord.Participant.DateOfBirth = "20130112";
-        _participantCsvRecord.Participant.FirstName = "Test";
-        _participantCsvRecord.Participant.FamilyName = "Test";
-        _participantCsvRecord.Participant.InvalidFlag = "1";
-        _participantCsvRecord.Participant.IsInterpreterRequired = "0";
-        _participantCsvRecord.Participant.CurrentPosting = "ABC";
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
         // Act
-        var result = await _function.RunAsync(_request.Object);
+        var response = await _function.RunAsync(_request.Object);
 
         // Assert
-        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
-        Assert.AreEqual(JsonSerializer.Serialize(new ValidationExceptionLog()
-        {
-            IsFatal = false,
-            CreatedException = false
-        }), responseBody);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 }
