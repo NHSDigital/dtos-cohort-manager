@@ -3,7 +3,7 @@
     {
       "validations": {
         "exceptionStatus": 1,
-        "sortOrder": 1,
+        "sortOrder": 2,
         "exceptionCategory": 3
       }
     }
