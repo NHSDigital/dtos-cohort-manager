@@ -6,9 +6,7 @@ using Microsoft.IdentityModel.Tokens;
 
 public class SigningCredentialsProvider : ISigningCredentialsProvider
 {
-
     private readonly JwtTokenServiceConfig _jwtTokenServiceConfig;
-
     private readonly JWTPrivateKey _jWTPrivateKey;
 
     public SigningCredentialsProvider(IOptions<JwtTokenServiceConfig> jwtTokenServiceConfig, JWTPrivateKey jWTPrivateKey)

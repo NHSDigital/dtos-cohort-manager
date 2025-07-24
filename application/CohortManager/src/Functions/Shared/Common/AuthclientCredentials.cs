@@ -9,7 +9,6 @@ using Microsoft.Extensions.Options;
 public class AuthClientCredentials : IAuthClientCredentials
 {
     private readonly HttpClient _httpClient;
-    private readonly string _tokenUrl;
     private readonly IJwtTokenService _jwtHandler;
     private readonly JwtTokenServiceConfig _JwtTokenServiceConfig;
 
@@ -18,12 +17,10 @@ public class AuthClientCredentials : IAuthClientCredentials
     public AuthClientCredentials(IJwtTokenService jwtTokenService, HttpClient httpClient, IOptions<JwtTokenServiceConfig> JwtTokenServiceConfig, ILogger<AuthClientCredentials> logger)
     {
         _httpClient = httpClient;
-        _JwtTokenServiceConfig = JwtTokenServiceConfig.Value;
-
-        _tokenUrl = _JwtTokenServiceConfig.AuthTokenURL;
         _jwtHandler = jwtTokenService;
         _logger = logger;
 
+        _JwtTokenServiceConfig = JwtTokenServiceConfig.Value;
     }
 
     public async Task<string?> AccessToken(int expInMinutes = 1)
@@ -38,11 +35,10 @@ public class AuthClientCredentials : IAuthClientCredentials
         };
         var content = new FormUrlEncodedContent(values);
 
-        var response = await _httpClient.PostAsync(_tokenUrl, content);
+        var response = await _httpClient.PostAsync(_JwtTokenServiceConfig.AuthTokenURL, content);
 
         if (response.StatusCode != HttpStatusCode.OK)
         {
-            _logger.LogError(await response.Content.ReadAsStringAsync());
             return null;
         }
 
