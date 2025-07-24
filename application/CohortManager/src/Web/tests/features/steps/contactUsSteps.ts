@@ -8,7 +8,7 @@ let contactUsPage: ContactusPage;
 
 Then('they should navigate to contact us page', async ({ page }) => {
   contactUsPage = new ContactusPage(page)
-  await expect(page).toHaveTitle('Get help with Cohort Manager - Cohort Manager');
+  await expect(page).toHaveTitle('Get help with Cohort Manager - Cohort Manager - NHS');
 });
 
 Given('the User navigate to contact us page', async ({ page }) => {
@@ -16,7 +16,7 @@ Given('the User navigate to contact us page', async ({ page }) => {
   contactUsPage = new ContactusPage(page)
   await page.goto("/");
   await homePage.clickOnContactUs()
-  await expect(page).toHaveTitle('Get help with Cohort Manager - Cohort Manager');
+  await expect(page).toHaveTitle('Get help with Cohort Manager - Cohort Manager - NHS');
 
 });
 When('the user clicks on technical support and general enquiries link', async ({ page }) => {

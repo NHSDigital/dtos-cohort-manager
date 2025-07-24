@@ -13,14 +13,14 @@ let termsConditionsPage: TermsConditionsPage; // Initializing the TermsCondition
 Then('they should navigate to Terms and conditions page', async ({ page }) => {
 
   termsConditionsPage = new TermsConditionsPage(page)
-  await expect(page).toHaveTitle('Terms and conditions - Cohort Manager');
+  await expect(page).toHaveTitle('Terms and conditions - Cohort Manager - NHS');
 
 });
 
 Then('they should navigate to cookies page', async ({ page }) => {
 
   cookiesPage = new CookiesPage(page)
-  await expect(page).toHaveTitle('Cookies on Cohort Manager - Cohort Manager');
+  await expect(page).toHaveTitle('Cookies on Cohort Manager - Cohort Manager - NHS');
 
 });
 Given('the User navigate to terms and conditions page', async ({ page }) => {
@@ -28,7 +28,7 @@ Given('the User navigate to terms and conditions page', async ({ page }) => {
   termsConditionsPage = new TermsConditionsPage(page)
   await page.goto("/");
   await homePage.clicktermsAndconditionsLink()
-  await expect(page).toHaveTitle('Terms and conditions - Cohort Manager');
+  await expect(page).toHaveTitle('Terms and conditions - Cohort Manager - NHS');
 
 });
 When('the user clicks on Care Identity Service link', async ({ }) => {
