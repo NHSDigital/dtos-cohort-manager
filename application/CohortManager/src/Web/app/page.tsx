@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { auth } from "@/app/lib/auth";
-import { checkAccess } from "@/app/lib/checkAccess";
+import { canAccessCohortManager } from "@/app/lib/access";
 import Overview from "@/app/components/overview";
 import SignIn from "@/app/components/signIn";
 import Unauthorised from "./components/unauthorised";
@@ -23,9 +23,7 @@ export default async function Home() {
   const serviceName = process.env.SERVICE_NAME;
   const session = await auth();
   const isSignedIn = !!session?.user;
-  const isCohortManager = session?.user
-    ? await checkAccess(session.user.uid)
-    : false;
+  const isCohortManager = await canAccessCohortManager(session);
 
   if (!isSignedIn) {
     return <SignIn serviceName={serviceName} />;
