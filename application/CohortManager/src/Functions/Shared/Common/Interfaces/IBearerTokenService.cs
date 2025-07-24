@@ -1,5 +1,5 @@
 
-namespace NHS.CohortManager.DemographicServices;
+namespace Common;
 
 public interface IBearerTokenService
 {

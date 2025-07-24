@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.DemographicServices;
+namespace Common;
 
 using Common;
 using Microsoft.Extensions.Caching.Memory;

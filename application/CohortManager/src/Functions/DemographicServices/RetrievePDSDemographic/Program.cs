@@ -19,13 +19,16 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
         services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();
-        services.AddSingleton<IAuthClientCredentials, AuthClientCredentials>();
-        services.AddSingleton<IJwtTokenService, JwtTokenService>();
+
+        services.AddScoped<IAuthClientCredentials, AuthClientCredentials>();
+        services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<ISigningCredentialsProvider, SigningCredentialsProvider>();
+      
         services.AddMemoryCache();
         // Register health checks
         services.AddBasicHealthCheck("RetrievePdsDemographic");
     })
-    .GetPrivateKey(JwtTokenServiceConfig)
+    .AddJwtTokenSigning(JwtTokenServiceConfig)
     .AddTelemetry()
     .AddHttpClient()
     .Build();

@@ -20,8 +20,8 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     private static readonly Mock<IOptions<RetrievePDSDemographicConfig>> _mockConfig = new();
     private static readonly Mock<IFhirPatientDemographicMapper> _mockFhirPatientDemographicMapper = new();
     private static readonly Mock<IDataServiceClient<ParticipantDemographic>> _mockParticipantDemographicClient = new();
-    private static readonly Mock<IAuthClientCredentials> _authClientCredentials = new();
-    private static readonly Mock<IMemoryCache> _memoryCache = new();
+
+    private static Mock<IBearerTokenService> _bearerTokenService = new();
 
 
     private const string _validNhsNumber = "3112728165";
@@ -35,8 +35,7 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         _mockFhirPatientDemographicMapper.Object,
         _mockConfig.Object,
         _mockParticipantDemographicClient.Object,
-        _authClientCredentials.Object,
-        _memoryCache.Object))
+        _bearerTokenService.Object))
     {
         CreateHttpResponseMock();
     }

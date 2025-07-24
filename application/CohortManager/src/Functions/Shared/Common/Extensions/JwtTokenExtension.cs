@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
 using Azure.Security.KeyVault.Secrets;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 public static class JwtTokenExtension
@@ -15,7 +16,7 @@ public static class JwtTokenExtension
     /// <param name="hostBuilder"></param>
     /// <param name="config"></param>
     /// <returns></returns>
-    public static IHostBuilder GetPrivateKey(this IHostBuilder hostBuilder, JwtTokenServiceConfig config)
+    public static IHostBuilder AddJwtTokenSigning(this IHostBuilder hostBuilder, JwtTokenServiceConfig config)
     {
         // Azure
         if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
@@ -36,7 +37,13 @@ public static class JwtTokenExtension
             config.PrivateKey = GetPrivateKey(config.LocalPrivateKeyFileName);
         }
 
-        return hostBuilder;
+        return hostBuilder.ConfigureServices(_ =>
+        {
+            _.AddSingleton<IAuthClientCredentials, AuthClientCredentials>();
+            _.AddSingleton<IJwtTokenService, JwtTokenService>();
+            _.AddSingleton<ISigningCredentialsProvider, SigningCredentialsProvider>();
+            _.AddSingleton<IBearerTokenService, BearerTokenService>();
+        });
     }
 
     private static string CertificateToString(X509Certificate2 certificate)
