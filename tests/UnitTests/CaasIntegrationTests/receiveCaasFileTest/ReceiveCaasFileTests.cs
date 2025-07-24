@@ -43,9 +43,6 @@ public class ReceiveCaasFileTests
             ScreeningLkpDataServiceURL = "ScreeningLkpDataServiceURL",
             DemographicURI = "DemographicURI",
             BatchSize = 2000,
-            AddQueueName = "AddQueueName",
-            UpdateQueueName = "UpdateQueueName",
-            PMSRemoveParticipant = "PMSRemoveParticipant",
             AllowDeleteRecords = true
         };
 

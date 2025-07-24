@@ -42,7 +42,7 @@ public class AddBatchToQueue : IAddBatchToQueue
         await Task.WhenAll(tasks.ToArray());
     }
 
-    private async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord, string queueName)
+    public async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord, string queueName)
     {
         await _queueClient.AddAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, queueName);
     }
