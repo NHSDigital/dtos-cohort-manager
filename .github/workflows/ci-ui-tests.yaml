@@ -31,19 +31,20 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Start application
+      - name: Start application and run tests
         env:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
         run: |
+          # Start the app in background
           npm run dev:secure &
+
           # Wait for the app to be ready
           while ! curl -s https://localhost:3000 > /dev/null; do
             echo "Waiting for app to start..."
             sleep 5
           done
 
-      - name: Run Playwright tests
-        run: |
+          # Run the tests
           npx bddgen
           npx playwright test
 
