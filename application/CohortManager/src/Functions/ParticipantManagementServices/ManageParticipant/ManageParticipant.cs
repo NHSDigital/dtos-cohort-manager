@@ -76,6 +76,7 @@ public class ManageParticipant
                 var participantManagement = participant.ToParticipantManagement();
                 participantManagement.ParticipantId = databaseParticipant.ParticipantId;
                 participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
+                participantManagement.RecordInsertDateTime = databaseParticipant.RecordInsertDateTime;
 
                 dataServiceResponse = await _participantManagementClient.Update(participantManagement);
             }
