@@ -4,7 +4,7 @@ import Footer from "@/app/components/footer";
 import "./globals.scss";
 
 export const metadata: Metadata = {
-  title: "Cohort Manager",
+  title: "Cohort Manager - NHS",
   description: "UI for managing screening exceptions",
 };
 

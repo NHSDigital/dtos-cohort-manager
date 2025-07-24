@@ -3,6 +3,7 @@ namespace NHS.CohortManager.ParticipantManagementServices;
 using System.Net;
 using System.Text.Json;
 using Common;
+using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -14,41 +15,40 @@ public class ManageServiceNowParticipantFunction
     private readonly ILogger<ManageServiceNowParticipantFunction> _logger;
     private readonly ManageServiceNowParticipantConfig _config;
     private readonly IHttpClientFunction _httpClientFunction;
-    private readonly IExceptionHandler _handleException;
+    private readonly IExceptionHandler _exceptionHandler;
+    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
 
     public ManageServiceNowParticipantFunction(ILogger<ManageServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> addParticipantConfig,
-        IHttpClientFunction httpClientFunction, IExceptionHandler handleException)
+        IHttpClientFunction httpClientFunction, IExceptionHandler handleException, IDataServiceClient<ParticipantManagement> participantManagementClient)
     {
         _logger = logger;
         _config = addParticipantConfig.Value;
         _httpClientFunction = httpClientFunction;
-        _handleException = handleException;
+        _exceptionHandler = handleException;
+        _participantManagementClient = participantManagementClient;
     }
 
     /// <summary>
     /// Reads messages from the Manage ServiceNow Participant Service Bus topic, checks PDS, adds/updates the record in participant management,
     /// and sends the record to cohort distribution
     /// </summary>
-    /// <param name="participant">The participant from ServiceNow</param>
+    /// <param name="serviceNowParticipant">The participant from ServiceNow</param>
     [Function(nameof(ManageServiceNowParticipantFunction))]
-    public async Task Run([ServiceBusTrigger(topicName: "%ServiceNowParticipantManagementTopic%", subscriptionName: "%ManageServiceNowParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")] ServiceNowParticipant participant)
+    public async Task Run([ServiceBusTrigger(topicName: "%ServiceNowParticipantManagementTopic%", subscriptionName: "%ManageServiceNowParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")] ServiceNowParticipant serviceNowParticipant)
     {
         try
         {
-            var pdsResponse = await _httpClientFunction.SendGetResponse($"{_config.RetrievePdsDemographicURL}?nhsNumber={participant.NhsNumber}");
+            var pdsResponse = await _httpClientFunction.SendGetResponse($"{_config.RetrievePdsDemographicURL}?nhsNumber={serviceNowParticipant.NhsNumber}");
 
             if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
             {
-                _logger.LogError("NHS Number not found in PDS, unable to verify participant");
-                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.UnableToVerifyParticipant);
+                await HandleException(new Exception("Request to PDS for ServiceNow Participant returned a 404 NotFound response."), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
                 return;
             }
 
             if (pdsResponse.StatusCode != HttpStatusCode.OK)
             {
-                _logger.LogError("Request to PDS returned an unexpected response. Status code: {StatusCode}", pdsResponse.StatusCode);
-                await _handleException.CreateSystemExceptionLog(new Exception($"Request to PDS returned an unexpected response. Status code: {pdsResponse.StatusCode}"), participant);
-                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.AddRequestInProgress);
+                await HandleException(new Exception($"Request to PDS for ServiceNow Participant returned an unexpected response. Status code: {pdsResponse.StatusCode}"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
                 return;
             }
 
@@ -57,27 +57,90 @@ public class ManageServiceNowParticipantFunction
 
             if (participantDemographic == null)
             {
-                _logger.LogError("Deserialisation of PDS response to {Type} returned null", typeof(ParticipantDemographic));
-                await _handleException.CreateSystemExceptionLog(new Exception($"Deserialisation of PDS response to {typeof(ParticipantDemographic)} returned null"), participant);
-                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.AddRequestInProgress);
+                await HandleException(new Exception($"Deserialisation of PDS for ServiceNow Participant response to {typeof(ParticipantDemographic)} returned null"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
                 return;
             }
 
-            if (participantDemographic.NhsNumber.ToString() != participant.NhsNumber)
+            if (participantDemographic.NhsNumber != serviceNowParticipant.NhsNumber)
             {
-                _logger.LogError("NHS Numbers don't match, NHS Number must have been superseded");
-                await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.UnableToVerifyParticipant);
+                await HandleException(new Exception("NHS Numbers don't match for ServiceNow Participant and PDS, NHS Number must have been superseded"), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
                 return;
             }
 
-            // TODO: DTOSS-8375
+            var dataMatch = CheckParticipantDataMatches(serviceNowParticipant, participantDemographic);
+
+            if (!dataMatch)
+            {
+                await HandleException(new Exception("Participant data from ServiceNow does not match participant data from PDS"), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
+                return;
+            }
+
+            var participantManagement = await _participantManagementClient.GetSingleByFilter(
+                x => x.NHSNumber == serviceNowParticipant.NhsNumber && x.ScreeningId == serviceNowParticipant.ScreeningId);
+
+            bool dataServiceResponse;
+            if (participantManagement is null)
+            {
+                _logger.LogInformation("Participant not in participant management table, adding new record");
+
+                var participantToAdd = new ParticipantManagement
+                {
+                    ScreeningId = serviceNowParticipant.ScreeningId,
+                    NHSNumber = serviceNowParticipant.NhsNumber,
+                    RecordType = Actions.New,
+                    EligibilityFlag = 1,
+                    ReferralFlag = 1,
+                    RecordInsertDateTime = DateTime.UtcNow
+                };
+
+                dataServiceResponse = await _participantManagementClient.Add(participantToAdd);
+            }
+            else if (participantManagement.BlockedFlag == 1)
+            {
+                await HandleException(new Exception("Participant data from ServiceNow is blocked"), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
+                return;
+            }
+            else
+            {
+                _logger.LogInformation("Existing participant managment record found, updating record {ParticipantId}", participantManagement.ParticipantId);
+                participantManagement.RecordType = Actions.Amended;
+                participantManagement.EligibilityFlag = 1;
+                participantManagement.ReferralFlag = 1;
+                participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
+
+                dataServiceResponse = await _participantManagementClient.Update(participantManagement);
+            }
+
+            if (!dataServiceResponse)
+            {
+                await HandleException(new Exception("Participant Management Data Service request failed"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
+                return;
+            }
+
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An unexpected exception occured");
-            await _handleException.CreateSystemExceptionLog(ex, participant);
-            await SendSeviceNowMessage(participant.ServiceNowRecordNumber, ServiceNowMessageType.AddRequestInProgress);
+            await HandleException(ex, serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
         }
+    }
+
+    private async Task HandleException(Exception exception, ServiceNowParticipant serviceNowParticipant, ServiceNowMessageType serviceNowMessageType)
+    {
+        _logger.LogError(exception, "Exception occured whilst attempting to add participant from ServiceNow");
+        await _exceptionHandler.CreateSystemExceptionLog(exception, serviceNowParticipant);
+        await SendSeviceNowMessage(serviceNowParticipant.ServiceNowRecordNumber, serviceNowMessageType);
+    }
+
+    private static bool CheckParticipantDataMatches(ServiceNowParticipant serviceNowParticipant, ParticipantDemographic participantDemographic)
+    {
+        if (serviceNowParticipant.FirstName == participantDemographic.GivenName &&
+            serviceNowParticipant.FamilyName == participantDemographic.FamilyName &&
+            serviceNowParticipant.DateOfBirth == participantDemographic.DateOfBirth)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     private async Task SendSeviceNowMessage(string serviceNowRecordNumber, ServiceNowMessageType servicenowMessageType)
