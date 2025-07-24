@@ -284,7 +284,6 @@ function_apps = {
         recordThresholdForBatching = "3"
         ParticipantManagementTopic = "participant-management"
         AllowDeleteRecords         = true
-        UseNewFunctions            = "true"
       }
       storage_containers = [
         {

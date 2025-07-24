@@ -9,8 +9,8 @@ using Microsoft.Extensions.Hosting;
 public static class AzureQueueExtension
 {
     /// <summary>
-    /// Extension method for adding service bus clients, if it detects a connection string, it will use connection
-    /// string based auth, otherwise it will try and use managed identities
+    /// Extension method for adding azure queue clients, if UseNewFunctions is set to true, it will inject a service bus queue client,
+    /// otherwise, it will inject a azure storage queue client
     /// </summary>
     public static IHostBuilder AddAzureQueues(this IHostBuilder hostBuilder, string serviceBusConnectionString)
     {
@@ -37,26 +37,35 @@ public static class AzureQueueExtension
     }
 
     /// <summary>
-    /// Extension method for adding service bus clients
+    /// Extension method for adding azure queue clients, if UseNewFunctions is set to true, it will inject a service bus queue client,
+    /// otherwise, it will inject a azure storage queue client
     /// This will implement the queue client as a keyed service allowing it to be used in parallel with other queue types
     /// </summary>
-    public static IHostBuilder AddKeyedAzureQueues(this IHostBuilder hostBuilder, string serviceBusConnectionString, string keyName)
+    public static IHostBuilder AddKeyedAzureQueues(this IHostBuilder hostBuilder, bool UseNewFunctions, string serviceBusConnectionString, string keyName)
     {
         hostBuilder.ConfigureServices(_ =>
             {
-                _.AddAzureClients(builder =>
+                if (UseNewFunctions)
                 {
-                    if (serviceBusConnectionString.StartsWith("Endpoint="))
+                    _.AddAzureClients(builder =>
                     {
-                        builder.AddServiceBusClient(serviceBusConnectionString);
-                    }
-                    else
-                    {
-                        builder.AddServiceBusClientWithNamespace(serviceBusConnectionString)
-                            .WithCredential(new DefaultAzureCredential());
-                    }
-                });
-                _.AddKeyedSingleton<IQueueClient, AzureServiceBusClient>(keyName);
+                        if (serviceBusConnectionString.StartsWith("Endpoint="))
+                        {
+                            builder.AddServiceBusClient(serviceBusConnectionString);
+                        }
+                        else
+                        {
+                            builder.AddServiceBusClientWithNamespace(serviceBusConnectionString)
+                                .WithCredential(new DefaultAzureCredential());
+                        }
+                    });
+                    _.AddKeyedSingleton<IQueueClient, AzureServiceBusClient>(keyName);
+                }
+                else
+                {
+                    _.AddKeyedTransient<IQueueClient, AzureStorageQueueClient>(keyName);
+                    _.AddTransient<IQueueClientFactory, QueueClientFactory>();
+                }
             });
 
         return hostBuilder;
