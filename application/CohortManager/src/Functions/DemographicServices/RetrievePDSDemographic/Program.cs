@@ -9,7 +9,6 @@ using NHS.CohortManager.DemographicServices;
 
 var host = new HostBuilder()
     .AddConfiguration<RetrievePDSDemographicConfig>(out RetrievePDSDemographicConfig config)
-    .AddConfiguration<JwtTokenServiceConfig>(out JwtTokenServiceConfig JwtTokenServiceConfig)
     .ConfigureFunctionsWorkerDefaults()
     .AddDataServicesHandler()
         .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
@@ -20,15 +19,11 @@ var host = new HostBuilder()
         services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
         services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();
 
-        services.AddScoped<IAuthClientCredentials, AuthClientCredentials>();
-        services.AddScoped<IJwtTokenService, JwtTokenService>();
-        services.AddScoped<ISigningCredentialsProvider, SigningCredentialsProvider>();
-      
         services.AddMemoryCache();
         // Register health checks
         services.AddBasicHealthCheck("RetrievePdsDemographic");
     })
-    .AddJwtTokenSigning(JwtTokenServiceConfig)
+    .AddJwtTokenSigning()
     .AddTelemetry()
     .AddHttpClient()
     .Build();

@@ -16,34 +16,35 @@ public static class JwtTokenExtension
     /// <param name="hostBuilder"></param>
     /// <param name="config"></param>
     /// <returns></returns>
-    public static IHostBuilder AddJwtTokenSigning(this IHostBuilder hostBuilder, JwtTokenServiceConfig config)
+    public static IHostBuilder AddJwtTokenSigning(this IHostBuilder hostBuilder)
     {
-        // Azure
+        JWTPrivateKey jwtPrivateKey;
+        // Azure   
+        hostBuilder.AddConfiguration<JwtTokenServiceConfig>(out JwtTokenServiceConfig config);
         if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
         {
             var certClient = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
-            var keyVaultClient = new SecretClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
-
             var privateKey = certClient.DownloadCertificate(config.KeyNamePrivateKey);
-            var APIKey = keyVaultClient.GetSecret(config.KeyNameAPIKey);
 
-            config.PrivateKey = CertificateToString(privateKey.Value);
-            // this gets the actual value in string format
-            config.ClientId = APIKey.Value.Value;
+            jwtPrivateKey = new JWTPrivateKey(CertificateToString(privateKey));
         }
         // Local
         else
         {
-            config.PrivateKey = GetPrivateKey(config.LocalPrivateKeyFileName);
+            jwtPrivateKey = new JWTPrivateKey(GetPrivateKey(config.LocalPrivateKeyFileName));
         }
 
-        return hostBuilder.ConfigureServices(_ =>
+        var host = hostBuilder.ConfigureServices(_ =>
         {
+            _.AddSingleton(jwtPrivateKey);
             _.AddSingleton<IAuthClientCredentials, AuthClientCredentials>();
             _.AddSingleton<IJwtTokenService, JwtTokenService>();
             _.AddSingleton<ISigningCredentialsProvider, SigningCredentialsProvider>();
             _.AddSingleton<IBearerTokenService, BearerTokenService>();
+
         });
+
+        return host;
     }
 
     private static string CertificateToString(X509Certificate2 certificate)

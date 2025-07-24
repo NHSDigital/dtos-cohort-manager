@@ -9,14 +9,17 @@ public class SigningCredentialsProvider : ISigningCredentialsProvider
 
     private readonly JwtTokenServiceConfig _jwtTokenServiceConfig;
 
-    public SigningCredentialsProvider(IOptions<JwtTokenServiceConfig> jwtTokenServiceConfig)
+    private readonly JWTPrivateKey _jWTPrivateKey;
+
+    public SigningCredentialsProvider(IOptions<JwtTokenServiceConfig> jwtTokenServiceConfig, JWTPrivateKey jWTPrivateKey)
     {
+        _jWTPrivateKey = jWTPrivateKey;
         _jwtTokenServiceConfig = jwtTokenServiceConfig.Value;
     }
 
     public SigningCredentials CreateSigningCredentials()
     {
-        var unescapedPrivateKey = SanitizePrivateKey(_jwtTokenServiceConfig.PrivateKey);
+        var unescapedPrivateKey = SanitizePrivateKey(_jWTPrivateKey.PrivateKey);
         var keyBytes = Convert.FromBase64String(unescapedPrivateKey);
 
         var rsa = RSA.Create();
