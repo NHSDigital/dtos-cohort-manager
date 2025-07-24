@@ -9,10 +9,10 @@ using Microsoft.Extensions.Hosting;
 public static class AzureQueueExtension
 {
     /// <summary>
-    /// Extension method for adding azure queue clients, if UseNewFunctions is set to true, it will inject a service bus queue client,
-    /// otherwise, it will inject a azure storage queue client
+    /// Extension method for adding service bus clients. Works with connection
+    /// string or managed identies based auth
     /// </summary>
-    public static IHostBuilder AddAzureQueues(this IHostBuilder hostBuilder, string serviceBusConnectionString)
+    public static IHostBuilder AddServiceBusClient(this IHostBuilder hostBuilder, string serviceBusConnectionString)
     {
 
 
@@ -34,6 +34,18 @@ public static class AzureQueueExtension
         });
 
         return hostBuilder;
+    }
+
+    /// <summary>
+    /// Extension method that creates storage queue clients
+    /// </summary>
+    public static IHostBuilder AddAzureQueues(this IHostBuilder hostBuilder)
+    {
+        return hostBuilder.ConfigureServices(_ =>
+        {
+            _.AddTransient<IQueueClient, AzureStorageQueueClient>();
+            _.AddTransient<IQueueClientFactory, QueueClientFactory>();
+        });
     }
 
     /// <summary>
