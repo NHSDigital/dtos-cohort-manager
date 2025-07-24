@@ -210,7 +210,6 @@ public class ProcessCaasFile : IProcessCaasFile
             if (allowDeleteRecords)
             {
                 _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to RemoveParticipant function.");
-                var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
                 await _addBatchToQueue.AddMessage(basicParticipantCsvRecord, _config.ParticipantManagementTopic);
             }
             else
