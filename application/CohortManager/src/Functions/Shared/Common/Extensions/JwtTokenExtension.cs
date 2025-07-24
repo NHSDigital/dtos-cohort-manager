@@ -18,7 +18,7 @@ public static class JwtTokenExtension
     /// <returns></returns>
     public static IHostBuilder AddJwtTokenSigning(this IHostBuilder hostBuilder)
     {
-        JWTPrivateKey jwtPrivateKey;
+        JwtPrivateKey jwtPrivateKey;
         // Azure   
         hostBuilder.AddConfiguration<JwtTokenServiceConfig>(out JwtTokenServiceConfig config);
         if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
@@ -26,12 +26,12 @@ public static class JwtTokenExtension
             var certClient = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
             var privateKey = certClient.DownloadCertificate(config.KeyNamePrivateKey);
 
-            jwtPrivateKey = new JWTPrivateKey(CertificateToString(privateKey));
+            jwtPrivateKey = new JwtPrivateKey(CertificateToString(privateKey));
         }
         // Local
         else
         {
-            jwtPrivateKey = new JWTPrivateKey(GetPrivateKey(config.LocalPrivateKeyFileName));
+            jwtPrivateKey = new JwtPrivateKey(GetPrivateKey(config.LocalPrivateKeyFileName));
         }
 
         var host = hostBuilder.ConfigureServices(_ =>

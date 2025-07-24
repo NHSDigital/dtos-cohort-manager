@@ -12,13 +12,10 @@ public class AuthorizationClientCredentials : IAuthorizationClientCredentials
     private readonly IJwtTokenService _jwtHandler;
     private readonly JwtTokenServiceConfig _JwtTokenServiceConfig;
 
-    private readonly ILogger<AuthorizationClientCredentials> _logger;
-
-    public AuthorizationClientCredentials(IJwtTokenService jwtTokenService, HttpClient httpClient, IOptions<JwtTokenServiceConfig> JwtTokenServiceConfig, ILogger<AuthorizationClientCredentials> logger)
+    public AuthorizationClientCredentials(IJwtTokenService jwtTokenService, HttpClient httpClient, IOptions<JwtTokenServiceConfig> JwtTokenServiceConfig)
     {
         _httpClient = httpClient;
         _jwtHandler = jwtTokenService;
-        _logger = logger;
 
         _JwtTokenServiceConfig = JwtTokenServiceConfig.Value;
     }

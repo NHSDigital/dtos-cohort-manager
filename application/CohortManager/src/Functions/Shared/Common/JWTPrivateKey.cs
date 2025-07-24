@@ -1,8 +1,8 @@
 namespace Common;
 
-public class JWTPrivateKey
+public class JwtPrivateKey
 {
-    public JWTPrivateKey(string privateKey)
+    public JwtPrivateKey(string privateKey)
     {
         PrivateKey = privateKey;
     }
