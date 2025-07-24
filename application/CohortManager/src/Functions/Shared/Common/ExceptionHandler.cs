@@ -160,6 +160,11 @@ public class ExceptionHandler : IExceptionHandler
         participantCsvRecord.Participant.ExceptionFlag = "Y";
 
         var foundFatalRule = false;
+
+        // Create unable to add to cohort distribution exception
+        string message = $"Unable to add to cohort distribution. As participant {participantCsvRecord.Participant.ParticipantId} has triggered a validation exception";
+        await CreateSystemExceptionLog(new Exception(message), participantCsvRecord.Participant, participantCsvRecord.FileName);
+
         foreach (var error in validationErrors)
         {
             var ruleDetails = error.RuleName.Split('.');
