@@ -13,7 +13,8 @@
     "test:regression_e2e_epic3Med": "cross-env TEST_TYPE=RegressionEpic3Med npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic3-med",
     "test:regression_e2e_epic4b": "cross-env TEST_TYPE=RegressionEpic4b npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic4b-",
     "test:regression_e2e_epic4d": "cross-env TEST_TYPE=RegressionEpic4d npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic4d-",
-    "test": "cross-env TEST_TYPE=SMOKE npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @e2e\""
+    "test": "cross-env TEST_TYPE=SMOKE npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @e2e\"",
+    "test:validation-exceptions": "cross-env TEST_TYPE=VALIDATION npx playwright test tests/api/bsselect/validationExceptions/ --project=dev --config=src/config/playwright.config.ts"
   },
   "keywords": [],
   "author": "",
