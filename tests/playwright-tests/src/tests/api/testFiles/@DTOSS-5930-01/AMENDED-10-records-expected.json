@@ -10,7 +10,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "expectedCount": 10
+        "expectedCount": 20
       }
     }
   ],
