@@ -18,14 +18,14 @@ using Moq.Protected;
 public class AuthClientCredentialsTests
 {
     private readonly Mock<IOptions<JwtTokenServiceConfig>> _jwtTokenServiceConfig = new();
-    private readonly Mock<ILogger<AuthClientCredentials>> _logger = new();
+    private readonly Mock<ILogger<AuthorizationClientCredentials>> _logger = new();
     private readonly Mock<IJwtTokenService> _jwtHandler = new();
 
     private readonly HttpClient _httpClient;
 
     private readonly string access_token = "some_fake_token";
 
-    private AuthClientCredentials authClientCredentials;
+    private AuthorizationClientCredentials authClientCredentials;
     public AuthClientCredentialsTests()
     {
         var testConfig = new JwtTokenServiceConfig
@@ -59,7 +59,7 @@ public class AuthClientCredentialsTests
         _httpClient = new HttpClient(handlerMock.Object);
 
 
-        authClientCredentials = new AuthClientCredentials(_jwtHandler.Object, _httpClient, _jwtTokenServiceConfig.Object, _logger.Object);
+        authClientCredentials = new AuthorizationClientCredentials(_jwtHandler.Object, _httpClient, _jwtTokenServiceConfig.Object, _logger.Object);
     }
 
     [TestMethod]

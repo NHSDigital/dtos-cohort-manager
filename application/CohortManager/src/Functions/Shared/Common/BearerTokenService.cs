@@ -7,14 +7,14 @@ using Microsoft.Extensions.Logging;
 class BearerTokenService : IBearerTokenService
 {
     private readonly ILogger<BearerTokenService> _logger;
-    private readonly IAuthClientCredentials _authClientCredentials;
+    private readonly IAuthorizationClientCredentials _authClientCredentials;
     private readonly IMemoryCache _memoryCache;
     private const string AccessTokenCacheKey = "AccessToken";
 
 
     public BearerTokenService(
         ILogger<BearerTokenService> logger,
-        IAuthClientCredentials authClientCredentials,
+        IAuthorizationClientCredentials authClientCredentials,
         IMemoryCache memoryCache)
     {
         _logger = logger;

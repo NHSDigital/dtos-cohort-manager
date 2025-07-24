@@ -37,7 +37,7 @@ public static class JwtTokenExtension
         var host = hostBuilder.ConfigureServices(_ =>
         {
             _.AddSingleton(jwtPrivateKey);
-            _.AddSingleton<IAuthClientCredentials, AuthClientCredentials>();
+            _.AddSingleton<IAuthorizationClientCredentials, AuthorizationClientCredentials>();
             _.AddSingleton<IJwtTokenService, JwtTokenService>();
             _.AddSingleton<ISigningCredentialsProvider, SigningCredentialsProvider>();
             _.AddSingleton<IBearerTokenService, BearerTokenService>();

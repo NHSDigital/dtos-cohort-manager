@@ -6,15 +6,15 @@ using Apache.Arrow.Ipc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-public class AuthClientCredentials : IAuthClientCredentials
+public class AuthorizationClientCredentials : IAuthorizationClientCredentials
 {
     private readonly HttpClient _httpClient;
     private readonly IJwtTokenService _jwtHandler;
     private readonly JwtTokenServiceConfig _JwtTokenServiceConfig;
 
-    private readonly ILogger<AuthClientCredentials> _logger;
+    private readonly ILogger<AuthorizationClientCredentials> _logger;
 
-    public AuthClientCredentials(IJwtTokenService jwtTokenService, HttpClient httpClient, IOptions<JwtTokenServiceConfig> JwtTokenServiceConfig, ILogger<AuthClientCredentials> logger)
+    public AuthorizationClientCredentials(IJwtTokenService jwtTokenService, HttpClient httpClient, IOptions<JwtTokenServiceConfig> JwtTokenServiceConfig, ILogger<AuthorizationClientCredentials> logger)
     {
         _httpClient = httpClient;
         _jwtHandler = jwtTokenService;
