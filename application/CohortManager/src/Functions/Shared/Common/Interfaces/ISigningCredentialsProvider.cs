@@ -1,5 +1,5 @@
 
-
+namespace Common;
 
 using Microsoft.IdentityModel.Tokens;
 

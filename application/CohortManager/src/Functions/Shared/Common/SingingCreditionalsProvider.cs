@@ -1,6 +1,7 @@
+namespace Common;
+
 using System.Security.Cryptography;
 using System.Text;
-using Common;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
