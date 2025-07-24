@@ -42,7 +42,8 @@ public class ManageServiceNowParticipantFunctionTests
         var config = new ManageServiceNowParticipantConfig
         {
             RetrievePdsDemographicURL = "http://localhost:8082/api/RetrievePDSDemographic",
-            SendServiceNowMessageURL = "http://localhost:9092/api/servicenow/send"
+            SendServiceNowMessageURL = "http://localhost:9092/api/servicenow/send",
+            ParticipantManagementURL = "http://localhost:7994/api/ParticipantManagementDataService"
         };
         _configMock.Setup(c => c.Value).Returns(config);
 
