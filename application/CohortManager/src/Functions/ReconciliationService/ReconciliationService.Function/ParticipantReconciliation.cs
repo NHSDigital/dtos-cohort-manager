@@ -34,7 +34,7 @@ public class ParticipantReconciliation : IReconciliationProcessor
             int transformCategoryCode = (int)ExceptionCategory.TransformExecuted;
 
             var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.RecordInsertDateTime!.Value > fromDate);
-            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => x.Category != transformCategoryCode && x.DateCreated!.Value > fromDate);
+            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => x.Category!.Value != transformCategoryCode && x.DateCreated!.Value > fromDate);
 
 
             var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > fromDate && x.ProcessName == "AuditProcess");
