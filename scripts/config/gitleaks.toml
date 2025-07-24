@@ -28,7 +28,7 @@ paths = [
   '''application/CohortManager/spikes/AzureLocalSimulators/DTOS-2460_Event_Grid_Spike/templates/Azure Sql Template/template.json''',
   '''application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile/receiveCaasFile.csproj''',
   '''application/CohortManager/src/Functions/Shared/Common/JwtTokenService.cs''',
-  '''application/CohortManager/src/Functions/Shared/Common/SingingCreditionalsProvider.cs'''
+  '''application/CohortManager/src/Functions/Shared/Common/SingingCreditionalsProvider.cs''',
   '''tests/CaasIntegrationTests/receiveCaasFileTest/receiveCaasFileTest.csproj''',
   '''tests/IntegrationTests/integration.csproj''',
   '''application/CohortManager/src/Functions/Shared/Model/Model.csproj''',
