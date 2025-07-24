@@ -610,9 +610,6 @@ function_apps = {
       }
     }
 
-      }
-    }
-
     DistributeParticipant = {
       name_suffix             = "distribute-participant"
       function_endpoint_name  = "DistributeParticipant"
