@@ -79,3 +79,18 @@ Then('they should lands on {string}', async ({ page }, title) => {
 Then('they should see {string} on Report screen', async ({ }, text) => {
   await homePage.verifyTextOnReportscreen(text)
 });
+//navigate to contact Us
+When('the user clicks on contact us link', async ({ page }) => {
+  homePage = new HomePage(page)
+  await homePage.clickOnContactUs()
+});
+//navigate to terms and conditions
+When('the user clicks on Terms and conditions link', async ({ page }) => {
+  homePage = new HomePage(page)
+  await homePage.clicktermsAndconditionsLink()
+});
+//navigate to cookies policy
+When('the user clicks on cookies link', async ({ page }) => {
+  homePage = new HomePage(page);
+  await homePage.clickOnCookiesLink()
+});

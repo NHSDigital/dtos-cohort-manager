@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NhsNumber": "9992949600",
+        "NHSNumber": 9992949600,
         "expectedCount": 1
       },
       "meta": {

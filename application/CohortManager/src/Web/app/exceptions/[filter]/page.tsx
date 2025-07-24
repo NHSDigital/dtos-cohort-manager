@@ -2,23 +2,20 @@ import type { Metadata } from "next";
 import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { checkAccess } from "@/app/lib/checkAccess";
-import {
-  fetchExceptions,
-  fetchExceptionsRaised,
-} from "@/app/lib/fetchExceptions";
+import { fetchExceptionsRaisedSorted } from "@/app/lib/fetchExceptions";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 
 export const metadata: Metadata = {
-  title: "Raised breast screening exceptions - Cohort Manager",
+  title: `Raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
 };
 
-export default async function Page(props: {
-  readonly params: Promise<{
-    readonly filter: string;
-  }>;
+export default async function Page({
+  searchParams,
+}: {
+  readonly searchParams?: Promise<{ readonly sortBy?: string }>;
 }) {
   const session = await auth();
   const isCohortManager = session?.user
@@ -30,13 +27,11 @@ export default async function Page(props: {
   }
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
 
   try {
-    const params = await props.params;
-    const exceptions =
-      params.filter === "raised"
-        ? await fetchExceptionsRaised()
-        : await fetchExceptions();
+    const exceptions = await fetchExceptionsRaisedSorted(sortBy);
 
     const exceptionDetails: ExceptionDetails[] = exceptions.Items.map(
       (exception: {
@@ -65,6 +60,13 @@ export default async function Page(props: {
               <h1 data-testid="heading-raised">
                 Raised breast screening exceptions
               </h1>
+              <p
+                className="nhsuk-u-text-align-right"
+                data-testid="raised-exception-count"
+              >
+                Showing {exceptionDetails.length} of {exceptions.TotalItems}{" "}
+                results
+              </p>
               <div className="nhsuk-card">
                 <div className="nhsuk-card__content">
                   <ExceptionsTable
