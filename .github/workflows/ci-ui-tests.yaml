@@ -32,6 +32,8 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Start application
+        env:
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
         run: |
           npm run dev:secure &
           # Wait for the app to be ready
