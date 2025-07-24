@@ -18,7 +18,6 @@ var host = new HostBuilder()
         services.AddBasicHealthCheck("ManageServiceNowParticipant");
     })
     .AddTelemetry()
-    .AddAzureQueues()
     .AddExceptionHandler()
     .AddHttpClient()
     .Build();
