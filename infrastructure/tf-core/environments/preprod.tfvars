@@ -262,6 +262,8 @@ function_apps = {
   worker_32bit                  = false
   health_check_path             = "/api/health"
 
+  fa_config = {
+
     ReceiveCaasFile = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
