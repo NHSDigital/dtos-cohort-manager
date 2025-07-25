@@ -29,3 +29,6 @@ Then('they should navigate to NHS National IT Customer Support Portal page', asy
 When('the user clicks on Report an incident link', async ({ page }) => {
   await contactUsPage.clickRapidincidentLink()
 });
+When('the user clicks on Back to previous screen link', async ({ page }) => {
+  await page.goBack();
+});

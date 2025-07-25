@@ -1,3 +1,4 @@
+@contactus
 Feature: testing to verify all ac's on Legal pages story-DTOSS-9551
 
   Background:
@@ -22,3 +23,7 @@ Feature: testing to verify all ac's on Legal pages story-DTOSS-9551
   Scenario: verify navigation to Report an incident
     When the user clicks on Report an incident link
     Then they should navigate to NHS National IT Customer Support Portal page
+
+  Scenario: verify navigation to back to previous screen from contactus page
+    When the user clicks on Back to previous screen link
+    Then they should navigate to 'Cohort Manager - NHS'
