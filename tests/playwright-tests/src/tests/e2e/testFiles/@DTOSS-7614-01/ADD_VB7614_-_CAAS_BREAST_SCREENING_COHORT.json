@@ -3,7 +3,11 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9995518112
+        "NHSNumber": "9995518112",
+        "expectedCount": 1,
+        "RecordType": "ADD",
+        "EligibilityFlag": 1,
+        "ExceptionFlag": 0
       }
     }
   ],

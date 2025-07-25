@@ -2,25 +2,24 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementService",
-        "NHSNumber": "9997614001",
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": "9997610001",
         "BlockedFlag": 1,
         "expectedCount": 1,
-        "RecordType": "AMENDED",
+        "RecordType": "ADD",
         "EligibilityFlag": 1,
         "ExceptionFlag": 0
       },
       "meta": {
-        "testJiraId": "@DTOSS-7614-01",
+        "testJiraId": "@DTOSS-7610-01",
         "requirementJiraId": "DTOSS-2622",
-        "additionalTags": "@regression @e2e @epic4b-block-tests AC01 - Verify block a participant not processed to COHORT - AMEND"
+        "additionalTags": "@regression @e2e @epic4b-block-tests AC01 - Verify block a participant not processed to COHORT - ADD"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NHSNumber": "9997614001",
-        "expectedCount": 1,
+        "nhsNumber": "9997610001",
         "validations": {
           "Category": "CaaS",
           "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
@@ -30,19 +29,19 @@
   ],
   "inputParticipantRecord": [
     {
-      "record_type": "AMENDED",
+      "record_type": "ADD",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9997614001,
+      "nhs_number": "9997610001",
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20240101",
       "current_posting": "BD",
       "current_posting_effective_from_date": "20240101",
       "name_prefix": "MRS",
-      "given_name": "Amy",
+      "given_name": "Alice",
       "other_given_name": "Jane",
-      "family_name": "TestBlockedAmend",
+      "family_name": "TestBlocked",
       "previous_family_name": null,
       "date_of_birth": "19900115",
       "gender": 1,
@@ -62,7 +61,7 @@
       "home_telephone_effective_from_date": "20240101",
       "mobile_telephone_number": "07700900123",
       "mobile_telephone_effective_from_date": "20240101",
-      "email_address": "amy.test@example.com",
+      "email_address": "alice.test@example.com",
       "email_address_effective_from_date": "20240101",
       "preferred_language": "en",
       "is_interpreter_required": false,
@@ -70,5 +69,5 @@
       "eligibility": true
     }
   ],
-  "nhsNumbers": ["9997614001"]
+  "nhsNumbers": ["9997610001"]
 }
