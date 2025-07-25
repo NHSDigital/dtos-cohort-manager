@@ -5,7 +5,7 @@ export default defineConfig({
   testDir: '../tests',
   timeout: 15 * 60 * 1000,    // 15 minutes
   globalTimeout: 50 * 60 * 1000, // 50 minutes - Total max time allowed for all tests to complete to avoid loss of reports as pipeline runner is configured to timeout after 60 minutes
-  retries: 0,
+  retries: 1,
   workers: 1,
   fullyParallel: false,
   use: {

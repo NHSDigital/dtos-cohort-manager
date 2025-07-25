@@ -6,6 +6,12 @@
         "GivenName": "NewTest1UpdatedUpdated",
         "NHSNumber": 9996554716
       }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "expectedCount": 20
+      }
     }
   ],
   "inputParticipantRecord": [
