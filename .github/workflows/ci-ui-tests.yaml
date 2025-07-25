@@ -35,6 +35,9 @@ jobs:
         env:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           SERVICE_NAME: ${{ vars.SERVICE_NAME }}
+          NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
+          EXCEPTIONS_API_URL: ${{ vars.EXCEPTIONS_API_URL }}
+          COHORT_MANAGER_USERS: ${{ vars.COHORT_MANAGER_USERS }}
         run: |
           # Start the app in background
           npm run dev:secure &
