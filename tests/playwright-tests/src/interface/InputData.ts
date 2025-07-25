@@ -26,3 +26,16 @@ export interface InputData {
   nhsNumbers: string[];
   queryParams: QueryParams;
 }
+
+export interface ParticipantRecord {
+  number: string;
+  u_case_variable_data: {
+    nhs_number: string;
+    forename_: string;
+    surname_family_name: string;
+    date_of_birth: string;
+    enter_dummy_gp_code: string;
+    BSO_code: string;
+    reason_for_adding: string;
+  };
+}

@@ -2,7 +2,7 @@ import { APIRequestContext } from '@playwright/test';
 import * as apiClient from '../apiClient';
 import { config } from '../../config/env';
 import { ApiResponse, QueryParams } from '../core/types';
-
+import { ParticipantRecord } from '../../interface/InputData';
 
 export const getRecordsFromBsSelectRetrieveCohort = (
   request: APIRequestContext,
@@ -59,4 +59,12 @@ export const UnblockParticipant = (
 ): Promise<ApiResponse> => {
   const endpoint = `${config.endpointBsSelectUpdateBlockFlag}${config.routeBsSelectUnblockParticipant}`;
   return apiClient.postWithQuery(request, endpoint, payload);
+};
+
+export const receiveParticipantViaServiceNow = (
+  request: APIRequestContext,
+  payload: ParticipantRecord
+): Promise<ApiResponse> => {
+  const endpoint = `${config.endpointSerNowReceiveParticipant}${config.routeSerNowReceiveParticipant}`;
+  return apiClient.post(request, endpoint, payload);
 };
