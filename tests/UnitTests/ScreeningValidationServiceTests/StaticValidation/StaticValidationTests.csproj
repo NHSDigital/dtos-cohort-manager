@@ -29,4 +29,10 @@
     <ProjectReference Include="..\..\..\TestUtils\TestUtils.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+  <None Update="../../../application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation/Breast_Screening_staticRules.json">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Link>Breast_Screening_staticRules.json</Link>
+  </None>
+  </ItemGroup>
 </Project>

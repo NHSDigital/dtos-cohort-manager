@@ -8,7 +8,6 @@ public class DistributeParticipantConfig
     public string CohortDistributionTopic { get; set; }
     [Required]
     public string DistributeParticipantSubscription { get; set; }
-    public bool IgnoreParticipantExceptions { get; set; } = false;
     [Required]
     public string LookupValidationURL { get; set; }
     [Required]
@@ -21,5 +20,8 @@ public class DistributeParticipantConfig
     public string CohortDistributionDataServiceUrl { get; set; }
     [Required]
     public string ParticipantDemographicDataServiceUrl { get; set; }
+    [Required]
+    public string RemoveOldValidationRecordUrl { get; set; }
     public bool IsExtractedToBSSelect { get; set; } = false;
+    public bool IgnoreParticipantExceptions { get; set; } = false;
 }
