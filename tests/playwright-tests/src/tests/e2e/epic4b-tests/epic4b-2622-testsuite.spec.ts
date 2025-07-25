@@ -204,7 +204,7 @@ test('@DTOSS-7615-01 - AC1 - Verify blocked participant deletion is not processe
     // Verify the validation exception in the management table is not an NBO type
     await test.step(`Then validation exception should be created but not as NBO type`, async () => {
       await validateSqlDatabaseFromAPI(request, {
-        apiEndpoint: 'exception',
+        apiEndpoint: 'api/ExceptionManagementDataService',
         nhsNumber: nhsNumbers[0],
         validations: {
           nboExceptionCount: 0,  // Verify no NBO exceptions exist
@@ -259,15 +259,23 @@ test('@DTOSS-7615-01 - AC1 - Verify blocked participant deletion is not processe
       expect(response.data[0].BlockedFlag).toBe(1);
     });
 
+    // Generate AMEND parquet file from JSON before processing
+    const parquetFileAmend = await createParquetFromJson(
+      testData.nhsNumbers,
+      testData.inputParticipantRecord,
+      testData.testFilesPath,
+      'AMENDED'
+    );
+
     // Attempt to amend the blocked participant
     await test.step(`When Amend participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
+      await processFileViaStorage(parquetFileAmend);
     });
 
     // Verify regular validation exception exists (non-NBO) for the amendment
     await test.step(`Then validation exception should be created but not as NBO type`, async () => {
       await validateSqlDatabaseFromAPI(request, {
-        apiEndpoint: 'exception',
+        apiEndpoint: 'api/ExceptionManagementDataService',
         nhsNumber: testData.nhsNumbers[0],
         validations: {
           nboExceptionCount: 0,  // Verify no NBO exceptions exist
@@ -286,6 +294,12 @@ test('@DTOSS-7615-01 - AC1 - Verify blocked participant deletion is not processe
       expect(response.data[0].NhsNumber).toBe(testData.nhsNumbers[0]);
       expect(testData.inputParticipantRecord).toBeDefined();
       expect(response.data[0]).toMatchObject(testData.inputParticipantRecord![0]);
+    });
+
+    // Final verification that participant remains blocked
+    await test.step('Then participant should remain blocked', async () => {
+      const response = await getRecordsFromParticipantManagementService(request);
+      expect(response.data[0].BlockedFlag).toBe(1);
     });
   });
 
@@ -348,7 +362,7 @@ test('@DTOSS-7615-01 - AC1 - Verify blocked participant deletion is not processe
     // Verify validation exception exists (non-NBO) for the deletion
     await test.step(`Then validation exception should be created but not as NBO type`, async () => {
       await validateSqlDatabaseFromAPI(request, {
-        apiEndpoint: 'exception',
+        apiEndpoint: 'api/ExceptionManagementDataService',
         nhsNumber: nhsNumbers[0],
         validations: {
           nboExceptionCount: 0,  // Verify no NBO exceptions exist
@@ -430,7 +444,7 @@ test('@DTOSS-7615-01 - AC1 - Verify blocked participant deletion is not processe
     // Verify validation exception exists (non-NBO) for the eligibility change attempt
     await test.step(`Then validation exception should be created but not as NBO type`, async () => {
       await validateSqlDatabaseFromAPI(request, {
-        apiEndpoint: 'exception',
+        apiEndpoint: 'api/ExceptionManagementDataService',
         nhsNumber: nhsNumbers[0],
         validations: {
           nboExceptionCount: 0,  // Verify no NBO exceptions exist

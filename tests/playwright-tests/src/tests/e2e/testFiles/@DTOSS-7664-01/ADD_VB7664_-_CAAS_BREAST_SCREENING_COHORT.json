@@ -7,7 +7,7 @@
         "BlockedFlag": 1,
         "expectedCount": 1,
         "RecordType": "ADD",
-        "EligibilityFlag": 1,
+        "EligibilityFlag": "1",
         "ExceptionFlag": 0
       },
       "meta": {
@@ -88,7 +88,7 @@
       "preferred_language": "en",
       "is_interpreter_required": false,
       "invalid_flag": false,
-      "eligibility": true
+      "EligibilityFlag": "1"
     }
   ],
   "nhsNumbers": ["9990321530"]

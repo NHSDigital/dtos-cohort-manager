@@ -3,71 +3,54 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": "9990321531",
+        "NHSNumber": "9990321532",
         "BlockedFlag": 1,
         "expectedCount": 1,
-        "RecordType": "AMENDED",
+        "RecordType": "DELETE",
         "EligibilityFlag": "1",
         "ExceptionFlag": 0
       },
       "meta": {
-        "testJiraId": "@DTOSS-7665-01",
+        "testJiraId": "@DTOSS-7666-01",
         "requirementJiraId": "DTOSS-2622",
-        "additionalTags": "@regression @e2e @epic4b-block-tests AC04 - Verify audit logs are updated for blocked participant - AMEND"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "nhsNumber": "9990321531",
-        "expectedCount": 1,
-        "validations": {
-          "nboExceptionCount": 0,
-          "Category": "CaaS",
-          "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
-        }
+        "additionalTags": "@regression @e2e @epic4b-block-tests AC04 - Verify audit logs are updated for blocked participant - DELETE"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/BsSelectRequestAudit",
-        "NHSNumber": "9990321531",
-        "expectedCount": 2,
-        "validations": [
-          {
-            "BlockedFlag": 1,
-            "ActionType": "Block",
-            "Status": "Success",
-            "Details": "Participant blocked flag updated successfully"
-          },
-          {
-            "ActionType": "Amend",
-            "Status": "Rejected",
-            "Details": "Participant is marked as blocked"
-          }
-        ]
+        "NHSNumber": "9990321532",
+        "BlockedFlag": 1,
+        "ActionType": "Delete",
+        "Status": "Rejected",
+        "Details": "Participant is marked as blocked"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-7666-01",
+        "requirementJiraId": "DTOSS-2622",
+        "additionalTags": "@regression @e2e @epic4b-block-tests AC04 - Verify audit logs are updated for blocked participant - DELETE"
       }
     }
   ],
   "inputParticipantRecord": [
     {
-      "record_type": "AMENDED",
+      "record_type": "DELETE",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": "9990321531",
+      "nhs_number": "9990321532",
       "superseded_by_nhs_number": null,
       "primary_care_provider": "A12345",
       "primary_care_effective_from_date": "20240101",
       "current_posting": "BD",
       "current_posting_effective_from_date": "20240101",
-      "name_prefix": "Miss",
-      "given_name": "MARY",
+      "name_prefix": "Mrs",
+      "given_name": "ALICE",
       "other_given_name": null,
-      "family_name": "TESTBLOCKSIX",
+      "family_name": "TESTBLOCKSEVEN",
       "previous_family_name": null,
-      "date_of_birth": "19890625",
+      "date_of_birth": "19720816",
       "gender": 1,
-      "address_line_1": "48 TEST STREET",
+      "address_line_1": "50 TEST STREET",
       "address_line_2": "TESTLAND",
       "address_line_3": null,
       "address_line_4": null,
@@ -91,5 +74,5 @@
       "EligibilityFlag": "1"
     }
   ],
-  "nhsNumbers": ["9990321531"]
+  "nhsNumbers": ["9990321532"]
 }
