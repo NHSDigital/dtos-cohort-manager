@@ -892,9 +892,10 @@ function_apps = {
     }
 
     RetrievePDSDemographic = {
-      name_suffix            = "retrieve-pds-demographic"
-      function_endpoint_name = "RetrievePDSDemographic"
-      app_service_plan_key   = "DefaultPlan"
+      name_suffix              = "retrieve-pds-demographic"
+      function_endpoint_name   = "RetrievePDSDemographic"
+      app_service_plan_key     = "DefaultPlan"
+      KeyVaultConnectionString = "KeyVaultConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -910,7 +911,12 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        RetrievePdsParticipantURL = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        Kid                       = "RetrievePdsDemographic-DEV1"
+        Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
+        AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
+        KeyNamePrivateKey         = "PDSPrivatekey"
+        KeyNameAPIKey             = "PDSNameAPIKey"
       }
     }
 

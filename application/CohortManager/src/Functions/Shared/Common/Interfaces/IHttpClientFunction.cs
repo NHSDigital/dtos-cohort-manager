@@ -9,7 +9,6 @@ public interface IHttpClientFunction
     /// <param name="data">Data to be sent in request.</param>
     /// <returns>HttpResponseMessage<returns>
     Task<HttpResponseMessage> SendPost(string url, string data);
-
     /// <summary>
     /// Performs a GET request using HttpClient and returns the response body as a string or null if the request failed.
     /// </summary>
@@ -48,7 +47,7 @@ public interface IHttpClientFunction
     /// </summary>
     /// <param name="url">URL to be used in request.</param>
     /// <returns>HttpResponseMessage<returns>
-    Task<HttpResponseMessage> SendPdsGet(string url);
+    Task<HttpResponseMessage> SendPdsGet(string url, string bearerToken);
 
     /// <summary>
     /// Performs a PUT request using HttpClient.
