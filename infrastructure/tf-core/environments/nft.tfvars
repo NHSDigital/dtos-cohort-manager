@@ -1259,9 +1259,8 @@ function_apps = {
         Kid                       = "RetrievePdsDemographic-INT1"
         Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
         AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
-        RetrievePdsParticipantURL = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
-        MeshKeyNamePrivateKey     = "PDSPrivatekey"
-        KeyNameAPIKey             = "PDSNameAPIKey"
+        ClientId                  = ""
+        PrivateKey                = ""
       }
     }
 
