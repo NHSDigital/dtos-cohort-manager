@@ -47,7 +47,7 @@ jobs:
 
           # Run the tests
           npx bddgen
-          npx playwright test --ignore-https-errors
+          npx playwright test
 
       - name: Upload test results
         if: always()
