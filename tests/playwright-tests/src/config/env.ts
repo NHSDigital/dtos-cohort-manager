@@ -46,7 +46,7 @@ export const config = {
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',
   participantDemographicDataService: 'ParticipantDemographicDataService',
-  participantPayloadPath: 'api/testFiles/@DTOSS-3880-01/ADD-participantPayload.json',
+  participantPayloadPath: 'src/tests/api/testFiles',
   e2eTestFilesPath: 'e2e/testFiles',
   apiTestFilesPath: 'api/testFiles',
   apiRetry: 8,
