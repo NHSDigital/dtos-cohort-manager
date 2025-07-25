@@ -35,7 +35,7 @@ public interface IExceptionHandler
     /// </summary>
     /// <param name="validationErrors">A list of the validation errors</param>
     /// <param name="participantCsvRecord">The participant that triggered them</param>
-    Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<ValidationRuleResult> validationErrors, ParticipantCsvRecord participantCsvRecord);
+    Task<bool> CreateValidationExceptionLog(IEnumerable<ValidationRuleResult> validationErrors, ParticipantCsvRecord participantCsvRecord);
     [Obsolete]
     Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord);
     Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord);
