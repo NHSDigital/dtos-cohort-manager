@@ -1,0 +1,46 @@
+{
+  "nhsNumbers": ["9990321529"],
+  "inputParticipantRecord": [
+    {
+      "nhs_number": "9990321529",
+      "family_name": "TESTBLOCKFOUR",
+      "given_name": "SARAH",
+      "title": "Ms",
+      "date_of_birth": "19670423",
+      "address_line_1": "44 TEST STREET",
+      "address_line_2": "TESTLAND",
+      "address_line_3": "",
+      "address_line_4": "",
+      "address_line_5": "",
+      "postcode": "TS1 1ST",
+      "gp_practice_code": "A12345",
+      "eligibility_flag": "1",
+      "reason_for_removal": "",
+      "phone_number": "01234567890",
+      "mobile_number": "07700900123",
+      "nhs_number_status_indicator": "01",
+      "reason_for_removal_date": "",
+      "secondary_breast_screening_status": "0",
+      "high_risk_category": "0",
+      "previous_screen_date": "20220101",
+      "next_test_due_date": "20230101"
+    }
+  ],
+  "validations": {
+    "apiEndpoint": "exception",
+    "nhsNumber": "9990321529",
+    "validations": {
+      "nboExceptionCount": 0,
+      "Category": "CaaS",
+      "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
+    }
+  },
+  "checkInDatabaseAdd": {
+    "apiEndpoint": "participant-management",
+    "nhsNumber": "9990321529",
+    "validations": {
+      "BlockedFlag": 1,
+      "NhsNumber": "9990321529"
+    }
+  }
+}
