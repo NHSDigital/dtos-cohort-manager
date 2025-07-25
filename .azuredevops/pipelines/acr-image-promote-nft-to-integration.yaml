@@ -41,7 +41,7 @@ stages:
   jobs:
   - job: re_tag
     pool:
-      name: private-pool-prod-uks
+      name: private-pool-dev-uks
     displayName: Update/copy Docker images with new tag
     variables:
       - group: INT_image_pipelines
