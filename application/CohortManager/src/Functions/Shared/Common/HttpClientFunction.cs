@@ -80,12 +80,14 @@ public class HttpClientFunction : IHttpClientFunction
         return await GetOrThrowAsync(client);
     }
 
-    public async Task<HttpResponseMessage> SendPdsGet(string url)
+    public async Task<HttpResponseMessage> SendPdsGet(string url, string bearerToken)
     {
         using var client = _factory.CreateClient();
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + bearerToken);
         client.DefaultRequestHeaders.Add("X-Request-ID", Guid.NewGuid().ToString());
         client.DefaultRequestHeaders.Add("X-Correlation-ID", Guid.NewGuid().ToString());
         client.DefaultRequestHeaders.Add("Accept", "application/fhir+json");
