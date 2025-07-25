@@ -182,7 +182,7 @@ public class ExceptionHandler : IExceptionHandler
             if (!string.IsNullOrEmpty(error.ExceptionMessage))
             {
                 errorMessage = error.ExceptionMessage;
-                _logger.LogError("an exception was raised while running the rules. Exception Message: {exceptionMessage}", error.ExceptionMessage);
+                _logger.LogError("an exception was raised while running the rules. Exception Message: {ExceptionMessage}", error.ExceptionMessage);
             }
 
             var exception = new ValidationException
@@ -222,7 +222,7 @@ public class ExceptionHandler : IExceptionHandler
         };
     }
 
-    [Obsolete]
+    [Obsolete("Use the above overload")]
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         participantCsvRecord.Participant.ExceptionFlag = "Y";
