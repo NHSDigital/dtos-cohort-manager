@@ -40,7 +40,11 @@ export default defineConfig({
     trace: "on",
     screenshot: "on",
     viewport: { width: 1280, height: 720 },
-    video: "on",
+    video: 'on', // 'retain-on-failure' in CI
+    launchOptions: {
+      args: ['--window-size=1280,720'],
+    },
+    headless: true,
   },
 
   /* Configure projects for major browsers */
