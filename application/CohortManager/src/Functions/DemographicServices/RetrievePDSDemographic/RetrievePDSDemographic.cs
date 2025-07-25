@@ -54,6 +54,7 @@ public class RetrievePdsDemographic
         var bearerToken = await _bearerTokenService.GetBearerToken();
         if (bearerToken == null)
         {
+            _logger.LogError("the bearer token could not be found");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "The bearer token could not be found");
         }
 

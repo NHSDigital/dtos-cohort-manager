@@ -36,6 +36,7 @@ public static class JwtTokenExtension
 
         var host = hostBuilder.ConfigureServices(_ =>
         {
+            _.AddMemoryCache();
             _.AddSingleton(jwtPrivateKey);
             _.AddSingleton<IAuthorizationClientCredentials, AuthorizationClientCredentials>();
             _.AddSingleton<IJwtTokenService, JwtTokenService>();
@@ -57,7 +58,6 @@ public static class JwtTokenExtension
     private static string GetPrivateKey(string privateKeyFilePath)
     {
         var currentDirectory = Directory.GetCurrentDirectory();
-        currentDirectory = currentDirectory.Replace("bin/output", "");
 
         var filePath = Path.Combine(currentDirectory, privateKeyFilePath);
 

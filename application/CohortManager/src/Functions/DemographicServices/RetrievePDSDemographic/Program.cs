@@ -18,8 +18,6 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
         services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();
-
-        services.AddMemoryCache();
         // Register health checks
         services.AddBasicHealthCheck("RetrievePdsDemographic");
     })
