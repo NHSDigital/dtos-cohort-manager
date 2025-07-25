@@ -17,6 +17,8 @@ const endpointBsSelectRetrieveCohortDistributionData = process.env.ENDPOINT_BS_S
 const endpointBsSelectRetrieveCohortRequestAudit = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_REQUEST_AUDIT ?? '';
 const endpointBsSelectDeleteParticipant = process.env.ENDPOINT_BS_SELECT_DELETE_PARTICIPANT ?? '';
 const endpointBsSelectUpdateBlockFlag = process.env.ENDPOINT_BS_SELECT_UPDATE_BLOCK_FLAG ?? '';
+const endpointSerNowReceiveParticipant = process.env.ENDPOINT_SERVICE_NOW_MESSAGE_HANDLER ?? '';
+const participantPayloadPath = process.env.PARTICIPANT_PAYLOAD_PATH ?? '';
 
 export const config = {
   baseURL,
@@ -30,6 +32,8 @@ export const config = {
   endpointBsSelectRetrieveCohortRequestAudit: endpointBsSelectRetrieveCohortRequestAudit,
   endpointBsSelectDeleteParticipant: endpointBsSelectDeleteParticipant,
   endpointBsSelectUpdateBlockFlag: endpointBsSelectUpdateBlockFlag,
+  endpointSerNowReceiveParticipant: endpointSerNowReceiveParticipant,
+  routeSerNowReceiveParticipant: 'api/servicenow/receive',
   routeBsSelectRetrieveCohortDistributionData: 'api/RetrieveCohortDistributionData',
   routeBsSelectRetrieveCohortRequestAudit: 'api/RetrieveCohortRequestAudit',
   routeBsSelectDeleteParticipant: 'api/DeleteParticipant',
@@ -39,6 +43,7 @@ export const config = {
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',
   participantDemographicDataService: 'ParticipantDemographicDataService',
+  participantPayloadPath: 'api/testFiles/@DTOSS-3880-01/ADD-participantPayload.json',
   e2eTestFilesPath: 'e2e/testFiles',
   apiTestFilesPath: 'api/testFiles',
   apiRetry: 8,

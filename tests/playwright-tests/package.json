@@ -17,6 +17,7 @@
     "test:regression_e2e_epic4d": "cross-env TEST_TYPE=RegressionEpic4d npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic4d-",
     "test:smoke_e2e": "cross-env TEST_TYPE=SMOKE npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @e2e\"",
     "test": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @e2e\"",
+    "test:service_now": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@service_now\"",
     "test:dummy": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@dummy \"",
     "test:ut": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@ut\"",
     "lint": "eslint . --ext .ts",
