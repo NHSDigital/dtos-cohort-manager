@@ -9,43 +9,35 @@ using Microsoft.Extensions.Hosting;
 public static class AzureQueueExtension
 {
     /// <summary>
-    /// Extension method for adding azure queue clients, if UseNewFunctions is set to true, it will inject a service bus queue client,
-    /// otherwise, it will inject a azure storage queue client
+    /// Extension method for adding service bus clients. Works with connection
+    /// string or managed identies based auth
     /// </summary>
-    public static IHostBuilder AddAzureQueues(this IHostBuilder hostBuilder, bool UseNewFunctions, string serviceBusConnectionString)
+    public static IHostBuilder AddServiceBusClient(this IHostBuilder hostBuilder, string serviceBusConnectionString)
     {
 
 
         hostBuilder.ConfigureServices(_ =>
             {
-            if (UseNewFunctions)
+            _.AddAzureClients(builder =>
             {
-                _.AddAzureClients(builder =>
+                if (serviceBusConnectionString.StartsWith("Endpoint="))
                 {
-                    if (serviceBusConnectionString.StartsWith("Endpoint="))
-                    {
-                        builder.AddServiceBusClient(serviceBusConnectionString);
-                    }
-                    else
-                    {
-                        builder.AddServiceBusClientWithNamespace(serviceBusConnectionString)
-                            .WithCredential(new DefaultAzureCredential());
-                    }
-                });
-                _.AddSingleton<IQueueClient, AzureServiceBusClient>();
-            }
-            else
-            {
-                _.AddTransient<IQueueClient, AzureStorageQueueClient>();
-                _.AddTransient<IQueueClientFactory, QueueClientFactory>();
-            }
+                    builder.AddServiceBusClient(serviceBusConnectionString);
+                }
+                else
+                {
+                    builder.AddServiceBusClientWithNamespace(serviceBusConnectionString)
+                        .WithCredential(new DefaultAzureCredential());
+                }
+            });
+            _.AddSingleton<IQueueClient, AzureServiceBusClient>();
         });
 
         return hostBuilder;
     }
+
     /// <summary>
-    /// Overload that creates storage queue clients for instances where only storage queues
-    /// will be used and we do not need control what is injected via config
+    /// Extension method that creates storage queue clients
     /// </summary>
     public static IHostBuilder AddAzureQueues(this IHostBuilder hostBuilder)
     {
@@ -55,15 +47,14 @@ public static class AzureQueueExtension
             _.AddTransient<IQueueClientFactory, QueueClientFactory>();
         });
     }
-     /// <summary>
+
+    /// <summary>
     /// Extension method for adding azure queue clients, if UseNewFunctions is set to true, it will inject a service bus queue client,
     /// otherwise, it will inject a azure storage queue client
     /// This will implement the queue client as a keyed service allowing it to be used in parallel with other queue types
     /// </summary>
     public static IHostBuilder AddKeyedAzureQueues(this IHostBuilder hostBuilder, bool UseNewFunctions, string serviceBusConnectionString, string keyName)
     {
-
-
         hostBuilder.ConfigureServices(_ =>
             {
                 if (UseNewFunctions)

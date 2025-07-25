@@ -2,6 +2,7 @@ namespace Common;
 
 using System.Net;
 using Model;
+using Model.Enums;
 using RulesEngine.Models;
 
 /// <summary>
@@ -40,5 +41,5 @@ public interface IExceptionHandler
     /// <param name="participant">The participant that caused the exception.</param>
     Task CreateTransformationExceptionLog(IEnumerable<RuleResultTree> transformationErrors, CohortDistributionParticipant participant);
     Task CreateSchemaValidationException(BasicParticipantCsvRecord participantCsvRecord, string description);
-    Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId);
+    Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId, ExceptionCategory? exceptionCategory = null);
 }

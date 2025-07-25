@@ -404,6 +404,10 @@ function_apps = {
           env_var_name     = "SendServiceNowMessageURL"
           function_app_key = "ServiceNowMessageHandler"
           endpoint_name    = "SendServiceNowMessage"
+        },
+        {
+          env_var_name     = "ParticipantManagementURL"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
       env_vars_static = {
@@ -1251,7 +1255,12 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL = ""
+        RetrievePdsParticipantURL = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        Kid                       = "RetrievePdsDemographic-DEV1"
+        Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
+        AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
+        MeshKeyNamePrivateKey     = "PDSPrivatekey"
+        KeyNameAPIKey             = "PDSNameAPIKey"
       }
     }
 

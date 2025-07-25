@@ -73,58 +73,6 @@ services:
       - ExcludedSMULookupUrl=http://reference-data-service:7988/api/ExcludedSMU
       - AcceptableLatencyThresholdMs=500
 
-  allocate-service-provider:
-    container_name: allocate-service-provider
-    image: cohort-manager-allocate-service-provider
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: CohortDistributionServices/ServiceProviderAllocationService/Dockerfile
-    profiles: [deprecated]
-    environment:
-      - ASPNETCORE_URLS=http://*:7081
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-
-  create-cohort-distribution:
-    container_name: create-cohort-distribution
-    image: cohort-manager-create-cohort-distribution
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: CohortDistributionServices/CreateCohortDistribution/Dockerfile
-    profiles: [deprecated]
-    environment:
-      - ASPNETCORE_URLS=http://*:7082
-      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - AllocateScreeningProviderURL=http://allocate-service-provider:7081/api/AllocateServiceProviderToParticipantByService
-      - TransformDataServiceURL=http://transform-data-service:7080/api/TransformDataService
-      - RetrieveParticipantDataURL=http://retrieve-participant-data:7083/api/RetrieveParticipantData
-      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
-      - CohortDistributionDataServiceUrl=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
-      - LookupValidationURL=http://lookup-validation:7075/api/LookupValidation
-      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - CohortQueueName=cohort-distribution-queue
-      - CohortQueueNamePoison=cohort-distribution-queue-poison
-      - IgnoreParticipantExceptions=false
-      - IsExtractedToBSSelect=true
-      - AcceptableLatencyThresholdMs=500
-
-  retrieve-participant-data:
-    container_name: retrieve-participant-data
-    image: cohort-manager-retrieve-participant-data
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: CohortDistributionServices/RetrieveParticipantData/Dockerfile
-    profiles: [deprecated]
-    environment:
-      - ASPNETCORE_URLS=http://*:7083
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
-      - DemographicDataFunctionURL=http://demographic-data-management:7076/api/DemographicDataFunction
-      - AcceptableLatencyThresholdMs=500
-
   remove-validation-exception-data:
     container_name: remove-validation-exception-data
     image: cohort-manager-remove-validation-exception-data
@@ -140,21 +88,6 @@ services:
       - GPPracticeDataServiceURL=http://gppractice-data-service:7999/api/GPPracticeDataService/
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
-  delete-participant:
-    container_name: delete-participant
-    image: cohort-manager-delete-participant
-    networks: [cohman-network]
-    ports:
-    - "7087:7087"
-    build:
-      context: ./src/Functions/
-      dockerfile: CohortDistributionServices/DeleteParticipant/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7087
-      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
-      - AcceptableLatencyThresholdMs=500
 
 networks:
   cohman-network:

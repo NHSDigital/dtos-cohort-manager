@@ -230,7 +230,7 @@ function_apps = {
   health_check_path             = "/api/health"
 
   fa_config = {
-    
+
     ReceiveCaasFile = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
@@ -396,6 +396,10 @@ function_apps = {
           env_var_name     = "SendServiceNowMessageURL"
           function_app_key = "ServiceNowMessageHandler"
           endpoint_name    = "SendServiceNowMessage"
+        },
+        {
+          env_var_name     = "ParticipantManagementURL"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
       env_vars_static = {
