@@ -14,7 +14,7 @@ public class JwtTokenServiceConfig
     [Required]
     public required string AuthTokenURL { get; set; }
 
-    public string ClientId { get; set; } = null;
+    public string ClientId { get; set; } = null!;
 
     public string LocalPrivateKeyFileName { get; set; } = null!;
 
