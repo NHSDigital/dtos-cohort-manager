@@ -10,17 +10,17 @@ let contactusPage: ContactusPage;
 let cookiesPage: CookiesPage;
 let termsConditionsPage: TermsConditionsPage; // Initializing the TermsConditionsPage class
 
-Then('they should navigate to Terms and conditions page', async ({ page }) => {
+Then('they should navigate to terms page and have title {string}', async ({ page }, title) => {
 
   termsConditionsPage = new TermsConditionsPage(page)
-  await expect(page).toHaveTitle('Terms and conditions - Cohort Manager - NHS');
+  await expect(page).toHaveTitle(title);
 
 });
 
-Then('they should navigate to cookies page', async ({ page }) => {
+Then('they should navigate to cookies page and have title {string}', async ({ page }, title) => {
 
   cookiesPage = new CookiesPage(page)
-  await expect(page).toHaveTitle('Cookies on Cohort Manager - Cohort Manager - NHS');
+  await expect(page).toHaveTitle(title);
 
 });
 Given('the User navigate to terms and conditions page', async ({ page }) => {
