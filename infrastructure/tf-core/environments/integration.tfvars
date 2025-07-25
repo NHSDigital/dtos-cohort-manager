@@ -243,7 +243,6 @@ function_apps = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
       app_service_plan_key         = "DefaultPlan"
-      producer_to_service_bus      = ["dtoss-nsp"]
       db_connection_string         = "DtOsDatabaseConnectionString"
       service_bus_connections      = ["internal"]
       storage_account_env_var_name = "caasfolder_STORAGE"
@@ -251,18 +250,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "PMSAddParticipant"
-          function_app_key = "AddParticipant"
-        },
-        {
-          env_var_name     = "PMSRemoveParticipant"
-          function_app_key = "RemoveParticipant"
-        },
-        {
-          env_var_name     = "PMSUpdateParticipant"
-          function_app_key = "UpdateParticipant"
         },
         {
           env_var_name     = "StaticValidationURL"
