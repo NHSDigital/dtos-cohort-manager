@@ -4,7 +4,7 @@ on:
   push:
     #branches: [ main ]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -21,8 +21,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
-          cache: 'npm'
+          node-version: "22"
+          cache: "npm"
           cache-dependency-path: application/CohortManager/src/Web/package-lock.json
 
       - name: Install dependencies
@@ -34,6 +34,7 @@ jobs:
       - name: Start application and run tests
         env:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          SERVICE_NAME: ${{ vars.SERVICE_NAME }}
         run: |
           # Start the app in background
           npm run dev:secure &
