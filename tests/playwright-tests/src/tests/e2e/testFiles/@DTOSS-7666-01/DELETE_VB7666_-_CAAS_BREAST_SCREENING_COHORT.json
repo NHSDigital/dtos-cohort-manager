@@ -9,26 +9,16 @@
         "RecordType": "DELETE",
         "EligibilityFlag": 1,
         "ExceptionFlag": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-7666-01",
-        "requirementJiraId": "DTOSS-2622",
-        "additionalTags": "@regression @e2e @epic4b-block-tests AC04 - Verify audit logs are updated for blocked participant - DELETE"
       }
     },
     {
       "validations": {
-        "apiEndpoint": "api/BsSelectRequestAudit",
+        "apiEndpoint": "api/api/BsSelectRequestAudit",
         "NHSNumber": "9990321532",
         "BlockedFlag": 1,
         "ActionType": "Delete",
         "Status": "Rejected",
         "Details": "Participant is marked as blocked"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-7666-01",
-        "requirementJiraId": "DTOSS-2622",
-        "additionalTags": "@regression @e2e @epic4b-block-tests AC04 - Verify audit logs are updated for blocked participant - DELETE"
       }
     }
   ],

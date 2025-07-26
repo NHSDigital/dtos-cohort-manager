@@ -9,11 +9,6 @@
         "RecordType": "ADD",
         "EligibilityFlag": "1",
         "ExceptionFlag": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-7664-01",
-        "requirementJiraId": "DTOSS-2622",
-        "additionalTags": "@regression @e2e @epic4b-block-tests AC04 - Verify audit logs are updated for blocked participant - ADD"
       }
     },
     {
@@ -28,7 +23,7 @@
     },
     {
       "validations": {
-        "apiEndpoint": "api/BsSelectRequestAudit",
+        "apiEndpoint": "api/api/BsSelectRequestAudit",
         "NHSNumber": "9990321530",
         "expectedCount": 2,
         "BlockedFlag": 1,
@@ -39,7 +34,7 @@
     },
     {
       "validations": {
-        "apiEndpoint": "api/BsSelectRequestAudit",
+        "apiEndpoint": "api/api/BsSelectRequestAudit",
         "NHSNumber": "9990321530",
         "expectedCount": 2,
         "ActionType": "Add",
@@ -90,5 +85,7 @@
       "EligibilityFlag": "1"
     }
   ],
-  "nhsNumbers": ["9990321530"]
+  "nhsNumbers": [
+    "9990321530"
+  ]
 }

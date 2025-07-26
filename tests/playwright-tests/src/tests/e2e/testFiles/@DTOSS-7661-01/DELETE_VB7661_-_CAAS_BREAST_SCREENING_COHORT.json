@@ -9,11 +9,6 @@
         "RecordType": "DELETE",
         "EligibilityFlag": 1,
         "ExceptionFlag": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-7661-01",
-        "requirementJiraId": "DTOSS-2622",
-        "additionalTags": "@regression @e2e @epic4b-block-tests AC02 - Verify no NBO exception raised for blocked participant - Delete"
       }
     },
     {
@@ -76,5 +71,7 @@
       "eligibility": true
     }
   ],
-  "nhsNumbers": ["9990321529"]
+  "nhsNumbers": [
+    "9990321529"
+  ]
 }

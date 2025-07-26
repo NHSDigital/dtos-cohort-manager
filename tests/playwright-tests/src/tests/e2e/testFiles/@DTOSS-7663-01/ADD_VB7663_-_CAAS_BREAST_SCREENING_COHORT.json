@@ -9,11 +9,6 @@
         "RecordType": "ADD",
         "EligibilityFlag": "1",
         "ExceptionFlag": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-7663-01",
-        "requirementJiraId": "DTOSS-2622",
-        "additionalTags": "@regression @e2e @epic4b-block-tests AC03 - Verify no NBO exception when blocked ineligible participant becomes eligible - ADD"
       }
     },
     {
@@ -76,5 +71,7 @@
       "EligibilityFlag": "1"
     }
   ],
-  "nhsNumbers": ["9997663001"]
+  "nhsNumbers": [
+    "9997663001"
+  ]
 }

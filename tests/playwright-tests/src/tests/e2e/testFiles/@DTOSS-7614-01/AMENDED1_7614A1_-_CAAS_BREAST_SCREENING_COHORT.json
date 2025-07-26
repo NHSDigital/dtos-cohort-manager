@@ -9,11 +9,6 @@
         "RecordType": "AMENDED",
         "EligibilityFlag": 1,
         "ExceptionFlag": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-7614-01",
-        "requirementJiraId": "DTOSS-2622",
-        "additionalTags": "@regression @e2e @epic4b-block-tests AC01 - Verify block a participant not processed to COHORT - AMEND"
       }
     },
     {
@@ -70,5 +65,7 @@
       "eligibility": true
     }
   ],
-  "nhsNumbers": ["9997614001"]
+  "nhsNumbers": [
+    "9997614001"
+  ]
 }

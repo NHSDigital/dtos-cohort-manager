@@ -9,11 +9,6 @@
         "RecordType": "DELETE",
         "EligibilityFlag": 1,
         "ExceptionFlag": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-7615-01",
-        "requirementJiraId": "DTOSS-2622",
-        "additionalTags": "@regression @e2e @epic4b-block-tests AC01 - Verify blocked participant deletion is not processed to cohort distribution"
       }
     },
     {
@@ -75,5 +70,7 @@
       "eligibility": true
     }
   ],
-  "nhsNumbers": ["9997615001"]
+  "nhsNumbers": [
+    "9997615001"
+  ]
 }
