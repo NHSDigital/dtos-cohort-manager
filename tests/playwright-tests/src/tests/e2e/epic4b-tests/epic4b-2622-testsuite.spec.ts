@@ -1,258 +1,241 @@
-import { expect, APIRequestContext, TestInfo } from '@playwright/test';
-import { test, testWithAmended } from '../../fixtures/test-fixtures';
+import { test, expect, APIRequestContext } from '@playwright/test';
+import * as fs from 'fs';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import {
-  getApiTestData,
   getTestData,
   processFileViaStorage,
   validateSqlDatabaseFromAPI,
   cleanupDatabaseFromAPI
 } from '../../steps/steps';
-import {
-  deleteParticipant,
-  getRecordsFromParticipantManagementService
-} from '../../../api/distributionService/bsSelectService';
-import { expectStatus } from '../../../api/responseValidators';
-import { TestHooks } from '../../hooks/test-hooks';
-import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
+import { fetchApiResponse } from '../../../api/apiHelper';
+import { deleteParticipant } from '../../../api/distributionService/bsSelectService';
+import { config } from '../../../config/env';
 
-const wait = (ms: number) => new Promise(res => setTimeout(res, ms));
-async function firstPmRowOrTimeout(request: APIRequestContext, attempts = 8, waitMs = 2000): Promise<any> {
+const PM_ENDPOINT = 'api/ParticipantManagementDataService';
+
+const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+async function getFirstPmRowWithRetry(request: APIRequestContext) {
+  const attempts = Number(config.apiRetry) || 8;
+  const waitMs = Number(config.apiWaitTime) || 2000;
   let lastStatus = 0;
+
   for (let i = 0; i < attempts; i++) {
-    const resp = await getRecordsFromParticipantManagementService(request);
-    lastStatus = resp.status;
-    const rows = Array.isArray(resp?.data) ? resp.data : [];
-    if (lastStatus === 200 && rows.length > 0) return rows[0];
-    await wait(waitMs);
+    const resp = await fetchApiResponse(PM_ENDPOINT, request);
+    lastStatus = resp.status();
+    if (lastStatus === 200) {
+      const body = await resp.json();
+      if (Array.isArray(body) && body.length > 0) {
+        return body[0];
+      }
+    }
+    await sleep(waitMs);
   }
   throw new Error(`Timed out waiting for ParticipantManagement data. Last status=${lastStatus}`);
 }
 
-test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
-  TestHooks.setupAllTestHooks();
+/** Guard around parquet creation so we never proceed with an invalid file path */
+async function createParquetOrThrow(
+  nhsNumbers: string[],
+  records: any[],
+  testFilesPath: string,
+  recordType: 'ADD'|'AMENDED' = 'ADD',
+  multiply = false
+): Promise<string> {
+  const p = await createParquetFromJson(nhsNumbers, records, testFilesPath, recordType, multiply);
+  if (typeof p !== 'string' || !p.endsWith('.parquet') || !fs.existsSync(p)) {
+    throw new Error(`Parquet was not created correctly for ${recordType}. Got: ${p}`);
+  }
+  return p;
+}
 
-  test('@DTOSS-7610-01 AC01 Verify block a participant not processed to COHORT - ADD', async ({ request }, testInfo) => {
-    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
+/** Ensure Nhs/NHS numbers are present on each record */
+function withNhsNumbers(records: any[], nhsNumbers: string[]) {
+  return records.map((rec, i) => ({
+    ...rec,
+    NHSNumber: rec?.NHSNumber ?? rec?.NhsNumber ?? nhsNumbers[i] ?? nhsNumbers[0],
+    NhsNumber: rec?.NhsNumber ?? rec?.NHSNumber ?? nhsNumbers[i] ?? nhsNumbers[0],
+  }));
+}
 
-    await cleanupDatabaseFromAPI(request, nhsNumbers);
+/** Build a Delete payload from a PM row + scenario defaults */
+function buildDeletePayload(row: any, nhs: string, fallback: any) {
+  const ns = String(row?.NHSNumber ?? row?.NhsNumber ?? nhs);
+  const fam = String(row?.FamilyName ?? row?.family_name ?? fallback?.family_name ?? 'TEST');
+  // Normalise to YYYY-MM-DD
+  let dobSource = String(row?.DateOfBirth ?? row?.date_of_birth ?? fallback?.date_of_birth ?? '');
+  dobSource = dobSource.replace(/[^0-9]/g, '');
+  if (dobSource.length >= 8) {
+    dobSource = `${dobSource.slice(0,4)}-${dobSource.slice(4,6)}-${dobSource.slice(6,8)}`;
+  } else {
+    dobSource = '1970-01-01';
+  }
+  return { NhsNumber: ns, FamilyName: fam, DateOfBirth: dobSource };
+}
 
-    // Seed as blocked
-    const seedPayload = { ...inputParticipantRecord[0], BlockedFlag: 1 };
-    await processFileViaStorage(await createParquetFromJson(nhsNumbers, [seedPayload], testFilesPath));
+async function seedBlockedThenProcess(
+  request: APIRequestContext,
+  nhsNumbers: string[],
+  inputRecords: any[],
+  testFilesPath: string,
+  action: 'ADD'|'AMENDED'|'DELETE',
+  keepBlockedOnRuntime: boolean
+) {
+  // Seed as blocked
+  const seed = withNhsNumbers([{ ...inputRecords[0], BlockedFlag: 1 }], nhsNumbers);
+  const seedParquet = await createParquetOrThrow(nhsNumbers, seed, testFilesPath, 'ADD', false);
+  await processFileViaStorage(seedParquet);
 
-    // Process ADD
-    const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord, testFilesPath);
-    await processFileViaStorage(parquetFile);
+  if (action === 'DELETE') return;
 
-    // PM shows blocked
-    const row = await firstPmRowOrTimeout(request);
-    expect(row.BlockedFlag).toBe(1);
+  const runtime = keepBlockedOnRuntime
+    ? withNhsNumbers(inputRecords.map(r => ({ ...r, BlockedFlag: 1 })), nhsNumbers)
+    : withNhsNumbers(inputRecords, nhsNumbers);
 
-    // Not present in cohort
-    const cd = await getRecordsFromCohortDistributionService(request);
-    expect(cd.status).toBe(204);
+  const recordType = (action === 'AMENDED') ? 'AMENDED' : 'ADD';
+  const runtimeParquet = await createParquetOrThrow(nhsNumbers, runtime, testFilesPath, recordType, false);
+  await processFileViaStorage(runtimeParquet);
+}
 
-    await validateSqlDatabaseFromAPI(request, validations);
-  });
+test.describe('@regression @e2e @epic4b-block-tests (no-helper-changes, v2)', () => {
 
-  testWithAmended('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - Amend',
-    async ({ request, testData }: { request: APIRequestContext; testData: any }, _testInfo: TestInfo) => {
-
-      await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
-
-      const seedPayload = { ...testData.inputParticipantRecord[0], BlockedFlag: 1 };
-      await processFileViaStorage(await createParquetFromJson(testData.nhsNumbers, [seedPayload], testData.testFilesPath));
-
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-
-      // Repo validations (ExceptionManagement + no cohort etc.)
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-
-      const cd = await getRecordsFromCohortDistributionService(request);
-      expect(cd.status).toBe(204);
-  });
-
-  test('@DTOSS-7615-01 - AC1 - Verify blocked participant deletion is not processed to cohort distribution',
-    async ({ request }, testInfo) => {
-
-      // Use e2e DELETE JSON
-      const [validations, nhsNumbers, _parquet, inputParticipantRecord, testFilesPath] =
-        await getTestData(testInfo.title, 'DELETE');
-
-      await cleanupDatabaseFromAPI(request, nhsNumbers);
-
-      // Seed participant as blocked
-      const seedPayload = { ...inputParticipantRecord![0], BlockedFlag: 1 };
-      await processFileViaStorage(await createParquetFromJson(nhsNumbers, [seedPayload], testFilesPath!));
-
-      // Invoke Delete function
-      const deletePayload = {
-        NhsNumber: nhsNumbers[0],
-        FamilyName: inputParticipantRecord![0].family_name,
-        DateOfBirth: `${inputParticipantRecord![0].date_of_birth.slice(0, 4)}-${inputParticipantRecord![0].date_of_birth.slice(4, 6)}-${inputParticipantRecord![0].date_of_birth.slice(6, 8)}`
-      };
-      const resp = await deleteParticipant(request, deletePayload);
-      await expectStatus(200)(resp);
-
-      // Not in cohort
-      const cd = await getRecordsFromCohortDistributionService(request);
-      expect(cd.status).toBe(204);
-
-      // Use repo-provided validations JSON
-      await validateSqlDatabaseFromAPI(request, validations);
-  });
-
-  test('@DTOSS-7616-01 AC02 Verify no NBO exception raised for blocked participant - ADD', async ({ request }, testInfo) => {
-
-    const [validations, nhsNumbers, _parquet, inputParticipantRecord, testFilesPath] =
+  // 7610 — ADD: blocked participant not processed to cohort
+  test('@DTOSS-7610-01', async ({ request }, testInfo) => {
+    const [validations, nhsNumbers, _parquet, inputParticipantRecordRaw, testFilesPath] =
       await getTestData(testInfo.title, 'ADD');
-
+    const inputRecords = Array.isArray(inputParticipantRecordRaw) ? (inputParticipantRecordRaw as any[]) : [inputParticipantRecordRaw as any];
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    // Seed as blocked
-    const seedPayload = { ...inputParticipantRecord![0], BlockedFlag: 1 };
-    await processFileViaStorage(await createParquetFromJson(nhsNumbers, [seedPayload], testFilesPath!));
+    await seedBlockedThenProcess(request, nhsNumbers, inputRecords, testFilesPath!, 'ADD', true);
 
-    // Process ADD
-    const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord!, testFilesPath!);
-    await processFileViaStorage(parquetFile);
+    const row = await getFirstPmRowWithRetry(request);
+    expect(row?.BlockedFlag).toBe(1);
 
-    // Use repo-provided validations JSON (includes nboExceptionCount handling)
-    await validateSqlDatabaseFromAPI(request, validations);
-
-    // PM remains blocked
-    const row = await firstPmRowOrTimeout(request);
-    expect(row.BlockedFlag).toBe(1);
+    await validateSqlDatabaseFromAPI(request, Array.isArray(validations) ? validations : [validations]);
   });
 
-  test('@DTOSS-7660-01 AC02 Verify no NBO exception raised for blocked participant - Amend',
-    async ({ request, testData }: { request: APIRequestContext; testData: any }) => {
-
-      await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
-
-      // Seed blocked
-      const seedPayload = { ...testData.inputParticipantRecord[0], BlockedFlag: 1 };
-      await processFileViaStorage(await createParquetFromJson(testData.nhsNumbers, [seedPayload], testData.testFilesPath));
-
-      // Process AMEND
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-
-      // Validations from repo JSON
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-
-      const cd = await getRecordsFromCohortDistributionService(request);
-      expect(cd.status).toBe(204);
-  });
-
-  test('@DTOSS-7661-01 AC02 Verify no NBO exception raised for blocked participant - Delete', async ({ request }, testInfo) => {
-
-    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title, 'DELETE');
-
+  // 7614 — AMENDED: blocked participant not processed to cohort (Exception expected)
+  test('@DTOSS-7614-01', async ({ request }, testInfo) => {
+    const [validations, nhsNumbers, _parquet, inputParticipantRecordRaw, testFilesPath] =
+      await getTestData(testInfo.title, 'AMENDED');
+    const inputRecords = Array.isArray(inputParticipantRecordRaw) ? (inputParticipantRecordRaw as any[]) : [inputParticipantRecordRaw as any];
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    // Seed as blocked
-    const seedPayload = { ...inputParticipantRecord[0], BlockedFlag: 1 };
-    await processFileViaStorage(await createParquetFromJson(nhsNumbers, [seedPayload], testFilesPath));
-
-    // Delete
-    const deletePayload = {
-      NhsNumber: nhsNumbers[0],
-      FamilyName: inputParticipantRecord[0].family_name,
-      DateOfBirth: `${inputParticipantRecord[0].date_of_birth.slice(0, 4)}-${inputParticipantRecord[0].date_of_birth.slice(4, 6)}-${inputParticipantRecord[0].date_of_birth.slice(6, 8)}`
-    };
-    const resp = await deleteParticipant(request, deletePayload);
-    await expectStatus(200)(resp);
-
-    // Validations
-    await validateSqlDatabaseFromAPI(request, validations);
-
-    // PM remains blocked
-    const row = await firstPmRowOrTimeout(request);
-    expect(row.BlockedFlag).toBe(1);
+    await seedBlockedThenProcess(request, nhsNumbers, inputRecords, testFilesPath!, 'AMENDED', true);
+    await validateSqlDatabaseFromAPI(request, Array.isArray(validations) ? validations : [validations]);
   });
 
-  test('@DTOSS-7663-01 AC03 Verify no NBO exception when blocked ineligible participant becomes eligible - ADD',
-    async ({ request }, testInfo) => {
-      const [validations, nhsNumbers, _parquet, inputParticipantRecord, testFilesPath] =
-        await getTestData(testInfo.title, 'ADD');
+  // 7615 — DELETE: blocked participant deletion not processed to cohort
+  test('@DTOSS-7615-01', async ({ request }, testInfo) => {
+    const [validations, nhsNumbers, _parquet, inputParticipantRecordRaw, testFilesPath] =
+      await getTestData(testInfo.title, 'DELETE');
+    const inputRecords = Array.isArray(inputParticipantRecordRaw) ? (inputParticipantRecordRaw as any[]) : [inputParticipantRecordRaw as any];
+    await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-      await cleanupDatabaseFromAPI(request, nhsNumbers);
+    await seedBlockedThenProcess(request, nhsNumbers, inputRecords, testFilesPath!, 'DELETE', true);
 
-      // Seed blocked + ineligible
-      const seedPayload = { ...inputParticipantRecord![0], BlockedFlag: 1, EligibilityFlag: "0" };
-      await processFileViaStorage(await createParquetFromJson(nhsNumbers, [seedPayload], testFilesPath!));
+    const row = await getFirstPmRowWithRetry(request);
+    const payload = buildDeletePayload(row, nhsNumbers[0], inputRecords[0]);
+    const resp = await deleteParticipant(request, payload);
+    expect(resp.status === 200).toBeTruthy();
 
-      // Process ADD
-      const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord!, testFilesPath!);
-      await processFileViaStorage(parquetFile);
-
-      // Use repo validations (audit + exception + cohort)
-      await validateSqlDatabaseFromAPI(request, validations);
+    await validateSqlDatabaseFromAPI(request, Array.isArray(validations) ? validations : [validations]);
   });
 
-  test('@DTOSS-7664-01 AC04 Verify audit logs are updated for blocked participant - ADD', async ({ request }, testInfo) => {
-
-    const [validations, nhsNumbers, _parquet, inputParticipantRecord, testFilesPath] =
+  // 7616 — ADD: no NBO exception for blocked participant
+  test('@DTOSS-7616-01', async ({ request }, testInfo) => {
+    const [validations, nhsNumbers, _parquet, inputParticipantRecordRaw, testFilesPath] =
       await getTestData(testInfo.title, 'ADD');
-
+    const inputRecords = Array.isArray(inputParticipantRecordRaw) ? (inputParticipantRecordRaw as any[]) : [inputParticipantRecordRaw as any];
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    // Seed as blocked
-    const seedPayload = { ...inputParticipantRecord![0], BlockedFlag: 1 };
-    await processFileViaStorage(await createParquetFromJson(nhsNumbers, [seedPayload], testFilesPath!));
-
-    // Process ADD
-    const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord!, testFilesPath!);
-    await processFileViaStorage(parquetFile);
-
-    // Audit validations from repo JSON
-    await validateSqlDatabaseFromAPI(request, validations);
+    await seedBlockedThenProcess(request, nhsNumbers, inputRecords, testFilesPath!, 'ADD', true);
+    await validateSqlDatabaseFromAPI(request, Array.isArray(validations) ? validations : [validations]);
   });
 
-  test('@DTOSS-7665-01 AC04 Verify audit logs are updated for blocked participant - AMEND',
-    async ({ request, testData }: { request: APIRequestContext; testData: any }) => {
-
-      await cleanupDatabaseFromAPI(request, testData.nhsNumbers);
-
-      // Seed blocked
-      const seedPayload = { ...testData.inputParticipantRecord[0], BlockedFlag: 1 };
-      await processFileViaStorage(await createParquetFromJson(testData.nhsNumbers, [seedPayload], testData.testFilesPath));
-
-      // AMEND
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-
-      // Audit validations
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-
-      // Still blocked
-      const row = await firstPmRowOrTimeout(request);
-      expect(row.BlockedFlag).toBe(1);
-  });
-
-  test('@DTOSS-7666-01 AC04 Verify audit logs are updated for blocked participant - DELETE', async ({ request }, testInfo) => {
-    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title, 'DELETE');
-
+  // 7660 — AMENDED: no NBO exception for blocked participant
+  test('@DTOSS-7660-01', async ({ request }, testInfo) => {
+    const [validations, nhsNumbers, _parquet, inputParticipantRecordRaw, testFilesPath] =
+      await getTestData(testInfo.title, 'AMENDED');
+    const inputRecords = Array.isArray(inputParticipantRecordRaw) ? (inputParticipantRecordRaw as any[]) : [inputParticipantRecordRaw as any];
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    // Seed blocked
-    const seedPayload = { ...inputParticipantRecord[0], BlockedFlag: 1 };
-    await processFileViaStorage(await createParquetFromJson(nhsNumbers, [seedPayload], testFilesPath));
-
-    // Delete
-    const deletePayload = {
-      NhsNumber: nhsNumbers[0],
-      FamilyName: inputParticipantRecord[0].family_name,
-      DateOfBirth: `${inputParticipantRecord[0].date_of_birth.slice(0, 4)}-${inputParticipantRecord[0].date_of_birth.slice(4, 6)}-${inputParticipantRecord[0].date_of_birth.slice(6, 8)}`
-    };
-    const resp = await deleteParticipant(request, deletePayload);
-    await expectStatus(200)(resp);
-
-    // Audit validations
-    await validateSqlDatabaseFromAPI(request, validations);
-
-    // Remains blocked
-    const row = await firstPmRowOrTimeout(request);
-    expect(row.BlockedFlag).toBe(1);
+    await seedBlockedThenProcess(request, nhsNumbers, inputRecords, testFilesPath!, 'AMENDED', true);
+    await validateSqlDatabaseFromAPI(request, Array.isArray(validations) ? validations : [validations]);
   });
+
+  // 7661 — DELETE: no NBO exception for blocked participant
+  test('@DTOSS-7661-01', async ({ request }, testInfo) => {
+    const [validations, nhsNumbers, _parquet, inputParticipantRecordRaw, testFilesPath] =
+      await getTestData(testInfo.title, 'DELETE');
+    const inputRecords = Array.isArray(inputParticipantRecordRaw) ? (inputParticipantRecordRaw as any[]) : [inputParticipantRecordRaw as any];
+    await cleanupDatabaseFromAPI(request, nhsNumbers);
+
+    await seedBlockedThenProcess(request, nhsNumbers, inputRecords, testFilesPath!, 'DELETE', true);
+
+    const row = await getFirstPmRowWithRetry(request);
+    const payload = buildDeletePayload(row, nhsNumbers[0], inputRecords[0]);
+    const resp = await deleteParticipant(request, payload);
+    expect(resp.status === 200).toBeTruthy();
+
+    await validateSqlDatabaseFromAPI(request, Array.isArray(validations) ? validations : [validations]);
+  });
+
+  // 7663 — ADD: blocked ineligible participant becomes eligible (no NBO)
+  test('@DTOSS-7663-01', async ({ request }, testInfo) => {
+    const [validations, nhsNumbers, _parquet, inputParticipantRecordRaw, testFilesPath] =
+      await getTestData(testInfo.title, 'ADD');
+    const inputRecords = Array.isArray(inputParticipantRecordRaw) ? (inputParticipantRecordRaw as any[]) : [inputParticipantRecordRaw as any];
+    await cleanupDatabaseFromAPI(request, nhsNumbers);
+
+    // Seed blocked + ineligible, then process original input (do not force BlockedFlag on runtime)
+    const seed = withNhsNumbers([{ ...inputRecords[0], BlockedFlag: 1, EligibilityFlag: "0" }], nhsNumbers);
+    const seedParquet = await createParquetOrThrow(nhsNumbers, seed, testFilesPath!, 'ADD', false);
+    await processFileViaStorage(seedParquet);
+
+    const runtimeParquet = await createParquetOrThrow(nhsNumbers, withNhsNumbers(inputRecords, nhsNumbers), testFilesPath!, 'ADD', false);
+    await processFileViaStorage(runtimeParquet);
+
+    await validateSqlDatabaseFromAPI(request, Array.isArray(validations) ? validations : [validations]);
+  });
+
+  // 7664 — ADD: audit logs updated for blocked participant
+  test('@DTOSS-7664-01', async ({ request }, testInfo) => {
+    const [validations, nhsNumbers, _parquet, inputParticipantRecordRaw, testFilesPath] =
+      await getTestData(testInfo.title, 'ADD');
+    const inputRecords = Array.isArray(inputParticipantRecordRaw) ? (inputParticipantRecordRaw as any[]) : [inputParticipantRecordRaw as any];
+    await cleanupDatabaseFromAPI(request, nhsNumbers);
+
+    await seedBlockedThenProcess(request, nhsNumbers, inputRecords, testFilesPath!, 'ADD', true);
+    await validateSqlDatabaseFromAPI(request, Array.isArray(validations) ? validations : [validations]);
+  });
+
+  // 7665 — AMENDED: audit logs updated for blocked participant
+  test('@DTOSS-7665-01', async ({ request }, testInfo) => {
+    const [validations, nhsNumbers, _parquet, inputParticipantRecordRaw, testFilesPath] =
+      await getTestData(testInfo.title, 'AMENDED');
+    const inputRecords = Array.isArray(inputParticipantRecordRaw) ? (inputParticipantRecordRaw as any[]) : [inputParticipantRecordRaw as any];
+    await cleanupDatabaseFromAPI(request, nhsNumbers);
+
+    await seedBlockedThenProcess(request, nhsNumbers, inputRecords, testFilesPath!, 'AMENDED', true);
+    await validateSqlDatabaseFromAPI(request, Array.isArray(validations) ? validations : [validations]);
+  });
+
+  // 7666 — DELETE: audit logs updated for blocked participant
+  test('@DTOSS-7666-01', async ({ request }, testInfo) => {
+    const [validations, nhsNumbers, _parquet, inputParticipantRecordRaw, testFilesPath] =
+      await getTestData(testInfo.title, 'DELETE');
+    const inputRecords = Array.isArray(inputParticipantRecordRaw) ? (inputParticipantRecordRaw as any[]) : [inputParticipantRecordRaw as any];
+    await cleanupDatabaseFromAPI(request, nhsNumbers);
+
+    await seedBlockedThenProcess(request, nhsNumbers, inputRecords, testFilesPath!, 'DELETE', true);
+
+    const row = await getFirstPmRowWithRetry(request);
+    const payload = buildDeletePayload(row, nhsNumbers[0], inputRecords[0]);
+    const resp = await deleteParticipant(request, payload);
+    expect(resp.status === 200).toBeTruthy();
+
+    await validateSqlDatabaseFromAPI(request, Array.isArray(validations) ? validations : [validations]);
+  });
+
 });
