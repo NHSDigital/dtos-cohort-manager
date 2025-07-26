@@ -3,39 +3,51 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": "9990321532",
-        "BlockedFlag": 0,
+        "NHSNumber": "9990321528",
+        "BlockedFlag": 1,
         "expectedCount": 1,
-        "RecordType": "ADD",
-        "EligibilityFlag": "1",
+        "RecordType": "AMENDED",
+        "EligibilityFlag": 1,
         "ExceptionFlag": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-7666-01",
-        "requirementJiraId": "DTOSS-2622",
-        "additionalTags": "@regression @e2e @epic4b-block-tests AC04 - Verify audit logs are updated for blocked participant - DELETE"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NHSNumber": "9990321528",
+        "expectedCount": 1,
+        "nboExceptionCount": 0,
+        "Category": "CaaS",
+        "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": "9990321528",
+        "expectedCount": 1
       }
     }
   ],
   "inputParticipantRecord": [
     {
-      "record_type": "ADD",
+      "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": "9990321532",
+      "nhs_number": "9990321528",
       "superseded_by_nhs_number": null,
       "primary_care_provider": "A12345",
       "primary_care_effective_from_date": "20240101",
       "current_posting": "BD",
       "current_posting_effective_from_date": "20240101",
       "name_prefix": "Mrs",
-      "given_name": "ALICE",
+      "given_name": "JANET",
       "other_given_name": null,
-      "family_name": "TESTBLOCKSEVEN",
+      "family_name": "TESTBLOCKTHREE",
       "previous_family_name": null,
-      "date_of_birth": "19720816",
+      "date_of_birth": "19560312",
       "gender": 1,
-      "address_line_1": "50 TEST STREET",
+      "address_line_1": "42 TEST STREET",
       "address_line_2": "TESTLAND",
       "address_line_3": null,
       "address_line_4": null,
@@ -56,8 +68,10 @@
       "preferred_language": "en",
       "is_interpreter_required": false,
       "invalid_flag": false,
-      "EligibilityFlag": "1"
+      "eligibility": true
     }
   ],
-  "nhsNumbers": ["9990321532"]
+  "nhsNumbers": [
+    "9990321528"
+  ]
 }

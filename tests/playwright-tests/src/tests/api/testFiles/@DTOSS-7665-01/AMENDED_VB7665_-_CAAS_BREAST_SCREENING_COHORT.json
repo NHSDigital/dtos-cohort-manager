@@ -3,18 +3,18 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": "9990321529",
+        "NHSNumber": "9990321531",
         "BlockedFlag": 1,
         "expectedCount": 1,
-        "RecordType": "DELETE",
-        "EligibilityFlag": 1,
+        "RecordType": "AMENDED",
+        "EligibilityFlag": "1",
         "ExceptionFlag": 0
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NHSNumber": "9990321529",
+        "NHSNumber": "9990321531",
         "expectedCount": 1,
         "nboExceptionCount": 0,
         "Category": "CaaS",
@@ -23,31 +23,45 @@
     },
     {
       "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": "9990321529",
-        "expectedCount": 1
+        "apiEndpoint": "api/BsSelectRequestAudit",
+        "NHSNumber": "9990321531",
+        "expectedCount": 2,
+        "BlockedFlag": 1,
+        "ActionType": "Block",
+        "Status": "Success",
+        "Details": "Participant blocked flag updated successfully"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/BsSelectRequestAudit",
+        "NHSNumber": "9990321531",
+        "expectedCount": 2,
+        "ActionType": "Amend",
+        "Status": "Rejected",
+        "Details": "Participant is marked as blocked"
       }
     }
   ],
   "inputParticipantRecord": [
     {
-      "record_type": "DELETE",
+      "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": "9990321529",
+      "nhs_number": "9990321531",
       "superseded_by_nhs_number": null,
       "primary_care_provider": "A12345",
       "primary_care_effective_from_date": "20240101",
       "current_posting": "BD",
       "current_posting_effective_from_date": "20240101",
-      "name_prefix": "Ms",
-      "given_name": "SARAH",
+      "name_prefix": "Miss",
+      "given_name": "MARY",
       "other_given_name": null,
-      "family_name": "TESTBLOCKFOUR",
+      "family_name": "TESTBLOCKSIX",
       "previous_family_name": null,
-      "date_of_birth": "19670423",
+      "date_of_birth": "19890625",
       "gender": 1,
-      "address_line_1": "44 TEST STREET",
+      "address_line_1": "48 TEST STREET",
       "address_line_2": "TESTLAND",
       "address_line_3": null,
       "address_line_4": null,
@@ -68,10 +82,10 @@
       "preferred_language": "en",
       "is_interpreter_required": false,
       "invalid_flag": false,
-      "eligibility": true
+      "EligibilityFlag": "1"
     }
   ],
   "nhsNumbers": [
-    "9990321529"
+    "9990321531"
   ]
 }

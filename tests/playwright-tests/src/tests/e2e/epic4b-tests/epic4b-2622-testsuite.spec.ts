@@ -1,56 +1,17 @@
 import { test, expect, APIRequestContext } from '@playwright/test';
-import * as fs from 'fs';
-import * as path from 'path';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
-import { processFileViaStorage, validateSqlDatabaseFromAPI, cleanupDatabaseFromAPI } from '../../steps/steps';
-import { fetchApiResponse } from '../../../api/apiHelper';
+import {
+  getApiTestData,
+  processFileViaStorage,
+  cleanupDatabaseFromAPI,
+  validateSqlDatabaseFromAPI,
+} from '../../steps/steps';
+import { composeValidators, expectStatus } from '../../../api/responseValidators';
 import { deleteParticipant } from '../../../api/distributionService/bsSelectService';
-import { expectStatus } from '../../../api/responseValidators';
-import { config } from '../../../config/env';
 
-const PM = 'api/ParticipantManagementDataService';
-const CD = 'api/CohortDistributionDataService';
-const EX = 'api/ExceptionManagementDataService';
-
-const sleep = (ms:number)=>new Promise(r=>setTimeout(r,ms));
-
-function scenarioDir(tag: string) {
-  const here = path.resolve(__dirname);
-  return path.resolve(here, '../e2e/testFiles', tag);
-}
-
-function readJson(p: string): any {
-  return JSON.parse(fs.readFileSync(p, 'utf-8'));
-}
-
-function pickActionFile(dir: string, action: 'ADD'|'AMENDED'|'DELETE') {
-  const files = fs.readdirSync(dir).filter(f => f.endsWith('.json'));
-  const upper = files.map(f => f.toUpperCase());
-  const hitIdx = upper.findIndex(u => u.startsWith(action));
-  if (hitIdx >= 0) return path.join(dir, files[hitIdx]);
-  const containsIdx = upper.findIndex(u => u.includes(action));
-  if (containsIdx >= 0) return path.join(dir, files[containsIdx]);
-  throw new Error(`No ${action} json found in ${dir}`);
-}
-
-function normaliseValidations(raw: any): any[] {
-  if (!raw) return [];
-  if (Array.isArray(raw)) return raw;
-  if (raw.validations) return Array.isArray(raw.validations) ? raw.validations : [{ validations: raw.validations }];
-  return [{ validations: raw }];
-}
-
-function normaliseEndpoint(ep?: string): string {
-  if (!ep) return PM;
-  const e = ep.toLowerCase();
-  if (e.includes('cohort')) return CD;
-  if (e.includes('participantmanagement')) return PM;
-  if (e.includes('exception')) return EX;
-  return ep.startsWith('api/') ? ep : `api/${ep}`;
-}
-
-function fixValidationEndpoints(vs: any[]): any[] {
-  return vs.map(x => ({ validations: { ...x.validations, apiEndpoint: normaliseEndpoint(x.validations?.apiEndpoint) } }));
+function asArray<T>(x: T | T[] | undefined): T[] {
+  if (!x) return [];
+  return Array.isArray(x) ? x : [x];
 }
 
 function withNhs(records: any[], nhsNumbers: string[]) {
@@ -61,213 +22,224 @@ function withNhs(records: any[], nhsNumbers: string[]) {
   }));
 }
 
-async function createParquetOrThrow(
-  nhs: string[], recs: any[], testFilesPath: string, kind: 'ADD'|'AMENDED'='ADD', multiply=false
-): Promise<string> {
-  const file = await createParquetFromJson(nhs, recs, testFilesPath, kind, multiply);
-  if (typeof file !== 'string' || !file.endsWith('.parquet') || !fs.existsSync(file)) {
-    throw new Error(`Parquet was not created correctly for ${kind}. Got: ${file}`);
-  }
-  return file;
+function buildDeletePayloadFromInput(nhsNumbers: string[], inputRecords: any[]) {
+  const r0 = inputRecords[0] ?? {};
+  const dobRaw = String(r0.date_of_birth ?? '');
+  const dob = `${dobRaw.slice(0, 4)}-${dobRaw.slice(4, 6)}-${dobRaw.slice(6, 8)}`;
+  return {
+    NhsNumber: String(nhsNumbers[0]),
+    FamilyName: String(r0.family_name ?? 'TEST'),
+    DateOfBirth: dob,
+  };
 }
 
-async function waitForPmRow(request: APIRequestContext, nhs: string) {
-  const attempts = Math.max(Number(config.apiRetry) || 20, 20);
-  const delay = Math.max(Number(config.apiWaitTime) || 5000, 5000);
-  let last = 0;
-  for (let i=0;i<attempts;i++) {
-    const resp = await fetchApiResponse(PM, request);
-    last = resp.status();
-    if (last === 200) {
-      const body = await resp.json();
-      if (Array.isArray(body)) {
-        const row = body.find((r: any) => String(r.NHSNumber ?? r.NhsNumber) === String(nhs)) || body[0];
-        if (row) return row;
-      }
-    }
-    await sleep(delay);
-  }
-  throw new Error(`Timed out waiting for ParticipantManagement data for NHS ${nhs}. Last status=${last}`);
-}
-
-async function loadScenario(tag: string, action: 'ADD'|'AMENDED'|'DELETE') {
-  const dir = scenarioDir(tag);
-  const f = pickActionFile(dir, action);
-  const raw = readJson(f);
-
-  const inputRecords = Array.isArray(raw.inputParticipantRecord) ? raw.inputParticipantRecord
-                        : raw.inputParticipantRecord ? [raw.inputParticipantRecord]
-                        : Array.isArray(raw.records) ? raw.records
-                        : [raw];
-
-  let nhsNumbers: string[] =
-      Array.isArray(raw.nhsNumbers) ? raw.nhsNumbers.map(String)
-    : Array.isArray(raw.NhsNumbers) ? raw.NhsNumbers.map(String)
-    : [];
-
-  const vArray = fixValidationEndpoints(normaliseValidations(raw.validations));
-  if (nhsNumbers.length === 0 && vArray.length) {
-    nhsNumbers = vArray
-      .map(v => String(v.validations.NHSNumber ?? v.validations.NhsNumber))
-      .filter(Boolean);
-  }
-  if (nhsNumbers.length === 0) throw new Error(`No nhsNumbers found in ${f}`);
-
-  return { dir, nhsNumbers, inputRecords, validations: vArray };
-}
-
-function buildDeletePayload(row: any, nhs: string, fallback: any) {
-  const NhsNumber = String(row?.NHSNumber ?? row?.NhsNumber ?? nhs);
-  const FamilyName = String(row?.FamilyName ?? row?.family_name ?? fallback?.family_name ?? 'TEST');
-  let dob = String(row?.DateOfBirth ?? row?.date_of_birth ?? fallback?.date_of_birth ?? '').replace(/[^0-9]/g,'');
-  if (dob.length >= 8) dob = `${dob.slice(0,4)}-${dob.slice(4,6)}-${dob.slice(6,8)}`; else dob = '1970-01-01';
-  return { NhsNumber, FamilyName, DateOfBirth: dob };
-}
-
-async function seedAndProcess(
+async function seedBlockedThenProcess(
   request: APIRequestContext,
-  nhs: string[], recs: any[], dir: string, action: 'ADD'|'AMENDED'|'DELETE', keepBlockedOnRuntime = true
+  nhsNumbers: string[],
+  inputRecords: any[],
+  testFilesPath: string,
+  action: 'ADD' | 'AMENDED' | 'DELETE',
+  keepBlockedOnRuntime: boolean
 ) {
-  // seed as blocked
-  const seed = withNhs([{ ...recs[0], BlockedFlag: 1 }], nhs);
-  const seedP = await createParquetOrThrow(nhs, seed, dir, 'ADD', false);
-  await processFileViaStorage(seedP);
+  // 1) seed as blocked
+  const seed = withNhs([{ ...inputRecords[0], BlockedFlag: 1 }], nhsNumbers);
+  const seedParquet = await createParquetFromJson(nhsNumbers, seed, testFilesPath);
+  await processFileViaStorage(seedParquet);
 
+  // 2) runtime (not for DELETE)
   if (action === 'DELETE') return;
 
   const runtime = keepBlockedOnRuntime
-    ? withNhs(recs.map(r => ({ ...r, BlockedFlag: 1 })), nhs)
-    : withNhs(recs, nhs);
+    ? withNhs(inputRecords.map(r => ({ ...r, BlockedFlag: 1 })), nhsNumbers)
+    : withNhs(inputRecords, nhsNumbers);
 
-  const kind = action === 'AMENDED' ? 'AMENDED' : 'ADD';
-  const runP = await createParquetOrThrow(nhs, runtime, dir, kind, false);
-  await processFileViaStorage(runP);
+  const runParquet = await createParquetFromJson(nhsNumbers, runtime, testFilesPath);
+  await processFileViaStorage(runParquet);
 }
 
-test.describe('@regression @e2e @epic4b-block-tests (final)', () => {
+test.describe.serial('@regression @e2e @epic4b-2622', () => {
+  // 7610 — ADD: blocked participant not processed to cohort
+  test('@DTOSS-7610-01 ADD: blocked not processed to cohort', async ({ request }, testInfo) => {
+    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] =
+      await getApiTestData(testInfo.title, 'ADD');
 
-  test('@DTOSS-7610-01', async ({ request }) => {
-    const tag='@DTOSS-7610-01';
-    const { dir, nhsNumbers, inputRecords, validations } = await loadScenario(tag, 'ADD');
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    await seedAndProcess(request, nhsNumbers, inputRecords, dir, 'ADD', true);
+    await test.step('When a blocked participant ADD is seeded & processed', async () => {
+      await seedBlockedThenProcess(request, nhsNumbers, asArray(inputParticipantRecord), testFilesPath!, 'ADD', true);
+    });
 
-    const row = await waitForPmRow(request, nhsNumbers[0]);
-    expect(row.BlockedFlag).toBe(1);
-
-    await validateSqlDatabaseFromAPI(request, validations);
+    await test.step('Then DB/API validations should pass', async () => {
+      await validateSqlDatabaseFromAPI(request, validations);
+    });
   });
 
-  test('@DTOSS-7614-01', async ({ request }) => {
-    const tag='@DTOSS-7614-01';
-    const { dir, nhsNumbers, inputRecords, validations } = await loadScenario(tag, 'AMENDED');
+  // 7614 — AMENDED: blocked participant not processed to cohort (exception expected)
+  test('@DTOSS-7614-01 AMENDED: blocked not processed to cohort', async ({ request }, testInfo) => {
+    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] =
+      await getApiTestData(testInfo.title, 'AMENDED');
+
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    await seedAndProcess(request, nhsNumbers, inputRecords, dir, 'AMENDED', true);
+    await test.step('When a blocked participant AMENDED is seeded & processed', async () => {
+      await seedBlockedThenProcess(request, nhsNumbers, asArray(inputParticipantRecord), testFilesPath!, 'AMENDED', true);
+    });
 
-    await validateSqlDatabaseFromAPI(request, validations);
+    await test.step('Then DB/API validations should pass', async () => {
+      await validateSqlDatabaseFromAPI(request, validations);
+    });
   });
 
-  test('@DTOSS-7615-01', async ({ request }) => {
-    const tag='@DTOSS-7615-01';
-    const { dir, nhsNumbers, inputRecords, validations } = await loadScenario(tag, 'DELETE');
+  // 7615 — DELETE: blocked participant deletion not processed to cohort
+  test('@DTOSS-7615-01 DELETE: blocked deletion not processed to cohort', async ({ request }, testInfo) => {
+    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] =
+      await getApiTestData(testInfo.title, 'DELETE');
+
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    await seedAndProcess(request, nhsNumbers, inputRecords, dir, 'DELETE', true);
+    await test.step('Given a blocked participant record exists', async () => {
+      await seedBlockedThenProcess(request, nhsNumbers, asArray(inputParticipantRecord), testFilesPath!, 'DELETE', true);
+    });
 
-    const row = await waitForPmRow(request, nhsNumbers[0]);
-    const del = buildDeletePayload(row, nhsNumbers[0], inputRecords[0]);
-    const resp = await deleteParticipant(request, del);
-    await expectStatus(200)(resp);
+    await test.step('When DELETE is requested via API', async () => {
+      const payload = buildDeletePayloadFromInput(nhsNumbers, asArray(inputParticipantRecord));
+      const resp = await deleteParticipant(request, payload);
+      await composeValidators(expectStatus(200))(resp);
+    });
 
-    await validateSqlDatabaseFromAPI(request, validations);
+    await test.step('Then DB/API validations should pass', async () => {
+      await validateSqlDatabaseFromAPI(request, validations);
+    });
   });
 
-  test('@DTOSS-7616-01', async ({ request }) => {
-    const tag='@DTOSS-7616-01';
-    const { dir, nhsNumbers, inputRecords, validations } = await loadScenario(tag, 'ADD');
+  // 7616 — ADD: no NBO exception for blocked participant
+  test('@DTOSS-7616-01 ADD: no NBO exception for blocked participant', async ({ request }, testInfo) => {
+    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] =
+      await getApiTestData(testInfo.title, 'ADD');
+
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    await seedAndProcess(request, nhsNumbers, inputRecords, dir, 'ADD', true);
+    await test.step('When a blocked participant ADD is seeded & processed', async () => {
+      await seedBlockedThenProcess(request, nhsNumbers, asArray(inputParticipantRecord), testFilesPath!, 'ADD', true);
+    });
 
-    await validateSqlDatabaseFromAPI(request, validations);
+    await test.step('Then DB/API validations should pass', async () => {
+      await validateSqlDatabaseFromAPI(request, validations);
+    });
   });
 
-  test('@DTOSS-7660-01', async ({ request }) => {
-    const tag='@DTOSS-7660-01';
-    const { dir, nhsNumbers, inputRecords, validations } = await loadScenario(tag, 'AMENDED');
+  // 7660 — AMENDED: no NBO exception for blocked participant
+  test('@DTOSS-7660-01 AMENDED: no NBO exception for blocked participant', async ({ request }, testInfo) => {
+    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] =
+      await getApiTestData(testInfo.title, 'AMENDED');
+
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    await seedAndProcess(request, nhsNumbers, inputRecords, dir, 'AMENDED', true);
+    await test.step('When a blocked participant AMENDED is seeded & processed', async () => {
+      await seedBlockedThenProcess(request, nhsNumbers, asArray(inputParticipantRecord), testFilesPath!, 'AMENDED', true);
+    });
 
-    await validateSqlDatabaseFromAPI(request, validations);
+    await test.step('Then DB/API validations should pass', async () => {
+      await validateSqlDatabaseFromAPI(request, validations);
+    });
   });
 
-  test('@DTOSS-7661-01', async ({ request }) => {
-    const tag='@DTOSS-7661-01';
-    const { dir, nhsNumbers, inputRecords, validations } = await loadScenario(tag, 'DELETE');
+  // 7661 — DELETE: no NBO exception for blocked participant
+  test('@DTOSS-7661-01 DELETE: no NBO exception for blocked participant', async ({ request }, testInfo) => {
+    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] =
+      await getApiTestData(testInfo.title, 'DELETE');
+
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    await seedAndProcess(request, nhsNumbers, inputRecords, dir, 'DELETE', true);
+    await test.step('Given a blocked participant record exists', async () => {
+      await seedBlockedThenProcess(request, nhsNumbers, asArray(inputParticipantRecord), testFilesPath!, 'DELETE', true);
+    });
 
-    const row = await waitForPmRow(request, nhsNumbers[0]);
-    const del = buildDeletePayload(row, nhsNumbers[0], inputRecords[0]);
-    const resp = await deleteParticipant(request, del);
-    await expectStatus(200)(resp);
+    await test.step('When DELETE is requested via API', async () => {
+      const payload = buildDeletePayloadFromInput(nhsNumbers, asArray(inputParticipantRecord));
+      const resp = await deleteParticipant(request, payload);
+      await composeValidators(expectStatus(200))(resp);
+    });
 
-    await validateSqlDatabaseFromAPI(request, validations);
+    await test.step('Then DB/API validations should pass', async () => {
+      await validateSqlDatabaseFromAPI(request, validations);
+    });
   });
 
-  test('@DTOSS-7663-01', async ({ request }) => {
-    const tag='@DTOSS-7663-01';
-    const { dir, nhsNumbers, inputRecords, validations } = await loadScenario(tag, 'ADD');
+  // 7663 — ADD: blocked ineligible participant becomes eligible (no NBO)
+  test('@DTOSS-7663-01 ADD: blocked ineligible becomes eligible (no NBO)', async ({ request }, testInfo) => {
+    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] =
+      await getApiTestData(testInfo.title, 'ADD');
+
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    // seed blocked + ineligible, then process original input (do not force block on runtime)
-    const seed = withNhs([{ ...inputRecords[0], BlockedFlag: 1, EligibilityFlag: '0' }], nhsNumbers);
-    const seedP = await createParquetOrThrow(nhsNumbers, seed, dir, 'ADD', false);
-    await processFileViaStorage(seedP);
+    await test.step('Given a blocked & ineligible participant is seeded', async () => {
+      const seed = withNhs([{ ...asArray(inputParticipantRecord)[0], BlockedFlag: 1, EligibilityFlag: '0' }], nhsNumbers);
+      const seedParquet = await createParquetFromJson(nhsNumbers, seed, testFilesPath!);
+      await processFileViaStorage(seedParquet);
+    });
 
-    const runP = await createParquetOrThrow(nhsNumbers, withNhs(inputRecords, nhsNumbers), dir, 'ADD', false);
-    await processFileViaStorage(runP);
+    await test.step('When the original ADD is processed', async () => {
+      const runParquet = await createParquetFromJson(nhsNumbers, withNhs(asArray(inputParticipantRecord), nhsNumbers), testFilesPath!);
+      await processFileViaStorage(runParquet);
+    });
 
-    await validateSqlDatabaseFromAPI(request, validations);
+    await test.step('Then DB/API validations should pass', async () => {
+      await validateSqlDatabaseFromAPI(request, validations);
+    });
   });
 
-  test('@DTOSS-7664-01', async ({ request }) => {
-    const tag='@DTOSS-7664-01';
-    const { dir, nhsNumbers, inputRecords, validations } = await loadScenario(tag, 'ADD');
+  // 7664 — ADD: audit logs updated for blocked participant
+  test('@DTOSS-7664-01 ADD: audit logs updated for blocked participant', async ({ request }, testInfo) => {
+    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] =
+      await getApiTestData(testInfo.title, 'ADD');
+
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    await seedAndProcess(request, nhsNumbers, inputRecords, dir, 'ADD', true);
+    await test.step('When a blocked participant ADD is seeded & processed', async () => {
+      await seedBlockedThenProcess(request, nhsNumbers, asArray(inputParticipantRecord), testFilesPath!, 'ADD', true);
+    });
 
-    await validateSqlDatabaseFromAPI(request, validations);
+    await test.step('Then DB/API validations should pass', async () => {
+      await validateSqlDatabaseFromAPI(request, validations);
+    });
   });
 
-  test('@DTOSS-7665-01', async ({ request }) => {
-    const tag='@DTOSS-7665-01';
-    const { dir, nhsNumbers, inputRecords, validations } = await loadScenario(tag, 'AMENDED');
+  // 7665 — AMENDED: audit logs updated for blocked participant
+  test('@DTOSS-7665-01 AMENDED: audit logs updated for blocked participant', async ({ request }, testInfo) => {
+    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] =
+      await getApiTestData(testInfo.title, 'AMENDED');
+
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    await seedAndProcess(request, nhsNumbers, inputRecords, dir, 'AMENDED', true);
+    await test.step('When a blocked participant AMENDED is seeded & processed', async () => {
+      await seedBlockedThenProcess(request, nhsNumbers, asArray(inputParticipantRecord), testFilesPath!, 'AMENDED', true);
+    });
 
-    await validateSqlDatabaseFromAPI(request, validations);
+    await test.step('Then DB/API validations should pass', async () => {
+      await validateSqlDatabaseFromAPI(request, validations);
+    });
   });
 
-  test('@DTOSS-7666-01', async ({ request }) => {
-    const tag='@DTOSS-7666-01';
-    const { dir, nhsNumbers, inputRecords, validations } = await loadScenario(tag, 'DELETE');
+  // 7666 — DELETE: audit logs updated for blocked participant
+  test('@DTOSS-7666-01 DELETE: audit logs updated for blocked participant', async ({ request }, testInfo) => {
+    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] =
+      await getApiTestData(testInfo.title, 'DELETE');
+
     await cleanupDatabaseFromAPI(request, nhsNumbers);
 
-    await seedAndProcess(request, nhsNumbers, inputRecords, dir, 'DELETE', true);
+    await test.step('Given a blocked participant record exists', async () => {
+      await seedBlockedThenProcess(request, nhsNumbers, asArray(inputParticipantRecord), testFilesPath!, 'DELETE', true);
+    });
 
-    const row = await waitForPmRow(request, nhsNumbers[0]);
-    const del = buildDeletePayload(row, nhsNumbers[0], inputRecords[0]);
-    const resp = await deleteParticipant(request, del);
-    await expectStatus(200)(resp);
+    await test.step('When DELETE is requested via API', async () => {
+      const payload = buildDeletePayloadFromInput(nhsNumbers, asArray(inputParticipantRecord));
+      const resp = await deleteParticipant(request, payload);
+      await composeValidators(expectStatus(200))(resp);
+    });
 
-    await validateSqlDatabaseFromAPI(request, validations);
+    await test.step('Then DB/API validations should pass', async () => {
+      await validateSqlDatabaseFromAPI(request, validations);
+    });
   });
-
 });
