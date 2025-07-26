@@ -19,13 +19,11 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "nhsNumber": "9990321530",
+        "NHSNumber": "9990321530",
         "expectedCount": 1,
-        "validations": {
-          "nboExceptionCount": 0,
-          "Category": "CaaS",
-          "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
-        }
+        "nboExceptionCount": 0,
+        "Category": "CaaS",
+        "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
       }
     },
     {
@@ -33,19 +31,20 @@
         "apiEndpoint": "api/BsSelectRequestAudit",
         "NHSNumber": "9990321530",
         "expectedCount": 2,
-        "validations": [
-          {
-            "BlockedFlag": 1,
-            "ActionType": "Block",
-            "Status": "Success",
-            "Details": "Participant blocked flag updated successfully"
-          },
-          {
-            "ActionType": "Add",
-            "Status": "Rejected",
-            "Details": "Participant is marked as blocked"
-          }
-        ]
+        "BlockedFlag": 1,
+        "ActionType": "Block",
+        "Status": "Success",
+        "Details": "Participant blocked flag updated successfully"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/BsSelectRequestAudit",
+        "NHSNumber": "9990321530",
+        "expectedCount": 2,
+        "ActionType": "Add",
+        "Status": "Rejected",
+        "Details": "Participant is marked as blocked"
       }
     }
   ],

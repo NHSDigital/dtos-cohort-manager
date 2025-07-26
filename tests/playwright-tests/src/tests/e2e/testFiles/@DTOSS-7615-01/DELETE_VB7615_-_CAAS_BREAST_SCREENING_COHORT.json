@@ -21,10 +21,15 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NHSNumber": "9997615001",
         "expectedCount": 1,
-        "validations": {
-          "Category": "CaaS",
-          "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
-        }
+        "Category": "CaaS",
+        "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": "9997615001",
+        "expectedCount": 0
       }
     }
   ],

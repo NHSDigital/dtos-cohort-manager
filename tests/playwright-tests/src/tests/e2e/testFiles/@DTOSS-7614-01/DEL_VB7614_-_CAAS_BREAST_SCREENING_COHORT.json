@@ -3,7 +3,7 @@
       {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9995518112",
+        "NHSNumber": "9995518112",
         "RuleId": 12,
         "RuleDescription": "Participant is blocked"
       }

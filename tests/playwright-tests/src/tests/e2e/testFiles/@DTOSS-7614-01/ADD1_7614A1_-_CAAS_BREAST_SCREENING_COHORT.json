@@ -2,7 +2,7 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ParticipantManagementService",
+        "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": "9997614001",
         "BlockedFlag": 0,
         "expectedCount": 1,

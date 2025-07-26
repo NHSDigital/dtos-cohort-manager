@@ -19,13 +19,11 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "nhsNumber": "9997663001",
+        "NHSNumber": "9997663001",
         "expectedCount": 1,
-        "validations": {
-          "nboExceptionCount": 0,
-          "Category": "CaaS",
-          "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
-        }
+        "nboExceptionCount": 0,
+        "Category": "CaaS",
+        "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
       }
     },
     {

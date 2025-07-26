@@ -19,11 +19,9 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "nhsNumber": "9997610001",
-        "validations": {
-          "Category": "CaaS",
-          "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
-        }
+        "NHSNumber": "9997610001",
+        "Category": "CaaS",
+        "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
       }
     }
   ],
@@ -48,10 +46,10 @@
       "address_line_1": "123 Test Street",
       "address_line_2": "Test Area",
       "address_line_3": "Test Town",
-      "address_line_4": "Test County",
+      "address_line_4": null,
       "address_line_5": null,
-      "postcode": "TE1 1ST",
-      "paf_key": "ABCD1234",
+      "postcode": "TS1 1ST",
+      "paf_key": null,
       "address_effective_from_date": "20240101",
       "reason_for_removal": null,
       "reason_for_removal_effective_from_date": null,
@@ -61,8 +59,8 @@
       "home_telephone_effective_from_date": "20240101",
       "mobile_telephone_number": "07700900123",
       "mobile_telephone_effective_from_date": "20240101",
-      "email_address": "alice.test@example.com",
-      "email_address_effective_from_date": "20240101",
+      "email_address": null,
+      "email_address_effective_from_date": null,
       "preferred_language": "en",
       "is_interpreter_required": false,
       "invalid_flag": false,
