@@ -899,6 +899,7 @@ function_apps = {
         IgnoreParticipantExceptions       = "false"
         IsExtractedToBSSelect             = "false"
         AcceptableLatencyThresholdMs      = "500"
+        MaxLookupValidationRetries        = "3"
       }
     }
 
