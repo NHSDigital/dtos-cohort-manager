@@ -153,6 +153,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _logger.LogInformation("sending {Count} records to queue", currentBatch.AddRecords.Count + currentBatch.UpdateRecords.Count);
 
         await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, _config.ParticipantManagementTopic);
+        await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, _config.ParticipantManagementTopic);
 
         foreach (var updateRecords in currentBatch.DeleteRecords)
         {

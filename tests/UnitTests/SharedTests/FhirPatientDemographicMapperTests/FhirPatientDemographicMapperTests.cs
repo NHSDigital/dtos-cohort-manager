@@ -267,7 +267,7 @@ public class FhirParserHelperTests
         Assert.IsNull(result.EmailAddress);
         Assert.IsNull(result.EmailAddressEffectiveFromDate);
         Assert.IsNull(result.PreferredLanguage);
-        Assert.IsNull(result.IsInterpreterRequired);
+        Assert.IsFalse(bool.Parse(result.IsInterpreterRequired!));
         Assert.IsNull(result.PrimaryCareProvider);
         Assert.IsNull(result.PrimaryCareProviderEffectiveFromDate);
         Assert.IsNull(result.ReasonForRemoval);

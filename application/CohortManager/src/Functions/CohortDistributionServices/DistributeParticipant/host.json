@@ -1,7 +1,6 @@
 {
   "version": "2.0",
   "functionTimeout": "01:00:00",
-
   "logging": {
     "applicationInsights": {
       "samplingSettings": {
@@ -22,6 +21,12 @@
   "extensions": {
     "durableTask": {
       "hubName": "DistributeParticipantTaskHub"
+    },
+    "serviceBus": {
+      "prefetchCount": 0,
+      "messageHandlerOptions": {
+        "maxConcurrentCalls": 5
+      }
     }
   }
 }

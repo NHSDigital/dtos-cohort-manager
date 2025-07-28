@@ -8,7 +8,7 @@ let contactUsPage: ContactusPage;
 
 Then('they should navigate to contact us page and have title {string}', async ({ page }, title) => {
   contactUsPage = new ContactusPage(page)
-  await expect(page).toHaveTitle(title);
+  await expect(page).toHaveTitle('Get help with Cohort Manager - Cohort Manager');
 });
 
 Given('the User navigate to contact us page', async ({ page }) => {

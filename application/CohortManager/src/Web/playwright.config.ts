@@ -40,17 +40,26 @@ export default defineConfig({
     trace: "on",
     screenshot: "on",
     viewport: { width: 1280, height: 720 },
-    video: 'on', // 'retain-on-failure' in CI
-    launchOptions: {
-      args: ['--window-size=1280,720'],
-    },
-    headless: true,
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "firefox",
+      use: { ...devices["Desktop Firefox"] },
+    },
+    {
+      name: "webkit",
+      use: { ...devices["Desktop Safari"] },
+    },
+    // Test against mobile viewports.
+    // Windows Browsers
+    {
+      name: 'Edge (Windows)',
       use: {
         ...devices["Desktop Chrome"],
         launchOptions: {
