@@ -22,6 +22,12 @@ public class HttpClientFunctionMock : IHttpClientFunction
         return JsonSerializer.Serialize(new ParticipantDemographic());
     }
 
+    public async Task<string> SendGet(string url)
+    {
+        await Task.CompletedTask;
+        throw new NotImplementedException();
+    }
+
     public async Task<string> SendGetOrThrowAsync(string url)
     {
         await Task.CompletedTask;
@@ -35,7 +41,7 @@ public class HttpClientFunctionMock : IHttpClientFunction
         return CreateFakeHttpResponse(url, patient);
     }
 
-    private string GetPatientMockObject(string filename)
+    private static string GetPatientMockObject(string filename)
     {
         var currentDirectory = Directory.GetCurrentDirectory();
 
@@ -73,11 +79,6 @@ public class HttpClientFunctionMock : IHttpClientFunction
         throw new NotImplementedException();
     }
 
-    public async Task<string> SendGet(string url)
-    {
-        await Task.CompletedTask;
-        throw new NotImplementedException();
-    }
 
     /// <summary>
     /// takes in a fake string content and returns 200 OK response 
@@ -85,7 +86,7 @@ public class HttpClientFunctionMock : IHttpClientFunction
     /// <param name="url"></param>
     /// <param name="content"></param>
     /// <returns></returns>
-    private HttpResponseMessage CreateFakeHttpResponse(string url, string content = "")
+    private static HttpResponseMessage CreateFakeHttpResponse(string url, string content = "")
     {
         var HttpResponseData = new HttpResponseMessage();
         if (string.IsNullOrEmpty(url))
