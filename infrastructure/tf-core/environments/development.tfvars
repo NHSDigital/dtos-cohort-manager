@@ -941,6 +941,7 @@ function_apps = {
         AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
         ClientId                  = ""
         PrivateKey                = ""
+        UseFakePDSServices        = "true"
       }
     }
 
