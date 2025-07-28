@@ -1,11 +1,21 @@
 namespace Common;
+
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 public static class HttpClientExtension
 {
-    public static IHostBuilder AddHttpClient(this IHostBuilder hostBuilder)
+    public static IHostBuilder AddHttpClient(this IHostBuilder hostBuilder, bool UseFakeHttpService = false)
     {
+        if (UseFakeHttpService)
+        {
+            return hostBuilder.ConfigureServices(_ =>
+            {
+                _.AddHttpClient();
+                _.AddTransient<IHttpClientFunction, HttpClientFunctionMock>();
+            });
+        }
+
         return hostBuilder.ConfigureServices(_ =>
         {
             _.AddHttpClient();
