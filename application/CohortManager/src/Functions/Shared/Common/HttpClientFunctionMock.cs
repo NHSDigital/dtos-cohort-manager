@@ -12,22 +12,26 @@ public class HttpClientFunctionMock : IHttpClientFunction
 {
     public async Task<HttpResponseMessage> SendPost(string url, string data)
     {
+        await Task.CompletedTask;
         return CreateFakeHttpResponse(url);
     }
 
     public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
     {
+        await Task.CompletedTask;
         return JsonSerializer.Serialize(new ParticipantDemographic());
     }
 
     public async Task<string> SendGetOrThrowAsync(string url)
     {
+        await Task.CompletedTask;
         return "";
     }
 
     public async Task<HttpResponseMessage> SendPdsGet(string url, string bearerToken)
     {
         var patient = GetPatientMockObject("complete-patient.json");
+        await Task.CompletedTask;
         return CreateFakeHttpResponse(url, patient);
     }
 
@@ -48,11 +52,13 @@ public class HttpClientFunctionMock : IHttpClientFunction
 
     public async Task<HttpResponseMessage> SendPut(string url, string data)
     {
+        await Task.CompletedTask;
         return CreateFakeHttpResponse(url);
     }
 
-    public Task<bool> SendDelete(string url)
+    public async Task<bool> SendDelete(string url)
     {
+        await Task.CompletedTask;
         throw new NotImplementedException();
     }
 
@@ -63,11 +69,13 @@ public class HttpClientFunctionMock : IHttpClientFunction
 
     public async Task<HttpResponseMessage> SendGetResponse(string url)
     {
+        await Task.CompletedTask;
         throw new NotImplementedException();
     }
 
     public async Task<string> SendGet(string url)
     {
+        await Task.CompletedTask;
         throw new NotImplementedException();
     }
 
