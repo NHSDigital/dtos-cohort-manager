@@ -4,56 +4,51 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Hl7.Fhir.Model;
 using System.Text.Json;
+using Model;
+
 
 public class HttpClientFunctionMock : IHttpClientFunction
 {
-
-    public Task<HttpResponseMessage> SendPost(string url, string data)
+    public async Task<HttpResponseMessage> SendPost(string url, string data)
     {
-        throw new NotImplementedException();
+        return CreateFakeHttpResponse(url);
     }
 
-    public Task<string> SendGet(string url)
+    public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
     {
-        throw new NotImplementedException();
+        return JsonSerializer.Serialize(new ParticipantDemographic());
     }
 
-    public Task<string> SendGet(string url, Dictionary<string, string> parameters)
+    public async Task<string> SendGetOrThrowAsync(string url)
     {
-        throw new NotImplementedException();
-    }
-
-    public Task<HttpResponseMessage> SendGetResponse(string url)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<string> SendGetOrThrowAsync(string url)
-    {
-        throw new NotImplementedException();
+        return "";
     }
 
     public async Task<HttpResponseMessage> SendPdsGet(string url, string bearerToken)
     {
-        var HttpResponseData = new HttpResponseMessage();
-        if (string.IsNullOrEmpty(url))
-        {
-            HttpResponseData.StatusCode = HttpStatusCode.InternalServerError;
-            return HttpResponseData;
-        }
-        var Patient = new Patient();
-        Patient.Id = "900000009";
-
-        HttpResponseData.Content = new StringContent(JsonSerializer.Serialize(Patient));
-        HttpResponseData.StatusCode = HttpStatusCode.OK;
-        return HttpResponseData;
+        var patient = GetPatientMockObject("complete-patient.json");
+        return CreateFakeHttpResponse(url, patient);
     }
 
-    public Task<HttpResponseMessage> SendPut(string url, string data)
+    private string GetPatientMockObject(string filename)
     {
-        throw new NotImplementedException();
+        var currentDirectory = Directory.GetCurrentDirectory();
+
+        var filePath = Path.Combine(currentDirectory, filename);
+
+        if (!File.Exists(filePath))
+        {
+            return string.Empty;
+        }
+
+        string keyContent = File.ReadAllText(filePath);
+        return keyContent;
+    }
+
+    public async Task<HttpResponseMessage> SendPut(string url, string data)
+    {
+        return CreateFakeHttpResponse(url);
     }
 
     public Task<bool> SendDelete(string url)
@@ -61,8 +56,39 @@ public class HttpClientFunctionMock : IHttpClientFunction
         throw new NotImplementedException();
     }
 
-    public Task<string> GetResponseText(HttpResponseMessage response)
+    public async Task<string> GetResponseText(HttpResponseMessage response)
+    {
+        return await response.Content.ReadAsStringAsync();
+    }
+
+    public async Task<HttpResponseMessage> SendGetResponse(string url)
     {
         throw new NotImplementedException();
     }
+
+    public async Task<string> SendGet(string url)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// takes in a fake string content and returns 200 OK response 
+    /// </summary>
+    /// <param name="url"></param>
+    /// <param name="content"></param>
+    /// <returns></returns>
+    private HttpResponseMessage CreateFakeHttpResponse(string url, string content = "")
+    {
+        var HttpResponseData = new HttpResponseMessage();
+        if (string.IsNullOrEmpty(url))
+        {
+            HttpResponseData.StatusCode = HttpStatusCode.InternalServerError;
+            return HttpResponseData;
+        }
+
+        HttpResponseData.Content = new StringContent(content);
+        HttpResponseData.StatusCode = HttpStatusCode.OK;
+        return HttpResponseData;
+    }
+
 }
