@@ -16,7 +16,7 @@ public static class JwtTokenExtension
     /// <param name="hostBuilder"></param>
     /// <param name="config"></param>
     /// <returns></returns>
-    public static IHostBuilder AddJwtTokenSigning(this IHostBuilder hostBuilder)
+    public static IHostBuilder AddJwtTokenSigning(this IHostBuilder hostBuilder, bool UseFakePDSService)
     {
         JwtPrivateKey jwtPrivateKey;
         // Azure   
@@ -41,8 +41,14 @@ public static class JwtTokenExtension
             _.AddSingleton<IAuthorizationClientCredentials, AuthorizationClientCredentials>();
             _.AddSingleton<IJwtTokenService, JwtTokenService>();
             _.AddSingleton<ISigningCredentialsProvider, SigningCredentialsProvider>();
-            _.AddSingleton<IBearerTokenService, BearerTokenService>();
-
+            if (!UseFakePDSService)
+            {
+                _.AddSingleton<IBearerTokenService, BearerTokenService>();
+            }
+            else
+            {
+                _.AddSingleton<IBearerTokenService, BearerTokenServiceMock>();
+            }
         });
 
         return host;

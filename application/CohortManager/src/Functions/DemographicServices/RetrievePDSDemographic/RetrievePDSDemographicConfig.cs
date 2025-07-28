@@ -22,4 +22,7 @@ public class RetrievePDSDemographicConfig
 
     [Required]
     public required string AuthTokenURL { get; set; }
+
+    [Required]
+    public required bool UseFakePDSServices { get; set; }
 }
