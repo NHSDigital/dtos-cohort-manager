@@ -939,8 +939,7 @@ function_apps = {
         Kid                       = "RetrievePdsDemographic-DEV1"
         Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
         AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
-        ClientId                  = ""
-        PrivateKey                = ""
+        KeyNamePrivateKey         = "PDSPrivateKeyDEV"
         UseFakePDSServices        = "true"
       }
     }
