@@ -20,6 +20,7 @@ public class ProcessNemsUpdateTests
     private readonly Mock<IAddBatchToQueue> _addBatchToQueueMock = new();
     private readonly Mock<IHttpClientFunction> _httpClientFunctionMock = new();
     private readonly Mock<IOptions<ProcessNemsUpdateConfig>> _config = new();
+    private readonly Mock<IExceptionHandler> _exceptionHandler = new();
     private readonly ProcessNemsUpdate _sut;
     const string _validNhsNumber = "9000000009";
     const string _fileName = "fileName";
@@ -42,6 +43,7 @@ public class ProcessNemsUpdateTests
             _createBasicParticipantDataMock.Object,
             _addBatchToQueueMock.Object,
             _httpClientFunctionMock.Object,
+            _exceptionHandler.Object,
             _config.Object
         );
 
