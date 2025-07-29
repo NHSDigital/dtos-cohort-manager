@@ -23,12 +23,14 @@ class BearerTokenService : IBearerTokenService
     }
     public async Task<string> GetBearerToken()
     {
+
         if (_memoryCache.TryGetValue(AccessTokenCacheKey, out string? bearerToken))
         {
+            _logger.LogInformation("bearer token found in memory cache");
             return bearerToken!;
         }
 
-        _logger.LogInformation("Refreshing bearer token...");
+        _logger.LogInformation("Token not found in memory cache refreshing bearer token...");
         bearerToken = await _authClientCredentials.AccessToken();
 
         if (bearerToken == null)

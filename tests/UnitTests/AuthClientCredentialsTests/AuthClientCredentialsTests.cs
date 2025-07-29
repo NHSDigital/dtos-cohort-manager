@@ -24,6 +24,8 @@ public class AuthClientCredentialsTests
 
     private readonly string access_token = "some_fake_token";
 
+    private readonly Mock<ILogger<AuthorizationClientCredentials>> _logger = new();
+
     private AuthorizationClientCredentials authClientCredentials;
     public AuthClientCredentialsTests()
     {
@@ -58,7 +60,7 @@ public class AuthClientCredentialsTests
         _httpClient = new HttpClient(handlerMock.Object);
 
 
-        authClientCredentials = new AuthorizationClientCredentials(_jwtHandler.Object, _httpClient, _jwtTokenServiceConfig.Object);
+        authClientCredentials = new AuthorizationClientCredentials(_jwtHandler.Object, _httpClient, _jwtTokenServiceConfig.Object, _logger.Object);
     }
 
     [TestMethod]
