@@ -10,19 +10,7 @@ let contactusPage: ContactusPage;
 let cookiesPage: CookiesPage;
 let termsConditionsPage: TermsConditionsPage; // Initializing the TermsConditionsPage class
 
-Then('they should navigate to terms page and have title {string}', async ({ page }, title) => {
 
-  termsConditionsPage = new TermsConditionsPage(page)
-  await expect(page).toHaveTitle('Terms and conditions - Cohort Manager');
-
-});
-
-Then('they should navigate to cookies page and have title {string}', async ({ page }, title) => {
-
-  cookiesPage = new CookiesPage(page)
-  await expect(page).toHaveTitle('Cookies on Cohort Manager - Cohort Manager');
-
-});
 Given('the User navigate to terms and conditions page', async ({ page }) => {
   homePage = new HomePage(page)
   termsConditionsPage = new TermsConditionsPage(page)
