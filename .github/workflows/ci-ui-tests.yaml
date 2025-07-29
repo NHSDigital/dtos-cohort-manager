@@ -2,8 +2,12 @@ name: UI Tests
 
 on:
   push:
+    paths:
+      - "application/CohortManager/src/Web/**"
     branches: [main]
   pull_request:
+    paths:
+      - "application/CohortManager/src/Web/**"
     branches: [main]
   workflow_dispatch:
 
