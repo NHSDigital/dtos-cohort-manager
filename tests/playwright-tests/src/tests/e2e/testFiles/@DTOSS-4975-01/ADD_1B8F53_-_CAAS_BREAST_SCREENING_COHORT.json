@@ -10,7 +10,7 @@
       "meta": {
         "testJiraId": "@DTOSS-4975-01",
         "requirementJiraId": "DTOSS-4284",
-        "additionalTags": "@regression @e2e @epic3-med-priority - Validate RuleId 17 and RuleDescription as birth invalid for partial date for 9993476447"
+        "additionalTags": "@regression @e2e @epic3-med-priority - Validate RuleId 17 and RuleDescription as Date of birth invalid for partial date for 9993476447"
       }
     }
   ],
