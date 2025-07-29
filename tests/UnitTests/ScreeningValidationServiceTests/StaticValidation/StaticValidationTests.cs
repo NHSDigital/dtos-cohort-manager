@@ -23,7 +23,6 @@ public class StaticValidationTests
     private readonly Mock<ILogger<StaticValidation>> _logger = new();
     private readonly Mock<FunctionContext> _context = new();
     private readonly Mock<HttpRequestData> _request;
-    private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly CreateResponse _createResponse = new();
     private readonly ServiceCollection _serviceCollection = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
@@ -39,7 +38,6 @@ public class StaticValidationTests
 
         _function = new StaticValidation(
             _logger.Object,
-            _handleException.Object,
             _createResponse,
             new ReadRules(new NullLogger<ReadRules>())
         );

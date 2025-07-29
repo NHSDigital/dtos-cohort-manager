@@ -66,6 +66,13 @@ public class ValidateParticipant
 
             validationRecord.PreviousParticipantRecord = previousRecord;
 
+            // Remove Previous Validation Errors from DB
+            await context.CallActivityAsync( nameof(RemoveOldValidationExceptions), new OldExceptionRecord()
+            {
+                NhsNumber = validationRecord.Participant.NhsNumber,
+                ScreeningName = validationRecord.Participant.ScreeningName
+            });
+            
             // Lookup & Static Validation
             var lookupTaskOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
                 maxNumberOfAttempts: _config.MaxLookupValidationRetries,

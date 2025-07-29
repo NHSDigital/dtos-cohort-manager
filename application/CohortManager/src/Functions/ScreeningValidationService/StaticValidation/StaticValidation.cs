@@ -18,17 +18,14 @@ public class StaticValidation
 {
     private readonly ILogger<StaticValidation> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IExceptionHandler _handleException;
     private readonly IReadRules _readRules;
 
     public StaticValidation(
         ILogger<StaticValidation> logger,
-        IExceptionHandler handleException,
         ICreateResponse createResponse,
         IReadRules readRules)
     {
         _logger = logger;
-        _handleException = handleException;
         _createResponse = createResponse;
         _readRules = readRules;
     }

@@ -6,6 +6,12 @@
         "NHSNumber": 9996554716,
         "IsExtracted": 0
       }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "expectedCount" : 10
+      }
     }
   ],
   "inputParticipantRecord": [

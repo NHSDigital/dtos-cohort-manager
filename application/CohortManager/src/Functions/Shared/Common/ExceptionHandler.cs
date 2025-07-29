@@ -155,11 +155,9 @@ public class ExceptionHandler : IExceptionHandler
         }
     }
 
-    public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<ValidationRuleResult> validationErrors, ParticipantCsvRecord participantCsvRecord)
+    public async Task<bool> CreateValidationExceptionLog(IEnumerable<ValidationRuleResult> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         participantCsvRecord.Participant.ExceptionFlag = "Y";
-
-        var foundFatalRule = false;
 
         // Create unable to add to cohort distribution exception
         string message = $"Unable to add to cohort distribution. As participant {participantCsvRecord.Participant.ParticipantId} has triggered a validation exception";
@@ -172,17 +170,10 @@ public class ExceptionHandler : IExceptionHandler
             var Category = ruleDetails[2];
             var errorMessage = error.RuleDescription;
 
-            var IsFatal = ParseFatalRuleType(ruleDetails[3]);
-            if (IsFatal == 1)
-            {
-                foundFatalRule = true;
-                _logger.LogInformation("A Fatal rule has been found and the record with NHD ID: {NhsNumber} will not be added to the database.", participantCsvRecord.Participant.ParticipantId);
-            }
-
             if (!string.IsNullOrEmpty(error.ExceptionMessage))
             {
                 errorMessage = error.ExceptionMessage;
-                _logger.LogError("an exception was raised while running the rules. Exception Message: {exceptionMessage}", error.ExceptionMessage);
+                _logger.LogError("an exception was raised while running the rules. Exception Message: {ExceptionMessage}", error.ExceptionMessage);
             }
 
             var exception = new ValidationException
@@ -198,7 +189,6 @@ public class ExceptionHandler : IExceptionHandler
                 Category = GetCategory(Category),
                 ScreeningName = participantCsvRecord.Participant.ScreeningName,
                 CohortName = DefaultCohortName,
-                Fatal = IsFatal
             };
 
             var isSentSuccessfully = await _exceptionSender.sendToCreateException(exception);
@@ -206,23 +196,13 @@ public class ExceptionHandler : IExceptionHandler
             if (!isSentSuccessfully)
             {
                 _logger.LogError("There was an error while logging an exception to the database");
-                return new ValidationExceptionLog
-                {
-                    IsFatal = foundFatalRule,
-                    CreatedException = false
-                };
+                return false;
             }
-
         }
-
-        return new ValidationExceptionLog()
-        {
-            IsFatal = foundFatalRule,
-            CreatedException = true
-        };
+        return true;
     }
 
-    [Obsolete]
+    [Obsolete("Use the above overload")]
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         participantCsvRecord.Participant.ExceptionFlag = "Y";
