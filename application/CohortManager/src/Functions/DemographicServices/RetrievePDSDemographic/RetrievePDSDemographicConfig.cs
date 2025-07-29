@@ -15,11 +15,10 @@ public class RetrievePDSDemographicConfig
     public required string Audience { get; set; }
 
     [Required]
-    public required string ClientId { get; set; }
-
-    [Required]
     public required string KId { get; set; }
 
     [Required]
     public required string AuthTokenURL { get; set; }
+
+    public required bool UseFakePDSServices { get; set; } = false;
 }
