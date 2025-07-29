@@ -1,7 +1,9 @@
 
 namespace Common;
 
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using Azure;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
 using Azure.Security.KeyVault.Secrets;
@@ -31,10 +33,10 @@ public static class JwtTokenExtension
             if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
             {
                 var certClient = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
-                var privateKey = certClient.DownloadCertificate(config.KeyNamePrivateKey);
+                Response<X509Certificate2> certResponse = certClient.DownloadCertificate(config.KeyNamePrivateKey);
 
                 logger.LogInformation("got certificate from key vault");
-                jwtPrivateKey = new JwtPrivateKey(CertificateToString(privateKey.Value));
+                jwtPrivateKey = new JwtPrivateKey(CertificateToString(certResponse.Value));
             }
             // Local
             else
@@ -64,15 +66,17 @@ public static class JwtTokenExtension
         catch (Exception ex)
         {
             logger.LogError(ex, ex.Message);
-            throw; 
+            throw;
         }
 
     }
 
     private static string CertificateToString(X509Certificate2 certificate)
     {
-        byte[] certData = certificate.Export(X509ContentType.Cert);
-        return Convert.ToBase64String(certData);
+        using RSA rsa = certificate.GetRSAPrivateKey();
+        byte[] pkcs8PrivateKey = rsa!.ExportPkcs8PrivateKey();
+
+        return Convert.ToBase64String(pkcs8PrivateKey);
     }
 
 
