@@ -15,9 +15,6 @@ public class RetrievePDSDemographicConfig
     public required string Audience { get; set; }
 
     [Required]
-    public required string ClientId { get; set; }
-
-    [Required]
     public required string KId { get; set; }
 
     [Required]
