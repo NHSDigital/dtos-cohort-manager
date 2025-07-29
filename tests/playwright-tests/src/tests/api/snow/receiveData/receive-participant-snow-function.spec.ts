@@ -5,7 +5,7 @@ import { loadParticipantPayloads , omitField } from '../../../fixtures/jsonDataR
 import { ParticipantRecord } from '../../../../interface/InputData';
 
 
-test.describe.serial('@regression @service_now  @api @DTOSS-3880 receive valid participant from serviceNow api', () => {
+test.describe.serial('@regression @service_now @api receive valid participant from serviceNow api', () => {
 
   let participantData: Record<string, ParticipantRecord>;
 
