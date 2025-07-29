@@ -5,7 +5,7 @@ import { loadParticipantPayloads , omitField } from '../../../fixtures/jsonDataR
 import { ParticipantRecord } from '../../../../interface/InputData';
 
 
-test.describe.serial('@service_now @regression @api receive valid participant from serviceNow api', () => {
+test.describe.serial('@regression @service_now  @api receive valid participant from serviceNow api', () => {
 
   let participantData: Record<string, ParticipantRecord>;
 
@@ -55,8 +55,18 @@ test.describe.serial('@service_now @regression @api receive valid participant fr
     await validators(response);
   });
 
-  test('@DTOSS-3880 - Return error when an invalid field name is received', async ({ request }) => {
-    const payload = participantData['invalidFieldsName'];
+    test('@DTOSS-3880 - Return error when mandatory reason for add is empty', async ({ request }) => {
+    const payload = participantData['inValidParticipantRecordMissingReasonForAdding'];
+    const response = await receiveParticipantViaServiceNow(request, payload);
+
+    const validators = composeValidators(
+      expectStatus(400)
+    );
+    await validators(response);
+  });
+
+  test('@DTOSS-3880 - Return error when an invalid schema name is received', async ({ request }) => {
+    const payload = participantData['invalidSchemaName'];
     const response = await receiveParticipantViaServiceNow(request, payload);
 
     const validators = composeValidators(
