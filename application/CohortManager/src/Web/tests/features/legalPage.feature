@@ -4,18 +4,17 @@ Feature: testing to verify all ac's on Legal pages story-DTOSS-6389
   Background:
     Given the User navigate to terms and conditions page
 
-  @smoke
   Scenario: verify navigation to Terms and conditions screen
     When the user clicks on Terms and conditions link
-    Then they should navigate to Terms and conditions page
+    Then they should navigate to 'Terms and conditions - Cohort Manager - NHS'
 
   Scenario: verify navigation to cookies screen
     When the user clicks on cookies link
-    Then they should navigate to cookies page
+    Then they should navigate to 'Cookies on Cohort Manager - Cohort Manager - NHS'
 
   Scenario: verify navigation to Contact us screen
     And the user clicks on contact us link
-    Then they should navigate to contact us page
+    Then they should navigate to 'Get help with Cohort Manager - Cohort Manager - NHS'
 
   Scenario: verify navigation to Care Identity Service (CIS)
     When the user clicks on Care Identity Service link
@@ -27,4 +26,4 @@ Feature: testing to verify all ac's on Legal pages story-DTOSS-6389
 
   Scenario: verify navigation cookies page
     When the user clicks on cookies policy link
-    Then they should navigate to cookies page
+    Then they should navigate to 'Cookies on Cohort Manager - Cohort Manager - NHS'
