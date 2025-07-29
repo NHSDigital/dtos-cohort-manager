@@ -1,0 +1,61 @@
+name: UI Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: application/CohortManager/src/Web
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: application/CohortManager/src/Web/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Start application and run tests
+        env:
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          SERVICE_NAME: ${{ vars.SERVICE_NAME }}
+          NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
+          EXCEPTIONS_API_URL: ${{ vars.EXCEPTIONS_API_URL }}
+          COHORT_MANAGER_USERS: ${{ vars.COHORT_MANAGER_USERS }}
+        run: |
+          # Start the app in background
+          npm run dev:secure &
+
+          # Wait for the app to be ready
+          while ! curl -s https://localhost:3000 > /dev/null; do
+            echo "Waiting for app to start..."
+            sleep 5
+          done
+
+          # Run the tests
+          npx bddgen
+          npx playwright test
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: application/CohortManager/src/Web/test-results/
+          retention-days: 30
