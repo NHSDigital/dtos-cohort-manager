@@ -498,6 +498,8 @@ namespace DataServices.Migrations.Migrations
 
                     b.HasKey("CohortDistributionId");
 
+                    b.HasIndex(new[] { "IsExtracted", "RequestId" }, "IX_BSCOHORT_IS_EXTACTED_REQUESTID");
+
                     b.HasIndex(new[] { "NHSNumber" }, "IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
 
                     b.ToTable("BS_COHORT_DISTRIBUTION", "dbo");

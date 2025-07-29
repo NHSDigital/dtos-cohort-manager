@@ -17,7 +17,6 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
-        services.AddSingleton<ICreateParticipant, CreateParticipant>();
         // Register health checks
         services.AddBasicHealthCheck("DeleteParticipant");
     })
