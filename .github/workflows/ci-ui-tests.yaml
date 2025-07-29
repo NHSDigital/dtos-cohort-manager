@@ -49,8 +49,27 @@ jobs:
           done
 
           # Run the tests
-          npx bddgen
-          npx playwright test
+          npm run test:e2e
+
+      - name: Start application and run epic 4a tests
+        env:
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          SERVICE_NAME: ${{ vars.SERVICE_NAME }}
+          NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
+          EXCEPTIONS_API_URL: ${{ vars.EXCEPTIONS_API_URL }}
+          COHORT_MANAGER_USERS: ${{ vars.COHORT_MANAGER_USERS }}
+        run: |
+          # Start the app in background
+          npm run dev:secure &
+
+          # Wait for the app to be ready
+          while ! curl -s https://localhost:3000 > /dev/null; do
+            echo "Waiting for app to start..."
+            sleep 5
+          done
+
+          # Run the tests
+          npm run test:e2e:epic_4a
 
       - name: Upload test results
         if: always()

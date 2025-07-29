@@ -1,4 +1,4 @@
-@notraisedExceptionOverview
+@epic_4a
 Feature: testing Breast screening - Not raisedexception overview page
 
   Background:
