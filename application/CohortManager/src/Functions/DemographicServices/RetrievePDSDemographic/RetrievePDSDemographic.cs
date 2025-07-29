@@ -50,6 +50,7 @@ public class RetrievePdsDemographic
     {
         var nhsNumber = req.Query["nhsNumber"];
 
+        
         var bearerToken = await _bearerTokenService.GetBearerToken();
         if (bearerToken == null)
         {
