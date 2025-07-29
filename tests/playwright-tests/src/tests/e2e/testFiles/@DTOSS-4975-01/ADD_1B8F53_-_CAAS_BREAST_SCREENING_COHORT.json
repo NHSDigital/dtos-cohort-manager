@@ -4,91 +4,13 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9993476447",
-        "RuleId": 100,
-        "RuleDescription": "PrimaryCareProviderEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4975-01",
-        "requirementJiraId": "DTOSS-4284",
-        "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception1 for partial date for 9993476447"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993476447",
-        "RuleId": 101,
-        "RuleDescription": "CurrentPostingEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4975-01",
-        "requirementJiraId": "DTOSS-4284",
-        "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception2 for partial date for 9993476447"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993476447",
-        "RuleId": 102,
-        "RuleDescription": "UsualAddressEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4975-01",
-        "requirementJiraId": "DTOSS-4284",
-        "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception3 for partial date for 9993476447"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993476447",
-        "RuleId": 103,
-        "RuleDescription": "TelephoneNumberEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4975-01",
-        "requirementJiraId": "DTOSS-4284",
-        "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception4 for partial date for 9993476447"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993476447",
-        "RuleId": 104,
-        "RuleDescription": "MobileNumberEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4975-01",
-        "requirementJiraId": "DTOSS-4284",
-        "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception5 for partial date for 9993476447"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993476447",
-        "RuleId": 105,
-        "RuleDescription": "EmailAddressEffectiveFromDate"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4975-01",
-        "requirementJiraId": "DTOSS-4284",
-        "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception6 for partial date for 9993476447"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993476447",
         "RuleId": 17,
         "RuleDescription": "Date of birth invalid"
       },
       "meta": {
         "testJiraId": "@DTOSS-4975-01",
         "requirementJiraId": "DTOSS-4284",
-        "additionalTags": "@regression @e2e @epic3-med-priority - Validate exception7 for partial date for 9993476447"
+        "additionalTags": "@regression @e2e @epic3-med-priority - Validate RuleId 17 and RuleDescription as birth invalid for partial date for 9993476447"
       }
     }
   ],
