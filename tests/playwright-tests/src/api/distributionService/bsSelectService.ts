@@ -8,7 +8,13 @@ export const getRecordsFromBsSelectRetrieveCohort = (
   request: APIRequestContext,
   params: QueryParams
 ): Promise<ApiResponse> => {
-  return apiClient.get(request, `${config.endpointBsSelectRetrieveCohortDistributionData}${config.routeBsSelectRetrieveCohortDistributionData}`, params);
+  const promise = apiClient.get(request, `${config.endpointBsSelectRetrieveCohortDistributionData}${config.routeBsSelectRetrieveCohortDistributionData}`, params);
+  return new Promise<ApiResponse>((resolve, reject) => {
+    promise.then(
+      result => setTimeout(() => resolve(result), config.apiWaitTime),
+      error => setTimeout(() => reject(new Error(typeof error === 'string' ? error : JSON.stringify(error))), config.apiWaitTime)
+    );
+  });
 };
 
 

@@ -107,8 +107,10 @@ application/CohortManager/src/Functions/*.json
 **/playwright-tests/.env.*
 **/playwright-tests/.vscode/settings.json
 **/playwright-tests/src/tests/e2e/testFiles/**/*.parquet
+.features-gen/**
 # Allow
 !**/playwright-tests/.env.dev.example
 !**/playwright-tests/src/parquet/*.parquet
 # Explicitly include test JSON files
 !**/playwright-tests/src/tests/e2e/testFiles/**/*.json
+
