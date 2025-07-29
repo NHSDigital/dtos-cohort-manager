@@ -21,6 +21,7 @@ services:
       - LookupValidationURL=http://lookup-validation:7075/api/LookupValidation
       - StaticValidationURL=http://static-validation:7074/api/StaticValidation
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - RemoveOldValidationRecordUrl=http://remove-validation-exception-data:7085/api/RemoveValidationExceptionData
       - IgnoreParticipantExceptions=false
       - IsExtractedToBSSelect=true
 
