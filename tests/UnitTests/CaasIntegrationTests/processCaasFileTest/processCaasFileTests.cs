@@ -43,7 +43,6 @@ public class ProcessCaasFileTests
             _databaseClientParticipantMock.Object,
             _recordsProcessedTrackerMock.Object,
             _validateDates.Object,
-            _mockHttpClientFunction.Object,
             _callDurableFunc.Object,
             _config.Object
         );
@@ -55,10 +54,8 @@ public class ProcessCaasFileTests
         return new ReceiveCaasFileConfig
         {
             DemographicURI = "DemographicURI",
-            AddQueueName = "AddQueueName",
-            UpdateQueueName = "UpdateQueueName",
             AllowDeleteRecords = allowDeleteRecords,
-            PMSRemoveParticipant = "PMSRemoveParticipant"
+            ParticipantManagementTopic = "ParticipantManagementTopic"
         };
     }
 
@@ -83,7 +80,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>()))
             .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
 
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>())).ReturnsAsync(true);
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
 
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
@@ -93,7 +90,7 @@ public class ProcessCaasFileTests
 
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
            It.IsAny<EventId>(),
-           It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sending Update Records 0 to queue")),
+           It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sending 0 records to queue")),
            It.IsAny<Exception>(),
            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
        Times.Once);
@@ -117,7 +114,7 @@ public class ProcessCaasFileTests
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(It.IsAny<ParticipantsParquetMap>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended });
 
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
         // Act
@@ -128,7 +125,7 @@ public class ProcessCaasFileTests
         _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sending 0 records to Add queue")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sending 0 records to queue")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
@@ -198,7 +195,7 @@ public class ProcessCaasFileTests
     {
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
         var updateParticipant = processCaasFile.GetType().GetMethod("UpdateOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -234,7 +231,7 @@ public class ProcessCaasFileTests
         var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.New };
         var currentBatch = new Batch();
 
-        _callDurableFunc.Setup(m => m.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(m => m.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
         var arguments = new object[] { participant, currentBatch, "testFile" };
@@ -313,9 +310,6 @@ public class ProcessCaasFileTests
         // Assert: expect CreateDeletedRecordException to be invoked
         _exceptionHandlerMock.Verify(m => m.CreateDeletedRecordException(
             It.IsAny<BasicParticipantCsvRecord>()), Times.Once);
-        _mockHttpClientFunction.Verify(x => x.SendPost(
-            It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()),
-            Times.Never);
         _loggerMock.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Information),
             It.IsAny<EventId>(),
@@ -345,10 +339,7 @@ public class ProcessCaasFileTests
         var task = (Task)method.Invoke(processCaasFile, arguments);
         await task;
 
-        // Assert: expect call to SendPost to occur
-        _mockHttpClientFunction.Verify(x => x.SendPost(
-            It.Is<string>(s => s.Contains("PMSRemoveParticipant")), It.IsAny<string>()),
-            Times.Once);
+        // Assert
         _loggerMock.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Information),
             It.IsAny<EventId>(),
@@ -385,13 +376,6 @@ public class ProcessCaasFileTests
         // Assert: expect CreateDeletedRecordException to be invoked and error logged
         _exceptionHandlerMock.Verify(m => m.CreateDeletedRecordException(
             It.IsAny<BasicParticipantCsvRecord>()), Times.Once);
-        _loggerMock.Verify(x => x.Log(
-            It.Is<LogLevel>(l => l == LogLevel.Error),
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Remove participant function failed")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
     }
 
     [TestMethod]

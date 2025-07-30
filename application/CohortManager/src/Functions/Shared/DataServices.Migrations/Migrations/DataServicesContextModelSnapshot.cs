@@ -498,6 +498,8 @@ namespace DataServices.Migrations.Migrations
 
                     b.HasKey("CohortDistributionId");
 
+                    b.HasIndex(new[] { "IsExtracted", "RequestId" }, "IX_BSCOHORT_IS_EXTACTED_REQUESTID");
+
                     b.HasIndex(new[] { "NHSNumber" }, "IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
 
                     b.ToTable("BS_COHORT_DISTRIBUTION", "dbo");
@@ -703,9 +705,8 @@ namespace DataServices.Migrations.Migrations
 
             modelBuilder.Entity("Model.NemsSubscription", b =>
                 {
-                    b.Property<Guid>("SubscriptionId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
+                    b.Property<string>("SubscriptionId")
+                        .HasColumnType("nvarchar(450)")
                         .HasColumnName("SUBSCRIPTION_ID");
 
                     b.Property<long>("NhsNumber")
@@ -894,10 +895,6 @@ namespace DataServices.Migrations.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("BUSINESS_RULE_VERSION");
-
-                    b.Property<short>("CeasedFlag")
-                        .HasColumnType("smallint")
-                        .HasColumnName("CEASED_FLAG");
 
                     b.Property<DateTime?>("DateIrradiated")
                         .HasColumnType("datetime")

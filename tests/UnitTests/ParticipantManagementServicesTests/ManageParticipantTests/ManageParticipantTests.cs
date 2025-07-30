@@ -28,7 +28,7 @@ public class ManageParticipantTests
     {
         var testConfig = new ManageParticipantConfig
         {
-            CohortQueueName = "CohortQueueName"
+            CohortDistributionTopic = "CohortTopicName"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -46,7 +46,7 @@ public class ManageParticipantTests
             .ReturnsAsync((ParticipantManagement)null);
 
         _queueClientMock
-            .Setup(x => x.AddAsync(It.IsAny<ParticipantCsvRecord>(), testConfig.CohortQueueName))
+            .Setup(x => x.AddAsync(It.IsAny<ParticipantCsvRecord>(), testConfig.CohortDistributionTopic))
             .ReturnsAsync(true);
 
         _sut = new ManageParticipant(
@@ -101,7 +101,7 @@ public class ManageParticipantTests
 
         // Assert
         _participantManagementClientMock
-            .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Once);
+            .Verify(x => x.Add(It.Is<ParticipantManagement>(p => p.RecordInsertDateTime != null)), Times.Once);
         _participantManagementClientMock
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
@@ -121,7 +121,7 @@ public class ManageParticipantTests
 
         // Assert
         _participantManagementClientMock
-            .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Once);
+            .Verify(x => x.Update(It.Is<ParticipantManagement>(p => p.RecordUpdateDateTime != null)), Times.Once);
         _participantManagementClientMock
             .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock

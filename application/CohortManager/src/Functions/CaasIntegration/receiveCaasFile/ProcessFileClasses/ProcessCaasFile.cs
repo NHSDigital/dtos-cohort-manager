@@ -23,11 +23,8 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
     private readonly IValidateDates _validateDates;
-    private readonly IHttpClientFunction _httpClientFunction;
     private readonly ReceiveCaasFileConfig _config;
     private readonly string DemographicURI;
-    private readonly string AddParticipantQueueName;
-    private readonly string UpdateParticipantQueueName;
 
 
     public ProcessCaasFile(
@@ -39,7 +36,6 @@ public class ProcessCaasFile : IProcessCaasFile
         IDataServiceClient<ParticipantDemographic> participantDemographic,
         IRecordsProcessedTracker recordsProcessedTracker,
         IValidateDates validateDates,
-        IHttpClientFunction httpClientFactory,
         ICallDurableDemographicFunc callDurableDemographicFunc,
         IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig
     )
@@ -54,25 +50,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _validateDates = validateDates;
         _callDurableDemographicFunc = callDurableDemographicFunc;
         _config = receiveCaasFileConfig.Value;
-        _httpClientFunction = httpClientFactory;
         DemographicURI = _config.DemographicURI;
-        if (_config.UseNewFunctions)
-        {
-            AddParticipantQueueName = _config.ParticipantManagementQueueName;
-            UpdateParticipantQueueName = _config.ParticipantManagementQueueName;
-        }
-        else
-        {
-            AddParticipantQueueName = _config.AddQueueName;
-            UpdateParticipantQueueName = _config.UpdateQueueName;
-        }
-
-
-        if (string.IsNullOrEmpty(DemographicURI) || string.IsNullOrEmpty(AddParticipantQueueName) || string.IsNullOrEmpty(UpdateParticipantQueueName))
-        {
-            _logger.LogError("Required environment variables DemographicURI and PMSUpdateParticipant are missing.");
-            throw new InvalidConfigurationException("Required environment variables DemographicURI and PMSUpdateParticipant are missing.");
-        }
     }
 
     /// <summary>
@@ -117,7 +95,7 @@ public class ProcessCaasFile : IProcessCaasFile
             await AddRecordToBatch(participant, currentBatch, name);
         });
 
-        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI))
+        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI, name))
         {
             await AddBatchToQueue(currentBatch, name);
         }
@@ -172,12 +150,10 @@ public class ProcessCaasFile : IProcessCaasFile
 
     private async Task AddBatchToQueue(Batch currentBatch, string name)
     {
-        _logger.LogInformation("sending {Count} records to Add queue", currentBatch.AddRecords.Count);
+        _logger.LogInformation("sending {Count} records to queue", currentBatch.AddRecords.Count + currentBatch.UpdateRecords.Count);
 
-        await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, AddParticipantQueueName);
-
-        _logger.LogInformation("sending Update Records {Count} to queue", currentBatch.UpdateRecords.Count);
-        await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, UpdateParticipantQueueName);
+        await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, _config.ParticipantManagementTopic);
+        await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, _config.ParticipantManagementTopic);
 
         foreach (var updateRecords in currentBatch.DeleteRecords)
         {
@@ -226,6 +202,7 @@ public class ProcessCaasFile : IProcessCaasFile
         return false;
     }
 
+    // TODO: refactor now that it all uses one queue
     private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
     {
         var allowDeleteRecords = _config.AllowDeleteRecords;
@@ -234,8 +211,7 @@ public class ProcessCaasFile : IProcessCaasFile
             if (allowDeleteRecords)
             {
                 _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to RemoveParticipant function.");
-                var json = JsonSerializer.Serialize(basicParticipantCsvRecord);
-                await _httpClientFunction.SendPost(_config.PMSRemoveParticipant, json);
+                await _addBatchToQueue.AddMessage(basicParticipantCsvRecord, _config.ParticipantManagementTopic);
             }
             else
             {

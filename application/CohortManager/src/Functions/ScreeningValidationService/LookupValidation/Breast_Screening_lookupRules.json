@@ -37,48 +37,87 @@
         }
       },
       {
-        "RuleName": "3602.CurrentPostingAndPrimaryProvider.BSSelect.NonFatal",
+        "RuleName": "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal",
         "LocalParams": [
           {
             "Name": "EnglishPostingCategory",
             "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\""
-          }
-        ],
-        "Expression": "!((EnglishPostingCategory || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting)) && !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Invalid primary care provider GP practice code\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "58.CurrentPosting.NBO.NonFatal",
-        "Expression": "ValidCurrentPosting",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Missing or invalid Posting\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "11.ValidateReasonForRemoval.NBO.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "newRecordType",
-            "Expression": "newParticipant.RecordType == Actions.New"
           },
           {
-            "Name": "reasonForRemovalIsLDNOrRC",
-            "Expression": "existingParticipant.ReasonForRemoval == \"LDN\" OR existingParticipant.ReasonForRemoval == \"R/C\""
+            "Name": "InvalidPostingCategory",
+            "Expression": "!(EnglishPostingCategory || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting))"
+          },
+          {
+            "Name": "PrimaryCareExists",
+            "Expression": "dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+          }, 
+          {
+            "Name": "IsExcluded",
+            "Expression": "dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "newRecordType OR !reasonForRemovalIsLDNOrRC"
+        "Expression": "(InvalidPostingCategory || string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || PrimaryCareExists || IsExcluded)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"GP practice code does not exist\""
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "AMENDED",
+    "Rules": [
+      {
+        "RuleName": "54.ValidateBsoCode.NBO.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "reasonForRemoval",
+            "Expression": "newParticipant.ReasonForRemoval == \"RDI\" OR newParticipant.ReasonForRemoval == \"RDR\" OR newParticipant.ReasonForRemoval == \"RPR\""
+          },
+          {
+            "Name": "postcode",
+            "Expression": "string.IsNullOrEmpty(newParticipant.Postcode) OR !dbLookup.ValidateOutcode(newParticipant.Postcode)"
+          },
+          {
+            "Name": "primaryCareProvider",
+            "Expression": "(string.IsNullOrEmpty(existingParticipant.PrimaryCareProvider) || !dbLookup.CheckIfPrimaryCareProviderExists(existingParticipant.PrimaryCareProvider)) && (string.IsNullOrEmpty(existingParticipant.PrimaryCareProvider) || !existingParticipant.PrimaryCareProvider.StartsWith(\"ZZZ\"))"
+          }
+        ],
+        "Expression": "!(reasonForRemoval AND postcode AND primaryCareProvider)"
+      },
+      {
+        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.ParticipantLocationRemainingOutsideOfCohort.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "ExistingParticipantInDMS",
+            "Expression": "(!string.IsNullOrEmpty(existingParticipant.CurrentPosting) AND  existingParticipant.CurrentPosting == \"DMS\" AND !string.IsNullOrEmpty(existingParticipant.PrimaryCareProvider) AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(existingParticipant.PrimaryCareProvider))"
+          },
+          {
+            "Name": "existingParticipantPosting",
+            "Expression": "ExistingParticipantInDMS OR (dbLookup.RetrievePostingCategory(existingParticipant.CurrentPosting) == \"WALES\")"
+          },
+          {
+            "Name": "NewParticipantInDMS",
+            "Expression": "(!string.IsNullOrEmpty(existingParticipant.CurrentPosting) AND  newParticipant.CurrentPosting == \"DMS\" AND !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider))"
+          },
+          {
+            "Name": "newParticipantPosting",
+            "Expression": "NewParticipantInDMS OR (dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"WALES\")"
+          }
+        ],
+        "Expression": "!(existingParticipantPosting AND newParticipantPosting)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Resident in not included area in cohort moving to same or another area not included in cohort.\""
+            }
+          }
+        }
       }
     ]
   }

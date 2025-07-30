@@ -2,15 +2,13 @@ namespace NHS.CohortManager.ParticipantManagementServices;
 
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
-using Microsoft.DurableTask.Client;
-using Microsoft.DurableTask;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Microsoft.Extensions.Options;
 using Common;
 using System.Text.Json;
 using Model;
 using DataServices.Client;
+using Microsoft.AspNetCore.Components.Web;
 
 public class ManageParticipant
 {
@@ -39,7 +37,7 @@ public class ManageParticipant
     /// </summary>
     /// <param name="message">json string containing the participant record</param>
     [Function(nameof(ManageParticipant))]
-    public async Task Run([ServiceBusTrigger("%ParticipantManagementQueueName%", Connection = "ServiceBusConnectionString")] string message)
+    public async Task Run([ServiceBusTrigger(topicName: "%ParticipantManagementTopic%", subscriptionName: "%ManageParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")] string message)
     {
         var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(message)!;
         Participant participant = participantRecord.Participant;
@@ -54,14 +52,18 @@ public class ManageParticipant
             }
 
             long nhsNumber = long.Parse(participant.NhsNumber);
-            short screeningId = short.Parse(participant.ScreeningId);
+            long screeningId = long.Parse(participant.ScreeningId);
 
             var databaseParticipant = await _participantManagementClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber && x.ScreeningId == screeningId);
 
             bool dataServiceResponse;
             if (databaseParticipant is null)
             {
-                dataServiceResponse = await _participantManagementClient.Add(participant.ToParticipantManagement());
+                _logger.LogInformation("Participant not in participant management table, adding new record");
+                var participantManagement = participant.ToParticipantManagement();
+                participantManagement.RecordInsertDateTime = DateTime.UtcNow;
+
+                dataServiceResponse = await _participantManagementClient.Add(participantManagement);
             }
             else if (databaseParticipant.BlockedFlag == 1)
             {
@@ -70,7 +72,13 @@ public class ManageParticipant
             }
             else
             {
-                dataServiceResponse = await _participantManagementClient.Update(participant.ToParticipantManagement());
+                _logger.LogInformation("Existing participant managment record found, updating record {ParticipantId}", databaseParticipant.ParticipantId);
+                var participantManagement = participant.ToParticipantManagement();
+                participantManagement.ParticipantId = databaseParticipant.ParticipantId;
+                participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
+                participantManagement.RecordInsertDateTime = databaseParticipant.RecordInsertDateTime;
+
+                dataServiceResponse = await _participantManagementClient.Update(participantManagement);
             }
 
             if (!dataServiceResponse)
@@ -79,7 +87,7 @@ public class ManageParticipant
                 return;
             }
 
-            await _queueClient.AddAsync(participantRecord, _config.CohortQueueName);
+            await _queueClient.AddAsync(participantRecord, _config.CohortDistributionTopic);
         }
         catch (Exception ex)
         {

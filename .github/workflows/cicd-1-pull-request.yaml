@@ -92,6 +92,7 @@ jobs:
     uses: ./.github/workflows/stage-2-test.yaml
     with:
       unit_test_dir: tests/UnitTests
+      app_dir: application/CohortManager
       build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
       build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
       build_epoch: "${{ needs.metadata.outputs.build_epoch }}"

@@ -62,13 +62,19 @@ export const test = base.extend<{
       await getTestData(testInfo.title, "ADD", true);
 
     let runTimeParquetFile: string = "";
-    if (!parquetFile) {
+    // Skip parquet creation if nhsNumbers contain '', undefined, or are empty
+    const hasInvalidNhsNumbers = nhsNumbers.some(
+      n => n === '' || n === undefined
+    );
+    if (!parquetFile && !hasInvalidNhsNumbers) {
+      const multiplyRecords =
+      nhsNumbers.length !== (Array.isArray(inputParticipantRecord) ? inputParticipantRecord.length : nhsNumbers.length);
       runTimeParquetFile = await createParquetFromJson(
-        nhsNumbers,
-        inputParticipantRecord!,
-        testFilesPath!,
-        "ADD",
-        false
+      nhsNumbers,
+      inputParticipantRecord!,
+      testFilesPath!,
+      "ADD",
+      multiplyRecords
       );
     }
 

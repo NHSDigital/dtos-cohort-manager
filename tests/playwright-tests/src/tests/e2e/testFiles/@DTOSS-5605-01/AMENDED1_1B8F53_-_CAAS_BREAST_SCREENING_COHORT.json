@@ -16,7 +16,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "RecordType": "ADD",
+        "RecordType": "AMENDED",
         "NHSNumber": 9990348367,
         "EligibilityFlag": 1
       },

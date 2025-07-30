@@ -42,7 +42,7 @@ public class RetrieveMeshFile
     [Function("RetrieveMeshFile")]
     public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
     {
-        _logger.LogInformation("C# Timer trigger function executed at: ,{datetime}", DateTime.Now);
+        _logger.LogInformation("C# Timer trigger function executed at: ,{datetime}", DateTime.UtcNow);
 
         static bool messageFilter(MessageMetaData i) => true; // No current filter defined there might be business rules here
 

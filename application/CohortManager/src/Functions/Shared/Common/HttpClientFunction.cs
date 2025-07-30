@@ -3,7 +3,6 @@ namespace Common;
 using System.Net;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 
 public class HttpClientFunction : IHttpClientFunction
@@ -61,12 +60,34 @@ public class HttpClientFunction : IHttpClientFunction
         return await GetAsync(client);
     }
 
-    public async Task<HttpResponseMessage> SendPdsGet(string url)
+    public async Task<HttpResponseMessage> SendGetResponse(string url)
     {
         using var client = _factory.CreateClient();
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+
+        return await client.GetAsync(url);
+    }
+
+    public async Task<string> SendGetOrThrowAsync(string url)
+    {
+        using var client = _factory.CreateClient();
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        return await GetOrThrowAsync(client);
+    }
+
+    public async Task<HttpResponseMessage> SendPdsGet(string url, string bearerToken)
+    {
+        using var client = _factory.CreateClient();
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + bearerToken);
         client.DefaultRequestHeaders.Add("X-Request-ID", Guid.NewGuid().ToString());
         client.DefaultRequestHeaders.Add("X-Correlation-ID", Guid.NewGuid().ToString());
         client.DefaultRequestHeaders.Add("Accept", "application/fhir+json");
@@ -83,33 +104,6 @@ public class HttpClientFunction : IHttpClientFunction
         }
     }
 
-    public async Task<HttpResponseMessage> SendNemsPost(string url, string subscriptionJson, string spineAccessToken, string fromAsid, string toAsid)
-    {
-        using var client = _factory.CreateClient();
-        client.BaseAddress = new Uri(url);
-        client.Timeout = _timeout;
-
-        var request = new HttpRequestMessage(HttpMethod.Post, url)
-        {
-            Content = new StringContent(subscriptionJson, Encoding.UTF8, "application/fhir+json")
-        };
-
-        request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", spineAccessToken);
-        request.Headers.Add("fromASID", fromAsid);
-        request.Headers.Add("toASID", toAsid);
-        request.Headers.Add("Interaction-ID", "urn:nhs:names:services:nems:CreateSubscription");
-
-        try
-        {
-            var response = await client.SendAsync(request);
-            return response;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, errorMessage, RemoveURLQueryString(url), ex.Message);
-            throw;
-        }
-    }
 
     public async Task<HttpResponseMessage> SendPut(string url, string data)
     {
@@ -164,7 +158,7 @@ public class HttpClientFunction : IHttpClientFunction
     /// <summary>
     /// Removes the query string from the URL to prevent us logging sensitive information.
     /// </summary>
-    private static string RemoveURLQueryString(string url)
+    protected static string RemoveURLQueryString(string url)
     {
         if (string.IsNullOrEmpty(url))
         {
@@ -197,6 +191,19 @@ public class HttpClientFunction : IHttpClientFunction
             throw;
         }
 
-        return null;
+        return string.Empty;
+    }
+
+
+    /// <summary>
+    /// Get method that does not supress errors
+    /// </summary>
+    private async Task<string> GetOrThrowAsync(HttpClient client)
+    {
+        var url = client.BaseAddress?.ToString() ?? string.Empty;
+
+        HttpResponseMessage response = await client.GetAsync(url);
+
+        return await GetResponseText(response);
     }
 }

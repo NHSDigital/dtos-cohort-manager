@@ -98,7 +98,7 @@ public class ExceptionManagement
             ErrorRecord = validationException.ErrorRecord,
             Category = validationException.Category,
             ScreeningName = validationException.ScreeningName,
-            ExceptionDate = validationException.ExceptionDate ?? DateTime.Now,
+            ExceptionDate = validationException.ExceptionDate ?? DateTime.UtcNow,
             CohortName = validationException.CohortName,
             IsFatal = short.TryParse(input, out short result) ? result : new short(),
             ServiceNowId = ServiceNowId,

@@ -1,18 +1,27 @@
 import { defineConfig, devices } from "@playwright/test";
-
+import { defineBddConfig } from "playwright-bdd";
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
 import dotenv from "dotenv";
 import path from "path";
+
 dotenv.config({ path: path.resolve(__dirname, ".env.tests") });
+
+/**
+* Define the BDD config.
+*/
+const testDir = defineBddConfig({
+  features: "./tests/features/*.feature",
+  steps: "./tests/features/steps/*.ts",
+});
 
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
 export default defineConfig({
-  testDir: "./e2e",
+  testDir,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -25,10 +34,13 @@ export default defineConfig({
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: "http://localhost:3000",
+    baseURL: "https://localhost:3000",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
-    trace: "on-first-retry",
+    trace: "on",
+    screenshot: "on",
+    viewport: { width: 1280, height: 720 },
+    video: "on",
   },
 
   /* Configure projects for major browsers */
@@ -45,31 +57,107 @@ export default defineConfig({
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
     },
+    // Test against mobile viewports.
+    // Windows Browsers
+    {
+      name: 'Edge (Windows)',
+      use: {
+        ...devices["Desktop Chrome"],
+        launchOptions: {
+          args: ['--ignore-certificate-errors']
+        }
+      },
 
-    /* Test against mobile viewports. */
+    },
+
     // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
+    //   name: "firefox",
+    //   use: { ...devices["Desktop Firefox"] },
     // },
     // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] },
+    // },
+    // // Test against mobile viewports.
+    // // Windows Browsers
+    // {
+    //   name: 'Edge (Windows)',
+    //   use: {
+    //     channel: 'msedge',
+    //   },
+    // },
+    // {
+    //   name: 'Chrome (Windows)',
+    //   use: {
+    //     channel: 'chrome',
+    //   },
+    // },
+    // {
+    //   name: 'Firefox (Windows)',
+    //   use: {
+    //     browserName: 'firefox',
+    //   },
     // },
 
-    /* Test against branded browsers. */
+    // // macOS Browsers
     // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    //   name: 'Safari (macOS)',
+    //   use: {
+    //     browserName: 'webkit',
+    //   },
     // },
     // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+    //   name: 'Chrome (macOS)',
+    //   use: {
+    //     channel: 'chrome',
+    //   },
+    // },
+    // {
+    //   name: 'Firefox (macOS)',
+    //   use: {
+    //     browserName: 'firefox',
+    //   },
+    // },
+
+    // // iOS Safari (emulated)
+    // {
+    //   name: 'Safari (iOS)',
+    //   use: {
+    //     ...devices['iPhone 13'],
+    //   },
+    // },
+    // {
+    //   name: 'Chrome (iOS)',
+    //   use: {
+    //     ...devices['iPhone 13'],
+    //     browserName: 'webkit', // Still uses WebKit on iOS
+    //   },
+    // },
+
+    // // Android Browsers (emulated)
+    // {
+    //   name: 'Chrome (Android)',
+    //   use: {
+    //     ...devices['Pixel 5'],
+    //     browserName: 'chromium',
+    //   },
+    // },
+    // {
+    //   name: 'Edge (Android)',
+    //   use: {
+    //     ...devices['Pixel 5'],
+    //     browserName: 'chromium', // Playwright can't simulate Edge exactly, just Chromium
+    //   },
+    // },
+    // {
+    //   name: 'Firefox (Android)',
+    //   use: {
+    //     ...devices['Pixel 5'],
+    //     browserName: 'firefox',
+    //     isMobile: undefined,
+    //     deviceScaleFactor: undefined,
+    //     hasTouch: undefined,
+    //   },
     // },
   ],
-
-  webServer: {
-    command: "npm run dev",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-  },
 });

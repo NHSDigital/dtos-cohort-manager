@@ -25,7 +25,7 @@ public static class ValidationHelper
 
         if (date.HasValue)
         {
-            return date < DateTime.Today.AddDays(1);
+            return date < DateTime.UtcNow.Date.AddDays(1);
         }
 
         return false;
@@ -81,19 +81,21 @@ public static class ValidationHelper
     /// </summary>
     /// <param name="postcode">Postcode string (not null)</param>
     /// <returns>bool, whether or not the postcode is valid</returns>
-    /// <remarks> 
-    /// further information for postcode validation can be found in 
+    /// <remarks>
+    /// further information for postcode validation can be found in
     /// ADR-008 on confluence.
     /// </remarks>
     public static bool ValidatePostcode(string postcode)
     {
         string validPostcodePattern = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$";
-        string dummyPostcodePattern = "^ZZ99 ?[0-9][A-Z]{2}$";
+        string dummyPostcodePattern1 = "^ZZ99 ?[0-9][A-Z]{2}$";
+        string dummyPostcodePattern2 = "^ZZZSECUR$";
 
         Match validPostcodeMatch = Regex.Match(postcode, validPostcodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
-        Match dummyPostcodeMatch = Regex.Match(postcode, dummyPostcodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+        Match dummyPostcodeMatch1 = Regex.Match(postcode, dummyPostcodePattern1, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+        Match dummyPostcodeMatch2 = Regex.Match(postcode, dummyPostcodePattern2, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
 
-        if (validPostcodeMatch.Success || dummyPostcodeMatch.Success)
+        if (validPostcodeMatch.Success || dummyPostcodeMatch1.Success || dummyPostcodeMatch2.Success)
             return true;
 
         return false;

@@ -35,8 +35,6 @@ public class ParticipantManagement
     public Int16 BlockedFlag { get; set; }
     [Column("REFERRAL_FLAG")]
     public Int16 ReferralFlag { get; set; }
-    [Column("CEASED_FLAG")]
-    public Int16 CeasedFlag { get; set; }
     [Column("RECORD_UPDATE_DATETIME", TypeName = "datetime")]
     public DateTime? RecordUpdateDateTime { get; set; }
     [Column("NEXT_TEST_DUE_DATE", TypeName = "datetime")]

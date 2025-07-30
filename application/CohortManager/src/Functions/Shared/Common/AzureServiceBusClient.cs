@@ -28,9 +28,9 @@ public class AzureServiceBusClient : IQueueClient
     /// <param name="queueName"></param>
     /// <param name="topicName"></param>
     /// <returns></returns>
-    public async Task<bool> AddAsync<T>(T message, string queueTopicName)
+    public async Task<bool> AddAsync<T>(T message, string queueName)
     {
-        var sender = _senders.GetOrAdd(queueTopicName, _serviceBusClient.CreateSender(queueTopicName));
+        var sender = _senders.GetOrAdd(queueName, _serviceBusClient.CreateSender);
 
         try
         {
@@ -44,7 +44,7 @@ public class AzureServiceBusClient : IQueueClient
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There was an error sending message to service bus queue {QueueName} {ErrorMessage}", queueTopicName, ex.Message);
+            _logger.LogError(ex, "There was an error sending message to service bus queue {queueName} {errorMessage}", queueName, ex.Message);
             return false;
         }
     }

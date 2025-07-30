@@ -3,18 +3,22 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9992728167,
+        "NHSNumber": 9999111165,
         "expectedCount": 2
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5418-01",
+        "requirementJiraId": "DTOSS-2759",
+        "additionalTags": "@regression @e2e @epic2-high-priority @Validate NO Exception is raised when reason for removal is provided and empty GP practice code"
       }
     }
-
   ],
   "inputParticipantRecord": [
     {
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9992728167,
+      "nhs_number": 9999111165,
       "superseded_by_nhs_number": null,
       "primary_care_provider": null,
       "primary_care_effective_from_date": null,
@@ -52,6 +56,6 @@
     }
   ],
   "nhsNumbers": [
-    "9992728167"
+    "9999111165"
   ]
 }

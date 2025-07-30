@@ -19,11 +19,11 @@
 // There is no impact to the test tags. The same tags can be used to trigger these tests.
 // For example, to run regression tests, use:
 //
-//   npm run test:regression:e2e:epic2
+//   npm run test:regression_e2e_epic2
 //
 // This equates to "@epic2-" tags, configured in the package.json at the playwright-tests root location.
 //
 
-export const runnerBasedEpic2TestScenariosAdd = "@DTOSS-5104-01|@DTOSS-5613-01|@DTOSS-4395-01|@DTOSS-4397-01|@DTOSS-4562-01|@DTOSS-4563-01|@DTOSS-3206-01|@DTOSS-4136-01|@DTOSS-4323-01|@DTOSS-4321-01|@DTOSS-4338-01|@DTOSS-4342-01|@DTOSS-4345-01|@DTOSS-4558-01|@DTOSS-4371-01|@DTOSS-4330-01|@DTOSS-4089-01|@DTOSS-4356-01";
+export const runnerBasedEpic2TestScenariosAdd = "@DTOSS-5104-01|@DTOSS-5613-01|@DTOSS-4395-01|@DTOSS-4397-01|@DTOSS-4562-01|@DTOSS-4563-01|@DTOSS-3206-01|@DTOSS-4089-01|@DTOSS-4102-01|@DTOSS-4088-01|@DTOSS-4103-01|@DTOSS-4092-01|@DTOSS-4099-01";
 
-export const runnerBasedEpic2TestScenariosAmend = "@DTOSS-5605-01|@DTOSS-4396-01|@DTOSS-5419-01|@DTOSS-4068-01|@DTOSS-4070-01|@DTOSS-4564-01|@DTOSS-4322-01|@DTOSS-4324-01|@DTOSS-4341-01|@DTOSS-4344-01|@DTOSS-4343-01|@DTOSS-4372-01|@DTOSS-4349-01|@DTOSS-4352-01|@DTOSS-4365-01|@DTOSS-4091-01";
+export const runnerBasedEpic2TestScenariosAmend = "@DTOSS-5605-01|@DTOSS-4396-01|@DTOSS-5419-01|@DTOSS-4068-01|@DTOSS-4070-01|@DTOSS-4564-01|@DTOSS-4091-01|@DTOSS-4561-01|@DTOSS-5418-01|@DTOSS-4090-01|@DTOSS-4384-01|@DTOSS-4094-01|@DTOSS-4219-01|@DTOSS-4383-01|@DTOSS-4220-01";

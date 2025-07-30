@@ -5,21 +5,47 @@ using Microsoft.Extensions.Hosting;
 using Common;
 using NHS.CohortManager.DemographicServices;
 using DataServices.Database;
-using Azure.Data.Tables;
+using Microsoft.Extensions.Logging;
 
-var host = new HostBuilder()
-    .AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config)
-    .ConfigureFunctionsWebApplication()
-    .AddDataServicesHandler<DataServicesContext>()
+var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+var logger = loggerFactory.CreateLogger("Program");
+
+var host = new HostBuilder();
+
+// Load configuration
+host.AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config);
+
+var nemsConfig = config;
+
+// Load NEMS certificate up-front and inject into DI
+var nemsCertificate = await nemsConfig.LoadNemsCertificateAsync(logger);
+
+host.ConfigureFunctionsWebApplication();
+host.AddHttpClient()
+    .AddNemsHttpClient()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<ICreateResponse, CreateResponse>();
+        // Register NEMS certificate
+        services.AddSingleton(nemsCertificate);
+
+        // Register NEMS subscription manager
         services.AddScoped<NemsSubscriptionManager>();
+
+        // Register response helpers
+        services.AddSingleton<ICreateResponse, CreateResponse>();
+
         // Register health checks
         services.AddDatabaseHealthCheck("NEMSSubscription");
-    })
-    .AddTelemetry()
-    .AddHttpClient()
-    .Build();
 
-await host.RunAsync();
+        // Log configuration for debugging (without sensitive data)
+        logger.LogInformation("NEMS Configuration loaded - Endpoint: {Endpoint}, ODS: {OdsCode}, MESH: {MeshId}",
+            nemsConfig.NemsFhirEndpoint,
+            nemsConfig.NemsOdsCode,
+            string.IsNullOrEmpty(nemsConfig.NemsMeshMailboxId) ? "NOT_SET" : "SET");
+    })
+    .AddDataServicesHandler<DataServicesContext>()
+    .AddTelemetry()
+    .AddExceptionHandler();
+
+var app = host.Build();
+await app.RunAsync();

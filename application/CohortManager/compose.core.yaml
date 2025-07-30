@@ -68,29 +68,20 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
       - ASPNETCORE_URLS=http://*:7060
-      - PMSAddParticipant=http://add-participant:7062/api/addParticipant
-      - PMSRemoveParticipant=http://remove-participant:7063/api/RemoveParticipant
-      - PMSUpdateParticipant=http://update-participant:7065/api/updateParticipant
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - StaticValidationURL=http://static-validation:7074/api/StaticValidation
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - DemographicURI=http://durable-demographic-function:7079/api/DurableDemographicFunction_HttpStart
       - GetOrchestrationStatusURL=http://durable-demographic-function:7079/api/GetOrchestrationStatus
       - AllowDeleteRecords=true
-      - AddQueueName=add-participant-queue
       - BatchSize=3500
       - maxNumberOfChecks=50
-      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - recordThresholdForBatching=3
       - batchDivisionFactor=5
-      - UpdateQueueName=update-participant-queue
       - ScreeningLkpDataServiceURL=http://screening-lkp-data-service:8996/api/ScreeningLkpDataService
-      - maxNumberOfChecks=50
       - inboundBlobName=inbound
-      - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
-      - ParticipantManagementQueueName=participant-management-queue
-      - UseNewFunctions=false
+      - ParticipantManagementTopic=participant-management-topic
 
   # Participant Management Service
   manage-participant:
@@ -101,64 +92,13 @@ services:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/ManageParticipant/Dockerfile
     environment:
-      - ServiceBusConnectionString=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
-      - CohortQueueName=cohort-distribution-queue
-      - ParticipantManagementQueueName=participant-management-queue
+      - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - CohortDistributionTopic=cohort-distribution-topic
+      - ParticipantManagementTopic=participant-management-topic
+      - ManageParticipantSubscription=manage-participant-sub
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-
-  add-participant:
-    container_name: add-participant
-    image: cohort-manager-add-participant
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/addParticipant/Dockerfile
-    develop:
-      watch:
-        - action: rebuild
-          path: ./src/Functions/ParticipantManagementServices/addParticipant
-    environment:
-      - ASPNETCORE_URLS=http://*:7062
-      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - DSaddParticipant=http://create-participant:7066/api/CreateParticipant
-      - DemographicURIGet=http://demographic-data-management:7076/api/DemographicDataFunction
-      - StaticValidationURL=http://static-validation:7074/api/StaticValidation
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - CohortDistributionServiceURL=http://create-cohort-distribution:7082/api/CreateCohortDistribution
-      - CohortQueueName=cohort-distribution-queue
-      - AddQueueName=add-participant-queue
-
-  remove-participant:
-    container_name: remove-participant
-    image: cohort-manager-remove-participant
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/RemoveParticipant/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7063
-      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - UpdateParticipant=http://update-participant-details:7069/api/updateParticipantDetails
-      - CohortQueueName=cohort-distribution-queue
-
-  update-participant:
-    container_name: update-participant
-    image: cohort-manager-update-participant
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: ParticipantManagementServices/updateParticipant/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7065
-      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - UpdateParticipant=http://update-participant-details:7069/api/updateParticipantDetails
-      - StaticValidationURL=http://static-validation:7074/api/StaticValidation
-      - DemographicURIGet=http://demographic-data-management:7076/api/DemographicDataFunction
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - CohortDistributionServiceURL=http://create-cohort-distribution:7082/api/CreateCohortDistribution
-      - CohortQueueName=cohort-distribution-queue
-      - UpdateQueueName=update-participant-queue
 
   update-blocked-flag:
     container_name: update-blocked-flag
@@ -177,39 +117,24 @@ services:
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
 
-  # Screening Data Service
-  create-participant:
-    container_name: create-participant
-    image: cohort-manager-create-participant
+  delete-participant:
+    container_name: delete-participant
+    image: cohort-manager-delete-participant
     networks: [cohman-network]
+    ports:
+    - "7087:7087"
     build:
       context: ./src/Functions/
-      dockerfile: screeningDataServices/createParticipant/Dockerfile
+      dockerfile: ParticipantManagementServices/DeleteParticipant/Dockerfile
     environment:
-      - ASPNETCORE_URLS=http://*:7066
-      - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
-      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - LookupValidationURL=http://lookup-validation:7075/api/LookupValidation
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - ASPNETCORE_URLS=http://*:7087
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - AcceptableLatencyThresholdMs=500
-
-  update-participant-details:
-    container_name: update-participant-details
-    image: cohort-manager-update-participant-details
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: screeningDataServices/updateParticipantDetails/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7069
-      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - LookupValidationURL=http://lookup-validation:7075/api/LookupValidation
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - AcceptableLatencyThresholdMs=500
 
+
+  # Screening Data Service
   create-exception:
     container_name: create-exception
     image: cohort-manager-create-exception
@@ -224,24 +149,6 @@ services:
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
       - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
 
-  exception-creation:
-    container_name: create-exception
-    image: cohort-manager-create-exception
-    networks: [cohman-network]
-    profiles: [non-essential]
-    build:
-      context: ./src/Functions/
-      dockerfile: ExceptionHandling/ExceptionCreation/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7070
-      - ExceptionTopic="createExceptionTopic"
-      - ExceptionSubscription="exceptionSub"
-      - ServiceBusConnectionString="Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true"
-      - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
-      - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
-      
-
-
   update-exception:
     container_name: update-exception
     image: cohort-manager-update-exception
@@ -249,6 +156,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ExceptionHandling/UpdateException/Dockerfile
+    profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -280,11 +188,8 @@ services:
       dockerfile: ScreeningValidationService/StaticValidation/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7074
-      - CreateValidationExceptionURL=http://create-exception:7070/api/CreateValidationException
-      - BlobContainerName=rules
-      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - RemoveOldValidationRecord=http://remove-validation-exception-data:7085/api/RemoveValidationExceptionData
+      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
 
   lookup-validation:
     container_name: lookup-validation
@@ -296,27 +201,15 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7075
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - BsSelectGpPracticeUrl=http://bs-select-gp-practice-data-service:7998/api/BsSelectGpPracticeDataService
-      - BsSelectOutCodeUrl=http://bs-select-outcode-data-service:7881/api/BsSelectOutCodeDataService
-      - CurrentPostingUrl=http://current-posting-data-service:7996/api/CurrentPostingDataService
-      - ExcludedSMULookupUrl=http://excluded-smu-data-service:7995/api/ExcludedSMUDataService
+      - BsSelectGpPracticeUrl=http://reference-data-service:7988/api/BsSelectGpPractice
+      - BsSelectOutCodeUrl=http://reference-data-service:7988/api/BsSelectOutCode
+      - CurrentPostingUrl=http://reference-data-service:7988/api/CurrentPosting
+      - ExcludedSMULookupUrl=http://reference-data-service:7988/api/ExcludedSMU
       - BlobContainerName=rules
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
 
   # Demographic Services
-  demographic-data-management:
-    container_name: demographic-data-management
-    image: cohort-manager-demographic-data-management
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: DemographicServices/DemographicDataManagementFunction/Dockerfile
-    environment:
-      - ASPNETCORE_URLS=http://*:7076
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
-
   retrieve-pds-demographic:
     container_name: retrieve-pds-demographic
     image: cohort-manager-retrieve-pds-demographic
@@ -330,24 +223,40 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsParticipantURL=https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - Kid=RetrievePdsDemographic-DEV1
+      - Audience=https://int.api.service.nhs.uk/oauth2/token
+      - AuthTokenURL=https://int.api.service.nhs.uk/oauth2/token
+      - LocalPrivateKeyFileName=RetrievePdsDemographic-DEV1.pem.key
+      - ClientId="Get-private-key-from-NHS-dev-portal"
 
   manage-nems-subscription:
-    container_name: manage-nems-subscription
-    image: cohort-manager-manage-nems-subscription
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile
-    profiles: [non-essential]
-    environment:
-      - ASPNETCORE_URLS=http://*:9081
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
-      - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
-      - NemsFhirEndpoint=https://localhost:8080/fhir
-      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-    ports:
-      - "9081:9081"
+      container_name: manage-nems-subscription
+      image: cohort-manager-manage-nems-subscription
+      networks: [cohman-network]
+      profiles: [non-essential]
+      build:
+        context: ./src/Functions/
+        dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile
+      environment:
+        - ASPNETCORE_URLS=http://*:9081
+        - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+        - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+        - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+        - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+        - NemsFhirEndpoint=https://msg.intspineservices.nhs.uk/STU3
+        - NemsFromAsid=200000002527
+        - NemsToAsid=200000002527
+        - NemsOdsCode=T8T9T
+        - NemsMeshMailboxId=${NEMS_MESH_MAILBOX_ID}
+        - NemsLocalCertPath=./nhs_signed_client.pfx
+        - NemsLocalCertPassword=${NEMS_CERT_PASSWORD}
+        - NemsSubscriptionProfile=https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1
+        - NemsSubscriptionCriteria=https://fhir.nhs.uk/Id/nhs-number
+        - NemsDefaultEventTypes0=pds-record-change-1
+        - NemsBypassServerCertificateValidation=true
+        - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      ports:
+        - "9081:9081"
 
   durable-demographic-function:
     container_name: durable-demographic-function
@@ -358,7 +267,7 @@ services:
       dockerfile: DemographicServices/DemographicDurableFunction/Dockerfile
     environment:
       - ASPNETCORE_URLS=http://*:7079
-      - WEBSITE_HOSTNAME=localhost:7079
+      - WEBSITE_HOSTNAME=durable-demographic-function:7079
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -376,8 +285,13 @@ services:
     profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:9092
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - ServiceNowRefreshAccessTokenUrl=https://nhsdigitaldev.service-now.com/oauth_token.do
+      - ServiceNowUpdateUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate
+      - ServiceNowClientId=${SERVICENOW_CLIENT_ID}
+      - ServiceNowClientSecret=${SERVICENOW_CLIENT_SECRET}
+      - ServiceNowRefreshToken=${SERVICENOW_REFRESH_TOKEN}
+    ports:
+      - "9092:9092"
 
   servicenow-cohort-lookup:
     container_name: servicenow-cohort-lookup

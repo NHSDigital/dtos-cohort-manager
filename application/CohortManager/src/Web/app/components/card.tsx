@@ -14,18 +14,26 @@ export default function Card({
   url,
 }: Readonly<CardProps>) {
   return (
-    <div className="nhsuk-card nhsuk-card--clickable">
+    <div className="nhsuk-card nhsuk-card--clickable" data-testid="card">
       <div className="nhsuk-card__content">
-        <p className="nhsuk-heading-xl nhsuk-u-font-size-64 nhsuk-u-margin-bottom-1">
+        <p
+          className="nhsuk-heading-xl nhsuk-u-font-size-64 nhsuk-u-margin-bottom-1"
+          data-testid="card-number"
+        >
           {value} <span className="nhsuk-u-visually-hidden">{label}</span>
         </p>
-        <h3 className="nhsuk-card__heading nhsuk-heading-m">
+        <h3
+          className="nhsuk-card__heading nhsuk-heading-m"
+          data-testid="card-heading"
+        >
           <Link href={url} className="nhsuk-link--no-visited-state">
             {label}
           </Link>
         </h3>
         {description && (
-          <p className="nhsuk-card__description">{description}</p>
+          <p className="nhsuk-card__description" data-testid="card-description">
+            {description}
+          </p>
         )}
       </div>
     </div>

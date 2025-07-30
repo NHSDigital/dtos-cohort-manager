@@ -49,7 +49,7 @@ public class ProcessNemsUpdate
     /// This function returns nothing, only logs information/errors for successful or failing tasks.
     /// </returns>
     [Function(nameof(ProcessNemsUpdate))]
-    public async Task Run([BlobTrigger("nems-messages/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
+    public async Task Run([BlobTrigger("nems-messages/{name}", Connection = "nemsmeshfolder_STORAGE")] Stream blobStream, string name)
     {
         try
         {
@@ -85,7 +85,7 @@ public class ProcessNemsUpdate
                     SupersededByNhsNumber = retrievedPdsRecord?.NhsNumber,
                     PrimaryCareProvider = null,
                     ReasonForRemoval = "ORR",
-                    RemovalEffectiveFromDate = DateTime.Today.ToString("yyyyMMdd")
+                    RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
                 };
 
                 _logger.LogInformation("NHS numbers do not match, processing the superseded record.");

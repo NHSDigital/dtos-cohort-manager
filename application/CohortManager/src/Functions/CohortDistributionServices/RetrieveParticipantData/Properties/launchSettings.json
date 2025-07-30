@@ -1,9 +1,0 @@
-{
-  "profiles": {
-    "RetrieveParticipantData": {
-      "commandName": "Project",
-      "commandLineArgs": "--port 7292",
-      "launchBrowser": false
-    }
-  }
-}

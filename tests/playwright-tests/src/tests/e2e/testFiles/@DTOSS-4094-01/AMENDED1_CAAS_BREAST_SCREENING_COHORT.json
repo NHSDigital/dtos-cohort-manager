@@ -3,9 +3,14 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9991845666",
+        "NhsNumber": "9999111246",
         "RuleId": 3,
         "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-4094-01",
+        "requirementJiraId": "DTOSS-3035",
+        "additionalTags": "@regression @e2e @epic2-high-priority @Validate exception raised when GP practice code and Reason for Removal fields contain incompatible values"
       }
     }
   ],
@@ -14,7 +19,7 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 1,
-      "nhs_number": 9991845666,
+      "nhs_number": 9999111246,
       "superseded_by_nhs_number": null,
       "primary_care_provider": "",
       "primary_care_effective_from_date": "20130319",
@@ -51,5 +56,7 @@
       "eligibility": true
     }
   ],
-  "nhsNumbers": ["9991845666"]
+  "nhsNumbers": [
+    "9999111246"
+  ]
 }

@@ -53,6 +53,91 @@ public class CohortDistributionParticipant
         RecordType = null!;
     }
 
+    public CohortDistributionParticipant(ParticipantManagement participant, Demographic demographic)
+    {
+        ParticipantId = participant.ParticipantId.ToString();
+        NhsNumber = participant.NHSNumber.ToString();
+        SupersededByNhsNumber = demographic.SupersededByNhsNumber;
+        PrimaryCareProvider = demographic.PrimaryCareProvider;
+        PrimaryCareProviderEffectiveFromDate = demographic.PrimaryCareProviderEffectiveFromDate;
+        NamePrefix = demographic.NamePrefix;
+        FirstName = demographic.FirstName;
+        OtherGivenNames = demographic.OtherGivenNames;
+        FamilyName = demographic.FamilyName;
+        PreviousFamilyName = demographic.PreviousFamilyName;
+        DateOfBirth = demographic.DateOfBirth;
+        Gender = demographic.Gender.GetValueOrDefault();
+        AddressLine1 = demographic.AddressLine1;
+        AddressLine2 = demographic.AddressLine2;
+        AddressLine3 = demographic.AddressLine3;
+        AddressLine4 = demographic.AddressLine4;
+        AddressLine5 = demographic.AddressLine5;
+        Postcode = demographic.Postcode;
+        UsualAddressEffectiveFromDate = demographic.UsualAddressEffectiveFromDate;
+        DateOfDeath = demographic.DateOfDeath;
+        TelephoneNumber = demographic.TelephoneNumber;
+        TelephoneNumberEffectiveFromDate = demographic.TelephoneNumberEffectiveFromDate;
+        MobileNumber = demographic.MobileNumber;
+        MobileNumberEffectiveFromDate = demographic.MobileNumberEffectiveFromDate;
+        EmailAddress = demographic.EmailAddress;
+        EmailAddressEffectiveFromDate = demographic.EmailAddressEffectiveFromDate;
+        PreferredLanguage = demographic.PreferredLanguage;
+        IsInterpreterRequired = demographic.IsInterpreterRequired;
+        ReasonForRemoval = participant.ReasonForRemoval;
+        ReasonForRemovalEffectiveFromDate = participant.ReasonForRemovalDate.ToString();
+        RecordInsertDateTime = demographic.RecordInsertDateTime;
+        RecordUpdateDateTime = participant.RecordUpdateDateTime.ToString();
+        ScreeningServiceId = participant.ScreeningId.ToString();
+        Extracted = null;
+        RecordType = participant.RecordType;
+        CurrentPosting = demographic.CurrentPosting;
+        CurrentPostingEffectiveFromDate = demographic.CurrentPostingEffectiveFromDate;
+        ExceptionFlag = participant.ExceptionFlag;
+        InvalidFlag = demographic.InvalidFlag;
+    }
+
+    public CohortDistributionParticipant(ParticipantManagement participant, ParticipantDemographic demographic)
+    {
+        ParticipantId = participant.ParticipantId.ToString();
+        NhsNumber = participant.NHSNumber.ToString();
+        SupersededByNhsNumber = demographic.SupersededByNhsNumber.ToString();
+        PrimaryCareProvider = demographic.PrimaryCareProvider;
+        PrimaryCareProviderEffectiveFromDate = demographic.PrimaryCareProviderFromDate;
+        NamePrefix = demographic.NamePrefix;
+        FirstName = demographic.GivenName;
+        OtherGivenNames = demographic.OtherGivenName;
+        FamilyName = demographic.FamilyName;
+        PreviousFamilyName = demographic.PreviousFamilyName;
+        DateOfBirth = demographic.DateOfBirth;
+        Gender = (Gender) (demographic.Gender ?? 0);
+        AddressLine1 = demographic.AddressLine1;
+        AddressLine2 = demographic.AddressLine2;
+        AddressLine3 = demographic.AddressLine3;
+        AddressLine4 = demographic.AddressLine4;
+        AddressLine5 = demographic.AddressLine5;
+        Postcode = demographic.PostCode;
+        UsualAddressEffectiveFromDate = demographic.UsualAddressFromDate;
+        DateOfDeath = demographic.DateOfDeath;
+        TelephoneNumber = demographic.TelephoneNumberHome;
+        TelephoneNumberEffectiveFromDate = demographic.TelephoneNumberHomeFromDate;
+        MobileNumber = demographic.TelephoneNumberMob;
+        MobileNumberEffectiveFromDate = demographic.TelephoneNumberMobFromDate;
+        EmailAddress = demographic.EmailAddressHome;
+        EmailAddressEffectiveFromDate = demographic.EmailAddressHomeFromDate;
+        PreferredLanguage = demographic.PreferredLanguage;
+        IsInterpreterRequired = demographic.InterpreterRequired.ToString();
+        ReasonForRemoval = participant.ReasonForRemoval;
+        ReasonForRemovalEffectiveFromDate = participant.ReasonForRemovalDate.ToString();
+        ScreeningServiceId = participant.ScreeningId.ToString();
+        Extracted = null;
+        RecordType = participant.RecordType;
+        CurrentPosting = demographic.CurrentPosting;
+        CurrentPostingEffectiveFromDate = demographic.CurrentPostingFromDate;
+        ExceptionFlag = participant.ExceptionFlag;
+        InvalidFlag = demographic.InvalidFlag.ToString();
+        EligibilityFlag = participant.EligibilityFlag.ToString();
+    }
+
     public string? RequestId { get; set; }
     public string NhsNumber { get; set; }
     public string? SupersededByNhsNumber { get; set; }

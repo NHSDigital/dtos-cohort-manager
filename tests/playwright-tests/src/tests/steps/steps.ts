@@ -46,11 +46,22 @@ export async function getTestData(scenarioFolderName: string
     const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
     const inputParticipantRecord: Record<string, any> = parsedData.inputParticipantRecord;
 
-    const rawNhsNumbers: string[] = parsedData.validations.map(item =>
-      String(item.validations.NHSNumber || item.validations.NhsNumber)
-    );
+    let nhsNumbers: string[] = [];
+    if (parsedData.inputParticipantRecord.length !== parsedData.nhsNumbers.length) {
+      console.info(`Input participant record length (${parsedData.inputParticipantRecord.length}) does not match NHS numbers length (${parsedData.nhsNumbers.length}). Using NHS numbers from parsed data nhsNumbers property to attempt multiply records when parquet file is created.`);
+      nhsNumbers = parsedData.nhsNumbers;
+    } else {
+      nhsNumbers = parsedData.validations.map(item =>
+        String(item.validations.NHSNumber || item.validations.NhsNumber)
+      );
+    }
 
-    const nhsNumbers = ensureNhsNumbersStartWith999(rawNhsNumbers);
+    if (nhsNumbers.length === 0 || nhsNumbers[0] === '') {
+      nhsNumbers = parsedData.nhsNumbers;
+    }
+
+    ensureNhsNumbersStartWith999(nhsNumbers);
+
 
     const uniqueNhsNumbers: string[] = Array.from(new Set(nhsNumbers));
     return [parsedData.validations, uniqueNhsNumbers, parquetFile, inputParticipantRecord, testFilesPath];
@@ -117,6 +128,16 @@ export async function getApiTestData(scenarioFolderName: string, recordType: str
     const inputParticipantRecord: Record<string, any> = parsedData.inputParticipantRecord;
     const nhsNumbers: string[] = parsedData.nhsNumbers;
     return [parsedData.validations, inputParticipantRecord, nhsNumbers, testFilesPath];
+  });
+}
+
+export async function getApiQueryParams(scenarioFolderName: string, recordType: string): Promise<any> {
+  return test.step(`Creating Input Data from JSON file`, async () => {
+    console.info('🏃‍♂️‍➡️\tRunning test For: ', scenarioFolderName);
+    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
+    const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
+    const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
+    return parsedData.queryParams;
   });
 }
 

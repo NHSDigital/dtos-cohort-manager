@@ -43,7 +43,7 @@ try
     })
     .AddTelemetry()
     .AddHttpClient()
-    .AddAzureQueues(config.UseNewFunctions, config.ServiceBusConnectionString)
+    .AddServiceBusClient(config.ServiceBusConnectionString_client_internal)
     .AddExceptionHandler()
     .AddDatabaseConnection()
     .Build();
@@ -52,5 +52,5 @@ try
 }
 catch (Exception ex)
 {
-    logger.LogCritical(ex, "failed to start up function receive caas file function function");
+    logger.LogCritical(ex, "failed to start up function receive caas file");
 }

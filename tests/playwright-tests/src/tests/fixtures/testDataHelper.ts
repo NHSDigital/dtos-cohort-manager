@@ -1,14 +1,11 @@
+export function ensureNhsNumbersStartWith999(nhsNumbers: (string | null | undefined)[]) {
+  nhsNumbers.forEach((original) => {
+    if (!original || original === '' || original === 'undefined') return; // allow null, undefined, empty string, or string 'undefined' for negative tests where nhs number is not updated
 
-export function ensureNhsNumbersStartWith999(nhsNumbers: string[]): string[] {
-  return nhsNumbers.map((original) => {
     let numeric = original.replace(/\D/g, "");
 
-    if (numeric.length < 9) {
-      numeric = numeric.padEnd(9, "0");
-    } else if (numeric.length > 9) {
-      numeric = numeric.slice(numeric.length - 9);
+    if (!numeric.startsWith("999")) {
+      throw new Error(`NHS number must start with 999: ${original}`);
     }
-
-    return "999" + numeric.slice(3);
   });
 }

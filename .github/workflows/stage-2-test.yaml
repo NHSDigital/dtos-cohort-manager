@@ -14,6 +14,10 @@ on:
         description: Directory containing the unit tests
         required: true
         type: string
+      app_dir:
+        description: Directory containing application code and compose files
+        required: true
+        type: string
       unit_test_logger_format:
         description: Test report format
         required: false

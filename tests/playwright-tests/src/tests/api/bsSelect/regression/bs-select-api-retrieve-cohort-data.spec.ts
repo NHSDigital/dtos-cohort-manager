@@ -4,6 +4,7 @@ import { getApiTestData, processFileViaStorage, cleanupDatabaseFromAPI, validate
 import { checkMappingsByIndex } from '../../../../api/apiHelper';
 import { getRecordsFromBsSelectRetrieveCohort } from '../../../../api/distributionService/bsSelectService'
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../../api/responseValidators';
+import { config } from "../../../../config/env";
 
 
 test.describe.serial('@regression @api Positive - Cohort Distribution Data Retrieval API ADD and AMENDED', async () => {
@@ -22,6 +23,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`Then participants should be updated in the cohort ready to be picked up`, async () => {
       await validateSqlDatabaseFromAPI(request, checkInDatabase);
+      await new Promise(resolve => setTimeout(resolve, config.apiWaitTime));
     });
 
 
@@ -54,6 +56,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`Then participants should be updated in the cohort ready to be picked up`, async () => {
       await validateSqlDatabaseFromAPI(request, checkInDatabase);
+      await new Promise(resolve => setTimeout(resolve, config.apiWaitTime));
     });
 
     await test.step(`Then participants received from api should be 10 with status code of 200`, async () => {
@@ -104,6 +107,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`Then participants should be updated in the cohort ready to be picked up`, async () => {
       await validateSqlDatabaseFromAPI(request, checkInDatabase);
+      await new Promise(resolve => setTimeout(resolve, config.apiWaitTime));
     });
 
 
@@ -165,6 +169,7 @@ test.describe.serial('@regression @api Positive - Cohort Distribution Data Retri
 
     await test.step(`Then participants should be updated in the cohort ready to be picked up`, async () => {
       await validateSqlDatabaseFromAPI(request, checkInDatabase);
+      await new Promise(resolve => setTimeout(resolve, config.apiWaitTime));
     });
 
 
@@ -292,6 +297,7 @@ test.describe.serial('@regression @api Negative - Cohort Distribution Data Retri
 
     await test.step(`Then participants should be updated in the cohort ready to be picked up`, async () => {
       await validateSqlDatabaseFromAPI(request, checkInDatabase);
+      await new Promise(resolve => setTimeout(resolve, config.apiWaitTime));
     });
 
 

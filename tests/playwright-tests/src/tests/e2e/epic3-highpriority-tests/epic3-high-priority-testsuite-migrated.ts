@@ -19,10 +19,12 @@
 // There is no impact to the test tags. The same tags can be used to trigger these tests.
 // For example, to run regression tests, use:
 //
-//   npm run test:regression:e2e:epic3
+//   npm run test:regression_e2e_epic3
 //
 // This equates to "@epic3-" tags, configured in the package.json at the playwright-tests root location.
 
+// Epic-4D User Story : "https://nhsd-jira.digital.nhs.uk/browse/DTOSS-8983" has been tested as part of 3082 Epic 3 which are already has test coverage and track the migration of Epic 3 High Priority tests
+// The Epic 4D will be used to track the migration of all Epic 3 High
 
-export const runnerBasedEpic3TestScenariosAdd = "@DTOSS-5539-01|@DTOSS-5348-01|@DTOSS-5223-01";
-export const runnerBasedEpic3TestScenariosAmend = "@DTOSS-5801-01|@DTOSS-5589-01|@DTOSS-5407-01|@DTOSS-5406-01|@DTOSS-5405-01|@DTOSS-5222-01|@DTOSS-5388-01|@DTOSS-5402-01";
+export const runnerBasedEpic3TestScenariosAdd = "@DTOSS-5539-01|@DTOSS-5348-01|@DTOSS-9723-01|@DTOSS-9719-01";
+export const runnerBasedEpic3TestScenariosAmend = "@DTOSS-5801-01|@DTOSS-5589-01|@DTOSS-5407-01|@DTOSS-5406-01|@DTOSS-9721-01|@DTOSS-5388-01|@DTOSS-5402-01|@DTOSS-9720-01";

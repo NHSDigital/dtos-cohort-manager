@@ -5,7 +5,6 @@ using System.Data;
 using System.Threading.Tasks;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Model;
 using Model.Enums;
 
@@ -25,13 +24,13 @@ public class ValidationExceptionData : IValidationExceptionData
         _demographicDataServiceClient = demographicDataServiceClient;
     }
 
-    public async Task<List<ValidationException>?> GetAllExceptions(ExceptionSort? orderByProperty, ExceptionCategory exceptionCategory)
+    public async Task<List<ValidationException>?> GetAllFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory)
     {
         var category = (int)exceptionCategory;
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.Category != null && x.Category.Value == category);
         var exceptionList = exceptions.Select(s => s.ToValidationException());
 
-        return SortExceptions(orderByProperty, exceptionList);
+        return SortExceptions(sortOrder, exceptionList, exceptionStatus);
     }
 
     public async Task<ValidationException?> GetExceptionById(int exceptionId)
@@ -73,11 +72,35 @@ public class ValidationExceptionData : IValidationExceptionData
 
         if (validationExceptionToUpdate != null)
         {
-            validationExceptionToUpdate.DateResolved = DateTime.Today;
-            validationExceptionToUpdate.RecordUpdatedDate = DateTime.Now;
+            validationExceptionToUpdate.DateResolved = DateTime.UtcNow.Date;
+            validationExceptionToUpdate.RecordUpdatedDate = DateTime.UtcNow;
             return await _validationExceptionDataServiceClient.Update(validationExceptionToUpdate);
         }
         return false;
+    }
+
+    public async Task<bool> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId)
+    {
+        try
+        {
+            var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
+
+            if (exception == null)
+            {
+                _logger.LogWarning("Exception with ID {ExceptionId} not found", exceptionId);
+                return false;
+            }
+
+            exception.ServiceNowId = serviceNowId;
+            exception.RecordUpdatedDate = DateTime.UtcNow;
+
+            return await _validationExceptionDataServiceClient.Update(exception);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating ServiceNowID for exception {ExceptionId}", exceptionId);
+            return false;
+        }
     }
 
     private ValidationException? GetExceptionDetails(ValidationException? exception, ParticipantDemographic? participantDemographic)
@@ -132,28 +155,21 @@ public class ValidationExceptionData : IValidationExceptionData
         throw new ArgumentNullException(nameof(datetime), "Failed to parse null datetime");
     }
 
-    private static List<ValidationException>? SortExceptions(ExceptionSort? sortBy, IEnumerable<ValidationException> list)
+    private static List<ValidationException> SortExceptions(SortOrder? sortOrder, IEnumerable<ValidationException> list, ExceptionStatus? status)
     {
-        return sortBy switch
+        var filteredList = status switch
         {
-            // Sort by date created, oldest first
-            ExceptionSort.DateCreatedOldest => list.OrderBy(x => x.DateCreated).ToList(),
-
-            // Sort by date created, newest first
-            ExceptionSort.DateCreatedNewest => list.OrderByDescending(x => x.DateCreated).ToList(),
-
-            // Sort by exception status raised, then by date created
-            ExceptionSort.ExceptionStatusRaised => list
-                .OrderByDescending(x => !x.ServiceNowId.IsNullOrEmpty())
-                .ThenByDescending(x => x.DateCreated).ToList(),
-
-            // Sort by exception status not raised, then by date created
-            ExceptionSort.ExceptionStatusNotRaised => list
-                .OrderByDescending(x => x.ServiceNowId.IsNullOrEmpty())
-                .ThenByDescending(x => x.DateCreated).ToList(),
-
-            // By default sort by date created, newest first
-            _ => list.OrderByDescending(x => x.DateCreated).ToList()
+            ExceptionStatus.Raised => list.Where(x => !string.IsNullOrEmpty(x.ServiceNowId)),
+            ExceptionStatus.NotRaised => list.Where(x => string.IsNullOrEmpty(x.ServiceNowId)),
+            _ => list
         };
+
+        Func<ValidationException, DateTime?> dateProperty = status == ExceptionStatus.Raised
+            ? x => x.ServiceNowCreatedDate
+            : x => x.DateCreated;
+
+        return sortOrder == SortOrder.Ascending
+            ? [.. filteredList.OrderBy(dateProperty)]
+            : [.. filteredList.OrderByDescending(dateProperty)];
     }
 }

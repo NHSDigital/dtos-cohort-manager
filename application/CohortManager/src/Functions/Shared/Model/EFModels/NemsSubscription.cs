@@ -6,8 +6,8 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class NemsSubscription
 {
     [Key]
-    [Column("SUBSCRIPTION_ID", TypeName = "uniqueidentifier")]
-    public Guid SubscriptionId { get; set; }
+    [Column("SUBSCRIPTION_ID", TypeName = "nvarchar(450)")]
+    public required string SubscriptionId { get; set; }
 
     [Required]
     [Column("NHS_NUMBER", TypeName = "bigint")]

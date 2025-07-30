@@ -7,11 +7,26 @@
         "isEnabled": true,
         "excludedTypes": "Request"
       },
-      "enableLiveMetricsFilters": true
+      "enableLiveMetricsFilters": true,
+      "logLevel": {
+        "HealthChecks": "Error",
+        "HealthChecks.Extensions": "Error"
+      }
+    }
+  },
+  "concurrency": {
+    "dynamicConcurrencyEnabled": true,
+    "snapshotPersistenceEnabled": true
+  },
+  "extensions": {
+    "durableTask": {
+      "hubName": "DistributeParticipantTaskHub"
     },
-    "logLevel": {
-      "HealthChecks": "Error",
-      "HealthChecks.Extensions": "Error"
+    "serviceBus": {
+      "prefetchCount": 0,
+      "messageHandlerOptions": {
+        "maxConcurrentCalls": 5
+      }
     }
   }
 }
