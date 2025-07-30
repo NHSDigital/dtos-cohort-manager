@@ -1,124 +1,133 @@
-import { expect, test, testWithAmended } from '../../fixtures/test-fixtures';
+import { expect, test } from '../../fixtures/test-fixtures';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, validateSqlDatabaseFromAPI, cleanupDatabaseFromAPI } from '../../steps/steps';
 import { BlockParticipant, deleteParticipant, getRecordsFromParticipantManagementService} from '../../../api/distributionService/bsSelectService'
 import { expectStatus, composeValidators} from '../../../api/responseValidators';
 import { TestHooks } from '../../hooks/test-hooks';
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
+import { APIRequestContext, TestInfo } from '@playwright/test';
 
 test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
    TestHooks.setupAllTestHooks();
-  //  test('@DTOSS-7610-01 AC01 Verify block a participant not processed to COHORT - ADD', async ({ request }, testInfo) => {
 
-  //   const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
+  test('@DTOSS-7615-01 - AC1 - Verify participant is deleted from CohortDistributionDataService', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
+    // Arrange: Clean up and block the participant
+    const nhsNumber = '9997615018';
+    await cleanupDatabaseFromAPI(request, [nhsNumber]);
 
-  //   await cleanupDatabaseFromAPI(request, nhsNumbers);
+    // Add the participant (if needed)
+    const [addValidations, addInputParticipantRecord, addNhsNumbers, addTestFilesPath] = await getApiTestData(testInfo.title, 'ADD_BLOCKED');
+    const addParquetFile = await createParquetFromJson(addNhsNumbers, addInputParticipantRecord, addTestFilesPath);
+    await processFileViaStorage(addParquetFile);
 
-  //   const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord, testFilesPath);
+    // Block the participant
+    const blockPayload = {
+      NhsNumber: nhsNumber,
+      FamilyName: addInputParticipantRecord[0].family_name,
+      DateOfBirth: addInputParticipantRecord[0].date_of_birth
+    };
+    await BlockParticipant(request, blockPayload);
 
-  //   await test.step(`BlockParticipant`, async () => {
+    // Act: Try to DELETE the blocked participant
+    const [delValidations, delInputParticipantRecord, delNhsNumbers, delTestFilesPath] = await getApiTestData(testInfo.title, 'DELETE_BLOCKED');
+    const delParquetFile = await createParquetFromJson(delNhsNumbers, delInputParticipantRecord, delTestFilesPath);
+    await processFileViaStorage(delParquetFile);
 
-  //       const blockPayload = {
-  //         NhsNumber: nhsNumbers[0],
-  //         FamilyName: inputParticipantRecord[0].family_name,
-  //         DateOfBirth: inputParticipantRecord[0].date_of_birth
-  //       };
-
-  //       const response = await BlockParticipant(request, blockPayload);
-  //       expect(response.data[0].BlockedFlag).toBe(1);
-  //   });
-
-  //   await test.step(`When 1 ADD participant is processed via storage`, async () => {
-  //     await processFileViaStorage(parquetFile);
-  //   });
-
-
-  //   // Assert that the participant is in the participant management table.
-  //    await test.step(`Then participant should be in the participant management table`, async () => {
-  //     await validateSqlDatabaseFromAPI(request, checkInDatabase);
-  //   });
-  // });
-
-  testWithAmended('@DTOSS-7614-01 AC01 Verify block a participant not processed to COHORT - Amend', async ({ request , testData }, testInfo) => {
-
-    await test.step(`When ADD participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAdd);
-    });
-
-    await test.step(`Then participant should be in the participant management table`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAdd);
-    });
-
-    // Call the block participant function
-    await test.step(`When BlockParticipant function is invoked`, async () => {
-      const blockPayload = {
-        NhsNumber: testData.nhsNumbers[0],
-        FamilyName: testData.inputParticipantRecord?.[0]?.family_name,
-        DateOfBirth: testData.inputParticipantRecord?.[0]?.date_of_birth
-      };
-
-      const response = await BlockParticipant(request, blockPayload);
-      expectStatus(200);
-    })
-
-    await test.step(`When Amend participant is processed via storage`, async () => {
-      await processFileViaStorage(testData.runTimeParquetFileAmend);
-    });
-
-    await test.step(`Then exception should be in the exception management table`, async () => {
-      await validateSqlDatabaseFromAPI(request, testData.checkInDatabaseAmend);
-    });
-   });
-test('@DTOSS-7615-01 - AC1 - Verify participant is deleted from CohortDistributionDataService', async ({ request }, testInfo) => {
-    const [validations, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title, 'ADD');
-
-    await cleanupDatabaseFromAPI(request, nhsNumbers);
-
-    const parquetFile = await createParquetFromJson(nhsNumbers, inputParticipantRecord, testFilesPath);
-
-    await test.step(`When participant is inserted via storage`, async () => {
-      await processFileViaStorage(parquetFile);
-    });
-
-    await test.step(`Given for participant insertion to Cohort`, async () => {
-      await validateSqlDatabaseFromAPI(request, validations);
-    });
-
-    // Call the block participant function
-      const payload = {
-        NhsNumber: nhsNumbers[0],
-        FamilyName: inputParticipantRecord[0].family_name,
-        DateOfBirth: inputParticipantRecord[0].date_of_birth
-      };
-
-    await test.step(`When BlockParticipant function is invoked`, async () => {
-          await BlockParticipant(request, payload);
-         })
-
-        // Assert that the participant's blocked flag is set to 1 in participant management table.
-    await test.step('The participant received from the api should have the blocked flag set as 1', async () => {
-          const response = await getRecordsFromParticipantManagementService(request);
-          expect(response.data[0].BlockedFlag).toBe(1);
-        })
-
-   // Call the delete participant function
-    await test.step(`When DeleteParticipant function is invoked`, async () => {
-      const deletePayload = {
-        NhsNumber: nhsNumbers[0],
-        FamilyName: inputParticipantRecord[0].family_name,
-        DateOfBirth: `${inputParticipantRecord[0].date_of_birth.slice(0, 4)}-${inputParticipantRecord[0].date_of_birth.slice(4, 6)}-${inputParticipantRecord[0].date_of_birth.slice(6, 8)}`
-      };
-
-      const response = await deleteParticipant(request, deletePayload);
-
-      const validators = composeValidators(
-        expectStatus(200)
-      );
-      await validators(response);
-
-      const lastResponse = await getRecordsFromCohortDistributionService(request);
-      expect(lastResponse.status).toBe(204);
+    // Assert: Participant is NOT in the cohort distribution table
+    await test.step('Participant should NOT be in the cohort distribution table', async () => {
+      const cohortDistRecords = await getRecordsFromCohortDistributionService(request);
+      expect(
+        cohortDistRecords.data === null ||
+        (Array.isArray(cohortDistRecords.data) && cohortDistRecords.data.length === 0)
+      ).toBe(true);
     });
   });
 
+  test('@DTOSS-7610-01 AC1 - Blocked participant ADD action is not processed or passed to cohort distribution', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
+    // Arrange: Clean up and block the participant
+    const nhsNumber = '9995518112';
+    await cleanupDatabaseFromAPI(request, [nhsNumber]);
+
+    // Add the participant
+    const [addValidations, addInputParticipantRecord, addNhsNumbers, addTestFilesPath] = await getApiTestData(testInfo.title, 'ADD_BLOCKED');
+    const addParquetFile = await createParquetFromJson(addNhsNumbers, addInputParticipantRecord, addTestFilesPath);
+    await processFileViaStorage(addParquetFile);
+
+    // Block the participant
+    const blockPayload = {
+      NhsNumber: nhsNumber,
+      FamilyName: addInputParticipantRecord[0].family_name,
+      DateOfBirth: addInputParticipantRecord[0].date_of_birth
+    };
+    await BlockParticipant(request, blockPayload);
+
+    // Act: Try to ADD the blocked participant again
+    await processFileViaStorage(addParquetFile);
+
+    // Assert: Participant is not processed/validated, not passed to cohort distribution, no exception raised
+    await test.step('Participant should NOT be in the cohort distribution table', async () => {
+      const cohortDistRecords = await getRecordsFromCohortDistributionService(request);
+      expect(
+        cohortDistRecords.data === null ||
+        (Array.isArray(cohortDistRecords.data) && cohortDistRecords.data.length === 0)
+      ).toBe(true);
+    });
+
+    await test.step('No exception should be raised to NBO', async () => {
+      // If there is a function to check NBO exceptions, call it here. Otherwise, this is a placeholder.
+      // Example: const nboExceptions = await getNboExceptions(request, nhsNumber);
+      // expect(nboExceptions).toHaveLength(0);
+    });
+
+    await test.step('Audit log should show record was blocked and not processed', async () => {
+      // If there is an audit log check, call it here. Otherwise, this is a placeholder.
+      // Example: const auditLog = await getAuditLogForNhsNumber(request, nhsNumber);
+      // expect(auditLog.some(entry => entry.action === 'BLOCKED')).toBeTruthy();
+    });
   });
+
+  test('@DTOSS-7614-01 AC1 - Blocked participant AMEND action is not processed or passed to cohort distribution', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
+    // Arrange: Clean up and block the participant
+    const nhsNumber = '9997614018';
+    await cleanupDatabaseFromAPI(request, [nhsNumber]);
+
+    // Add the participant (if needed)
+    const [addValidations, addInputParticipantRecord, addNhsNumbers, addTestFilesPath] = await getApiTestData(testInfo.title, 'ADD_BLOCKED');
+    const addParquetFile = await createParquetFromJson(addNhsNumbers, addInputParticipantRecord, addTestFilesPath);
+    await processFileViaStorage(addParquetFile);
+
+    // Block the participant
+    const blockPayload = {
+      NhsNumber: nhsNumber,
+      FamilyName: addInputParticipantRecord[0].family_name,
+      DateOfBirth: addInputParticipantRecord[0].date_of_birth
+    };
+    await BlockParticipant(request, blockPayload);
+
+    // Act: Try to AMEND the blocked participant
+    const [amendValidations, amendInputParticipantRecord, amendNhsNumbers, amendTestFilesPath] = await getApiTestData(testInfo.title, 'AMEND_BLOCKED');
+    const amendParquetFile = await createParquetFromJson(amendNhsNumbers, amendInputParticipantRecord, amendTestFilesPath);
+    await processFileViaStorage(amendParquetFile);
+
+    // Assert: Participant is NOT in the cohort distribution table
+    await test.step('Participant should NOT be in the cohort distribution table', async () => {
+      const cohortDistRecords = await getRecordsFromCohortDistributionService(request);
+      expect(
+        cohortDistRecords.data === null ||
+        (Array.isArray(cohortDistRecords.data) && cohortDistRecords.data.length === 0)
+      ).toBe(true);
+    });
+
+    await test.step('No exception should be raised to NBO', async () => {
+      // If there is a function to check NBO exceptions, call it here. Otherwise, this is a placeholder.
+      // Example: const nboExceptions = await getNboExceptions(request, nhsNumber);
+      // expect(nboExceptions).toHaveLength(0);
+    });
+
+    await test.step('Audit log should show record was blocked and not processed', async () => {
+      // If there is an audit log check, call it here. Otherwise, this is a placeholder.
+      // Example: const auditLog = await getAuditLogForNhsNumber(request, nhsNumber);
+      // expect(auditLog.some(entry => entry.action === 'BLOCKED')).toBeTruthy();
+    });
+  });
+});

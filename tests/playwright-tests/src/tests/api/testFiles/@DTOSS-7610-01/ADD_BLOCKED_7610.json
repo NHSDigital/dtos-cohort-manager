@@ -1,0 +1,29 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9995518112,
+        "BlockedFlag": 1,
+        "expectedCount": 1,
+        "RecordType": "ADD",
+        "EligibilityFlag": 1,
+        "ExceptionFlag": 0
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "ADD",
+      "nhs_number": 9995518112,
+      "family_name": "BLOCKEDADD",
+      "given_name": "BLOCKEDADD",
+      "date_of_birth": "19700101",
+      "sex": "1",
+      "postcode": "LS1 1AA"
+    }
+  ],
+  "nhsNumbers": [
+    "9995518112"
+  ]
+}
