@@ -22,6 +22,7 @@ public class DistributeParticipantConfig
     public string ParticipantDemographicDataServiceUrl { get; set; }
     [Required]
     public string RemoveOldValidationRecordUrl { get; set; }
+    public int MaxLookupValidationRetries { get; set; } = 3;
     public bool IsExtractedToBSSelect { get; set; } = false;
     public bool IgnoreParticipantExceptions { get; set; } = false;
 }

@@ -43,11 +43,14 @@ public class DistributeParticipantActivities
         long screeningId = long.Parse(participantData.ScreeningId);
 
         // Get participant management data
-        var participantManagement = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == nhsNumber &&
+        var participantManagementTask = _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == nhsNumber &&
                                                                                         p.ScreeningId == screeningId);
 
         // Get participant demographic data
-        var participantDemographic = await _participantDemographicClient.GetSingleByFilter(p => p.NhsNumber == nhsNumber);
+        var participantDemographicTask = _participantDemographicClient.GetSingleByFilter(p => p.NhsNumber == nhsNumber);
+
+        ParticipantManagement participantManagement = await participantManagementTask;
+        ParticipantDemographic participantDemographic = await participantDemographicTask;
 
         if (participantDemographic is null || participantManagement is null)
         {
