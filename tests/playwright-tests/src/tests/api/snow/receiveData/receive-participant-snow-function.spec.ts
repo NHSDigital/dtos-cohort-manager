@@ -187,7 +187,7 @@ test.describe.serial('@regression @service_now @api receive valid participant fr
     await validators(response);
   });
 
-  test.only('@DTOSS-3880 @DTOSS-8424 return error 404 when calling an invalid endpoint or resource', async ({ request }) => {
+  test('@DTOSS-3880 @DTOSS-8424 return error 404 when calling an invalid endpoint or resource', async ({ request }) => {
 
     annotation: [{
       type: 'Requirement',
