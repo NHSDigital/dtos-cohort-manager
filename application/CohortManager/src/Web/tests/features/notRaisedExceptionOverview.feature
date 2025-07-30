@@ -1,9 +1,9 @@
-@epic_4a
 Feature: testing Breast screening - Not raisedexception overview page
 
   Background:
     Given the user navigate to not raised exception overview page
 
+  @epic_4a
   Scenario: verify  column headers on Raised exception overview page
     Then the exception summary table should have the following columns:
       | Local reference  Exception ID |
