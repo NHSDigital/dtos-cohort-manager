@@ -18,7 +18,7 @@ test.describe('@DTOSS-9609-01 - GetValidationExceptions - All Records', () => {
 
     if (response.status === 204) {
       console.info('Verified 204 response when no data is found');
-      expect(response.data).toBeUndefined();
+      expect(response.data).toBeNull();
     } else {
       expect(response.data.Items).toBeDefined();
       expect(Array.isArray(response.data.Items)).toBe(true);
