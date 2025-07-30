@@ -35,8 +35,10 @@ public class ManageServiceNowParticipantFunctionTests
             NhsNumber = 1234567890,
             FirstName = "Samantha",
             FamilyName = "Bloggs",
-            DateOfBirth = "1970-01-01",
-            ServiceNowRecordNumber = "CS123"
+            DateOfBirth = new DateOnly(1970, 1, 1),
+            ServiceNowRecordNumber = "CS123",
+            BsoCode = "ABC",
+            ReasonForAdding = ServiceNowReasonsForAdding.RequiresCeasing
         };
 
         var config = new ManageServiceNowParticipantConfig
@@ -233,7 +235,7 @@ public class ManageServiceNowParticipantFunctionTests
             NhsNumber = _serviceNowParticipant.NhsNumber,
             GivenName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd")
         });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -277,7 +279,7 @@ public class ManageServiceNowParticipantFunctionTests
             NhsNumber = _serviceNowParticipant.NhsNumber,
             GivenName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd")
         });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -320,7 +322,7 @@ public class ManageServiceNowParticipantFunctionTests
             NhsNumber = _serviceNowParticipant.NhsNumber,
             GivenName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd")
         });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
