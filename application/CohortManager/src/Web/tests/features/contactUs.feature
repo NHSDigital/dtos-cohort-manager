@@ -15,12 +15,10 @@ Feature: testing to verify all ac's on Legal pages story-DTOSS-9551
     When the user clicks on cookies link
     Then they should navigate to 'Cookies on Cohort Manager - Cohort Manager - NHS'
 
-  @contactus
   Scenario: verify navigation to technical support and general enquiries
     When the user clicks on technical support and general enquiries link
     Then they should navigate to NHS National IT Customer Support Portal page
 
-  @contactus
   Scenario: verify navigation to Report an incident
     When the user clicks on Report an incident link
     Then they should navigate to NHS National IT Customer Support Portal page
