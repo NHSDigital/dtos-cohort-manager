@@ -140,6 +140,22 @@ public class StaticValidationTests
     }
     #endregion
 
+    [TestMethod]
+    public async Task Run_DelRecord_DoNotRunCommonRules()
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.Removed;
+        _participantCsvRecord.Participant.EligibilityFlag = "0";
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
     #region Postcode (Rule 30)
     [TestMethod]
     [DataRow("ec1a1bb")]
@@ -479,7 +495,7 @@ public class StaticValidationTests
     public async Task Run_ValidDateOfDeath_ReturnNoContent(string date)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.Removed;
+        _participantCsvRecord.Participant.RecordType = Actions.Amended;
         _participantCsvRecord.Participant.DateOfDeath = date;
         _participantCsvRecord.Participant.EligibilityFlag = "0";
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -500,7 +516,7 @@ public class StaticValidationTests
     public async Task Run_InvalidDateOfDeath_ReturnValidationException(string date)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.Removed;
+        _participantCsvRecord.Participant.RecordType = Actions.Amended;
         _participantCsvRecord.Participant.DateOfDeath = date;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);

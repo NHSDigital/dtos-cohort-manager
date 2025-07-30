@@ -567,6 +567,33 @@ public class TransformDataServiceTests
             times: Times.Once);
     }
 
+    [TestMethod]
+    public async Task Run_DelRecord_TransformRfrAndRaiseException()
+    {
+        // Arrange
+        CohortDistributionParticipant participant = new()
+        {
+            RecordType = Actions.Removed,
+            NhsNumber = "1234567890",
+            EligibilityFlag = "0",
+            InvalidFlag = "1"
+        };
+        _requestBody.Participant = participant;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        StringAssert.Contains(responseBody, "ORR");
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "RecordDeleted", 0, null),
+            times: Times.Once);
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
