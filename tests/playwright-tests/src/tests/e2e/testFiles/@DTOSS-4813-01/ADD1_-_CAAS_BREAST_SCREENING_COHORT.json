@@ -2,9 +2,9 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
+        "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9996416461,
-        "expectedCount": 0
+        "ExceptionFlag": 1
       },
       "meta": {
         "testJiraId": "@DTOSS-4813-01",
