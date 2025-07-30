@@ -48,22 +48,23 @@ public class RetrievePdsDemographic
     [Function("RetrievePdsDemographic")]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        var nhsNumber = req.Query["nhsNumber"];
-
-        var bearerToken = await _bearerTokenService.GetBearerToken();
-        if (bearerToken == null)
-        {
-            _logger.LogError("the bearer token could not be found");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "The bearer token could not be found");
-        }
-
-        if (string.IsNullOrEmpty(nhsNumber) || !ValidationHelper.ValidateNHSNumber(nhsNumber))
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number provided.");
-        }
-
         try
         {
+            var nhsNumber = req.Query["nhsNumber"];
+
+            var bearerToken = await _bearerTokenService.GetBearerToken();
+            if (bearerToken == null)
+            {
+                _logger.LogError("the bearer token could not be found");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "The bearer token could not be found");
+            }
+
+            if (string.IsNullOrEmpty(nhsNumber) || !ValidationHelper.ValidateNHSNumber(nhsNumber))
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number provided.");
+            }
+
+
             var url = string.Format(PdsParticipantUrlFormat, _config.RetrievePdsParticipantURL, nhsNumber);
             var response = await _httpClientFunction.SendPdsGet(url, bearerToken);
             string jsonResponse = "";
