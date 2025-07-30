@@ -26,6 +26,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber" : "9997113829",
         "expectedCount": 0
       },
       "meta": {

@@ -16,6 +16,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9996416461,
         "expectedCount": 0
       },
       "meta": {
