@@ -1113,7 +1113,7 @@ frontdoor_endpoint = {
     }
     security_policies = {
       AllowedIPs = {
-        cdn_frontdoor_firewall_policy_name    = "wafhubnonliveinternalwhitelist"
+        cdn_frontdoor_firewall_policy_name    = "wafhubnonlivecohmanint"
         cdn_frontdoor_firewall_policy_rg_name = "rg-hub-dev-uks-hub-networking"
         associated_domain_keys                = ["cohort-int"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
       }
