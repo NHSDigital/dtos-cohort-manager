@@ -6,17 +6,13 @@ import { ContactusPage } from '../pages/contactUsPage';
 let homePage: HomePage;
 let contactUsPage: ContactusPage;
 
-Then('they should navigate to contact us page', async ({ page }) => {
-  contactUsPage = new ContactusPage(page)
-  await expect(page).toHaveTitle('Get help with Cohort Manager - Cohort Manager');
-});
 
 Given('the User navigate to contact us page', async ({ page }) => {
   homePage = new HomePage(page)
   contactUsPage = new ContactusPage(page)
   await page.goto("/");
   await homePage.clickOnContactUs()
-  await expect(page).toHaveTitle('Get help with Cohort Manager - Cohort Manager');
+  await expect(page).toHaveTitle('Get help with Cohort Manager - Cohort Manager - NHS');
 
 });
 When('the user clicks on technical support and general enquiries link', async ({ page }) => {
@@ -28,4 +24,7 @@ Then('they should navigate to NHS National IT Customer Support Portal page', asy
 });
 When('the user clicks on Report an incident link', async ({ page }) => {
   await contactUsPage.clickRapidincidentLink()
+});
+When('the user clicks on Back to previous screen link', async ({ page }) => {
+  await page.goBack();
 });

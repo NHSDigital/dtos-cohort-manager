@@ -12,7 +12,11 @@ export default function ExceptionsTable({
   caption,
 }: Readonly<ExceptionsTableProps>) {
   return (
-    <table role="table" className="nhsuk-table-responsive">
+    <table
+      role="table"
+      className="nhsuk-table-responsive"
+      data-testid="exceptions-table"
+    >
       <caption className="nhsuk-table__caption nhsuk-u-visually-hidden">
         {caption ? `${caption}` : "Total breast screening exceptions"}
       </caption>

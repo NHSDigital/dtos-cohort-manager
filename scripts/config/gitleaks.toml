@@ -27,12 +27,14 @@ paths = [
   '''application/CohortManager/spikes/AzureLocalSimulators/DTOS-2460_Event_Grid_Spike/templates/Azure Sql Template/parameters.json''',
   '''application/CohortManager/spikes/AzureLocalSimulators/DTOS-2460_Event_Grid_Spike/templates/Azure Sql Template/template.json''',
   '''application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile/receiveCaasFile.csproj''',
+  '''application/CohortManager/src/Functions/Shared/Common/JwtTokenService.cs''',
+  '''application/CohortManager/src/Functions/Shared/Common/SingingCreditionalsProvider.cs''',
   '''tests/CaasIntegrationTests/receiveCaasFileTest/receiveCaasFileTest.csproj''',
   '''tests/IntegrationTests/integration.csproj''',
   '''application/CohortManager/src/Functions/Shared/Model/Model.csproj''',
   '''tests/smoke-tests/dtos-cohort-manager-smoke-tests/''',
-'''tests/e2e-tests/NHS.CohortManager.EndToEndTests/NHS.CohortManager.EndToEndTests.csproj''',
-'''tests/e2e-tests/dtos-cohort-manager-e2e-tests/dtos_cohort_manager_e2e_tests.csproj'''
+  '''tests/e2e-tests/NHS.CohortManager.EndToEndTests/NHS.CohortManager.EndToEndTests.csproj''',
+  '''tests/e2e-tests/dtos-cohort-manager-e2e-tests/dtos_cohort_manager_e2e_tests.csproj'''
 ]
 regexes = [
   '''[0-9]{10}\.cohort-.*\.b099494b-7c49-4d78-9e3c-3a801aac691b\.apps'''

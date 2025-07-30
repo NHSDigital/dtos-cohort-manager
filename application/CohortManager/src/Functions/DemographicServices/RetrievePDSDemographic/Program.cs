@@ -21,8 +21,9 @@ var host = new HostBuilder()
         // Register health checks
         services.AddBasicHealthCheck("RetrievePdsDemographic");
     })
+    .AddJwtTokenSigning(config.UseFakePDSServices)
     .AddTelemetry()
-    .AddHttpClient()
+    .AddHttpClient(config.UseFakePDSServices)
     .Build();
 
 await host.RunAsync();

@@ -404,6 +404,10 @@ function_apps = {
           env_var_name     = "SendServiceNowMessageURL"
           function_app_key = "ServiceNowMessageHandler"
           endpoint_name    = "SendServiceNowMessage"
+        },
+        {
+          env_var_name     = "ParticipantManagementURL"
+          function_app_key = "ParticipantManagementDataService"
         }
       ]
       env_vars_static = {
@@ -871,6 +875,7 @@ function_apps = {
         IgnoreParticipantExceptions       = "false"
         IsExtractedToBSSelect             = "false"
         AcceptableLatencyThresholdMs      = "500"
+        MaxLookupValidationRetries        = "3"
       }
     }
 
@@ -1236,6 +1241,7 @@ function_apps = {
       name_suffix            = "retrieve-pds-demographic"
       function_endpoint_name = "RetrievePDSDemographic"
       app_service_plan_key   = "DefaultPlan"
+      key_vault_url          = "KeyVaultConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1251,7 +1257,12 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL = ""
+        RetrievePdsParticipantURL = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        Kid                       = "RetrievePdsDemographic-DEV1"
+        Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
+        AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
+        ClientId                  = ""
+        PrivateKey                = ""
       }
     }
 

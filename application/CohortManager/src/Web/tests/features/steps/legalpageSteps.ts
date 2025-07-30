@@ -10,25 +10,13 @@ let contactusPage: ContactusPage;
 let cookiesPage: CookiesPage;
 let termsConditionsPage: TermsConditionsPage; // Initializing the TermsConditionsPage class
 
-Then('they should navigate to Terms and conditions page', async ({ page }) => {
 
-  termsConditionsPage = new TermsConditionsPage(page)
-  await expect(page).toHaveTitle('Terms and conditions - Cohort Manager');
-
-});
-
-Then('they should navigate to cookies page', async ({ page }) => {
-
-  cookiesPage = new CookiesPage(page)
-  await expect(page).toHaveTitle('Cookies on Cohort Manager - Cohort Manager');
-
-});
 Given('the User navigate to terms and conditions page', async ({ page }) => {
   homePage = new HomePage(page)
   termsConditionsPage = new TermsConditionsPage(page)
   await page.goto("/");
   await homePage.clicktermsAndconditionsLink()
-  await expect(page).toHaveTitle('Terms and conditions - Cohort Manager');
+  await expect(page).toHaveTitle('Terms and conditions - Cohort Manager - NHS');
 
 });
 When('the user clicks on Care Identity Service link', async ({ }) => {
