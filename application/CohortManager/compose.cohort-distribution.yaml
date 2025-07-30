@@ -24,6 +24,7 @@ services:
       - RemoveOldValidationRecordUrl=http://remove-validation-exception-data:7085/api/RemoveValidationExceptionData
       - IgnoreParticipantExceptions=false
       - IsExtractedToBSSelect=true
+      - MaxLookupValidationRetries=3
 
   retrieve-cohort-distribution-data:
     container_name: retrieve-cohort-distribution-data
