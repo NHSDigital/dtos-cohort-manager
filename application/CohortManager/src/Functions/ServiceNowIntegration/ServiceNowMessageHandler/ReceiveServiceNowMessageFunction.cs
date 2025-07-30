@@ -70,7 +70,10 @@ public class ReceiveServiceNowMessageFunction
                 FirstName = requestBody.VariableData.FirstName,
                 FamilyName = requestBody.VariableData.FamilyName,
                 DateOfBirth = requestBody.VariableData.DateOfBirth,
-                ServiceNowRecordNumber = requestBody.ServiceNowCaseNumber
+                ServiceNowRecordNumber = requestBody.ServiceNowCaseNumber,
+                BsoCode = requestBody.VariableData.BsoCode,
+                ReasonForAdding = requestBody.VariableData.ReasonForAdding,
+                RequiredGpCode = requestBody.VariableData.RequiredGpCode
             };
 
             var success = await _queueClient.AddAsync(participant, _config.ServiceNowParticipantManagementTopic);
