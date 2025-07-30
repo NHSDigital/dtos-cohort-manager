@@ -12,6 +12,7 @@ using DataServices.Client;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using RulesEngine.Models;
+using Azure.Core;
 
 public class ValidateParticipant
 {
@@ -51,7 +52,18 @@ public class ValidateParticipant
         {
             // Get Previous Record From Cohort Distribution
             _logger.LogInformation("Getting previous record from the Cohort Distribution table");
-            var previousRecord = await context.CallActivityAsync<CohortDistributionParticipant>(nameof(GetCohortDistributionRecord), validationRecord.Participant.ParticipantId);
+            var previousRecordTask = context.CallActivityAsync<CohortDistributionParticipant>(nameof(GetCohortDistributionRecord), validationRecord.Participant.ParticipantId);
+
+            // Remove Previous Validation Errors from DB
+            var removeValidationRecordTask = context.CallActivityAsync( nameof(RemoveOldValidationExceptions), new OldExceptionRecord()
+            {
+                NhsNumber = validationRecord.Participant.NhsNumber,
+                ScreeningName = validationRecord.Participant.ScreeningName
+            });
+
+            CohortDistributionParticipant previousRecord = await previousRecordTask;
+            await removeValidationRecordTask;
+
             validationRecord.PreviousParticipantRecord = previousRecord;
 
             // Remove Previous Validation Errors from DB
@@ -62,9 +74,14 @@ public class ValidateParticipant
             });
             
             // Lookup & Static Validation
+            var lookupTaskOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
+                maxNumberOfAttempts: _config.MaxLookupValidationRetries,
+                firstRetryInterval: TimeSpan.FromSeconds(5),
+                backoffCoefficient: 2.0));
+
             _logger.LogInformation("Validating participant");
             var staticTask = context.CallActivityAsync<List<ValidationRuleResult>>(nameof(StaticValidation), validationRecord);
-            var lookupTask = context.CallActivityAsync<List<ValidationRuleResult>>(nameof(LookupValidation), validationRecord);
+            var lookupTask = context.CallActivityAsync<List<ValidationRuleResult>>(nameof(LookupValidation), validationRecord, lookupTaskOptions);
 
             await Task.WhenAll(staticTask, lookupTask);
 
