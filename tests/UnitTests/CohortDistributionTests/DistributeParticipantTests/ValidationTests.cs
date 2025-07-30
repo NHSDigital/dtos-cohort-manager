@@ -69,7 +69,7 @@ public class ValidationTests
             .ReturnsAsync(new CohortDistributionParticipant());
 
         _mockContext
-            .Setup(x => x.CallActivityAsync<List<ValidationRuleResult>>("LookupValidation", It.IsAny<ValidationRecord>(), null))
+            .Setup(x => x.CallActivityAsync<List<ValidationRuleResult>>("LookupValidation", It.IsAny<ValidationRecord>(), It.IsAny<TaskOptions>()))
             .ReturnsAsync(new List<ValidationRuleResult>());
 
         _mockContext

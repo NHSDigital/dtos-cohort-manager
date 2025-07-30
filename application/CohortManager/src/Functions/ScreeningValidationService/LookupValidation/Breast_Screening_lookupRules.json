@@ -44,11 +44,19 @@
             "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\""
           },
           {
+            "Name": "InvalidPostingCategory",
+            "Expression": "!(EnglishPostingCategory || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting))"
+          },
+          {
+            "Name": "PrimaryCareExists",
+            "Expression": "dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+          }, 
+          {
             "Name": "IsExcluded",
             "Expression": "dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "!((EnglishPostingCategory || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting)) && !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) && !dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider) && !IsExcluded)",
+        "Expression": "(InvalidPostingCategory || string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || PrimaryCareExists || IsExcluded)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
