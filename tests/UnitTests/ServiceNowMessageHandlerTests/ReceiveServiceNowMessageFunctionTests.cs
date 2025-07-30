@@ -102,8 +102,8 @@ public class ReceiveServiceNowMessageFunctionTests
     [DataRow("", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk)]      // Case Number empty
     [DataRow("CS123", null, "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk)]         // NHS Number null
     [DataRow("CS123", "", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk)]           // NHS Number empty
-    [DataRow("CS123", "1234567890", null, "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk)]      // forename null
-    [DataRow("CS123", "1234567890", "", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk)]        // forename empty
+    [DataRow("CS123", "1234567890", null, "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk)]      // Forename null
+    [DataRow("CS123", "1234567890", "", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk)]        // Forename empty
     [DataRow("CS123", "1234567890", "Charlie", null, "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk)]     // Family Name null
     [DataRow("CS123", "1234567890", "Charlie", "", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk)]       // Family Name empty
     [DataRow("CS123", "1234567890", "Charlie", "Bloggs", null, "ABC", ServiceNowReasonsForAdding.VeryHighRisk)]         // Date of Birth null
