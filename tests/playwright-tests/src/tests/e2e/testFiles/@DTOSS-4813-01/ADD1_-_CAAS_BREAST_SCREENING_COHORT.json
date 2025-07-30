@@ -2,21 +2,9 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9996416461",
-        "RuleId":58,
-        "RuleDescription":"Missing or invalid Posting"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4813-01",
-        "requirementJiraId": "DTOSS-3872",
-        "additionalTags": "@regression @e2e @epic2-med-priority TC_exceptions NOT resolved on update for ADD"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "expectedCount": 0
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9996416461,
+        "ExceptionFlag": 1
       },
       "meta": {
         "testJiraId": "@DTOSS-4813-01",
@@ -34,7 +22,7 @@
       "superseded_by_nhs_number": null,
       "primary_care_provider": "E85121",
       "primary_care_effective_from_date": "20241113",
-      "current_posting": "WALES",
+      "current_posting": null,
       "current_posting_effective_from_date": "20241113",
       "name_prefix": "MRS",
       "given_name": "Darrel",
@@ -51,9 +39,9 @@
       "postcode": "AB23 1AF",
       "paf_key": "Z3S4Q5X8",
       "address_effective_from_date": "20241113",
-      "reason_for_removal": "",
-      "reason_for_removal_effective_from_date": "",
-      "date_of_death": "",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
       "death_status": null,
       "home_telephone_number": "1619999998",
       "home_telephone_effective_from_date": "20241113",
