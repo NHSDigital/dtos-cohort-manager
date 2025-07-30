@@ -60,7 +60,7 @@ public class PdsDemographic : Demographic
     {
         return new CohortDistributionParticipant
         {
-            NhsNumber = !string.IsNullOrEmpty(NhsNumber) ? NhsNumber : throw new FormatException("Cannot parse nhs number to Long"),
+            NhsNumber = !string.IsNullOrEmpty(NhsNumber) ? NhsNumber : throw new FormatException("NHS number cannot be null or empty."),
             SupersededByNhsNumber = !string.IsNullOrEmpty(SupersededByNhsNumber) ? SupersededByNhsNumber : null,
             PrimaryCareProvider = PrimaryCareProvider,
             PrimaryCareProviderEffectiveFromDate = PrimaryCareProviderEffectiveFromDate,
