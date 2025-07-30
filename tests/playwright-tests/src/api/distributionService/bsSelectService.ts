@@ -74,3 +74,11 @@ export const receiveParticipantViaServiceNow = (
   const endpoint = `${config.endpointSerNowReceiveParticipant}${config.routeSerNowReceiveParticipant}`;
   return apiClient.post(request, endpoint, payload);
 };
+
+export const invalidServiceNowEndpoint = (
+  request: APIRequestContext,
+  payload: ParticipantRecord
+): Promise<ApiResponse> => {
+  const endpoint = `${config.invalidEndpointSerNow}${config.invalidRouteSerNowEndpoint}`;
+  return apiClient.post(request, endpoint, payload);
+};

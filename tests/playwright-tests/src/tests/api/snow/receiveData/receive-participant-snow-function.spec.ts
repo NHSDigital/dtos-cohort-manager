@@ -1,6 +1,6 @@
 import { test, expect, APIRequestContext } from '@playwright/test';
 import { composeValidators, expectStatus } from '../../../../api/responseValidators';
-import { receiveParticipantViaServiceNow } from '../../../../api/distributionService/bsSelectService';
+import { receiveParticipantViaServiceNow, invalidServiceNowEndpoint } from '../../../../api/distributionService/bsSelectService';
 import { loadParticipantPayloads, omitField } from '../../../fixtures/jsonDataReader';
 import { ParticipantRecord } from '../../../../interface/InputData';
 
@@ -90,7 +90,7 @@ test.describe.serial('@regression @service_now @api receive valid participant fr
     await validators(response);
   });
 
-    test('@DTOSS-3880 @DTOSS-8424 Return error when all mandatory participant data attribute is missing', async ({ request }) => {
+  test('@DTOSS-3880 @DTOSS-8424 Return error when all mandatory participant data attribute is missing', async ({ request }) => {
 
     annotation: [{
       type: 'Requirement',
@@ -186,4 +186,24 @@ test.describe.serial('@regression @service_now @api receive valid participant fr
     );
     await validators(response);
   });
+
+  test.only('@DTOSS-3880 @DTOSS-8424 return error 404 when calling an invalid endpoint or resource', async ({ request }) => {
+
+    annotation: [{
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3880',
+    }, {
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-8424',
+    },]
+
+    const payload = participantData['validParticipantRecord-vhr'];
+    const response = await invalidServiceNowEndpoint(request, payload);
+
+    const validators = composeValidators(
+      expectStatus(404)
+    );
+    await validators(response);
+  });
+
 });
