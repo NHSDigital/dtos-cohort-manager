@@ -41,6 +41,7 @@ export default defineConfig({
     screenshot: "on",
     viewport: { width: 1280, height: 720 },
     video: "on",
+    ignoreHTTPSErrors: true,
   },
 
   /* Configure projects for major browsers */
