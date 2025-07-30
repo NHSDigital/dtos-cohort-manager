@@ -1,6 +1,7 @@
 
 namespace Common;
 
+using System.ComponentModel;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Azure;
@@ -40,7 +41,7 @@ public static class JwtTokenExtension
 
                 if (string.IsNullOrEmpty(stringCert))
                 {
-                    throw new Exception("the private key was null or empty");
+                    throw new ArgumentException("The private key was null or empty");
                 }
                 jwtPrivateKey = new JwtPrivateKey(stringCert);
             }
