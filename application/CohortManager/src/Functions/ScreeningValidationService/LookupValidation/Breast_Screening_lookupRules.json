@@ -40,23 +40,23 @@
         "RuleName": "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal",
         "LocalParams": [
           {
-            "Name": "EnglishPostingCategory",
-            "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\""
+            "Name": "AcceptedCurrentPosting",
+            "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\" || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting))"
           },
           {
-            "Name": "InvalidPostingCategory",
-            "Expression": "!(EnglishPostingCategory || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting))"
+            "Name": "PrimaryCareProviderNull",
+            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider)"
           },
           {
-            "Name": "PrimaryCareExists",
+            "Name": "PrimaryCareProviderExists",
             "Expression": "dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
-          }, 
+          },
           {
             "Name": "IsExcluded",
             "Expression": "dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)"
-          }
+          }  
         ],
-        "Expression": "(InvalidPostingCategory || string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || PrimaryCareExists || IsExcluded)",
+        "Expression": "!AcceptedCurrentPosting || PrimaryCareProviderNull || PrimaryCareProviderExists || IsExcluded",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
