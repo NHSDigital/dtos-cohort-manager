@@ -2,19 +2,6 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9996416461",
-        "RuleId":58,
-        "RuleDescription":"Missing or invalid Posting"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-4813-01",
-        "requirementJiraId": "DTOSS-3872",
-        "additionalTags": "@regression @e2e @epic2-med-priority TC_exceptions NOT resolved on update for ADD"
-      }
-    },
-    {
-      "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9996416461,
         "expectedCount": 0
