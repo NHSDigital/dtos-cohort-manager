@@ -41,22 +41,14 @@
         "LocalParams": [
           {
             "Name": "AcceptedCurrentPosting",
-            "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\" || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting))"
-          },
-          {
-            "Name": "PrimaryCareProviderNull",
-            "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider)"
-          },
-          {
-            "Name": "PrimaryCareProviderExists",
-            "Expression": "dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+            "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) != null && ((dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\" || dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENG\" || dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"IM\" || dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"DMS\"))"
           },
           {
             "Name": "IsExcluded",
             "Expression": "dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)"
           }  
         ],
-        "Expression": "!AcceptedCurrentPosting || PrimaryCareProviderNull || PrimaryCareProviderExists || IsExcluded",
+        "Expression": "!AcceptedCurrentPosting || ValidPrimaryCareProvider || IsExcluded",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
