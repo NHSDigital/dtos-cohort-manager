@@ -7,7 +7,7 @@ import { TestHooks } from '../../hooks/test-hooks';
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 import { APIRequestContext, TestInfo } from '@playwright/test';
 
-test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
+test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
   TestHooks.setupAllTestHooks();
 
   test('@DTOSS-7615-01 - AC1 - Verify participant is deleted from CohortDistributionDataService', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
