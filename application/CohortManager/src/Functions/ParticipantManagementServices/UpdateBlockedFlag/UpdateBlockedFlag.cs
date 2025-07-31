@@ -16,15 +16,17 @@ public class UpdateBlockedFlag
     private readonly ILogger<UpdateBlockedFlag> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IExceptionHandler _exceptionHandler;
+    private readonly IBlockParticipantHandler _blockParticipantHandler;
 
 
-    public UpdateBlockedFlag(IDataServiceClient<ParticipantManagement> participantManagementClient, IDataServiceClient<ParticipantDemographic> participantDemographicClient, ILogger<UpdateBlockedFlag> logger, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
+    public UpdateBlockedFlag(IDataServiceClient<ParticipantManagement> participantManagementClient, IDataServiceClient<ParticipantDemographic> participantDemographicClient, ILogger<UpdateBlockedFlag> logger, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IBlockParticipantHandler blockParticipantHandler)
     {
         _participantManagementClient = participantManagementClient;
         _participantDemographicClient = participantDemographicClient;
         _logger = logger;
         _createResponse = createResponse;
         _exceptionHandler = exceptionHandler;
+        _blockParticipantHandler = blockParticipantHandler;
     }
 
     /// <summary>
@@ -41,8 +43,13 @@ public class UpdateBlockedFlag
     public async Task<HttpResponseData> BlockParticipant([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         _logger.LogInformation("Block Participant Called");
-        return await Main(1, req);
-        
+
+        var blockParticipantDTO = await req.ReadFromJsonAsync<BlockParticipantDTO>();
+
+        var blockParticipantResult = await _blockParticipantHandler.BlockParticipant(blockParticipantDTO);
+
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, blockParticipantResult.ResponseMessage);
+
     }
 
     /// <summary>
@@ -61,6 +68,13 @@ public class UpdateBlockedFlag
         _logger.LogInformation("Unblock Participant Called");
         return await Main(0, req);
     }
+
+
+    // [Function("PreviewParticipant")]
+    // public async Task<HttpResponseData> PreviewParticipant([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
+    // {
+
+    // }
 
     private async Task<HttpResponseData> Main(short BlockedFlag, HttpRequestData req)
     {
@@ -91,18 +105,18 @@ public class UpdateBlockedFlag
             bool blockFlagUpdated;
             if (participantDemographic == null && BlockedFlag == 1)
             {
-                //Search PDS
-                participantManagement = CheckPDS(nhsNumber, dateOfBirth, familyName);   //TODO Remove Mock and add call to PDS.
-                // If PDS returns non 200
-                if (participantManagement == null) //TODO This will become conclave expression when we can call PDS like a DataService
-                {
-                    throw new KeyNotFoundException("Could not find participant");
-                }
-                else
-                {
-                    participantManagement.ScreeningId = 1;
-                    blockFlagUpdated = await _participantManagementClient.Add(participantManagement); 
-                }  
+                // //Search PDS
+                // //participantManagement = CheckPDS(nhsNumber, dateOfBirth, familyName);   //TODO Remove Mock and add call to PDS.
+                // // If PDS returns non 200
+                // if (participantManagement == null) //TODO This will become conclave expression when we can call PDS like a DataService
+                // {
+                //     throw new KeyNotFoundException("Could not find participant");
+                // }
+                // else
+                // {
+                //     participantManagement.ScreeningId = 1;
+                //     blockFlagUpdated = await _participantManagementClient.Add(participantManagement);
+                // }
             }
             else if (participantDemographic == null && BlockedFlag == 0)
             {
@@ -116,7 +130,7 @@ public class UpdateBlockedFlag
                 blockFlagUpdated = await _participantManagementClient.Update(participantManagement);
             }
 
-            if (!blockFlagUpdated)
+            if (!true)
                 throw new HttpRequestException("Failed to update blocked flag");
 
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Blocked flag updated successfully");
@@ -145,15 +159,4 @@ public class UpdateBlockedFlag
         await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, req.Query["NhsNumber"]!, "", "1", req.ToString()!);
     }
 
-    // THIS IS TEMPORARY UNTIL PDS INTEGRATION IS COMPLETE
-    private static ParticipantManagement CheckPDS(long nhsNumber, string dateOfBirth, string familyName)
-    {
-        ParticipantManagement participant = new()
-        {
-            NHSNumber = nhsNumber,
-        };
-
-        return participant;
-    }
-    
 }
