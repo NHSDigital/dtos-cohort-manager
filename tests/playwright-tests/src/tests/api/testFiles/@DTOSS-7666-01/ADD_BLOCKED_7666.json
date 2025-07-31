@@ -1,0 +1,31 @@
+{
+  "inputParticipantRecord": [
+    {
+      "nhs_number": "9997614135",
+      "family_name": "BLOCKEDDELETE",
+      "date_of_birth": "19700101",
+      "gp_practice_code": "A12345",
+      "address": "1 Test Street",
+      "postcode": "AB12 3CD",
+      "eligibility_flag": 1,
+      "invalid_flag": 0,
+      "reason_for_removal": null
+    }
+  ],
+  "nhsNumbers": ["9997614135"],
+  "validations": [
+    {
+      "validations": {
+        "NHSNumber": "9997614135",
+        "family_name": "BLOCKEDDELETE",
+        "date_of_birth": "19700101",
+        "gp_practice_code": "A12345",
+        "address": "1 Test Street",
+        "postcode": "AB12 3CD",
+        "eligibility_flag": 1,
+        "invalid_flag": 0,
+        "reason_for_removal": null
+      }
+    }
+  ]
+}

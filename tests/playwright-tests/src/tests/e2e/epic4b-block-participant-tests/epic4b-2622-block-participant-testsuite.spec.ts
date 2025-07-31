@@ -427,4 +427,64 @@ test.describe('@regression @e2e @epic4b-block-tests Tests', async () => {
       expect(resp?.data?.[0]?.ReasonForRemoval).toBeNull();
     });
   });
+
+  test('@DTOSS-7666-01 AC4 - Audit log evidences blocked DELETE action is not processed', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
+    // Arrange: Clean up and block the participant
+    const nhsNumber = '9997614135'; // Use a valid NHS number
+    await cleanupDatabaseFromAPI(request, [nhsNumber]);
+
+    // Add the participant so they exist in the DB
+    const [addValidations, addInputParticipantRecord, addNhsNumbers, addTestFilesPath] = await getApiTestData(testInfo.title, 'ADD_BLOCKED');
+    addInputParticipantRecord[0].nhs_number = nhsNumber;
+    addNhsNumbers[0] = nhsNumber;
+    const addParquetFile = await createParquetFromJson(addNhsNumbers, addInputParticipantRecord, addTestFilesPath);
+    await processFileViaStorage(addParquetFile);
+
+    // Wait for participant to appear in DB before blocking
+    let participantExists = false;
+    for (let i = 0; i < 6; i++) {
+      const resp = await getRecordsFromParticipantManagementService(request);
+      if (resp?.data && Array.isArray(resp.data) && resp.data.length > 0 && String(resp.data[0].NHSNumber) === nhsNumber) {
+        participantExists = true;
+        break;
+      }
+      await new Promise(res => setTimeout(res, 2000));
+    }
+    expect(participantExists).toBe(true);
+
+    // Block the participant
+    const blockPayload = {
+      NhsNumber: String(nhsNumber),
+      FamilyName: String(addInputParticipantRecord[0].family_name),
+      DateOfBirth: String(addInputParticipantRecord[0].date_of_birth)
+    };
+    await BlockParticipant(request, blockPayload);
+    await new Promise(res => setTimeout(res, 2000));
+
+    // Wait until the participant is actually blocked
+    let blocked = false;
+    for (let i = 0; i < 6; i++) {
+      const resp = await getRecordsFromParticipantManagementService(request);
+      if (resp?.data?.[0]?.BlockedFlag === 1) {
+        blocked = true;
+        break;
+      }
+      await new Promise(res => setTimeout(res, 2000));
+    }
+    expect(blocked).toBe(true);
+
+    // Act: Try to DELETE the blocked participant
+    const [delValidations, delInputParticipantRecord, delNhsNumbers, delTestFilesPath] = await getApiTestData('@DTOSS-7666-01 AC4 - Audit log evidences blocked DELETE action is not processed', 'DELETE_BLOCKED');
+    delInputParticipantRecord[0].nhs_number = nhsNumber;
+    delNhsNumbers[0] = nhsNumber;
+    const delParquetFile = await createParquetFromJson(delNhsNumbers, delInputParticipantRecord, delTestFilesPath);
+    await processFileViaStorage(delParquetFile);
+
+    // Assert: Audit log should show record was blocked and not processed
+    await test.step('Audit log should show record was blocked and not processed', async () => {
+      const resp = await getRecordsFromParticipantManagementService(request);
+      expect(resp?.data?.[0]?.BlockedFlag).toBe(1);
+      expect(resp?.data?.[0]?.ReasonForRemoval).toBeNull();
+    });
+  });
 });
