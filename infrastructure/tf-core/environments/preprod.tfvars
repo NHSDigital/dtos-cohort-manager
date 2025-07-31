@@ -1080,7 +1080,7 @@ linux_web_app = {
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "integration"
+  docker_env_tag    = "preprod"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage    = "false"
