@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
-import { checkAccess } from "@/app/lib/checkAccess";
+import { canAccessCohortManager } from "@/app/lib/access";
 import { fetchExceptionsRaisedSorted } from "@/app/lib/fetchExceptions";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import Breadcrumb from "@/app/components/breadcrumb";
@@ -18,9 +18,7 @@ export default async function Page({
   readonly searchParams?: Promise<{ readonly sortBy?: string }>;
 }) {
   const session = await auth();
-  const isCohortManager = session?.user
-    ? await checkAccess(session.user.uid)
-    : false;
+  const isCohortManager = await canAccessCohortManager(session);
 
   if (!isCohortManager) {
     return <Unauthorised />;

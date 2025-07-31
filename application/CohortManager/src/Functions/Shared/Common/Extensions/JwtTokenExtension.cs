@@ -3,7 +3,10 @@ namespace Common;
 
 using System.ComponentModel;
 using System.Security.Cryptography;
+using System.ComponentModel;
+using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using Azure;
 using Azure;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
@@ -44,6 +47,13 @@ public static class JwtTokenExtension
                     throw new ArgumentException("The private key was null or empty");
                 }
                 jwtPrivateKey = new JwtPrivateKey(stringCert);
+                var stringCert = CertificateToString(certResponse.Value);
+
+                if (string.IsNullOrEmpty(stringCert))
+                {
+                    throw new ArgumentException("The private key was null or empty");
+                }
+                jwtPrivateKey = new JwtPrivateKey(stringCert);
             }
             // Local
             else
@@ -74,12 +84,22 @@ public static class JwtTokenExtension
         {
             logger.LogError(ex, ex.Message);
             throw;
+            throw;
         }
 
     }
 
     private static string CertificateToString(X509Certificate2 certificate)
     {
+        using RSA? rsa = certificate.GetRSAPrivateKey();
+        if (rsa == null)
+        {
+            return "";
+        }
+
+        byte[] pkcs8PrivateKey = rsa!.ExportPkcs8PrivateKey();
+        return Convert.ToBase64String(pkcs8PrivateKey);
+
         using RSA? rsa = certificate.GetRSAPrivateKey();
         if (rsa == null)
         {

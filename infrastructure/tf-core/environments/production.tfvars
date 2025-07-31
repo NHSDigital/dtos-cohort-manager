@@ -1321,6 +1321,8 @@ function_apps = {
       ]
       env_vars_static = {
         MeshCertName = "MeshCert"
+        InboundContainer = "nems-updates"
+        ConfigContainer = "nems-config"
       }
     }
 
@@ -1372,7 +1374,7 @@ linux_web_app = {
           AUTH_CIS2_ISSUER_URL = ""
           AUTH_CIS2_CLIENT_ID  = ""
           AUTH_TRUST_HOST      = "true"
-          NEXTAUTH_URL         = "https://cohort-prod.screening.nhs.uk/api/auth"
+          NEXTAUTH_URL         = "https://cohort.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
         }
         from_key_vault = {
@@ -1403,14 +1405,14 @@ frontdoor_endpoint = {
     }
     custom_domains = {
       cohort-prod = {
-        host_name        = "cohort-prod.screening.nhs.uk"
+        host_name        = "cohort.screening.nhs.uk"
         dns_zone_name    = "screening.nhs.uk"
         dns_zone_rg_name = "rg-hub-prod-uks-public-dns-zones"
       }
     }
     security_policies = {
       AllowedIPs = {
-        cdn_frontdoor_firewall_policy_name    = "wafhubliveinternalwhitelist"
+        cdn_frontdoor_firewall_policy_name    = "wafhubnonlivecohmanprd"
         cdn_frontdoor_firewall_policy_rg_name = "rg-hub-prod-uks-hub-networking"
         associated_domain_keys                = ["cohort-prod"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
       }
@@ -1519,6 +1521,12 @@ storage_accounts = {
       }
       inbound-poison = {
         container_name = "inbound-poison"
+      }
+      nems-updates = {
+        container_name = "nems-updates"
+      }
+      nems-config = {
+        container_name = "nems-config"
       }
     }
   }
