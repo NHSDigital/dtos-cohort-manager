@@ -857,7 +857,7 @@ function_apps = {
           function_app_key = "TransformDataService"
         },
         {
-          env_var_name     = "RemoveOldValidationRecord"
+          env_var_name     = "RemoveOldValidationRecordUrl"
           function_app_key = "RemoveValidationExceptionData"
         }
       ]
