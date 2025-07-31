@@ -33,7 +33,7 @@ public class NemsMeshRetrievalTests
     {
         var testConfig = new NemsMeshRetrievalConfig
         {
-            BSSMailBox = mailboxId,
+            NEMSMailBox = mailboxId,
             nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
             MeshPassword = "MeshPassword",
             MeshSharedKey = "MeshSharedKey",
@@ -388,7 +388,7 @@ public class NemsMeshRetrievalTests
         
         var customConfig = new NemsMeshRetrievalConfig
         {
-            BSSMailBox = mailboxId,
+            NEMSMailBox = mailboxId,
             nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
             MeshPassword = "MeshPassword",
             MeshSharedKey = "MeshSharedKey",
@@ -446,7 +446,7 @@ public class NemsMeshRetrievalTests
         
         var customConfig = new NemsMeshRetrievalConfig
         {
-            BSSMailBox = mailboxId,
+            NEMSMailBox = mailboxId,
             nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
             MeshPassword = "MeshPassword",
             MeshSharedKey = "MeshSharedKey",

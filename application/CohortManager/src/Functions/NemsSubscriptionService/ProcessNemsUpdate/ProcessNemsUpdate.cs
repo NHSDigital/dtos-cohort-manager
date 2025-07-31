@@ -18,6 +18,7 @@ public class ProcessNemsUpdate
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IHttpClientFunction _httpClientFunction;
+    private readonly IExceptionHandler _exceptionHandler;
     private readonly ProcessNemsUpdateConfig _config;
 
     public ProcessNemsUpdate(
@@ -26,6 +27,7 @@ public class ProcessNemsUpdate
         ICreateBasicParticipantData createBasicParticipantData,
         IAddBatchToQueue addBatchToQueue,
         IHttpClientFunction httpClientFunction,
+        IExceptionHandler exceptionHandler,
         IOptions<ProcessNemsUpdateConfig> processNemsUpdateConfig)
     {
         _logger = logger;
@@ -33,6 +35,7 @@ public class ProcessNemsUpdate
         _createBasicParticipantData = createBasicParticipantData;
         _addBatchToQueue = addBatchToQueue;
         _httpClientFunction = httpClientFunction;
+        _exceptionHandler = exceptionHandler;
         _config = processNemsUpdateConfig.Value;
     }
 
@@ -90,6 +93,11 @@ public class ProcessNemsUpdate
 
                 _logger.LogInformation("NHS numbers do not match, processing the superseded record.");
                 await ProcessRecord(supersededRecord);
+
+                /*information exception raised for RuleId 60 and Rule name 'SupersededNhsNumber'*/
+                var ruleId = 60;  // Rule 60 is for Superseded rule
+                var ruleName = "SupersededNhsNumber"; //Superseded rule name
+                await _exceptionHandler.CreateTransformExecutedExceptions(supersededRecord.ToCohortDistributionParticipant(), ruleName, ruleId);
 
                 var unsubscribedFromNems = await UnsubscribeNems(nhsNumber);
 

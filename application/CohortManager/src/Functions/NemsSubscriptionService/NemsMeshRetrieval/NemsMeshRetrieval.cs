@@ -31,7 +31,7 @@ public class NemsMeshRetrieval
         _logger = logger;
         _meshToBlobTransferHandler = meshToBlobTransferHandler;
         _blobStorageHelper = blobStorageHelper;
-        _mailboxId = options.Value.BSSMailBox;
+        _mailboxId = options.Value.NEMSMailBox;
         _config = options.Value;
         _blobConnectionString = _config.nemsmeshfolder_STORAGE;
     }
