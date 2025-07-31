@@ -19,6 +19,7 @@ const endpointBsSelectDeleteParticipant = process.env.ENDPOINT_BS_SELECT_DELETE_
 const endpointBsSelectUpdateBlockFlag = process.env.ENDPOINT_BS_SELECT_UPDATE_BLOCK_FLAG ?? '';
 const endpointBsSelectGetValidationExceptions = process.env.ENDPOINT_BS_SELECT_GET_VALIDATION_EXCEPTIONS ?? '';
 const endpointSerNowReceiveParticipant = process.env.ENDPOINT_SERVICE_NOW_MESSAGE_HANDLER ?? '';
+const invalidEndpointSerNow = process.env.INVALID_ENDPOINT_SERVICE_NOW_MESSAGE_HANDLER ?? '';
 const participantPayloadPath = process.env.PARTICIPANT_PAYLOAD_PATH ?? '';
 
 export const config = {
@@ -35,6 +36,7 @@ export const config = {
   endpointBsSelectUpdateBlockFlag: endpointBsSelectUpdateBlockFlag,
   endpointBsSelectGetValidationExceptions: endpointBsSelectGetValidationExceptions,
   endpointSerNowReceiveParticipant: endpointSerNowReceiveParticipant,
+  invalidEndpointSerNow: invalidEndpointSerNow,
   routeBsSelectRetrieveCohortDistributionData: 'api/RetrieveCohortDistributionData',
   routeBsSelectRetrieveCohortRequestAudit: 'api/RetrieveCohortRequestAudit',
   routeBsSelectDeleteParticipant: 'api/DeleteParticipant',
@@ -42,6 +44,7 @@ export const config = {
   routeBsSelectUnblockParticipant: 'api/UnblockParticipant',
   routeGetValidationExceptions: 'api/GetValidationExceptions',
   routeSerNowReceiveParticipant: 'api/servicenow/receive',
+  invalidRouteSerNowEndpoint: 'api/serviceno/receive',
   cohortDistributionService: 'CohortDistributionDataService',
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',
