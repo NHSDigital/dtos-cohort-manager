@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using NHS.CohortManager.ServiceNowIntegrationService;
 
 var host = new HostBuilder()
-    .AddConfiguration<ServiceNowMessageHandlerConfig>()
+    .AddConfiguration(out ServiceNowMessageHandlerConfig config)
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
     {
@@ -15,6 +15,7 @@ var host = new HostBuilder()
         services.AddHttpClient();
     })
     .AddTelemetry()
+    .AddServiceBusClient(config.ServiceBusConnectionString_client_internal)
     .Build();
 
 await host.RunAsync();
