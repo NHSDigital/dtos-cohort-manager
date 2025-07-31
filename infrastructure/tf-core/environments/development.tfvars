@@ -940,7 +940,7 @@ function_apps = {
         Kid                       = "RetrievePdsDemographic-DEV1"
         Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
         AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
-        KeyNamePrivateKey         = "PDSPrivateKeyDEV"
+        KeyNamePrivateKey         = "PDSPRIVATEKEY"
         UseFakePDSServices        = "true"
       }
     }
@@ -1021,9 +1021,9 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
+        MeshCertName     = "MeshCert"
         InboundContainer = "nems-updates"
-        ConfigContainer = "nems-config"
+        ConfigContainer  = "nems-config"
       }
     }
 
