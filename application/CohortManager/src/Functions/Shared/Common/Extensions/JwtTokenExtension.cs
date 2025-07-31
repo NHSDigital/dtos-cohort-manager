@@ -1,13 +1,12 @@
 
 namespace Common;
 
-using System.ComponentModel;
+
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Azure;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
-using Azure.Security.KeyVault.Secrets;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;

@@ -1,7 +1,9 @@
 
 namespace Common;
 
+using System.Configuration;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.WebSockets;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -29,9 +31,17 @@ public class JwtTokenService : IJwtTokenService
         var signingCredentials = _signingCredentialsProvider.CreateSigningCredentials();
         var now = DateTime.UtcNow;
 
+        var clientId = _jwtTokenServiceConfig.ClientId;
+        var audience = _jwtTokenServiceConfig.Audience;
+
+        if (string.IsNullOrEmpty(clientId) || string.IsNullOrEmpty(audience))
+        {
+            throw new InvalidOperationException("The client id or audience was null");
+        }
+
         var token = new JwtSecurityToken(
-            issuer: _jwtTokenServiceConfig.ClientId,
-            audience: _jwtTokenServiceConfig.Audience,
+            issuer: clientId,
+            audience: audience,
             claims: [
                 new Claim("sub", _jwtTokenServiceConfig.ClientId),
                 new Claim("jti", Guid.NewGuid().ToString())
