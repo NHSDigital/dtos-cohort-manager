@@ -311,6 +311,7 @@ function_apps = {
       ]
       env_vars_static = {
         MeshCertName = "MeshCert"
+        BypassServerCertificateValidation = "true"
       }
     }
 
@@ -965,7 +966,7 @@ function_apps = {
         NemsKeyName                           = "nems-client-certificate"
         NemsSubscriptionProfile               = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
         NemsSubscriptionCriteria              = "https://fhir.nhs.uk/Id/nhs-number"
-        NemsBypassServerCertificateValidation = "false"
+        NemsBypassServerCertificateValidation = "true"
       }
     }
 
@@ -1024,6 +1025,7 @@ function_apps = {
         MeshCertName     = "MeshCert"
         InboundContainer = "nems-updates"
         ConfigContainer  = "nems-config"
+        BypassServerCertificateValidation = "true"
       }
     }
 
