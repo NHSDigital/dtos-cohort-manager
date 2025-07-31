@@ -310,7 +310,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
+        MeshCertName                      = "MeshCert"
         BypassServerCertificateValidation = "true"
       }
     }
@@ -943,7 +943,6 @@ function_apps = {
         Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
         AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
         KeyNamePrivateKey         = "PDSPRIVATEKEY"
-        KeyNamePrivateKey         = "PDSPRIVATEKEY"
         UseFakePDSServices        = "true"
       }
     }
@@ -1024,9 +1023,9 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName     = "MeshCert"
-        InboundContainer = "nems-updates"
-        ConfigContainer  = "nems-config"
+        MeshCertName                      = "MeshCert"
+        InboundContainer                  = "nems-updates"
+        ConfigContainer                   = "nems-config"
         BypassServerCertificateValidation = "true"
       }
     }
