@@ -33,7 +33,7 @@ public static class JwtTokenExtension
             hostBuilder.AddConfiguration<JwtTokenServiceConfig>(out JwtTokenServiceConfig config);
             if (!string.IsNullOrEmpty(config.KeyVaultConnectionString))
             {
-                var certClient = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
+                var certClient = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new ManagedIdentityCredential());
                 Response<X509Certificate2> certResponse = certClient.DownloadCertificate(config.KeyNamePrivateKey);
 
                 logger.LogInformation("got certificate from key vault");
