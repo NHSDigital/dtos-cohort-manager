@@ -264,7 +264,6 @@ public class ProcessNemsUpdateTests
 
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
-
         _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
@@ -284,20 +283,17 @@ public class ProcessNemsUpdateTests
         Times.Once);
 
         _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
-
         _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
 
-        // Verify the exception handler was called with the correct parameters
-        var calls = _exceptionHandlerMock.Invocations
-        .Where(i => i.Method.Name == "CreateTransformExecutedExceptions")
-        .ToList();
-        Assert.AreEqual(1, calls.Count);
-        var args = calls[0].Arguments;
-        var participant = (CohortDistributionParticipant)args[0];
-        Assert.AreEqual(_validNhsNumber, participant.NhsNumber);
-        Assert.AreEqual(supersededNhsNumber, participant.SupersededByNhsNumber);
-        Assert.AreEqual("SupersededNhsNumber", args[1]);
-        Assert.AreEqual(60, args[2]);
+        //Verify the exception handler was called
+        _exceptionHandlerMock.Verify(
+        x => x.CreateTransformExecutedExceptions(
+        It.Is<CohortDistributionParticipant>(p =>
+            p.NhsNumber == _validNhsNumber &&
+            p.SupersededByNhsNumber == supersededNhsNumber),
+        "SupersededNhsNumber",
+        60,
+        null),
+        Times.Once);
     }
-
 }
