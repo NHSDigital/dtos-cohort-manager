@@ -1,0 +1,27 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9997663001,
+        "BlockedFlag": 1,
+        "expectedCount": 1,
+        "RecordType": "ADD",
+        "EligibilityFlag": 1,
+        "ExceptionFlag": 0
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "ADD",
+      "nhs_number": 9997663001,
+      "family_name": "BLOCKEDINELIG",
+      "given_name": "BLOCKEDINELIG",
+      "date_of_birth": "19700101",
+      "sex": "1",
+      "postcode": "CC11CC"
+    }
+  ],
+  "nhsNumbers": ["9997663001"]
+}
