@@ -65,7 +65,7 @@ public class ReceiveServiceNowMessageFunction
 
             var participant = new ServiceNowParticipant
             {
-                ScreeningId = 1,
+                ScreeningId = 1, // Hardcoding to the Breast Screening Id
                 NhsNumber = long.Parse(requestBody.VariableData.NhsNumber),
                 FirstName = requestBody.VariableData.FirstName,
                 FamilyName = requestBody.VariableData.FamilyName,
