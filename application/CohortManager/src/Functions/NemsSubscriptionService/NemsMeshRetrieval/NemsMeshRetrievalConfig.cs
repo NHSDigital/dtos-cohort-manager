@@ -6,7 +6,7 @@ public class NemsMeshRetrievalConfig
 {
     public string MeshApiBaseUrl { get; set; }
     [Required]
-    public string BSSMailBox { get; set; }
+    public string NEMSMailBox { get; set; }
     [Required]
     public string MeshPassword { get; set; }
     [Required]

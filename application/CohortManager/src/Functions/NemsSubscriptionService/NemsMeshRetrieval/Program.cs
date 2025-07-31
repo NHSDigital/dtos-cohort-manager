@@ -58,7 +58,7 @@ try
                 _.MeshApiBaseUrl = config.MeshApiBaseUrl;
                 _.BypassServerCertificateValidation = config.BypassServerCertificateValidation ?? false;
             })
-            .AddMailbox(config.BSSMailBox, new NHS.MESH.Client.Configuration.MailboxConfiguration
+            .AddMailbox(config.NEMSMailBox, new NHS.MESH.Client.Configuration.MailboxConfiguration
             {
                 Password = config.MeshPassword,
                 SharedKey = config.MeshSharedKey,
