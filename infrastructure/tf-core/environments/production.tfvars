@@ -1014,9 +1014,9 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
-        InboundContainer = "nems-updates"
-        ConfigContainer = "nems-config"
+        NemsMeshCertName         = "NemsMeshCert"
+        NemsMeshInboundContainer = "nems-updates"
+        NemsMeshConfigContainer  = "nems-config"
       }
     }
 
