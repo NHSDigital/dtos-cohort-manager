@@ -35,6 +35,8 @@ public class ServiceNowClientTests
             ServiceNowClientId = "123",
             ServiceNowClientSecret = "ABC",
             ServiceNowRefreshToken = "DEF",
+            ServiceBusConnectionString_client_internal = "Endpoint=",
+            ServiceNowParticipantManagementTopic = "servicenow-participant-management-topic"
         });
         _cache = new MemoryCache(new MemoryCacheOptions());
         _serviceNowClient = new ServiceNowClient(

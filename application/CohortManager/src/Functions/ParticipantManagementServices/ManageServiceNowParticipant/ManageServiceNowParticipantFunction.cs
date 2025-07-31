@@ -135,7 +135,7 @@ public class ManageServiceNowParticipantFunction
     {
         if (serviceNowParticipant.FirstName == participantDemographic.GivenName &&
             serviceNowParticipant.FamilyName == participantDemographic.FamilyName &&
-            serviceNowParticipant.DateOfBirth == participantDemographic.DateOfBirth)
+            serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd") == participantDemographic.DateOfBirth)
         {
             return true;
         }

@@ -403,8 +403,8 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        ServiceNowParticipantManagementTopic    = "servicenow-participant-manage" # Subscribes to the servicenow participant manage topic
-        ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"   # Subscribes to the servicenow participant manage topic
+        ServiceNowParticipantManagementTopic    = "servicenow-participant-management" # Subscribes to the servicenow participant management topic
+        ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"       # Subscribes to the servicenow participant management topic
       }
     }
 
@@ -630,10 +630,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "RemoveOldValidationRecord"
-          function_app_key = "RemoveValidationExceptionData"
         }
       ]
       storage_containers = [
@@ -859,6 +855,10 @@ function_apps = {
         {
           env_var_name     = "TransformDataServiceURL"
           function_app_key = "TransformDataService"
+        },
+        {
+          env_var_name     = "RemoveOldValidationRecordUrl"
+          function_app_key = "RemoveValidationExceptionData"
         }
       ]
       env_vars_static = {
@@ -1156,8 +1156,9 @@ function_apps = {
       app_service_plan_key   = "DefaultPlan"
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
-        ServiceNowRefreshAccessTokenUrl = "" # TODO: Get value
-        ServiceNowUpdateUrl             = "" # TODO: Get value
+        ServiceNowRefreshAccessTokenUrl      = "" # TODO: Get value
+        ServiceNowUpdateUrl                  = "" # TODO: Get value
+        ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
 
