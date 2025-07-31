@@ -98,6 +98,21 @@ public class LookupValidationTests
     }
 
     [TestMethod]
+    public async Task Run_DelRecord_DoNotRunCommonRules()
+    {
+        // Arrange
+        _requestBody.NewParticipant.RecordType = Actions.Removed;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [TestMethod]
     [DataRow("RDR", null, null)] // postcode and primary care provider null
     [DataRow("RDI", "not valid", "E85121")] // postcode invalid
     [DataRow("RPR", "BN20 1PH", "not valid")] // PCP invalid

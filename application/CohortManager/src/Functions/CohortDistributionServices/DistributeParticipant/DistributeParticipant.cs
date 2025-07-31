@@ -92,14 +92,7 @@ public class DistributeParticipant
             ValidationRecord validationRecord = new() { FileName = participantRecord.FileName, Participant = participantData };
 
             // Allocate service provider
-            if (string.IsNullOrEmpty(participantData.Postcode))
-            {
-                validationRecord.ServiceProvider = EnumHelper.GetDisplayName(ServiceProvider.BSS);
-            }
-            else
-            {
-                validationRecord.ServiceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
-            }
+            validationRecord.ServiceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
 
             // Validation & Transformation
             var transformedParticipant = await context.CallSubOrchestratorAsync<CohortDistributionParticipant?>(nameof(ValidateParticipant.ValidationOrchestrator), validationRecord);
