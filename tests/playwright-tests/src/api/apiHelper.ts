@@ -270,9 +270,6 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
       console.info(`Actual RuleDescription: "${actualValue}"`);
 
       // Regex based on message requirement
-      //const dynamicPattern = /Unable to add to cohort distribution\. As participant with ParticipantId: \d+\.\sHas an Exception against it/;
-      //const dynamicPattern = /Unable to add to cohort distribution\. As participant \d+\.\shas triggered a validation exception/;
-      //const dynamicPattern = /^Unable to add to cohort distribution\. As participant (\d+) has triggered a validation exception$/;
       const dynamicPattern = /Unable to add to cohort distribution\. As participant \d+ has triggered a validation exception/;
 
       try {
