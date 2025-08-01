@@ -943,7 +943,7 @@ function_apps = {
         Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
         AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
         KeyNamePrivateKey         = "PDSPRIVATEKEY"
-        UseFakePDSServices        = "false"
+        UseFakePDSServices        = "true"
       }
     }
 
@@ -967,7 +967,7 @@ function_apps = {
         NemsKeyName                           = "nems-client-certificate"
         NemsSubscriptionProfile               = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
         NemsSubscriptionCriteria              = "https://fhir.nhs.uk/Id/nhs-number"
-        NemsBypassServerCertificateValidation = "false"
+        NemsBypassServerCertificateValidation = "true"
       }
     }
 
@@ -1023,9 +1023,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        NemsMeshCertName         = "NemsMeshCert"
-        NemsMeshInboundContainer = "nems-updates"
-        NemsMeshConfigContainer  = "nems-config"
+        NemsMeshCertName                          = "NemsMeshCert"
+        NemsMeshInboundContainer                  = "nems-updates"
+        NemsMeshConfigContainer                   = "nems-config"
+        NemsMeshBypassServerCertificateValidation = "true"
       }
     }
 
