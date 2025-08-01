@@ -938,11 +938,11 @@ function_apps = {
       ]
       env_vars_static = {
         RetrievePdsParticipantURL = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
-        Kid                       = "RetrievePdsDemographic-INT1"
+        Kid                       = "RetrievePdsDemographic-test1"
         Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
         AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
-        ClientId                  = ""
-        PrivateKey                = ""
+        KeyNamePrivateKey         = "PDSPRIVATEKEY"
+        UseFakePDSServices        = "false"
       }
     }
 
