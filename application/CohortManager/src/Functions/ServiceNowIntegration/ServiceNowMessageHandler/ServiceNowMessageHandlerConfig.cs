@@ -14,4 +14,8 @@ public class ServiceNowMessageHandlerConfig
     public required string ServiceNowClientSecret { get; set; }
     [Required]
     public required string ServiceNowRefreshToken { get; set; }
+    [Required]
+    public required string ServiceBusConnectionString_client_internal { get; set; }
+    [Required]
+    public required string ServiceNowParticipantManagementTopic { get; set; }
 }
