@@ -31,11 +31,6 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Debug AUTH_SECRET
-        run: echo "AUTH_SECRET is set: ${AUTH_SECRET:+yes}"
-        env:
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-
       - name: Start application and run tests
         env:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
