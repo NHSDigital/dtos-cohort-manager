@@ -1259,11 +1259,11 @@ function_apps = {
       ]
       env_vars_static = {
         RetrievePdsParticipantURL = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
-        Kid                       = "RetrievePdsDemographic-DEV1"
+        Kid                       = "RetrievePdsDemographic-test1"
         Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
         AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
-        ClientId                  = ""
-        PrivateKey                = ""
+        KeyNamePrivateKey         = "PDSPRIVATEKEY"
+        UseFakePDSServices        = "true"
       }
     }
 
@@ -1343,9 +1343,9 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
-        InboundContainer = "nems-updates"
-        ConfigContainer = "nems-config"
+        NemsMeshCertName         = "NemsMeshCert"
+        NemsMeshInboundContainer = "nems-updates"
+        NemsMeshConfigContainer  = "nems-config"
       }
     }
 

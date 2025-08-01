@@ -310,7 +310,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
+        MeshCertName                      = "MeshCert"
         BypassServerCertificateValidation = "true"
       }
     }
@@ -1023,10 +1023,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName     = "MeshCert"
-        InboundContainer = "nems-updates"
-        ConfigContainer  = "nems-config"
-        BypassServerCertificateValidation = "true"
+        NemsMeshCertName                          = "NemsMeshCert"
+        NemsMeshInboundContainer                  = "nems-updates"
+        NemsMeshConfigContainer                   = "nems-config"
+        NemsMeshBypassServerCertificateValidation = "true"
       }
     }
 

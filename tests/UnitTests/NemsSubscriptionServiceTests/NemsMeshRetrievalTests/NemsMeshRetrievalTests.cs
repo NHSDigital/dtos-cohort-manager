@@ -33,15 +33,15 @@ public class NemsMeshRetrievalTests
     {
         var testConfig = new NemsMeshRetrievalConfig
         {
-            NEMSMailBox = mailboxId,
+            NemsMeshMailBox = mailboxId,
             nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
-            MeshPassword = "MeshPassword",
-            MeshSharedKey = "MeshSharedKey",
-            MeshKeyPassphrase = "MeshKeyPassphrase",
-            MeshKeyName = "MeshKeyName",
+            NemsMeshPassword = "MeshPassword",
+            NemsMeshSharedKey = "MeshSharedKey",
+            NemsMeshKeyPassphrase = "MeshKeyPassphrase",
+            NemsMeshKeyName = "MeshKeyName",
             KeyVaultConnectionString = "KeyVaultConnectionString",
-            InboundContainer = TestInboundContainer,
-            ConfigContainer = TestConfigContainer
+            NemsMeshInboundContainer = TestInboundContainer,
+            NemsMeshConfigContainer = TestConfigContainer
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -388,15 +388,15 @@ public class NemsMeshRetrievalTests
         
         var customConfig = new NemsMeshRetrievalConfig
         {
-            NEMSMailBox = mailboxId,
+            NemsMeshMailBox = mailboxId,
             nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
-            MeshPassword = "MeshPassword",
-            MeshSharedKey = "MeshSharedKey",
-            MeshKeyPassphrase = "MeshKeyPassphrase",
-            MeshKeyName = "MeshKeyName",
+            NemsMeshPassword = "MeshPassword",
+            NemsMeshSharedKey = "MeshSharedKey",
+            NemsMeshKeyPassphrase = "MeshKeyPassphrase",
+            NemsMeshKeyName = "MeshKeyName",
             KeyVaultConnectionString = "KeyVaultConnectionString",
-            InboundContainer = customInboundContainer,
-            ConfigContainer = customConfigContainer
+            NemsMeshInboundContainer = customInboundContainer,
+            NemsMeshConfigContainer = customConfigContainer
         };
 
         var customConfigOptions = new Mock<IOptions<NemsMeshRetrievalConfig>>();
@@ -446,15 +446,15 @@ public class NemsMeshRetrievalTests
         
         var customConfig = new NemsMeshRetrievalConfig
         {
-            NEMSMailBox = mailboxId,
+            NemsMeshMailBox = mailboxId,
             nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
-            MeshPassword = "MeshPassword",
-            MeshSharedKey = "MeshSharedKey",
-            MeshKeyPassphrase = "MeshKeyPassphrase", 
-            MeshKeyName = "MeshKeyName",
+            NemsMeshPassword = "MeshPassword",
+            NemsMeshSharedKey = "MeshSharedKey",
+            NemsMeshKeyPassphrase = "MeshKeyPassphrase", 
+            NemsMeshKeyName = "MeshKeyName",
             KeyVaultConnectionString = "KeyVaultConnectionString",
-            InboundContainer = "nems-updates",
-            ConfigContainer = customConfigContainer
+            NemsMeshInboundContainer = "nems-updates",
+            NemsMeshConfigContainer = customConfigContainer
         };
 
         var customConfigOptions = new Mock<IOptions<NemsMeshRetrievalConfig>>();
