@@ -1,0 +1,29 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9997660022,
+        "BlockedFlag": 1,
+        "expectedCount": 1,
+        "RecordType": "AMEND",
+        "EligibilityFlag": 1,
+        "ExceptionFlag": 0
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "AMEND",
+      "nhs_number": 9997660022,
+      "family_name": "BLOCKEDAMEND",
+      "given_name": "BLOCKEDAMEND",
+      "date_of_birth": "19700101",
+      "sex": "1",
+      "postcode": "LS1 1AA"
+    }
+  ],
+  "nhsNumbers": [
+    "9997660022"
+  ]
+}
