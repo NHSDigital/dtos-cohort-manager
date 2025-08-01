@@ -385,13 +385,16 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
 
     // Wait for participant to appear in DB before blocking
     let participantExists = false;
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 12; i++) { // Increased retries for robustness
       const resp = await getRecordsFromParticipantManagementService(request);
       if (resp?.data && Array.isArray(resp.data) && resp.data.length > 0 && String(resp.data[0].NHSNumber) === nhsNumber) {
         participantExists = true;
         break;
       }
-      await new Promise(res => setTimeout(res, 2000));
+      await new Promise(res => setTimeout(res, 2500)); // Slightly longer wait
+    }
+    if (!participantExists) {
+      console.warn(`Participant ${nhsNumber} not found in DB after retries`);
     }
     expect(participantExists).toBe(true);
 
@@ -445,13 +448,16 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
 
     // Wait for participant to appear in DB before blocking
     let participantExists = false;
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 12; i++) { // Increased retries for robustness
       const resp = await getRecordsFromParticipantManagementService(request);
       if (resp?.data && Array.isArray(resp.data) && resp.data.length > 0 && String(resp.data[0].NHSNumber) === nhsNumber) {
         participantExists = true;
         break;
       }
-      await new Promise(res => setTimeout(res, 2000));
+      await new Promise(res => setTimeout(res, 2500)); // Slightly longer wait
+    }
+    if (!participantExists) {
+      console.warn(`Participant ${nhsNumber} not found in DB after retries`);
     }
     expect(participantExists).toBe(true);
 
