@@ -868,8 +868,8 @@ function_apps = {
       app_service_plan_key   = "DefaultPlan"
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
-        ServiceNowRefreshAccessTokenUrl      = "" # TODO: Get value
-        ServiceNowUpdateUrl                  = "" # TODO: Get value
+        ServiceNowRefreshAccessTokenUrl      = ""                                  # TODO: Get value
+        ServiceNowUpdateUrl                  = ""                                  # TODO: Get value
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
@@ -962,12 +962,12 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL = ""
-        Kid                       = ""
-        Audience                  = ""
-        AuthTokenURL              = ""
-        MeshKeyNamePrivateKey     = "PDSPrivatekey"
-        KeyNameAPIKey             = "PDSNameAPIKey"
+        RetrievePdsParticipantURL = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        Kid                       = "RetrievePdsDemographic-prod"
+        Audience                  = "https://api.service.nhs.uk/oauth2/token"
+        AuthTokenURL              = "https://api.service.nhs.uk/oauth2/token"
+        KeyNamePrivateKey         = "PDSPRIVATEKEY"
+        UseFakePDSServices        = "false"
       }
     }
 
