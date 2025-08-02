@@ -7,7 +7,11 @@ import { getRecordsFromExceptionService } from '../../../api/dataService/excepti
 import { getRecordsFromBsSelectRetrieveCohort } from '../../../api/distributionService/bsSelectService';
 
 test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async () => {
-    test('@DTOSS-A355-01 @TC1_SIT Verify that record with an ENG current posting and an invalid GP Practice code triggers rule 45', async ({ request }, testInfo) => {
+    test('@DTOSS-A355-01 @TC1_SIT Verify that record with an ENG current posting and an invalid GP Practice code triggers rule 45', {
+    annotation: [{
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-9873',
+    }]}, async ({ request }, testInfo) => {
         const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
         
         await cleanupDatabaseFromAPI(request, nhsNumbers);
@@ -41,7 +45,11 @@ test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async ()
         });
     });
 
-    test('@DTOSS-A356-01 @TC1_SIT Verify that record with an IM current posting and an invalid GP Practice code triggers rule 45', async ({ request }, testInfo) => {
+    test('@DTOSS-A356-01 @TC1_SIT Verify that record with an IM current posting and an invalid GP Practice code triggers rule 45', {
+    annotation: [{
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-9873',
+    }]}, async ({ request }, testInfo) => {
         const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
         
         await cleanupDatabaseFromAPI(request, nhsNumbers);
@@ -75,7 +83,11 @@ test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async ()
         });
     });
 
-    test('@DTOSS-A357-01 - @TC1_SIT Verify that record with a DMS current posting and an invalid GP Practice code triggers rule 45', async ({ request }, testInfo) => {
+    test('@DTOSS-A357-01 - @TC1_SIT Verify that record with a DMS current posting and an invalid GP Practice code triggers rule 45', {
+    annotation: [{
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-9873',
+    }]}, async ({ request }, testInfo) => {
         const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
         
         await cleanupDatabaseFromAPI(request, nhsNumbers);
@@ -109,7 +121,11 @@ test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async ()
         });
     });
 
-    test('@DTOSS-A358-01 200 - @TC1_SIT Verify that a record with an ENG current posting and a valid GP Practice code does not trigger rule 45', async ({ request }, testInfo) => {
+    test('@DTOSS-A358-01 200 - @TC1_SIT Verify that a record with an ENG current posting and a valid GP Practice code does not trigger rule 45', {
+    annotation: [{
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-9873',
+    }]}, async ({ request }, testInfo) => {
         const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
         
         await cleanupDatabaseFromAPI(request, nhsNumbers);
@@ -141,7 +157,11 @@ test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async ()
         });
     });
 
-    test('@DTOSS-A359-01 200 - @TC1_SIT Verify that a record with a DMS current posting and an excluded GP Practice code does not trigger rule 45', async ({ request }, testInfo) => {
+    test('@DTOSS-A359-01 200 - @TC1_SIT Verify that a record with a DMS current posting and an excluded GP Practice code does not trigger rule 45', {
+    annotation: [{
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-9873',
+    }]}, async ({ request }, testInfo) => {
         const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
         
         await cleanupDatabaseFromAPI(request, nhsNumbers);
@@ -172,7 +192,11 @@ test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async ()
         }); 
     });
 
-    test('@DTOSS-A360-01 200 - @TC1_SIT Verify that a record where 2 or more conditions are not met does not trigger rule 45', async ({ request }, testInfo) => {
+    test('@DTOSS-A360-01 200 - @TC1_SIT Verify that a record where 2 or more conditions are not met does not trigger rule 45', {
+    annotation: [{
+      type: 'Requirement',
+      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-9873',
+    }]}, async ({ request }, testInfo) => {
         const [checkInDatabase, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title);
         
         await cleanupDatabaseFromAPI(request, nhsNumbers);
