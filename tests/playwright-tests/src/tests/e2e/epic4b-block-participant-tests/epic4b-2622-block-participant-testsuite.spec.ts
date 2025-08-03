@@ -6,6 +6,7 @@ import { expectStatus, composeValidators} from '../../../api/responseValidators'
 import { TestHooks } from '../../hooks/test-hooks';
 import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 import { APIRequestContext, TestInfo } from '@playwright/test';
+import { getValidationExceptions } from '../../../api/exceptionManagementService/validationExceptions';
 
 test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
   TestHooks.setupAllTestHooks();
@@ -74,9 +75,8 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     });
 
     await test.step('No exception should be raised to NBO', async () => {
-      // If there is a function to check NBO exceptions, call it here. Otherwise, this is a placeholder.
-      // Example: const nboExceptions = await getNboExceptions(request, nhsNumber);
-      // expect(nboExceptions).toHaveLength(0);
+      const response = await getValidationExceptions(request, 3, nhsNumber);
+      expect(response.data === null || (Array.isArray(response.data) && response.data.length === 0)).toBe(true);
     });
 
     await test.step('Audit log should show record was blocked and not processed', async () => {
@@ -119,9 +119,8 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     });
 
     await test.step('No exception should be raised to NBO', async () => {
-      // If there is a function to check NBO exceptions, call it here. Otherwise, this is a placeholder.
-      // Example: const nboExceptions = await getNboExceptions(request, nhsNumber);
-      // expect(nboExceptions).toHaveLength(0);
+      const response = await getValidationExceptions(request, 3, nhsNumber);
+      expect(response.data === null || (Array.isArray(response.data) && response.data.length === 0)).toBe(true);
     });
 
     await test.step('Audit log should show record was blocked and not processed', async () => {
@@ -159,9 +158,16 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     });
 
     await test.step('No exception should be raised to NBO', async () => {
-      // If there is a function to check NBO exceptions, call it here. Otherwise, this is a placeholder.
-      // Example: const nboExceptions = await getNboExceptions(request, nhsNumber);
-      // expect(nboExceptions).toHaveLength(0);
+      // First check with just NHS number to see if any exceptions exist
+      const allExceptions = await getValidationExceptions(request, undefined, nhsNumber);
+      console.log('All exceptions for NHS number:', allExceptions);
+
+      // Then check specifically for category 3 exceptions
+      const response = await getValidationExceptions(request, 3, nhsNumber);
+      console.log('Category 3 exceptions:', response);
+
+      // If there are no exceptions, the API returns null or an empty array
+      expect(response.data === null || (Array.isArray(response.data) && response.data.length === 0)).toBe(true);
     });
 
     await test.step('Audit log should show record was blocked and not processed', async () => {
@@ -204,9 +210,8 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     });
 
     await test.step('No exception should be raised to NBO', async () => {
-      // If there is a function to check NBO exceptions, call it here. Otherwise, this is a placeholder.
-      // Example: const nboExceptions = await getNboExceptions(request, nhsNumber);
-      // expect(nboExceptions).toHaveLength(0);
+      const response = await getValidationExceptions(request, 3, nhsNumber);
+      expect(response.data === null || (Array.isArray(response.data) && response.data.length === 0)).toBe(true);
     });
 
     await test.step('Audit log should show record was blocked and not processed', async () => {
@@ -249,9 +254,8 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     });
 
     await test.step('No exception should be raised to NBO', async () => {
-      // If there is a function to check NBO exceptions, call it here. Otherwise, this is a placeholder.
-      // Example: const nboExceptions = await getNboExceptions(request, nhsNumber);
-      // expect(nboExceptions).toHaveLength(0);
+      const response = await getValidationExceptions(request, 3, nhsNumber);
+      expect(response.data === null || (Array.isArray(response.data) && response.data.length === 0)).toBe(true);
     });
 
     await test.step('Audit log should show record was blocked and not processed', async () => {
@@ -294,9 +298,8 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     });
 
     await test.step('No exception should be raised to NBO', async () => {
-      // If there is a function to check NBO exceptions, call it here. Otherwise, this is a placeholder.
-      // Example: const nboExceptions = await getNboExceptions(request, nhsNumber);
-      // expect(nboExceptions).toHaveLength(0);
+      const response = await getValidationExceptions(request, 3, nhsNumber);
+      expect(response.data === null || (Array.isArray(response.data) && response.data.length === 0)).toBe(true);
     });
 
     await test.step('Audit log should show record was blocked and not processed', async () => {
@@ -373,7 +376,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
 
   test('@DTOSS-7665-01 AC4 - Audit log evidences blocked AMEND action is not processed', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
     // Arrange: Clean up and block the participant
-    const nhsNumber = '9997614135'; // Use a valid NHS number
+    const nhsNumber = '9997614135';
     await cleanupDatabaseFromAPI(request, [nhsNumber]);
 
     // Add the participant so they exist in the DB
@@ -391,7 +394,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
         participantExists = true;
         break;
       }
-      await new Promise(res => setTimeout(res, 2500)); // Slightly longer wait
+      await new Promise(res => setTimeout(res, 2500));
     }
     if (!participantExists) {
       console.warn(`Participant ${nhsNumber} not found in DB after retries`);
@@ -429,14 +432,14 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     // Assert: Audit log should show record was blocked and not processed
     await test.step('Audit log should show record was blocked and not processed', async () => {
       const resp = await getRecordsFromParticipantManagementService(request);
-      expect(resp?.data?.[0]?.BlockedFlag).toBe(1);
+      expect(resp?.data?.[0]?.BlockedFlag).toBe(1); // Using blockedflag until audit table functionality is developed
       expect(resp?.data?.[0]?.ReasonForRemoval).toBeNull();
     });
   });
 
   test('@DTOSS-7666-01 AC4 - Audit log evidences blocked DELETE action is not processed', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
     // Arrange: Clean up and block the participant
-    const nhsNumber = '9997614135'; // Use a valid NHS number
+    const nhsNumber = '9997614135';
     await cleanupDatabaseFromAPI(request, [nhsNumber]);
 
     // Add the participant so they exist in the DB
@@ -454,7 +457,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
         participantExists = true;
         break;
       }
-      await new Promise(res => setTimeout(res, 2500)); // Slightly longer wait
+      await new Promise(res => setTimeout(res, 2500));
     }
     if (!participantExists) {
       console.warn(`Participant ${nhsNumber} not found in DB after retries`);
@@ -492,7 +495,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     // Assert: Audit log should show record was blocked and not processed
     await test.step('Audit log should show record was blocked and not processed', async () => {
       const resp = await getRecordsFromParticipantManagementService(request);
-      expect(resp?.data?.[0]?.BlockedFlag).toBe(1);
+      expect(resp?.data?.[0]?.BlockedFlag).toBe(1); // using blocked flag to check as audit table not implemented yet
       expect(resp?.data?.[0]?.ReasonForRemoval).toBeNull();
     });
   });
