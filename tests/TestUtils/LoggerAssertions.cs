@@ -1,8 +1,9 @@
+namespace NHS.CohortManager.Tests.TestUtils;
+
 using System.Linq.Expressions;
 using Moq;
 using Microsoft.Extensions.Logging;
 
-namespace ServiceLayer.TestUtilities;
 
 public static class LoggerAssertions
 {
