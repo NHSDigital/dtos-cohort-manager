@@ -39,14 +39,14 @@ public class NemsMeshRetrieval
     /// This function polls the MESH Mailbox every 5 minutes, if there is a file posted to the mailbox.
     /// If there is a file in there will move the file to the Cohort Manager Blob Storage where it will be picked up by the ReceiveCaasFile Function.
     /// </summary>
-    [Function("RetrieveMeshFile")]
+    [Function("RetrieveNemsMeshFile")]
     public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
     {
         _logger.LogInformation("C# Timer trigger function executed at: ,{datetime}", DateTime.UtcNow);
 
         static bool messageFilter(MessageMetaData i) => true; // No current filter defined there might be business rules here
 
-        static string fileNameFunction(MessageMetaData i) => string.Concat(i.MessageId, "_-_", i.WorkflowID, ".parquet");
+        static string fileNameFunction(MessageMetaData i) => string.Concat(i.MessageId, "_-_", i.WorkflowID, ".xml");
 
         try
         {
