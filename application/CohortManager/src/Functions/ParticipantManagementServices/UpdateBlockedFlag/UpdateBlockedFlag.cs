@@ -48,7 +48,11 @@ public class UpdateBlockedFlag
 
         var blockParticipantResult = await _blockParticipantHandler.BlockParticipant(blockParticipantDTO);
 
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, blockParticipantResult.ResponseMessage);
+        if (blockParticipantResult.Success)
+        {
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, blockParticipantResult.ResponseMessage);
+        }
+        return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, blockParticipantResult.ResponseMessage);
 
     }
 

@@ -39,6 +39,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     {
         if (!ValidationHelper.ValidateNHSNumber(blockParticipantRequest.NhsNumber.ToString()))
         {
+            _logger.LogWarning("Participant had an invalid NHS Number and cannot be blocked");
             throw new InvalidDataException("Invalid NHS Number");
         }
 
@@ -46,6 +47,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
         if (!ValidateRecordsMatch(participantDemographic, blockParticipantRequest))
         {
+            _logger.LogWarning("Participant had an didn't pass three point check and cannot be blocked");
             return new BlockParticipantResult(false, "Participant Didn't pass three point check");
         }
 
@@ -53,6 +55,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
         if (participantManagementRecord.BlockedFlag == 1)
         {
+            _logger.LogWarning("Participant already blocked and cannot be blocked");
             return new BlockParticipantResult(false, "Participant Already Blocked");
         }
 
@@ -115,7 +118,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
     private async Task<bool> UnsubscribeParticipantFromNEMS(long nhsNumber)
     {
-        var nemsUnsubscribeResponse = await _httpClient.SendPost(_config.ManageNemsSubscriptionSubscribeURL, CreateNhsNumberQueryParams(nhsNumber));
+        var nemsUnsubscribeResponse = await _httpClient.SendPost(_config.ManageNemsSubscriptionUnsubscribeURL, CreateNhsNumberQueryParams(nhsNumber));
 
         return nemsUnsubscribeResponse.IsSuccessStatusCode;
     }
@@ -136,9 +139,13 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
     private static bool ValidateRecordsMatch(ParticipantDemographic participant, BlockParticipantDTO dto)
     {
+
+        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd", out var parsedDob))
+        {
+            return false;
+        }
         return string.Equals(participant.FamilyName, dto.FamilyName, StringComparison.InvariantCultureIgnoreCase)
             && participant.NhsNumber == dto.NhsNumber
-            && DateOnly.TryParse(participant.DateOfBirth, out var parsedDob)
             && parsedDob == dto.DateOfBirth;
     }
 
