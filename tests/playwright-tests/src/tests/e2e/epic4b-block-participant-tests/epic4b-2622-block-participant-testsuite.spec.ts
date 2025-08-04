@@ -226,7 +226,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     const nhsNumber = '9997661001';
     await cleanupDatabaseFromAPI(request, [nhsNumber]);
 
-    // Add the participant (if needed)
+    // Add the participant
     const [addValidations, addInputParticipantRecord, addNhsNumbers, addTestFilesPath] = await getApiTestData(testInfo.title, 'ADD_BLOCKED');
     const addParquetFile = await createParquetFromJson(addNhsNumbers, addInputParticipantRecord, addTestFilesPath);
     await processFileViaStorage(addParquetFile);
@@ -367,7 +367,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
 
     // Assert: Audit log should show record was blocked and not processed
     await test.step('Audit log should show record was blocked and not processed', async () => {
-      // Patch: Validate that ReasonForRemoval is null after blocking (as in other block scenarios)
+      // Validate that Blocked Flag is 1
       const resp = await getRecordsFromParticipantManagementService(request);
       expect(resp?.data?.[0]?.BlockedFlag).toBe(1);
       expect(resp?.data?.[0]?.ReasonForRemoval).toBeNull();
