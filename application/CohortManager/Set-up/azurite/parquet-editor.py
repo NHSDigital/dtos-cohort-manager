@@ -85,7 +85,7 @@ for i in range(len(args.c)):
             case "Int64":
                 value = int(value)
             case "boolean":
-                value = bool(value)
+                value = value.lower() == "true"
 
     if args.r:
         df.at[args.r[0], column_name] = value
