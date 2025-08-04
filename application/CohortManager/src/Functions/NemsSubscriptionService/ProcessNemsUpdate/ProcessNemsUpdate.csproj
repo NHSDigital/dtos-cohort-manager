@@ -29,5 +29,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
     <ProjectReference Include="..\..\Shared\HealthChecks\HealthChecks.csproj" />
+    <ProjectReference Include="..\..\Shared\DataServices.Client\DataServices.Client.csproj" />
+    <ProjectReference Include="..\..\Shared\Model\Model.csproj" />
   </ItemGroup>
 </Project>

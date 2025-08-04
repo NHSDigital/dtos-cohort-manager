@@ -12,4 +12,6 @@ public class ProcessNemsUpdateConfig
     public required string UpdateQueueName { get; set; }
     [Required]
     public required string UnsubscribeNemsSubscriptionUrl { get; set; }
+    [Required]
+    public required string ParticipantDemographicDataServiceURL { get; set; }
 }
