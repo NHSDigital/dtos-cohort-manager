@@ -6,7 +6,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Common;
-using NHS.CohortManager.ServiceNowIntegrationService.Models;
+using Model;
+using Model.Enums;
 
 public class SendServiceNowMessageFunction
 {
@@ -26,7 +27,7 @@ public class SendServiceNowMessageFunction
     /// Azure Function to send a message to the ServiceNow API
     /// </summary>
     /// <param name="req">The HTTP request containing the message to be sent.</param>
-    /// <param name="sysId">The ServiceNow case system identifier (sys_id) used in the HTTP request path.</param>
+    /// <param name="caseNumber">The ServiceNow case number used in the HTTP request path.</param>
     /// <returns>
     /// An HTTP response indicating the result of the operation:
     ///  - 200 OK for success
@@ -35,7 +36,7 @@ public class SendServiceNowMessageFunction
     /// </returns>
     [Function("SendServiceNowMessage")]
     public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "servicenow/send/{sysId}")] HttpRequestData req, string sysId)
+        [HttpTrigger(AuthorizationLevel.Anonymous, "put", Route = "servicenow/send/{caseNumber}")] HttpRequestData req, string caseNumber)
     {
         SendServiceNowMessageRequestBody? requestBody;
 
@@ -62,17 +63,27 @@ public class SendServiceNowMessageFunction
 
         try
         {
-            var payload = new ServiceNowUpdateRequestBody
-            {
-                State = requestBody.State,
-                WorkNotes = requestBody.WorkNotes
-            };
+            HttpResponseMessage? response = null;
 
-            var response = await _serviceNowClient.SendUpdate(sysId, payload);
+            switch (requestBody.MessageType)
+            {
+                case ServiceNowMessageType.UnableToAddParticipant:
+                    var unableToAddMessage = string.Format(ServiceNowMessageTemplates.UnableToAddParticipantMessageTemplate, caseNumber);
+                    response = await _serviceNowClient.SendUpdate(caseNumber, unableToAddMessage);
+                    break;
+                case ServiceNowMessageType.AddRequestInProgress:
+                    var addRequestInProgessMessage = string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber);
+                    response = await _serviceNowClient.SendUpdate(caseNumber, addRequestInProgessMessage);
+                    break;
+                case ServiceNowMessageType.Success:
+                    var successMessage = string.Format(ServiceNowMessageTemplates.SuccessMessageTemplate, caseNumber);
+                    response = await _serviceNowClient.SendResolution(caseNumber, successMessage);
+                    break;
+            }
 
             if (response == null || !response.IsSuccessStatusCode)
             {
-                _logger.LogError("Failed to update ServiceNow. StatusCode: {statusCode}", response?.StatusCode.ToString() ?? "Unknown");
+                _logger.LogError("Failed to update ServiceNow. StatusCode: {statusCode} CaseNumber: {caseNumber}", response?.StatusCode.ToString() ?? "Unknown", caseNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 

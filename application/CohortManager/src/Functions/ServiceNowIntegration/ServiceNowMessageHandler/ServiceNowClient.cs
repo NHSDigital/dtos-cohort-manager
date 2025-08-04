@@ -27,31 +27,60 @@ public class ServiceNowClient : IServiceNowClient
         _config = config.Value;
     }
 
-    public async Task<HttpResponseMessage?> SendUpdate(string sysId, ServiceNowUpdateRequestBody payload)
+    public async Task<HttpResponseMessage?> SendUpdate(string caseNumber, string message)
+    {
+        var url = $"{_config.ServiceNowUpdateUrl}/{caseNumber}";
+        var payload = new ServiceNowUpdateRequestBody
+        {
+            State = 10,
+            WorkNotes = message
+        };
+        var json = JsonSerializer.Serialize(payload);
+
+        return await SendRequest(url, json);
+    }
+
+    public async Task<HttpResponseMessage?> SendResolution(string caseNumber, string message)
+    {
+        var url = $"{_config.ServiceNowResolutionUrl}/{caseNumber}";
+        var payload = new ServiceNowResolutionRequestBody
+        {
+            State = 6,
+            ResolutionCode = "28",
+            CloseNotes = message
+        };
+        var json = JsonSerializer.Serialize(payload);
+
+        return await SendRequest(url, json);
+    }
+
+    public async Task<HttpResponseMessage?> SendRequest(string url, string json)
     {
         var httpClient = _httpClientFactory.CreateClient();
 
-        var url = $"{_config.ServiceNowUpdateUrl}/{sysId}";
-        var json = JsonSerializer.Serialize(payload);
         var token = await GetAccessTokenAsync();
 
         if (token == null)
         {
-            _logger.LogError("Failed to get valid access token so exiting without sending update request to ServiceNow.");
+            _logger.LogError("Failed to get valid access token so exiting without sending request to ServiceNow.");
             return null;
         }
 
-        var request = CreateUpdateRequest(url, json, token);
+        var request = new HttpRequestMessage(HttpMethod.Put, url)
+        {
+            Content = new StringContent(json, Encoding.UTF8, "application/json")
+        };
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
         var response = await httpClient.SendAsync(request);
 
         if (response.StatusCode == HttpStatusCode.Unauthorized)
         {
-            _logger.LogInformation("Update request returned an Unauthorized response, refreshing the access token and retrying the update request...");
+            _logger.LogInformation("Request returned an Unauthorized response, refreshing the access token and retrying the request...");
             token = await GetAccessTokenAsync(true);
             if (token == null)
             {
-                _logger.LogError("Failed to get valid access token so exiting without sending update request to ServiceNow.");
+                _logger.LogError("Failed to get valid access token so exiting without sending request to ServiceNow.");
                 return null;
             }
             var retryRequest = CreateUpdateRequest(url, json, token);
