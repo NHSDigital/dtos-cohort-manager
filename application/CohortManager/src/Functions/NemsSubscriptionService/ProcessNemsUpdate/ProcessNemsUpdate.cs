@@ -127,7 +127,15 @@ public class ProcessNemsUpdate
                 blobJson = await reader.ReadToEndAsync();
             }
 
-            return _fhirPatientDemographicMapper.ParseFhirJsonNhsNumber(blobJson);
+            // Determine format based on file extension and call appropriate parser
+            if (name.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+            {
+                return _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(blobJson);
+            }
+            else
+            {
+                return _fhirPatientDemographicMapper.ParseFhirJsonNhsNumber(blobJson);
+            }
 
         }
         catch (Exception ex)

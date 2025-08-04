@@ -35,10 +35,20 @@ public class FhirParserHelperTests
 
     private static string LoadTestJson(string filename)
     {
-        // Add .json extension if not already present
-        string filenameWithExtension = filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase)
+        return LoadTestFile(filename, ".json");
+    }
+
+    private static string LoadTestXml(string filename)
+    {
+        return LoadTestFile(filename, ".xml");
+    }
+
+    private static string LoadTestFile(string filename, string extension)
+    {
+        // Add extension if not already present
+        string filenameWithExtension = filename.EndsWith(extension, StringComparison.OrdinalIgnoreCase)
             ? filename
-            : $"{filename}.json";
+            : $"{filename}{extension}";
 
         // Get the directory of the currently executing assembly
         string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -59,7 +69,7 @@ public class FhirParserHelperTests
         }
 
         // If neither exists, throw a descriptive exception
-        string errorMessage = $"Could not find JSON file '{filename}' in either:\n" +
+        string errorMessage = $"Could not find {extension} file '{filename}' in either:\n" +
                               $" - {Path.GetDirectoryName(originalPath)}\n" +
                               $" - {Path.GetDirectoryName(alternativePath)}";
 
@@ -534,5 +544,108 @@ public class FhirParserHelperTests
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to parse FHIR json")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
+    }
+
+    [TestMethod]
+    public void ParseFhirXmlNhsNumber_ValidNemsBundle_ReturnsNhsNumber()
+    {
+        // Arrange
+        string xml = LoadTestXml("nems-bundle");
+        string expected = "9000000009";
+
+        // Debug: Check if Patient exists in XML
+        Assert.IsTrue(xml.Contains("<Patient>"), "XML should contain Patient element");
+        Assert.IsTrue(xml.Contains("9000000009"), "XML should contain NHS number");
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(xml);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseFhirXmlNhsNumber_InvalidXml_ThrowsException()
+    {
+        // Arrange
+        var xml = "<invalid>xml</invalid>";
+
+        // Act & Assert
+        Assert.ThrowsException<FormatException>(() => _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(xml));
+        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to parse FHIR XML")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
+    }
+
+    [TestMethod]
+    public void ParseFhirXmlNhsNumber_BundleWithoutPatient_ReturnsEmpty()
+    {
+        // Arrange
+        var xml = @"<Bundle xmlns=""http://hl7.org/fhir"">
+                      <id value=""test-bundle""/>
+                      <type value=""message""/>
+                      <entry>
+                        <resource>
+                          <MessageHeader>
+                            <id value=""test""/>
+                          </MessageHeader>
+                        </resource>
+                      </entry>
+                    </Bundle>";
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(xml);
+
+        // Assert
+        Assert.AreEqual(string.Empty, result);
+    }
+
+    [TestMethod]
+    public void ParseFhirXmlNhsNumber_PatientXml_ReturnsNhsNumber()
+    {
+        // Arrange
+        var xml = @"<Patient xmlns=""http://hl7.org/fhir"">
+                      <id value=""test-patient""/>
+                      <identifier>
+                        <system value=""https://fhir.nhs.uk/Id/nhs-number""/>
+                        <value value=""1234567890""/>
+                      </identifier>
+                    </Patient>";
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(xml);
+
+        // Assert
+        Assert.AreEqual("1234567890", result);
+    }
+
+    [TestMethod]
+    public void Debug_ExtractPatientFromNemsBundle_ShowsPatientXml()
+    {
+        // Arrange
+        string xml = LoadTestXml("nems-bundle");
+        
+        // Manually extract Patient XML to see what we get
+        var doc = new System.Xml.XmlDocument();
+        doc.LoadXml(xml);
+        var nsManager = new System.Xml.XmlNamespaceManager(doc.NameTable);
+        nsManager.AddNamespace("fhir", "http://hl7.org/fhir");
+        var patientNode = doc.SelectSingleNode("//fhir:Patient", nsManager);
+        
+        // Debug assertions
+        Assert.IsNotNull(patientNode, "Should find Patient node in XML");
+        
+        var patientXml = patientNode.OuterXml;
+        Assert.IsTrue(patientXml.Contains("9000000009"), "Patient XML should contain NHS number");
+        
+        // Use the same method as the main class to test the full flow
+        var result = _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(xml);
+        
+        // This will help us debug - if this passes, the issue is elsewhere
+        // If this fails, we know the problem is in our parsing logic
+        Assert.AreEqual("9000000009", result, "Should extract NHS number from NEMS Bundle");
     }
 }
