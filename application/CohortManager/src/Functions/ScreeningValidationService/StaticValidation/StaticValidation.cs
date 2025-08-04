@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
+using NHS.CohortManager.Shared.Utilities;
 using RulesEngine.Models;
 
 public class StaticValidation
@@ -47,6 +48,8 @@ public class StaticValidation
             var ruleFileName = $"{participantCsvRecord.Participant.ScreeningName}_staticRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName: {RuleFileName}", ruleFileName);
 
+            bool routineParticipant = participantCsvRecord.Participant.ReferralFlag == "false";
+
             var json = await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
@@ -63,12 +66,17 @@ public class StaticValidation
             };
             var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-            if (re.GetAllRegisteredWorkflowNames().Contains(participantCsvRecord.Participant.RecordType))
+            if (routineParticipant)
             {
-                _logger.LogInformation("Executing workflow {RecordType}", participantCsvRecord.Participant.RecordType);
-                var ActionResults = await re.ExecuteAllRulesAsync(participantCsvRecord.Participant.RecordType, ruleParameters);
-                resultList.AddRange(ActionResults);
+                resultList.AddRange(await re.ExecuteAllRulesAsync("Routine_Common", ruleParameters));
             }
+
+            if (re.GetAllRegisteredWorkflowNames().Contains(participantCsvRecord.Participant.RecordType))
+                {
+                    _logger.LogInformation("Executing workflow {RecordType}", participantCsvRecord.Participant.RecordType);
+                    var ActionResults = await re.ExecuteAllRulesAsync(participantCsvRecord.Participant.RecordType, ruleParameters);
+                    resultList.AddRange(ActionResults);
+                }
 
             var validationErrors = resultList.Where(x => !x.IsSuccess).Select(x => new ValidationRuleResult(x));
 
