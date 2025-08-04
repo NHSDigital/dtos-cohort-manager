@@ -103,6 +103,24 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "00.RecordDeleted",
+        "Expression": "participant.RecordType == Actions.Removed",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "ReasonForRemoval",
+                  "value": "ORR"
+                }
+              ]
+            }
+          }
+        }
       }
     ]
   },
