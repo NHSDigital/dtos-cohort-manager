@@ -8,6 +8,11 @@ import { getRecordsFromCohortDistributionService } from '../../../api/dataServic
 import { APIRequestContext, TestInfo } from '@playwright/test';
 import { getValidationExceptions } from '../../../api/exceptionManagementService/validationExceptions';
 
+annotation: [{
+  type: 'Requirement',
+  description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-2622'
+}]
+
 test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
   TestHooks.setupAllTestHooks();
 
