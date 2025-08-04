@@ -83,6 +83,9 @@ export class HomePage extends BasePage {
     const numberText = await notRaisedCardNumber.nth(0).textContent();
     console.log(numberText);
     const number = parseInt((numberText ?? '0').trim(), 10);
+    if (number === 0) {
+      await expect(this.notRaisedLink).toBeDisabled();
+    }
     expect(number).toBeGreaterThanOrEqual(min);
   }
   async verifyNotRaisedText(text: string) {
