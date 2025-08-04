@@ -47,6 +47,18 @@
       "reason_for_adding": "eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached"
     }
   },
+    "ParticipantRecordMissingAllMandatoryData": {
+    "number": "CS573850",
+    "u_case_variable_data": {
+      "nhs_number": "",
+      "forename_": "",
+      "surname_family_name": "",
+      "date_of_birth": " ",
+      "enter_dummy_gp_code": "ZZZCDS",
+      "BSO_code": "",
+      "reason_for_adding": "eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached"
+    }
+  },
     "inValidParticipantRecordMissingReasonForAdding": {
     "number": "CS0573850",
     "u_case_variable_data": {
