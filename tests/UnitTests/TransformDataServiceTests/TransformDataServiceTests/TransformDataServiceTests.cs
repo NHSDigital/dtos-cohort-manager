@@ -634,7 +634,8 @@ public class TransformDataServiceTests
             RecordType = Actions.Removed,
             NhsNumber = "1234567890",
             EligibilityFlag = "0",
-            InvalidFlag = "1"
+            InvalidFlag = "1",
+            ReferralFlag = false
         };
         _requestBody.Participant = participant;
 

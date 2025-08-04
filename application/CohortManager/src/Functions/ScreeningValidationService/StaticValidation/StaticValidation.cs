@@ -70,11 +70,11 @@ public class StaticValidation
             if (participantCsvRecord.Participant.RecordType != Actions.Removed)
             {
                 resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
-            }
 
-            if (routineParticipant)
-            {
-                resultList.AddRange(await re.ExecuteAllRulesAsync("Routine_Common", ruleParameters));
+                if (routineParticipant)
+                {
+                    resultList.AddRange(await re.ExecuteAllRulesAsync("Routine_Common", ruleParameters));
+                }
             }
 
             if (re.GetAllRegisteredWorkflowNames().Contains(participantCsvRecord.Participant.RecordType))
