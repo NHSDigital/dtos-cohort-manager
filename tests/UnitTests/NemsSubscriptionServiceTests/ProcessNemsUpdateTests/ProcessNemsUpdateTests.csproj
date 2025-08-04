@@ -24,6 +24,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\NemsSubscriptionService\ProcessNemsUpdate\ProcessNemsUpdate.csproj" />
+    <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
+     <ProjectReference Include="..\..\..\..\application/CohortManager\src\Functions\Shared\Model\Model.csproj" />
   </ItemGroup>
 
 </Project>

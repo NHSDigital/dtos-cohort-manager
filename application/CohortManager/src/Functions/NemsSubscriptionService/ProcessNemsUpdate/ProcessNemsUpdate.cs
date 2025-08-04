@@ -70,11 +70,11 @@ public class ProcessNemsUpdate
             }
 
             //Validate NHS Number
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumberStr))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 throw new InvalidDataException("Invalid NHS Number");
             }
-            nhsNumberLong = long.Parse(nhsNumberStr);
+            nhsNumberLong = long.Parse(nhsNumber);
 
             string? pdsRecord = await RetrievePdsRecord(nhsNumber);
 
