@@ -42,7 +42,8 @@ public class TransformDataServiceTests
             FirstName = "John",
             FamilyName = "Smith",
             NamePrefix = "MR",
-            Gender = Gender.Male
+            Gender = Gender.Male,
+            ReferralFlag = false
         };
 
         CohortDistribution databaseParticipant = new()
@@ -112,6 +113,51 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
+    public async Task Run_ParticipantReferred_DoNotRunRoutineRules()
+    {
+        // Arrange
+        _requestBody.Participant.ReferralFlag = true;
+
+        // Breaks rule InvalidFlagTrueAndNoPrimaryCareProvider in the routine rules
+        _requestBody.Participant.PrimaryCareProvider = "G82650";
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString();
+        _requestBody.Participant.InvalidFlag = "1";
+        _requestBody.Participant.RecordType = Actions.New;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(
+                It.IsAny<CohortDistributionParticipant>(),
+                It.IsAny<string>(),
+                It.IsAny<int>(),
+                null),
+            times: Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Run_ParticipantReferred_RunCommonRules()
+    {
+        // Arrange
+        // Should trigger truncate rule
+        _requestBody.Participant.AddressLine1 = new string('A', 36);
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "TruncateAddressLine1ExceedsMaximumLength", It.IsAny<int>(), null), times: Times.Once);
+    }
+
+    [TestMethod]
     [DataRow("ADMIRAL", "ADM", 38)]
     [DataRow("AIR MARSHAL", "A.ML", 37)]
     [DataRow("AIR MARSHAL", "A.ML", 37)]
@@ -130,7 +176,8 @@ public class TransformDataServiceTests
             FirstName = "John",
             FamilyName = "Smith",
             NamePrefix = expectedTransformedPrefix,
-            Gender = Gender.Male
+            Gender = Gender.Male,
+            ReferralFlag = false
         };
 
         // Act
@@ -219,7 +266,8 @@ public class TransformDataServiceTests
             FirstName = "John",
             FamilyName = "Smith",
             NamePrefix = null,
-            Gender = Gender.Male
+            Gender = Gender.Male,
+            ReferralFlag = false,
         };
 
         // Act
@@ -246,6 +294,7 @@ public class TransformDataServiceTests
             FamilyName = "Smith",
             NamePrefix = "DR",
             Gender = Gender.Male,
+            ReferralFlag = false
         };
 
         // Act
@@ -278,7 +327,8 @@ public class TransformDataServiceTests
             Postcode = new string('A', 36),
             TelephoneNumber = new string('A', 33),
             MobileNumber = new string('A', 33),
-            EmailAddress = new string('A', 91)
+            EmailAddress = new string('A', 91),
+            ReferralFlag = false
         };
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
@@ -298,6 +348,7 @@ public class TransformDataServiceTests
             TelephoneNumber = new string('A', 32),
             MobileNumber = new string('A', 32),
             EmailAddress = new string('A', 90),
+            ReferralFlag = false
         };
 
         // Act
@@ -362,7 +413,8 @@ public class TransformDataServiceTests
             FirstName = "John",
             FamilyName = transformedName,
             NamePrefix = "MR",
-            Gender = Gender.Male
+            Gender = Gender.Male,
+            ReferralFlag = false
         };
 
         // Act
@@ -393,6 +445,7 @@ public class TransformDataServiceTests
             FamilyName = "Smith",
             NamePrefix = "MR",
             Gender = Gender.Male,
+            ReferralFlag = false,
             ReasonForRemoval = "DEA",
             ReasonForRemovalEffectiveFromDate = "2/10/2024",
             DateOfDeath = "2/10/2024"
@@ -425,7 +478,8 @@ public class TransformDataServiceTests
             FirstName = "John",
             FamilyName = "Smith",
             NamePrefix = "MR",
-            Gender = Gender.Male
+            Gender = Gender.Male,
+            ReferralFlag = false
         };
 
         // Act
@@ -459,6 +513,7 @@ public class TransformDataServiceTests
             FamilyName = "Smith",
             NamePrefix = "MR",
             Gender = Gender.Male,
+            ReferralFlag = false,
             ReasonForRemoval = "ORR",
             ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd"),
             PrimaryCareProvider = "",
@@ -491,6 +546,7 @@ public class TransformDataServiceTests
             FamilyName = "Smith",
             NamePrefix = "MR",
             Gender = Gender.Male,
+            ReferralFlag = false,
             ReasonForRemoval = "NOTDEA",
             DateOfDeath = null,
         };
@@ -520,6 +576,7 @@ public class TransformDataServiceTests
             FamilyName = "Smith",
             NamePrefix = "MR",
             Gender = Gender.Male,
+            ReferralFlag = false,
             ReasonForRemoval = "DEA",
             DateOfDeath = "2024-01-01",
         };
@@ -551,6 +608,7 @@ public class TransformDataServiceTests
             FamilyName = "Smith",
             NamePrefix = "MR",
             Gender = Gender.Male,
+            ReferralFlag = false,
             PrimaryCareProvider = "",
             ReasonForRemoval = "ORR",
             ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")

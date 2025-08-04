@@ -1,6 +1,6 @@
 [
   {
-    "WorkflowName": "Common",
+    "WorkflowName": "Routine_Common",
     "Rules": [
       {
         "RuleName": "8.RecordType.CaaS.NonFatal",
@@ -10,18 +10,6 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Incorrect record type\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "30.Postcode.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR ValidationHelper.ValidatePostcode(participant.Postcode)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Postcode invalid\""
             }
           }
         }
@@ -39,54 +27,6 @@
         }
       },
       {
-        "RuleName": "17.DateOfBirth.NBO.NonFatal",
-        "Expression": "!(string.IsNullOrEmpty(participant.DateOfBirth) || !ValidationHelper.ValidatePastDate(participant.DateOfBirth))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Date of birth invalid\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "39.FamilyName.NBO.NonFatal",
-        "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FamilyName))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Family Name value missing\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "40.FirstName.NBO.NonFatal",
-        "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FirstName))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"First Name value missing\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "18.DateOfDeath.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.DateOfDeath) OR ValidationHelper.ValidatePastDate(participant.DateOfDeath)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Date of death invalid\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "47.NewParticipantWithRemovalOrDeath.NBO.NonFatal",
         "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))",
         "Actions": {
@@ -94,18 +34,6 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Removal fields incompatible with record type\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "49.InterpreterCheck.NBO.NonFatal",
-        "Expression": "int.Parse(participant.IsInterpreterRequired) != 0 OR int.Parse(participant.IsInterpreterRequired) != 1",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Interpreter required does not contain a valid value\""
             }
           }
         }
@@ -170,6 +98,83 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Invalid eligibility flag.\""
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Common",
+    "Rules": [
+      {
+        "RuleName": "30.Postcode.NBO.NonFatal",
+        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR ValidationHelper.ValidatePostcode(participant.Postcode)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Postcode invalid\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "17.DateOfBirth.NBO.NonFatal",
+        "Expression": "!(string.IsNullOrEmpty(participant.DateOfBirth) || !ValidationHelper.ValidatePastDate(participant.DateOfBirth))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Date of birth invalid\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "39.FamilyName.NBO.NonFatal",
+        "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FamilyName))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Family Name value missing\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "40.FirstName.NBO.NonFatal",
+        "Expression": "!(participant.RecordType != Actions.Amended && string.IsNullOrEmpty(participant.FirstName))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"First Name value missing\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "18.DateOfDeath.NBO.NonFatal",
+        "Expression": "string.IsNullOrEmpty(participant.DateOfDeath) OR ValidationHelper.ValidatePastDate(participant.DateOfDeath)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Date of death invalid\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "49.InterpreterCheck.NBO.NonFatal",
+        "Expression": "int.Parse(participant.IsInterpreterRequired) != 0 OR int.Parse(participant.IsInterpreterRequired) != 1",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Interpreter required does not contain a valid value\""
             }
           }
         }
