@@ -71,7 +71,8 @@ public class StaticValidationTests
                 InvalidFlag = "0",
                 IsInterpreterRequired = "0",
                 CurrentPosting = "ABC",
-                EligibilityFlag = "1"
+                EligibilityFlag = "1",
+                ReferralFlag = "false"
             }
         };
     }
@@ -97,6 +98,40 @@ public class StaticValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ParticipantReferred_DoNotRunRoutineRules()
+    {
+        // Arrange
+        _participantCsvRecord.Participant.ReferralFlag = "true";
+        _participantCsvRecord.Participant.PrimaryCareProvider = "ABC";
+        _participantCsvRecord.Participant.ReasonForRemoval = "123";
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ParticipantReferred_RunCommonRules()
+    {
+        // Arrange
+        _participantCsvRecord.Participant.ReferralFlag = "true";
+        _participantCsvRecord.Participant.Postcode = "ZzZ99 LZ";
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+
+        // Assert
+        StringAssert.Contains(body, "30.Postcode.NBO.NonFatal");
     }
 
     #region Record Type (Rule 8)
@@ -139,6 +174,22 @@ public class StaticValidationTests
         StringAssert.Contains(body, "8.RecordType.CaaS.NonFatal");
     }
     #endregion
+
+    [TestMethod]
+    public async Task Run_DelRecord_DoNotRunCommonRules()
+    {
+        // Arrange
+        _participantCsvRecord.Participant.RecordType = Actions.Removed;
+        _participantCsvRecord.Participant.EligibilityFlag = "0";
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+    }
 
     #region Postcode (Rule 30)
     [TestMethod]
@@ -479,7 +530,7 @@ public class StaticValidationTests
     public async Task Run_ValidDateOfDeath_ReturnNoContent(string date)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.Removed;
+        _participantCsvRecord.Participant.RecordType = Actions.Amended;
         _participantCsvRecord.Participant.DateOfDeath = date;
         _participantCsvRecord.Participant.EligibilityFlag = "0";
         var json = JsonSerializer.Serialize(_participantCsvRecord);
@@ -500,7 +551,7 @@ public class StaticValidationTests
     public async Task Run_InvalidDateOfDeath_ReturnValidationException(string date)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.Removed;
+        _participantCsvRecord.Participant.RecordType = Actions.Amended;
         _participantCsvRecord.Participant.DateOfDeath = date;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
