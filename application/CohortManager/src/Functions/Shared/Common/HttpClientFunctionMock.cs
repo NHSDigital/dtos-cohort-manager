@@ -13,7 +13,7 @@ public class HttpClientFunctionMock : IHttpClientFunction
     public async Task<HttpResponseMessage> SendPost(string url, string data)
     {
         await Task.CompletedTask;
-        return CreateFakeHttpResponse(url);
+        return HTTPStubUtilities.CreateFakeHttpResponse(url,"");
     }
 
     public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
@@ -38,7 +38,7 @@ public class HttpClientFunctionMock : IHttpClientFunction
     {
         var patient = GetPatientMockObject("complete-patient.json");
         await Task.CompletedTask;
-        return CreateFakeHttpResponse(url, patient);
+        return HTTPStubUtilities.CreateFakeHttpResponse(url, patient);
     }
 
     private static string GetPatientMockObject(string filename)
@@ -59,7 +59,7 @@ public class HttpClientFunctionMock : IHttpClientFunction
     public async Task<HttpResponseMessage> SendPut(string url, string data)
     {
         await Task.CompletedTask;
-        return CreateFakeHttpResponse(url);
+        return HTTPStubUtilities.CreateFakeHttpResponse(url,"");
     }
 
     public async Task<bool> SendDelete(string url)
@@ -79,25 +79,8 @@ public class HttpClientFunctionMock : IHttpClientFunction
         throw new NotImplementedException();
     }
 
-
-    /// <summary>
-    /// takes in a fake string content and returns 200 OK response 
-    /// </summary>
-    /// <param name="url"></param>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    private static HttpResponseMessage CreateFakeHttpResponse(string url, string content = "")
+    public Task<HttpResponseMessage> SendPost(string url, Dictionary<string, string> parameters)
     {
-        var HttpResponseData = new HttpResponseMessage();
-        if (string.IsNullOrEmpty(url))
-        {
-            HttpResponseData.StatusCode = HttpStatusCode.InternalServerError;
-            return HttpResponseData;
-        }
-
-        HttpResponseData.Content = new StringContent(content);
-        HttpResponseData.StatusCode = HttpStatusCode.OK;
-        return HttpResponseData;
+        throw new NotImplementedException();
     }
-
 }

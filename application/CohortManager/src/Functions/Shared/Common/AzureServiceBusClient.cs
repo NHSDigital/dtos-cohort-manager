@@ -30,6 +30,8 @@ public class AzureServiceBusClient : IQueueClient
     /// <returns></returns>
     public async Task<bool> AddAsync<T>(T message, string queueName)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(queueName);
+
         var sender = _senders.GetOrAdd(queueName, _serviceBusClient.CreateSender);
 
         try

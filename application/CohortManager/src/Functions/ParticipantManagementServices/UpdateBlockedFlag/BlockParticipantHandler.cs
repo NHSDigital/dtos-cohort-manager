@@ -18,12 +18,19 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 {
     private readonly ILogger<BlockParticipantHandler> _logger;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementDataService;
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicDataService;
     private readonly IHttpClientFunction _httpClient;
     private readonly UpdateBlockedFlagConfig _config;
-    public BlockParticipantHandler(ILogger<BlockParticipantHandler> logger, IDataServiceClient<ParticipantManagement> participantManagementDataService, IHttpClientFunction httpClient, IOptions<UpdateBlockedFlagConfig> config)
+    public BlockParticipantHandler(ILogger<BlockParticipantHandler> logger,
+        IDataServiceClient<ParticipantManagement> participantManagementDataService,
+        IDataServiceClient<ParticipantDemographic> participantDemographicDataService,
+        IHttpClientFunction httpClient,
+        IOptions<UpdateBlockedFlagConfig> config
+    )
     {
         _logger = logger;
         _participantManagementDataService = participantManagementDataService;
+        _participantDemographicDataService = participantDemographicDataService;
         _httpClient = httpClient;
         _config = config.Value;
     }
@@ -35,7 +42,19 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             throw new InvalidDataException("Invalid NHS Number");
         }
 
+        var participantDemographic = await _participantDemographicDataService.GetSingleByFilter(x => x.NhsNumber == blockParticipantRequest.NhsNumber);
+
+        if (!ValidateRecordsMatch(participantDemographic, blockParticipantRequest))
+        {
+            return new BlockParticipantResult(false, "Participant Didn't pass three point check");
+        }
+
         var participantManagementRecord = await _participantManagementDataService.GetSingleByFilter(x => x.NHSNumber == blockParticipantRequest.NhsNumber);
+
+        if (participantManagementRecord.BlockedFlag == 1)
+        {
+            return new BlockParticipantResult(false, "Participant Already Blocked");
+        }
 
         if (participantManagementRecord != null)
         {

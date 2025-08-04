@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.DemographicServices;
 
 using System.ComponentModel.DataAnnotations;
+using Hl7.Fhir.Specification.Navigation;
 
 /// <summary>
 /// Configuration settings for NEMS subscription management
@@ -86,10 +87,10 @@ public class ManageNemsSubscriptionConfig
     /// <summary>
     /// Default event types to subscribe to
     /// </summary>
-    public string[] NemsDefaultEventTypes { get; set; } = new[]
-    {
-        "pds-record-change-1"
-    };
+    // public string[] NemsDefaultEventTypes { get; set; } = new[]
+    // {
+    //     "pds-record-change-1"
+    // };
 
     /// <summary>
     /// HTTP client timeout in seconds for NEMS API requests
@@ -101,5 +102,9 @@ public class ManageNemsSubscriptionConfig
     /// Custom validation to ensure either KeyVault or local cert is configured
     /// </summary>
     public bool IsValid => !string.IsNullOrEmpty(KeyVaultConnectionString) || !string.IsNullOrEmpty(NemsLocalCertPath);
+    /// <summary>
+    /// Bool to set the function to be in stubbed mode. Simulated responses from NEMS
+    /// </summary>
+    public bool IsStubbed = true;
 }
 
