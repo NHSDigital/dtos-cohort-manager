@@ -11,6 +11,9 @@ export class ExceptionInformationPage extends BasePage {
   readonly notRaisedLink: Locator;
   readonly headingParticipantDetails: Locator;
   readonly headingExceptionDetails: Locator;
+  readonly exceptionDetailslables: Locator;
+  readonly changeLink: Locator;
+  readonly raisedLink: Locator;
 
   constructor(page: Page) {
     super(page)
@@ -22,6 +25,9 @@ export class ExceptionInformationPage extends BasePage {
     this.notRaisedLink = page.getByRole('link', { name: 'Not raised breast screening exceptions', exact: true });
     this.headingParticipantDetails = page.getByRole('heading', { name: 'Participant details' });
     this.headingExceptionDetails = page.getByRole('heading', { name: 'Exception details' });
+    this.exceptionDetailslables = page.locator('[data-testid="exception-details-labels"]');
+    this.changeLink = page.getByRole('link', { name: 'Change', exact: true });
+    this.raisedLink = page.getByRole('link', { name: 'Raised breast screening exceptions', exact: true });
   }
   async getParticipantDetailsFields(): Promise<string[]> {
     await this.headingParticipantDetails.scrollIntoViewIfNeeded();
@@ -33,8 +39,14 @@ export class ExceptionInformationPage extends BasePage {
     return this.exceptionDetails.locator('dt.nhsuk-summary-list__key').allTextContents();
 
   }
+  async getExceptionDetailsLabels(): Promise<string[]> {
+    return this.exceptionDetailslables.locator('dt.nhsuk-summary-list__key').allTextContents();
+  }
   async clickOnNotRaisedLink() {
     await this.clickElement(this.notRaisedLink);
+  }
+  async clickOnRaisedLink() {
+    await this.clickElement(this.raisedLink);
   }
   async getExceptionStatusText(): Promise<string> {
     await this.enterServiceNowCaseID.scrollIntoViewIfNeeded();
@@ -42,6 +54,10 @@ export class ExceptionInformationPage extends BasePage {
   }
   async isSaveAndContinueButtonVisible(): Promise<boolean> {
     return await this.saveandContinue.isVisible();
+  }
+  async verifyChangeLinkIsVisible() {
+    await this.waitForElementVisible(this.changeLink);
+    return await this.changeLink.isVisible();
   }
 
 }
