@@ -27,27 +27,27 @@ public class ServiceNowClient : IServiceNowClient
         _config = config.Value;
     }
 
-    public async Task<HttpResponseMessage?> SendUpdate(string caseNumber, string message)
+    public async Task<HttpResponseMessage?> SendUpdate(string caseNumber, string workNotes)
     {
         var url = $"{_config.ServiceNowUpdateUrl}/{caseNumber}";
         var payload = new ServiceNowUpdateRequestBody
         {
             State = 10,
-            WorkNotes = message
+            WorkNotes = workNotes
         };
         var json = JsonSerializer.Serialize(payload);
 
         return await SendRequest(url, json);
     }
 
-    public async Task<HttpResponseMessage?> SendResolution(string caseNumber, string message)
+    public async Task<HttpResponseMessage?> SendResolution(string caseNumber, string closeNotes)
     {
         var url = $"{_config.ServiceNowResolutionUrl}/{caseNumber}";
         var payload = new ServiceNowResolutionRequestBody
         {
             State = 6,
             ResolutionCode = "28",
-            CloseNotes = message
+            CloseNotes = closeNotes
         };
         var json = JsonSerializer.Serialize(payload);
 

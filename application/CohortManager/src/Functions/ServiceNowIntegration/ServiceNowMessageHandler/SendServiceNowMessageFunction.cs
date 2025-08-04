@@ -52,7 +52,7 @@ public class SendServiceNowMessageFunction
         }
         catch (JsonException ex)
         {
-            _logger.LogError(ex, "Failed to deserialize json request body to type {type}", nameof(SendServiceNowMessageRequestBody));
+            _logger.LogError(ex, "Failed to deserialize json request body to type {Type}", nameof(SendServiceNowMessageRequestBody));
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
@@ -83,7 +83,7 @@ public class SendServiceNowMessageFunction
 
             if (response == null || !response.IsSuccessStatusCode)
             {
-                _logger.LogError("Failed to update ServiceNow. StatusCode: {statusCode} CaseNumber: {caseNumber}", response?.StatusCode.ToString() ?? "Unknown", caseNumber);
+                _logger.LogError("Failed to update ServiceNow. StatusCode: {StatusCode} CaseNumber: {CaseNumber}", response?.StatusCode.ToString() ?? "Unknown", caseNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
