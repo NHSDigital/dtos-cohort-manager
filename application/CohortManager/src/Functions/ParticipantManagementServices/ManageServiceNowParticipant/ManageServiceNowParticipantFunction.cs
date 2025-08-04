@@ -78,6 +78,8 @@ public class ManageServiceNowParticipantFunction
             var participantManagement = await _participantManagementClient.GetSingleByFilter(
                 x => x.NHSNumber == serviceNowParticipant.NhsNumber && x.ScreeningId == serviceNowParticipant.ScreeningId);
 
+            bool isVhrParticipant = CheckIfVhrParticipant(serviceNowParticipant);
+
             bool dataServiceResponse;
             if (participantManagement is null)
             {
@@ -90,8 +92,14 @@ public class ManageServiceNowParticipantFunction
                     RecordType = Actions.New,
                     EligibilityFlag = 1,
                     ReferralFlag = 1,
-                    RecordInsertDateTime = DateTime.UtcNow
+                    RecordInsertDateTime = DateTime.UtcNow,
+                    IsHigherRisk = isVhrParticipant ? 1 : null
                 };
+
+                if (isVhrParticipant)
+                {
+                    _logger.LogInformation("Participant with NHS Number: {NhsNumber} set as High Risk", serviceNowParticipant.NhsNumber);
+                }
 
                 dataServiceResponse = await _participantManagementClient.Add(participantToAdd);
             }
@@ -102,11 +110,22 @@ public class ManageServiceNowParticipantFunction
             }
             else
             {
-                _logger.LogInformation("Existing participant managment record found, updating record {ParticipantId}", participantManagement.ParticipantId);
+                _logger.LogInformation("Existing participant management record found, updating record {ParticipantId}", participantManagement.ParticipantId);
                 participantManagement.RecordType = Actions.Amended;
                 participantManagement.EligibilityFlag = 1;
                 participantManagement.ReferralFlag = 1;
                 participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
+
+                if (!participantManagement.IsHigherRisk.HasValue && isVhrParticipant)
+                {
+                    participantManagement.IsHigherRisk = 1;
+                    _logger.LogInformation("Participant {ParticipantId} set as High Risk based on ServiceNow attributes", participantManagement.ParticipantId);
+                }
+
+                if (participantManagement.IsHigherRisk == 1)
+                {
+                    _logger.LogInformation("Participant {ParticipantId} still maintained as High Risk", participantManagement.ParticipantId);
+                }
 
                 dataServiceResponse = await _participantManagementClient.Update(participantManagement);
             }
@@ -126,9 +145,9 @@ public class ManageServiceNowParticipantFunction
 
     private async Task HandleException(Exception exception, ServiceNowParticipant serviceNowParticipant, ServiceNowMessageType serviceNowMessageType)
     {
-        _logger.LogError(exception, "Exception occured whilst attempting to add participant from ServiceNow");
+        _logger.LogError(exception, "Exception occurred whilst attempting to add participant from ServiceNow");
         await _exceptionHandler.CreateSystemExceptionLog(exception, serviceNowParticipant);
-        await SendSeviceNowMessage(serviceNowParticipant.ServiceNowRecordNumber, serviceNowMessageType);
+        await SendServiceNowMessage(serviceNowParticipant.ServiceNowRecordNumber, serviceNowMessageType);
     }
 
     private static bool CheckParticipantDataMatches(ServiceNowParticipant serviceNowParticipant, ParticipantDemographic participantDemographic)
@@ -143,7 +162,7 @@ public class ManageServiceNowParticipantFunction
         return false;
     }
 
-    private async Task SendSeviceNowMessage(string serviceNowRecordNumber, ServiceNowMessageType servicenowMessageType)
+    private async Task SendServiceNowMessage(string serviceNowRecordNumber, ServiceNowMessageType servicenowMessageType)
     {
         var url = $"{_config.SendServiceNowMessageURL}/{serviceNowRecordNumber}";
         var requestBody = new SendServiceNowMessageRequestBody
@@ -155,5 +174,10 @@ public class ManageServiceNowParticipantFunction
         _logger.LogInformation("Sending ServiceNow message type {MessageType}", servicenowMessageType);
 
         await _httpClientFunction.SendPut(url, json);
+    }
+
+    private static bool CheckIfVhrParticipant(ServiceNowParticipant serviceNowParticipant)
+    {
+        return serviceNowParticipant.ReasonForAdding == ServiceNowReasonsForAdding.VeryHighRisk;
     }
 }
