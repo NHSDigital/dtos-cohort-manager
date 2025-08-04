@@ -139,7 +139,12 @@ public class TransformDataService
             new RuleParameter("existingParticipant", existingParticipant)
         };
 
-        var resultList = await re.ExecuteAllRulesAsync("TransformData", ruleParameters);
+        var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
+
+        if (!participant.ReferralFlag.Value)
+        {
+            resultList.AddRange(await re.ExecuteAllRulesAsync("Routine", ruleParameters));
+        }
 
         await HandleExceptions(resultList, participant);
         await CreateTransformExecutedExceptions(resultList, participant);

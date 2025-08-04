@@ -54,7 +54,8 @@ public class LookupValidationTests
             NhsNumber = "9876543210",
             FirstName = "John",
             FamilyName = "Smith",
-            ScreeningName = "Breast Screening"
+            ScreeningName = "Breast Screening",
+            ReferralFlag = "false"
         };
 
         _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv");
@@ -91,6 +92,37 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ParticipantReferred_DoNotRunRules()
+    {
+        // Arrange
+        _requestBody.NewParticipant.ReferralFlag = "true";
+        _requestBody.ExistingParticipant.BlockedFlag = "1";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_DelRecord_DoNotRunCommonRules()
+    {
+        // Arrange
+        _requestBody.NewParticipant.RecordType = Actions.Removed;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
