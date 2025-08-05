@@ -66,11 +66,7 @@ public class ServiceNowClient : IServiceNowClient
             return null;
         }
 
-        var request = new HttpRequestMessage(HttpMethod.Put, url)
-        {
-            Content = new StringContent(json, Encoding.UTF8, "application/json")
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        var request = CreateRequest(url, json, token);
 
         var response = await httpClient.SendAsync(request);
 
@@ -83,14 +79,14 @@ public class ServiceNowClient : IServiceNowClient
                 _logger.LogError("Failed to get valid access token so exiting without sending request to ServiceNow.");
                 return null;
             }
-            var retryRequest = CreateUpdateRequest(url, json, token);
+            var retryRequest = CreateRequest(url, json, token);
             response = await httpClient.SendAsync(retryRequest);
         }
 
         return response;
     }
 
-    private static HttpRequestMessage CreateUpdateRequest(string url, string json, string token)
+    private static HttpRequestMessage CreateRequest(string url, string json, string token)
     {
         var request = new HttpRequestMessage(HttpMethod.Put, url)
         {
