@@ -6,23 +6,15 @@
         "RuleName": "8.Transform.UpdatedRecordExcludedAndDMS",
         "LocalParams": [
           {
-            "Name": "IsPrimaryCareProviderNullOnUpdatedParticipant",
-            "Expression": "participant.PrimaryCareProvider == null"
+            "Name": "DMSInSMU",
+            "Expression": "participant.CurrentPosting == \"DMS\" && dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(participant.PrimaryCareProvider))"
           },
           {
-            "Name": "IsPrimaryCareProviderNullDatabaseParticipant",
-            "Expression": "databaseParticipant.PrimaryCareProvider == null"
-          },
-          {
-            "Name": "IsNewRecordInSMU",
-            "Expression": "participant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullOnUpdatedParticipant ? false : !excludedSMUList.Contains(participant.PrimaryCareProvider)) || new string[] { \"English\", \"NHAIS\", \"Cipher\", \"ENG\", \"IM\" }.Contains(participant.CurrentPosting)"
-          },
-          {
-            "Name": "IsOldRecordInSMU",
-            "Expression": "databaseParticipant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullDatabaseParticipant ? false : excludedSMUList.Contains(databaseParticipant.PrimaryCareProvider)) || new string[] { \"Welsh\", \"NHAIS\", \"Cipher\", \"CYM\" }.Contains(databaseParticipant.CurrentPosting)"
+            "Name": "WelshCurrentPosting",
+            "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\" || participant.CurrentPosting == \"CYM\""
           }
         ],
-        "Expression": "participant.RecordType == Actions.Amended && IsNewRecordInSMU && IsOldRecordInSMU",
+        "Expression": "(participant.RecordType == Actions.Amended) && (DMSInSMU || WelshCurrentPosting)",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
