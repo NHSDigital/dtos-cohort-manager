@@ -31,7 +31,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9990267774",
         "RuleId": -2146233088,
-        "RuleDescriptionDynamic": "Unable to add to cohort distribution. As participant with ParticipantId: x. Has an Exception against it"
+        "RuleDescriptionDynamic": "Unable to add to cohort distribution. As participant 14760 has triggered a validation exception"
       },
       "meta": {
         "testJiraId": "@DTOSS-5579-01",

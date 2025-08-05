@@ -30,7 +30,10 @@ export default function ParticipantInformationPanel({
         )}
         <h2>Participant details</h2>
 
-        <dl className="nhsuk-summary-list">
+        <dl
+          className="nhsuk-summary-list"
+          data-testid="participant-details-section"
+        >
           <div className="nhsuk-summary-list__row">
             <dt className="nhsuk-summary-list__key">NHS number</dt>
             <dd className="nhsuk-summary-list__value">
@@ -91,7 +94,10 @@ export default function ParticipantInformationPanel({
       <div className="nhsuk-card nhsuk-u-margin-bottom-4">
         <div className="nhsuk-card__content">
           <h2>Exception details</h2>
-          <dl className="nhsuk-summary-list">
+          <dl
+            className="nhsuk-summary-list"
+            data-testid="exception-details-section"
+          >
             <div className="nhsuk-summary-list__row">
               <dt className="nhsuk-summary-list__key">
                 Date exception created
@@ -139,6 +145,7 @@ export default function ParticipantInformationPanel({
                 <label
                   className="nhsuk-label nhsuk-u-font-weight-bold"
                   htmlFor="service-now-case-id"
+                  data-testid="service-now-case-id-label"
                 >
                   Enter ServiceNow Case ID
                 </label>
@@ -147,6 +154,7 @@ export default function ParticipantInformationPanel({
                 </div>
                 <input
                   className="nhsuk-input nhsuk-input--width-10"
+                  data-testid="service-now-case-id-input"
                   id="service-now-case-id"
                   name="service-now-case-id"
                   type="text"
@@ -158,6 +166,7 @@ export default function ParticipantInformationPanel({
                 className="nhsuk-button"
                 data-module="nhsuk-button"
                 type="submit"
+                data-testid="save-continue-button"
               >
                 Save and continue
               </button>
