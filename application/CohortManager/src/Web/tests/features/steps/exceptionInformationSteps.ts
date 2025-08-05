@@ -24,10 +24,22 @@ Then('the Exception details section should have the following fields:', async ({
     : table.map((row: string[]) => row[0]);
   expect(actualLabels).toEqual(expectedLabels);
 });
+Then('the following labels should be present on top of the page:', async ({ page }, table: any) => {
+  const exceptionInformationPage = new ExceptionInformationPage(page);
+  const actualLabels = await exceptionInformationPage.getExceptionDetailsLabels();
+  const expectedLabels = typeof table.raw === 'function'
+    ? table.raw().map((row: string[]) => row[0])
+    : table.map((row: string[]) => row[0]);
+  expect(actualLabels).toEqual(expectedLabels);
+});
 
 When('the user clicks on Not raised breast screening exceptions link', async ({ page }) => {
   const exceptionInformationPage = new ExceptionInformationPage(page);
   await exceptionInformationPage.clickOnNotRaisedLink();
+});
+When('the user clicks on raised breast screening exceptions link', async ({ page }) => {
+  const exceptionInformationPage = new ExceptionInformationPage(page);
+  await exceptionInformationPage.clickOnRaisedLink();
 });
 Then('the Exception status have {string}', async ({ page }, expectedText) => {
   const exceptionInformationPage = new ExceptionInformationPage(page);
