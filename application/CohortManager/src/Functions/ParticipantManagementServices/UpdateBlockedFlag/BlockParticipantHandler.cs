@@ -7,6 +7,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
+using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Identity.Client;
@@ -40,7 +41,22 @@ public class BlockParticipantHandler : IBlockParticipantHandler
         if (!ValidationHelper.ValidateNHSNumber(blockParticipantRequest.NhsNumber.ToString()))
         {
             _logger.LogWarning("Participant had an invalid NHS Number and cannot be blocked");
-            throw new InvalidDataException("Invalid NHS Number");
+            return new BlockParticipantResult(false, "Invalid NHS Number");
+        }
+
+
+
+        var participantManagementRecord = await _participantManagementDataService.GetSingleByFilter(x => x.NHSNumber == blockParticipantRequest.NhsNumber);
+
+        if (participantManagementRecord == null)
+        {
+            return await BlockNewParticipant(blockParticipantRequest);
+        }
+
+        if (participantManagementRecord.BlockedFlag == 1)
+        {
+            _logger.LogWarning("Participant already blocked and cannot be blocked");
+            return new BlockParticipantResult(false, "Participant Already Blocked");
         }
 
         var participantDemographic = await _participantDemographicDataService.GetSingleByFilter(x => x.NhsNumber == blockParticipantRequest.NhsNumber);
@@ -51,20 +67,52 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             return new BlockParticipantResult(false, "Participant Didn't pass three point check");
         }
 
-        var participantManagementRecord = await _participantManagementDataService.GetSingleByFilter(x => x.NHSNumber == blockParticipantRequest.NhsNumber);
 
-        if (participantManagementRecord.BlockedFlag == 1)
+        return await BlockExistingParticipant(participantManagementRecord);
+
+
+
+    }
+
+    public async Task<BlockParticipantResult> GetParticipant(BlockParticipantDTO dto)
+    {
+
+        if (!ValidationHelper.ValidateNHSNumber(dto.NhsNumber.ToString()))
         {
-            _logger.LogWarning("Participant already blocked and cannot be blocked");
-            return new BlockParticipantResult(false, "Participant Already Blocked");
+            _logger.LogWarning("Participant had an invalid NHS Number and cannot be blocked");
+            return new BlockParticipantResult(false, "Invalid NHS Number");
         }
 
-        if (participantManagementRecord != null)
+        var participantDemographic = await _participantDemographicDataService.GetSingleByFilter(x => x.NhsNumber == dto.NhsNumber);
+
+        if (participantDemographic != null)
         {
-            return await BlockExistingParticipant(participantManagementRecord);
+            var recordsMatch = ValidateRecordsMatch(participantDemographic, dto);
+            var responseBody = JsonSerializer.Serialize(new BlockParticipantDTO
+            {
+                NhsNumber = participantDemographic.NhsNumber,
+                FamilyName = participantDemographic.FamilyName,
+                DateOfBirth = participantDemographic.DateOfBirth,
+            });
+            return new BlockParticipantResult(recordsMatch, responseBody);
         }
 
-        return await BlockNewParticipant(blockParticipantRequest);
+        var pdsParticipant = await GetPDSParticipant(dto.NhsNumber);
+
+        if (pdsParticipant == null)
+        {
+            return new BlockParticipantResult(false, "Participant Couldn't be found");
+        }
+
+        var pdsRecordsMatch = ValidateRecordsMatch(pdsParticipant, dto);
+        var pdsResponseBody = JsonSerializer.Serialize(new BlockParticipantDTO
+        {
+            NhsNumber = pdsParticipant.NhsNumber,
+            FamilyName = pdsParticipant.FamilyName,
+            DateOfBirth = participantDemographic.DateOfBirth
+        });
+
+        return new BlockParticipantResult(pdsRecordsMatch, pdsResponseBody);
 
     }
 
@@ -140,13 +188,18 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     private static bool ValidateRecordsMatch(ParticipantDemographic participant, BlockParticipantDTO dto)
     {
 
+        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd", out var dtoDateOfBirth))
+        {
+            throw new FormatException("Date of Birth not in the correct format");
+        }
+
         if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd", out var parsedDob))
         {
             return false;
         }
         return string.Equals(participant.FamilyName, dto.FamilyName, StringComparison.InvariantCultureIgnoreCase)
             && participant.NhsNumber == dto.NhsNumber
-            && parsedDob == dto.DateOfBirth;
+            && parsedDob == dtoDateOfBirth;
     }
 
     private static Dictionary<string, string> CreateNhsNumberQueryParams(long nhsNumber) =>
