@@ -868,8 +868,9 @@ function_apps = {
       app_service_plan_key   = "DefaultPlan"
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
-        ServiceNowRefreshAccessTokenUrl      = ""                                  # TODO: Get value
-        ServiceNowUpdateUrl                  = ""                                  # TODO: Get value
+        ServiceNowRefreshAccessTokenUrl      = "" # TODO: Get value
+        ServiceNowUpdateUrl                  = "" # TODO: Get value
+        ServiceNowResolutionUrl              = "" # TODO: Get value
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
