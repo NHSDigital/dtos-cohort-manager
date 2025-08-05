@@ -367,7 +367,7 @@ public class ProcessNemsUpdateTests
     public async Task Run_ExtractedNhsNumber_PassedToPdsService()
     {
         // Arrange
-        const string expectedNhsNumber = "1234567890";
+        const string expectedNhsNumber = "9000000009";
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
