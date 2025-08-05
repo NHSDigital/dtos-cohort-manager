@@ -108,7 +108,7 @@ public class TransformReasonForRemovalTests
     [TestMethod]
     [DataRow(null)]
     [DataRow("InvalidPostcode")]
-    public async Task Run_InvalidParticipantForRule3_ReturnsNull(string postcode)
+    public async Task Run_InvalidParticipantForRule3_ReturnTransformedParticipant(string postcode)
     {
         // Arrange
         _participant.ReasonForRemoval = "RDR";
@@ -117,14 +117,24 @@ public class TransformReasonForRemovalTests
         _dataLookup.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(postcode == "ValidPostcode");
         var existingParticipant = new CohortDistribution
         {
-            PrimaryCareProvider = "ZZZABC"
+            PrimaryCareProvider = "ZZZABC",
+            PrimaryCareProviderDate = DateTime.UtcNow,
+            ReasonForRemoval = "RDI",
+            ReasonForRemovalDate = DateTime.UtcNow
         };
+
+        System.Console.WriteLine("RFR date: " + existingParticipant.ReasonForRemovalDate);
+        System.Console.WriteLine("PCP date: " + existingParticipant.PrimaryCareProviderDate);
 
         // Act
         var result = await _function.ReasonForRemovalTransformations(_participant, existingParticipant);
 
         // Assert
-        Assert.AreSame(new Model.CohortDistributionParticipant().NhsNumber, result.NhsNumber);
+        Assert.AreEqual(result.PrimaryCareProvider, existingParticipant.PrimaryCareProvider);
+        Assert.AreEqual(result.PrimaryCareProviderEffectiveFromDate, existingParticipant.PrimaryCareProviderDate?.ToString("yyyy-MM-dd"));
+        Assert.AreEqual(result.ReasonForRemoval, existingParticipant.ReasonForRemoval);
+        Assert.AreEqual(result.ReasonForRemovalEffectiveFromDate, existingParticipant.ReasonForRemovalDate?.ToString("yyyy-MM-dd"));
+
         _exceptionHandler.Verify(handleException => handleException.CreateRecordValidationExceptionLog(
             It.IsAny<string>(),
             It.IsAny<string>(),
