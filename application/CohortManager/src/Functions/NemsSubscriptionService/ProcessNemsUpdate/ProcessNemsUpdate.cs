@@ -40,7 +40,7 @@ public class ProcessNemsUpdate
     }
 
     /// <summary>
-    /// Function that processes files from the nems-messages blob container. There are a number of stages to this function:
+    /// Function that processes files from the nems-updates blob container. There are a number of stages to this function:
     /// 1) Parse the NHS number from the received file.
     /// 2) Use the parsed NHS number to retrieve the PDS record.
     /// 3) Compare the retrieved PDS record NHS number against the parsed NHS number.
@@ -52,7 +52,7 @@ public class ProcessNemsUpdate
     /// This function returns nothing, only logs information/errors for successful or failing tasks.
     /// </returns>
     [Function(nameof(ProcessNemsUpdate))]
-    public async Task Run([BlobTrigger("nems-messages/{name}", Connection = "nemsmeshfolder_STORAGE")] Stream blobStream, string name)
+    public async Task Run([BlobTrigger("nems-updates/{name}", Connection = "nemsmeshfolder_STORAGE")] Stream blobStream, string name)
     {
         try
         {
@@ -127,7 +127,15 @@ public class ProcessNemsUpdate
                 blobJson = await reader.ReadToEndAsync();
             }
 
-            return _fhirPatientDemographicMapper.ParseFhirJsonNhsNumber(blobJson);
+            // Determine format based on file extension and call appropriate parser
+            if (name.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+            {
+                return _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(blobJson);
+            }
+            else
+            {
+                return _fhirPatientDemographicMapper.ParseFhirJsonNhsNumber(blobJson);
+            }
 
         }
         catch (Exception ex)

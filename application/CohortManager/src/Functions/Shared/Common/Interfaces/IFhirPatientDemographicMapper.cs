@@ -20,6 +20,13 @@ public interface IFhirPatientDemographicMapper
     string ParseFhirJsonNhsNumber(string json);
 
     /// <summary>
+    /// Parses FHIR XML NHS number and returns it
+    /// </summary>
+    /// <param name="xml">The FHIR XML string</param>
+    /// <returns>The NHS number as a string</returns>
+    string ParseFhirXmlNhsNumber(string xml);
+
+    /// <summary>
     /// Maps a FHIR Patient object to a new Demographic object
     /// </summary>
     /// <param name="patient">The FHIR Patient object</param>
