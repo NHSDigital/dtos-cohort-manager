@@ -1,31 +1,35 @@
 import type { Metadata } from "next";
 import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
-import { checkAccess } from "@/app/lib/checkAccess";
-import { fetchExceptionsNotRaised } from "@/app/lib/fetchExceptions";
+import { canAccessCohortManager } from "@/app/lib/access";
+import { fetchExceptionsNotRaisedSorted } from "@/app/lib/fetchExceptions";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 
 export const metadata: Metadata = {
-  title: "Not raised breast screening exceptions - Cohort Manager",
+  title: `Not raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
 };
 
-export default async function Page() {
+export default async function Page({
+  searchParams,
+}: {
+  readonly searchParams?: Promise<{ readonly sortBy?: string }>;
+}) {
   const session = await auth();
-  const isCohortManager = session?.user
-    ? await checkAccess(session.user.uid)
-    : false;
+  const isCohortManager = await canAccessCohortManager(session);
 
   if (!isCohortManager) {
     return <Unauthorised />;
   }
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
 
   try {
-    const exceptions = await fetchExceptionsNotRaised();
+    const exceptions = await fetchExceptionsNotRaisedSorted(sortBy);
 
     const exceptionDetails: ExceptionDetails[] = exceptions.Items.map(
       (exception: {
@@ -54,6 +58,13 @@ export default async function Page() {
               <h1 data-testid="heading-not-raised">
                 Not raised breast screening exceptions
               </h1>
+              <p
+                className="nhsuk-u-text-align-right"
+                data-testid="not-raised-exception-count"
+              >
+                Showing {exceptionDetails.length} of {exceptions.TotalItems}{" "}
+                results
+              </p>
               <div className="nhsuk-card">
                 <div className="nhsuk-card__content">
                   <ExceptionsTable exceptions={exceptionDetails} />

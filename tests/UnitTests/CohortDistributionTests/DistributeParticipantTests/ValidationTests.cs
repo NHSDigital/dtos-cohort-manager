@@ -54,18 +54,6 @@ public class ValidationTests
             Participant = _cohortDistributionParticipant
         };
 
-        ValidationExceptionLog validationResponseBody = new()
-        {
-            CreatedException = false,
-            IsFatal = false
-        };
-
-        HttpResponseMessage validationSuccessResponse = new()
-        {
-            StatusCode = HttpStatusCode.OK,
-            Content = new StringContent(JsonSerializer.Serialize(validationResponseBody))
-        };
-
         HttpResponseMessage transformSuccessResponse = new()
         {
             StatusCode = HttpStatusCode.OK,
@@ -77,12 +65,16 @@ public class ValidationTests
             .Returns(request);
 
         _mockContext
-            .Setup(x => x.CallActivityAsync<ValidationExceptionLog>("LookupValidation", It.IsAny<ValidationRecord>(), null))
-            .ReturnsAsync(validationResponseBody);
+            .Setup(x => x.CallActivityAsync<CohortDistributionParticipant>("GetCohortDistributionRecord", It.IsAny<string>(), null))
+            .ReturnsAsync(new CohortDistributionParticipant());
 
         _mockContext
-            .Setup(x => x.CallActivityAsync<ValidationExceptionLog>("StaticValidation", It.IsAny<ValidationRecord>(), null))
-            .ReturnsAsync(validationResponseBody);
+            .Setup(x => x.CallActivityAsync<List<ValidationRuleResult>>("LookupValidation", It.IsAny<ValidationRecord>(), It.IsAny<TaskOptions>()))
+            .ReturnsAsync(new List<ValidationRuleResult>());
+
+        _mockContext
+            .Setup(x => x.CallActivityAsync<List<ValidationRuleResult>>("StaticValidation", It.IsAny<ValidationRecord>(), null))
+            .ReturnsAsync(new List<ValidationRuleResult>());
 
         _mockContext
             .Setup(x => x.CallActivityAsync<CohortDistributionParticipant?>("TransformParticipant", It.IsAny<ValidationRecord>(), null))
@@ -111,11 +103,13 @@ public class ValidationTests
     }
 
     [TestMethod]
-    public async Task ValidationOrchestator_ValidationRuleTriggered_UpdateExceptionFlagAndReturnNull()
+    public async Task ValidationOrchestator_ValidationRuleTriggered_CallHandleExceptionAndReturnNull()
     {
         // Arrange
-        _mockContext.Setup(x => x.CallActivityAsync<ValidationExceptionLog>("StaticValidation", It.IsAny<ValidationRecord>(), null))
-            .ReturnsAsync(new ValidationExceptionLog { CreatedException = true });
+        ValidationRuleResult ruleResult = new() { RuleName = "1.RuleName" };
+        _mockContext
+            .Setup(x => x.CallActivityAsync<List<ValidationRuleResult>>("StaticValidation", It.IsAny<ValidationRecord>(), null))
+            .ReturnsAsync(new List<ValidationRuleResult>() {ruleResult});
 
         // Act
         var result = await _sut.ValidationOrchestrator(_mockContext.Object);
@@ -123,15 +117,17 @@ public class ValidationTests
         // Assert
         Assert.IsNull(result);
         _mockContext
-            .Verify(x => x.CallActivityAsync("UpdateExceptionFlag", It.IsAny<string>(), null), Times.Once);
+            .Verify(x => x.CallActivityAsync("HandleValidationExceptions", It.IsAny<ValidationExceptionRecord>(), null), Times.Once);
     }
 
     [TestMethod]
-    public async Task ValidationOrchestator_RuleTriggeredIgnoreExceptions_UpdateExceptionFlagAndReturnParticipant()
+    public async Task ValidationOrchestator_RuleTriggeredIgnoreExceptions_CallHandleExceptionAndReturnParticipant()
     {
         // Arrange
-        _mockContext.Setup(x => x.CallActivityAsync<ValidationExceptionLog>("StaticValidation", It.IsAny<ValidationRecord>(), null))
-            .ReturnsAsync(new ValidationExceptionLog { CreatedException = true });
+        ValidationRuleResult ruleResult = new() { RuleName = "1.RuleName" };
+        _mockContext
+            .Setup(x => x.CallActivityAsync<List<ValidationRuleResult>>("StaticValidation", It.IsAny<ValidationRecord>(), null))
+            .ReturnsAsync(new List<ValidationRuleResult>() { ruleResult });
 
         DistributeParticipantConfig config = new()
         {
@@ -160,6 +156,6 @@ public class ValidationTests
         // Assert
         Assert.IsNotNull(result);
         _mockContext
-            .Verify(x => x.CallActivityAsync("UpdateExceptionFlag", It.IsAny<string>(), null), Times.Once);
+            .Verify(x => x.CallActivityAsync("HandleValidationExceptions", It.IsAny<ValidationExceptionRecord>(), null), Times.Once);
     }
 }

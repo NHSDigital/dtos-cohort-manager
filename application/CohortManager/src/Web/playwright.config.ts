@@ -38,7 +38,10 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on",
-    screenshot: "on"
+    screenshot: "on",
+    viewport: { width: 1280, height: 720 },
+    video: "on",
+    ignoreHTTPSErrors: true,
   },
 
   /* Configure projects for major browsers */
@@ -55,27 +58,107 @@ export default defineConfig({
       name: "webkit",
       use: { ...devices["Desktop Safari"] },
     },
+    // Test against mobile viewports.
+    // Windows Browsers
+    {
+      name: 'Edge (Windows)',
+      use: {
+        ...devices["Desktop Chrome"],
+        launchOptions: {
+          args: ['--ignore-certificate-errors']
+        }
+      },
 
-    /* Test against mobile viewports. */
+    },
+
     // {
-    //   name: 'Mobile Chrome',
-    //   use: { ...devices['Pixel 5'] },
+    //   name: "firefox",
+    //   use: { ...devices["Desktop Firefox"] },
     // },
     // {
-    //   name: 'Mobile Safari',
-    //   use: { ...devices['iPhone 12'] },
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] },
+    // },
+    // // Test against mobile viewports.
+    // // Windows Browsers
+    // {
+    //   name: 'Edge (Windows)',
+    //   use: {
+    //     channel: 'msedge',
+    //   },
+    // },
+    // {
+    //   name: 'Chrome (Windows)',
+    //   use: {
+    //     channel: 'chrome',
+    //   },
+    // },
+    // {
+    //   name: 'Firefox (Windows)',
+    //   use: {
+    //     browserName: 'firefox',
+    //   },
     // },
 
-    /* Test against branded browsers. */
+    // // macOS Browsers
     // {
-    //   name: 'Microsoft Edge',
-    //   use: { ...devices['Desktop Edge'], channel: 'msedge' },
+    //   name: 'Safari (macOS)',
+    //   use: {
+    //     browserName: 'webkit',
+    //   },
     // },
     // {
-    //   name: 'Google Chrome',
-    //   use: { ...devices['Desktop Chrome'], channel: 'chrome' },
+    //   name: 'Chrome (macOS)',
+    //   use: {
+    //     channel: 'chrome',
+    //   },
+    // },
+    // {
+    //   name: 'Firefox (macOS)',
+    //   use: {
+    //     browserName: 'firefox',
+    //   },
+    // },
+
+    // // iOS Safari (emulated)
+    // {
+    //   name: 'Safari (iOS)',
+    //   use: {
+    //     ...devices['iPhone 13'],
+    //   },
+    // },
+    // {
+    //   name: 'Chrome (iOS)',
+    //   use: {
+    //     ...devices['iPhone 13'],
+    //     browserName: 'webkit', // Still uses WebKit on iOS
+    //   },
+    // },
+
+    // // Android Browsers (emulated)
+    // {
+    //   name: 'Chrome (Android)',
+    //   use: {
+    //     ...devices['Pixel 5'],
+    //     browserName: 'chromium',
+    //   },
+    // },
+    // {
+    //   name: 'Edge (Android)',
+    //   use: {
+    //     ...devices['Pixel 5'],
+    //     browserName: 'chromium', // Playwright can't simulate Edge exactly, just Chromium
+    //   },
+    // },
+    // {
+    //   name: 'Firefox (Android)',
+    //   use: {
+    //     ...devices['Pixel 5'],
+    //     browserName: 'firefox',
+    //     isMobile: undefined,
+    //     deviceScaleFactor: undefined,
+    //     hasTouch: undefined,
+    //   },
     // },
   ],
-
-
 });

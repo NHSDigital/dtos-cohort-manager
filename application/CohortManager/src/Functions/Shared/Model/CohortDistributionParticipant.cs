@@ -109,7 +109,7 @@ public class CohortDistributionParticipant
         FamilyName = demographic.FamilyName;
         PreviousFamilyName = demographic.PreviousFamilyName;
         DateOfBirth = demographic.DateOfBirth;
-        Gender = (Gender) (demographic.Gender ?? 0);
+        Gender = (Gender)(demographic.Gender ?? 0);
         AddressLine1 = demographic.AddressLine1;
         AddressLine2 = demographic.AddressLine2;
         AddressLine3 = demographic.AddressLine3;
@@ -128,8 +128,6 @@ public class CohortDistributionParticipant
         IsInterpreterRequired = demographic.InterpreterRequired.ToString();
         ReasonForRemoval = participant.ReasonForRemoval;
         ReasonForRemovalEffectiveFromDate = participant.ReasonForRemovalDate.ToString();
-        RecordInsertDateTime = demographic.RecordInsertDateTime.ToString();
-        RecordUpdateDateTime = participant.RecordUpdateDateTime.ToString();
         ScreeningServiceId = participant.ScreeningId.ToString();
         Extracted = null;
         RecordType = participant.RecordType;
@@ -138,6 +136,7 @@ public class CohortDistributionParticipant
         ExceptionFlag = participant.ExceptionFlag;
         InvalidFlag = demographic.InvalidFlag.ToString();
         EligibilityFlag = participant.EligibilityFlag.ToString();
+        ReferralFlag = participant.ReferralFlag == 1;
     }
 
     public string? RequestId { get; set; }
@@ -183,6 +182,7 @@ public class CohortDistributionParticipant
     public string? ParticipantId { get; set; }
     public string RecordType { get; set; }
     public string? InvalidFlag { get; set; }
+    public bool? ReferralFlag { get; set; }
 
 
     public CohortDistribution ToCohortDistribution()

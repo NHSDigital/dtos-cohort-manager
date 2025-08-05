@@ -6,7 +6,7 @@ test("navigate to the Homepage as an unauthenticated user", async ({
   await page.goto("/");
   await expect(
     page.getByRole("heading", {
-      name: "Log in with your Care Identity account",
+      name: "Cohort Manager",
     })
   ).toBeVisible();
 });

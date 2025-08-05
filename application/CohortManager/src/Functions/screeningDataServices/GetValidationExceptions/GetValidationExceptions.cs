@@ -9,7 +9,6 @@ using Data.Database;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
 using Model;
 using Model.Enums;
 
@@ -48,15 +47,18 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
-        var exceptionStatus = GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
-        var sortOrder = GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
-        var exceptionCategory = GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
+        var exceptionStatus = HttpParserHelper.GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
+        var sortOrder = HttpParserHelper.GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
+        var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
 
         try
         {
             if (exceptionId != 0)
             {
-                return await GetExceptionById(req, exceptionId);
+                var exceptionById = await _validationData.GetExceptionById(exceptionId);
+                return exceptionById == null
+                    ? _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req)
+                    : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById));
             }
 
             var exceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
@@ -77,34 +79,69 @@ public class GetValidationExceptions
         }
     }
 
-    private async Task<HttpResponseData> GetExceptionById(HttpRequestData req, int exceptionId)
+    /// <summary>
+    /// Updates the ServiceNow ID for a specific validation exception.
+    /// </summary>
+    /// <param name="req">The HTTP request data containing the exception ID and ServiceNow ID.</param>
+    /// <returns>
+    /// HTTP response with:
+    /// - 200 OK if the update is successful
+    /// - 400 Bad Request if required parameters are missing
+    /// - 500 Internal Server Error if an exception occurs
+    /// </returns>
+    [Function(nameof(UpdateExceptionServiceNowId))]
+    public async Task<HttpResponseData> UpdateExceptionServiceNowId([HttpTrigger(AuthorizationLevel.Anonymous, "put")] HttpRequestData req)
     {
-        var exceptionById = await _validationData.GetExceptionById(exceptionId);
-        if (exceptionById == null)
+        try
         {
-            _logger.LogError("Validation Exception not found with ID: {ExceptionId}", exceptionId);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+            using var bodyReader = new StreamReader(req.Body);
+            var requestBody = await bodyReader.ReadToEndAsync();
+            if (string.IsNullOrWhiteSpace(requestBody))
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Request body cannot be empty.");
+            }
+
+            var updateRequest = JsonSerializer.Deserialize<UpdateExceptionServiceNowIdRequest>(requestBody);
+            if (updateRequest == null || updateRequest.ExceptionId == 0 || string.IsNullOrWhiteSpace(updateRequest.ServiceNowId))
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid request. ExceptionId and ServiceNowId are required.");
+            }
+
+            var validationError = ValidateServiceNowId(updateRequest.ServiceNowId);
+            if (validationError != null)
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, validationError);
+            }
+
+            var updateResult = await _validationData.UpdateExceptionServiceNowId(updateRequest.ExceptionId, updateRequest.ServiceNowId);
+            if (!updateResult)
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, $"Failed to update ServiceNow ID or Exception with ID {updateRequest.ExceptionId} not found.");
+            }
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "ServiceNow ID updated successfully.");
         }
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById)
-        );
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error processing: {Function} update ServiceNow ID request", nameof(UpdateExceptionServiceNowId));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        }
     }
 
-    /// <summary>
-    /// Parses an enum query parameter if it exists. If not, it will return the provided default value.
-    /// </summary>
-    /// <typeparam name="T">The enum type to parse</typeparam>
-    /// <param name="req">The HTTP request data</param>
-    /// <param name="key">The query parameter key name</param>
-    /// <param name="defaultValue">The default value to return if parsing fails or the parameter is missing</param>
-    /// <returns>The parsed enum value or the default value</returns>
-    private static T GetEnumQueryParameter<T>(HttpRequestData req, string key, T defaultValue) where T : struct, Enum
+    private static string? ValidateServiceNowId(string serviceNowId)
     {
-        var queryString = req.Query[key];
-        if (string.IsNullOrEmpty(queryString))
-        {
-            return defaultValue;
-        }
+        if (string.IsNullOrWhiteSpace(serviceNowId))
+            return "ServiceNowID is required.";
 
-        return Enum.TryParse<T>(queryString, true, out var result) ? result : defaultValue;
+        if (serviceNowId.Contains(' '))
+            return "ServiceNowID cannot contain spaces.";
+
+        if (serviceNowId.Length < 9)
+            return "ServiceNowID must be at least 9 characters long.";
+
+        if (!serviceNowId.All(char.IsLetterOrDigit))
+            return "ServiceNowID must contain only alphanumeric characters.";
+
+        return null;
     }
 }

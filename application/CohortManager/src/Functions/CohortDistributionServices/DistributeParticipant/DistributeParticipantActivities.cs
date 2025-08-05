@@ -1,11 +1,13 @@
 namespace NHS.CohortManager.CohortDistributionServices;
 
 using System.Text.Json;
+using Common;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.Enums;
 
 public class DistributeParticipantActivities
 {
@@ -43,11 +45,14 @@ public class DistributeParticipantActivities
         long screeningId = long.Parse(participantData.ScreeningId);
 
         // Get participant management data
-        var participantManagement = await _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == nhsNumber &&
+        var participantManagementTask = _participantManagementClient.GetSingleByFilter(p => p.NHSNumber == nhsNumber &&
                                                                                         p.ScreeningId == screeningId);
 
         // Get participant demographic data
-        var participantDemographic = await _participantDemographicClient.GetSingleByFilter(p => p.NhsNumber == nhsNumber);
+        var participantDemographicTask = _participantDemographicClient.GetSingleByFilter(p => p.NhsNumber == nhsNumber);
+
+        ParticipantManagement participantManagement = await participantManagementTask;
+        ParticipantDemographic participantDemographic = await participantDemographicTask;
 
         if (participantDemographic is null || participantManagement is null)
         {
@@ -74,6 +79,11 @@ public class DistributeParticipantActivities
     [Function(nameof(AllocateServiceProvider))]
     public async Task<string> AllocateServiceProvider([ActivityTrigger] Participant participant)
     {
+        if (string.IsNullOrEmpty(participant.Postcode) || string.IsNullOrEmpty(participant.ScreeningAcronym))
+        {
+            return EnumHelper.GetDisplayName(ServiceProvider.BSS);
+        }
+
         string configFilePath = Path.Combine(Environment.CurrentDirectory, "AllocateServiceProvider", "allocationConfig.json");
         string configFile = await File.ReadAllTextAsync(configFilePath);
 
@@ -98,8 +108,14 @@ public class DistributeParticipantActivities
     public async Task<bool> AddParticipant([ActivityTrigger] CohortDistributionParticipant transformedParticipant)
     {
         transformedParticipant.Extracted = Convert.ToInt32(_config.IsExtractedToBSSelect).ToString();
-        var cohortDistributionParticipantToAdd = transformedParticipant.ToCohortDistribution();
-        var isAdded = await _cohortDistributionClient.Add(cohortDistributionParticipantToAdd);
+        var newRecord = transformedParticipant.ToCohortDistribution();
+
+        if (newRecord.RecordInsertDateTime is null)
+        {
+            newRecord.RecordInsertDateTime = DateTime.UtcNow;
+        }
+        newRecord.RecordUpdateDateTime = DateTime.UtcNow;
+        var isAdded = await _cohortDistributionClient.Add(newRecord);
 
         _logger.LogInformation("sent participant to cohort distribution data service");
         return isAdded;

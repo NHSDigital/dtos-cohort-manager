@@ -386,6 +386,36 @@ function_apps = {
       }
     }
 
+    ManageServiceNowParticipant = {
+      name_suffix             = "manage-servicenow-participant"
+      function_endpoint_name  = "ManageServiceNowParticipant"
+      app_service_plan_key    = "DefaultPlan"
+      service_bus_connections = ["internal"]
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        },
+        {
+          env_var_name     = "RetrievePdsDemographicURL"
+          function_app_key = "RetrievePDSDemographic"
+        },
+        {
+          env_var_name     = "SendServiceNowMessageURL"
+          function_app_key = "ServiceNowMessageHandler"
+          endpoint_name    = "SendServiceNowMessage"
+        },
+        {
+          env_var_name     = "ParticipantManagementURL"
+          function_app_key = "ParticipantManagementDataService"
+        }
+      ]
+      env_vars_static = {
+        ServiceNowParticipantManagementTopic    = "servicenow-participant-management" # Subscribes to the servicenow participant management topic
+        ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"       # Subscribes to the servicenow participant management topic
+      }
+    }
+
     AddParticipant = {
       name_suffix                  = "add-participant"
       function_endpoint_name       = "addParticipant"
@@ -608,10 +638,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "RemoveOldValidationRecord"
-          function_app_key = "RemoveValidationExceptionData"
         }
       ]
       storage_containers = [
@@ -837,6 +863,10 @@ function_apps = {
         {
           env_var_name     = "TransformDataServiceURL"
           function_app_key = "TransformDataService"
+        },
+        {
+          env_var_name     = "RemoveOldValidationRecordUrl"
+          function_app_key = "RemoveValidationExceptionData"
         }
       ]
       env_vars_static = {
@@ -845,6 +875,7 @@ function_apps = {
         IgnoreParticipantExceptions       = "false"
         IsExtractedToBSSelect             = "false"
         AcceptableLatencyThresholdMs      = "500"
+        MaxLookupValidationRetries        = "3"
       }
     }
 
@@ -1133,8 +1164,10 @@ function_apps = {
       app_service_plan_key   = "DefaultPlan"
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
-        ServiceNowRefreshAccessTokenUrl = "https://nhsdigitaldev.service-now.com/oauth_token.do"
-        ServiceNowUpdateUrl             = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+        ServiceNowRefreshAccessTokenUrl      = "https://nhsdigitaldev.service-now.com/oauth_token.do"
+        ServiceNowUpdateUrl                  = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+        ServiceNowResolutionUrl              = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution"
+        ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
 
@@ -1210,6 +1243,7 @@ function_apps = {
       name_suffix            = "retrieve-pds-demographic"
       function_endpoint_name = "RetrievePDSDemographic"
       app_service_plan_key   = "DefaultPlan"
+      key_vault_url          = "KeyVaultConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1225,7 +1259,12 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL = ""
+        RetrievePdsParticipantURL = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        Kid                       = "RetrievePdsDemographic-test1"
+        Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
+        AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
+        KeyNamePrivateKey         = "PDSPRIVATEKEY"
+        UseFakePDSServices        = "true"
       }
     }
 
@@ -1242,14 +1281,14 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        AcceptableLatencyThresholdMs = "500"
-        "ManageNemsSubscription--NemsFhirEndpoint" = "https://msg.intspineservices.nhs.uk/STU3"
-        "ManageNemsSubscription--FromAsid" = "200000002527"
-        "ManageNemsSubscription--ToAsid" = "200000002527"
-        "ManageNemsSubscription--NemsKeyName" = "nems-client-certificate"
-        "ManageNemsSubscription--SubscriptionProfile" = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
-        "ManageNemsSubscription--SubscriptionCriteria" = "https://fhir.nhs.uk/Id/nhs-number"
-        "ManageNemsSubscription--BypassServerCertificateValidation" = "false"
+        AcceptableLatencyThresholdMs          = "500"
+        NemsFhirEndpoint                      = "https://msg.intspineservices.nhs.uk/STU3"
+        NemsFromAsid                          = "200000002527"
+        NemsToAsid                            = "200000002527"
+        NemsKeyName                           = "nems-client-certificate"
+        NemsSubscriptionProfile               = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
+        NemsSubscriptionCriteria              = "https://fhir.nhs.uk/Id/nhs-number"
+        NemsBypassServerCertificateValidation = "false"
       }
     }
 
@@ -1305,7 +1344,9 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
+        NemsMeshCertName         = "NemsMeshCert"
+        NemsMeshInboundContainer = "nems-updates"
+        NemsMeshConfigContainer  = "nems-config"
       }
     }
 
@@ -1403,6 +1444,10 @@ service_bus = {
         batched_operations_enabled = true
         subscribers                = ["ManageParticipant"]
       }
+      servicenow-participant-management = {
+        batched_operations_enabled = true
+        subscribers                = ["ManageServiceNowParticipant"]
+      }
     }
   }
 }
@@ -1412,6 +1457,7 @@ sqlserver = {
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
+  db_management_mi_name_prefix         = "mi-cohort-manager-db-management"
 
   server = {
     sqlversion                    = "12.0"
@@ -1466,6 +1512,12 @@ storage_accounts = {
       }
       inbound-poison = {
         container_name = "inbound-poison"
+      }
+      nems-updates = {
+        container_name = "nems-updates"
+      }
+      nems-config = {
+        container_name = "nems-config"
       }
     }
   }

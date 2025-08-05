@@ -60,6 +60,16 @@ public class HttpClientFunction : IHttpClientFunction
         return await GetAsync(client);
     }
 
+    public async Task<HttpResponseMessage> SendGetResponse(string url)
+    {
+        using var client = _factory.CreateClient();
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        return await client.GetAsync(url);
+    }
+
     public async Task<string> SendGetOrThrowAsync(string url)
     {
         using var client = _factory.CreateClient();
@@ -70,12 +80,24 @@ public class HttpClientFunction : IHttpClientFunction
         return await GetOrThrowAsync(client);
     }
 
-    public async Task<HttpResponseMessage> SendPdsGet(string url)
+    public async Task<HttpResponseMessage> SendPdsGet(string url, string bearerToken)
     {
         using var client = _factory.CreateClient();
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+
+        if (string.IsNullOrEmpty(bearerToken))
+        {
+            HttpResponseMessage responseMessageToReturn = new HttpResponseMessage();
+            responseMessageToReturn.StatusCode = HttpStatusCode.BadRequest;
+
+            responseMessageToReturn.Content = new StringContent("the bearer Token was missing");
+
+            return responseMessageToReturn;
+        }
+
+        client.DefaultRequestHeaders.Add("Authorization", "Bearer " + bearerToken);
         client.DefaultRequestHeaders.Add("X-Request-ID", Guid.NewGuid().ToString());
         client.DefaultRequestHeaders.Add("X-Correlation-ID", Guid.NewGuid().ToString());
         client.DefaultRequestHeaders.Add("Accept", "application/fhir+json");

@@ -26,6 +26,12 @@ parameters:
       - 'Destroy'
     default: 'Apply'
 
+parameters:
+  - name: dockerImageTag
+    displayName: 'Docker Image Tag'
+    type: string
+    default: development
+
 variables:
   - group: SBX_core_backend
   - group: SBX_audit_backend_remote_state
@@ -38,12 +44,6 @@ variables:
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
   - name: ENVIRONMENT
     value: sandbox
-
-parameters:
-  - name: dockerImageTag
-    displayName: 'Docker Image Tag'
-    type: string
-    default: development
 
 stages:
   - stage: terraform_plan

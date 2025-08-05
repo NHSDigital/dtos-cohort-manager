@@ -63,8 +63,6 @@
 
   <!-- Screening Data Services -->
   <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\updateParticipantDetails\updateParticipantDetails.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\createParticipant\createParticipant.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\GetValidationExceptions\GetValidationExceptions.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\ScreeningLkpDataService\ScreeningLkpDataService.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\CohortDistributionDataService\CohortDistributionDataService.csproj" />
@@ -85,29 +83,22 @@
 
   <!-- Participant Management Services -->
   <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\updateParticipant\updateParticipant.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\RemoveParticipant\RemoveParticipant.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\addParticipant\addParticipant.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\UpdateBlockedFlag\UpdateBlockedFlag.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\ManageParticipant\ManageParticipant.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\ManageServiceNowParticipant\ManageServiceNowParticipant.csproj" />
+     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\DeleteParticipant\DeleteParticipant.csproj" />
   </ItemGroup>
 
   <!-- Demographic Services -->
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDataManagementFunction\DemographicDataManagementFunction.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageNemsSubscription\ManageNemsSubscription.csproj" />
   </ItemGroup>
 
   <!-- Cohort Distribution Services -->
   <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices/RetrieveCohortDistribution/RetrieveCohortDistribution.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\TransformDataService\TransformDataService.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\RetrieveParticipantData\RetrieveParticipantData.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\CreateCohortDistribution\CreateCohortDistribution.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\DistributeParticipant\DistributeParticipant.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\ServiceProviderAllocationService\AllocateServiceProviderToParticipantByService.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\DeleteParticipant\DeleteParticipant.csproj" />
   </ItemGroup>
 
   <!-- Exception Handling -->
@@ -145,7 +136,10 @@
       <!-- FileValidation Services -->
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\FileValidation\FileValidation.csproj" />
+    <ProjectReference Include="JWTTokenServiceTests\JWTTokenServiceTests.csproj" />
   </ItemGroup>
+
+  
   <!-- Content files to be copied to output directory -->
   <ItemGroup>
     <None Update="**\*.json;**\*.parquet" CopyToOutputDirectory="PreserveNewest" />

@@ -60,7 +60,10 @@ public class ManageParticipant
             if (databaseParticipant is null)
             {
                 _logger.LogInformation("Participant not in participant management table, adding new record");
-                dataServiceResponse = await _participantManagementClient.Add(participant.ToParticipantManagement());
+                var participantManagement = participant.ToParticipantManagement();
+                participantManagement.RecordInsertDateTime = DateTime.UtcNow;
+
+                dataServiceResponse = await _participantManagementClient.Add(participantManagement);
             }
             else if (databaseParticipant.BlockedFlag == 1)
             {
@@ -70,8 +73,12 @@ public class ManageParticipant
             else
             {
                 _logger.LogInformation("Existing participant managment record found, updating record {ParticipantId}", databaseParticipant.ParticipantId);
-                participant.ParticipantId = databaseParticipant.ParticipantId.ToString();
-                dataServiceResponse = await _participantManagementClient.Update(participant.ToParticipantManagement());
+                var participantManagement = participant.ToParticipantManagement();
+                participantManagement.ParticipantId = databaseParticipant.ParticipantId;
+                participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
+                participantManagement.RecordInsertDateTime = databaseParticipant.RecordInsertDateTime;
+
+                dataServiceResponse = await _participantManagementClient.Update(participantManagement);
             }
 
             if (!dataServiceResponse)

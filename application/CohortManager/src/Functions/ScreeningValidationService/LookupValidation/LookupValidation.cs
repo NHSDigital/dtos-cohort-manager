@@ -59,7 +59,7 @@ public class LookupValidation
         {
             newParticipant = requestBody.NewParticipant;
 
-            var ruleFileName = $"{newParticipant.ScreeningName}_{GetValidationRulesName(requestBody.RulesType)}".Replace(" ", "_");
+            var ruleFileName = $"{newParticipant.ScreeningName}_lookupRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName {RuleFileName}", ruleFileName);
 
             var json = await _readRules.GetRulesFromDirectory(ruleFileName);
@@ -80,14 +80,16 @@ public class LookupValidation
                 new RuleParameter("dbLookup", _dataLookup)
             };
 
+            bool routineParticipant = requestBody.NewParticipant.ReferralFlag == "false";
+
             var resultList = new List<RuleResultTree>();
 
-            if (newParticipant.RecordType != Actions.Removed && re.GetAllRegisteredWorkflowNames().Contains("Common"))
+            if (newParticipant.RecordType != Actions.Removed && routineParticipant)
             {
                 resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             }
 
-            if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
+            if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType) && routineParticipant)
             {
                 _logger.LogInformation("Executing workflow {RecordType}", newParticipant.RecordType);
                 var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
@@ -95,25 +97,15 @@ public class LookupValidation
             }
 
             // Validation rules are logically reversed
-            var validationErrors = resultList.Where(x => !x.IsSuccess);
+            var validationErrors = resultList.Where(x => !x.IsSuccess).Select(x => new ValidationRuleResult(x));
 
             if (validationErrors.Any())
             {
-                _logger.LogInformation("There was an error in the Validation Rules");
-                var participantCsvRecord = new ParticipantCsvRecord()
-                {
-                    Participant = newParticipant,
-                    FileName = requestBody.FileName
-                };
-                var exceptionCreated = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(exceptionCreated));
+                string errors = JsonSerializer.Serialize(validationErrors);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, errors);
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            }));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
         }
         catch (Exception ex)
         {
@@ -121,19 +113,6 @@ public class LookupValidation
             _logger.LogError(ex, "Error while processing lookup Validation message: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
 
-        }
-    }
-
-    private static string GetValidationRulesName(RulesType rulesType)
-    {
-        switch (rulesType)
-        {
-            case RulesType.CohortDistribution:
-                return "cohortRules.json";
-            case RulesType.ParticipantManagement:
-                return "lookupRules.json";
-            default:
-                return "lookupRules.json";
         }
     }
 }

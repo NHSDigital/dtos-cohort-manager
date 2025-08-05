@@ -31,39 +31,37 @@ try
         // Get CohortManager private key
         logger.LogInformation("Pulling Mesh Certificate from KeyVault");
         var certClient = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
-        var certificate = await certClient.DownloadCertificateAsync(config.MeshKeyName);
+        var certificate = await certClient.DownloadCertificateAsync(config.NemsMeshKeyName);
         cohortManagerPrivateKey = certificate.Value;
 
         // Get MESH public certificates (CA chain)
         var secretClient = new SecretClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
-        string base64Cert = secretClient.GetSecret(config.MeshCertName).Value.Value;
+        string base64Cert = secretClient.GetSecret(config.NemsMeshCertName).Value.Value;
         meshCerts = CertificateHelper.GetCertificatesFromString(base64Cert);
     }
     // Local
     else
     {
         logger.LogInformation("Pulling Mesh Certificate from local File");
-        cohortManagerPrivateKey = new X509Certificate2(config.MeshKeyName, config.MeshKeyPassphrase);
+        cohortManagerPrivateKey = new X509Certificate2(config.NemsMeshKeyName, config.NemsMeshKeyPassphrase);
 
-        string certsString = File.ReadAllText(config.ServerSideCerts);
+        string certsString = await File.ReadAllTextAsync(config.NemsMeshServerSideCerts);
         meshCerts = CertificateHelper.GetCertificatesFromString(certsString);
     }
 
     host.ConfigureFunctionsWebApplication();
     host.ConfigureServices(services =>
     {
-        services.AddApplicationInsightsTelemetryWorkerService();
-        services.ConfigureFunctionsApplicationInsights();
         services
             .AddMeshClient(_ =>
             {
-                _.MeshApiBaseUrl = config.MeshApiBaseUrl;
-                _.BypassServerCertificateValidation = config.BypassServerCertificateValidation ?? false;
+                _.MeshApiBaseUrl = config.NemsMeshApiBaseUrl;
+                _.BypassServerCertificateValidation = config.NemsMeshBypassServerCertificateValidation ?? false;
             })
-            .AddMailbox(config.BSSMailBox, new NHS.MESH.Client.Configuration.MailboxConfiguration
+            .AddMailbox(config.NemsMeshMailBox, new NHS.MESH.Client.Configuration.MailboxConfiguration
             {
-                Password = config.MeshPassword,
-                SharedKey = config.MeshSharedKey,
+                Password = config.NemsMeshPassword,
+                SharedKey = config.NemsMeshSharedKey,
                 Cert = cohortManagerPrivateKey,
                 serverSideCertCollection = meshCerts
             })

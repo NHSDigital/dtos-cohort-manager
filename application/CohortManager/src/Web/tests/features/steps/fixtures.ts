@@ -9,3 +9,10 @@ export const test = base.extend<Fixtures>({
 });
 
 export const { Given, When, Then } = createBdd(test);
+const { AfterScenario } = createBdd(test);
+
+AfterScenario(async ({ page }) => {
+  // runs after each scenario
+  await page.evaluate(() => window.scrollTo(0, 0));
+  await page.waitForTimeout(1000);
+});

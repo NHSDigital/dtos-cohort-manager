@@ -102,8 +102,8 @@
         "InterpreterRequired": 1,
         "ReasonForRemoval": null,
         "ReasonForRemovalDate": null,
-        "IsExtracted": 1,
-        "RecordUpdateDateTime": null
+        "IsExtracted": 0,
+        "RecordUpdateDateTime": "PATTERN:yyyy-MM-ddTHH:mm:ss"
       },
       "meta": {
         "testJiraId": "@DTOSS-5374-01",

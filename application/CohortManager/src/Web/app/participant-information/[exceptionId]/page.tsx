@@ -2,16 +2,15 @@ import type { Metadata } from "next";
 import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { fetchExceptions } from "@/app/lib/fetchExceptions";
-import { checkAccess } from "@/app/lib/checkAccess";
+import { canAccessCohortManager } from "@/app/lib/access";
 import { formatDate } from "@/app/lib/utils";
-
 import Breadcrumb from "@/app/components/breadcrumb";
 import ParticipantInformationPanel from "@/app/components/participantInformationPanel";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 
 export const metadata: Metadata = {
-  title: "Exception information - Cohort Manager",
+  title: `Exception information - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 export default async function Page(props: {
@@ -20,9 +19,7 @@ export default async function Page(props: {
   }>;
 }) {
   const session = await auth();
-  const isCohortManager = session?.user
-    ? await checkAccess(session.user.uid)
-    : false;
+  const isCohortManager = await canAccessCohortManager(session);
 
   if (!isCohortManager) {
     return <Unauthorised />;
@@ -97,9 +94,15 @@ export default async function Page(props: {
                 </span>
               </h1>
               {exceptionDetails.serviceNowId && (
-                <dl className="nhsuk-summary-list">
+                <dl
+                  className="nhsuk-summary-list"
+                  data-testid="exception-details-labels"
+                >
                   <div className="nhsuk-summary-list__row">
-                    <dt className="nhsuk-summary-list__key">
+                    <dt
+                      className="nhsuk-summary-list__key"
+                      data-testid="portal-form-used-label"
+                    >
                       Portal form used
                     </dt>
                     <dd className="nhsuk-summary-list__value">
@@ -108,7 +111,10 @@ export default async function Page(props: {
                     <dd className="nhsuk-summary-list__actions"></dd>
                   </div>
                   <div className="nhsuk-summary-list__row">
-                    <dt className="nhsuk-summary-list__key">
+                    <dt
+                      className="nhsuk-summary-list__key"
+                      data-testid="exception-status-label"
+                    >
                       Exception status
                     </dt>
                     <dd className="nhsuk-summary-list__value">
@@ -128,13 +134,19 @@ export default async function Page(props: {
                     <dd className="nhsuk-summary-list__actions"></dd>
                   </div>
                   <div className="nhsuk-summary-list__row">
-                    <dt className="nhsuk-summary-list__key">
+                    <dt
+                      className="nhsuk-summary-list__key"
+                      data-testid="Service-now-case-label"
+                    >
                       ServiceNow Case ID
                     </dt>
                     <dd className="nhsuk-summary-list__value">
                       {exceptionDetails.serviceNowId}
                     </dd>
-                    <dd className="nhsuk-summary-list__actions">
+                    <dd
+                      className="nhsuk-summary-list__actions"
+                      data-testid="change-link"
+                    >
                       <a href="#">
                         Change{" "}
                         <span className="nhsuk-u-visually-hidden">
