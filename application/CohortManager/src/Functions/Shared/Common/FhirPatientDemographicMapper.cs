@@ -94,10 +94,6 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         return patientNode?.OuterXml ?? string.Empty;
     }
 
-    private Patient ExtractPatientFromBundle(Bundle bundle)
-    {
-        return bundle?.Entry?.FirstOrDefault(entry => entry.Resource is Patient)?.Resource as Patient;
-    }
 
     private string ExtractNhsNumberFromPatient(Patient patient)
     {
