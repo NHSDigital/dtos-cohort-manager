@@ -83,17 +83,24 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             return new BlockParticipantResult(false, "Participant is not blocked");
         }
 
-        var nemsSubscribed = await SubscribeParticipantToNEMS(nhsNumber);
-        if (!nemsSubscribed)
-        {
-            return new BlockParticipantResult(false, "Participant couldn't be subscribed in Nems");
-        }
 
         var blockedFlagSet = await SetBlockedFlag(participantManagementRecord, false);
         if (!blockedFlagSet)
         {
             return new BlockParticipantResult(false, "Failed to unset blocked flag");
         }
+
+        if (participantManagementRecord.EligibilityFlag == 1)
+        {
+            return new BlockParticipantResult(true, "Participant was unblocked but not resubscribed to Nems as they are ineligible");
+        }
+
+        var nemsSubscribed = await SubscribeParticipantToNEMS(nhsNumber);
+        if (!nemsSubscribed)
+        {
+            return new BlockParticipantResult(false, "Participant couldn't be subscribed in Nems");
+        }
+
 
         return new BlockParticipantResult(true, "Participant Unblocked");
 
