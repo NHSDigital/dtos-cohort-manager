@@ -32,7 +32,7 @@ public class ServiceNowClient : IServiceNowClient
         var url = $"{_config.ServiceNowUpdateUrl}/{caseNumber}";
         var payload = new ServiceNowUpdateRequestBody
         {
-            State = 10,
+            State = 10, // 'Open' state
             WorkNotes = workNotes
         };
         var json = JsonSerializer.Serialize(payload);
@@ -45,8 +45,8 @@ public class ServiceNowClient : IServiceNowClient
         var url = $"{_config.ServiceNowResolutionUrl}/{caseNumber}";
         var payload = new ServiceNowResolutionRequestBody
         {
-            State = 6,
-            ResolutionCode = "28",
+            State = 6, // 'Resolved' state
+            ResolutionCode = "28", // 'Solved by Automation' resolution code
             CloseNotes = closeNotes
         };
         var json = JsonSerializer.Serialize(payload);
