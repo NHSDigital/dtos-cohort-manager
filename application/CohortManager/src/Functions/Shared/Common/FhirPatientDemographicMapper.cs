@@ -82,7 +82,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
     }
 
-    private string ExtractPatientXmlFromBundle(string bundleXml)
+    private static string ExtractPatientXmlFromBundle(string bundleXml)
     {
         var doc = new XmlDocument();
         doc.LoadXml(bundleXml);
