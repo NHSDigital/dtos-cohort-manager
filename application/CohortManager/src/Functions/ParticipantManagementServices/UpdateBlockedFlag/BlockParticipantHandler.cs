@@ -1,19 +1,12 @@
 namespace NHS.CohortManager.ParticipantManagementService;
 
 using System;
-using System.Net.Sockets;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
-using Microsoft.EntityFrameworkCore.Storage.Json;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.Identity.Client;
-using Microsoft.Net.Http.Headers;
 using Model;
-using RulesEngine.Models;
 
 public class BlockParticipantHandler : IBlockParticipantHandler
 {
