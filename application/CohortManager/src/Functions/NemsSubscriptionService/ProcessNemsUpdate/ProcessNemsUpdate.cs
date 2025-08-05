@@ -10,6 +10,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using DataServices.Client;
 
 public class ProcessNemsUpdate
 {
@@ -19,7 +20,9 @@ public class ProcessNemsUpdate
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _exceptionHandler;
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
     private readonly ProcessNemsUpdateConfig _config;
+    private long nhsNumberLong;
 
     public ProcessNemsUpdate(
         ILogger<ProcessNemsUpdate> logger,
@@ -28,6 +31,7 @@ public class ProcessNemsUpdate
         IAddBatchToQueue addBatchToQueue,
         IHttpClientFunction httpClientFunction,
         IExceptionHandler exceptionHandler,
+        IDataServiceClient<ParticipantDemographic> participantDemographic,
         IOptions<ProcessNemsUpdateConfig> processNemsUpdateConfig)
     {
         _logger = logger;
@@ -36,6 +40,7 @@ public class ProcessNemsUpdate
         _addBatchToQueue = addBatchToQueue;
         _httpClientFunction = httpClientFunction;
         _exceptionHandler = exceptionHandler;
+        _participantDemographic = participantDemographic;
         _config = processNemsUpdateConfig.Value;
     }
 
@@ -63,6 +68,13 @@ public class ProcessNemsUpdate
                 _logger.LogInformation("There is no NHS number, unable to continue.");
                 return;
             }
+
+            //Validate NHS Number
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+            {
+                throw new InvalidDataException("Invalid NHS Number");
+            }
+            nhsNumberLong = long.Parse(nhsNumber);
 
             string? pdsRecord = await RetrievePdsRecord(nhsNumber);
 
@@ -169,8 +181,20 @@ public class ProcessNemsUpdate
 
         var participant = new Participant(pdsDemographic);
 
-        // TODO validate NHS number in record before enqueuing
         // TODO validate all dates in record before enqueuing
+
+        // Check participant exists in Participant Demographic table.
+        var existingParticipant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);
+        if (existingParticipant == null)
+        {
+            participant.RecordType = Actions.New;
+            _logger.LogWarning("The participant doesn't exists in Cohort Manager.A new record will be created in Cohort Manager.");
+        }
+        else
+        {
+            participant.RecordType = Actions.Amended;
+            _logger.LogWarning("The participant exists in Cohort Manager.");
+        }
 
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
@@ -182,7 +206,7 @@ public class ProcessNemsUpdate
         updateRecord.Enqueue(basicParticipantCsvRecord);
 
         _logger.LogInformation("Sending record to the update queue.");
-        await _addBatchToQueue.ProcessBatch(updateRecord, _config.UpdateQueueName);
+        await _addBatchToQueue.ProcessBatch(updateRecord, _config.ParticipantManagementTopic);
     }
 
     private async Task<bool> UnsubscribeNems(string nhsNumber)
