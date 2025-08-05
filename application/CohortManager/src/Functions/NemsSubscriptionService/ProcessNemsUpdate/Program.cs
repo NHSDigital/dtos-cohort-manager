@@ -24,6 +24,7 @@ var host = new HostBuilder()
     .AddExceptionHandler()
     .AddHttpClient()
     .AddAzureQueues()
+    .AddServiceBusClient(config.ServiceBusConnectionString_client_internal)
     .Build();
 
 await host.RunAsync();

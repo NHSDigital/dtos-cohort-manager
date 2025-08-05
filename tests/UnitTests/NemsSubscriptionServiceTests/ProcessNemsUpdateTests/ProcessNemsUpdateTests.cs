@@ -33,9 +33,10 @@ public class ProcessNemsUpdateTests
         {
             RetrievePdsDemographicURL = "RetrievePdsDemographic",
             NemsMessages = "nems-messages",
-            UpdateQueueName = "update-participant-queue",
+            ParticipantManagementTopic = "update-participant-queue",
             UnsubscribeNemsSubscriptionUrl = "Unsubscribe",
-            ParticipantDemographicDataServiceURL = "ParticipantDemographicDataServiceURL"
+            ParticipantDemographicDataServiceURL = "ParticipantDemographicDataServiceURL",
+            ServiceBusConnectionString_client_internal = "ServiceBusConnectionString_client_internal"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
