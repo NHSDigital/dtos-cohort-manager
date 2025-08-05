@@ -95,7 +95,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
     }
 
 
-    private string ExtractNhsNumberFromPatient(Patient patient)
+    private static string ExtractNhsNumberFromPatient(Patient patient)
     {
         if (patient?.Identifier == null) return patient?.Id ?? string.Empty;
 
