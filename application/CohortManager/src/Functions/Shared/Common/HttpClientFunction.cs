@@ -87,6 +87,16 @@ public class HttpClientFunction : IHttpClientFunction
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
 
+        if (string.IsNullOrEmpty(bearerToken))
+        {
+            HttpResponseMessage responseMessageToReturn = new HttpResponseMessage();
+            responseMessageToReturn.StatusCode = HttpStatusCode.BadRequest;
+
+            responseMessageToReturn.Content = new StringContent("the bearer Token was missing");
+
+            return responseMessageToReturn;
+        }
+
         client.DefaultRequestHeaders.Add("Authorization", "Bearer " + bearerToken);
         client.DefaultRequestHeaders.Add("X-Request-ID", Guid.NewGuid().ToString());
         client.DefaultRequestHeaders.Add("X-Correlation-ID", Guid.NewGuid().ToString());

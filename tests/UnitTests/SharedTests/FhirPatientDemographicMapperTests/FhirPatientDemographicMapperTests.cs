@@ -7,6 +7,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker;
 using Model;
 using Model.Enums;
+using System.Xml;
 
 [TestClass]
 public class FhirParserHelperTests
@@ -35,10 +36,20 @@ public class FhirParserHelperTests
 
     private static string LoadTestJson(string filename)
     {
-        // Add .json extension if not already present
-        string filenameWithExtension = filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase)
+        return LoadTestFile(filename, ".json");
+    }
+
+    private static string LoadTestXml(string filename)
+    {
+        return LoadTestFile(filename, ".xml");
+    }
+
+    private static string LoadTestFile(string filename, string extension)
+    {
+        // Add extension if not already present
+        string filenameWithExtension = filename.EndsWith(extension, StringComparison.OrdinalIgnoreCase)
             ? filename
-            : $"{filename}.json";
+            : $"{filename}{extension}";
 
         // Get the directory of the currently executing assembly
         string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
@@ -59,7 +70,7 @@ public class FhirParserHelperTests
         }
 
         // If neither exists, throw a descriptive exception
-        string errorMessage = $"Could not find JSON file '{filename}' in either:\n" +
+        string errorMessage = $"Could not find {extension} file '{filename}' in either:\n" +
                               $" - {Path.GetDirectoryName(originalPath)}\n" +
                               $" - {Path.GetDirectoryName(alternativePath)}";
 
@@ -534,5 +545,245 @@ public class FhirParserHelperTests
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to parse FHIR json")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
+    }
+
+    [TestMethod]
+    public void ParseFhirXmlNhsNumber_ValidNemsBundle_ReturnsNhsNumber()
+    {
+        // Arrange
+        string xml = LoadTestXml("nems-bundle");
+        string expected = "9000000009";
+
+        // Debug: Check if Patient exists in XML
+        Assert.IsTrue(xml.Contains("<Patient>"), "XML should contain Patient element");
+        Assert.IsTrue(xml.Contains("9000000009"), "XML should contain NHS number");
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(xml);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(expected, result);
+    }
+
+    [TestMethod]
+    public void ParseFhirXmlNhsNumber_InvalidXml_ThrowsException()
+    {
+        // Arrange
+        var xml = "<invalid>xml</invalid>";
+
+        // Act & Assert
+        Assert.ThrowsException<FormatException>(() => _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(xml));
+        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Failed to parse FHIR XML")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()));
+    }
+
+    [TestMethod]
+    public void ParseFhirXmlNhsNumber_BundleWithoutPatient_ReturnsEmpty()
+    {
+        // Arrange
+        var xml = @"<Bundle xmlns=""http://hl7.org/fhir"">
+                      <id value=""test-bundle""/>
+                      <type value=""message""/>
+                      <entry>
+                        <resource>
+                          <MessageHeader>
+                            <id value=""test""/>
+                          </MessageHeader>
+                        </resource>
+                      </entry>
+                    </Bundle>";
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(xml);
+
+        // Assert
+        Assert.AreEqual(string.Empty, result);
+    }
+
+    [TestMethod]
+    public void ParseFhirXmlNhsNumber_PatientXml_ReturnsNhsNumber()
+    {
+        // Arrange
+        var xml = @"<Patient xmlns=""http://hl7.org/fhir"">
+                      <id value=""test-patient""/>
+                      <identifier>
+                        <system value=""https://fhir.nhs.uk/Id/nhs-number""/>
+                        <value value=""1234567890""/>
+                      </identifier>
+                    </Patient>";
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(xml);
+
+        // Assert
+        Assert.AreEqual("1234567890", result);
+    }
+
+    [TestMethod]
+    public void Debug_ExtractPatientFromNemsBundle_ShowsPatientXml()
+    {
+        // Arrange
+        string xml = LoadTestXml("nems-bundle");
+
+        // Manually extract Patient XML to see what we get
+        var doc = new System.Xml.XmlDocument();
+        doc.LoadXml(xml);
+        var nsManager = new System.Xml.XmlNamespaceManager(doc.NameTable);
+        nsManager.AddNamespace("fhir", "http://hl7.org/fhir");
+        var patientNode = doc.SelectSingleNode("//fhir:Patient", nsManager);
+
+        // Debug assertions
+        Assert.IsNotNull(patientNode, "Should find Patient node in XML");
+
+        var patientXml = patientNode.OuterXml;
+        Assert.IsTrue(patientXml.Contains("9000000009"), "Patient XML should contain NHS number");
+
+        // Use the same method as the main class to test the full flow
+        var result = _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(xml);
+
+        // This will help us debug - if this passes, the issue is elsewhere
+        // If this fails, we know the problem is in our parsing logic
+        Assert.AreEqual("9000000009", result, "Should extract NHS number from NEMS Bundle");
+    }
+
+    [TestMethod]
+    public void ParseFhirXmlNhsNumber_MalformedXml_ThrowsFormatException()
+    {
+        // Arrange
+        var malformedXml = "<Bundle><Patient><id";
+
+        // Act & Assert
+        Assert.ThrowsException<XmlException>(() => _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(malformedXml));
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithNullIdentifier_ReturnsPatientId()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-minimal");
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirJsonNhsNumber(json);
+
+        // Assert
+        Assert.AreEqual("9000000009", result); // Should return patient.Id when identifier is null
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithNullGender_DoesNotSetGender()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-no-gender");
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNull(result.Gender);
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithNullAddress_DoesNotSetAddressFields()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-no-address");
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNull(result.AddressLine1);
+        Assert.IsNull(result.AddressLine2);
+        Assert.IsNull(result.AddressLine3);
+        Assert.IsNull(result.AddressLine4);
+        Assert.IsNull(result.AddressLine5);
+        Assert.IsNull(result.Postcode);
+        Assert.IsNull(result.PafKey);
+        Assert.IsNull(result.UsualAddressEffectiveFromDate);
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithNullTelecom_DoesNotSetContactFields()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-no-telecom");
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNull(result.TelephoneNumber);
+        Assert.IsNull(result.TelephoneNumberEffectiveFromDate);
+        Assert.IsNull(result.MobileNumber);
+        Assert.IsNull(result.MobileNumberEffectiveFromDate);
+        Assert.IsNull(result.EmailAddress);
+        Assert.IsNull(result.EmailAddressEffectiveFromDate);
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithNullNames_DoesNotSetNameFields()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-no-names");
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNull(result.NamePrefix);
+        Assert.IsNull(result.FirstName);
+        Assert.IsNull(result.OtherGivenNames);
+        Assert.IsNull(result.FamilyName);
+        Assert.IsNull(result.PreviousFamilyName);
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithNullGeneralPractitioner_DoesNotSetProvider()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-no-gp");
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsNull(result.PrimaryCareProvider);
+        Assert.IsNull(result.PrimaryCareProviderEffectiveFromDate);
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithNullSecurityMeta_DoesNotSetConfidentiality()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-no-security");
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
+
+        // Assert
+        Assert.IsTrue(string.IsNullOrEmpty(result.ConfidentialityCode));
+    }
+
+    [TestMethod]
+    public void FhirParser_PatientWithNullExtensions_SetsInterpreterFalse()
+    {
+        // Arrange
+        string json = LoadTestJson("patient-no-extensions");
+
+        // Act
+        var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
+
+        // Assert
+        Assert.AreEqual("false", result.IsInterpreterRequired);
+        Assert.IsNull(result.PreferredLanguage);
+        Assert.IsNull(result.DateOfDeath);
+        Assert.IsNull(result.DeathStatus);
+        Assert.IsNull(result.ReasonForRemoval);
+        Assert.IsNull(result.RemovalEffectiveFromDate);
+        Assert.IsNull(result.RemovalEffectiveToDate);
     }
 }

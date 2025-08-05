@@ -70,4 +70,33 @@ public class AuthClientCredentialsTests
 
         Assert.AreEqual(access_token, res);
     }
+
+    [TestMethod]
+    public async Task AccessToken_NoValid_TokenAsync()
+    {
+        var handlerMock = new Mock<HttpMessageHandler>();
+        handlerMock
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.IsAny<HttpRequestMessage>(),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = System.Net.HttpStatusCode.BadRequest,
+                Content = new StringContent("{ \"error\": \"there was an error getting the token \" }"),
+            });
+
+        var _httpClient = new HttpClient(handlerMock.Object);
+
+
+        authClientCredentials = new AuthorizationClientCredentials(_jwtHandler.Object, _httpClient, _jwtTokenServiceConfig.Object, _logger.Object);
+        var res = await authClientCredentials.AccessToken(5);
+
+        Assert.AreEqual(null, res);
+        
+    }
+
+
 }

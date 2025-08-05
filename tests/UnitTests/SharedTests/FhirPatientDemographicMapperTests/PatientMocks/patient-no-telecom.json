@@ -1,0 +1,19 @@
+{
+  "resourceType": "Patient",
+  "id": "9000000009",
+  "identifier": [{
+    "system": "https://fhir.nhs.uk/Id/nhs-number",
+    "value": "9000000009"
+  }],
+  "name": [{
+    "use": "usual",
+    "family": "Smith",
+    "given": ["John"]
+  }],
+  "gender": "male",
+  "address": [{
+    "use": "home",
+    "line": ["123 Test Street"],
+    "postalCode": "AB1 2CD"
+  }]
+}

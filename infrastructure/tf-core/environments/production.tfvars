@@ -837,6 +837,7 @@ function_apps = {
       env_vars_static = {
         ServiceNowRefreshAccessTokenUrl      = "" # TODO: Get value
         ServiceNowUpdateUrl                  = "" # TODO: Get value
+        ServiceNowResolutionUrl              = "" # TODO: Get value
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }

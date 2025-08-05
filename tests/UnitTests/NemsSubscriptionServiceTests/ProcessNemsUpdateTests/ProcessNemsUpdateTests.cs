@@ -11,6 +11,7 @@ using DataServices.Client;
 using System.Net;
 using System.Text.Json;
 using System.Collections.Concurrent;
+using System.Text;
 
 [TestClass]
 public class ProcessNemsUpdateTests
@@ -253,6 +254,34 @@ public class ProcessNemsUpdateTests
         return string.Empty;
     }
 
+    private static string LoadTestXml(string filename)
+    {
+        // Add .xml extension if not already present
+        string filenameWithExtension = filename.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)
+            ? filename
+            : $"{filename}.xml";
+
+        // Get the directory of the currently executing assembly
+        string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        string assemblyDirectory = Path.GetDirectoryName(assemblyLocation) ?? string.Empty;
+
+        // Try the SharedTests path for XML files
+        string sharedTestsPath = Path.Combine(assemblyDirectory, "../../../SharedTests/FhirPatientDemographicMapperTests/PatientMocks", filenameWithExtension);
+        if (File.Exists(sharedTestsPath))
+        {
+            return File.ReadAllText(sharedTestsPath);
+        }
+
+        // Try the original path
+        string originalPath = Path.Combine(assemblyDirectory, "../../../PatientMocks", filenameWithExtension);
+        if (File.Exists(originalPath))
+        {
+            return File.ReadAllText(originalPath);
+        }
+
+        return string.Empty;
+    }
+
     [TestMethod]
     public async Task Run_NhsNumberFromNemsUpdateFileDoesNotMatchRetrievedPdsRecordNhsNumber_ProcessesRecord_RaiseInfoExceptionAndUnsubscribesFromNems()
     {
@@ -300,5 +329,82 @@ public class ProcessNemsUpdateTests
         60,
         null),
         Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_XmlFileExtension_CallsXmlParser()
+    {
+        // Arrange
+        string xmlFileName = "test-file.xml";
+        string fhirXml = "<test>xml content</test>";
+        await using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(fhirXml));
+
+        // Act
+        await _sut.Run(fileStream, xmlFileName);
+
+        // Assert
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirXmlNhsNumber(It.IsAny<string>()), Times.Once);
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Run_JsonFileExtension_CallsJsonParser()
+    {
+        // Arrange
+        string jsonFileName = "test-file.json";
+        string fhirJson = LoadTestJson("mock-patient");
+        await using var fileStream = File.OpenRead(fhirJson);
+
+        // Act
+        await _sut.Run(fileStream, jsonFileName);
+
+        // Assert
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirXmlNhsNumber(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Run_ExtractedNhsNumber_PassedToPdsService()
+    {
+        // Arrange
+        const string expectedNhsNumber = "1234567890";
+        string fhirJson = LoadTestJson("mock-patient");
+        await using var fileStream = File.OpenRead(fhirJson);
+
+        _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()))
+            .Returns(expectedNhsNumber);
+
+        // Act
+        await _sut.Run(fileStream, _fileName);
+
+        // Assert - Verify correct NHS number is passed to PDS service
+        _httpClientFunctionMock.Verify(x => x.SendGet(
+            "RetrievePdsDemographic", 
+            It.Is<Dictionary<string, string>>(dict => 
+                dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)), 
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_XmlBundleFile_PassesNhsNumberToPdsService()
+    {
+        // Arrange
+        const string expectedNhsNumber = "9000000009";
+        string xmlFileName = "nems-bundle.xml";
+        string xmlContent = LoadTestXml("nems-bundle");
+        await using var fileStream = new MemoryStream(Encoding.UTF8.GetBytes(xmlContent));
+
+        _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirXmlNhsNumber(It.IsAny<string>()))
+            .Returns(expectedNhsNumber);
+
+        // Act
+        await _sut.Run(fileStream, xmlFileName);
+
+        // Assert - Verify correct NHS number is passed to PDS service
+        _httpClientFunctionMock.Verify(x => x.SendGet(
+            "RetrievePdsDemographic", 
+            It.Is<Dictionary<string, string>>(dict => 
+                dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)), 
+            Times.Once);
     }
 }
