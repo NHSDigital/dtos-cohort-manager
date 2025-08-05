@@ -74,6 +74,39 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
     }
 
+    public async Task<BlockParticipantResult> UnblockParticipant(long nhsNumber)
+    {
+        if (!ValidationHelper.ValidateNHSNumber(nhsNumber.ToString()))
+        {
+            _logger.LogWarning("Invalid NHS Number and cannot be unblocked");
+            return new BlockParticipantResult(false, "Invalid NHS Number");
+        }
+
+        var participantManagementRecord = await _participantManagementDataService.GetSingleByFilter(x => x.NHSNumber == nhsNumber);
+
+        if (participantManagementRecord.BlockedFlag != 1)
+        {
+            _logger.LogInformation("Participant couldn't be unblocked as they are currently blocked");
+            return new BlockParticipantResult(false, "Participant is not blocked");
+        }
+
+        var nemsSubscribed = await SubscribeParticipantToNEMS(nhsNumber);
+        if (!nemsSubscribed)
+        {
+            return new BlockParticipantResult(false, "Participant couldn't be subscribed in Nems");
+        }
+
+        var blockedFlagSet = await SetBlockedFlag(participantManagementRecord, false);
+        if (!blockedFlagSet)
+        {
+            return new BlockParticipantResult(false, "Failed to unset blocked flag");
+        }
+
+        return new BlockParticipantResult(true, "Participant Unblocked");
+
+
+    }
+
     public async Task<BlockParticipantResult> GetParticipant(BlockParticipantDTO dto)
     {
 
@@ -170,6 +203,14 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
         return nemsUnsubscribeResponse.IsSuccessStatusCode;
     }
+
+    private async Task<bool> SubscribeParticipantToNEMS(long nhsNumber)
+    {
+        var nemsSubscribeResponse = await _httpClient.SendPost(_config.ManageNemsSubscriptionSubscribeURL, CreateNhsNumberQueryParams(nhsNumber));
+
+        return nemsSubscribeResponse.IsSuccessStatusCode;
+    }
+
 
     private async Task<bool> SetBlockedFlag(ParticipantManagement participant, bool blocked)
     {

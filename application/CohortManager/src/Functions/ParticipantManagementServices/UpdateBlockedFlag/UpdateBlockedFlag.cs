@@ -118,14 +118,29 @@ public class UpdateBlockedFlag
     public async Task<HttpResponseData> UnblockParticipant([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         _logger.LogInformation("Unblock Participant Called");
-        return _createResponse.CreateHttpResponse(HttpStatusCode.NotImplemented, req);
+        var nhsNumber = req.Query["nhsNumber"];
+        if (string.IsNullOrWhiteSpace(nhsNumber))
+        {
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "No NHS Number provided");
+        }
+
+        if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+        {
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Invalid NHS Number provided");
+        }
+
+        var nhsNumberParsed = long.Parse(nhsNumber);
+
+        var unBlockParticipantResult = await _blockParticipantHandler.UnblockParticipant(nhsNumberParsed);
+
+        if (!unBlockParticipantResult.Success)
+        {
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, unBlockParticipantResult.ResponseMessage);
+        }
+
+        return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, "Participant successfully unblocked");
+
     }
 
-
-    private async Task HandleException(Exception ex, HttpRequestData req)
-    {
-        _logger.LogError(ex, "An error occurred while processing the request for blocking/unblocking a participant");
-        await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, req.Query["NhsNumber"]!, "", "1", req.ToString()!);
-    }
 
 }
