@@ -1,0 +1,76 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9990321523,
+        "BlockedFlag": 1,
+        "expectedCount": 1,
+        "RecordType": "DELETE",
+        "EligibilityFlag": 1,
+        "ExceptionFlag": 0
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NHSNumber": 9990321523,
+        "expectedCount": 1,
+        "nboExceptionCount": 0,
+        "Category": "CaaS",
+        "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9990321523,
+        "expectedCount": 1
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "DELETE",
+      "change_time_stamp": null,
+      "serial_change_number": 1,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "A12345",
+      "primary_care_effective_from_date": "20240101",
+      "current_posting": "BD",
+      "current_posting_effective_from_date": "20240101",
+      "name_prefix": "Ms",
+      "given_name": "SARAH",
+      "other_given_name": null,
+      "family_name": "TESTBLOCKFOUR",
+      "previous_family_name": null,
+      "date_of_birth": "19670423",
+      "gender": 1,
+      "address_line_1": "44 TEST STREET",
+      "address_line_2": "TESTLAND",
+      "address_line_3": null,
+      "address_line_4": null,
+      "address_line_5": null,
+      "postcode": "TS1 1ST",
+      "paf_key": null,
+      "address_effective_from_date": "20240101",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "01234567890",
+      "home_telephone_effective_from_date": "20240101",
+      "mobile_telephone_number": "07700900123",
+      "mobile_telephone_effective_from_date": "20240101",
+      "email_address": null,
+      "email_address_effective_from_date": null,
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9990321523"
+  ]
+}

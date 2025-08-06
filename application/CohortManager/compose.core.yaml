@@ -32,12 +32,15 @@ services:
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - nemsmeshfolder_STORAGE=${AZURITE_CONNECTION_STRING}
-      - MeshApiBaseUrl=https://localhost:8700/messageexchange
-      - BSSMailBox=X26ABC1
-      - MeshPassword=${MESHPASSWORD}
-      - MeshSharedKey=${MESHSHAREDKEY}
-      - MeshKeyName=meshpfx.pfx
-      - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
+      - NemsMeshApiBaseUrl=https://localhost:8700/messageexchange
+      - NemsMeshMailBox=${NEMS_MESH_MAILBOX}
+      - NemsMeshPassword=${NEMS_MESH_PASSWORD}
+      - NemsMeshSharedKey=${NEMS_MESH_SHARED_KEY}
+      - NemsMeshKeyName=nemsmeshpfx.pfx
+      - NemsMeshKeyPassphrase=${NEMS_MESH_KEY_PASSPHRASE}
+      - NemsMeshBypassServerCertificateValidation=true
+      - NemsMeshInboundContainer=nems-updates
+      - NemsMeshConfigContainer=nems-config
       - ASPNETCORE_URLS=http://*:7058
 
   process-nems-update:
@@ -305,6 +308,7 @@ services:
       - ASPNETCORE_URLS=http://*:9092
       - ServiceNowRefreshAccessTokenUrl=https://nhsdigitaldev.service-now.com/oauth_token.do
       - ServiceNowUpdateUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate
+      - ServiceNowResolutionUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution
       - ServiceNowClientId=${SERVICENOW_CLIENT_ID}
       - ServiceNowClientSecret=${SERVICENOW_CLIENT_SECRET}
       - ServiceNowRefreshToken=${SERVICENOW_REFRESH_TOKEN}

@@ -9,7 +9,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using NHS.CohortManager.ServiceNowIntegrationService;
-using NHS.CohortManager.ServiceNowIntegrationService.Models;
+using Model;
+using Model.Enums;
 
 [TestClass]
 public class SendServiceNowMessageFunctionTests
@@ -41,29 +42,87 @@ public class SendServiceNowMessageFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_WhenRequestBodyIsValidAndUpdateSuceeds_ReturnsOK()
+    public async Task Run_WhenRequestBodyIsAddRequestInProgressAndUpdateSuceeds_ReturnsOK()
     {
         // Arrange
-        var sysId = "sysid-123";
+        var caseNumber = "CS123";
         var request = new SendServiceNowMessageRequestBody
         {
-            State = 2,
-            WorkNotes = "Retry this"
+            MessageType = ServiceNowMessageType.AddRequestInProgress
         };
         var requestBodyJson = JsonSerializer.Serialize(request);
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
 
         var updateResponse = new HttpResponseMessage(HttpStatusCode.OK);
-        _serviceNowClientMock.Setup(x => x.SendUpdate(sysId,
-                It.Is<ServiceNowUpdateRequestBody>(x => x.State == request.State && x.WorkNotes == request.WorkNotes)))
-            .ReturnsAsync(updateResponse);
+        _serviceNowClientMock.Setup(x => x.SendUpdate(caseNumber,
+                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber))))
+            .ReturnsAsync(updateResponse)
+            .Verifiable();
 
         // Act
-        var result = await _function.Run(_httpRequestMock.Object, sysId);
+        var result = await _function.Run(_httpRequestMock.Object, caseNumber);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _serviceNowClientMock.Verify();
+        _serviceNowClientMock.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    public async Task Run_WhenRequestBodyIsUnableToAddParticipantAndUpdateSuceeds_ReturnsOK()
+    {
+        // Arrange
+        var caseNumber = "CS123";
+        var request = new SendServiceNowMessageRequestBody
+        {
+            MessageType = ServiceNowMessageType.UnableToAddParticipant
+        };
+        var requestBodyJson = JsonSerializer.Serialize(request);
+        var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
+        _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
+
+        var updateResponse = new HttpResponseMessage(HttpStatusCode.OK);
+        _serviceNowClientMock.Setup(x => x.SendUpdate(caseNumber,
+                string.Format(string.Format(ServiceNowMessageTemplates.UnableToAddParticipantMessageTemplate, caseNumber))))
+            .ReturnsAsync(updateResponse)
+            .Verifiable();
+
+        // Act
+        var result = await _function.Run(_httpRequestMock.Object, caseNumber);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _serviceNowClientMock.Verify();
+        _serviceNowClientMock.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    public async Task Run_WhenRequestBodyIsSuccessAndUpdateSuceeds_ReturnsOK()
+    {
+        // Arrange
+        var caseNumber = "CS123";
+        var request = new SendServiceNowMessageRequestBody
+        {
+            MessageType = ServiceNowMessageType.Success
+        };
+        var requestBodyJson = JsonSerializer.Serialize(request);
+        var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
+        _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
+
+        var updateResponse = new HttpResponseMessage(HttpStatusCode.OK);
+        _serviceNowClientMock.Setup(x => x.SendResolution(caseNumber,
+                string.Format(string.Format(ServiceNowMessageTemplates.SuccessMessageTemplate, caseNumber))))
+            .ReturnsAsync(updateResponse)
+            .Verifiable();
+
+        // Act
+        var result = await _function.Run(_httpRequestMock.Object, caseNumber);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _serviceNowClientMock.Verify();
+        _serviceNowClientMock.VerifyNoOtherCalls();
     }
 
     [TestMethod]
@@ -72,90 +131,101 @@ public class SendServiceNowMessageFunctionTests
     public async Task Run_WhenRequestBodyIsValidButUpdateReturnsFailureResponse_ReturnsInternalServerError(HttpStatusCode statusCode)
     {
         // Arrange
-        var sysId = "sysid-123";
+        var caseNumber = "CS123";
         var request = new SendServiceNowMessageRequestBody
         {
-            State = 2,
-            WorkNotes = "Retry this"
+            MessageType = ServiceNowMessageType.AddRequestInProgress
         };
         var requestBodyJson = JsonSerializer.Serialize(request);
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
 
         var updateResponse = new HttpResponseMessage(statusCode);
-        _serviceNowClientMock.Setup(x => x.SendUpdate(sysId,
-                It.Is<ServiceNowUpdateRequestBody>(x => x.State == request.State && x.WorkNotes == request.WorkNotes)))
-            .ReturnsAsync(updateResponse);
+        _serviceNowClientMock.Setup(x => x.SendUpdate(caseNumber,
+                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber))))
+            .ReturnsAsync(updateResponse)
+            .Verifiable();
 
         // Act
-        var result = await _function.Run(_httpRequestMock.Object, sysId);
+        var result = await _function.Run(_httpRequestMock.Object, caseNumber);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        _serviceNowClientMock.Verify();
+        _serviceNowClientMock.VerifyNoOtherCalls();
     }
 
     [TestMethod]
     public async Task Run_WhenRequestBodyIsValidButUpdateReturnsNull_ReturnsInternalServerError()
     {
         // Arrange
-        var sysId = "sysid-123";
+        var caseNumber = "CS123";
         var request = new SendServiceNowMessageRequestBody
         {
-            State = 2,
-            WorkNotes = "Retry this"
+            MessageType = ServiceNowMessageType.AddRequestInProgress
         };
         var requestBodyJson = JsonSerializer.Serialize(request);
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
 
         var updateResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-        _serviceNowClientMock.Setup(x => x.SendUpdate(sysId,
-                It.Is<ServiceNowUpdateRequestBody>(x => x.State == request.State && x.WorkNotes == request.WorkNotes)))
-            .ReturnsAsync((HttpResponseMessage)null);
+        _serviceNowClientMock.Setup(x => x.SendUpdate(caseNumber,
+                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber))))
+            .ReturnsAsync((HttpResponseMessage)null)
+            .Verifiable();
 
         // Act
-        var result = await _function.Run(_httpRequestMock.Object, sysId);
+        var result = await _function.Run(_httpRequestMock.Object, caseNumber);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        _serviceNowClientMock.Verify();
+        _serviceNowClientMock.VerifyNoOtherCalls();
     }
 
     [TestMethod]
     public async Task Run_WhenRequestBodyIsValidButUpdateThrowsException_ReturnsInternalServerError()
     {
         // Arrange
-        var sysId = "sysid-123";
+        var caseNumber = "CS123";
         var request = new SendServiceNowMessageRequestBody
         {
-            State = 2,
-            WorkNotes = "Retry this"
+            MessageType = ServiceNowMessageType.AddRequestInProgress
         };
         var requestBodyJson = JsonSerializer.Serialize(request);
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
 
         var updateResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-        _serviceNowClientMock.Setup(x => x.SendUpdate(sysId,
-                It.Is<ServiceNowUpdateRequestBody>(x => x.State == request.State && x.WorkNotes == request.WorkNotes)))
-            .ThrowsAsync(new HttpRequestException());
+        _serviceNowClientMock.Setup(x => x.SendUpdate(caseNumber,
+                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber))))
+            .ThrowsAsync(new HttpRequestException())
+            .Verifiable();
 
         // Act
-        var result = await _function.Run(_httpRequestMock.Object, sysId);
+        var result = await _function.Run(_httpRequestMock.Object, caseNumber);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        _serviceNowClientMock.Verify();
+        _serviceNowClientMock.VerifyNoOtherCalls();
     }
 
     [TestMethod]
-    public async Task Run_WhenRequestBodyIsInvalidJson_ReturnsBadRequest()
+    public async Task Run_WhenRequestBodyIsInvalid_ReturnsBadRequest()
     {
         // Arrange
-        var sysId = "sysid-123";
-        var stream = new MemoryStream(Encoding.UTF8.GetBytes("Invalid json"));
-        _httpRequestMock.Setup(r => r.Body).Returns(stream);
+        var caseNumber = "CS123";
+        var request = new
+        {
+            MessageType = ""
+        };
+        var requestBodyJson = JsonSerializer.Serialize(request);
+        var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
+        _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
 
         // Act
-        var result = await _function.Run(_httpRequestMock.Object, sysId);
+        var result = await _function.Run(_httpRequestMock.Object, caseNumber);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);

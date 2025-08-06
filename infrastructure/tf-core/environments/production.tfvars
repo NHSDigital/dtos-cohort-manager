@@ -311,7 +311,7 @@ function_apps = {
       function_endpoint_name       = "ProcessNemsUpdate"
       app_service_plan_key         = "DefaultPlan"
       key_vault_url                = "KeyVaultConnectionString"
-      storage_account_env_var_name = "caasfolder_STORAGE"
+      storage_account_env_var_name = "nemsmeshfolder_STORAGE"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -329,7 +329,7 @@ function_apps = {
       storage_containers = [
         {
           env_var_name   = "NemsMessages"
-          container_name = "nems-messages"
+          container_name = "nems-updates"
         }
       ]
       env_vars_static = {
@@ -837,6 +837,7 @@ function_apps = {
       env_vars_static = {
         ServiceNowRefreshAccessTokenUrl      = "" # TODO: Get value
         ServiceNowUpdateUrl                  = "" # TODO: Get value
+        ServiceNowResolutionUrl              = "" # TODO: Get value
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }

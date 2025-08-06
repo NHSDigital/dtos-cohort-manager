@@ -15,8 +15,8 @@ export class ExceptionOverviewPage extends BasePage {
     this.exceptionTable = page.locator('[data-testid="exceptions-table"]');
     this.exceptiontableHeaders = page.locator('[data-testid="exceptions-table"] th');
     this.homepageLink = page.getByRole('link', { name: 'Home', exact: true });
-    //this.exceptionIDLink = page.locator('[data-testid="exceptions-table"] tbody tr:first-child td:nth-child(1) a');
-    this.exceptionIDLink = page.locator('[data-testid="exceptions-table"] tbody tr:nth-child(2) td:nth-child(1) a');
+    this.exceptionIDLink = page.locator('[data-testid="exceptions-table"] tbody tr:first-child td:nth-child(1) a');
+    //this.exceptionIDLink = page.locator('[data-testid="exceptions-table"] tbody tr:nth-child(2) td:nth-child(1) a');
   }
   async getTableHeaders(): Promise<string[]> {
     return this.page.$$eval('[data-testid="exceptions-table"] th', headers =>

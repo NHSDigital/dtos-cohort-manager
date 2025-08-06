@@ -94,7 +94,10 @@ export default async function Page(props: {
                 </span>
               </h1>
               {exceptionDetails.serviceNowId && (
-                <dl className="nhsuk-summary-list">
+                <dl
+                  className="nhsuk-summary-list"
+                  data-testid="exception-details-labels"
+                >
                   <div className="nhsuk-summary-list__row">
                     <dt
                       className="nhsuk-summary-list__key"
