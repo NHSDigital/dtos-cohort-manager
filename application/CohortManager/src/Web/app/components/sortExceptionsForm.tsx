@@ -1,11 +1,11 @@
 interface SortExceptionsFormProps {
-  sortBy: number;
-  options: {
-    value: string;
-    label: string;
+  readonly sortBy: number;
+  readonly options: readonly {
+    readonly value: string;
+    readonly label: string;
   }[];
-  hiddenText?: string;
-  testId?: string;
+  readonly hiddenText?: string;
+  readonly testId?: string;
 }
 
 export default function SortExceptionsForm({
