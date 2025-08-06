@@ -193,7 +193,7 @@ public class ProcessNemsUpdate
         else
         {
             participant.RecordType = Actions.Amended;
-            _logger.LogWarning("The participant exists in Cohort Manager.");
+            _logger.LogWarning("The participant already exists in Cohort Manager. Existing record will get updated.");
         }
 
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
