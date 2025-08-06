@@ -85,14 +85,6 @@ public class ManageNemsSubscriptionConfig
     public bool NemsBypassServerCertificateValidation { get; set; } = false;
 
     /// <summary>
-    /// Default event types to subscribe to
-    /// </summary>
-    // public string[] NemsDefaultEventTypes { get; set; } = new[]
-    // {
-    //     "pds-record-change-1"
-    // };
-
-    /// <summary>
     /// HTTP client timeout in seconds for NEMS API requests
     /// Default: 300 seconds (5 minutes)
     /// </summary>
