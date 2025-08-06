@@ -48,3 +48,15 @@
   margin-bottom: 0;
   margin-left: 8px;
 }
+
+// Sortable table layout
+
+.app-form-results-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.app-results-text {
+  margin: 0;
+}
