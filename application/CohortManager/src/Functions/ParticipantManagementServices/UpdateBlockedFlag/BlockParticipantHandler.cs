@@ -91,7 +91,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             return new BlockParticipantResult(false, "Failed to unset blocked flag");
         }
 
-        if (participantManagementRecord.EligibilityFlag == 1)
+        if (participantManagementRecord.EligibilityFlag == 0)
         {
             return new BlockParticipantResult(true, "Participant was unblocked but not resubscribed to Nems as they are ineligible");
         }
