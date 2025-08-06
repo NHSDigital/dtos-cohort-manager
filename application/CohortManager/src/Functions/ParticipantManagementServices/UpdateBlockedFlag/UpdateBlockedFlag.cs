@@ -3,13 +3,9 @@ namespace NHS.CohortManager.ParticipantManagementService;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-
-using DataServices.Client;
 using Common;
 using System.Net;
-using Model;
 using System.Text.Json;
-using System.Reflection.Metadata;
 
 public class UpdateBlockedFlag
 {

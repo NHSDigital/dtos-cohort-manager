@@ -1,8 +1,6 @@
 namespace NHS.CohortManager.ParticipantManagementService;
 
 using System.ComponentModel.DataAnnotations;
-using Azure.Core;
-using Microsoft.Azure.Amqp;
 
 public class UpdateBlockedFlagConfig
 {

@@ -97,6 +97,6 @@ public class ManageNemsSubscriptionConfig
     /// <summary>
     /// Bool to set the function to be in stubbed mode. Simulated responses from NEMS
     /// </summary>
-    public bool IsStubbed { get; set; } = true;
+    public bool IsStubbed { get; set; } = false;
 }
 
