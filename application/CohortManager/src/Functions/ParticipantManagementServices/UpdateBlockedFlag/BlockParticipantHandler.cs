@@ -57,7 +57,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
         if (!ValidateRecordsMatch(participantDemographic, blockParticipantRequest))
         {
-            _logger.LogWarning("Participant had an didn't pass three point check and cannot be blocked");
+            _logger.LogWarning("Participant didn't pass three point check and cannot be blocked");
             return new BlockParticipantResult(false, "Participant Didn't pass three point check");
         }
 
@@ -80,7 +80,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
         if (participantManagementRecord.BlockedFlag != 1)
         {
-            _logger.LogInformation("Participant couldn't be unblocked as they are currently blocked");
+            _logger.LogInformation("Participant couldn't be unblocked as they are not currently blocked");
             return new BlockParticipantResult(false, "Participant is not blocked");
         }
 
