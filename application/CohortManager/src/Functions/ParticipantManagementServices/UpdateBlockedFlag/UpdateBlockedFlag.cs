@@ -41,7 +41,12 @@ public class UpdateBlockedFlag
         _logger.LogInformation("Block Participant Called");
         try
         {
-            var blockParticipantDTOJson = req.ReadAsString();
+            var blockParticipantDTOJson = await req.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(blockParticipantDTOJson))
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Unable to parse request");
+            }
+
             var blockParticipantDTO = JsonSerializer.Deserialize<BlockParticipantDto>(blockParticipantDTOJson);
             if (blockParticipantDTO == null)
             {
@@ -73,6 +78,13 @@ public class UpdateBlockedFlag
         }
 
     }
+    /// <summary>
+    /// Get Participant details will look up a participant in cohort manager if they do not exist in cohort manager then they
+    /// will be looked up in PDS. Once they are found a three point check will be carried out to ensure thier details matched, the found
+    /// details will be returned for manual assurance that the correct individual has been found
+    /// </summary>
+    /// <param name="req"></param>
+    /// <returns>BlockParticipantDto or Error message</returns>
     [Function("GetParticipant")]
     public async Task<HttpResponseData> GetParticipantDetails([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
