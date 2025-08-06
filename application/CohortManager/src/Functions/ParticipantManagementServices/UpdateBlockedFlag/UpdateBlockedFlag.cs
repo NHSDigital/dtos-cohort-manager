@@ -12,21 +12,15 @@ using System.Text.Json;
 
 public class UpdateBlockedFlag
 {
-    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
-    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
     private readonly ILogger<UpdateBlockedFlag> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IExceptionHandler _exceptionHandler;
     private readonly IBlockParticipantHandler _blockParticipantHandler;
 
 
-    public UpdateBlockedFlag(IDataServiceClient<ParticipantManagement> participantManagementClient, IDataServiceClient<ParticipantDemographic> participantDemographicClient, ILogger<UpdateBlockedFlag> logger, ICreateResponse createResponse, IExceptionHandler exceptionHandler, IBlockParticipantHandler blockParticipantHandler)
+    public UpdateBlockedFlag(ILogger<UpdateBlockedFlag> logger, ICreateResponse createResponse, IBlockParticipantHandler blockParticipantHandler)
     {
-        _participantManagementClient = participantManagementClient;
-        _participantDemographicClient = participantDemographicClient;
         _logger = logger;
         _createResponse = createResponse;
-        _exceptionHandler = exceptionHandler;
         _blockParticipantHandler = blockParticipantHandler;
     }
 
