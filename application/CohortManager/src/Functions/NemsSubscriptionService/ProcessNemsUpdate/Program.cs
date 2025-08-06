@@ -6,19 +6,19 @@ using Microsoft.Extensions.Hosting;
 using NHS.Screening.ProcessNemsUpdate;
 
 var host = new HostBuilder()
-    .AddConfiguration<ProcessNemsUpdateConfig>()
+    .AddConfiguration<ProcessNemsUpdateConfig>(out ProcessNemsUpdateConfig config)
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
         services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
-        services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
+        services.AddSingleton<IAddBatchToQueue, AddBatchToQueue>();
         services.AddBlobStorageHealthCheck("ProcessNemsUpdate");
     })
     .AddTelemetry()
     .AddExceptionHandler()
     .AddHttpClient()
-    .AddAzureQueues()
+    .AddServiceBusClient(config.ServiceBusConnectionString_client_internal)
     .Build();
 
 await host.RunAsync();

@@ -12,4 +12,9 @@ public class ProcessNemsUpdateConfig
     public required string UpdateQueueName { get; set; }
     [Required]
     public required string UnsubscribeNemsSubscriptionUrl { get; set; }
+
+    public string ServiceBusConnectionString_client_internal { get; set; } = null!;
+
+    public string ParticipantManagementTopic { get; set; } = null!;
+
 }

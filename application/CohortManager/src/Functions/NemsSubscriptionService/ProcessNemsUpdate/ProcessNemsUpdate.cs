@@ -114,10 +114,9 @@ public class ProcessNemsUpdate
                 RemovalEffectiveFromDate = System.DateTime.UtcNow.Date.ToString("yyyyMMdd")
             };
             var participant = new Participant(pdsDemographic);
-
-            participant.EligibilityFlag = "0";
             //sends record for an update
             await ProcessRecord(participant);
+            return;
         }
         _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
 
@@ -163,7 +162,7 @@ public class ProcessNemsUpdate
             }
 
             // Determine format based on file extension and call appropriate parser
-            if (name.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+            if (name.EndsWith(".xml", System.StringComparison.OrdinalIgnoreCase))
             {
                 return _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(blobJson);
             }
@@ -216,7 +215,8 @@ public class ProcessNemsUpdate
         updateRecord.Enqueue(basicParticipantCsvRecord);
 
         _logger.LogInformation("Sending record to the update queue.");
-        await _addBatchToQueue.ProcessBatch(updateRecord, _config.UpdateQueueName);
+        
+        await _addBatchToQueue.ProcessBatch(updateRecord, _config.ParticipantManagementTopic);
     }
 
     private async Task<bool> UnsubscribeNems(string nhsNumber)
