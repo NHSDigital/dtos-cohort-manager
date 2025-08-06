@@ -41,8 +41,8 @@ public class UpdateBlockedFlag
         _logger.LogInformation("Block Participant Called");
         try
         {
-            var blockParticipantDTO = await req.ReadFromJsonAsync<BlockParticipantDto>();
-
+            var blockParticipantDTOJson = req.ReadAsString();
+            var blockParticipantDTO = JsonSerializer.Deserialize<BlockParticipantDto>(blockParticipantDTOJson);
             if (blockParticipantDTO == null)
             {
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Unable to parse request");
