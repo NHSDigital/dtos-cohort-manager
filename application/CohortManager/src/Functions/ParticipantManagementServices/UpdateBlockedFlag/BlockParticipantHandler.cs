@@ -60,7 +60,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             return new BlockParticipantResult(false, "Participant Didn't pass three point check");
         }
 
-
+         _logger.LogInformation("Participant has been blocked");
         return await BlockExistingParticipant(participantManagementRecord);
 
 
@@ -101,7 +101,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             return new BlockParticipantResult(false, "Participant couldn't be subscribed in Nems");
         }
 
-
+        _logger.LogInformation("Participant has been unblocked");
         return new BlockParticipantResult(true, "Participant Unblocked");
 
 
