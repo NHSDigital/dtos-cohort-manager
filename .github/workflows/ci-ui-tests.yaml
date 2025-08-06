@@ -1,10 +1,6 @@
 name: UI Tests
 
 on:
-  push:
-    paths:
-      - "application/CohortManager/src/Web/**"
-    branches: [main]
   pull_request:
     paths:
       - "application/CohortManager/src/Web/**"
@@ -35,6 +31,12 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      # <-- ADD THIS DEBUG STEP HERE
+      - name: Debug AUTH_SECRET
+        run: echo "AUTH_SECRET is set: ${AUTH_SECRET:+yes}"
+        env:
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+
       - name: Start application and run tests
         env:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
@@ -53,8 +55,20 @@ jobs:
           done
 
           # Run the tests
-          npx bddgen
-          npx playwright test
+          npm run test:e2e
+
+      - name: run epic 4a tests
+        env:
+          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+          SERVICE_NAME: ${{ vars.SERVICE_NAME }}
+          NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
+          EXCEPTIONS_API_URL: ${{ vars.EXCEPTIONS_API_URL }}
+          COHORT_MANAGER_USERS: ${{ vars.COHORT_MANAGER_USERS }}
+        run: |
+
+
+          # Run the tests
+          npm run test:e2e:epic_4a
 
       - name: Upload test results
         if: always()

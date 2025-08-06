@@ -1,0 +1,57 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9997615018,
+        "BlockedFlag": 1,
+        "expectedCount": 1,
+        "RecordType": "DELETE",
+        "EligibilityFlag": 1,
+        "ExceptionFlag": 0
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NHSNumber": 9997615018,
+        "expectedCount": 1,
+        "Category": "CaaS",
+        "RuleDescription": "Unable to process participant record. Participant is marked as blocked."
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9997615018,
+        "expectedCount": 0
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "DELETE",
+      "change_time_stamp": null,
+      "serial_change_number": 1,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "E85121",
+      "primary_care_effective_from_date": "20240101",
+      "current_posting": "BD",
+      "current_posting_effective_from_date": "20240101",
+      "nhs_number": 9997615018,
+      "family_name": "BLOCKEDDELETE",
+      "given_name": "BLOCKEDDELETE",
+      "date_of_birth": "19700101",
+      "gender": "1",
+      "postcode": "LS1 1AA",
+      "ethnic_group": "A",
+      "ethnic_category": "A",
+      "gp_practice": "E85121",
+      "gp_effective_from_date": "20240101",
+      "gp_effective_to_date": null
+    }
+  ],
+  "nhsNumbers": [
+    "9997615018"
+  ]
+}

@@ -1,11 +1,13 @@
 namespace NHS.CohortManager.CohortDistributionServices;
 
 using System.Text.Json;
+using Common;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.Enums;
 
 public class DistributeParticipantActivities
 {
@@ -77,6 +79,11 @@ public class DistributeParticipantActivities
     [Function(nameof(AllocateServiceProvider))]
     public async Task<string> AllocateServiceProvider([ActivityTrigger] Participant participant)
     {
+        if (string.IsNullOrEmpty(participant.Postcode) || string.IsNullOrEmpty(participant.ScreeningAcronym))
+        {
+            return EnumHelper.GetDisplayName(ServiceProvider.BSS);
+        }
+
         string configFilePath = Path.Combine(Environment.CurrentDirectory, "AllocateServiceProvider", "allocationConfig.json");
         string configFile = await File.ReadAllTextAsync(configFilePath);
 

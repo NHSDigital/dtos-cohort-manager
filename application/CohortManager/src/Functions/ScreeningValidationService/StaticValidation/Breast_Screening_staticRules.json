@@ -1,6 +1,6 @@
 [
   {
-    "WorkflowName": "Common",
+    "WorkflowName": "Routine_Common",
     "Rules": [
       {
         "RuleName": "8.RecordType.CaaS.NonFatal",
@@ -15,18 +15,6 @@
         }
       },
       {
-        "RuleName": "30.Postcode.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR ValidationHelper.ValidatePostcode(participant.Postcode)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Postcode invalid\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "3.PrimaryCareProviderAndReasonForRemoval.NBO.NonFatal",
         "Expression": "(string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR (!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval))",
         "Actions": {
@@ -34,6 +22,99 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"GP practice code and Reason for Removal fields contain incompatible values\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "47.NewParticipantWithRemovalOrDeath.NBO.NonFatal",
+        "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Removal fields incompatible with record type\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "62.ValidateReasonForRemoval.NBO.NonFatal",
+        "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Reason for removal and superseded NHS ID values incompatible\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NBO.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "currentPosting",
+            "Expression": "participant.CurrentPosting"
+          },
+          {
+            "Name": "primaryCareProvider",
+            "Expression": "participant.PrimaryCareProvider"
+          }
+        ],
+        "Expression": "!(string.IsNullOrEmpty(currentPosting) AND !string.IsNullOrEmpty(primaryCareProvider))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Current posting and Primary Care provider contain incompatible values\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "94.EligibilityFlag.CaaS.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "newRecordType",
+            "Expression": "participant.RecordType == Actions.New"
+          },
+          {
+            "Name": "validNewEligibilityFlag",
+            "Expression": "participant.EligibilityFlag != \"0\""
+          },
+          {
+            "Name": "amendRecordType",
+            "Expression": "participant.RecordType == Actions.Amended"
+          },
+          {
+            "Name": "validAmendEligibilityFlag",
+            "Expression": "(participant.EligibilityFlag == \"1\") OR (participant.EligibilityFlag == \"0\")"
+          }
+        ],
+        "Expression": "(newRecordType AND validNewEligibilityFlag) OR (amendRecordType AND validAmendEligibilityFlag)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid eligibility flag.\""
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Common",
+    "Rules": [
+      {
+        "RuleName": "30.Postcode.NBO.NonFatal",
+        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR ValidationHelper.ValidatePostcode(participant.Postcode)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Postcode invalid\""
             }
           }
         }
@@ -87,18 +168,6 @@
         }
       },
       {
-        "RuleName": "47.NewParticipantWithRemovalOrDeath.NBO.NonFatal",
-        "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Removal fields incompatible with record type\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "49.InterpreterCheck.NBO.NonFatal",
         "Expression": "int.Parse(participant.IsInterpreterRequired) != 0 OR int.Parse(participant.IsInterpreterRequired) != 1",
         "Actions": {
@@ -106,78 +175,6 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Interpreter required does not contain a valid value\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "62.ValidateReasonForRemoval.NBO.NonFatal",
-        "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Reason for removal and superseded NHS ID values incompatible\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NBO.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "currentPosting",
-            "Expression": "participant.CurrentPosting"
-          },
-          {
-            "Name": "primaryCareProvider",
-            "Expression": "participant.PrimaryCareProvider"
-          }
-        ],
-        "Expression": "!(string.IsNullOrEmpty(currentPosting) AND !string.IsNullOrEmpty(primaryCareProvider))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Current posting and Primary Care provider contain incompatible values\""
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "94.EligibilityFlag.CaaS.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "newRecordType",
-            "Expression": "participant.RecordType == Actions.New"
-          },
-          {
-            "Name": "validNewEligibilityFlag",
-            "Expression": "participant.EligibilityFlag != \"0\""
-          },
-          {
-            "Name": "delRecordType",
-            "Expression": "participant.RecordType == Actions.Removed"
-          },
-          {
-            "Name": "validDelEligibilityFlag",
-            "Expression": "participant.EligibilityFlag != \"1\""
-          },
-          {
-            "Name": "amendRecordType",
-            "Expression": "participant.RecordType == Actions.Amended"
-          },
-          {
-            "Name": "validAmendEligibilityFlag",
-            "Expression": "(participant.EligibilityFlag == \"1\") OR (participant.EligibilityFlag == \"0\")"
-          }
-        ],
-        "Expression": "(newRecordType AND validNewEligibilityFlag) OR (delRecordType AND validDelEligibilityFlag) OR (amendRecordType AND validAmendEligibilityFlag)",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Invalid eligibility flag.\""
             }
           }
         }
@@ -226,6 +223,23 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Invalid death status\""
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "DEL",
+    "Rules": [
+      {
+        "RuleName": "94.EligibilityFlag.CaaS.NonFatal",
+        "Expression": "participant.EligibilityFlag == \"0\"",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid eligibility flag.\""
             }
           }
         }

@@ -32,12 +32,15 @@ services:
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - nemsmeshfolder_STORAGE=${AZURITE_CONNECTION_STRING}
-      - MeshApiBaseUrl=https://localhost:8700/messageexchange
-      - BSSMailBox=X26ABC1
-      - MeshPassword=${MESHPASSWORD}
-      - MeshSharedKey=${MESHSHAREDKEY}
-      - MeshKeyName=meshpfx.pfx
-      - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
+      - NemsMeshApiBaseUrl=https://localhost:8700/messageexchange
+      - NemsMeshMailBox=${NEMS_MESH_MAILBOX}
+      - NemsMeshPassword=${NEMS_MESH_PASSWORD}
+      - NemsMeshSharedKey=${NEMS_MESH_SHARED_KEY}
+      - NemsMeshKeyName=nemsmeshpfx.pfx
+      - NemsMeshKeyPassphrase=${NEMS_MESH_KEY_PASSPHRASE}
+      - NemsMeshBypassServerCertificateValidation=true
+      - NemsMeshInboundContainer=nems-updates
+      - NemsMeshConfigContainer=nems-config
       - ASPNETCORE_URLS=http://*:7058
 
   process-nems-update:
@@ -99,6 +102,24 @@ services:
       - ManageParticipantSubscription=manage-participant-sub
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+
+  manage-servicenow-participant:
+    container_name: manage-servicenow-participant
+    image: cohort-manager-manage-servicenow-participant
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: ParticipantManagementServices/ManageServiceNowParticipant/Dockerfile
+    profiles: [non-essential]
+    environment:
+      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ServiceNowParticipantManagementTopic=servicenow-participant-management-topic
+      - ManageServiceNowParticipantSubscription=manage-servicenow-participant-sub
+      - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
+      - SendServiceNowMessageURL=http://servicenow-message-handler:9092/api/servicenow/send
+      - ParticipantManagementURL=http://participant-management-data-service:7994/api/ParticipantManagementDataService
 
   update-blocked-flag:
     container_name: update-blocked-flag
@@ -287,9 +308,11 @@ services:
       - ASPNETCORE_URLS=http://*:9092
       - ServiceNowRefreshAccessTokenUrl=https://nhsdigitaldev.service-now.com/oauth_token.do
       - ServiceNowUpdateUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate
+      - ServiceNowResolutionUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution
       - ServiceNowClientId=${SERVICENOW_CLIENT_ID}
       - ServiceNowClientSecret=${SERVICENOW_CLIENT_SECRET}
       - ServiceNowRefreshToken=${SERVICENOW_REFRESH_TOKEN}
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
     ports:
       - "9092:9092"
 

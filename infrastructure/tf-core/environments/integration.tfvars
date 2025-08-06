@@ -320,7 +320,7 @@ function_apps = {
       function_endpoint_name       = "ProcessNemsUpdate"
       app_service_plan_key         = "DefaultPlan"
       key_vault_url                = "KeyVaultConnectionString"
-      storage_account_env_var_name = "caasfolder_STORAGE"
+      storage_account_env_var_name = "nemsmeshfolder_STORAGE"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -338,7 +338,7 @@ function_apps = {
       storage_containers = [
         {
           env_var_name   = "NemsMessages"
-          container_name = "nems-messages"
+          container_name = "nems-updates"
         }
       ]
       env_vars_static = {
@@ -397,8 +397,8 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        ServiceNowParticipantManagementTopic    = "servicenow-participant-manage" # Subscribes to the servicenow participant manage topic
-        ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"   # Subscribes to the servicenow participant manage topic
+        ServiceNowParticipantManagementTopic    = "servicenow-participant-management" # Subscribes to the servicenow participant management topic
+        ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"       # Subscribes to the servicenow participant management topic
       }
     }
 
@@ -498,10 +498,6 @@ function_apps = {
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "RemoveOldValidationRecord"
-          function_app_key = "RemoveValidationExceptionData"
         }
       ]
       storage_containers = [
@@ -651,6 +647,10 @@ function_apps = {
         {
           env_var_name     = "TransformDataServiceURL"
           function_app_key = "TransformDataService"
+        },
+        {
+          env_var_name     = "RemoveOldValidationRecordUrl"
+          function_app_key = "RemoveValidationExceptionData"
         }
       ]
       env_vars_static = {
@@ -844,8 +844,10 @@ function_apps = {
       app_service_plan_key   = "DefaultPlan"
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
-        ServiceNowRefreshAccessTokenUrl = "https://nhsdigitaldev.service-now.com/oauth_token.do"
-        ServiceNowUpdateUrl             = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+        ServiceNowRefreshAccessTokenUrl      = "https://nhsdigitaldev.service-now.com/oauth_token.do"
+        ServiceNowUpdateUrl                  = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+        ServiceNowResolutionUrl              = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution"
+        ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
 
@@ -938,11 +940,11 @@ function_apps = {
       ]
       env_vars_static = {
         RetrievePdsParticipantURL = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
-        Kid                       = "RetrievePdsDemographic-INT1"
+        Kid                       = "RetrievePdsDemographic-test1"
         Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
         AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
-        ClientId                  = ""
-        PrivateKey                = ""
+        KeyNamePrivateKey         = "PDSPRIVATEKEY"
+        UseFakePDSServices        = "false"
       }
     }
 
@@ -1022,7 +1024,9 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
+        NemsMeshCertName         = "NemsMeshCert"
+        NemsMeshInboundContainer = "nems-updates"
+        NemsMeshConfigContainer  = "nems-config"
       }
     }
 
@@ -1113,7 +1117,7 @@ frontdoor_endpoint = {
     }
     security_policies = {
       AllowedIPs = {
-        cdn_frontdoor_firewall_policy_name    = "wafhubnonliveinternalwhitelist"
+        cdn_frontdoor_firewall_policy_name    = "wafhubnonlivecohmanint"
         cdn_frontdoor_firewall_policy_rg_name = "rg-hub-dev-uks-hub-networking"
         associated_domain_keys                = ["cohort-int"] # From custom_domains above. Use "endpoint" for the default domain (if linked in Front Door route).
       }
@@ -1214,6 +1218,12 @@ storage_accounts = {
       }
       inbound-poison = {
         container_name = "inbound-poison"
+      }
+      nems-updates = {
+        container_name = "nems-updates"
+      }
+      nems-config = {
+        container_name = "nems-config"
       }
     }
   }

@@ -11,7 +11,8 @@ using System.Threading.Tasks;
 using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using System.Text;
-using ServiceLayer.TestUtilities;
+using NHS.CohortManager.Tests.TestUtils;
+
 using Microsoft.Extensions.Logging;
 using Data.Database;
 
