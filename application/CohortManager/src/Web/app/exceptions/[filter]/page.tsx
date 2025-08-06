@@ -4,6 +4,7 @@ import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
 import { fetchExceptionsRaisedSorted } from "@/app/lib/fetchExceptions";
 import ExceptionsTable from "@/app/components/exceptionsTable";
+import SortExceptionsForm from "@/app/components/sortExceptionsForm";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
@@ -27,6 +28,17 @@ export default async function Page({
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
+
+  const sortOptions = [
+    {
+      value: "0",
+      label: "Status last updated (most recent first)",
+    },
+    {
+      value: "1",
+      label: "Status last updated (oldest first)",
+    },
+  ];
 
   try {
     const exceptions = await fetchExceptionsRaisedSorted(sortBy);
@@ -60,39 +72,12 @@ export default async function Page({
               </h1>
 
               <div className="app-form-results-container">
-                <form method="GET">
-                  <div className="nhsuk-form-group app-form-group--inline">
-                    <label className="nhsuk-label" htmlFor="sort-exceptions">
-                      Sort{" "}
-                      <span className="nhsuk-u-visually-hidden">
-                        raised exceptions{" "}
-                      </span>{" "}
-                      by
-                    </label>
-                    <div className="form-inline-row">
-                      <select
-                        className="nhsuk-select"
-                        id="sort-exceptions"
-                        name="sortBy"
-                        defaultValue={String(sortBy)}
-                      >
-                        <option value="0">
-                          Status last updated (most recent first)
-                        </option>
-                        <option value="1">
-                          Status last updated (oldest first)
-                        </option>
-                      </select>
-                      <button
-                        className="nhsuk-button app-button--small"
-                        data-module="nhsuk-button"
-                        type="submit"
-                      >
-                        Apply
-                      </button>
-                    </div>
-                  </div>
-                </form>
+                <SortExceptionsForm
+                  sortBy={sortBy}
+                  options={sortOptions}
+                  hiddenText="raised exceptions"
+                  testId="sort-raised-exceptions"
+                />
                 <p
                   className="app-results-text"
                   data-testid="raised-exception-count"
