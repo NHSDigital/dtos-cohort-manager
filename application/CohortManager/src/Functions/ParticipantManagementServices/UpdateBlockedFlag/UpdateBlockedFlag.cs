@@ -9,12 +9,15 @@ using Common;
 using System.Net;
 using Model;
 using System.Text.Json;
+using System.Reflection.Metadata;
 
 public class UpdateBlockedFlag
 {
     private readonly ILogger<UpdateBlockedFlag> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IBlockParticipantHandler _blockParticipantHandler;
+
+    private const string cannotBeDeserializedMessage = "Participant Block Dto couldn't be deserialized";
 
 
     public UpdateBlockedFlag(ILogger<UpdateBlockedFlag> logger, ICreateResponse createResponse, IBlockParticipantHandler blockParticipantHandler)
@@ -59,12 +62,12 @@ public class UpdateBlockedFlag
         }
         catch (JsonException jex)
         {
-            _logger.LogError(jex, "Participant Block Dto couldn't be deserialized");
+            _logger.LogError(jex, cannotBeDeserializedMessage);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (FormatException fex)
         {
-            _logger.LogError(fex, "Participant Block Dto couldn't be deserialized");
+            _logger.LogError(fex, cannotBeDeserializedMessage);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
@@ -89,17 +92,17 @@ public class UpdateBlockedFlag
 
             var getParticipantResult = await _blockParticipantHandler.GetParticipant(blockParticipantDTO);
 
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, getParticipantResult.ResponseMessage);
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, getParticipantResult.ResponseMessage!);
 
         }
         catch (JsonException jex)
         {
-            _logger.LogError(jex, "Participant Block Dto couldn't be deserialized");
+            _logger.LogError(jex, cannotBeDeserializedMessage);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (FormatException fex)
         {
-            _logger.LogError(fex, "Participant Block Dto couldn't be deserialized");
+            _logger.LogError(fex, cannotBeDeserializedMessage);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
@@ -140,7 +143,7 @@ public class UpdateBlockedFlag
 
         if (!unBlockParticipantResult.Success)
         {
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, unBlockParticipantResult.ResponseMessage);
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, unBlockParticipantResult.ResponseMessage!);
         }
 
         return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, "Participant successfully unblocked");
