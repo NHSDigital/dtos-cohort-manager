@@ -14,6 +14,7 @@ using NHS.CohortManager.ParticipantManagementService;
 using RulesEngine.Models;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Options;
+using System.Text.Json;
 
 [TestClass]
 public class UpdateBlockedFlagTests
@@ -27,6 +28,8 @@ public class UpdateBlockedFlagTests
     private readonly BlockParticipantHandler _blockParticipantHandler;
     private readonly Mock<IHttpClientFunction> _mockHttpClient = new();
     private readonly Mock<IOptions<UpdateBlockedFlagConfig>> _mockConfig = new();
+    private Mock<HttpRequestData> _request;
+    private readonly SetupRequest _setupRequest = new();
 
     public UpdateBlockedFlagTests()
     {
@@ -42,6 +45,45 @@ public class UpdateBlockedFlagTests
         _blockParticipantHandler = new BlockParticipantHandler(_mockHandlerLogger.Object, _mockParticipantManagementClient.Object, _mockParticipantDemographicClient.Object, _mockHttpClient.Object, _mockConfig.Object);
         _sut = new UpdateBlockedFlag(_mockUpdateBlockedFlagLogger.Object, _mockCreateResponse.Object, _blockParticipantHandler);
     }
+
+    [TestMethod]
+    public async Task BlockParticipant_ExistingParticipant_ReturnsSuccess()
+    {
+        //arrange
+        var requestBody = new BlockParticipantDto
+        {
+            NhsNumber = 6427635034,
+            FamilyName = "Jones",
+            DateOfBirth = "1923-10-12"
+        };
+
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(requestBody));
+
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync(new ParticipantManagement
+            {
+                NHSNumber = 6427635034,
+                BlockedFlag = 0,
+
+            });
+
+        _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>()))
+            .ReturnsAsync(true);
+        _mockHttpClient.Setup(x => x.SendPost("NemsUnsubscribeUrl", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK
+            });
+
+
+        //act
+        var result = await _sut.BlockParticipant(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+    }
+
 
 
 }
