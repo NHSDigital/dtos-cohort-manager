@@ -58,13 +58,49 @@ export default async function Page({
               <h1 data-testid="heading-not-raised">
                 Not raised breast screening exceptions
               </h1>
-              <p
-                className="nhsuk-u-text-align-right"
-                data-testid="not-raised-exception-count"
-              >
-                Showing {exceptionDetails.length} of {exceptions.TotalItems}{" "}
-                results
-              </p>
+
+              <div className="app-form-results-container">
+                <form method="GET">
+                  <div className="nhsuk-form-group app-form-group--inline">
+                    <label className="nhsuk-label" htmlFor="sort-exceptions">
+                      Sort{" "}
+                      <span className="nhsuk-u-visually-hidden">
+                        not raised exceptions{" "}
+                      </span>{" "}
+                      by
+                    </label>
+                    <div className="form-inline-row">
+                      <select
+                        className="nhsuk-select"
+                        id="sort-exceptions"
+                        name="sortBy"
+                        defaultValue={String(sortBy)}
+                      >
+                        <option value="0">
+                          Date exception created (newest first)
+                        </option>
+                        <option value="1">
+                          Date exception created (oldest first)
+                        </option>
+                      </select>
+                      <button
+                        className="nhsuk-button app-button--small"
+                        data-module="nhsuk-button"
+                        type="submit"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                </form>
+                <p
+                  className="app-results-text"
+                  data-testid="not-raised-exception-count"
+                >
+                  Showing {exceptionDetails.length} of {exceptions.TotalItems}{" "}
+                  results
+                </p>
+              </div>
               <div className="nhsuk-card">
                 <div className="nhsuk-card__content">
                   <ExceptionsTable exceptions={exceptionDetails} />
