@@ -835,10 +835,11 @@ function_apps = {
     }
 
     ServiceNowMessageHandler = {
-      name_suffix            = "servicenow-message-handler"
-      function_endpoint_name = "ServiceNowMessageHandler"
-      app_service_plan_key   = "DefaultPlan"
-      key_vault_url          = "KeyVaultConnectionString"
+      name_suffix             = "servicenow-message-handler"
+      function_endpoint_name  = "ServiceNowMessageHandler"
+      app_service_plan_key    = "DefaultPlan"
+      key_vault_url           = "KeyVaultConnectionString"
+      service_bus_connections = ["internal"]
       env_vars_static = {
         ServiceNowRefreshAccessTokenUrl      = "" # TODO: Get value
         ServiceNowUpdateUrl                  = "" # TODO: Get value

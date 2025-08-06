@@ -844,10 +844,11 @@ function_apps = {
     }
 
     ServiceNowMessageHandler = {
-      name_suffix            = "servicenow-message-handler"
-      function_endpoint_name = "ServiceNowMessageHandler"
-      app_service_plan_key   = "DefaultPlan"
-      key_vault_url          = "KeyVaultConnectionString"
+      name_suffix             = "servicenow-message-handler"
+      function_endpoint_name  = "ServiceNowMessageHandler"
+      app_service_plan_key    = "DefaultPlan"
+      key_vault_url           = "KeyVaultConnectionString"
+      service_bus_connections = ["internal"]
       env_vars_static = {
         ServiceNowRefreshAccessTokenUrl      = "https://nhsdigitaldev.service-now.com/oauth_token.do"
         ServiceNowUpdateUrl                  = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
