@@ -12,6 +12,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using Model;
+using System.Net.Http.Json;
+using Hl7.Fhir.Support;
 
 public class RetrievePdsDemographic
 {
@@ -71,12 +73,8 @@ public class RetrievePdsDemographic
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                var demographicRecordDeletedFromDatabase = await DeleteDemographicRecord(nhsNumber);
-                if (!demographicRecordDeletedFromDatabase)
-                {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "could not delete record from database. See logs for more details.");
-                }
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Record not found in PDS and successfully removed from cohort manager database.");
+                var pdsErrorResponse = await response.Content.ReadAsStringAsync();
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, pdsErrorResponse);
             }
 
             response.EnsureSuccessStatusCode();

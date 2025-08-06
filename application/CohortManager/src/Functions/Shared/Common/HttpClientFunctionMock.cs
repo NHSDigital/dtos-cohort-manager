@@ -100,4 +100,8 @@ public class HttpClientFunctionMock : IHttpClientFunction
         return HttpResponseData;
     }
 
+    public Task<HttpResponseMessage> GetPDSRecord(string url, Dictionary<string, string> parameters)
+    {
+        throw new NotImplementedException();
+    }
 }
