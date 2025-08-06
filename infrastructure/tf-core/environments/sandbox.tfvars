@@ -408,7 +408,7 @@ function_apps = {
         {
           env_var_name     = "SendServiceNowMessageURL"
           function_app_key = "ServiceNowMessageHandler"
-          endpoint_name    = "SendServiceNowMessage"
+          endpoint_name    = "servicenow/send"
         },
         {
           env_var_name     = "ParticipantManagementURL"
