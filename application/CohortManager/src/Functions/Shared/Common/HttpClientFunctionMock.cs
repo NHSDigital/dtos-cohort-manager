@@ -13,7 +13,11 @@ public class HttpClientFunctionMock : IHttpClientFunction
     public async Task<HttpResponseMessage> SendPost(string url, string data)
     {
         await Task.CompletedTask;
-        return HTTPStubUtilities.CreateFakeHttpResponse(url,"");
+        return HttpStubUtilities.CreateFakeHttpResponse(url,"");
+    }
+    public Task<HttpResponseMessage> SendPost(string url, Dictionary<string, string> parameters)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
@@ -38,7 +42,7 @@ public class HttpClientFunctionMock : IHttpClientFunction
     {
         var patient = GetPatientMockObject("complete-patient.json");
         await Task.CompletedTask;
-        return HTTPStubUtilities.CreateFakeHttpResponse(url, patient);
+        return HttpStubUtilities.CreateFakeHttpResponse(url, patient);
     }
 
     private static string GetPatientMockObject(string filename)
@@ -59,7 +63,7 @@ public class HttpClientFunctionMock : IHttpClientFunction
     public async Task<HttpResponseMessage> SendPut(string url, string data)
     {
         await Task.CompletedTask;
-        return HTTPStubUtilities.CreateFakeHttpResponse(url,"");
+        return HttpStubUtilities.CreateFakeHttpResponse(url,"");
     }
 
     public async Task<bool> SendDelete(string url)
@@ -79,8 +83,4 @@ public class HttpClientFunctionMock : IHttpClientFunction
         throw new NotImplementedException();
     }
 
-    public Task<HttpResponseMessage> SendPost(string url, Dictionary<string, string> parameters)
-    {
-        throw new NotImplementedException();
-    }
 }

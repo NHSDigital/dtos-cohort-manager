@@ -44,14 +44,14 @@ public class StubbedNemsHttpClientFunction : INemsHttpClientFunction
     public async Task<HttpResponseMessage> SendSubscriptionDelete(NemsSubscriptionRequest request, int timeoutSeconds = 300)
     {
         await Task.CompletedTask;
-        return HTTPStubUtilities.CreateFakeHttpResponse(request.Url, "");
+        return HttpStubUtilities.CreateFakeHttpResponse(request.Url, "");
     }
 
     public async Task<HttpResponseMessage> SendSubscriptionPost(NemsSubscriptionPostRequest request, int timeoutSeconds = 300)
     {
         await Task.CompletedTask;
         string subId = $"https://clinicals.spineservices.nhs.uk/STU3/Subscription/{Guid.NewGuid():N}";
-        return HTTPStubUtilities.CreateFakeHttpResponse(request.Url, "", System.Net.HttpStatusCode.OK, new Uri(subId));
+        return HttpStubUtilities.CreateFakeHttpResponse(request.Url, "", System.Net.HttpStatusCode.OK, new Uri(subId));
 
     }
 }

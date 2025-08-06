@@ -2,7 +2,7 @@ namespace Common;
 
 using System.Net;
 
-public static class HTTPStubUtilities
+public static class HttpStubUtilities
 {
     /// <summary>
     /// takes in a fake string content and returns 200 OK response or a Given Response
