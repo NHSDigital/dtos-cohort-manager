@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.ParticipantManagementService;
 
 using System;
+using System.Globalization;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
@@ -229,12 +230,12 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     private static bool ValidateRecordsMatch(ParticipantDemographic participant, BlockParticipantDto dto)
     {
 
-        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd", out var dtoDateOfBirth))
+        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd",new CultureInfo("en-GB"),DateTimeStyles.None, out var dtoDateOfBirth ))
         {
             throw new FormatException("Date of Birth not in the correct format");
         }
 
-        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd", out var parsedDob))
+        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd",new CultureInfo("en-GB"),DateTimeStyles.None, out var parsedDob))
         {
             return false;
         }

@@ -44,13 +44,18 @@ public class UpdateBlockedFlag
         {
             var blockParticipantDTO = await req.ReadFromJsonAsync<BlockParticipantDto>();
 
+            if (blockParticipantDTO == null)
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Unable to parse request");
+            }
+
             var blockParticipantResult = await _blockParticipantHandler.BlockParticipant(blockParticipantDTO);
 
             if (blockParticipantResult.Success)
             {
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, blockParticipantResult.ResponseMessage);
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, blockParticipantResult.ResponseMessage!);
             }
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, blockParticipantResult.ResponseMessage);
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, blockParticipantResult.ResponseMessage!);
         }
         catch (JsonException jex)
         {
@@ -76,6 +81,12 @@ public class UpdateBlockedFlag
         try
         {
             var blockParticipantDTO = await req.ReadFromJsonAsync<BlockParticipantDto>();
+
+            if (blockParticipantDTO == null)
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Unable to parse request");
+            }
+
             var getParticipantResult = await _blockParticipantHandler.GetParticipant(blockParticipantDTO);
 
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, getParticipantResult.ResponseMessage);
