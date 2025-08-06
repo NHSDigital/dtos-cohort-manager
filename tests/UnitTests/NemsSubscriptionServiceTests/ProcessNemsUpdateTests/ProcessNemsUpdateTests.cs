@@ -420,7 +420,6 @@ public class ProcessNemsUpdateTests
         _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
             .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = supersededNhsNumber }));
 
-        // Mock the participant demographic check to return null (participant doesn't exist)
         _participantDemographicMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
             .ReturnsAsync((ParticipantDemographic)null);
 
@@ -431,13 +430,11 @@ public class ProcessNemsUpdateTests
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
         _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
-        //participant demographic check
         _participantDemographicMock.Verify(x => x.GetSingleByFilter(
             It.Is<Expression<Func<ParticipantDemographic, bool>>>(expr =>
                 expr.Compile()(new ParticipantDemographic { NhsNumber = long.Parse(_validNhsNumber) }))),
             Times.Once);
 
-        // Verify logging for new participant case
         _loggerMock.Verify(x => x.Log(
             LogLevel.Warning,
             It.IsAny<EventId>(),
@@ -446,7 +443,6 @@ public class ProcessNemsUpdateTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
 
-        // Verify the record type was set to New
         _addBatchToQueueMock.Verify(x => x.ProcessBatch(
             It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
                 q.Any(r => r.Participant.RecordType == Actions.New)),
@@ -494,7 +490,6 @@ public class ProcessNemsUpdateTests
         _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
             .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = supersededNhsNumber }));
 
-        // Mock the participant demographic check to return an existing participant
         var existingParticipant = new ParticipantDemographic { NhsNumber = long.Parse(_validNhsNumber) };
         _participantDemographicMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
             .ReturnsAsync(existingParticipant);
@@ -506,13 +501,11 @@ public class ProcessNemsUpdateTests
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
         _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
-        // Verify participant demographic check was called
         _participantDemographicMock.Verify(x => x.GetSingleByFilter(
             It.Is<Expression<Func<ParticipantDemographic, bool>>>(expr =>
                 expr.Compile()(existingParticipant))),
             Times.Once);
 
-        // Verify logging for EXISTING participant case
         _loggerMock.Verify(x => x.Log(
             LogLevel.Warning,
             It.IsAny<EventId>(),
@@ -521,14 +514,12 @@ public class ProcessNemsUpdateTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
 
-        // Verify the record type was set to Amended (not New)
         _addBatchToQueueMock.Verify(x => x.ProcessBatch(
             It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
                 q.Any(r => r.Participant.RecordType == Actions.Amended)),
             It.IsAny<string>()),
         Times.Once);
 
-        // Verify superseded record processing
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
             It.IsAny<EventId>(),
@@ -537,7 +528,6 @@ public class ProcessNemsUpdateTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
 
-        // Verify NEMS unsubscribe
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
             It.IsAny<EventId>(),
@@ -549,7 +539,6 @@ public class ProcessNemsUpdateTests
         _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
         _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
 
-        // Verify exception handler was called for superseded case
         _exceptionHandlerMock.Verify(
             x => x.CreateTransformExecutedExceptions(
                 It.Is<CohortDistributionParticipant>(p =>

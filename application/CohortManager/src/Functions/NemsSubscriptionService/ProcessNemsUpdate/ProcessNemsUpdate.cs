@@ -69,7 +69,6 @@ public class ProcessNemsUpdate
                 return;
             }
 
-            //Validate NHS Number
             if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 throw new InvalidDataException("Invalid NHS Number");
@@ -183,7 +182,6 @@ public class ProcessNemsUpdate
 
         // TODO validate all dates in record before enqueuing
 
-        // Check participant exists in Participant Demographic table.
         var existingParticipant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);
         if (existingParticipant == null)
         {
