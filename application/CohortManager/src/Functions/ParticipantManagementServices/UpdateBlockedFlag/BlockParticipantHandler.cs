@@ -29,7 +29,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
         _config = config.Value;
     }
 
-    public async Task<BlockParticipantResult> BlockParticipant(BlockParticipantDTO blockParticipantRequest)
+    public async Task<BlockParticipantResult> BlockParticipant(BlockParticipantDto blockParticipantRequest)
     {
         if (!ValidationHelper.ValidateNHSNumber(blockParticipantRequest.NhsNumber.ToString()))
         {
@@ -60,7 +60,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             return new BlockParticipantResult(false, "Participant Didn't pass three point check");
         }
 
-         _logger.LogInformation("Participant has been blocked");
+        _logger.LogInformation("Participant has been blocked");
         return await BlockExistingParticipant(participantManagementRecord);
 
 
@@ -107,49 +107,49 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
     }
 
-    public async Task<BlockParticipantResult> GetParticipant(BlockParticipantDTO dto)
+    public async Task<BlockParticipantResult> GetParticipant(BlockParticipantDto blockParticipantRequest)
     {
 
-        if (!ValidationHelper.ValidateNHSNumber(dto.NhsNumber.ToString()))
+        if (!ValidationHelper.ValidateNHSNumber(blockParticipantRequest.NhsNumber.ToString()))
         {
             _logger.LogWarning("Participant had an invalid NHS Number and cannot be blocked");
             return new BlockParticipantResult(false, "Invalid NHS Number");
         }
 
-        var participantDemographic = await _participantDemographicDataService.GetSingleByFilter(x => x.NhsNumber == dto.NhsNumber);
+        var participantDemographic = await _participantDemographicDataService.GetSingleByFilter(x => x.NhsNumber == blockParticipantRequest.NhsNumber);
 
         if (participantDemographic != null)
         {
-            var recordsMatch = ValidateRecordsMatch(participantDemographic, dto);
-            var responseBody = JsonSerializer.Serialize(new BlockParticipantDTO
+            var recordsMatch = ValidateRecordsMatch(participantDemographic, blockParticipantRequest);
+            var responseBody = JsonSerializer.Serialize(new BlockParticipantDto
             {
                 NhsNumber = participantDemographic.NhsNumber,
-                FamilyName = participantDemographic.FamilyName,
-                DateOfBirth = participantDemographic.DateOfBirth,
+                FamilyName = participantDemographic.FamilyName!,
+                DateOfBirth = participantDemographic.DateOfBirth!,
             });
             return new BlockParticipantResult(recordsMatch, responseBody);
         }
 
-        var pdsParticipant = await GetPDSParticipant(dto.NhsNumber);
+        var pdsParticipant = await GetPDSParticipant(blockParticipantRequest.NhsNumber);
 
         if (pdsParticipant == null)
         {
             return new BlockParticipantResult(false, "Participant Couldn't be found");
         }
 
-        var pdsRecordsMatch = ValidateRecordsMatch(pdsParticipant, dto);
-        var pdsResponseBody = JsonSerializer.Serialize(new BlockParticipantDTO
+        var pdsRecordsMatch = ValidateRecordsMatch(pdsParticipant, blockParticipantRequest);
+        var pdsResponseBody = JsonSerializer.Serialize(new BlockParticipantDto
         {
             NhsNumber = pdsParticipant.NhsNumber,
-            FamilyName = pdsParticipant.FamilyName,
-            DateOfBirth = participantDemographic.DateOfBirth
+            FamilyName = pdsParticipant.FamilyName!,
+            DateOfBirth = pdsParticipant.DateOfBirth!
         });
 
         return new BlockParticipantResult(pdsRecordsMatch, pdsResponseBody);
 
     }
 
-    private async Task<BlockParticipantResult> BlockNewParticipant(BlockParticipantDTO blockParticipantRequest)
+    private async Task<BlockParticipantResult> BlockNewParticipant(BlockParticipantDto blockParticipantRequest)
     {
         var pdsParticipant = await GetPDSParticipant(blockParticipantRequest.NhsNumber);
 
@@ -223,10 +223,10 @@ public class BlockParticipantHandler : IBlockParticipantHandler
         var pdsResponse = await _httpClient.SendGet(_config.RetrievePdsDemographicURL, CreateNhsNumberQueryParams(nhsNumber));
         var pdsDemographic = JsonSerializer.Deserialize<ParticipantDemographic>(pdsResponse);
 
-        return pdsDemographic;
+        return pdsDemographic!;
     }
 
-    private static bool ValidateRecordsMatch(ParticipantDemographic participant, BlockParticipantDTO dto)
+    private static bool ValidateRecordsMatch(ParticipantDemographic participant, BlockParticipantDto dto)
     {
 
         if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd", out var dtoDateOfBirth))
@@ -248,11 +248,5 @@ public class BlockParticipantHandler : IBlockParticipantHandler
         {
             {"nhsNumber",nhsNumber.ToString()}
         };
-
-
-
-
-
-
 
 }

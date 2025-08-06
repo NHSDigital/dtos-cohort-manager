@@ -1,6 +1,6 @@
 namespace NHS.CohortManager.ParticipantManagementService;
 
-public class BlockParticipantDTO
+public class BlockParticipantDto
 {
     public required long NhsNumber { get; set; }
     public required string DateOfBirth { get; set; }

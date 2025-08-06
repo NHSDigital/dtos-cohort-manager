@@ -42,7 +42,7 @@ public class UpdateBlockedFlag
         _logger.LogInformation("Block Participant Called");
         try
         {
-            var blockParticipantDTO = await req.ReadFromJsonAsync<BlockParticipantDTO>();
+            var blockParticipantDTO = await req.ReadFromJsonAsync<BlockParticipantDto>();
 
             var blockParticipantResult = await _blockParticipantHandler.BlockParticipant(blockParticipantDTO);
 
@@ -75,7 +75,7 @@ public class UpdateBlockedFlag
         _logger.LogInformation("Get Participant Details Called");
         try
         {
-            var blockParticipantDTO = await req.ReadFromJsonAsync<BlockParticipantDTO>();
+            var blockParticipantDTO = await req.ReadFromJsonAsync<BlockParticipantDto>();
             var getParticipantResult = await _blockParticipantHandler.GetParticipant(blockParticipantDTO);
 
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, getParticipantResult.ResponseMessage);
