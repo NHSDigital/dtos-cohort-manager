@@ -78,6 +78,11 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
         var participantManagementRecord = await _participantManagementDataService.GetSingleByFilter(x => x.NHSNumber == nhsNumber);
 
+        if (participantManagementRecord == null)
+        {
+            return new BlockParticipantResult(false, "Participant couldn't be found");
+        }
+
         if (participantManagementRecord.BlockedFlag != 1)
         {
             _logger.LogInformation("Participant couldn't be unblocked as they are not currently blocked");
