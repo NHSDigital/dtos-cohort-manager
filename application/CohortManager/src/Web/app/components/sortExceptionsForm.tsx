@@ -38,6 +38,7 @@ export default function SortExceptionsForm({
             className="nhsuk-button app-button--small"
             data-module="nhsuk-button"
             type="submit"
+            data-testid="apply-button"
           >
             Apply
           </button>
