@@ -118,7 +118,7 @@ public class ManageServiceNowParticipantFunction
     {
         if (participantManagement is null)
         {
-            return await AddNewParticipant(serviceNowParticipant, participantDemographic);
+            return await AddNewParticipant(serviceNowParticipant);
         }
 
         if (participantManagement.BlockedFlag == 1)
@@ -130,7 +130,7 @@ public class ManageServiceNowParticipantFunction
         return await UpdateExistingParticipant(serviceNowParticipant, participantManagement, participantDemographic);
     }
 
-    private async Task<bool> AddNewParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantDemographic participantDemographic)
+    private async Task<bool> AddNewParticipant(ServiceNowParticipant serviceNowParticipant)
     {
         _logger.LogInformation("Participant not in participant management table, adding new record");
 
@@ -158,7 +158,7 @@ public class ManageServiceNowParticipantFunction
             return false;
         }
 
-        await HandleGpCodeForAddParticipant(serviceNowParticipant, participantDemographic);
+        await HandleGpCodeForAddParticipant(serviceNowParticipant);
 
         return true;
     }
@@ -201,7 +201,7 @@ public class ManageServiceNowParticipantFunction
         }
     }
 
-    private async Task HandleGpCodeForAddParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantDemographic participantDemographic)
+    private async Task HandleGpCodeForAddParticipant(ServiceNowParticipant serviceNowParticipant)
     {
         var hasDummyGpCode = CheckIfHasDummyGpCode(serviceNowParticipant);
         if (!hasDummyGpCode)
