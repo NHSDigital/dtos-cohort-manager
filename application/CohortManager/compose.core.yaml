@@ -122,6 +122,7 @@ services:
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
       - SendServiceNowMessageURL=http://servicenow-message-handler:9092/api/servicenow/send
       - ParticipantManagementURL=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - CohortDistributionTopic=cohort-distribution-topic
 
   update-blocked-flag:
     container_name: update-blocked-flag

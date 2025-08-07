@@ -404,6 +404,7 @@ function_apps = {
       env_vars_static = {
         ServiceNowParticipantManagementTopic    = "servicenow-participant-management" # Subscribes to the servicenow participant management topic
         ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"       # Subscribes to the servicenow participant management topic
+        CohortDistributionTopic                 = "cohort-distribution"
       }
     }
 
