@@ -14,7 +14,8 @@ public class UpdateBlockedFlag
     private readonly ICreateResponse _createResponse;
     private readonly IBlockParticipantHandler _blockParticipantHandler;
 
-    private const string cannotBeDeserializedMessage = "Participant Block Dto couldn't be deserialized";
+    private const string cannotBeDeserializedMessage = "Request couldn't be deserialized";
+
 
 
     public UpdateBlockedFlag(ILogger<UpdateBlockedFlag> logger, ICreateResponse createResponse, IBlockParticipantHandler blockParticipantHandler)
@@ -45,13 +46,13 @@ public class UpdateBlockedFlag
             var blockParticipantDTOJson = await req.ReadAsStringAsync();
             if (string.IsNullOrWhiteSpace(blockParticipantDTOJson))
             {
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Unable to parse request");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, cannotBeDeserializedMessage);
             }
 
             var blockParticipantDTO = JsonSerializer.Deserialize<BlockParticipantDto>(blockParticipantDTOJson);
             if (blockParticipantDTO == null)
             {
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Unable to parse request");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, cannotBeDeserializedMessage);
             }
 
             var blockParticipantResult = await _blockParticipantHandler.BlockParticipant(blockParticipantDTO);
@@ -95,13 +96,13 @@ public class UpdateBlockedFlag
             var blockParticipantDTOJson = await req.ReadAsStringAsync();
             if (string.IsNullOrWhiteSpace(blockParticipantDTOJson))
             {
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Unable to parse request");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, cannotBeDeserializedMessage);
             }
 
             var blockParticipantDTO = JsonSerializer.Deserialize<BlockParticipantDto>(blockParticipantDTOJson);
             if (blockParticipantDTO == null)
             {
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Unable to parse request");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, cannotBeDeserializedMessage);
             }
 
             var getParticipantResult = await _blockParticipantHandler.GetParticipant(blockParticipantDTO);
