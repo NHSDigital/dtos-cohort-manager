@@ -70,12 +70,7 @@ public class ProcessNemsUpdate
                 _logger.LogError("There was a problem parsing the NHS number from blob store in the ProcessNemsUpdate function");
                 throw new InvalidDataException("Invalid NHS Number");
             }
-
-            if (!long.TryParse(nhsNumber, out nhsNumberLong))
-            {
-                _logger.LogError("there was a problem parsing the NHS number from blob store in the ProcessNemsUpdate function");
-                return;
-            }
+            nhsNumberLong = long.Parse(nhsNumber!);
 
             var pdsResponse = await RetrievePdsRecord(nhsNumber);
             if (pdsResponse!.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -225,11 +220,7 @@ public class ProcessNemsUpdate
         }
         else
         {
-            if (participant.RecordType != Actions.Removed)
-            {
-                participant.RecordType = Actions.Amended;
-            }
-
+            participant.RecordType = participant.RecordType != Actions.Removed ? Actions.Amended : participant.RecordType;
             _logger.LogWarning("The participant already exists in Cohort Manager. Existing record will get updated.");
         }
 

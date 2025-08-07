@@ -8,9 +8,11 @@ public class ProcessNemsUpdateConfig
     public required string NemsMessages { get; set; }
     public required string UnsubscribeNemsSubscriptionUrl { get; set; }
 
-    public string ServiceBusConnectionString_client_internal { get; set; } = null!;
+    [Required]
+    public required string ServiceBusConnectionString_client_internal { get; set; }
 
-    public string ParticipantManagementTopic { get; set; } = null!;
+    [Required]
+    public required string ParticipantManagementTopic { get; set; }
 
     [Required]
     public required string DemographicDataServiceURL { get; set; }

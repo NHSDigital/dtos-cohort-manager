@@ -1,4 +1,4 @@
-namespace Common;
+namespace NHS.Screening.ProcessNemsUpdate;
 
 public class PdsCoding
 {
