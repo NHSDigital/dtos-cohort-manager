@@ -59,7 +59,7 @@ Key of profiles:
 - bs-select - Functions that are only used by external requests from BS Select
 - ui - only used by the user interface
 - service-now - Functions that are only used in manual service now adds
-- nems - Functions that are only used in NEMS requests 
+- nems - Functions that are only used in NEMS requests
 - non-essential - Functions that are not needed to run the application
 - not-implemented - Functions that do not yet have an implementation and are not in use
 
