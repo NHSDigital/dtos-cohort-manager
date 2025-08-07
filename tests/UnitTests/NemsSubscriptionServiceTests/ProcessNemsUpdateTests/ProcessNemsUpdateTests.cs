@@ -11,6 +11,8 @@ using System.Net;
 using System.Text.Json;
 using System.Collections.Concurrent;
 using System.Text;
+using DataServices.Client;
+using System.Linq.Expressions;
 
 [TestClass]
 public class ProcessNemsUpdateTests
@@ -22,6 +24,7 @@ public class ProcessNemsUpdateTests
     private readonly Mock<IHttpClientFunction> _httpClientFunctionMock = new();
     private readonly Mock<IOptions<ProcessNemsUpdateConfig>> _config = new();
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
+    private readonly Mock<IDataServiceClient<ParticipantDemographic>> _participantDemographicMock = new();
     private readonly ProcessNemsUpdate _sut;
     const string _validNhsNumber = "9000000009";
     const string _fileName = "fileName";
@@ -32,8 +35,10 @@ public class ProcessNemsUpdateTests
         {
             RetrievePdsDemographicURL = "RetrievePdsDemographic",
             NemsMessages = "nems-messages",
-            UpdateQueueName = "update-participant-queue",
-            UnsubscribeNemsSubscriptionUrl = "Unsubscribe"
+            UnsubscribeNemsSubscriptionUrl = "Unsubscribe",
+            ParticipantDemographicDataServiceURL = "ParticipantDemographicDataServiceURL",
+            ServiceBusConnectionString_client_internal = "ServiceBusConnectionString_client_internal",
+            ParticipantManagementTopic = "update-participant-queue"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -45,6 +50,7 @@ public class ProcessNemsUpdateTests
             _addBatchToQueueMock.Object,
             _httpClientFunctionMock.Object,
             _exceptionHandlerMock.Object,
+            _participantDemographicMock.Object,
             _config.Object
         );
 
@@ -328,7 +334,7 @@ public class ProcessNemsUpdateTests
     public async Task Run_ExtractedNhsNumber_PassedToPdsService()
     {
         // Arrange
-        const string expectedNhsNumber = "1234567890";
+        const string expectedNhsNumber = "9000000009";
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 

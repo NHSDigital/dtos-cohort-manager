@@ -345,6 +345,7 @@ function_apps = {
       app_service_plan_key         = "DefaultPlan"
       key_vault_url                = "KeyVaultConnectionString"
       storage_account_env_var_name = "nemsmeshfolder_STORAGE"
+      service_bus_connections      = ["internal"]
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -357,6 +358,10 @@ function_apps = {
         {
           env_var_name     = "UnsubscribeNemsSubscriptionUrl"
           function_app_key = "ManageNemsSubscription"
+        },
+        {
+          env_var_name     = "ParticipantDemographicDataServiceURL"
+          function_app_key = "ParticipantDemographicDataService"
         }
       ],
       storage_containers = [
@@ -367,7 +372,7 @@ function_apps = {
       ]
       env_vars_static = {
         MeshCertName    = "MeshCert"
-        UpdateQueueName = "update-participant-queue"
+        ParticipantManagementTopic = "participant-management"
       }
     }
 

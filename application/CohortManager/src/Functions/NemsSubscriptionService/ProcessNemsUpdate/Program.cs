@@ -1,5 +1,7 @@
 using Common;
 using Common.Interfaces;
+using Model;
+using DataServices.Client;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
