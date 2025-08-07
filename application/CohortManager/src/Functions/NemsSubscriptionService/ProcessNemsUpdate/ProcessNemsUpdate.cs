@@ -65,7 +65,7 @@ public class ProcessNemsUpdate
         {
             var nhsNumber = await GetNhsNumberFromFile(blobStream, name);
 
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
             {
                 _logger.LogError("There was a problem parsing the NHS number from blob store in the ProcessNemsUpdate function");
                 throw new InvalidDataException("Invalid NHS Number");
@@ -84,6 +84,8 @@ public class ProcessNemsUpdate
                 // we can stop processing here as we know that not found means the participant ether needed an update or they were actually not found
                 return;
             }
+
+            pdsResponse.EnsureSuccessStatusCode();
 
             var retrievedPdsRecord = await pdsResponse.Content.ReadFromJsonAsync<PdsDemographic>();
 
@@ -107,9 +109,9 @@ public class ProcessNemsUpdate
 
     private async Task processPdsResponse(HttpResponseMessage pdsResponse, string nhsNumber)
     {
-        var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PDSErrorResponse>();
+        var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PdsErrorResponse>();
         // we now create a record as an update record and send to the manage participant function. Reason for removal for date should be today and the reason for remove of ORR
-        if (errorResponse!.issue.FirstOrDefault()!.details.coding.FirstOrDefault()!.code == "INVALIDATED_RESOURCE")
+        if (errorResponse!.issue!.FirstOrDefault()!.details!.coding!.FirstOrDefault()!.code == "INVALIDATED_RESOURCE")
         {
             var pdsDemographic = new PdsDemographic()
             {
@@ -199,7 +201,12 @@ public class ProcessNemsUpdate
         catch (Exception ex)
         {
             _logger.LogError(ex, "There was an error retrieving the PDS record.");
-            throw;
+
+            HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
+            httpResponseMessage.StatusCode = System.Net.HttpStatusCode.InternalServerError;
+            httpResponseMessage.Content = new StringContent(ex.Message);
+
+            return httpResponseMessage;
         }
     }
 
