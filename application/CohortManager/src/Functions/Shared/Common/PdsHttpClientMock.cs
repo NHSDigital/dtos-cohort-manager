@@ -107,7 +107,7 @@ public class PdsHttpClientMock : IHttpClientFunction
         return httpResponseData;
     }
 
-    public Task<HttpResponseMessage> GetPDSRecord(string url, Dictionary<string, string> parameters)
+    public Task<HttpResponseMessage> SendGetHttpResponse(string url, Dictionary<string, string> parameters)
     {
         throw new NotImplementedException();
     }

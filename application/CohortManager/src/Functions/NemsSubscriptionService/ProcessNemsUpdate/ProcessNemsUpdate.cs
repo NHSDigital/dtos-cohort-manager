@@ -189,7 +189,7 @@ public class ProcessNemsUpdate
             {"nhsNumber", nhsNumber }
         };
 
-        return await _httpClientFunction.GetPDSRecord(_config.RetrievePdsDemographicURL, queryParams);
+        return await _httpClientFunction.SendGetHttpResponse(_config.RetrievePdsDemographicURL, queryParams);
     }
 
     private async Task ProcessRecord(Participant participant)
