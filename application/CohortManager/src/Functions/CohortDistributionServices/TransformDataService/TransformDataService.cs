@@ -141,7 +141,7 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-        if (!participant.ReferralFlag.Value)
+        if (!participant.ReferralFlag ?? false)
         {
             resultList.AddRange(await re.ExecuteAllRulesAsync("Routine", ruleParameters));
         }

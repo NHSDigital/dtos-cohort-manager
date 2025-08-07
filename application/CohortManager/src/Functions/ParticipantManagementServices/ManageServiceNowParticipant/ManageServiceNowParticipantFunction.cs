@@ -19,12 +19,12 @@ public class ManageServiceNowParticipantFunction
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
 
-    public ManageServiceNowParticipantFunction(ILogger<ManageServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> addParticipantConfig,
+    public ManageServiceNowParticipantFunction(ILogger<ManageServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> config,
         IHttpClientFunction httpClientFunction, IExceptionHandler handleException, IDataServiceClient<ParticipantManagement> participantManagementClient,
         IDataServiceClient<CohortDistribution> cohortDistributionClient)
     {
         _logger = logger;
-        _config = addParticipantConfig.Value;
+        _config = config.Value;
         _httpClientFunction = httpClientFunction;
         _exceptionHandler = handleException;
         _participantManagementClient = participantManagementClient;
@@ -267,7 +267,7 @@ public class ManageServiceNowParticipantFunction
     {
         _logger.LogError(exception, "Exception occurred whilst attempting to add participant from ServiceNow");
         await _exceptionHandler.CreateSystemExceptionLog(exception, serviceNowParticipant);
-        await SendServiceNowMessage(serviceNowParticipant.ServiceNowRecordNumber, serviceNowMessageType);
+        await SendServiceNowMessage(serviceNowParticipant.ServiceNowCaseNumber, serviceNowMessageType);
     }
 
     private static bool CheckParticipantDataMatches(ServiceNowParticipant serviceNowParticipant, ParticipantDemographic participantDemographic)
@@ -277,9 +277,9 @@ public class ManageServiceNowParticipantFunction
                serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd") == participantDemographic.DateOfBirth;
     }
 
-    private async Task SendServiceNowMessage(string serviceNowRecordNumber, ServiceNowMessageType servicenowMessageType)
+    private async Task SendServiceNowMessage(string serviceNowCaseNumber, ServiceNowMessageType servicenowMessageType)
     {
-        var url = $"{_config.SendServiceNowMessageURL}/{serviceNowRecordNumber}";
+        var url = $"{_config.SendServiceNowMessageURL}/{serviceNowCaseNumber}";
         var requestBody = new SendServiceNowMessageRequestBody
         {
             MessageType = servicenowMessageType
