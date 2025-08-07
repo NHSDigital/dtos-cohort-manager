@@ -70,6 +70,18 @@ public class HttpClientFunction : IHttpClientFunction
         return await client.GetAsync(url);
     }
 
+    public async Task<HttpResponseMessage> SendGetResponse(string url, Dictionary<string, string> parameters)
+    {
+        using var client = _factory.CreateClient();
+
+        url = QueryHelpers.AddQueryString(url, parameters);
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        return await client.GetAsync(url);
+    }
+
     public async Task<string> SendGetOrThrowAsync(string url)
     {
         using var client = _factory.CreateClient();

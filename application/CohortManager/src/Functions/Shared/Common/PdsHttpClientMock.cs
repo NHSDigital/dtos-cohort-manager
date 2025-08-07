@@ -86,6 +86,11 @@ public class PdsHttpClientMock : IHttpClientFunction
         throw new NotImplementedException();
     }
 
+    public async Task<HttpResponseMessage> SendGetResponse(string url, Dictionary<string, string> parameters)
+    {
+        await Task.CompletedTask;
+        throw new NotImplementedException();
+    }
 
     /// <summary>
     /// takes in a fake string content and returns 200 OK response

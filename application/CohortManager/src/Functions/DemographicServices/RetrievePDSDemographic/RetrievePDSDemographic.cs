@@ -83,6 +83,12 @@ public class RetrievePdsDemographic
 
             jsonResponse = await _httpClientFunction.GetResponseText(response);
             var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
+
+            if (pdsDemographic.ConfidentialityCode == "R")
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Demographic data is restricted in PDS");
+            }
+
             var participantDemographic = pdsDemographic.ToParticipantDemographic();
             var upsertResult = await UpsertDemographicRecordFromPDS(participantDemographic);
 

@@ -28,7 +28,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: NemsSubscriptionService/NemsMeshRetrieval/Dockerfile
-    profiles: [non-essential]
+    profiles: [nems]
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - nemsmeshfolder_STORAGE=${AZURITE_CONNECTION_STRING}
@@ -240,7 +240,9 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: DemographicServices/RetrievePDSDemographic/Dockerfile
-    profiles: [not-implemented]
+    profiles: [service-now, nems]
+    ports:
+      - 8082:8082
     environment:
       - ASPNETCORE_URLS=http://*:8082
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -250,13 +252,14 @@ services:
       - Audience=https://int.api.service.nhs.uk/oauth2/token
       - AuthTokenURL=https://int.api.service.nhs.uk/oauth2/token
       - LocalPrivateKeyFileName=RetrievePdsDemographic-DEV1.pem.key
-      - ClientId="Get-private-key-from-NHS-dev-portal"
+      - ClientId=Get-private-key-from-NHS-dev-portal
+      - UseFakePDSServices=true
 
   manage-nems-subscription:
       container_name: manage-nems-subscription
       image: cohort-manager-manage-nems-subscription
       networks: [cohman-network]
-      profiles: [non-essential]
+      profiles: [nems]
       build:
         context: ./src/Functions/
         dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile
@@ -305,7 +308,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegration/ServiceNowMessageHandler/Dockerfile
-    profiles: [non-essential]
+    profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:9092
       - ServiceNowRefreshAccessTokenUrl=https://nhsdigitaldev.service-now.com/oauth_token.do
@@ -314,9 +317,10 @@ services:
       - ServiceNowClientId=${SERVICENOW_CLIENT_ID}
       - ServiceNowClientSecret=${SERVICENOW_CLIENT_SECRET}
       - ServiceNowRefreshToken=${SERVICENOW_REFRESH_TOKEN}
+      - ServiceNowParticipantManagementTopic=servicenow-participant-management-topic
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
     ports:
-      - "9092:9092"
+      - 9092:9092
 
   servicenow-cohort-lookup:
     container_name: servicenow-cohort-lookup
@@ -325,7 +329,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegration/ServiceNowCohortLookup/Dockerfile
-    profiles: [non-essential]
+    profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:7180
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException

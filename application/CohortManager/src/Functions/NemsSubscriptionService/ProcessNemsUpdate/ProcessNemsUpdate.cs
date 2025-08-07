@@ -11,6 +11,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
 using DataServices.Client;
+using Grpc.Core;
+using System.Net;
 
 public class ProcessNemsUpdate
 {
@@ -165,8 +167,17 @@ public class ProcessNemsUpdate
                 {"nhsNumber", nhsNumber }
             };
 
-            return await _httpClientFunction.SendGet(_config.RetrievePdsDemographicURL, queryParams);
-        }
+            var pdsResponse = await _httpClientFunction.SendGetResponse(_config.RetrievePdsDemographicURL, queryParams);
+            string responseMessage = await _httpClientFunction.GetResponseText(pdsResponse);
+
+            if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
+            {
+
+                throw new InvalidDataException(responseMessage);
+            }
+            return responseMessage;
+
+            }
         catch (Exception ex)
         {
             _logger.LogError(ex, "There was an error retrieving the PDS record.");

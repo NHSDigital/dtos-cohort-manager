@@ -59,13 +59,14 @@ public class ManageServiceNowParticipantFunction
     private async Task<ParticipantDemographic?> ValidateAndRetrieveParticipantFromPds(ServiceNowParticipant serviceNowParticipant)
     {
         var pdsResponse = await _httpClientFunction.SendGetResponse($"{_config.RetrievePdsDemographicURL}?nhsNumber={serviceNowParticipant.NhsNumber}");
+        string responseMessage = await _httpClientFunction.GetResponseText(pdsResponse);
 
         if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
         {
-            await HandleException(new Exception("Request to PDS for ServiceNow Participant returned a 404 NotFound response."), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
+            await HandleException(new Exception(responseMessage), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
             return null;
         }
-
+        
         if (pdsResponse.StatusCode != HttpStatusCode.OK)
         {
             await HandleException(new Exception($"Request to PDS for ServiceNow Participant returned an unexpected response. Status code: {pdsResponse.StatusCode}"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
