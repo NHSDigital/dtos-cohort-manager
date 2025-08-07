@@ -63,6 +63,7 @@ appsettings.json
 application/CohortManager/SampleData/
 *.csv
 *.parquet
+*.xml
 !tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
 
 # csv to sql statement scripts
