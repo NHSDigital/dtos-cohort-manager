@@ -515,34 +515,6 @@ public class UpdateBlockedFlagTests
         _mockParticipantManagementClient.VerifyNoOtherCalls();
         _mockHttpClient.VerifyNoOtherCalls();
     }
-    // [TestMethod]
-    // public async Task UnblockParticipant_ParticipantNotBlocked_ReturnBadRequest()
-    // {
-    //     //arrange
-    //     var queryParams = new NameValueCollection
-    //     {
-    //         {"nhsNumber","6427635034"}
-    //     };
-    //     _request = _setupRequest.Setup("", queryParams, HttpMethod.Post);
-
-    //     _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-    //         .ReturnsAsync(new ParticipantManagement
-    //         {
-    //             NHSNumber = 6427635034,
-    //             BlockedFlag = 0,
-    //             EligibilityFlag = 1
-    //         });
-
-
-    //     //act
-    //     var result = await _sut.UnblockParticipant(_request.Object);
-
-    //     //asset
-    //     Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    //     _mockParticipantManagementClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()), Times.Once);
-    //     _mockParticipantManagementClient.VerifyNoOtherCalls();
-    //     _mockHttpClient.VerifyNoOtherCalls();
-    // }
 
 
 
