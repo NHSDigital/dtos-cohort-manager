@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.DemographicServices;
 
 using System.ComponentModel.DataAnnotations;
-using Hl7.Fhir.Specification.Navigation;
 
 /// <summary>
 /// Configuration settings for NEMS subscription management
