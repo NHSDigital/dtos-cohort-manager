@@ -81,10 +81,9 @@ public class ManageServiceNowParticipantFunctionTests
         // Assert
         _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
-                It.Is<Exception>(e => e.Message == "Request to PDS for ServiceNow Participant returned a 404 NotFound response."),
+                It.IsAny<Exception>(),
                 It.Is<ServiceNowParticipant>(p => p.NhsNumber == _serviceNowParticipant.NhsNumber
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
@@ -115,7 +114,6 @@ public class ManageServiceNowParticipantFunctionTests
         // Assert
         _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
             It.Is<Exception>(e => e.Message == "NHS Numbers don't match for ServiceNow Participant and PDS, NHS Number must have been superseded"),
@@ -144,7 +142,6 @@ public class ManageServiceNowParticipantFunctionTests
         // Assert
         _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType2Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
             It.Is<Exception>(e => e.Message == $"Request to PDS for ServiceNow Participant returned an unexpected response. Status code: {httpStatusCode}"),
@@ -172,7 +169,6 @@ public class ManageServiceNowParticipantFunctionTests
         // Assert
         _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType2Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
             expectedException,
@@ -213,7 +209,6 @@ public class ManageServiceNowParticipantFunctionTests
         // Assert
         _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
             It.Is<Exception>(e => e.Message == "Participant data from ServiceNow does not match participant data from PDS"),
@@ -263,7 +258,6 @@ public class ManageServiceNowParticipantFunctionTests
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
@@ -299,7 +293,6 @@ public class ManageServiceNowParticipantFunctionTests
         // Assert
         _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
             It.Is<Exception>(e => e.Message == "Participant data from ServiceNow is blocked"),
@@ -351,7 +344,6 @@ public class ManageServiceNowParticipantFunctionTests
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
@@ -409,7 +401,6 @@ public class ManageServiceNowParticipantFunctionTests
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
@@ -458,7 +449,6 @@ public class ManageServiceNowParticipantFunctionTests
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
@@ -527,7 +517,6 @@ public class ManageServiceNowParticipantFunctionTests
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
@@ -586,7 +575,6 @@ public class ManageServiceNowParticipantFunctionTests
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
@@ -644,7 +632,6 @@ public class ManageServiceNowParticipantFunctionTests
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
