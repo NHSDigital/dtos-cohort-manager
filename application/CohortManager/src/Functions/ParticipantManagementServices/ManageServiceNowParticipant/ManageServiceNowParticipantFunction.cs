@@ -58,7 +58,7 @@ public class ManageServiceNowParticipantFunction
 
             // TODO: Add call to subscribe to NEMS (DTOSS-3881)
 
-            var participantForDistribution = CreateParticipantForDistribution(serviceNowParticipant, participantDemographic, participantManagement);
+            var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantDemographic, participantManagement);
 
             var sendToQueueSuccess = await _queueClient.AddAsync(participantForDistribution, _config.CohortDistributionTopic);
 
@@ -71,27 +71,6 @@ public class ManageServiceNowParticipantFunction
         {
             await HandleException(ex, serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
         }
-    }
-
-    private static BasicParticipantCsvRecord CreateParticipantForDistribution(ServiceNowParticipant serviceNowParticipant, ParticipantDemographic participantDemographic, ParticipantManagement? participantManagement)
-    {
-        var participantToSendToQueue = new BasicParticipantCsvRecord
-        {
-            FileName = serviceNowParticipant.ServiceNowCaseNumber,
-            BasicParticipantData = new BasicParticipantData
-            {
-                ScreeningId = serviceNowParticipant.ScreeningId.ToString(),
-                NhsNumber = serviceNowParticipant.NhsNumber.ToString(),
-                RecordType = participantManagement is null ? Actions.New : Actions.Amended,
-            },
-            Participant = new Participant
-            {
-                ReferralFlag = "1",
-                Postcode = participantDemographic.PostCode,
-                ScreeningAcronym = "BSS" // TODO: Remove hardcoding when adding support for additional screening programs
-            }
-        };
-        return participantToSendToQueue;
     }
 
     private async Task<ParticipantDemographic?> ValidateAndRetrieveParticipantFromPds(ServiceNowParticipant serviceNowParticipant)
