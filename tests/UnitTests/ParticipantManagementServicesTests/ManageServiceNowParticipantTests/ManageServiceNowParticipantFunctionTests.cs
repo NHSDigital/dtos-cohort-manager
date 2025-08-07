@@ -669,7 +669,7 @@ public class ManageServiceNowParticipantFunctionTests
             FirstName = "Samantha",
             FamilyName = "Bloggs",
             DateOfBirth = new DateOnly(1970, 1, 1),
-            ServiceNowRecordNumber = "CS123",
+            ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
             ReasonForAdding = ServiceNowReasonsForAdding.RequiresCeasing,
             RequiredGpCode = requiredGpCode
@@ -724,7 +724,7 @@ public class ManageServiceNowParticipantFunctionTests
             FirstName = "Samantha",
             FamilyName = "Bloggs",
             DateOfBirth = new DateOnly(1970, 1, 1),
-            ServiceNowRecordNumber = "CS123",
+            ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
             ReasonForAdding = ServiceNowReasonsForAdding.RequiresCeasing,
             RequiredGpCode = requiredGpCode
@@ -873,7 +873,7 @@ public class ManageServiceNowParticipantFunctionTests
             FirstName = "Samantha",
             FamilyName = "Bloggs",
             DateOfBirth = new DateOnly(1970, 1, 1),
-            ServiceNowRecordNumber = "CS123",
+            ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
             ReasonForAdding = ServiceNowReasonsForAdding.RequiresCeasing,
             RequiredGpCode = "ZZZ123"
