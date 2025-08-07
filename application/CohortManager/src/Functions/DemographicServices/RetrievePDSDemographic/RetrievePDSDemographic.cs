@@ -127,36 +127,4 @@ public class RetrievePdsDemographic
         _logger.LogError("Failed to update Participant Demographic.");
         return false;
     }
-
-    private async Task<bool> DeleteDemographicRecord(string nhsNumber)
-    {
-        var nhsNumberParsed = long.TryParse(nhsNumber, out long parsedNhsNumber);
-        if (!nhsNumberParsed)
-        {
-            _logger.LogError("could not parse nhs number when trying to get record for deletion.");
-            return false;
-        }
-        var oldParticipantDemographic = await _participantDemographicClient.GetSingleByFilter(i => i.NhsNumber == parsedNhsNumber);
-
-        if (oldParticipantDemographic == null)
-        {
-
-            _logger.LogWarning("Failed to delete Participant Demographic as record did not exist in database.");
-            return false;
-        }
-
-        _logger.LogInformation("Participant Demographic record found, attempting to delete  Participant Demographic.");
-        bool updateSuccess = await _participantDemographicClient.Delete(oldParticipantDemographic.ParticipantId.ToString());
-
-        if (updateSuccess)
-        {
-            _logger.LogInformation("Successfully deleted Participant Demographic.");
-            return true;
-        }
-
-        _logger.LogError("Failed to delete Participant Demographic.");
-        return false;
-    }
-
-
 }

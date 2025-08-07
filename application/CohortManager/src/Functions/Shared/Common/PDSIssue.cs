@@ -1,7 +1,8 @@
 namespace Common;
-public class PDSIssue
+
+public class PdsIssue
 {
-    public string code { get; set; }
-    public Details details { get; set; }
-    public string severity { get; set; }
+    public string? code { get; set; }
+    public Details? details { get; set; }
+    public string? severity { get; set; }
 }

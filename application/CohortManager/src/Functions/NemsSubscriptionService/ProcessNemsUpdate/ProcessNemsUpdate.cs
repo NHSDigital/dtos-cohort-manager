@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
 using DataServices.Client;
+using FluentValidation.Validators;
 
 public class ProcessNemsUpdate
 {

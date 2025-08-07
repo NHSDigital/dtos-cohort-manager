@@ -64,7 +64,7 @@ public class HttpClientFunction : IHttpClientFunction
     {
         using var client = _factory.CreateClient();
 
-        url = QueryHelpers.AddQueryString(url, parameters);
+        url = QueryHelpers.AddQueryString(url, parameters!);
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;

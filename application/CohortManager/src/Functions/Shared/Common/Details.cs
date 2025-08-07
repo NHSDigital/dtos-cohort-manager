@@ -2,6 +2,6 @@ namespace Common;
 
 public class Details
 {
-    public List<PDSCoding> coding { get; set; }
+    public List<PdsCoding>? coding { get; set; }
 }
 
