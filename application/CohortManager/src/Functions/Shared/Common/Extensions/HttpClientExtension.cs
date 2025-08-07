@@ -12,7 +12,7 @@ public static class HttpClientExtension
             return hostBuilder.ConfigureServices(_ =>
             {
                 _.AddHttpClient();
-                _.AddTransient<IHttpClientFunction, HttpClientFunctionMock>();
+                _.AddTransient<IHttpClientFunction, PdsHttpClientMock>();
             });
         }
 

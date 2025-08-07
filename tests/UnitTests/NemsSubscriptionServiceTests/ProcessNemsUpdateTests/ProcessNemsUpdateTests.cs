@@ -11,6 +11,8 @@ using System.Net;
 using System.Text.Json;
 using System.Collections.Concurrent;
 using System.Text;
+using DataServices.Client;
+using System.Linq.Expressions;
 
 [TestClass]
 public class ProcessNemsUpdateTests
@@ -22,6 +24,7 @@ public class ProcessNemsUpdateTests
     private readonly Mock<IHttpClientFunction> _httpClientFunctionMock = new();
     private readonly Mock<IOptions<ProcessNemsUpdateConfig>> _config = new();
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
+    private readonly Mock<IDataServiceClient<ParticipantDemographic>> _participantDemographicMock = new();
     private readonly ProcessNemsUpdate _sut;
     const string _validNhsNumber = "9000000009";
     const string _fileName = "fileName";
@@ -32,8 +35,10 @@ public class ProcessNemsUpdateTests
         {
             RetrievePdsDemographicURL = "RetrievePdsDemographic",
             NemsMessages = "nems-messages",
-            UpdateQueueName = "update-participant-queue",
-            UnsubscribeNemsSubscriptionUrl = "Unsubscribe"
+            UnsubscribeNemsSubscriptionUrl = "Unsubscribe",
+            ParticipantDemographicDataServiceURL = "ParticipantDemographicDataServiceURL",
+            ServiceBusConnectionString_client_internal = "ServiceBusConnectionString_client_internal",
+            ParticipantManagementTopic = "update-participant-queue"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -45,6 +50,7 @@ public class ProcessNemsUpdateTests
             _addBatchToQueueMock.Object,
             _httpClientFunctionMock.Object,
             _exceptionHandlerMock.Object,
+            _participantDemographicMock.Object,
             _config.Object
         );
 
@@ -362,7 +368,7 @@ public class ProcessNemsUpdateTests
     public async Task Run_ExtractedNhsNumber_PassedToPdsService()
     {
         // Arrange
-        const string expectedNhsNumber = "1234567890";
+        const string expectedNhsNumber = "9000000009";
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
@@ -374,9 +380,9 @@ public class ProcessNemsUpdateTests
 
         // Assert - Verify correct NHS number is passed to PDS service
         _httpClientFunctionMock.Verify(x => x.SendGet(
-            "RetrievePdsDemographic", 
-            It.Is<Dictionary<string, string>>(dict => 
-                dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)), 
+            "RetrievePdsDemographic",
+            It.Is<Dictionary<string, string>>(dict =>
+                dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)),
             Times.Once);
     }
 
@@ -397,9 +403,151 @@ public class ProcessNemsUpdateTests
 
         // Assert - Verify correct NHS number is passed to PDS service
         _httpClientFunctionMock.Verify(x => x.SendGet(
-            "RetrievePdsDemographic", 
-            It.Is<Dictionary<string, string>>(dict => 
-                dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)), 
+            "RetrievePdsDemographic",
+            It.Is<Dictionary<string, string>>(dict =>
+                dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)),
             Times.Once);
     }
+
+    [TestMethod]
+    public async Task Run_NhsNumberFromNemsUpdateFileDoesNotMatchRetrievedPdsRecordNhsNumber_ProcessesRecord_RaiseInfoExceptionAndUnsubscribesFromNems_AddNewRecord()
+    {
+        // Arrange
+        string fhirJson = LoadTestJson("mock-patient");
+        await using var fileStream = File.OpenRead(fhirJson);
+
+        const string supersededNhsNumber = "123";
+        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = supersededNhsNumber }));
+
+        _participantDemographicMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
+            .ReturnsAsync((ParticipantDemographic)null);
+
+        // Act
+        await _sut.Run(fileStream, _fileName);
+
+        // Assert
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+
+        _participantDemographicMock.Verify(x => x.GetSingleByFilter(
+            It.Is<Expression<Func<ParticipantDemographic, bool>>>(expr =>
+                expr.Compile()(new ParticipantDemographic { NhsNumber = long.Parse(_validNhsNumber) }))),
+            Times.Once);
+
+        _loggerMock.Verify(x => x.Log(
+            LogLevel.Warning,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The participant doesn't exists in Cohort Manager")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
+
+        _addBatchToQueueMock.Verify(x => x.ProcessBatch(
+            It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
+                q.Any(r => r.Participant.RecordType == Actions.New)),
+            It.IsAny<string>()),
+        Times.Once);
+
+        _loggerMock.Verify(x => x.Log(
+            LogLevel.Information,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("NHS numbers do not match, processing the superseded record.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
+
+        _loggerMock.Verify(x => x.Log(
+            LogLevel.Information,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Successfully unsubscribed from NEMS.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
+
+        _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
+
+        _exceptionHandlerMock.Verify(
+            x => x.CreateTransformExecutedExceptions(
+                It.Is<CohortDistributionParticipant>(p =>
+                    p.NhsNumber == _validNhsNumber &&
+                    p.SupersededByNhsNumber == supersededNhsNumber),
+                "SupersededNhsNumber",
+                60,
+                null),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_NhsNumberFromNemsUpdateFileDoesNotMatchRetrievedPdsRecordNhsNumber_ProcessesRecord_RaiseInfoExceptionAndUnsubscribesFromNems_UpdateExistingRecord()
+    {
+        // Arrange
+        string fhirJson = LoadTestJson("mock-patient");
+        await using var fileStream = File.OpenRead(fhirJson);
+
+        const string supersededNhsNumber = "123";
+        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = supersededNhsNumber }));
+
+        var existingParticipant = new ParticipantDemographic { NhsNumber = long.Parse(_validNhsNumber) };
+        _participantDemographicMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
+            .ReturnsAsync(existingParticipant);
+
+        // Act
+        await _sut.Run(fileStream, _fileName);
+
+        // Assert
+        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+
+        _participantDemographicMock.Verify(x => x.GetSingleByFilter(
+            It.Is<Expression<Func<ParticipantDemographic, bool>>>(expr =>
+                expr.Compile()(existingParticipant))),
+            Times.Once);
+
+        _loggerMock.Verify(x => x.Log(
+            LogLevel.Warning,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The participant already exists in Cohort Manager. Existing record will get updated.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
+
+        _addBatchToQueueMock.Verify(x => x.ProcessBatch(
+            It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
+                q.Any(r => r.Participant.RecordType == Actions.Amended)),
+            It.IsAny<string>()),
+        Times.Once);
+
+        _loggerMock.Verify(x => x.Log(
+            LogLevel.Information,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("NHS numbers do not match, processing the superseded record.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
+
+        _loggerMock.Verify(x => x.Log(
+            LogLevel.Information,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Successfully unsubscribed from NEMS.")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
+
+        _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
+
+        _exceptionHandlerMock.Verify(
+            x => x.CreateTransformExecutedExceptions(
+                It.Is<CohortDistributionParticipant>(p =>
+                    p.NhsNumber == _validNhsNumber &&
+                    p.SupersededByNhsNumber == supersededNhsNumber),
+                "SupersededNhsNumber",
+                60,
+                null),
+            Times.Once);
+    }
+
 }

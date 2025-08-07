@@ -165,7 +165,103 @@
           "OnSuccess": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "'/'"
+              "Expression": "'-'"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Forwardslash",
+        "Expression": "input1 == 47",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "'-'"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Quote",
+        "Expression": "input1 == 34",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' '"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "LessThan",
+        "Expression": "input1 == 60",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' '"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Equals",
+        "Expression": "input1 == 61",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' '"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "GreaterThan",
+        "Expression": "input1 == 62",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' '"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "SemiColon",
+        "Expression": "input1 == 59",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "':'"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Percentage",
+        "Expression": "input1 == 37",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' '"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "Ampersand",
+        "Expression": "input1 == 38",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "' and '"
             }
           }
         }
