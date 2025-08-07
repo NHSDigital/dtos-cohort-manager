@@ -113,7 +113,7 @@ public class UpdateBlockedFlag
 
             if (getParticipantResult.ResponseMessage == "Participant Couldn't be found")
             {
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "Participant Not found");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, getParticipantResult.ResponseMessage);
             }
             if (getParticipantResult.ResponseMessage == "Invalid NHS Number")
             {
@@ -175,7 +175,7 @@ public class UpdateBlockedFlag
         }
         if (unBlockParticipantResult.ResponseMessage == "Participant Couldn't be found")
         {
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "Participant Not found");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, unBlockParticipantResult.ResponseMessage);
         }
 
         return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, unBlockParticipantResult.ResponseMessage!);
