@@ -158,24 +158,6 @@ app_service_plan = {
         }
       }
     }
-    DefaultPlan2 = {
-      autoscale_override = {
-        scaling_rule = {
-          metric = "CpuPercentage"
-
-          capacity_min = "5"
-          capacity_max = "5"
-          capacity_def = "5"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 5
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
-        }
-      }
-    }
     HighLoadFunctions = {
       autoscale_override = {
         scaling_rule = {
@@ -428,6 +410,7 @@ function_apps = {
       env_vars_static = {
         ServiceNowParticipantManagementTopic    = "servicenow-participant-management" # Subscribes to the servicenow participant management topic
         ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"       # Subscribes to the servicenow participant management topic
+        CohortDistributionTopic                 = "cohort-distribution"
       }
     }
 
@@ -1118,10 +1101,10 @@ linux_web_app = {
           SERVICE_NAME         = "Cohort Manager"
         }
         from_key_vault = {
-          # env_var_name          = "key_vault_secret_name"
-          AUTH_CIS2_CLIENT_SECRET = "auth-cis2-client-secret"
-          COHORT_MANAGER_RBAC_CODE    = "cohort-manager-users"
-          NEXTAUTH_SECRET         = "nextauth-secret"
+          # env_var_name           = "key_vault_secret_name"
+          AUTH_CIS2_CLIENT_SECRET  = "auth-cis2-client-secret"
+          COHORT_MANAGER_RBAC_CODE = "cohort-manager-users"
+          NEXTAUTH_SECRET          = "nextauth-secret"
         }
         local_urls = {
           # %s becomes the environment and region prefix (e.g. dev-uks)

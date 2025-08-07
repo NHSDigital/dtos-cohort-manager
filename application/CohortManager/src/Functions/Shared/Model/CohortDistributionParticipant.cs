@@ -127,7 +127,7 @@ public class CohortDistributionParticipant
         PreferredLanguage = demographic.PreferredLanguage;
         IsInterpreterRequired = demographic.InterpreterRequired.ToString();
         ReasonForRemoval = participant.ReasonForRemoval;
-        ReasonForRemovalEffectiveFromDate = participant.ReasonForRemovalDate.ToString();
+        ReasonForRemovalEffectiveFromDate = MappingUtilities.FormatDateTime(participant.ReasonForRemovalDate);
         ScreeningServiceId = participant.ScreeningId.ToString();
         Extracted = null;
         RecordType = participant.RecordType;

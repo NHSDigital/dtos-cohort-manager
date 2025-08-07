@@ -58,7 +58,7 @@ public class ManageServiceNowParticipantFunction
 
             // TODO: Add call to subscribe to NEMS (DTOSS-3881)
 
-            var participantForDistribution = CreateParticipantForDistribution(serviceNowParticipant, participantDemographic, participantManagement);
+            var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantDemographic, participantManagement);
 
             var sendToQueueSuccess = await _queueClient.AddAsync(participantForDistribution, _config.CohortDistributionTopic);
 

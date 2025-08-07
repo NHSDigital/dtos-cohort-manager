@@ -11,7 +11,6 @@ using Model;
 using System.Text.Json;
 using Common;
 using Activities = DistributeParticipantActivities;
-using Model.Enums;
 
 public class DistributeParticipant
 {
@@ -118,10 +117,10 @@ public class DistributeParticipant
                 participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
 
             // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
-            if (participantRecord.FromServiceNow)
+            if (participantRecord.Participant.ReferralFlag == "1")
             {
                 // In this scenario, the FileName property should be holding the ServiceNow Case Number
-                await SendServiceNowMessage(participantRecord.FileName);
+                await context.CallActivityAsync(nameof(Activities.SendServiceNowMessage), participantRecord.FileName);
             }
         }
         catch (Exception ex)

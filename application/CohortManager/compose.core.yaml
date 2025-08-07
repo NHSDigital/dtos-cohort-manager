@@ -58,7 +58,7 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
       - UnsubscribeNemsSubscriptionUrl=http://manage-nems-subscription:9081/api/Unsubscribe
-      - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - ParticipantManagementTopic=participant-management-topic
 
@@ -122,6 +122,7 @@ services:
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
       - SendServiceNowMessageURL=http://servicenow-message-handler:9092/api/servicenow/send
       - ParticipantManagementURL=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - CohortDistributionTopic=cohort-distribution-topic
 
   update-blocked-flag:
     container_name: update-blocked-flag

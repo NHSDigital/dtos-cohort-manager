@@ -267,12 +267,12 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordInsertDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(
-                    x => x.FromServiceNow == true &&
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.New &&
+                    x.Participant.ReferralFlag == "1" &&
                     x.Participant.Postcode == _demographic.PostCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
@@ -310,12 +310,12 @@ public class ManageServiceNowParticipantFunctionTests
                 x.Compile().Invoke(new ParticipantManagement { NHSNumber = _serviceNowParticipant.NhsNumber, ScreeningId = _serviceNowParticipant.ScreeningId })
             ))).ReturnsAsync(new ParticipantManagement { ParticipantId = 123, BlockedFlag = 1 }).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(
-                    x => x.FromServiceNow == true &&
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.Participant.ReferralFlag == "1" &&
                     x.Participant.Postcode == _demographic.PostCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
@@ -370,12 +370,12 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(
-                    x => x.FromServiceNow == true &&
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.Participant.ReferralFlag == "1" &&
                     x.Participant.Postcode == _demographic.PostCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
@@ -436,12 +436,12 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordInsertDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(
-                    x => x.FromServiceNow == true &&
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.New &&
+                    x.Participant.ReferralFlag == "1" &&
                     x.Participant.Postcode == _demographic.PostCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
@@ -493,12 +493,12 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordInsertDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(
-                    x => x.FromServiceNow == true &&
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.New &&
+                    x.Participant.ReferralFlag == "1" &&
                     x.Participant.Postcode == _demographic.PostCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
@@ -570,12 +570,12 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(
-                    x => x.FromServiceNow == true &&
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.Participant.ReferralFlag == "1" &&
                     x.Participant.Postcode == _demographic.PostCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
@@ -637,12 +637,12 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(
-                    x => x.FromServiceNow == true &&
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.Participant.ReferralFlag == "1" &&
                     x.Participant.Postcode == _demographic.PostCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
@@ -703,12 +703,12 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(
-                    x => x.FromServiceNow == true &&
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.Participant.ReferralFlag == "1" &&
                     x.Participant.Postcode == _demographic.PostCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
