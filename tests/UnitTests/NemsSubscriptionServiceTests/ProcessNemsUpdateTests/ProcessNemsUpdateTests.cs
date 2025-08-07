@@ -116,7 +116,7 @@ public class ProcessNemsUpdateTests
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("There was an error retrieving the PDS record.")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("There was an error processing NEMS update.")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);

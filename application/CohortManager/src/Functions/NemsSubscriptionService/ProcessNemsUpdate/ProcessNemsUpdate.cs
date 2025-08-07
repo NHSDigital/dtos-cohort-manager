@@ -75,7 +75,7 @@ public class ProcessNemsUpdate
             var pdsResponse = await RetrievePdsRecord(nhsNumber!);
             if (pdsResponse!.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                await processPdsResponse(pdsResponse, nhsNumber!);
+                await ProcessPdsResponse(pdsResponse, nhsNumber!);
                 // we can stop processing here as we know that not found means the participant ether needed an update or they were actually not found
                 return;
             }
@@ -91,7 +91,7 @@ public class ProcessNemsUpdate
             }
             else
             {
-                await unsubscribeFromNems(nhsNumber!, retrievedPdsRecord!);
+                await UnsubscribeFromNems(nhsNumber!, retrievedPdsRecord!);
             }
 
         }
@@ -102,7 +102,7 @@ public class ProcessNemsUpdate
 
     }
 
-    private async Task processPdsResponse(HttpResponseMessage pdsResponse, string nhsNumber)
+    private async Task ProcessPdsResponse(HttpResponseMessage pdsResponse, string nhsNumber)
     {
         var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PdsErrorResponse>();
         // we now create a record as an update record and send to the manage participant function. Reason for removal for date should be today and the reason for remove of ORR
@@ -113,7 +113,7 @@ public class ProcessNemsUpdate
                 NhsNumber = nhsNumber,
                 PrimaryCareProvider = null,
                 ReasonForRemoval = "ORR",
-                RemovalEffectiveFromDate = System.DateTime.UtcNow.Date.ToString("yyyyMMdd")
+                RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
             };
             var participant = new Participant(pdsDemographic);
             participant.RecordType = Actions.Removed;
@@ -125,7 +125,7 @@ public class ProcessNemsUpdate
 
     }
 
-    private async Task unsubscribeFromNems(string nhsNumber, PdsDemographic retrievedPdsRecord)
+    private async Task UnsubscribeFromNems(string nhsNumber, PdsDemographic retrievedPdsRecord)
     {
         var supersededRecord = new PdsDemographic()
         {
@@ -133,7 +133,7 @@ public class ProcessNemsUpdate
             SupersededByNhsNumber = retrievedPdsRecord?.NhsNumber,
             PrimaryCareProvider = null,
             ReasonForRemoval = "ORR",
-            RemovalEffectiveFromDate = System.DateTime.UtcNow.Date.ToString("yyyyMMdd")
+            RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
         };
 
         _logger.LogInformation("NHS numbers do not match, processing the superseded record.");
@@ -184,25 +184,12 @@ public class ProcessNemsUpdate
 
     private async Task<HttpResponseMessage> RetrievePdsRecord(string nhsNumber)
     {
-        try
+        var queryParams = new Dictionary<string, string>()
         {
-            var queryParams = new Dictionary<string, string>()
-            {
-                {"nhsNumber", nhsNumber }
-            };
+            {"nhsNumber", nhsNumber }
+        };
 
-            return await _httpClientFunction.GetPDSRecord(_config.RetrievePdsDemographicURL, queryParams);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "There was an error retrieving the PDS record.");
-
-            HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
-            httpResponseMessage.StatusCode = System.Net.HttpStatusCode.InternalServerError;
-            httpResponseMessage.Content = new StringContent(ex.Message);
-
-            return httpResponseMessage;
-        }
+        return await _httpClientFunction.GetPDSRecord(_config.RetrievePdsDemographicURL, queryParams);
     }
 
     private async Task ProcessRecord(Participant participant)
