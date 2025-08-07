@@ -358,6 +358,10 @@ function_apps = {
         {
           env_var_name   = "NemsMessages"
           container_name = "nems-updates"
+        },
+        {
+          env_var_name   = "NemsPoisonContainer"
+          container_name = "nems-poison"
         }
       ]
       env_vars_static = {

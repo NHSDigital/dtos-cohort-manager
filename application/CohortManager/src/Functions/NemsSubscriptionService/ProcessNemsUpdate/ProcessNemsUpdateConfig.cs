@@ -10,4 +10,7 @@ public class ProcessNemsUpdateConfig
     public required string ParticipantDemographicDataServiceURL { get; set; }
     public required string ServiceBusConnectionString_client_internal { get; set; }
     public required string ParticipantManagementTopic { get; set; }
+    [Required]
+    public required string nemsmeshfolder_STORAGE { get; set; }
+    public string NemsPoisonContainer { get; set; } = "nems-poison";
 }

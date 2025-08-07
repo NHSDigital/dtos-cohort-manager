@@ -368,6 +368,10 @@ function_apps = {
         {
           env_var_name   = "NemsMessages"
           container_name = "nems-updates"
+        },
+        {
+          env_var_name   = "NemsPoisonContainer"
+          container_name = "nems-poison"
         }
       ]
       env_vars_static = {
@@ -596,7 +600,7 @@ function_apps = {
           function_app_key = "CohortDistributionDataService"
         },
         {
-          env_var_name     = "BsSelectRequestAuditDataService"
+          env_var_name     = "BsSelectRequestAuditDataServiceURL"
           function_app_key = "BsSelectRequestAuditDataService"
         }
       ]

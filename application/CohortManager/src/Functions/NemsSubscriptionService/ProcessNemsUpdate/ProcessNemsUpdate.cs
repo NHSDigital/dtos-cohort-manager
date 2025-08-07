@@ -21,6 +21,7 @@ public class ProcessNemsUpdate
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
+    private readonly IBlobStorageHelper _blobStorageHelper;
     private readonly ProcessNemsUpdateConfig _config;
     private long nhsNumberLong;
 
@@ -32,6 +33,7 @@ public class ProcessNemsUpdate
         IHttpClientFunction httpClientFunction,
         IExceptionHandler exceptionHandler,
         IDataServiceClient<ParticipantDemographic> participantDemographic,
+        IBlobStorageHelper blobStorageHelper,
         IOptions<ProcessNemsUpdateConfig> processNemsUpdateConfig)
     {
         _logger = logger;
@@ -41,6 +43,7 @@ public class ProcessNemsUpdate
         _httpClientFunction = httpClientFunction;
         _exceptionHandler = exceptionHandler;
         _participantDemographic = participantDemographic;
+        _blobStorageHelper = blobStorageHelper;
         _config = processNemsUpdateConfig.Value;
     }
 
@@ -59,14 +62,36 @@ public class ProcessNemsUpdate
     [Function(nameof(ProcessNemsUpdate))]
     public async Task Run([BlobTrigger("nems-updates/{name}", Connection = "nemsmeshfolder_STORAGE")] Stream blobStream, string name)
     {
+        byte[]? originalFileBytes = null;
         try
         {
+            // Buffer the stream so we can re-use it for poison container if needed
+            if (blobStream.CanSeek)
+            {
+                blobStream.Position = 0;
+                using (var ms = new MemoryStream())
+                {
+                    await blobStream.CopyToAsync(ms);
+                    originalFileBytes = ms.ToArray();
+                }
+                blobStream.Position = 0;
+            }
+            else
+            {
+                using (var ms = new MemoryStream())
+                {
+                    await blobStream.CopyToAsync(ms);
+                    originalFileBytes = ms.ToArray();
+                }
+                blobStream = new MemoryStream(originalFileBytes);
+            }
+
             string? nhsNumber = await GetNhsNumberFromFile(blobStream, name);
 
             if (nhsNumber == null)
             {
                 _logger.LogInformation("There is no NHS number, unable to continue.");
-                return;
+                throw new InvalidDataException("No NHS number found"); // Force poison container
             }
 
             if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
@@ -80,7 +105,7 @@ public class ProcessNemsUpdate
             if (pdsRecord == null)
             {
                 _logger.LogInformation("There is no PDS record, unable to continue.");
-                return;
+                throw new InvalidDataException("No PDS record found"); // Force poison container
             }
 
             var retrievedPdsRecord = JsonSerializer.Deserialize<PdsDemographic>(pdsRecord);
@@ -90,7 +115,6 @@ public class ProcessNemsUpdate
                 _logger.LogInformation("NHS numbers match, processing the retrieved PDS record.");
                 await ProcessRecord(retrievedPdsRecord);
             }
-
             else
             {
                 var supersededRecord = new PdsDemographic()
@@ -117,13 +141,29 @@ public class ProcessNemsUpdate
                     _logger.LogInformation("Successfully unsubscribed from NEMS.");
                 }
             }
-
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There was an error processing NEMS update.");
+            _logger.LogError(ex, "There was an error processing NEMS update for file {FileName}. Moving to poison container.", name);
+            try
+            {
+                // Always use the original file bytes for poison container if available
+                if (originalFileBytes != null)
+                {
+                    using var ms = new MemoryStream(originalFileBytes);
+                    await CopyToPoisonContainer(ms, name);
+                }
+                else
+                {
+                    await CopyToPoisonContainer(blobStream, name);
+                }
+                _logger.LogInformation("Successfully copied failed NEMS file {FileName} to poison container.", name);
+            }
+            catch (Exception poisonEx)
+            {
+                _logger.LogError(poisonEx, "Failed to copy NEMS file {FileName} to poison container. Manual intervention required.", name);
+            }
         }
-
     }
 
     private async Task<string?> GetNhsNumberFromFile(Stream blobStream, string name)
@@ -220,6 +260,53 @@ public class ProcessNemsUpdate
         {
             _logger.LogError(ex, "There was an error unsubscribing from NEMS.");
             return false;
+        }
+    }
+
+    /// <summary>
+    /// Copies a failed NEMS file to the poison container for manual investigation.
+    /// Original file remains in nems-updates container.
+    /// </summary>
+    /// <param name="blobStream">The file content stream</param>
+    /// <param name="fileName">The original file name</param>
+    private async Task CopyToPoisonContainer(Stream blobStream, string fileName)
+    {
+        try
+        {
+            // Ensure stream is at the beginning if possible
+            if (blobStream.CanSeek)
+            {
+                blobStream.Position = 0;
+            }
+
+            using var ms = new MemoryStream();
+            await blobStream.CopyToAsync(ms);
+            var fileBytes = ms.ToArray();
+
+            var poisonFileName = $"{DateTime.UtcNow:yyyyMMdd_HHmmss}_{fileName}";
+            var blobFile = new BlobFile(fileBytes, poisonFileName);
+
+            var uploadResult = await _blobStorageHelper.UploadFileToBlobStorage(
+                _config.nemsmeshfolder_STORAGE,
+                _config.NemsPoisonContainer,
+                blobFile,
+                true
+            );
+
+            if (uploadResult)
+            {
+                _logger.LogInformation("Copied failed NEMS file {OriginalFileName} to poison container as {PoisonFileName}. Original file retained for investigation.",
+                    fileName, poisonFileName);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Failed to upload file {poisonFileName} to poison container");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error copying file {FileName} to poison container", fileName);
+            throw;
         }
     }
 }
