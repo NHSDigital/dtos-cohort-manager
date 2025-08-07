@@ -872,6 +872,11 @@ function_apps = {
         {
           env_var_name     = "RemoveOldValidationRecordUrl"
           function_app_key = "RemoveValidationExceptionData"
+        },
+        {
+          env_var_name     = "SendServiceNowMessageURL"
+          function_app_key = "ServiceNowMessageHandler"
+          endpoint_name    = "servicenow/send"
         }
       ]
       env_vars_static = {

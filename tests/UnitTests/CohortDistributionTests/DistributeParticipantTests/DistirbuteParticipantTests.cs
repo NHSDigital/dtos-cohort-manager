@@ -15,8 +15,9 @@ public class DistributeParticipantTests
     private readonly Mock<IOptions<DistributeParticipantConfig>> _config = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<TaskOrchestrationContext> _mockContext = new();
-    private BasicParticipantCsvRecord _request;
-    private CohortDistributionParticipant _cohortDistributionRecord;
+    private readonly Mock<IHttpClientFunction> _mockHttpClientFunction = new();
+    private readonly BasicParticipantCsvRecord _request;
+    private readonly CohortDistributionParticipant _cohortDistributionRecord;
 
     public DistributeParticipantTests()
     {
@@ -47,7 +48,11 @@ public class DistributeParticipantTests
             TransformDataServiceURL = "TransformDataServiceURL",
             ParticipantManagementUrl = "ParticipantManagementUrl",
             CohortDistributionDataServiceUrl = "CohortDistributionDataServiceUrl",
-            ParticipantDemographicDataServiceUrl = "ParticipantDemographicDataServiceUrl"
+            ParticipantDemographicDataServiceUrl = "ParticipantDemographicDataServiceUrl",
+            CohortDistributionTopic = "cohort-distribution-topic",
+            DistributeParticipantSubscription = "distribute-participant-sub",
+            RemoveOldValidationRecordUrl = "RemoveOldValidationRecordUrl",
+            SendServiceNowMessageURL = "SendServiceNowMessageURL"
         };
 
         _config.Setup(x => x.Value).Returns(config);
@@ -74,7 +79,8 @@ public class DistributeParticipantTests
 
         _sut = new(NullLogger<DistributeParticipant>.Instance,
                   _config.Object,
-                  _handleException.Object);
+                  _handleException.Object,
+                  _mockHttpClientFunction.Object);
     }
 
     [TestMethod]

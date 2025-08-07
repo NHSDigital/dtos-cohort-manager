@@ -22,6 +22,7 @@ services:
       - StaticValidationURL=http://static-validation:7074/api/StaticValidation
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - RemoveOldValidationRecordUrl=http://remove-validation-exception-data:7085/api/RemoveValidationExceptionData
+      - SendServiceNowMessageURL=http://servicenow-message-handler:9092/api/servicenow/send
       - IgnoreParticipantExceptions=false
       - IsExtractedToBSSelect=true
       - MaxLookupValidationRetries=3
