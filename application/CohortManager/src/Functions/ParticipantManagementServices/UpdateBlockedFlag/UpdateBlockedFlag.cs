@@ -3,28 +3,26 @@ namespace NHS.CohortManager.ParticipantManagementService;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
-
-using DataServices.Client;
 using Common;
 using System.Net;
-using Model;
+using System.Text.Json;
+using Azure.Messaging.EventGrid.SystemEvents;
 
 public class UpdateBlockedFlag
 {
-    private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
-    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
     private readonly ILogger<UpdateBlockedFlag> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IExceptionHandler _exceptionHandler;
+    private readonly IBlockParticipantHandler _blockParticipantHandler;
+
+    private const string cannotBeDeserializedMessage = "Request couldn't be deserialized";
 
 
-    public UpdateBlockedFlag(IDataServiceClient<ParticipantManagement> participantManagementClient, IDataServiceClient<ParticipantDemographic> participantDemographicClient, ILogger<UpdateBlockedFlag> logger, ICreateResponse createResponse, IExceptionHandler exceptionHandler)
+
+    public UpdateBlockedFlag(ILogger<UpdateBlockedFlag> logger, ICreateResponse createResponse, IBlockParticipantHandler blockParticipantHandler)
     {
-        _participantManagementClient = participantManagementClient;
-        _participantDemographicClient = participantDemographicClient;
         _logger = logger;
         _createResponse = createResponse;
-        _exceptionHandler = exceptionHandler;
+        _blockParticipantHandler = blockParticipantHandler;
     }
 
     /// <summary>
@@ -40,8 +38,107 @@ public class UpdateBlockedFlag
     [Function("BlockParticipant")]
     public async Task<HttpResponseData> BlockParticipant([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
+
+
         _logger.LogInformation("Block Participant Called");
-        return await Main(1, req);
+        try
+        {
+            var blockParticipantDTOJson = await req.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(blockParticipantDTOJson))
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, cannotBeDeserializedMessage);
+            }
+
+            var blockParticipantDTO = JsonSerializer.Deserialize<BlockParticipantDto>(blockParticipantDTOJson);
+            if (blockParticipantDTO == null)
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, cannotBeDeserializedMessage);
+            }
+
+            var blockParticipantResult = await _blockParticipantHandler.BlockParticipant(blockParticipantDTO);
+
+            if (blockParticipantResult.Success)
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, blockParticipantResult.ResponseMessage!);
+            }
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, blockParticipantResult.ResponseMessage!);
+        }
+        catch (JsonException jex)
+        {
+            _logger.LogError(jex, cannotBeDeserializedMessage);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
+        catch (FormatException fex)
+        {
+            _logger.LogError(fex, cannotBeDeserializedMessage);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while blocking a participant");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        }
+
+    }
+    /// <summary>
+    /// Get Participant details will look up a participant in cohort manager if they do not exist in cohort manager then they
+    /// will be looked up in PDS. Once they are found a three point check will be carried out to ensure thier details matched, the found
+    /// details will be returned for manual assurance that the correct individual has been found
+    /// </summary>
+    /// <param name="req"></param>
+    /// <returns>BlockParticipantDto or Error message</returns>
+    [Function("GetParticipant")]
+    public async Task<HttpResponseData> GetParticipantDetails([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
+    {
+        _logger.LogInformation("Get Participant Details Called");
+        try
+        {
+            var blockParticipantDTOJson = await req.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(blockParticipantDTOJson))
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, cannotBeDeserializedMessage);
+            }
+
+            var blockParticipantDTO = JsonSerializer.Deserialize<BlockParticipantDto>(blockParticipantDTOJson);
+            if (blockParticipantDTO == null)
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, cannotBeDeserializedMessage);
+            }
+
+            var getParticipantResult = await _blockParticipantHandler.GetParticipant(blockParticipantDTO);
+
+            if (getParticipantResult.Success)
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, getParticipantResult.ResponseMessage!);
+            }
+
+            if (getParticipantResult.ResponseMessage == "Participant Couldn't be found")
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, getParticipantResult.ResponseMessage);
+            }
+            if (getParticipantResult.ResponseMessage == "Invalid NHS Number")
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, getParticipantResult.ResponseMessage);
+            }
+
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, getParticipantResult.ResponseMessage!);
+
+        }
+        catch (JsonException jex)
+        {
+            _logger.LogError(jex, cannotBeDeserializedMessage);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
+        catch (FormatException fex)
+        {
+            _logger.LogError(fex, cannotBeDeserializedMessage);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while blocking a participant");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        }
     }
 
     /// <summary>
@@ -58,68 +155,35 @@ public class UpdateBlockedFlag
     public async Task<HttpResponseData> UnblockParticipant([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         _logger.LogInformation("Unblock Participant Called");
-        return await Main(0, req);
-    }
-
-    private async Task<HttpResponseData> Main(short BlockedFlag, HttpRequestData req)
-    {
-        try
+        var nhsNumber = req.Query["nhsNumber"];
+        if (string.IsNullOrWhiteSpace(nhsNumber))
         {
-            string nhsNumberStr = req.Query["NhsNumber"]!;
-            string dateOfBirth = req.Query["DateOfBirth"]!;
-            string familyName = req.Query["FamilyName"]!;
-
-            if (string.IsNullOrWhiteSpace(nhsNumberStr) ||
-                string.IsNullOrWhiteSpace(dateOfBirth) ||
-                string.IsNullOrWhiteSpace(familyName))
-            {
-                throw new InvalidDataException("Missing or empty required query parameters.");
-            }
-
-            long nhsNumber = long.Parse(nhsNumberStr);
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumberStr)) {
-                throw new InvalidDataException("Invalid NHS Number");
-            }
-
-            // Check participant exists in Participant Demographic table.
-            ParticipantDemographic participantDemographic = await _participantDemographicClient
-                .GetSingleByFilter(i => i.NhsNumber == nhsNumber && i.DateOfBirth == dateOfBirth && i.FamilyName == familyName);
-
-            if (participantDemographic == null)
-                throw new KeyNotFoundException("Could not find participant");
-
-            // Change blocked flag
-            ParticipantManagement participantManagement = await _participantManagementClient.GetSingleByFilter(i => i.NHSNumber == nhsNumber && i.ScreeningId == 1); // TODO Unhardcode this (Phase 2)
-            participantManagement.BlockedFlag = BlockedFlag;
-
-            bool blockFlagUpdated = await _participantManagementClient.Update(participantManagement);
-            if (!blockFlagUpdated)
-                throw new HttpRequestException("Failed to update blocked flag");
-
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "Blocked flag updated successfully");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "No NHS Number provided");
         }
-        catch (InvalidDataException ex)
+
+        if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
         {
-            await HandleException(ex, req);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS Number or missing parameters");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Invalid NHS Number provided");
         }
-        catch (KeyNotFoundException ex)
+
+        var nhsNumberParsed = long.Parse(nhsNumber);
+
+        var unBlockParticipantResult = await _blockParticipantHandler.UnblockParticipant(nhsNumberParsed);
+
+        if (unBlockParticipantResult.Success)
         {
-            await HandleException(ex, req);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Participant not found");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, "Participant successfully unblocked");
         }
-        catch (Exception ex)
+        if (unBlockParticipantResult.ResponseMessage == "Participant Couldn't be found")
         {
-            await HandleException(ex, req);
-            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, "An error occurred while processing the request");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, unBlockParticipantResult.ResponseMessage);
         }
+
+        return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, unBlockParticipantResult.ResponseMessage!);
+
+
 
     }
 
-    private async Task HandleException(Exception ex, HttpRequestData req)
-    {
-        _logger.LogError(ex, "An error occurred while processing the request for blocking/unblocking a participant");
-        await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, req.Query["NhsNumber"]!, "", "1", req.ToString()!);
-    }
-    
+
 }

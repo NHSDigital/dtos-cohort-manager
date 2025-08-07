@@ -1,9 +1,11 @@
+namespace NHS.CohortManager.DemographicServices;
+
 using System.Security.Cryptography.X509Certificates;
 using Azure.Identity;
 using Azure.Security.KeyVault.Certificates;
 using Microsoft.Extensions.Logging;
 
-namespace NHS.CohortManager.DemographicServices;
+
 
 public static class CertificateExtensions
 {
@@ -26,15 +28,16 @@ public static class CertificateExtensions
             var certResult = await certClient.DownloadCertificateAsync(config.NemsKeyName);
             return certResult.Value;
         }
-        
+
         if (!string.IsNullOrEmpty(config.NemsLocalCertPath))
         {
             logger.LogInformation("Loading NEMS certificate from local file");
             return !string.IsNullOrEmpty(config.NemsLocalCertPassword)
                 ? new X509Certificate2(config.NemsLocalCertPath, config.NemsLocalCertPassword)
                 : new X509Certificate2(config.NemsLocalCertPath);
+
         }
-        
+
         throw new InvalidOperationException("No certificate configuration found. Please configure either KeyVaultConnectionString or NemsLocalCertPath.");
     }
 }

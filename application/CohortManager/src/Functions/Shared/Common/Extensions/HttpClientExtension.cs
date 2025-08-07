@@ -5,9 +5,9 @@ using Microsoft.Extensions.Hosting;
 
 public static class HttpClientExtension
 {
-    public static IHostBuilder AddHttpClient(this IHostBuilder hostBuilder, bool UseFakeHttpService = false)
+    public static IHostBuilder AddHttpClient(this IHostBuilder hostBuilder, bool useFakeHttpService = false)
     {
-        if (UseFakeHttpService)
+        if (useFakeHttpService)
         {
             return hostBuilder.ConfigureServices(_ =>
             {
@@ -23,12 +23,20 @@ public static class HttpClientExtension
         });
     }
 
-    public static IHostBuilder AddNemsHttpClient(this IHostBuilder hostBuilder)
+    public static IHostBuilder AddNemsHttpClient(this IHostBuilder hostBuilder, bool useStubbedEndpoint = false)
     {
         return hostBuilder.ConfigureServices(_ =>
         {
             _.AddTransient<INemsHttpClientProvider, NemsHttpClientProvider>();
-            _.AddTransient<INemsHttpClientFunction, NemsHttpClientFunction>();
+            if (useStubbedEndpoint)
+            {
+                _.AddTransient<INemsHttpClientFunction, StubbedNemsHttpClientFunction>();
+            }
+            else
+            {
+                _.AddTransient<INemsHttpClientFunction, NemsHttpClientFunction>();
+            }
+
         });
     }
 }
