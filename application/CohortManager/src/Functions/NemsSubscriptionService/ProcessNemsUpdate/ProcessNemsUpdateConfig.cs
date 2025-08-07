@@ -12,4 +12,7 @@ public class ProcessNemsUpdateConfig
 
     public string ParticipantManagementTopic { get; set; } = null!;
 
+    [Required]
+    public required string DemographicDataServiceURL { get; set; }
+
 }

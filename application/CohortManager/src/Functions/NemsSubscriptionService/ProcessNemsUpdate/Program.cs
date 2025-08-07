@@ -10,6 +10,9 @@ using NHS.Screening.ProcessNemsUpdate;
 var host = new HostBuilder()
     .AddConfiguration<ProcessNemsUpdateConfig>(out ProcessNemsUpdateConfig config)
     .ConfigureFunctionsWorkerDefaults()
+      .AddDataServicesHandler()
+        .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
+        .Build()
     .ConfigureServices(services =>
     {
         services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();

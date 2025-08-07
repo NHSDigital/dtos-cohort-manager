@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
-using Hl7.Fhir.ElementModel.Types;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -71,6 +70,12 @@ public class ProcessNemsUpdate
                 return;
             }
 
+            if (!long.TryParse(nhsNumber, out nhsNumberLong))
+            {
+                _logger.LogError("there was a problem parsing the NHS number from blob store in the ProcessNemsUpdate function");
+                return;
+            }
+
             var pdsResponse = await RetrievePdsRecord(nhsNumber);
             if (pdsResponse!.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
@@ -119,6 +124,7 @@ public class ProcessNemsUpdate
                 RemovalEffectiveFromDate = System.DateTime.UtcNow.Date.ToString("yyyyMMdd")
             };
             var participant = new Participant(pdsDemographic);
+            participant.RecordType = Actions.Removed;
             //sends record for an update
             await ProcessRecord(participant);
             return;
@@ -206,10 +212,10 @@ public class ProcessNemsUpdate
     {
         var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
 
-
         // TODO validate all dates in record before enqueuing
-
         var existingParticipant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);
+
+
         if (existingParticipant == null)
         {
             participant.RecordType = Actions.New;
@@ -217,7 +223,11 @@ public class ProcessNemsUpdate
         }
         else
         {
-            participant.RecordType = Actions.Amended;
+            if (participant.RecordType != Actions.Removed)
+            {
+                participant.RecordType = Actions.Amended;
+            }
+
             _logger.LogWarning("The participant already exists in Cohort Manager. Existing record will get updated.");
         }
 
