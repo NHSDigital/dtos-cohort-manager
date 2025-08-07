@@ -36,7 +36,7 @@ public class ProcessNemsUpdateTests
             RetrievePdsDemographicURL = "RetrievePdsDemographic",
             NemsMessages = "nems-messages",
             UnsubscribeNemsSubscriptionUrl = "Unsubscribe",
-            ParticipantDemographicDataServiceURL = "ParticipantDemographicDataServiceURL",
+            DemographicDataServiceURL = "ParticipantDemographicDataServiceURL",
             ServiceBusConnectionString_client_internal = "ServiceBusConnectionString_client_internal",
             ParticipantManagementTopic = "update-participant-queue"
         };
