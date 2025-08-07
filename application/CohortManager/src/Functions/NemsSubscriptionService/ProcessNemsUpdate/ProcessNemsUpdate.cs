@@ -64,10 +64,10 @@ public class ProcessNemsUpdate
         {
             var nhsNumber = await GetNhsNumberFromFile(blobStream, name);
 
-            if (nhsNumber == null)
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                _logger.LogInformation("There is no NHS number, unable to continue.");
-                return;
+                _logger.LogError("There was a problem parsing the NHS number from blob store in the ProcessNemsUpdate function");
+                throw new InvalidDataException("Invalid NHS Number");
             }
 
             if (!long.TryParse(nhsNumber, out nhsNumberLong))
