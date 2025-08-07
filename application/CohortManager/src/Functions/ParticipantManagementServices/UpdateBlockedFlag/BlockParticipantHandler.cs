@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
@@ -70,17 +71,12 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
     public async Task<BlockParticipantResult> UnblockParticipant(long nhsNumber)
     {
-        if (!ValidationHelper.ValidateNHSNumber(nhsNumber.ToString()))
-        {
-            _logger.LogWarning("Invalid NHS Number and cannot be unblocked");
-            return new BlockParticipantResult(false, "Invalid NHS Number");
-        }
 
         var participantManagementRecord = await _participantManagementDataService.GetSingleByFilter(x => x.NHSNumber == nhsNumber);
 
         if (participantManagementRecord == null)
         {
-            return new BlockParticipantResult(false, "Participant couldn't be found");
+            return new BlockParticipantResult(false, "Participant Couldn't be found");
         }
 
         if (participantManagementRecord.BlockedFlag != 1)
@@ -227,6 +223,12 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     private async Task<ParticipantDemographic> GetPDSParticipant(long nhsNumber)
     {
         var pdsResponse = await _httpClient.SendGet(_config.RetrievePdsDemographicURL, CreateNhsNumberQueryParams(nhsNumber));
+        if (string.IsNullOrEmpty(pdsResponse))
+        {
+            _logger.LogWarning("RetrievePDSDemographic Didn't return a valid response");
+            return null!;
+        }
+
         var pdsDemographic = JsonSerializer.Deserialize<ParticipantDemographic>(pdsResponse);
 
         return pdsDemographic!;

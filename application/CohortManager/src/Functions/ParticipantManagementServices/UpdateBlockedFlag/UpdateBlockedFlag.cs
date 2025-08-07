@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Common;
 using System.Net;
 using System.Text.Json;
+using Azure.Messaging.EventGrid.SystemEvents;
 
 public class UpdateBlockedFlag
 {
@@ -91,8 +92,13 @@ public class UpdateBlockedFlag
         _logger.LogInformation("Get Participant Details Called");
         try
         {
-            var blockParticipantDTO = await req.ReadFromJsonAsync<BlockParticipantDto>();
+            var blockParticipantDTOJson = await req.ReadAsStringAsync();
+            if (string.IsNullOrWhiteSpace(blockParticipantDTOJson))
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Unable to parse request");
+            }
 
+            var blockParticipantDTO = JsonSerializer.Deserialize<BlockParticipantDto>(blockParticipantDTOJson);
             if (blockParticipantDTO == null)
             {
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "Unable to parse request");
@@ -100,7 +106,21 @@ public class UpdateBlockedFlag
 
             var getParticipantResult = await _blockParticipantHandler.GetParticipant(blockParticipantDTO);
 
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, getParticipantResult.ResponseMessage!);
+            if (getParticipantResult.Success)
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, getParticipantResult.ResponseMessage!);
+            }
+
+            if (getParticipantResult.ResponseMessage == "Participant Couldn't be found")
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "Participant Not found");
+            }
+            if (getParticipantResult.ResponseMessage == "Invalid NHS Number")
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, getParticipantResult.ResponseMessage);
+            }
+
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, getParticipantResult.ResponseMessage!);
 
         }
         catch (JsonException jex)
@@ -149,12 +169,18 @@ public class UpdateBlockedFlag
 
         var unBlockParticipantResult = await _blockParticipantHandler.UnblockParticipant(nhsNumberParsed);
 
-        if (!unBlockParticipantResult.Success)
+        if (unBlockParticipantResult.Success)
         {
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, unBlockParticipantResult.ResponseMessage!);
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, "Participant successfully unblocked");
+        }
+        if (unBlockParticipantResult.ResponseMessage == "Participant Couldn't be found")
+        {
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "Participant Not found");
         }
 
-        return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, "Participant successfully unblocked");
+        return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, unBlockParticipantResult.ResponseMessage!);
+
+
 
     }
 
