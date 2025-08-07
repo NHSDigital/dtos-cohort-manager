@@ -18,13 +18,15 @@ public class DistributeParticipant
     private readonly ILogger<DistributeParticipant> _logger;
     private readonly DistributeParticipantConfig _config;
     private readonly IExceptionHandler _exceptionHandler;
+    private readonly IHttpClientFunction _httpClientFunction;
 
     public DistributeParticipant(ILogger<DistributeParticipant> logger, IOptions<DistributeParticipantConfig> config,
-                                IExceptionHandler exceptionHandler)
+                                IExceptionHandler exceptionHandler, IHttpClientFunction httpClientFunction)
     {
         _logger = logger;
         _config = config.Value;
         _exceptionHandler = exceptionHandler;
+        _httpClientFunction = httpClientFunction;
     }
 
     /// <summary>
@@ -59,7 +61,6 @@ public class DistributeParticipant
         {
             _logger.LogError(ex, "Failed to start distribute participant");
             await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(), "Unknown");
-
         }
     }
 
@@ -111,7 +112,17 @@ public class DistributeParticipant
                 await HandleExceptionAsync(new InvalidOperationException("Failed to add participant to the table"), participantRecord);
                 return;
             }
-            _logger.LogInformation("Participant has been successfully put on the cohort distribution table");
+
+            _logger.LogInformation(
+                "Participant has been successfully put on the cohort distribution table. Participant Id: {ParticipantId}, Screening Id: {ScreeningId}, Source: {FileName}",
+                participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
+
+            // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
+            if (participantRecord.FromServiceNow)
+            {
+                // In this scenario, the FileName property should be holding the ServiceNow Case Number
+                await SendServiceNowMessage(participantRecord.FileName);
+            }
         }
         catch (Exception ex)
         {
@@ -123,5 +134,17 @@ public class DistributeParticipant
     {
         _logger.LogError(ex, "Distribute Participant failed");
         await _exceptionHandler.CreateSystemExceptionLog(ex, participantRecord.BasicParticipantData, participantRecord.FileName);
+    }
+
+    private async Task SendServiceNowMessage(string serviceNowCaseNumber)
+    {
+        var url = $"{_config.SendServiceNowMessageURL}/{serviceNowCaseNumber}";
+        var requestBody = new SendServiceNowMessageRequestBody
+        {
+            MessageType = ServiceNowMessageType.Success
+        };
+        var json = JsonSerializer.Serialize(requestBody);
+
+        await _httpClientFunction.SendPut(url, json);
     }
 }

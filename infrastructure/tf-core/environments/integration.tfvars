@@ -656,6 +656,11 @@ function_apps = {
         {
           env_var_name     = "RemoveOldValidationRecordUrl"
           function_app_key = "RemoveValidationExceptionData"
+        },
+        {
+          env_var_name     = "SendServiceNowMessageURL"
+          function_app_key = "ServiceNowMessageHandler"
+          endpoint_name    = "servicenow/send"
         }
       ]
       env_vars_static = {
@@ -1091,7 +1096,7 @@ linux_web_app = {
         from_key_vault = {
           # env_var_name          = "key_vault_secret_name"
           AUTH_CIS2_CLIENT_SECRET = "auth-cis2-client-secret"
-          COHORT_MANAGER_USERS    = "cohort-manager-users"
+          COHORT_MANAGER_RBAC_CODE    = "cohort-manager-users"
           NEXTAUTH_SECRET         = "nextauth-secret"
         }
         local_urls = {
