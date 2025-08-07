@@ -84,7 +84,7 @@ public class ProcessNemsUpdate
                 return;
             }
 
-            if (pdsResponse == null)
+            if (pdsResponse is null)
             {
                 _logger.LogInformation("There is no PDS record, unable to continue.");
                 return;
