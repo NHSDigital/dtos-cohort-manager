@@ -17,15 +17,18 @@ public class ManageServiceNowParticipantFunction
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
+    private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
 
     public ManageServiceNowParticipantFunction(ILogger<ManageServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> addParticipantConfig,
-        IHttpClientFunction httpClientFunction, IExceptionHandler handleException, IDataServiceClient<ParticipantManagement> participantManagementClient)
+        IHttpClientFunction httpClientFunction, IExceptionHandler handleException, IDataServiceClient<ParticipantManagement> participantManagementClient,
+        IDataServiceClient<CohortDistribution> cohortDistributionClient)
     {
         _logger = logger;
         _config = addParticipantConfig.Value;
         _httpClientFunction = httpClientFunction;
         _exceptionHandler = handleException;
         _participantManagementClient = participantManagementClient;
+        _cohortDistributionClient = cohortDistributionClient;
     }
 
     /// <summary>
@@ -44,7 +47,7 @@ public class ManageServiceNowParticipantFunction
             var participantManagement = await _participantManagementClient.GetSingleByFilter(
                 x => x.NHSNumber == serviceNowParticipant.NhsNumber && x.ScreeningId == serviceNowParticipant.ScreeningId);
 
-            var success = await ProcessParticipantRecord(serviceNowParticipant, participantManagement);
+            var success = await ProcessParticipantRecord(serviceNowParticipant, participantManagement, participantDemographic);
             if (!success)
             {
                 await HandleException(new Exception("Participant Management Data Service request failed"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
@@ -111,11 +114,11 @@ public class ManageServiceNowParticipantFunction
         return true;
     }
 
-    private async Task<bool> ProcessParticipantRecord(ServiceNowParticipant serviceNowParticipant, ParticipantManagement? participantManagement)
+    private async Task<bool> ProcessParticipantRecord(ServiceNowParticipant serviceNowParticipant, ParticipantManagement? participantManagement, ParticipantDemographic participantDemographic)
     {
         if (participantManagement is null)
         {
-            return await AddNewParticipant(serviceNowParticipant);
+            return await AddNewParticipant(serviceNowParticipant, participantDemographic);
         }
 
         if (participantManagement.BlockedFlag == 1)
@@ -124,10 +127,10 @@ public class ManageServiceNowParticipantFunction
             return true;
         }
 
-        return await UpdateExistingParticipant(serviceNowParticipant, participantManagement);
+        return await UpdateExistingParticipant(serviceNowParticipant, participantManagement, participantDemographic);
     }
 
-    private async Task<bool> AddNewParticipant(ServiceNowParticipant serviceNowParticipant)
+    private async Task<bool> AddNewParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantDemographic participantDemographic)
     {
         _logger.LogInformation("Participant not in participant management table, adding new record");
 
@@ -149,10 +152,18 @@ public class ManageServiceNowParticipantFunction
             _logger.LogInformation("Participant with NHS Number: {NhsNumber} set as High Risk", serviceNowParticipant.NhsNumber);
         }
 
-        return await _participantManagementClient.Add(participantToAdd);
+        var participantManagementSuccess = await _participantManagementClient.Add(participantToAdd);
+        if (!participantManagementSuccess)
+        {
+            return false;
+        }
+
+        await HandleGpCodeForAddParticipant(serviceNowParticipant, participantDemographic);
+
+        return true;
     }
 
-    private async Task<bool> UpdateExistingParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantManagement participantManagement)
+    private async Task<bool> UpdateExistingParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantManagement participantManagement, ParticipantDemographic participantDemographic)
     {
         _logger.LogInformation("Existing participant management record found, updating record {ParticipantId}", participantManagement.ParticipantId);
 
@@ -163,7 +174,15 @@ public class ManageServiceNowParticipantFunction
 
         HandleVhrFlagForExistingParticipant(serviceNowParticipant, participantManagement);
 
-        return await _participantManagementClient.Update(participantManagement);
+        var participantManagementSuccess = await _participantManagementClient.Update(participantManagement);
+        if (!participantManagementSuccess)
+        {
+            return false;
+        }
+
+        await HandleGpCodeForAmendParticipant(serviceNowParticipant, participantDemographic);
+
+        return true;
     }
 
     private void HandleVhrFlagForExistingParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantManagement participantManagement)
@@ -179,6 +198,68 @@ public class ManageServiceNowParticipantFunction
         if (participantManagement.IsHigherRisk == 1)
         {
             _logger.LogInformation("Participant {ParticipantId} still maintained as High Risk", participantManagement.ParticipantId);
+        }
+    }
+
+    private async Task HandleGpCodeForAddParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantDemographic participantDemographic)
+    {
+        var hasDummyGpCode = CheckIfHasDummyGpCode(serviceNowParticipant);
+        if (!hasDummyGpCode)
+        {
+            return;
+        }
+
+        _logger.LogInformation("ADD participant with NHS Number: {NhsNumber} has dummy GP code: {GpCode}, updating Cohort Distribution table",
+            serviceNowParticipant.NhsNumber, serviceNowParticipant.RequiredGpCode);
+
+        await UpdateCohortDistributionGpCode(serviceNowParticipant, serviceNowParticipant.RequiredGpCode!, false);
+    }
+
+    private async Task HandleGpCodeForAmendParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantDemographic participantDemographic)
+    {
+        if (string.IsNullOrEmpty(participantDemographic.PrimaryCareProvider)) return;
+
+        _logger.LogInformation("AMEND participant with NHS Number: {NhsNumber}, overwriting Primary_Care_Provider with PDS data: {UpdatedGpCode}",
+            serviceNowParticipant.NhsNumber, participantDemographic.PrimaryCareProvider);
+
+        await UpdateCohortDistributionGpCode(serviceNowParticipant, participantDemographic.PrimaryCareProvider, true);
+    }
+
+    private async Task UpdateCohortDistributionGpCode(ServiceNowParticipant serviceNowParticipant, string gpCode, bool isAmendParticipant)
+    {
+        try
+        {
+            var cohortDistribution = await _cohortDistributionClient.GetSingleByFilter(x => x.NHSNumber == serviceNowParticipant.NhsNumber);
+
+            if (cohortDistribution == null)
+            {
+                _logger.LogError("No Cohort Distribution record found for NHS Number: {NhsNumber}", serviceNowParticipant.NhsNumber);
+                return;
+            }
+
+            if (isAmendParticipant && cohortDistribution.PrimaryCareProvider == gpCode)
+            {
+                _logger.LogInformation("Primary_Care_Provider for NHS Number: {NhsNumber} is already up to date: {GpCode}", serviceNowParticipant.NhsNumber, gpCode);
+                return;
+            }
+
+            cohortDistribution.PrimaryCareProvider = gpCode;
+            cohortDistribution.RecordUpdateDateTime = DateTime.UtcNow;
+
+            var success = await _cohortDistributionClient.Update(cohortDistribution);
+            if (success)
+            {
+                _logger.LogInformation("Successfully updated Primary Care Provider in Cohort Distribution for NHS Number: {NhsNumber}", serviceNowParticipant.NhsNumber);
+            }
+
+            if (!success)
+            {
+                _logger.LogError("Failed to update Primary Care Provider in Cohort Distribution for NHS Number: {NhsNumber}", serviceNowParticipant.NhsNumber);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating Cohort Distribution GP code for NHS Number: {NhsNumber}", serviceNowParticipant.NhsNumber);
         }
     }
 
@@ -213,5 +294,11 @@ public class ManageServiceNowParticipantFunction
     private static bool CheckIfVhrParticipant(ServiceNowParticipant serviceNowParticipant)
     {
         return serviceNowParticipant.ReasonForAdding == ServiceNowReasonsForAdding.VeryHighRisk;
+    }
+
+    private static bool CheckIfHasDummyGpCode(ServiceNowParticipant serviceNowParticipant)
+    {
+        return !string.IsNullOrEmpty(serviceNowParticipant.RequiredGpCode) &&
+               serviceNowParticipant.RequiredGpCode.StartsWith("ZZZ", StringComparison.OrdinalIgnoreCase);
     }
 }
