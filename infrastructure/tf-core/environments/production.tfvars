@@ -1229,6 +1229,9 @@ storage_accounts = {
       nems-config = {
         container_name = "nems-config"
       }
+      nems-poison = {
+        container_name = "nems-poison"
+      }
     }
   }
 }
