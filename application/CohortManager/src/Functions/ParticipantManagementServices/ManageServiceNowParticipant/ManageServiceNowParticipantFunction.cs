@@ -77,7 +77,6 @@ public class ManageServiceNowParticipantFunction
     {
         var participantToSendToQueue = new BasicParticipantCsvRecord
         {
-            FromServiceNow = true,
             FileName = serviceNowParticipant.ServiceNowCaseNumber,
             BasicParticipantData = new BasicParticipantData
             {
@@ -87,6 +86,7 @@ public class ManageServiceNowParticipantFunction
             },
             Participant = new Participant
             {
+                ReferralFlag = "1",
                 Postcode = participantDemographic.PostCode,
                 ScreeningAcronym = "BSS" // TODO: Remove hardcoding when adding support for additional screening programs
             }

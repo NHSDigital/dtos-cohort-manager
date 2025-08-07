@@ -11,22 +11,19 @@ using Model;
 using System.Text.Json;
 using Common;
 using Activities = DistributeParticipantActivities;
-using Model.Enums;
 
 public class DistributeParticipant
 {
     private readonly ILogger<DistributeParticipant> _logger;
     private readonly DistributeParticipantConfig _config;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IHttpClientFunction _httpClientFunction;
 
     public DistributeParticipant(ILogger<DistributeParticipant> logger, IOptions<DistributeParticipantConfig> config,
-                                IExceptionHandler exceptionHandler, IHttpClientFunction httpClientFunction)
+                                IExceptionHandler exceptionHandler)
     {
         _logger = logger;
         _config = config.Value;
         _exceptionHandler = exceptionHandler;
-        _httpClientFunction = httpClientFunction;
     }
 
     /// <summary>
@@ -118,10 +115,10 @@ public class DistributeParticipant
                 participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
 
             // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
-            if (participantRecord.FromServiceNow)
+            if (participantRecord.Participant.ReferralFlag == "1")
             {
                 // In this scenario, the FileName property should be holding the ServiceNow Case Number
-                await SendServiceNowMessage(participantRecord.FileName);
+                await context.CallActivityAsync(nameof(Activities.SendServiceNowMessage), participantRecord.FileName);
             }
         }
         catch (Exception ex)
@@ -134,17 +131,5 @@ public class DistributeParticipant
     {
         _logger.LogError(ex, "Distribute Participant failed");
         await _exceptionHandler.CreateSystemExceptionLog(ex, participantRecord.BasicParticipantData, participantRecord.FileName);
-    }
-
-    private async Task SendServiceNowMessage(string serviceNowCaseNumber)
-    {
-        var url = $"{_config.SendServiceNowMessageURL}/{serviceNowCaseNumber}";
-        var requestBody = new SendServiceNowMessageRequestBody
-        {
-            MessageType = ServiceNowMessageType.Success
-        };
-        var json = JsonSerializer.Serialize(requestBody);
-
-        await _httpClientFunction.SendPut(url, json);
     }
 }
