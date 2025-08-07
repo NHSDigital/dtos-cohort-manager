@@ -72,10 +72,10 @@ public class ProcessNemsUpdate
             }
             nhsNumberLong = long.Parse(nhsNumber!);
 
-            var pdsResponse = await RetrievePdsRecord(nhsNumber);
+            var pdsResponse = await RetrievePdsRecord(nhsNumber!);
             if (pdsResponse!.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                await processPdsResponse(pdsResponse, nhsNumber);
+                await processPdsResponse(pdsResponse, nhsNumber!);
                 // we can stop processing here as we know that not found means the participant ether needed an update or they were actually not found
                 return;
             }
@@ -87,11 +87,11 @@ public class ProcessNemsUpdate
             if (retrievedPdsRecord?.NhsNumber == nhsNumber)
             {
                 _logger.LogInformation("NHS numbers match, processing the retrieved PDS record.");
-                await ProcessRecord(new Participant(retrievedPdsRecord));
+                await ProcessRecord(new Participant(retrievedPdsRecord!));
             }
             else
             {
-                await unsubscribeFromNems(nhsNumber, retrievedPdsRecord!);
+                await unsubscribeFromNems(nhsNumber!, retrievedPdsRecord!);
             }
 
         }
