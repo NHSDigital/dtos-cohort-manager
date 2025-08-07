@@ -84,12 +84,6 @@ public class ProcessNemsUpdate
                 return;
             }
 
-            if (pdsResponse is null)
-            {
-                _logger.LogInformation("There is no PDS record, unable to continue.");
-                return;
-            }
-
             var retrievedPdsRecord = await pdsResponse.Content.ReadFromJsonAsync<PdsDemographic>();
 
             if (retrievedPdsRecord?.NhsNumber == nhsNumber)
@@ -190,7 +184,7 @@ public class ProcessNemsUpdate
         }
     }
 
-    private async Task<HttpResponseMessage?> RetrievePdsRecord(string nhsNumber)
+    private async Task<HttpResponseMessage> RetrievePdsRecord(string nhsNumber)
     {
         try
         {
@@ -204,7 +198,7 @@ public class ProcessNemsUpdate
         catch (Exception ex)
         {
             _logger.LogError(ex, "There was an error retrieving the PDS record.");
-            return null;
+            throw;
         }
     }
 
