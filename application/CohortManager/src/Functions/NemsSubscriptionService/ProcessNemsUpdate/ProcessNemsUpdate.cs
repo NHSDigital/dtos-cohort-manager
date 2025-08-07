@@ -172,7 +172,6 @@ public class ProcessNemsUpdate
 
             if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
             {
-
                 throw new InvalidDataException(responseMessage);
             }
             return responseMessage;

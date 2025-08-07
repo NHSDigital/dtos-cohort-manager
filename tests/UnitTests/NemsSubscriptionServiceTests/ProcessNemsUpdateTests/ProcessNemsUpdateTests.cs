@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 using System.Text;
 using DataServices.Client;
 using System.Linq.Expressions;
+using Microsoft.Azure.Functions.Worker.Http;
 
 [TestClass]
 public class ProcessNemsUpdateTests
@@ -59,8 +60,20 @@ public class ProcessNemsUpdateTests
 
         _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>())).Returns(_validNhsNumber);
 
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = _validNhsNumber }));
+        var pdsResponseBody = JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = _validNhsNumber });
+        var pdsResponse = new HttpResponseMessage()
+        {
+            StatusCode = HttpStatusCode.OK,
+            Content = new StringContent(pdsResponseBody)
+        };
+
+        _httpClientFunctionMock
+            .Setup(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(pdsResponse);
+
+        _httpClientFunctionMock
+            .Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
+            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = "123" }));
 
         _httpClientFunctionMock.Setup(x => x.SendPost("Unsubscribe", It.IsAny<string>()))
             .ReturnsAsync(new HttpResponseMessage { StatusCode = HttpStatusCode.OK });
@@ -81,7 +94,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Never);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Never);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
@@ -99,7 +112,7 @@ public class ProcessNemsUpdateTests
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>())).Throws(new Exception("error"));
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>())).Throws(new Exception("error"));
 
         // Act
         await _sut.Run(fileStream, _fileName);
@@ -107,7 +120,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
@@ -125,16 +138,13 @@ public class ProcessNemsUpdateTests
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = "123" }));
-
         // Act
         await _sut.Run(fileStream, _fileName);
 
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -164,9 +174,6 @@ public class ProcessNemsUpdateTests
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = "123" }));
-
         _httpClientFunctionMock.Setup(x => x.SendPost("Unsubscribe", It.IsAny<string>())).Throws(new Exception("error"));
 
         // Act
@@ -175,7 +182,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -214,7 +221,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -291,7 +298,8 @@ public class ProcessNemsUpdateTests
         await using var fileStream = File.OpenRead(fhirJson);
 
         const string supersededNhsNumber = "123";
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
+        _httpClientFunctionMock
+            .Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = supersededNhsNumber }));
 
         // Act
@@ -299,7 +307,7 @@ public class ProcessNemsUpdateTests
 
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -379,7 +387,7 @@ public class ProcessNemsUpdateTests
         await _sut.Run(fileStream, _fileName);
 
         // Assert - Verify correct NHS number is passed to PDS service
-        _httpClientFunctionMock.Verify(x => x.SendGet(
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse(
             "RetrievePdsDemographic",
             It.Is<Dictionary<string, string>>(dict =>
                 dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)),
@@ -402,7 +410,7 @@ public class ProcessNemsUpdateTests
         await _sut.Run(fileStream, xmlFileName);
 
         // Assert - Verify correct NHS number is passed to PDS service
-        _httpClientFunctionMock.Verify(x => x.SendGet(
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse(
             "RetrievePdsDemographic",
             It.Is<Dictionary<string, string>>(dict =>
                 dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)),
@@ -417,7 +425,8 @@ public class ProcessNemsUpdateTests
         await using var fileStream = File.OpenRead(fhirJson);
 
         const string supersededNhsNumber = "123";
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
+        _httpClientFunctionMock
+            .Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = supersededNhsNumber }));
 
         _participantDemographicMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
@@ -428,7 +437,7 @@ public class ProcessNemsUpdateTests
 
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _participantDemographicMock.Verify(x => x.GetSingleByFilter(
             It.Is<Expression<Func<ParticipantDemographic, bool>>>(expr =>
@@ -487,7 +496,8 @@ public class ProcessNemsUpdateTests
         await using var fileStream = File.OpenRead(fhirJson);
 
         const string supersededNhsNumber = "123";
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
+        _httpClientFunctionMock
+            .Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = supersededNhsNumber }));
 
         var existingParticipant = new ParticipantDemographic { NhsNumber = long.Parse(_validNhsNumber) };
@@ -499,7 +509,7 @@ public class ProcessNemsUpdateTests
 
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _participantDemographicMock.Verify(x => x.GetSingleByFilter(
             It.Is<Expression<Func<ParticipantDemographic, bool>>>(expr =>

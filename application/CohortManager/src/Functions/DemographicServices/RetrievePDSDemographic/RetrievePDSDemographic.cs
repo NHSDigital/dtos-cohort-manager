@@ -69,7 +69,10 @@ public class RetrievePdsDemographic
             var response = await _httpClientFunction.SendPdsGet(url, bearerToken);
             string jsonResponse = "";
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            jsonResponse = await _httpClientFunction.GetResponseText(response);
+            var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
+
+            if (response.StatusCode == HttpStatusCode.NotFound || pdsDemographic.ConfidentialityCode == "R")
             {
                 var demographicRecordDeletedFromDatabase = await DeleteDemographicRecord(nhsNumber);
                 if (!demographicRecordDeletedFromDatabase)
@@ -80,14 +83,6 @@ public class RetrievePdsDemographic
             }
 
             response.EnsureSuccessStatusCode();
-
-            jsonResponse = await _httpClientFunction.GetResponseText(response);
-            var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
-
-            if (pdsDemographic.ConfidentialityCode == "R")
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Demographic data is restricted in PDS");
-            }
 
             var participantDemographic = pdsDemographic.ToParticipantDemographic();
             var upsertResult = await UpsertDemographicRecordFromPDS(participantDemographic);
