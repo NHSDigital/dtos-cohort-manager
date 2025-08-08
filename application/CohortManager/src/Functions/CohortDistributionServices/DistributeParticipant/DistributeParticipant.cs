@@ -11,6 +11,7 @@ using Model;
 using System.Text.Json;
 using Common;
 using Activities = DistributeParticipantActivities;
+using Model.Enums;
 
 public class DistributeParticipant
 {
