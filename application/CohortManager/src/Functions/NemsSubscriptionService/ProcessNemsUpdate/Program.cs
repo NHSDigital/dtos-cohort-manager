@@ -9,10 +9,10 @@ using NHS.Screening.ProcessNemsUpdate;
 
 var host = new HostBuilder()
     .AddConfiguration<ProcessNemsUpdateConfig>(out ProcessNemsUpdateConfig config)
-        .AddDataServicesHandler()
-        .AddDataService<ParticipantDemographic>(config.ParticipantDemographicDataServiceURL)
-        .Build()
     .ConfigureFunctionsWorkerDefaults()
+      .AddDataServicesHandler()
+        .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
+        .Build()
     .ConfigureServices(services =>
     {
         services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();
@@ -23,7 +23,6 @@ var host = new HostBuilder()
     .AddTelemetry()
     .AddExceptionHandler()
     .AddHttpClient()
-    .AddAzureQueues()
     .AddServiceBusClient(config.ServiceBusConnectionString_client_internal)
     .Build();
 

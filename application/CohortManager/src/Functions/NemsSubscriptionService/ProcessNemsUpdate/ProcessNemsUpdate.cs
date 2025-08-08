@@ -2,6 +2,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Common;
@@ -11,8 +12,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
 using DataServices.Client;
-using Grpc.Core;
 using System.Net;
+using FluentValidation.Validators;
 
 public class ProcessNemsUpdate
 {
@@ -63,61 +64,35 @@ public class ProcessNemsUpdate
     {
         try
         {
-            string? nhsNumber = await GetNhsNumberFromFile(blobStream, name);
+            var nhsNumber = await GetNhsNumberFromFile(blobStream, name);
 
-            if (nhsNumber == null)
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
             {
-                _logger.LogInformation("There is no NHS number, unable to continue.");
-                return;
-            }
-
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
-            {
+                _logger.LogError("There was a problem parsing the NHS number from blob store in the ProcessNemsUpdate function");
                 throw new InvalidDataException("Invalid NHS Number");
             }
-            nhsNumberLong = long.Parse(nhsNumber);
+            nhsNumberLong = long.Parse(nhsNumber!);
 
-            string? pdsRecord = await RetrievePdsRecord(nhsNumber);
-
-            if (pdsRecord == null)
+            var pdsResponse = await RetrievePdsRecord(nhsNumber!);
+            if (pdsResponse!.StatusCode == HttpStatusCode.NotFound)
             {
-                _logger.LogInformation("There is no PDS record, unable to continue.");
+                await ProcessPdsResponse(pdsResponse, nhsNumber!);
+                // we can stop processing here as we know that not found means the participant ether needed an update or they were actually not found
                 return;
             }
 
-            var retrievedPdsRecord = JsonSerializer.Deserialize<PdsDemographic>(pdsRecord);
+            pdsResponse.EnsureSuccessStatusCode();
+
+            var retrievedPdsRecord = await pdsResponse.Content.ReadFromJsonAsync<PdsDemographic>();
 
             if (retrievedPdsRecord?.NhsNumber == nhsNumber)
             {
                 _logger.LogInformation("NHS numbers match, processing the retrieved PDS record.");
-                await ProcessRecord(retrievedPdsRecord);
+                await ProcessRecord(new Participant(retrievedPdsRecord!));
             }
-
             else
             {
-                var supersededRecord = new PdsDemographic()
-                {
-                    NhsNumber = nhsNumber,
-                    SupersededByNhsNumber = retrievedPdsRecord?.NhsNumber,
-                    PrimaryCareProvider = null,
-                    ReasonForRemoval = "ORR",
-                    RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
-                };
-
-                _logger.LogInformation("NHS numbers do not match, processing the superseded record.");
-                await ProcessRecord(supersededRecord);
-
-                /*information exception raised for RuleId 60 and Rule name 'SupersededNhsNumber'*/
-                var ruleId = 60;  // Rule 60 is for Superseded rule
-                var ruleName = "SupersededNhsNumber"; //Superseded rule name
-                await _exceptionHandler.CreateTransformExecutedExceptions(supersededRecord.ToCohortDistributionParticipant(), ruleName, ruleId);
-
-                var unsubscribedFromNems = await UnsubscribeNems(nhsNumber);
-
-                if (unsubscribedFromNems)
-                {
-                    _logger.LogInformation("Successfully unsubscribed from NEMS.");
-                }
+                await UnsubscribeFromNems(nhsNumber!, retrievedPdsRecord!);
             }
 
         }
@@ -126,6 +101,56 @@ public class ProcessNemsUpdate
             _logger.LogError(ex, "There was an error processing NEMS update.");
         }
 
+    }
+
+    private async Task ProcessPdsResponse(HttpResponseMessage pdsResponse, string nhsNumber)
+    {
+        var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PdsErrorResponse>();
+        // we now create a record as an update record and send to the manage participant function. Reason for removal for date should be today and the reason for remove of ORR
+        if (errorResponse!.issue!.FirstOrDefault()!.details!.coding!.FirstOrDefault()!.code == "INVALIDATED_RESOURCE")
+        {
+            var pdsDemographic = new PdsDemographic()
+            {
+                NhsNumber = nhsNumber,
+                PrimaryCareProvider = null,
+                ReasonForRemoval = "ORR",
+                RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
+            };
+            var participant = new Participant(pdsDemographic);
+            participant.RecordType = Actions.Removed;
+            //sends record for an update
+            await ProcessRecord(participant);
+            return;
+        }
+        _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
+
+    }
+
+    private async Task UnsubscribeFromNems(string nhsNumber, PdsDemographic retrievedPdsRecord)
+    {
+        var supersededRecord = new PdsDemographic()
+        {
+            NhsNumber = nhsNumber,
+            SupersededByNhsNumber = retrievedPdsRecord?.NhsNumber,
+            PrimaryCareProvider = null,
+            ReasonForRemoval = "ORR",
+            RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
+        };
+
+        _logger.LogInformation("NHS numbers do not match, processing the superseded record.");
+        await ProcessRecord(new Participant(supersededRecord));
+
+        /*information exception raised for RuleId 60 and Rule name 'SupersededNhsNumber'*/
+        var ruleId = 60;  // Rule 60 is for Superseded rule
+        var ruleName = "SupersededNhsNumber"; //Superseded rule name
+        await _exceptionHandler.CreateTransformExecutedExceptions(supersededRecord.ToCohortDistributionParticipant(), ruleName, ruleId);
+
+        var unsubscribedFromNems = await UnsubscribeNems(nhsNumber);
+
+        if (unsubscribedFromNems)
+        {
+            _logger.LogInformation("Successfully unsubscribed from NEMS.");
+        }
     }
 
     private async Task<string?> GetNhsNumberFromFile(Stream blobStream, string name)
@@ -141,7 +166,7 @@ public class ProcessNemsUpdate
             }
 
             // Determine format based on file extension and call appropriate parser
-            if (name.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
+            if (name.EndsWith(".xml", System.StringComparison.OrdinalIgnoreCase))
             {
                 return _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(blobJson);
             }
@@ -158,41 +183,24 @@ public class ProcessNemsUpdate
         }
     }
 
-    private async Task<string?> RetrievePdsRecord(string nhsNumber)
+    private async Task<HttpResponseMessage> RetrievePdsRecord(string nhsNumber)
     {
-        try
+        var queryParams = new Dictionary<string, string>()
         {
-            var queryParams = new Dictionary<string, string>()
-            {
-                {"nhsNumber", nhsNumber }
-            };
+            {"nhsNumber", nhsNumber }
+        };
 
-            var pdsResponse = await _httpClientFunction.SendGetResponse(_config.RetrievePdsDemographicURL, queryParams);
-            string responseMessage = await _httpClientFunction.GetResponseText(pdsResponse);
-
-            if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
-            {
-                throw new InvalidDataException(responseMessage);
-            }
-            return responseMessage;
-
-            }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "There was an error retrieving the PDS record.");
-            return null;
-        }
+        return await _httpClientFunction.SendGetHttpResponse(_config.RetrievePdsDemographicURL, queryParams);
     }
 
-    private async Task ProcessRecord(PdsDemographic pdsDemographic)
+    private async Task ProcessRecord(Participant participant)
     {
         var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
 
-        var participant = new Participant(pdsDemographic);
-
         // TODO validate all dates in record before enqueuing
-
         var existingParticipant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);
+
+
         if (existingParticipant == null)
         {
             participant.RecordType = Actions.New;
@@ -200,7 +208,7 @@ public class ProcessNemsUpdate
         }
         else
         {
-            participant.RecordType = Actions.Amended;
+            participant.RecordType = participant.RecordType != Actions.Removed ? Actions.Amended : participant.RecordType;
             _logger.LogWarning("The participant already exists in Cohort Manager. Existing record will get updated.");
         }
 
@@ -214,6 +222,7 @@ public class ProcessNemsUpdate
         updateRecord.Enqueue(basicParticipantCsvRecord);
 
         _logger.LogInformation("Sending record to the update queue.");
+
         await _addBatchToQueue.ProcessBatch(updateRecord, _config.ParticipantManagementTopic);
     }
 

@@ -1,0 +1,37 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 8570bd32f8da7dfbf2f88fcc9190181e4757fcca
+      endpoint: NHSDigital
+
+variables:
+  - group: PRD_hub_backend_remote_state
+
+stages:
+- stage: db_changes_stage
+  displayName: Database changes
+  jobs:
+  - job: db_changes
+    pool:
+      name: private-pool-prod-uks
+    displayName: Apply database changes
+    variables:
+      - group: PROD_core_backend
+      - group: PROD_image_pipelines
+    steps:
+      - checkout: self
+      - checkout: dtos-devops-templates
+      - template: .azuredevops/templates/steps/app-container-job-start.yaml@dtos-devops-templates
+        parameters:
+          serviceConnection: $(SERVICE_CONNECTION)
+          targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+          resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
+          jobName: $(DATABASE_MANAGEMENT_JOB_NAME)
