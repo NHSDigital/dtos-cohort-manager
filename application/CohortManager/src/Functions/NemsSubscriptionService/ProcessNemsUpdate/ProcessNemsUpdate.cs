@@ -75,7 +75,7 @@ public class ProcessNemsUpdate
             var pdsResponse = await RetrievePdsRecord(nhsNumber!);
             if (pdsResponse!.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                await ProcessPdsResponse(pdsResponse, nhsNumber!);
+                _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
                 // we can stop processing here as we know that not found means the participant ether needed an update or they were actually not found
                 return;
             }
@@ -99,29 +99,6 @@ public class ProcessNemsUpdate
         {
             _logger.LogError(ex, "There was an error processing NEMS update.");
         }
-
-    }
-
-    private async Task ProcessPdsResponse(HttpResponseMessage pdsResponse, string nhsNumber)
-    {
-        var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PdsErrorResponse>();
-        // we now create a record as an update record and send to the manage participant function. Reason for removal for date should be today and the reason for remove of ORR
-        if (errorResponse!.issue!.FirstOrDefault()!.details!.coding!.FirstOrDefault()!.code == "INVALIDATED_RESOURCE")
-        {
-            var pdsDemographic = new PdsDemographic()
-            {
-                NhsNumber = nhsNumber,
-                PrimaryCareProvider = null,
-                ReasonForRemoval = "ORR",
-                RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
-            };
-            var participant = new Participant(pdsDemographic);
-            participant.RecordType = Actions.Removed;
-            //sends record for an update
-            await ProcessRecord(participant);
-            return;
-        }
-        _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
 
     }
 
@@ -207,7 +184,7 @@ public class ProcessNemsUpdate
         }
         else
         {
-            participant.RecordType = participant.RecordType != Actions.Removed ? Actions.Amended : participant.RecordType;
+            participant.RecordType = Actions.Amended;
             _logger.LogWarning("The participant already exists in Cohort Manager. Existing record will get updated.");
         }
 
