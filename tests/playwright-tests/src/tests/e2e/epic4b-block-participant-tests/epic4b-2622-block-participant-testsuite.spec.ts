@@ -182,6 +182,77 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     });
   });
 
+  test('@DTOSS-7617-01 AC1 - Verify no exception is raised to NBO when attempting to amend a blocked participant', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
+    // Arrange: Get test data for ADD
+    const [addValidations, addInputParticipantRecord, addNhsNumbers, addTestFilesPath] = await getApiTestData(testInfo.title, 'ADD');
+    const nhsNumber = addNhsNumbers[0];
+    await cleanupDatabaseFromAPI(request, [nhsNumber]);
+
+    // Add the participant
+    const addParquetFile = await createParquetFromJson(addNhsNumbers, addInputParticipantRecord, addTestFilesPath);
+    await processFileViaStorage(addParquetFile);
+
+    // Wait for participant to appear in DB before blocking
+    let participantExists = false;
+    for (let i = 0; i < 12; i++) {
+      const resp = await getRecordsFromParticipantManagementService(request);
+      if (resp?.data && Array.isArray(resp.data) && resp.data.length > 0 && String(resp.data[0].NHSNumber) === nhsNumber) {
+        participantExists = true;
+        break;
+      }
+      console.log(`Waiting for participant to appear in DB... (attempt ${i+1}/12)`);
+      await new Promise(res => setTimeout(res, 2500));
+    }
+    expect(participantExists).toBe(true);
+
+    // Block the participant
+    const blockPayload = {
+      NhsNumber: nhsNumber,
+      FamilyName: addInputParticipantRecord[0].family_name,
+      DateOfBirth: addInputParticipantRecord[0].date_of_birth
+    };
+    await BlockParticipant(request, blockPayload);
+
+    // Wait until the participant is actually blocked
+    let blocked = false;
+    for (let i = 0; i < 6; i++) {
+      const resp = await getRecordsFromParticipantManagementService(request);
+      if (resp?.data?.[0]?.BlockedFlag === 1) {
+        blocked = true;
+        break;
+      }
+      console.log(`Waiting for participant to be blocked... (attempt ${i+1}/6)`);
+      await new Promise(res => setTimeout(res, 2000));
+    }
+    expect(blocked).toBe(true);
+
+    // Act: Try to AMEND the blocked participant
+    const [amendValidations, amendInputParticipantRecord, amendNhsNumbers, amendTestFilesPath] = await getApiTestData(testInfo.title, 'AMEND_BLOCKED');
+    const amendParquetFile = await createParquetFromJson(amendNhsNumbers, amendInputParticipantRecord, amendTestFilesPath);
+    await processFileViaStorage(amendParquetFile);
+
+    // Assert: No exception raised to NBO
+    await test.step('No exception should be raised to NBO', async () => {
+      const response = await getValidationExceptions(request, 3, nhsNumber);
+      expect(response.data === null || (Array.isArray(response.data) && response.data.length === 0)).toBe(true);
+    });
+
+    // Assert: Participant remains blocked
+    await test.step('Participant should remain blocked', async () => {
+      const resp = await getRecordsFromParticipantManagementService(request);
+      expect(resp?.data?.[0]?.BlockedFlag).toBe(1);
+    });
+
+    // Assert: Participant data should NOT be updated in the DB
+    await test.step('Participant data should not be updated', async () => {
+      const resp = await getRecordsFromParticipantManagementService(request);
+      // Verify that the participant is still in the DB with original record type
+      expect(resp?.data?.[0]?.NHSNumber).toBe(Number(nhsNumber));
+      expect(resp?.data?.[0]?.RecordType).toBe("ADD");
+      expect(resp?.data?.[0]?.BlockedFlag).toBe(1);
+    });
+  });
+
   test('@DTOSS-7660-01 AC2 - Blocked participant AMEND action does not raise exception to NBO', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
     // Arrange: Get test data
     const [addValidations, addInputParticipantRecord, addNhsNumbers, addTestFilesPath] = await getApiTestData(testInfo.title, 'ADD_BLOCKED');
