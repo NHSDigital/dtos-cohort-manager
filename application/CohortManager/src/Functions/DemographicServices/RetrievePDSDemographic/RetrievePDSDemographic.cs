@@ -13,7 +13,7 @@ using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using Model;
 using System.Net.Http.Json;
-using Hl7.Fhir.Support;
+using System.Collections.Concurrent;
 
 public class RetrievePdsDemographic
 {
@@ -24,6 +24,8 @@ public class RetrievePdsDemographic
     private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
     private readonly IBearerTokenService _bearerTokenService;
+    private readonly ICreateBasicParticipantData _createBasicParticipantData;
+    private readonly IAddBatchToQueue _addBatchToQueue;
     private const string PdsParticipantUrlFormat = "{0}/{1}";
 
 
@@ -34,6 +36,8 @@ public class RetrievePdsDemographic
         IFhirPatientDemographicMapper fhirPatientDemographicMapper,
         IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig,
         IDataServiceClient<ParticipantDemographic> participantDemographicClient,
+        ICreateBasicParticipantData createBasicParticipantData,
+        IAddBatchToQueue addBatchToQueue,
         IBearerTokenService bearerTokenService
     )
     {
@@ -43,7 +47,9 @@ public class RetrievePdsDemographic
         _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
         _config = retrievePDSDemographicConfig.Value;
         _participantDemographicClient = participantDemographicClient;
+        _createBasicParticipantData = createBasicParticipantData;
         _bearerTokenService = bearerTokenService;
+        _addBatchToQueue = addBatchToQueue;
     }
 
     // TODO: Need to send an exception to the EXCEPTION_MANAGEMENT table whenever this function returns a non OK status.
@@ -74,7 +80,8 @@ public class RetrievePdsDemographic
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 var pdsErrorResponse = await response.Content.ReadAsStringAsync();
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, pdsErrorResponse);
+                await ProcessPdsResponse(response, nhsNumber);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404 please database for details");
             }
 
             response.EnsureSuccessStatusCode();
@@ -94,6 +101,48 @@ public class RetrievePdsDemographic
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
+
+    private async Task ProcessPdsResponse(HttpResponseMessage pdsResponse, string nhsNumber)
+    {
+        var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PdsErrorResponse>();
+        // we now create a record as an update record and send to the manage participant function. Reason for removal for date should be today and the reason for remove of ORR
+        if (errorResponse!.issue!.FirstOrDefault()!.details!.coding!.FirstOrDefault()!.code == "INVALIDATED_RESOURCE")
+        {
+            var pdsDemographic = new PdsDemographic()
+            {
+                NhsNumber = nhsNumber,
+                PrimaryCareProvider = null,
+                ReasonForRemoval = "ORR",
+                RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
+            };
+            var participant = new Participant(pdsDemographic);
+            participant.RecordType = Actions.Removed;
+            //sends record for an update
+            await ProcessRecord(participant);
+            return;
+        }
+        _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
+    }
+
+
+    private async Task ProcessRecord(Participant participant)
+    {
+        var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
+        participant.RecordType = participant.RecordType = Actions.Removed;
+
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        {
+            BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
+            FileName = "NemsMessages",
+            Participant = participant
+        };
+
+        updateRecord.Enqueue(basicParticipantCsvRecord);
+
+        _logger.LogInformation("Sending record to the update queue.");
+        await _addBatchToQueue.ProcessBatch(updateRecord, _config.ParticipantManagementTopic);
+    }
+
 
     private async Task<bool> UpsertDemographicRecordFromPDS(ParticipantDemographic participantDemographic)
     {

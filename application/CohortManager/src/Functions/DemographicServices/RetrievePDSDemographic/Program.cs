@@ -18,11 +18,14 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
         services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();
+        services.AddSingleton<IAddBatchToQueue, AddBatchToQueue>();
+        services.AddSingleton<ICreateBasicParticipantData, CreateBasicParticipantData>();
         // Register health checks
         services.AddBasicHealthCheck("RetrievePdsDemographic");
     })
     .AddJwtTokenSigning(config.UseFakePDSServices)
     .AddTelemetry()
+    .AddServiceBusClient(config.ServiceBusConnectionString)
     .AddHttpClient(config.UseFakePDSServices)
     .Build();
 

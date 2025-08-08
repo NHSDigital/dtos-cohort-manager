@@ -1,4 +1,4 @@
-namespace NHS.Screening.ProcessNemsUpdate;
+namespace NHS.CohortManager.DemographicServices;
 
 public class PdsCoding
 {
