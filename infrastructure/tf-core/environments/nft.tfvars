@@ -335,7 +335,7 @@ function_apps = {
           function_app_key = "ManageNemsSubscription"
         },
         {
-          env_var_name     = "ParticipantDemographicDataServiceURL"
+          env_var_name     = "DemographicDataServiceURL"
           function_app_key = "ParticipantDemographicDataService"
         }
       ],
