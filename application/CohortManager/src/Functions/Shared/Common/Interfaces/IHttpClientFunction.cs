@@ -24,8 +24,6 @@ public interface IHttpClientFunction
     /// <returns>string</returns>
     Task<string> SendGet(string url, Dictionary<string, string> parameters);
 
-    Task<HttpResponseMessage> SendGetHttpResponse(string url, Dictionary<string, string> parameters);
-
     /// <summary>
     /// Performs a GET request using HttpClient and returns the entire HTTP response.
     /// </summary>

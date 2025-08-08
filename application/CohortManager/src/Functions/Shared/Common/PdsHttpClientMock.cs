@@ -111,9 +111,4 @@ public class PdsHttpClientMock : IHttpClientFunction
         httpResponseData.StatusCode = HttpStatusCode.OK;
         return httpResponseData;
     }
-
-    public Task<HttpResponseMessage> SendGetHttpResponse(string url, Dictionary<string, string> parameters)
-    {
-        throw new NotImplementedException();
-    }
 }
