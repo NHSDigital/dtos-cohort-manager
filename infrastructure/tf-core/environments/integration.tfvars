@@ -1095,10 +1095,10 @@ linux_web_app = {
           SERVICE_NAME         = "Cohort Manager"
         }
         from_key_vault = {
-          # env_var_name          = "key_vault_secret_name"
-          AUTH_CIS2_CLIENT_SECRET = "auth-cis2-client-secret"
-          COHORT_MANAGER_RBAC_CODE    = "cohort-manager-users"
-          NEXTAUTH_SECRET         = "nextauth-secret"
+          # env_var_name           = "key_vault_secret_name"
+          AUTH_CIS2_CLIENT_SECRET  = "auth-cis2-client-secret"
+          COHORT_MANAGER_RBAC_CODE = "cohort-manager-users"
+          NEXTAUTH_SECRET          = "nextauth-secret"
         }
         local_urls = {
           # %s becomes the environment and region prefix (e.g. dev-uks)
