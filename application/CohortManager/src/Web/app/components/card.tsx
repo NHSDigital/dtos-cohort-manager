@@ -26,9 +26,13 @@ export default function Card({
           className="nhsuk-card__heading nhsuk-heading-m"
           data-testid="card-heading"
         >
-          <Link href={url} className="nhsuk-link--no-visited-state">
-            {label}
-          </Link>
+          {value > 0 ? (
+            <Link href={url} className="nhsuk-link--no-visited-state">
+              {label}
+            </Link>
+          ) : (
+            label
+          )}
         </h3>
         {description && (
           <p className="nhsuk-card__description" data-testid="card-description">
