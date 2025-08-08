@@ -79,7 +79,7 @@ public class RetrievePdsDemographic
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                await ProcessPdsResponse(response, nhsNumber);
+                await ProcessPdsNotFoundResponse(response, nhsNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404 please database for details");
             }
 
@@ -101,7 +101,7 @@ public class RetrievePdsDemographic
         }
     }
 
-    private async Task ProcessPdsResponse(HttpResponseMessage pdsResponse, string nhsNumber)
+    private async Task ProcessPdsNotFoundResponse(HttpResponseMessage pdsResponse, string nhsNumber)
     {
         var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PdsErrorResponse>();
         // we now create a record as an update record and send to the manage participant function. Reason for removal for date should be today and the reason for remove of ORR
