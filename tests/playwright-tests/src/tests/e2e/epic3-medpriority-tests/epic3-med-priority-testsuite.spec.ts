@@ -8,7 +8,7 @@ import { testWithAmended, testWithTwoAmendments } from '../../fixtures/test-fixt
 import { processFileViaStorage, verifyBlobExists } from "../../steps/steps";
 
 
-test.describe('@regression @e2e @epic3-med-priority Tests', () => {
+test.describe('@regression @e2e @epic3-med Tests', () => {
 
   TestHooks.setupAddTestHooks();
   test('@DTOSS-5561-01 @not-runner-based @bs-select - CohortDistribution_Requesting data from Cohort Manager and set record to extracted and add the request ID to the data table', {
