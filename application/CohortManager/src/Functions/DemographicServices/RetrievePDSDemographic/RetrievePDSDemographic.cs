@@ -79,7 +79,6 @@ public class RetrievePdsDemographic
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
-                var pdsErrorResponse = await response.Content.ReadAsStringAsync();
                 await ProcessPdsResponse(response, nhsNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404 please database for details");
             }
