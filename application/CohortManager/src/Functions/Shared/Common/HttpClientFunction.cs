@@ -60,7 +60,7 @@ public class HttpClientFunction : IHttpClientFunction
         return await GetAsync(client);
     }
 
-    public async Task<HttpResponseMessage> SendGetHttpResponse(string url, Dictionary<string, string> parameters)
+    public async Task<HttpResponseMessage> SendGetResponse(string url, Dictionary<string, string> parameters)
     {
         using var client = _factory.CreateClient();
 

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
 using DataServices.Client;
+using System.Net;
 using FluentValidation.Validators;
 
 public class ProcessNemsUpdate
@@ -73,7 +74,7 @@ public class ProcessNemsUpdate
             nhsNumberLong = long.Parse(nhsNumber!);
 
             var pdsResponse = await RetrievePdsRecord(nhsNumber!);
-            if (pdsResponse!.StatusCode == System.Net.HttpStatusCode.NotFound)
+            if (pdsResponse!.StatusCode == HttpStatusCode.NotFound)
             {
                 _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
                 // we can stop processing here as we know that not found means the participant ether needed an update or they were actually not found
@@ -166,7 +167,7 @@ public class ProcessNemsUpdate
             {"nhsNumber", nhsNumber }
         };
 
-        return await _httpClientFunction.SendGetHttpResponse(_config.RetrievePdsDemographicURL, queryParams);
+        return await _httpClientFunction.SendGetResponse(_config.RetrievePdsDemographicURL, queryParams);
     }
 
     private async Task ProcessRecord(Participant participant)
