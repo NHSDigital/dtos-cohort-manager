@@ -7,6 +7,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.DTO;
 using Model.Enums;
 
 public class DistributeParticipantActivities
@@ -139,5 +140,57 @@ public class DistributeParticipantActivities
         var json = JsonSerializer.Serialize(requestBody);
 
         await _httpClientFunction.SendPut(url, json);
+    }
+
+    /// <summary>
+    /// Activity function to update GP code in Cohort Distribution table
+    /// Add this method to your DistributeParticipantActivities class
+    /// </summary>
+    [Function(nameof(UpdateCohortDistributionGpCode))]
+    public async Task<bool> UpdateCohortDistributionGpCode([ActivityTrigger] GpCodeUpdateRequestDto request)
+    {
+        try
+        {
+            _logger.LogInformation("Updating GP code for NHS Number: {NhsNumber} to {GpCode}",
+                request.NhsNumber, request.PrimaryCareProvider);
+
+            long nhsNumber = long.Parse(request.NhsNumber);
+            var cohortDistribution = await _cohortDistributionClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber);
+
+            if (cohortDistribution == null)
+            {
+                _logger.LogError("No Cohort Distribution record found for NHS Number: {NhsNumber}", request.NhsNumber);
+                return false;
+            }
+
+            if (request.IsAmendParticipant && cohortDistribution.PrimaryCareProvider == request.PrimaryCareProvider)
+            {
+                _logger.LogInformation("Primary Care Provider for NHS Number: {NhsNumber} is already up to date: {GpCode}",
+                    request.NhsNumber, request.PrimaryCareProvider);
+                return true;
+            }
+
+            cohortDistribution.PrimaryCareProvider = request.PrimaryCareProvider;
+            cohortDistribution.RecordUpdateDateTime = DateTime.UtcNow;
+
+            var success = await _cohortDistributionClient.Update(cohortDistribution);
+
+            if (success)
+            {
+                _logger.LogInformation("Successfully updated Primary Care Provider in Cohort Distribution for NHS Number: {NhsNumber}", request.NhsNumber);
+            }
+
+            if (!success)
+            {
+                _logger.LogError("Failed to update Primary Care Provider in Cohort Distribution for NHS Number: {NhsNumber}", request.NhsNumber);
+            }
+
+            return success;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating Cohort Distribution GP code for NHS Number: {NhsNumber}", request.NhsNumber);
+            return false;
+        }
     }
 }
