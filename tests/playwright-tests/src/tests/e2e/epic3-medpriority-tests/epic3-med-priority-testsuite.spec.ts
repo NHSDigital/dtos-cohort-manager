@@ -77,7 +77,7 @@ test.describe('@regression @e2e @epic3-med-priority Tests', () => {
 
   });
 
-  testWithTwoAmendments('@DTOSS-5409-01 @not-runner-based @bs-select Provide Cohort to BS Select - Transformation_RFR_Rule_4_RDR(AMENDED Twice)', {
+  testWithTwoAmendments.only('@DTOSS-5409-01 @not-runner-based @bs-select Provide Cohort to BS Select - Transformation_RFR_Rule_4_RDR', {
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4577',
