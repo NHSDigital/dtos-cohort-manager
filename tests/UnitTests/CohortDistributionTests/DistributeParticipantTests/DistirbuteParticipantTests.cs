@@ -14,6 +14,7 @@ public class DistributeParticipantTests
     private readonly DistributeParticipant _sut;
     private readonly Mock<IOptions<DistributeParticipantConfig>> _config = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
+    private readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private readonly Mock<TaskOrchestrationContext> _mockContext = new();
     private readonly BasicParticipantCsvRecord _request;
     private readonly CohortDistributionParticipant _cohortDistributionRecord;
@@ -79,7 +80,7 @@ public class DistributeParticipantTests
         _sut = new(NullLogger<DistributeParticipant>.Instance,
                   _config.Object,
                   _handleException.Object,
-                  _mockHttpClientFunction.Object);
+                  _httpClientFunction.Object);
     }
 
     [TestMethod]
