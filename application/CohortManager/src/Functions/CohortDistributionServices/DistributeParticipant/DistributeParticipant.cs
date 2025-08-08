@@ -153,7 +153,7 @@ public class DistributeParticipant
         var gpUpdateRequest = new GpCodeUpdateRequestDto
         {
             NhsNumber = participant.NhsNumber,
-            PrimaryCareProvider = participant.PrimaryCareProvider,
+            PrimaryCareProvider = participant.PrimaryCareProvider!,
             IsAmendParticipant = !isAddScenario
         };
 
