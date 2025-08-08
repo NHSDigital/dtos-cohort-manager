@@ -215,4 +215,122 @@ public class DistributeParticipantTests
                 It.IsAny<string>()
             ));
     }
+
+    [TestMethod]
+    [DataRow("ZZZ123")]
+    [DataRow("zzz456")]
+    public async Task DistributeParticipantOrchestrator_ServiceNowParticipantWithDummyGpCode_CallsUpdateGpCodeActivity(string dummyGpCode)
+    {
+        // Arrange
+        _request.Participant.ReferralFlag = "1";
+        _cohortDistributionRecord.ReferralFlag = true;
+        _cohortDistributionRecord.PrimaryCareProvider = dummyGpCode;
+
+        _mockContext
+            .Setup(x => x.CallActivityAsync("UpdateCohortDistributionGpCode", It.IsAny<object>(), null))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
+
+        // Assert
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null), Times.Once);
+        _mockContext.Verify(x => x.CallActivityAsync("UpdateCohortDistributionGpCode",
+            It.Is<object>(req =>
+                req.GetType().GetProperty("NhsNumber")!.GetValue(req)!.ToString() == "122345" &&
+                req.GetType().GetProperty("PrimaryCareProvider")!.GetValue(req)!.ToString() == dummyGpCode &&
+                (bool)req.GetType().GetProperty("IsAmendParticipant")!.GetValue(req)! == false
+            ), null), Times.Once);
+        _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Once);
+    }
+
+    [TestMethod]
+    [DataRow("ABC123")]
+    [DataRow("")]
+    [DataRow(null)]
+    public async Task DistributeParticipantOrchestrator_ServiceNowParticipantWithoutDummyGpCode_DoesNotCallUpdateGpCodeActivity(string nonDummyGpCode)
+    {
+        // Arrange
+        _request.Participant.ReferralFlag = "1";
+        _cohortDistributionRecord.ReferralFlag = true;
+        _cohortDistributionRecord.PrimaryCareProvider = nonDummyGpCode;
+
+        // Act
+        await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
+
+        // Assert
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null), Times.Once);
+        _mockContext.Verify(x => x.CallActivityAsync("UpdateCohortDistributionGpCode", It.IsAny<object>(), null), Times.Never);
+        _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Once);
+    }
+
+    [TestMethod]
+    [DataRow("REAL123")]
+    [DataRow("NEW456")]
+    public async Task DistributeParticipantOrchestrator_PdsParticipantWithGpCode_CallsUpdateGpCodeActivity(string pdsGpCode)
+    {
+        // Arrange
+        _request.Participant.ReferralFlag = "0";
+        _cohortDistributionRecord.ReferralFlag = false;
+        _cohortDistributionRecord.PrimaryCareProvider = pdsGpCode;
+
+        _mockContext
+            .Setup(x => x.CallActivityAsync("UpdateCohortDistributionGpCode", It.IsAny<object>(), null))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
+
+        // Assert
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null), Times.Once);
+        _mockContext.Verify(x => x.CallActivityAsync("UpdateCohortDistributionGpCode",
+            It.Is<object>(req =>
+                req.GetType().GetProperty("NhsNumber")!.GetValue(req)!.ToString() == "122345" &&
+                req.GetType().GetProperty("PrimaryCareProvider")!.GetValue(req)!.ToString() == pdsGpCode &&
+                (bool)req.GetType().GetProperty("IsAmendParticipant")!.GetValue(req)! == true
+            ), null), Times.Once);
+        _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Never);
+    }
+
+    [TestMethod]
+    [DataRow("")]
+    [DataRow(null)]
+    public async Task DistributeParticipantOrchestrator_PdsParticipantWithoutGpCode_DoesNotCallUpdateGpCodeActivity(string emptyGpCode)
+    {
+        // Arrange
+        _request.Participant.ReferralFlag = "0";
+        _cohortDistributionRecord.ReferralFlag = false;
+        _cohortDistributionRecord.PrimaryCareProvider = emptyGpCode;
+
+        // Act
+        await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
+
+        // Assert
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null), Times.Once);
+        _mockContext.Verify(x => x.CallActivityAsync("UpdateCohortDistributionGpCode", It.IsAny<object>(), null), Times.Never);
+        _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DistributeParticipantOrchestrator_ServiceNowParticipantWithDummyGpCodeAndSendMessage_CallsBothActivities()
+    {
+        // Arrange
+        var caseNumber = "CS123";
+        _request.Participant.ReferralFlag = "1";
+        _request.FileName = caseNumber;
+        _cohortDistributionRecord.ReferralFlag = true;
+        _cohortDistributionRecord.PrimaryCareProvider = "ZZZ999";
+
+        _mockContext
+            .Setup(x => x.CallActivityAsync("UpdateCohortDistributionGpCode", It.IsAny<object>(), null))
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
+
+        // Assert
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null), Times.Once);
+        _mockContext.Verify(x => x.CallActivityAsync("UpdateCohortDistributionGpCode", It.IsAny<object>(), null), Times.Once);
+        _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", caseNumber, null), Times.Once);
+    }
 }
