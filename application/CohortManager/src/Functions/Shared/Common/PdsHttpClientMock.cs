@@ -7,6 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text.Json;
 using Model;
+using Common.Interfaces;
 
 /// <summary>
 /// Mock implementation of IHttpClientFunction specifically designed for PDS (Personal Demographics Service) calls.
@@ -17,6 +18,14 @@ using Model;
 /// </summary>
 public class PdsHttpClientMock : IHttpClientFunction
 {
+
+    private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
+
+    public PdsHttpClientMock(IFhirPatientDemographicMapper fhirPatientDemographicMapper)
+    {
+        _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
+    }
+
     public async Task<HttpResponseMessage> SendPost(string url, string data)
     {
         await Task.CompletedTask;
@@ -26,7 +35,11 @@ public class PdsHttpClientMock : IHttpClientFunction
     public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
     {
         await Task.CompletedTask;
-        return JsonSerializer.Serialize(new PdsDemographic());
+        var patient = GetPatientMockObject("complete-patient.json");
+        var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(patient);
+        var participantDemographic = pdsDemographic.ToParticipantDemographic();
+
+        return JsonSerializer.Serialize(participantDemographic);
     }
 
     public async Task<string> SendGet(string url)

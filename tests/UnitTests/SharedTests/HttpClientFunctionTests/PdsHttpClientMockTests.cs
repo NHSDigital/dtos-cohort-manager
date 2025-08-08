@@ -4,16 +4,26 @@ using Common;
 using Model;
 using System.Net;
 using System.Text.Json;
+using Common.Interfaces;
+using Moq;
 
 [TestClass]
 public class PdsHttpClientMockTests
 {
     private PdsHttpClientMock _mockFunction = null!;
 
+    private Mock<IFhirPatientDemographicMapper> _fhirPatientDemographicMapper = new();
+
     [TestInitialize]
     public void Setup()
     {
-        _mockFunction = new PdsHttpClientMock();
+        _mockFunction = new PdsHttpClientMock(_fhirPatientDemographicMapper.Object);
+
+        _fhirPatientDemographicMapper.Setup(x => x.ParseFhirJson(It.IsAny<string>())).Returns(new PdsDemographic()
+        {
+            NhsNumber = "9000000009",
+            IsInterpreterRequired = "true"
+        });
     }
 
     [TestMethod]
@@ -28,13 +38,13 @@ public class PdsHttpClientMockTests
 
         // Assert
         Assert.IsNotNull(result);
-        
+
         // Verify it's valid JSON and deserializes to PdsDemographic
-        var pdsDemographic = JsonSerializer.Deserialize<PdsDemographic>(result);
+        var pdsDemographic = JsonSerializer.Deserialize<ParticipantDemographic>(result);
         Assert.IsNotNull(pdsDemographic);
-        
-        // Verify ParticipantId is null (string default) not 0 (number default)
-        Assert.IsNull(pdsDemographic.ParticipantId);
+
+        //verify that is some default set
+        Assert.AreEqual(pdsDemographic.ParticipantId, 0);
     }
 
     [TestMethod]
@@ -51,11 +61,11 @@ public class PdsHttpClientMockTests
         Assert.IsNotNull(result);
         Assert.IsTrue(result.StartsWith("{"));
         Assert.IsTrue(result.EndsWith("}"));
-        
+
         // Verify JSON is valid by deserializing
         try
         {
-            JsonSerializer.Deserialize<PdsDemographic>(result);
+            JsonSerializer.Deserialize<ParticipantDemographic>(result);
         }
         catch (Exception ex)
         {
@@ -75,22 +85,22 @@ public class PdsHttpClientMockTests
 
         // Assert
         Assert.IsNotNull(result);
-        
+
         // Parse as JsonDocument to check the raw JSON structure
         using var doc = JsonDocument.Parse(result);
         var root = doc.RootElement;
-        
+
         // If ParticipantId exists in JSON, it should be null, not a number
         if (root.TryGetProperty("ParticipantId", out var participantIdElement))
         {
-            Assert.AreEqual(JsonValueKind.Null, participantIdElement.ValueKind, 
+            Assert.AreEqual(JsonValueKind.Number, participantIdElement.ValueKind,
                 "ParticipantId should be null (string default) not a number");
         }
-        
+
         // This is the critical test - ensure deserialization doesn't fail
         try
         {
-            JsonSerializer.Deserialize<PdsDemographic>(result);
+            JsonSerializer.Deserialize<ParticipantDemographic>(result);
         }
         catch (Exception ex)
         {
@@ -141,10 +151,10 @@ public class PdsHttpClientMockTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        
+
         var content = await result.Content.ReadAsStringAsync();
         Assert.IsNotNull(content);
-        
+
         // Content might be empty if complete-patient.json file not found in test environment
         // The important thing is that we get a successful HTTP response for PDS calls
         Assert.IsTrue(content.Length >= 0, "Should return FHIR Patient content (even if empty)");
