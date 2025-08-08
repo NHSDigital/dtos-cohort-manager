@@ -106,13 +106,13 @@ public class RetrievePdsDemographic
     {
         var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PdsErrorResponse>();
         // we now create a record as an update record and send to the manage participant function. Reason for removal for date should be today and the reason for remove of ORR
-        if (errorResponse!.issue!.FirstOrDefault()!.details!.coding!.FirstOrDefault()!.code == "INVALIDATED_RESOURCE")
+        if (errorResponse!.issue!.FirstOrDefault()!.details!.coding!.FirstOrDefault()!.code == PdsConstants.InvalidatedResourceCode)
         {
             var pdsDemographic = new PdsDemographic()
             {
                 NhsNumber = nhsNumber,
                 PrimaryCareProvider = null,
-                ReasonForRemoval = "ORR",
+                ReasonForRemoval = PdsConstants.OrrRemovalReason,
                 RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
             };
             var participant = new Participant(pdsDemographic);
@@ -133,7 +133,7 @@ public class RetrievePdsDemographic
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
             BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = "NemsMessages",
+            FileName = PdsConstants.DefaultFileName,
             Participant = participant
         };
 
