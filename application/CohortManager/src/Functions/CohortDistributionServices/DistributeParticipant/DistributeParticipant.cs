@@ -114,11 +114,18 @@ public class DistributeParticipant
                 "Participant has been successfully put on the cohort distribution table. Participant Id: {ParticipantId}, Screening Id: {ScreeningId}, Source: {FileName}",
                 participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
 
-            var gpCodeProcessingSuccessful = await HandleGpCodeProcessing(context, participantRecord);
-            if (!gpCodeProcessingSuccessful)
+            var updateRequest = GetGpCodeUpdateRequest(participantRecord);
+            if (updateRequest != null)
             {
-                await HandleExceptionAsync(new InvalidOperationException("Failed to process GP code for participant"), participantRecord);
-                return;
+                _logger.LogInformation("ADD participant with ParticipantId: {ParticipantId} has dummy GP code, updating Cohort Distribution table", participantRecord.Participant.ParticipantId);
+
+                var gpCodeProcessingSuccessful = await context.CallActivityAsync<bool>(nameof(Activities.UpdateCohortDistributionGpCode), updateRequest);
+
+                if (!gpCodeProcessingSuccessful)
+                {
+                    _logger.LogError("Failed to process GP code for participant {ParticipantId}", participantRecord.Participant.ParticipantId);
+                    return;
+                }
             }
             // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
             if (participantRecord.Participant.ReferralFlag == "1")
@@ -134,41 +141,29 @@ public class DistributeParticipant
     }
 
     /// <summary>
-    /// Handles GP code processing for participants with dummy GP codes
-    /// Covers both ADD (ServiceNow with ZZZ codes) and AMEND (PDS updates) scenarios
+    /// Gets the GP code update request for ADD scenario participants with dummy GP codes.
+    /// Returns null if participant doesn't need GP code update (not ADD scenario or doesn't have dummy GP code).
+    /// Dummy GP codes are identified by postcodes starting with "ZZZ".
     /// </summary>
-    /// <param name="context">Orchestration context</param>
-    /// <param name="participant">The participant data</param>
-    private async Task<bool> HandleGpCodeProcessing(TaskOrchestrationContext context, BasicParticipantCsvRecord participant)
+    /// <param name="participant">The participant to check and create update request for</param>
+    /// <returns>CohortDistributionParticipantDto if update needed, null otherwise</returns>
+    private static CohortDistributionParticipantDto? GetGpCodeUpdateRequest(BasicParticipantCsvRecord participant)
     {
         bool isAddScenario = participant.Participant.ReferralFlag == "1";
+        bool hasDummyGpCode = !string.IsNullOrEmpty(participant.Participant.Postcode) &&
+                             participant.Participant.Postcode.StartsWith("ZZZ", StringComparison.OrdinalIgnoreCase);
 
-        if (!isAddScenario || !CheckIfHasDummyGpCode(participant))
+        if (!isAddScenario || !hasDummyGpCode)
         {
-            return true;
+            return null;
         }
 
-        _logger.LogInformation("ADD participant with ParticipantId: {ParticipantId} has dummy GP code, updating Cohort Distribution table",
-            participant.Participant.ParticipantId);
-
-        var gpUpdateRequest = new CohortDistributionParticipantDto
+        return new CohortDistributionParticipantDto
         {
             NhsNumber = participant.BasicParticipantData.NhsNumber!,
             ParticipantId = participant.Participant.ParticipantId!,
             PrimaryCareProvider = participant.Participant.Postcode!,
         };
-
-        return await context.CallActivityAsync<bool>(nameof(Activities.UpdateCohortDistributionGpCode), gpUpdateRequest);
-    }
-
-    /// <summary>
-    /// Checks if the participant has a dummy GP code (starts with ZZZ)
-    /// </summary>
-    /// <param name="participant">The participant to check</param>
-    /// <returns>True if has dummy GP code, false otherwise</returns>
-    private static bool CheckIfHasDummyGpCode(BasicParticipantCsvRecord participant)
-    {
-        return !string.IsNullOrEmpty(participant.Participant.Postcode) && participant.Participant.Postcode.StartsWith("ZZZ", StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task HandleExceptionAsync(Exception ex, BasicParticipantCsvRecord participantRecord)
