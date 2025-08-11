@@ -123,7 +123,7 @@ public class DistributeParticipant
 
                 if (!gpCodeProcessingSuccessful)
                 {
-                    _logger.LogError("Failed to process GP code for participant {ParticipantId}", participantRecord.Participant.ParticipantId);
+                    await HandleExceptionAsync(new InvalidOperationException("Failed to process GP code for participant"), participantRecord);
                     return;
                 }
             }
