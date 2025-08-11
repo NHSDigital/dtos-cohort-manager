@@ -9,4 +9,5 @@ public class BasicParticipantData
     public string? ScreeningId { get; set; }
     public string? ScreeningName { get; set; }
     public string? EligibilityFlag { get; set; }
+    public string? PrimaryCareProvider { get; set; }
 }

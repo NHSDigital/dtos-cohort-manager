@@ -117,7 +117,7 @@ public class DistributeParticipant
                 "Participant has been successfully put on the cohort distribution table. Participant Id: {ParticipantId}, Screening Id: {ScreeningId}, Source: {FileName}",
                 participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
 
-            await HandleGpCodeProcessing(context, transformedParticipant);
+            await HandleGpCodeProcessing(context, participantRecord);
             // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
             if (participantRecord.Participant.ReferralFlag == "1")
             {
@@ -137,24 +137,24 @@ public class DistributeParticipant
     /// </summary>
     /// <param name="context">Orchestration context</param>
     /// <param name="participant">The participant data</param>
-    private async Task HandleGpCodeProcessing(TaskOrchestrationContext context, CohortDistributionParticipant participant)
+    private async Task HandleGpCodeProcessing(TaskOrchestrationContext context, BasicParticipantCsvRecord participant)
     {
-        bool isAddScenario = participant.ReferralFlag == true;
+        bool isAddScenario = participant.Participant.ReferralFlag == "1";
 
         if (isAddScenario && !CheckIfHasDummyGpCode(participant)) return;
-        if (!isAddScenario && string.IsNullOrEmpty(participant.PrimaryCareProvider)) return;
+        if (!isAddScenario && string.IsNullOrEmpty(participant.Participant.Postcode)) return;
 
         var logMessage = isAddScenario
             ? "ADD participant with NHS Number: {NhsNumber} has dummy GP code: {GpCode}, updating Cohort Distribution table"
             : "AMEND participant with NHS Number: {NhsNumber}, overwriting Primary Care Provider with PDS data: {UpdatedGpCode}";
 
-        _logger.LogInformation(logMessage, participant.NhsNumber, participant.PrimaryCareProvider);
+        _logger.LogInformation(logMessage, participant.Participant.NhsNumber, participant.Participant.Postcode);
 
         var gpUpdateRequest = new GpCodeUpdateRequestDto
         {
-            NhsNumber = participant.NhsNumber,
-            ParticipantId = participant.ParticipantId!,
-            PrimaryCareProvider = participant.PrimaryCareProvider!,
+            NhsNumber = participant.BasicParticipantData.NhsNumber!,
+            ParticipantId = participant.Participant.ParticipantId!,
+            PrimaryCareProvider = participant.BasicParticipantData.PrimaryCareProvider!,
             IsAmendParticipant = !isAddScenario
         };
 
@@ -166,10 +166,9 @@ public class DistributeParticipant
     /// </summary>
     /// <param name="participant">The participant to check</param>
     /// <returns>True if has dummy GP code, false otherwise</returns>
-    private static bool CheckIfHasDummyGpCode(CohortDistributionParticipant participant)
+    private static bool CheckIfHasDummyGpCode(BasicParticipantCsvRecord participant)
     {
-        return !string.IsNullOrEmpty(participant.PrimaryCareProvider) &&
-               participant.PrimaryCareProvider.StartsWith("ZZZ", StringComparison.OrdinalIgnoreCase);
+        return !string.IsNullOrEmpty(participant.Participant.Postcode) && participant.Participant.Postcode.StartsWith("ZZZ", StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task HandleExceptionAsync(Exception ex, BasicParticipantCsvRecord participantRecord)
