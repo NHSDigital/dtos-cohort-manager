@@ -114,10 +114,15 @@ public class DistributeParticipant
                 "Participant has been successfully put on the cohort distribution table. Participant Id: {ParticipantId}, Screening Id: {ScreeningId}, Source: {FileName}",
                 participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
 
+            var gpCodeProcessingSuccessful = await HandleGpCodeProcessing(context, participantRecord);
+            if (!gpCodeProcessingSuccessful)
+            {
+                await HandleExceptionAsync(new InvalidOperationException("Failed to process GP code for participant"), participantRecord);
+                return;
+            }
             // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
             if (participantRecord.Participant.ReferralFlag == "1")
             {
-                await HandleGpCodeProcessing(context, participantRecord);
                 // In this scenario, the FileName property should be holding the ServiceNow Case Number
                 await context.CallActivityAsync(nameof(Activities.SendServiceNowMessage), participantRecord.FileName);
             }
@@ -134,13 +139,17 @@ public class DistributeParticipant
     /// </summary>
     /// <param name="context">Orchestration context</param>
     /// <param name="participant">The participant data</param>
-    private async Task HandleGpCodeProcessing(TaskOrchestrationContext context, BasicParticipantCsvRecord participant)
+    private async Task<bool> HandleGpCodeProcessing(TaskOrchestrationContext context, BasicParticipantCsvRecord participant)
     {
         bool isAddScenario = participant.Participant.ReferralFlag == "1";
 
-        if (!isAddScenario || !CheckIfHasDummyGpCode(participant)) return;
+        if (!isAddScenario || !CheckIfHasDummyGpCode(participant))
+        {
+            return true;
+        }
 
-        _logger.LogInformation("ADD participant with ParticipantId: {ParticipantId} has dummy GP code, updating Cohort Distribution table", participant.Participant.ParticipantId);
+        _logger.LogInformation("ADD participant with ParticipantId: {ParticipantId} has dummy GP code, updating Cohort Distribution table",
+            participant.Participant.ParticipantId);
 
         var gpUpdateRequest = new GpCodeUpdateRequestDto
         {
@@ -149,7 +158,7 @@ public class DistributeParticipant
             PrimaryCareProvider = participant.Participant.Postcode!,
         };
 
-        await context.CallActivityAsync(nameof(Activities.UpdateCohortDistributionGpCode), gpUpdateRequest);
+        return await context.CallActivityAsync<bool>(nameof(Activities.UpdateCohortDistributionGpCode), gpUpdateRequest);
     }
 
     /// <summary>
