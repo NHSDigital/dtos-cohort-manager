@@ -150,8 +150,8 @@ public class DistributeParticipant
     private static CohortDistributionParticipantDto? GetGpCodeUpdateRequest(BasicParticipantCsvRecord participant)
     {
         bool isAddScenario = participant.Participant.ReferralFlag == "1";
-        bool hasDummyGpCode = !string.IsNullOrEmpty(participant.Participant.Postcode) &&
-                             participant.Participant.Postcode.StartsWith("ZZZ", StringComparison.OrdinalIgnoreCase);
+        bool hasDummyGpCode = !string.IsNullOrEmpty(participant.Participant.PrimaryCareProvider) &&
+                             participant.Participant.PrimaryCareProvider.StartsWith("ZZZ", StringComparison.OrdinalIgnoreCase);
 
         if (!isAddScenario || !hasDummyGpCode)
         {
@@ -162,7 +162,7 @@ public class DistributeParticipant
         {
             NhsNumber = participant.BasicParticipantData.NhsNumber!,
             ParticipantId = participant.Participant.ParticipantId!,
-            PrimaryCareProvider = participant.Participant.Postcode!,
+            PrimaryCareProvider = participant.Participant.PrimaryCareProvider!,
         };
     }
 
