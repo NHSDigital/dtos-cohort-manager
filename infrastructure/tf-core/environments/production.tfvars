@@ -395,6 +395,7 @@ function_apps = {
       env_vars_static = {
         ServiceNowParticipantManagementTopic    = "servicenow-participant-management" # Subscribes to the servicenow participant management topic
         ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"       # Subscribes to the servicenow participant management topic
+        CohortDistributionTopic                 = "cohort-distribution"
       }
     }
 
@@ -647,6 +648,11 @@ function_apps = {
         {
           env_var_name     = "RemoveOldValidationRecordUrl"
           function_app_key = "RemoveValidationExceptionData"
+        },
+        {
+          env_var_name     = "SendServiceNowMessageURL"
+          function_app_key = "ServiceNowMessageHandler"
+          endpoint_name    = "servicenow/send"
         }
       ]
       env_vars_static = {

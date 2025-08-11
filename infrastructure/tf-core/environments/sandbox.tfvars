@@ -361,7 +361,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName    = "MeshCert"
+        MeshCertName               = "MeshCert"
         ParticipantManagementTopic = "participant-management"
       }
     }
@@ -418,6 +418,7 @@ function_apps = {
       env_vars_static = {
         ServiceNowParticipantManagementTopic    = "servicenow-participant-management" # Subscribes to the servicenow participant management topic
         ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"       # Subscribes to the servicenow participant management topic
+        CohortDistributionTopic                 = "cohort-distribution"
       }
     }
 
@@ -872,6 +873,11 @@ function_apps = {
         {
           env_var_name     = "RemoveOldValidationRecordUrl"
           function_app_key = "RemoveValidationExceptionData"
+        },
+        {
+          env_var_name     = "SendServiceNowMessageURL"
+          function_app_key = "ServiceNowMessageHandler"
+          endpoint_name    = "servicenow/send"
         }
       ]
       env_vars_static = {
@@ -1246,10 +1252,11 @@ function_apps = {
     }
 
     RetrievePDSDemographic = {
-      name_suffix            = "retrieve-pds-demographic"
-      function_endpoint_name = "RetrievePDSDemographic"
-      app_service_plan_key   = "DefaultPlan"
-      key_vault_url          = "KeyVaultConnectionString"
+      name_suffix             = "retrieve-pds-demographic"
+      function_endpoint_name  = "RetrievePDSDemographic"
+      app_service_plan_key    = "DefaultPlan"
+      key_vault_url           = "KeyVaultConnectionString"
+      service_bus_connections = ["internal"]
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1265,12 +1272,13 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
-        Kid                       = "RetrievePdsDemographic-test1"
-        Audience                  = "https://int.api.service.nhs.uk/oauth2/token"
-        AuthTokenURL              = "https://int.api.service.nhs.uk/oauth2/token"
-        KeyNamePrivateKey         = "PDSPRIVATEKEY"
-        UseFakePDSServices        = "true"
+        RetrievePdsParticipantURL  = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        Kid                        = "RetrievePdsDemographic-test1"
+        Audience                   = "https://int.api.service.nhs.uk/oauth2/token"
+        AuthTokenURL               = "https://int.api.service.nhs.uk/oauth2/token"
+        KeyNamePrivateKey          = "PDSPRIVATEKEY"
+        ParticipantManagementTopic = "participant-management"
+        UseFakePDSServices         = "true"
       }
     }
 
@@ -1409,9 +1417,9 @@ linux_web_app = {
         }
         from_key_vault = {
           # env_var_name          = "key_vault_secret_name"
-          AUTH_CIS2_CLIENT_SECRET = "auth-cis2-client-secret"
-          COHORT_MANAGER_RBAC_CODE    = "cohort-manager-users"
-          NEXTAUTH_SECRET         = "nextauth-secret"
+          AUTH_CIS2_CLIENT_SECRET  = "auth-cis2-client-secret"
+          COHORT_MANAGER_RBAC_CODE = "cohort-manager-users"
+          NEXTAUTH_SECRET          = "nextauth-secret"
         }
         local_urls = {
           # %s becomes the environment and region prefix (e.g. dev-uks)
