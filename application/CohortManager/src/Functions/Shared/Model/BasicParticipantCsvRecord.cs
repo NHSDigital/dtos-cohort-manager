@@ -29,7 +29,7 @@ public class BasicParticipantCsvRecord
         Participant = new Participant
         {
             ReferralFlag = "1",
-            Postcode = serviceNowParticipant.RequiredGpCode,
+            PrimaryCareProvider = serviceNowParticipant.RequiredGpCode,
             ScreeningAcronym = "BSS" // TODO: Remove hardcoding when adding support for additional screening programs
         };
     }
