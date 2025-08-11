@@ -89,7 +89,6 @@ public class DistributeParticipantTests
     [TestMethod]
     public async Task DistributeParticipantOrchestrator_ValidRequest_AddParticipantAndDoesNotSendServiceNowMessage()
     {
-        _request.BasicParticipantData.PrimaryCareProvider = "T35 7ING";
         _request.Participant.ParticipantId = "1234";
 
         // Act

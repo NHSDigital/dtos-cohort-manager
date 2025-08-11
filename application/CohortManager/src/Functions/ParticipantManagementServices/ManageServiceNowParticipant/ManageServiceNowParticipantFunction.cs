@@ -58,7 +58,7 @@ public class ManageServiceNowParticipantFunction
 
             // TODO: Add call to subscribe to NEMS (DTOSS-3881)
 
-            var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantDemographic, participantManagement);
+            var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantManagement);
 
             var sendToQueueSuccess = await _queueClient.AddAsync(participantForDistribution, _config.CohortDistributionTopic);
 
@@ -83,7 +83,7 @@ public class ManageServiceNowParticipantFunction
             await HandleException(new Exception(responseMessage), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
             return null;
         }
-        
+
         if (pdsResponse.StatusCode != HttpStatusCode.OK)
         {
             await HandleException(new Exception($"Request to PDS for ServiceNow Participant returned an unexpected response. Status code: {pdsResponse.StatusCode}"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
