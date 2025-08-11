@@ -146,15 +146,15 @@ public class DistributeParticipant
 
         var logMessage = isAddScenario
             ? "ADD participant with NHS Number: {NhsNumber} has dummy GP code: {GpCode}, updating Cohort Distribution table"
-            : "AMEND participant with NHS Number: {NhsNumber}, overwriting Primary Care Provider with PDS data: {UpdatedGpCode}";
+            : "AMEND participant with ParticipantId: {ParticipantId}, overwriting Primary Care Provider with PDS data: {UpdatedGpCode}";
 
-        _logger.LogInformation(logMessage, participant.Participant.NhsNumber, participant.Participant.Postcode);
+        _logger.LogInformation(logMessage, participant.Participant.ParticipantId, participant.Participant.Postcode);
 
         var gpUpdateRequest = new GpCodeUpdateRequestDto
         {
             NhsNumber = participant.BasicParticipantData.NhsNumber!,
             ParticipantId = participant.Participant.ParticipantId!,
-            PrimaryCareProvider = participant.BasicParticipantData.PrimaryCareProvider!,
+            PrimaryCareProvider = participant.Participant.Postcode!,
             IsAmendParticipant = !isAddScenario
         };
 

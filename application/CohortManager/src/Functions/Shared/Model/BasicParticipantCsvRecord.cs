@@ -24,7 +24,6 @@ public class BasicParticipantCsvRecord
         {
             ScreeningId = serviceNowParticipant.ScreeningId.ToString(),
             NhsNumber = serviceNowParticipant.NhsNumber.ToString(),
-            PrimaryCareProvider = serviceNowParticipant.RequiredGpCode,
             RecordType = participantManagement is null ? Actions.New : Actions.Amended,
         };
         Participant = new Participant
