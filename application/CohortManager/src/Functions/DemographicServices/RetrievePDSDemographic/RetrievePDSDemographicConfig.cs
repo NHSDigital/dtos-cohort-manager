@@ -23,33 +23,10 @@ public class RetrievePDSDemographicConfig
     [Required]
     public required string ParticipantManagementTopic { get; set; }
 
-    public string ServiceBusConnectionString_client_internal { get; set; }
+    [Required]
+    public required string ServiceBusConnectionString_client_internal { get; set; }
 
     public required bool UseFakePDSServices { get; set; } = false;
 
     public string ClientId { get; set; } = string.Empty;
-
-    [ConfigurationKeyName("ServiceBusConnectionString_client_internal")]
-    public string? ServiceBusConnectionStringClientInternal { get; set; }
-
-    [Required]
-    public string EffectiveServiceBusConnectionString
-    {
-        get
-        {
-            if (!string.IsNullOrWhiteSpace(ServiceBusConnectionString))
-            {
-                return ServiceBusConnectionString;
-            }
-
-            if (!string.IsNullOrWhiteSpace(ServiceBusConnectionStringClientInternal))
-            {
-                return ServiceBusConnectionStringClientInternal;
-            }
-
-            throw new InvalidOperationException(
-                "Missing Service Bus connection string. " +
-                "Set ServiceBusConnectionString or ServiceBusConnectionString_client_internal.");
-        }
-    }
 }
