@@ -56,9 +56,10 @@ To make the application more manageable to run, some functions have had [docker 
 
 Key of profiles:
 
-- bi-analytics - Functions that are only used by the external BI & Analytics product
 - bs-select - Functions that are only used by external requests from BS Select
 - ui - only used by the user interface
+- service-now - Functions that are only used in manual service now adds
+- nems - Functions that are only used in NEMS requests
 - non-essential - Functions that are not needed to run the application
 - not-implemented - Functions that do not yet have an implementation and are not in use
 

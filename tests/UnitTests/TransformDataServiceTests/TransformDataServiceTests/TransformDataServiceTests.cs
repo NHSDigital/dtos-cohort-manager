@@ -399,8 +399,8 @@ public class TransformDataServiceTests
     //[DataRow("John.,-()/='+:?!\"%&;<>*", "John.,-()/='+:?!\"%&;<>*")]
     [DataRow("abby{}", "abby()")]
     [DataRow("abc_", "abc-")]
-    [DataRow("abc\\", "abc/")]
-    [DataRow("{[Smith£$^`~#@_|\\]}", "((Smith   '   -:/))")]
+    [DataRow("abc\\", "abc-")]
+    [DataRow("{[Smith£$^`~#@_|\\]}", "((Smith   '   -:-))")]
     public async Task Run_InvalidCharsInParticipant_ReturnTransformedFields(string name, string transformedName)
     {
         // Arrange
@@ -622,6 +622,34 @@ public class TransformDataServiceTests
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         _handleException
             .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumber", 60,null),
+            times: Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_DelRecord_TransformRfrAndRaiseException()
+    {
+        // Arrange
+        CohortDistributionParticipant participant = new()
+        {
+            RecordType = Actions.Removed,
+            NhsNumber = "1234567890",
+            EligibilityFlag = "0",
+            InvalidFlag = "1",
+            ReferralFlag = false
+        };
+        _requestBody.Participant = participant;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        StringAssert.Contains(responseBody, "ORR");
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "RecordDeleted", 0, null),
             times: Times.Once);
     }
 

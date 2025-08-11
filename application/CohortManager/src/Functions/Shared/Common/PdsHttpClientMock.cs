@@ -1,15 +1,31 @@
 namespace Common;
 
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text.Json;
 using Model;
+using Common.Interfaces;
 
-
-public class HttpClientFunctionMock : IHttpClientFunction
+/// <summary>
+/// Mock implementation of IHttpClientFunction specifically designed for PDS (Personal Demographics Service) calls.
+/// This mock returns PdsDemographic objects for SendGet calls and FHIR Patient JSON for SendPdsGet calls.
+/// 
+/// WARNING: This is NOT a general-purpose HTTP client mock. It is designed specifically for PDS service testing.
+/// Other services (NEMS, ServiceNow, etc.) should not use this mock as it returns PDS-specific data structures.
+/// </summary>
+public class PdsHttpClientMock : IHttpClientFunction
 {
+
+    private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
+
+    public PdsHttpClientMock(IFhirPatientDemographicMapper fhirPatientDemographicMapper)
+    {
+        _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
+    }
+
     public async Task<HttpResponseMessage> SendPost(string url, string data)
     {
         await Task.CompletedTask;
@@ -19,7 +35,11 @@ public class HttpClientFunctionMock : IHttpClientFunction
     public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
     {
         await Task.CompletedTask;
-        return JsonSerializer.Serialize(new ParticipantDemographic());
+        var patient = GetPatientMockObject("complete-patient.json");
+        var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(patient);
+        var participantDemographic = pdsDemographic.ToParticipantDemographic();
+
+        return JsonSerializer.Serialize(participantDemographic);
     }
 
     public async Task<string> SendGet(string url)
@@ -79,25 +99,29 @@ public class HttpClientFunctionMock : IHttpClientFunction
         throw new NotImplementedException();
     }
 
+    public async Task<HttpResponseMessage> SendGetResponse(string url, Dictionary<string, string> parameters)
+    {
+        await Task.CompletedTask;
+        throw new NotImplementedException();
+    }
 
     /// <summary>
-    /// takes in a fake string content and returns 200 OK response 
+    /// takes in a fake string content and returns 200 OK response
     /// </summary>
     /// <param name="url"></param>
     /// <param name="content"></param>
     /// <returns></returns>
     private static HttpResponseMessage CreateFakeHttpResponse(string url, string content = "")
     {
-        var HttpResponseData = new HttpResponseMessage();
+        var httpResponseData = new HttpResponseMessage();
         if (string.IsNullOrEmpty(url))
         {
-            HttpResponseData.StatusCode = HttpStatusCode.InternalServerError;
-            return HttpResponseData;
+            httpResponseData.StatusCode = HttpStatusCode.InternalServerError;
+            return httpResponseData;
         }
 
-        HttpResponseData.Content = new StringContent(content);
-        HttpResponseData.StatusCode = HttpStatusCode.OK;
-        return HttpResponseData;
+        httpResponseData.Content = new StringContent(content);
+        httpResponseData.StatusCode = HttpStatusCode.OK;
+        return httpResponseData;
     }
-
 }

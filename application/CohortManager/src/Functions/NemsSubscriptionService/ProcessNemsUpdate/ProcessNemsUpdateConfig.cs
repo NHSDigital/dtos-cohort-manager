@@ -4,12 +4,17 @@ using System.ComponentModel.DataAnnotations;
 
 public class ProcessNemsUpdateConfig
 {
-    [Required]
     public required string RetrievePdsDemographicURL { get; set; }
-    [Required]
     public required string NemsMessages { get; set; }
-    [Required]
-    public required string UpdateQueueName { get; set; }
-    [Required]
     public required string UnsubscribeNemsSubscriptionUrl { get; set; }
+
+    [Required]
+    public required string ServiceBusConnectionString_client_internal { get; set; }
+
+    [Required]
+    public required string ParticipantManagementTopic { get; set; }
+
+    [Required]
+    public required string DemographicDataServiceURL { get; set; }
+
 }

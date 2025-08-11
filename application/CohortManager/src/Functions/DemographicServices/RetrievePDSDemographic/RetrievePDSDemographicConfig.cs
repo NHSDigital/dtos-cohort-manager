@@ -20,6 +20,12 @@ public class RetrievePDSDemographicConfig
     [Required]
     public required string AuthTokenURL { get; set; }
 
+    [Required]
+    public required string ParticipantManagementTopic { get; set; }
+
+    [Required]
+    public required string ServiceBusConnectionString { get; set; }
+
     public required bool UseFakePDSServices { get; set; } = false;
     public string ClientId { get; set; } = string.Empty;
 }

@@ -1,11 +1,13 @@
 namespace NHS.CohortManager.CohortDistributionServices;
 
 using System.Text.Json;
+using Common;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.Enums;
 
 public class DistributeParticipantActivities
 {
@@ -14,18 +16,21 @@ public class DistributeParticipantActivities
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
     private readonly DistributeParticipantConfig _config;
     private readonly ILogger<DistributeParticipantActivities> _logger;
+    private readonly IHttpClientFunction _httpClientFunction;
 
     public DistributeParticipantActivities(IDataServiceClient<CohortDistribution> cohortDistributionClient,
                                            IDataServiceClient<ParticipantManagement> participantManagementClient,
                                            IDataServiceClient<ParticipantDemographic> participantDemographicClient,
                                            IOptions<DistributeParticipantConfig> config,
-                                           ILogger<DistributeParticipantActivities> logger)
+                                           ILogger<DistributeParticipantActivities> logger,
+                                           IHttpClientFunction httpClientFunction)
     {
         _cohortDistributionClient = cohortDistributionClient;
         _participantManagementClient = participantManagementClient;
         _participantDemographicClient = participantDemographicClient;
         _config = config.Value;
         _logger = logger;
+        _httpClientFunction = httpClientFunction;
     }
 
     /// <summary>
@@ -77,6 +82,11 @@ public class DistributeParticipantActivities
     [Function(nameof(AllocateServiceProvider))]
     public async Task<string> AllocateServiceProvider([ActivityTrigger] Participant participant)
     {
+        if (string.IsNullOrEmpty(participant.Postcode) || string.IsNullOrEmpty(participant.ScreeningAcronym))
+        {
+            return EnumHelper.GetDisplayName(ServiceProvider.BSS);
+        }
+
         string configFilePath = Path.Combine(Environment.CurrentDirectory, "AllocateServiceProvider", "allocationConfig.json");
         string configFile = await File.ReadAllTextAsync(configFilePath);
 
@@ -112,5 +122,22 @@ public class DistributeParticipantActivities
 
         _logger.LogInformation("sent participant to cohort distribution data service");
         return isAdded;
+    }
+
+    /// <summary>
+    /// Sends a success message to the ServiceNow for the participant
+    /// </summary>
+    /// <param name="serviceNowCaseNumber"></param>
+    [Function(nameof(SendServiceNowMessage))]
+    public async Task SendServiceNowMessage([ActivityTrigger] string serviceNowCaseNumber)
+    {
+        var url = $"{_config.SendServiceNowMessageURL}/{serviceNowCaseNumber}";
+        var requestBody = new SendServiceNowMessageRequestBody
+        {
+            MessageType = ServiceNowMessageType.Success
+        };
+        var json = JsonSerializer.Serialize(requestBody);
+
+        await _httpClientFunction.SendPut(url, json);
     }
 }

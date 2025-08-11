@@ -1,4 +1,5 @@
 import { auth } from "@/app/lib/auth";
+import Link from "next/link";
 
 export default async function Unauthorised() {
   const session = await auth();
@@ -8,9 +9,8 @@ export default async function Unauthorised() {
         <div className="nhsuk-grid-column-two-thirds">
           <h1>You are not authorised to view this page</h1>
           <p>
-            <a href="mailto:england.digitalscreening@nhs.net">
-              Contact us to request access
-            </a>, providing:
+            <Link href="/contact-us">Contact us</Link> to request access,
+            providing:
           </p>
           <ul>
             <li>your name</li>

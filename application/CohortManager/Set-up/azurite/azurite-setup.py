@@ -15,6 +15,8 @@ def setup_azurite():
     try:
         blob_service_client.create_container("inbound")
         blob_service_client.create_container("file-exceptions")
+        blob_service_client.create_container("nems-updates")
+        blob_service_client.create_container("nems-config")
         queue_service_client.create_queue("add-participant-queue")
         queue_service_client.create_queue("add-participant-queue-poison")
         print("Queues & blob containers created")

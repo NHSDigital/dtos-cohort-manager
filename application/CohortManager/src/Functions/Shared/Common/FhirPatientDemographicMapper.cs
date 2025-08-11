@@ -4,6 +4,7 @@ using CohortManager.Functions.Shared.Common;
 using Common.Interfaces;
 using Hl7.Fhir.Model;
 using Hl7.Fhir.Serialization;
+using System.Xml;
 using Microsoft.Extensions.Logging;
 using Model;
 using Model.Enums;
@@ -41,7 +42,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         try
         {
             var parsedPatient = parser.Parse<Patient>(json);
-            return parsedPatient.Id ?? string.Empty;
+            return ExtractNhsNumberFromPatient(parsedPatient);
         }
         catch (FormatException ex)
         {
@@ -49,6 +50,60 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
             _logger.LogError(ex, "{Message}", errorMessage);
             throw new FormatException(errorMessage, ex);
         }
+    }
+
+    public string ParseFhirXmlNhsNumber(string xml)
+    {
+        try
+        {
+            // For Bundle format (NEMS), extract Patient XML first then parse
+            if (xml.Contains("<Bundle"))
+            {
+                var patientXml = ExtractPatientXmlFromBundle(xml);
+                if (string.IsNullOrEmpty(patientXml))
+                    return string.Empty;
+                
+                var parser = new FhirXmlParser();
+                var patient = parser.Parse<Patient>(patientXml);
+                return ExtractNhsNumberFromPatient(patient);
+            }
+            else
+            {
+                var parser = new FhirXmlParser();
+                var patient = parser.Parse<Patient>(xml);
+                return ExtractNhsNumberFromPatient(patient);
+            }
+        }
+        catch (FormatException ex)
+        {
+            var errorMessage = "Failed to parse FHIR XML NHS number. Ensure the input is a valid FHIR Patient resource or Bundle.";
+            _logger.LogError(ex, "{Message}", errorMessage);
+            throw new FormatException(errorMessage, ex);
+        }
+    }
+
+    private static string ExtractPatientXmlFromBundle(string bundleXml)
+    {
+        var doc = new XmlDocument();
+        doc.LoadXml(bundleXml);
+        
+        var nsManager = new XmlNamespaceManager(doc.NameTable);
+        nsManager.AddNamespace("fhir", "http://hl7.org/fhir");
+        
+        var patientNode = doc.SelectSingleNode("//fhir:Patient", nsManager);
+        return patientNode?.OuterXml ?? string.Empty;
+    }
+
+
+    private static string ExtractNhsNumberFromPatient(Patient patient)
+    {
+        if (patient?.Identifier == null) return patient?.Id ?? string.Empty;
+
+        // Look for NHS number identifier
+        var nhsIdentifier = patient.Identifier.FirstOrDefault(id => 
+            id.System == "https://fhir.nhs.uk/Id/nhs-number");
+
+        return nhsIdentifier?.Value ?? patient.Id ?? string.Empty;
     }
 
     public PdsDemographic MapPatientToPDSDemographic(Patient patient)

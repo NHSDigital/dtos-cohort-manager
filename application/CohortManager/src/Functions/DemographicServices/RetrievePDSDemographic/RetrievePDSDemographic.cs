@@ -12,6 +12,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using Model;
+using System.Net.Http.Json;
+using System.Collections.Concurrent;
 
 public class RetrievePdsDemographic
 {
@@ -22,6 +24,8 @@ public class RetrievePdsDemographic
     private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
     private readonly IBearerTokenService _bearerTokenService;
+    private readonly ICreateBasicParticipantData _createBasicParticipantData;
+    private readonly IAddBatchToQueue _addBatchToQueue;
     private const string PdsParticipantUrlFormat = "{0}/{1}";
 
 
@@ -32,6 +36,8 @@ public class RetrievePdsDemographic
         IFhirPatientDemographicMapper fhirPatientDemographicMapper,
         IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig,
         IDataServiceClient<ParticipantDemographic> participantDemographicClient,
+        ICreateBasicParticipantData createBasicParticipantData,
+        IAddBatchToQueue addBatchToQueue,
         IBearerTokenService bearerTokenService
     )
     {
@@ -41,7 +47,9 @@ public class RetrievePdsDemographic
         _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
         _config = retrievePDSDemographicConfig.Value;
         _participantDemographicClient = participantDemographicClient;
+        _createBasicParticipantData = createBasicParticipantData;
         _bearerTokenService = bearerTokenService;
+        _addBatchToQueue = addBatchToQueue;
     }
 
     // TODO: Need to send an exception to the EXCEPTION_MANAGEMENT table whenever this function returns a non OK status.
@@ -69,20 +77,17 @@ public class RetrievePdsDemographic
             var response = await _httpClientFunction.SendPdsGet(url, bearerToken);
             string jsonResponse = "";
 
-            if (response.StatusCode == HttpStatusCode.NotFound)
+            jsonResponse = await _httpClientFunction.GetResponseText(response);
+            var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
+
+            if (response.StatusCode == HttpStatusCode.NotFound || pdsDemographic.ConfidentialityCode == "R")
             {
-                var demographicRecordDeletedFromDatabase = await DeleteDemographicRecord(nhsNumber);
-                if (!demographicRecordDeletedFromDatabase)
-                {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "could not delete record from database. See logs for more details.");
-                }
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "Record not found in PDS and successfully removed from cohort manager database.");
+                await ProcessPdsNotFoundResponse(response, nhsNumber);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404 please database for details");
             }
 
             response.EnsureSuccessStatusCode();
 
-            jsonResponse = await _httpClientFunction.GetResponseText(response);
-            var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
             var participantDemographic = pdsDemographic.ToParticipantDemographic();
             var upsertResult = await UpsertDemographicRecordFromPDS(participantDemographic);
 
@@ -96,6 +101,48 @@ public class RetrievePdsDemographic
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
+
+    private async Task ProcessPdsNotFoundResponse(HttpResponseMessage pdsResponse, string nhsNumber)
+    {
+        var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PdsErrorResponse>();
+        // we now create a record as an update record and send to the manage participant function. Reason for removal for date should be today and the reason for remove of ORR
+        if (errorResponse!.issue!.FirstOrDefault()!.details!.coding!.FirstOrDefault()!.code == PdsConstants.InvalidatedResourceCode)
+        {
+            var pdsDemographic = new PdsDemographic()
+            {
+                NhsNumber = nhsNumber,
+                PrimaryCareProvider = null,
+                ReasonForRemoval = PdsConstants.OrrRemovalReason,
+                RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
+            };
+            var participant = new Participant(pdsDemographic);
+            participant.RecordType = Actions.Removed;
+            //sends record for an update
+            await ProcessRecord(participant);
+            return;
+        }
+        _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
+    }
+
+
+    private async Task ProcessRecord(Participant participant)
+    {
+        var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
+        participant.RecordType = participant.RecordType = Actions.Removed;
+
+        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        {
+            BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
+            FileName = PdsConstants.DefaultFileName,
+            Participant = participant
+        };
+
+        updateRecord.Enqueue(basicParticipantCsvRecord);
+
+        _logger.LogInformation("Sending record to the update queue.");
+        await _addBatchToQueue.ProcessBatch(updateRecord, _config.ParticipantManagementTopic);
+    }
+
 
     private async Task<bool> UpsertDemographicRecordFromPDS(ParticipantDemographic participantDemographic)
     {
@@ -129,36 +176,4 @@ public class RetrievePdsDemographic
         _logger.LogError("Failed to update Participant Demographic.");
         return false;
     }
-
-    private async Task<bool> DeleteDemographicRecord(string nhsNumber)
-    {
-        var nhsNumberParsed = long.TryParse(nhsNumber, out long parsedNhsNumber);
-        if (!nhsNumberParsed)
-        {
-            _logger.LogError("could not parse nhs number when trying to get record for deletion.");
-            return false;
-        }
-        var oldParticipantDemographic = await _participantDemographicClient.GetSingleByFilter(i => i.NhsNumber == parsedNhsNumber);
-
-        if (oldParticipantDemographic == null)
-        {
-
-            _logger.LogWarning("Failed to delete Participant Demographic as record did not exist in database.");
-            return false;
-        }
-
-        _logger.LogInformation("Participant Demographic record found, attempting to delete  Participant Demographic.");
-        bool updateSuccess = await _participantDemographicClient.Delete(oldParticipantDemographic.ParticipantId.ToString());
-
-        if (updateSuccess)
-        {
-            _logger.LogInformation("Successfully deleted Participant Demographic.");
-            return true;
-        }
-
-        _logger.LogError("Failed to delete Participant Demographic.");
-        return false;
-    }
-
-
 }

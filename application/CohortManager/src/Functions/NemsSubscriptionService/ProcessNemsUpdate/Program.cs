@@ -1,13 +1,18 @@
 using Common;
 using Common.Interfaces;
+using Model;
+using DataServices.Client;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using NHS.Screening.ProcessNemsUpdate;
 
 var host = new HostBuilder()
-    .AddConfiguration<ProcessNemsUpdateConfig>()
+    .AddConfiguration<ProcessNemsUpdateConfig>(out ProcessNemsUpdateConfig config)
     .ConfigureFunctionsWorkerDefaults()
+      .AddDataServicesHandler()
+        .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
+        .Build()
     .ConfigureServices(services =>
     {
         services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();
@@ -18,7 +23,7 @@ var host = new HostBuilder()
     .AddTelemetry()
     .AddExceptionHandler()
     .AddHttpClient()
-    .AddAzureQueues()
+    .AddServiceBusClient(config.ServiceBusConnectionString_client_internal)
     .Build();
 
 await host.RunAsync();

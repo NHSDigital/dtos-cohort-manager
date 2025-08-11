@@ -1,4 +1,5 @@
 using Common;
+using HealthChecks.Extensions;
 using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,6 +14,8 @@ var host = new HostBuilder()
         services.AddTransient<IServiceNowClient, ServiceNowClient>();
         services.AddMemoryCache();
         services.AddHttpClient();
+        // Register health checks
+        services.AddBasicHealthCheck("ServiceNowMessageHandler");
     })
     .AddTelemetry()
     .AddServiceBusClient(config.ServiceBusConnectionString_client_internal)

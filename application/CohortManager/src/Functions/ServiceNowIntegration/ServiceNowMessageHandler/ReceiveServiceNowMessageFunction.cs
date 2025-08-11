@@ -70,7 +70,7 @@ public class ReceiveServiceNowMessageFunction
                 FirstName = requestBody.VariableData.FirstName,
                 FamilyName = requestBody.VariableData.FamilyName,
                 DateOfBirth = requestBody.VariableData.DateOfBirth,
-                ServiceNowRecordNumber = requestBody.ServiceNowCaseNumber,
+                ServiceNowCaseNumber = requestBody.ServiceNowCaseNumber,
                 BsoCode = requestBody.VariableData.BsoCode,
                 ReasonForAdding = requestBody.VariableData.ReasonForAdding,
                 RequiredGpCode = requestBody.VariableData.RequiredGpCode

@@ -27,18 +27,6 @@
         }
       },
       {
-        "RuleName": "47.NewParticipantWithRemovalOrDeath.NBO.NonFatal",
-        "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Removal fields incompatible with record type\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "62.ValidateReasonForRemoval.NBO.NonFatal",
         "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))",
         "Actions": {
@@ -84,14 +72,6 @@
             "Expression": "participant.EligibilityFlag != \"0\""
           },
           {
-            "Name": "delRecordType",
-            "Expression": "participant.RecordType == Actions.Removed"
-          },
-          {
-            "Name": "validDelEligibilityFlag",
-            "Expression": "participant.EligibilityFlag != \"1\""
-          },
-          {
             "Name": "amendRecordType",
             "Expression": "participant.RecordType == Actions.Amended"
           },
@@ -100,7 +80,7 @@
             "Expression": "(participant.EligibilityFlag == \"1\") OR (participant.EligibilityFlag == \"0\")"
           }
         ],
-        "Expression": "(newRecordType AND validNewEligibilityFlag) OR (delRecordType AND validDelEligibilityFlag) OR (amendRecordType AND validAmendEligibilityFlag)",
+        "Expression": "(newRecordType AND validNewEligibilityFlag) OR (amendRecordType AND validAmendEligibilityFlag)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -231,6 +211,23 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Invalid death status\""
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "DEL",
+    "Rules": [
+      {
+        "RuleName": "94.EligibilityFlag.CaaS.NonFatal",
+        "Expression": "participant.EligibilityFlag == \"0\"",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid eligibility flag.\""
             }
           }
         }
