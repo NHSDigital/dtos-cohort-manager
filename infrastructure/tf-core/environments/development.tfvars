@@ -107,7 +107,6 @@ routes = {
 
 app_service_plan = {
   os_type                  = "Linux"
-  sku_name                 = "P3v3"
   vnet_integration_enabled = true
 
   autoscale = {
@@ -141,6 +140,7 @@ app_service_plan = {
 
   instances = {
     DefaultPlan = {
+      sku_name = "P1v3"
       autoscale_override = {
         scaling_rule = {
           metric = "CpuPercentage"
@@ -152,6 +152,7 @@ app_service_plan = {
       }
     }
     HighLoadFunctions = {
+      sku_name = "P2v3"
       autoscale_override = {
         scaling_rule = {
           metric = "CpuPercentage"
@@ -170,6 +171,7 @@ app_service_plan = {
       }
     }
     RetrieveMeshFile = {
+      sku_name = "P3v3"
       autoscale_override = {
         scaling_rule = {
           metric = "CpuPercentage"
