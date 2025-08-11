@@ -154,7 +154,8 @@ public class DistributeParticipantActivities
             _logger.LogInformation("Updating GP code for ParticipantId: {ParticipantId}}", request.ParticipantId);
 
             long nhsNumber = long.Parse(request.NhsNumber);
-            var cohortDistribution = await _cohortDistributionClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber);
+            var cohortDistribution = (await _cohortDistributionClient.GetByFilter(x => x.NHSNumber == nhsNumber))
+                .OrderByDescending(x => x.RecordUpdateDateTime ?? x.RecordInsertDateTime).FirstOrDefault();
 
             if (cohortDistribution == null)
             {
