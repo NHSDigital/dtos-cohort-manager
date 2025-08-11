@@ -103,7 +103,7 @@ public class ProcessNemsUpdateTests
         HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
         httpResponseMessage.StatusCode = HttpStatusCode.OK;
 
-        _httpClientFunctionMock.Setup(x => x.SendGetHttpResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ThrowsAsync(new Exception("error"));
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ThrowsAsync(new Exception("error"));
 
         // Act
         await _sut.Run(fileStream, _fileName);
@@ -111,7 +111,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGetHttpResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
@@ -133,7 +133,7 @@ public class ProcessNemsUpdateTests
         httpResponseMessage.Content = new StringContent(JsonSerializer.Serialize(new PdsDemographic { NhsNumber = "123" }));
         httpResponseMessage.StatusCode = HttpStatusCode.OK;
 
-        _httpClientFunctionMock.Setup(x => x.SendGetHttpResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
 
         // Act
         await _sut.Run(fileStream, _fileName);
@@ -141,7 +141,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGetHttpResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -175,7 +175,7 @@ public class ProcessNemsUpdateTests
         httpResponseMessage.Content = new StringContent(JsonSerializer.Serialize(new PdsDemographic { NhsNumber = "123" }));
         httpResponseMessage.StatusCode = HttpStatusCode.OK;
 
-        _httpClientFunctionMock.Setup(x => x.SendGetHttpResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
 
         _httpClientFunctionMock.Setup(x => x.SendPost("Unsubscribe", It.IsAny<string>())).Throws(new Exception("error"));
 
@@ -185,7 +185,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGetHttpResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -219,7 +219,7 @@ public class ProcessNemsUpdateTests
         httpResponseMessage.Content = new StringContent(JsonSerializer.Serialize(new PdsDemographic { NhsNumber = "9000000009" }));
         httpResponseMessage.StatusCode = HttpStatusCode.OK;
 
-        _httpClientFunctionMock.Setup(x => x.SendGetHttpResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
 
         // Act
         await _sut.Run(fileStream, _fileName);
@@ -227,7 +227,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGetHttpResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
 
         _loggerMock.Verify(x => x.Log(
@@ -256,14 +256,14 @@ public class ProcessNemsUpdateTests
         httpResponseMessage.Content = new StringContent(JsonSerializer.Serialize(new PdsDemographic { NhsNumber = "123" }));
         httpResponseMessage.StatusCode = HttpStatusCode.OK;
 
-        _httpClientFunctionMock.Setup(x => x.SendGetHttpResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
 
         // Act
         await _sut.Run(fileStream, _fileName);
 
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
-        _httpClientFunctionMock.Verify(x => x.SendGetHttpResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
 
 
@@ -345,7 +345,7 @@ public class ProcessNemsUpdateTests
         await _sut.Run(fileStream, _fileName);
 
         // Assert - Verify correct NHS number is passed to PDS service
-        _httpClientFunctionMock.Verify(x => x.SendGetHttpResponse(
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse(
             "RetrievePdsDemographic",
             It.Is<Dictionary<string, string>>(dict =>
                 dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)),
@@ -368,7 +368,7 @@ public class ProcessNemsUpdateTests
         await _sut.Run(fileStream, xmlFileName);
 
         // Assert - Verify correct NHS number is passed to PDS service
-        _httpClientFunctionMock.Verify(x => x.SendGetHttpResponse(
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse(
             "RetrievePdsDemographic",
             It.Is<Dictionary<string, string>>(dict =>
                 dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)),

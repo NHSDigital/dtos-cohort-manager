@@ -24,14 +24,20 @@ public interface IHttpClientFunction
     /// <returns>string</returns>
     Task<string> SendGet(string url, Dictionary<string, string> parameters);
 
-    Task<HttpResponseMessage> SendGetHttpResponse(string url, Dictionary<string, string> parameters);
-
     /// <summary>
     /// Performs a GET request using HttpClient and returns the entire HTTP response.
     /// </summary>
     /// <param name="url">URL to be used in request.</param>
     /// <returns>HttpResponseMessage</returns>
     Task<HttpResponseMessage> SendGetResponse(string url);
+
+    /// <summary>
+    /// Performs a GET request using HttpClient and returns the entire HTTP response.
+    /// </summary>
+    /// <param name="url">URL to be used in request.</param>
+    /// <param name="parameters">Parameters to be added to the url and used in request.</param>
+    /// <returns>HttpResponseMessage</returns>
+    Task<HttpResponseMessage> SendGetResponse(string url, Dictionary<string, string> parameters);
 
     /// <summary>
     /// Sends a get request or throws an error

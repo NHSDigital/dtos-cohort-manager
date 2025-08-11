@@ -27,18 +27,6 @@
         }
       },
       {
-        "RuleName": "47.NewParticipantWithRemovalOrDeath.NBO.NonFatal",
-        "Expression": "participant.RecordType != Actions.New OR (string.IsNullOrEmpty(participant.ReasonForRemoval) AND string.IsNullOrEmpty(participant.ReasonForRemovalEffectiveFromDate) AND string.IsNullOrEmpty(participant.DateOfDeath))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Removal fields incompatible with record type\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "62.ValidateReasonForRemoval.NBO.NonFatal",
         "Expression": "!(participant.ReasonForRemoval == \"LDN\" AND  string.IsNullOrEmpty(participant.SupersededByNhsNumber))",
         "Actions": {
