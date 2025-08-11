@@ -210,6 +210,7 @@ public class StaticValidationTests
     [DataRow("ZZ99 9FZ")]
     [DataRow("ZZ999FZ")]
     [DataRow("ZZ99 3WZ")]
+    [DataRow("ZZZSECUR")]
     public async Task Run_ValidPostcode_ReturnNoContent(string postcode)
     {
         // Arrange

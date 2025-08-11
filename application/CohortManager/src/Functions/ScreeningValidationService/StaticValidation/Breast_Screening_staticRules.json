@@ -97,7 +97,7 @@
     "Rules": [
       {
         "RuleName": "30.Postcode.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR ValidationHelper.ValidatePostcode(participant.Postcode)",
+        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR ValidationHelper.ValidatePostcode(participant.Postcode) OR participant.Postcode == \"ZZZSECUR\"",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -170,19 +170,19 @@
     ]
   },
   {
-  "WorkflowName": "ADD",
-  "Rules": [
-    {
-      "RuleName": "71.NewParticipantWithNoAddress.NBO.NonFatal",
-      "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))",
+    "WorkflowName": "ADD",
+    "Rules": [
+      {
+        "RuleName": "71.NewParticipantWithNoAddress.NBO.NonFatal",
+        "Expression": "!(participant.RecordType == Actions.New AND string.IsNullOrEmpty(participant.AddressLine1) AND string.IsNullOrEmpty(participant.AddressLine2) AND string.IsNullOrEmpty(participant.AddressLine3) AND string.IsNullOrEmpty(participant.AddressLine4) AND string.IsNullOrEmpty(participant.AddressLine5))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
-              "Context": {
-                "Expression": "\"Address is missing\""
+            "Context": {
+              "Expression": "\"Address is missing\""
             }
           }
-        } 
+        }
       }
     ]
   },
