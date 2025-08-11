@@ -151,7 +151,7 @@ public class DistributeParticipantActivities
     {
         try
         {
-            _logger.LogInformation("Updating GP code for NHS Number: {NhsNumber} to {GpCode}",
+            _logger.LogInformation("Updating GP code for ParticipantId: {ParticipantId} to {GpCode}",
                 request.NhsNumber, request.PrimaryCareProvider);
 
             long nhsNumber = long.Parse(request.NhsNumber);
@@ -159,14 +159,14 @@ public class DistributeParticipantActivities
 
             if (cohortDistribution == null)
             {
-                _logger.LogError("No Cohort Distribution record found for NHS Number: {NhsNumber}", request.NhsNumber);
+                _logger.LogError("No Cohort Distribution record found for ParticipantId: {ParticipantId}", request.ParticipantId);
                 return false;
             }
 
             if (request.IsAmendParticipant && cohortDistribution.PrimaryCareProvider == request.PrimaryCareProvider)
             {
-                _logger.LogInformation("Primary Care Provider for NHS Number: {NhsNumber} is already up to date: {GpCode}",
-                    request.NhsNumber, request.PrimaryCareProvider);
+                _logger.LogInformation("Primary Care Provider for ParticipantId: {ParticipantId} is already up to date: {GpCode}",
+                    request.ParticipantId, request.PrimaryCareProvider);
                 return true;
             }
 
@@ -177,19 +177,19 @@ public class DistributeParticipantActivities
 
             if (success)
             {
-                _logger.LogInformation("Successfully updated Primary Care Provider in Cohort Distribution for NHS Number: {NhsNumber}", request.NhsNumber);
+                _logger.LogInformation("Successfully updated Primary Care Provider in Cohort Distribution for ParticipantId: {Participant}", request.ParticipantId);
             }
 
             if (!success)
             {
-                _logger.LogError("Failed to update Primary Care Provider in Cohort Distribution for NHS Number: {NhsNumber}", request.NhsNumber);
+                _logger.LogError("Failed to update Primary Care Provider in Cohort Distribution for ParticipantId: {ParticipantId}", request.ParticipantId);
             }
 
             return success;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating Cohort Distribution GP code for NHS Number: {NhsNumber}", request.NhsNumber);
+            _logger.LogError(ex, "Error updating Cohort Distribution GP code for ParticipantId: {ParticipantId}", request.ParticipantId);
             return false;
         }
     }
