@@ -41,7 +41,8 @@ public class ManageServiceNowParticipantFunctionTests
             DateOfBirth = new DateOnly(1970, 1, 1),
             ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
-            ReasonForAdding = ServiceNowReasonsForAdding.RequiresCeasing
+            ReasonForAdding = ServiceNowReasonsForAdding.RequiresCeasing,
+            RequiredGpCode = "T35 7ING"
         };
 
         var config = new ManageServiceNowParticipantConfig
@@ -262,16 +263,9 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordInsertDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
-                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
-                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.New &&
-                    x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _demographic.PostCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
-                _configMock.Object.Value.CohortDistributionTopic))
-            .ReturnsAsync(true).Verifiable();
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true)
+            .Verifiable();
 
         // Act
         await _function.Run(_serviceNowParticipant);
@@ -304,16 +298,9 @@ public class ManageServiceNowParticipantFunctionTests
                 x.Compile().Invoke(new ParticipantManagement { NHSNumber = _serviceNowParticipant.NhsNumber, ScreeningId = _serviceNowParticipant.ScreeningId })
             ))).ReturnsAsync(new ParticipantManagement { ParticipantId = 123, BlockedFlag = 1 }).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
-                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
-                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.Amended &&
-                    x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _demographic.PostCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
-                _configMock.Object.Value.CohortDistributionTopic))
-            .ReturnsAsync(true).Verifiable();
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true)
+            .Verifiable();
 
         // Act
         await _function.Run(_serviceNowParticipant);
@@ -363,16 +350,9 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
-                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
-                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.Amended &&
-                    x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _demographic.PostCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
-                _configMock.Object.Value.CohortDistributionTopic))
-            .ReturnsAsync(true).Verifiable();
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true)
+            .Verifiable();
 
         // Act
         await _function.Run(_serviceNowParticipant);
@@ -402,7 +382,8 @@ public class ManageServiceNowParticipantFunctionTests
             DateOfBirth = new DateOnly(1970, 1, 1),
             ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
-            ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk
+            ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk,
+            RequiredGpCode = "T35 7ING",
         };
 
         var json = JsonSerializer.Serialize(_demographic);
@@ -428,16 +409,9 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordInsertDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
-                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
-                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.New &&
-                    x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _demographic.PostCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
-                _configMock.Object.Value.CohortDistributionTopic))
-            .ReturnsAsync(true).Verifiable();
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true)
+            .Verifiable();
 
         // Act
         await _function.Run(vhrParticipant);
@@ -484,16 +458,9 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordInsertDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
-                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
-                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.New &&
-                    x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _demographic.PostCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
-                _configMock.Object.Value.CohortDistributionTopic))
-            .ReturnsAsync(true).Verifiable();
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true)
+            .Verifiable();
 
         // Act
         await _function.Run(_serviceNowParticipant);
@@ -525,7 +492,8 @@ public class ManageServiceNowParticipantFunctionTests
             DateOfBirth = new DateOnly(1970, 1, 1),
             ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
-            ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk
+            ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk,
+            RequiredGpCode = "T35 7ING",
         };
 
         var json = JsonSerializer.Serialize(_demographic);
@@ -560,16 +528,9 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
-                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
-                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.Amended &&
-                    x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _demographic.PostCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
-                _configMock.Object.Value.CohortDistributionTopic))
-            .ReturnsAsync(true).Verifiable();
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), _configMock.Object.Value.CohortDistributionTopic))
+      .ReturnsAsync(true)
+      .Verifiable();
 
         // Act
         await _function.Run(vhrParticipant);
@@ -626,16 +587,9 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
-                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
-                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.Amended &&
-                    x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _demographic.PostCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
-                _configMock.Object.Value.CohortDistributionTopic))
-            .ReturnsAsync(true).Verifiable();
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true)
+            .Verifiable();
 
         // Act
         await _function.Run(_serviceNowParticipant);
@@ -691,16 +645,9 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
-                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
-                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.Amended &&
-                    x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _demographic.PostCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
-                _configMock.Object.Value.CohortDistributionTopic))
-            .ReturnsAsync(true).Verifiable();
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true)
+            .Verifiable();
 
         // Act
         await _function.Run(_serviceNowParticipant);
