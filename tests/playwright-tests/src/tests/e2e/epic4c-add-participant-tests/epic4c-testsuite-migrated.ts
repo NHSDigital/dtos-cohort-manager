@@ -21,10 +21,10 @@
 //
 //   npm run test:regression_e2e_epic4c
 //
-// This equates to "@epic3-" tags, configured in the package.json at the playwright-tests root location.
+// This equates to "@epic4c-" tags, configured in the package.json at the playwright-tests root location.
 
 // Epic-4c Epic : "https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6041" has been tested as part of 3082 Epic 3 which are already has test coverage and track the migration of Epic 3 High Priority tests
-// The Epic 4D will be used to track the migration of all Epic 4c
+// The Epic 4c will be used to track the migration of all Epic 4c
 
 export const runnerBasedEpic4cTestScenariosAdd = "@DTOSS-9337-01";
 export const runnerBasedEpic4cTestScenariosAmend = "@DTOSS-9337-01";

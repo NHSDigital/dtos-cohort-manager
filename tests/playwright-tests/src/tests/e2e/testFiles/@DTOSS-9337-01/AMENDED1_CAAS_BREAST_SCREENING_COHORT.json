@@ -4,15 +4,15 @@
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9997311760,
-        "SupersededByNhsNumber": 9992808403,
         "PrimaryCareProvider": "",
         "ReasonForRemoval": "ORR",
+        "SupersededNHSNumber": 9992808403,
         "expectedCount": 2
       },
       "meta": {
         "testJiraId": "@DTOSS-9337-01",
         "requirementJiraId": "DTOSS-9337",
-        "additionalTags": "@regression @e2e @epic4c- updated record with superseded number"
+        "additionalTags": "@regression @e2e @epic4c- validate primary care provider, reason for removal and superseded number"
       }
     },
     {
@@ -25,9 +25,9 @@
       "meta": {
         "testJiraId": "@DTOSS-9337-01",
         "requirementJiraId": "DTOSS-9337",
-        "additionalTags": "@regression @e2e @epic4c- Check that Transformation Exception is raised in Exception Table"
+        "additionalTags": "@regression @e2e @epic4c- validate exception for Superseded_number transformation"
       }
-    },
+    }
   ],
   "inputParticipantRecord": [
     {
