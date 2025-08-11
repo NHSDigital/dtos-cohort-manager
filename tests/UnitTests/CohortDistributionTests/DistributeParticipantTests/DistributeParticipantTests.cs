@@ -32,7 +32,7 @@ public class DistributeParticipantTests
             },
             Participant = new()
             {
-                Postcode = "T35 7ING"
+                PrimaryCareProvider = "T35 7ING"
             }
         };
 
@@ -230,7 +230,7 @@ public class DistributeParticipantTests
     {
         // Arrange
         _request.Participant.ReferralFlag = "1";
-        _request.Participant.Postcode = dummyGpCode;
+        _request.Participant.PrimaryCareProvider = dummyGpCode;
         _request.Participant.ParticipantId = "1234";
 
         // Act
@@ -255,7 +255,7 @@ public class DistributeParticipantTests
     {
         // Arrange
         _request.Participant.ReferralFlag = "1";
-        _request.Participant.Postcode = nonDummyGpCode;
+        _request.Participant.PrimaryCareProvider = nonDummyGpCode;
 
         // Act
         await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
@@ -273,7 +273,7 @@ public class DistributeParticipantTests
         var caseNumber = "CS123";
         _request.Participant.ReferralFlag = "1";
         _request.FileName = caseNumber;
-        _request.Participant.Postcode = "ZZZ999";
+        _request.Participant.PrimaryCareProvider = "ZZZ999";
         _request.Participant.ParticipantId = "1234";
 
         // Act
