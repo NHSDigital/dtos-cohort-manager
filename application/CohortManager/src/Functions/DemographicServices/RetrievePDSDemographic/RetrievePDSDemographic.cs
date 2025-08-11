@@ -84,7 +84,7 @@ public class RetrievePdsDemographic
             var upsertResult = await _pdsProcessor.UpsertDemographicRecordFromPDS(participantDemographic);
 
             return upsertResult ?
-                _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(participantDemographic)) :
+                _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(participantDemographic.ToDemographic())) :
                 _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
         catch (Exception ex)
