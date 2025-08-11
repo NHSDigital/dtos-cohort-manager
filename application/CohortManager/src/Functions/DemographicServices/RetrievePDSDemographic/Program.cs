@@ -25,7 +25,7 @@ var host = new HostBuilder()
     })
     .AddJwtTokenSigning(config.UseFakePDSServices)
     .AddTelemetry()
-    .AddServiceBusClient(config.ServiceBusConnectionString)
+    .AddServiceBusClient(config.EffectiveServiceBusConnectionString)
     .AddHttpClient(config.UseFakePDSServices)
     .Build();
 
