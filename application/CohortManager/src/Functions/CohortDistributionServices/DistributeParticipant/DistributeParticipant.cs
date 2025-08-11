@@ -142,20 +142,15 @@ public class DistributeParticipant
         bool isAddScenario = participant.Participant.ReferralFlag == "1";
 
         if (isAddScenario && !CheckIfHasDummyGpCode(participant)) return;
-        if (!isAddScenario && string.IsNullOrEmpty(participant.Participant.Postcode)) return;
 
-        var logMessage = isAddScenario
-            ? "ADD participant with ParticipantId: {ParticipantId} has dummy GP code: {GpCode}, updating Cohort Distribution table"
-            : "AMEND participant with ParticipantId: {ParticipantId}, overwriting Primary Care Provider with PDS data: {UpdatedGpCode}";
-
-        _logger.LogInformation(logMessage, participant.Participant.ParticipantId, participant.Participant.Postcode);
+        _logger.LogInformation("ADD participant with ParticipantId: {ParticipantId} has dummy GP code: {GpCode}, updating Cohort Distribution table",
+        participant.Participant.ParticipantId, participant.Participant.Postcode);
 
         var gpUpdateRequest = new GpCodeUpdateRequestDto
         {
             NhsNumber = participant.BasicParticipantData.NhsNumber!,
             ParticipantId = participant.Participant.ParticipantId!,
             PrimaryCareProvider = participant.Participant.Postcode!,
-            IsAmendParticipant = !isAddScenario
         };
 
         await context.CallActivityAsync(nameof(Activities.UpdateCohortDistributionGpCode), gpUpdateRequest);
