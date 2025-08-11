@@ -29,9 +29,11 @@ public class DistributeParticipantTests
                 RecordType = "ADD",
                 NhsNumber = "122345",
                 ScreeningId = "1",
-                PrimaryCareProvider = "T35 7ING"
             },
             Participant = new()
+            {
+                Postcode = "T35 7ING"
+            }
         };
 
         _cohortDistributionRecord = new()
@@ -225,9 +227,8 @@ public class DistributeParticipantTests
     {
         // Arrange
         _request.Participant.ReferralFlag = "1";
-        _request.Participant.Postcode = dummyGpCode; // This is what CheckIfHasDummyGpCode checks
-        _request.BasicParticipantData.PrimaryCareProvider = "T35 7ING"; // Ensure this is set
-        _request.Participant.ParticipantId = "1234"; // Ensure this is set
+        _request.Participant.Postcode = dummyGpCode;
+        _request.Participant.ParticipantId = "1234";
 
         _mockContext
             .Setup(x => x.CallActivityAsync("UpdateCohortDistributionGpCode", It.IsAny<object>(), null))
@@ -242,7 +243,7 @@ public class DistributeParticipantTests
             It.Is<object>(req =>
                 req.GetType().GetProperty("NhsNumber")!.GetValue(req)!.ToString() == "122345" &&
                 req.GetType().GetProperty("ParticipantId")!.GetValue(req)!.ToString() == "1234" &&
-                req.GetType().GetProperty("PrimaryCareProvider")!.GetValue(req)!.ToString() == "T35 7ING" &&
+                req.GetType().GetProperty("PrimaryCareProvider")!.GetValue(req)!.ToString() == dummyGpCode &&
                 (bool)req.GetType().GetProperty("IsAmendParticipant")!.GetValue(req)! == false
             ), null), Times.Once);
         _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Once);
@@ -275,7 +276,6 @@ public class DistributeParticipantTests
         // Arrange
         _request.Participant.ReferralFlag = "0";
         _request.Participant.Postcode = pdsGpCode;
-        _request.BasicParticipantData.PrimaryCareProvider = "T35 7ING";
         _request.Participant.ParticipantId = "1234";
 
         _mockContext
@@ -291,7 +291,7 @@ public class DistributeParticipantTests
             It.Is<object>(req =>
                 req.GetType().GetProperty("NhsNumber")!.GetValue(req)!.ToString() == "122345" &&
                 req.GetType().GetProperty("ParticipantId")!.GetValue(req)!.ToString() == "1234" &&
-                req.GetType().GetProperty("PrimaryCareProvider")!.GetValue(req)!.ToString() == "T35 7ING" &&
+                req.GetType().GetProperty("PrimaryCareProvider")!.GetValue(req)!.ToString() == pdsGpCode &&
                 (bool)req.GetType().GetProperty("IsAmendParticipant")!.GetValue(req)! == true
             ), null), Times.Once);
         _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Never);
@@ -315,7 +315,6 @@ public class DistributeParticipantTests
         _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Never);
     }
 
-
     [TestMethod]
     public async Task DistributeParticipantOrchestrator_ServiceNowParticipantWithDummyGpCodeAndSendMessage_CallsBothActivities()
     {
@@ -324,7 +323,6 @@ public class DistributeParticipantTests
         _request.Participant.ReferralFlag = "1";
         _request.FileName = caseNumber;
         _request.Participant.Postcode = "ZZZ999";
-        _request.BasicParticipantData.PrimaryCareProvider = "T35 7ING";
         _request.Participant.ParticipantId = "1234";
 
         _mockContext
