@@ -151,7 +151,7 @@ public class DistributeParticipantActivities
     {
         try
         {
-            _logger.LogInformation("Updating GP code for ParticipantId: {ParticipantId} to {GpCode}", request.NhsNumber, request.PrimaryCareProvider);
+            _logger.LogInformation("Updating GP code for ParticipantId: {ParticipantId} to {GpCode}", request.ParticipantId, request.PrimaryCareProvider);
 
             long nhsNumber = long.Parse(request.NhsNumber);
             var cohortDistribution = await _cohortDistributionClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber);

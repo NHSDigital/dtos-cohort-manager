@@ -18,15 +18,12 @@ public class DistributeParticipant
     private readonly ILogger<DistributeParticipant> _logger;
     private readonly DistributeParticipantConfig _config;
     private readonly IExceptionHandler _exceptionHandler;
-    private readonly IHttpClientFunction _httpClientFunction;
-
     public DistributeParticipant(ILogger<DistributeParticipant> logger, IOptions<DistributeParticipantConfig> config,
-                                IExceptionHandler exceptionHandler, IHttpClientFunction httpClientFunction)
+                                IExceptionHandler exceptionHandler)
     {
         _logger = logger;
         _config = config.Value;
         _exceptionHandler = exceptionHandler;
-        _httpClientFunction = httpClientFunction;
     }
 
     /// <summary>
@@ -117,10 +114,10 @@ public class DistributeParticipant
                 "Participant has been successfully put on the cohort distribution table. Participant Id: {ParticipantId}, Screening Id: {ScreeningId}, Source: {FileName}",
                 participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
 
-            await HandleGpCodeProcessing(context, participantRecord);
             // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
             if (participantRecord.Participant.ReferralFlag == "1")
             {
+                await HandleGpCodeProcessing(context, participantRecord);
                 // In this scenario, the FileName property should be holding the ServiceNow Case Number
                 await context.CallActivityAsync(nameof(Activities.SendServiceNowMessage), participantRecord.FileName);
             }
