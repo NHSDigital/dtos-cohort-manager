@@ -342,7 +342,7 @@ function_apps = {
           function_app_key = "ManageNemsSubscription"
         },
         {
-          env_var_name     = "ParticipantDemographicDataServiceURL"
+          env_var_name     = "DemographicDataServiceURL"
           function_app_key = "ParticipantDemographicDataService"
         }
       ],
@@ -353,7 +353,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName    = "MeshCert"
+        MeshCertName               = "MeshCert"
         ParticipantManagementTopic = "participant-management"
       }
     }
@@ -862,9 +862,9 @@ function_apps = {
       key_vault_url           = "KeyVaultConnectionString"
       service_bus_connections = ["internal"]
       env_vars_static = {
-        ServiceNowRefreshAccessTokenUrl      = "" # TODO: Get value
-        ServiceNowUpdateUrl                  = "" # TODO: Get value
-        ServiceNowResolutionUrl              = "" # TODO: Get value
+        ServiceNowRefreshAccessTokenUrl      = ""                                  # TODO: Get value
+        ServiceNowUpdateUrl                  = ""                                  # TODO: Get value
+        ServiceNowResolutionUrl              = ""                                  # TODO: Get value
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
@@ -938,10 +938,11 @@ function_apps = {
     }
 
     RetrievePDSDemographic = {
-      name_suffix            = "retrieve-pds-demographic"
-      function_endpoint_name = "RetrievePDSDemographic"
-      app_service_plan_key   = "DefaultPlan"
-      key_vault_url          = "KeyVaultConnectionString"
+      name_suffix             = "retrieve-pds-demographic"
+      function_endpoint_name  = "RetrievePDSDemographic"
+      app_service_plan_key    = "DefaultPlan"
+      service_bus_connections = ["internal"]
+      key_vault_url           = "KeyVaultConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -957,12 +958,13 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
-        Kid                       = "RetrievePdsDemographic-prod"
-        Audience                  = "https://api.service.nhs.uk/oauth2/token"
-        AuthTokenURL              = "https://api.service.nhs.uk/oauth2/token"
-        KeyNamePrivateKey         = "PDSPRIVATEKEY"
-        UseFakePDSServices        = "false"
+        RetrievePdsParticipantURL  = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        Kid                        = "RetrievePdsDemographic-prod"
+        Audience                   = "https://api.service.nhs.uk/oauth2/token"
+        AuthTokenURL               = "https://api.service.nhs.uk/oauth2/token"
+        KeyNamePrivateKey          = "PDSPRIVATEKEY"
+        ParticipantManagementTopic = "participant-management"
+        UseFakePDSServices         = "false"
       }
     }
 

@@ -112,6 +112,7 @@ services:
     container_name: nems-subscription-data-service
     image: cohort-manager-nems-subscription-data-service
     networks: [cohman-network]
+    profiles: [nems]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/NemsSubscriptionDataService/Dockerfile
@@ -136,6 +137,7 @@ services:
      container_name: servicenow-cases-data-service
      image: cohort-manager-servicenow-cases-data-service
      networks: [cohman-network]
+     profiles: [service-now]
      build:
        context: ./src/Functions/
        dockerfile: screeningDataServices/ServiceNowCasesDataService/Dockerfile
