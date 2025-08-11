@@ -327,7 +327,7 @@ function_apps = {
           function_app_key = "ManageNemsSubscription"
         },
         {
-          env_var_name     = "ParticipantDemographicDataServiceURL"
+          env_var_name     = "DemographicDataServiceURL"
           function_app_key = "ParticipantDemographicDataService"
         }
       ],
@@ -395,6 +395,7 @@ function_apps = {
       env_vars_static = {
         ServiceNowParticipantManagementTopic    = "servicenow-participant-management" # Subscribes to the servicenow participant management topic
         ManageServiceNowParticipantSubscription = "ManageServiceNowParticipant"       # Subscribes to the servicenow participant management topic
+        CohortDistributionTopic                 = "cohort-distribution"
       }
     }
 
@@ -661,6 +662,11 @@ function_apps = {
         {
           env_var_name     = "RemoveOldValidationRecordUrl"
           function_app_key = "RemoveValidationExceptionData"
+        },
+        {
+          env_var_name     = "SendServiceNowMessageURL"
+          function_app_key = "ServiceNowMessageHandler"
+          endpoint_name    = "servicenow/send"
         }
       ]
       env_vars_static = {
@@ -954,8 +960,8 @@ function_apps = {
         Kid                       = ""
         Audience                  = ""
         AuthTokenURL              = ""
-        MeshKeyNamePrivateKey     = "PDSPrivatekey"
-        KeyNameAPIKey             = "PDSNameAPIKey"
+        KeyNamePrivateKey         = ""
+        UseFakePDSServices        = "false"
       }
     }
 
@@ -1093,10 +1099,10 @@ linux_web_app = {
           SERVICE_NAME         = "Cohort Manager"
         }
         from_key_vault = {
-          # env_var_name          = "key_vault_secret_name"
-          AUTH_CIS2_CLIENT_SECRET = "auth-cis2-client-secret"
-          COHORT_MANAGER_RBAC_CODE    = "cohort-manager-users"
-          NEXTAUTH_SECRET         = "nextauth-secret"
+          # env_var_name           = "key_vault_secret_name"
+          AUTH_CIS2_CLIENT_SECRET  = "auth-cis2-client-secret"
+          COHORT_MANAGER_RBAC_CODE = "cohort-manager-users"
+          NEXTAUTH_SECRET          = "nextauth-secret"
         }
         local_urls = {
           # %s becomes the environment and region prefix (e.g. dev-uks)

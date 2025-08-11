@@ -15,8 +15,8 @@ public class DistributeParticipantTests
     private readonly Mock<IOptions<DistributeParticipantConfig>> _config = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<TaskOrchestrationContext> _mockContext = new();
-    private BasicParticipantCsvRecord _request;
-    private CohortDistributionParticipant _cohortDistributionRecord;
+    private readonly BasicParticipantCsvRecord _request;
+    private readonly CohortDistributionParticipant _cohortDistributionRecord;
 
     public DistributeParticipantTests()
     {
@@ -47,7 +47,11 @@ public class DistributeParticipantTests
             TransformDataServiceURL = "TransformDataServiceURL",
             ParticipantManagementUrl = "ParticipantManagementUrl",
             CohortDistributionDataServiceUrl = "CohortDistributionDataServiceUrl",
-            ParticipantDemographicDataServiceUrl = "ParticipantDemographicDataServiceUrl"
+            ParticipantDemographicDataServiceUrl = "ParticipantDemographicDataServiceUrl",
+            CohortDistributionTopic = "cohort-distribution-topic",
+            DistributeParticipantSubscription = "distribute-participant-sub",
+            RemoveOldValidationRecordUrl = "RemoveOldValidationRecordUrl",
+            SendServiceNowMessageURL = "SendServiceNowMessageURL"
         };
 
         _config.Setup(x => x.Value).Returns(config);
@@ -78,7 +82,7 @@ public class DistributeParticipantTests
     }
 
     [TestMethod]
-    public async Task DistributeParticipantOrchestrator_ValidRequest_AddParticipant()
+    public async Task DistributeParticipantOrchestrator_ValidRequest_AddParticipantAndDoesNotSendServiceNowMessage()
     {
         // Act
         await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
@@ -86,6 +90,26 @@ public class DistributeParticipantTests
         // Assert
         _mockContext
             .Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null));
+        _mockContext
+            .Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Never());
+    }
+
+    [TestMethod]
+    public async Task DistributeParticipantOrchestrator_ValidRequestForReferredParticipant_AddParticipantAndSendsServiceNowMessage()
+    {
+        // Arrange
+        var caseNumber = "CS123";
+        _request.Participant.ReferralFlag = "1";
+        _request.FileName = caseNumber;
+
+        // Act
+        await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
+
+        // Assert
+        _mockContext
+            .Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null));
+        _mockContext
+            .Verify(x => x.CallActivityAsync("SendServiceNowMessage", caseNumber, null), Times.Once());
     }
 
     [TestMethod]

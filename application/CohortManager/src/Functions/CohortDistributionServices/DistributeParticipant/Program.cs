@@ -7,7 +7,7 @@ using Model;
 using Microsoft.Extensions.DependencyInjection;
 
 var host = new HostBuilder()
-    .AddConfiguration<DistributeParticipantConfig>(out DistributeParticipantConfig config)
+    .AddConfiguration(out DistributeParticipantConfig config)
     .AddDataServicesHandler()
         .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
         .AddDataService<ParticipantDemographic>(config.ParticipantDemographicDataServiceUrl)
@@ -21,6 +21,7 @@ var host = new HostBuilder()
     })
     .AddExceptionHandler()
     .AddTelemetry()
+    .AddHttpClient()
     .Build();
 
 
