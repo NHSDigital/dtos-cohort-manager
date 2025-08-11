@@ -138,10 +138,9 @@ public class DistributeParticipant
     {
         bool isAddScenario = participant.Participant.ReferralFlag == "1";
 
-        if (isAddScenario && !CheckIfHasDummyGpCode(participant)) return;
+        if (!isAddScenario || !CheckIfHasDummyGpCode(participant)) return;
 
-        _logger.LogInformation("ADD participant with ParticipantId: {ParticipantId} with dummy GP code, updating Cohort Distribution table",
-        participant.Participant.ParticipantId);
+        _logger.LogInformation("ADD participant with ParticipantId: {ParticipantId} has dummy GP code, updating Cohort Distribution table", participant.Participant.ParticipantId);
 
         var gpUpdateRequest = new GpCodeUpdateRequestDto
         {
