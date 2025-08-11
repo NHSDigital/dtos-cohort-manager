@@ -86,10 +86,10 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         var jsonString = await GetJsonStringByFilter(predicate, true);
         if (string.IsNullOrEmpty(jsonString))
         {
-            return null;
+            return null!;
         }
-        TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString);
-        return result;
+        TEntity result = JsonSerializer.Deserialize<TEntity>(jsonString)!;
+        return result!;
     }
 
     public async Task<bool> Delete(string id)
