@@ -5,6 +5,7 @@ using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.DTO;
 using Moq;
 using NHS.CohortManager.CohortDistributionServices;
 
@@ -79,6 +80,10 @@ public class DistributeParticipantTests
             .Setup(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null))
             .ReturnsAsync(true);
 
+        _mockContext
+            .Setup(x => x.CallActivityAsync<bool>("UpdateCohortDistributionGpCode", It.IsAny<GpCodeUpdateRequestDto>(), null))
+            .ReturnsAsync(true);
+
         _sut = new(NullLogger<DistributeParticipant>.Instance,
                   _config.Object,
                   _handleException.Object);
@@ -87,6 +92,7 @@ public class DistributeParticipantTests
     [TestMethod]
     public async Task DistributeParticipantOrchestrator_ValidRequest_AddParticipantAndDoesNotSendServiceNowMessage()
     {
+        // Arrange
         _request.Participant.ParticipantId = "1234";
 
         // Act
@@ -227,20 +233,16 @@ public class DistributeParticipantTests
         _request.Participant.Postcode = dummyGpCode;
         _request.Participant.ParticipantId = "1234";
 
-        _mockContext
-            .Setup(x => x.CallActivityAsync("UpdateCohortDistributionGpCode", It.IsAny<object>(), null))
-            .Returns(Task.CompletedTask);
-
         // Act
         await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
 
         // Assert
         _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null), Times.Once);
-        _mockContext.Verify(x => x.CallActivityAsync("UpdateCohortDistributionGpCode",
-            It.Is<object>(req =>
-                req.GetType().GetProperty("NhsNumber")!.GetValue(req)!.ToString() == "122345" &&
-                req.GetType().GetProperty("ParticipantId")!.GetValue(req)!.ToString() == "1234" &&
-                req.GetType().GetProperty("PrimaryCareProvider")!.GetValue(req)!.ToString() == dummyGpCode
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("UpdateCohortDistributionGpCode",
+            It.Is<GpCodeUpdateRequestDto>(req =>
+                req.NhsNumber == "122345" &&
+                req.ParticipantId == "1234" &&
+                req.PrimaryCareProvider == dummyGpCode
             ), null), Times.Once);
         _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Once);
     }
@@ -260,7 +262,7 @@ public class DistributeParticipantTests
 
         // Assert
         _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null), Times.Once);
-        _mockContext.Verify(x => x.CallActivityAsync("UpdateCohortDistributionGpCode", It.IsAny<object>(), null), Times.Never);
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("UpdateCohortDistributionGpCode", It.IsAny<GpCodeUpdateRequestDto>(), null), Times.Never);
         _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Once);
     }
 
@@ -274,16 +276,12 @@ public class DistributeParticipantTests
         _request.Participant.Postcode = "ZZZ999";
         _request.Participant.ParticipantId = "1234";
 
-        _mockContext
-            .Setup(x => x.CallActivityAsync("UpdateCohortDistributionGpCode", It.IsAny<object>(), null))
-            .Returns(Task.CompletedTask);
-
         // Act
         await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
 
         // Assert
         _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null), Times.Once);
-        _mockContext.Verify(x => x.CallActivityAsync("UpdateCohortDistributionGpCode", It.IsAny<object>(), null), Times.Once);
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("UpdateCohortDistributionGpCode", It.IsAny<GpCodeUpdateRequestDto>(), null), Times.Once);
         _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", caseNumber, null), Times.Once);
     }
 }
