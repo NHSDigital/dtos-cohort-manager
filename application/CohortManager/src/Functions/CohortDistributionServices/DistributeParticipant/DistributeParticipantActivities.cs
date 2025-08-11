@@ -146,7 +146,7 @@ public class DistributeParticipantActivities
     /// Activity function to update GP code in Cohort Distribution table
     /// </summary>
     [Function(nameof(UpdateCohortDistributionGpCode))]
-    public async Task<bool> UpdateCohortDistributionGpCode([ActivityTrigger] GpCodeUpdateRequestDto request)
+    public async Task<bool> UpdateCohortDistributionGpCode([ActivityTrigger] CohortDistributionParticipantDto request)
     {
         try
         {

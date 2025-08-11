@@ -151,7 +151,7 @@ public class DistributeParticipant
         _logger.LogInformation("ADD participant with ParticipantId: {ParticipantId} has dummy GP code, updating Cohort Distribution table",
             participant.Participant.ParticipantId);
 
-        var gpUpdateRequest = new GpCodeUpdateRequestDto
+        var gpUpdateRequest = new CohortDistributionParticipantDto
         {
             NhsNumber = participant.BasicParticipantData.NhsNumber!,
             ParticipantId = participant.Participant.ParticipantId!,

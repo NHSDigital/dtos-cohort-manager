@@ -81,7 +81,7 @@ public class DistributeParticipantTests
             .ReturnsAsync(true);
 
         _mockContext
-            .Setup(x => x.CallActivityAsync<bool>("UpdateCohortDistributionGpCode", It.IsAny<GpCodeUpdateRequestDto>(), null))
+            .Setup(x => x.CallActivityAsync<bool>("UpdateCohortDistributionGpCode", It.IsAny<CohortDistributionParticipantDto>(), null))
             .ReturnsAsync(true);
 
         _sut = new(NullLogger<DistributeParticipant>.Instance,
@@ -239,7 +239,7 @@ public class DistributeParticipantTests
         // Assert
         _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null), Times.Once);
         _mockContext.Verify(x => x.CallActivityAsync<bool>("UpdateCohortDistributionGpCode",
-            It.Is<GpCodeUpdateRequestDto>(req =>
+            It.Is<CohortDistributionParticipantDto>(req =>
                 req.NhsNumber == "122345" &&
                 req.ParticipantId == "1234" &&
                 req.PrimaryCareProvider == dummyGpCode
@@ -262,7 +262,7 @@ public class DistributeParticipantTests
 
         // Assert
         _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null), Times.Once);
-        _mockContext.Verify(x => x.CallActivityAsync<bool>("UpdateCohortDistributionGpCode", It.IsAny<GpCodeUpdateRequestDto>(), null), Times.Never);
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("UpdateCohortDistributionGpCode", It.IsAny<CohortDistributionParticipantDto>(), null), Times.Never);
         _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Once);
     }
 
@@ -281,7 +281,7 @@ public class DistributeParticipantTests
 
         // Assert
         _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null), Times.Once);
-        _mockContext.Verify(x => x.CallActivityAsync<bool>("UpdateCohortDistributionGpCode", It.IsAny<GpCodeUpdateRequestDto>(), null), Times.Once);
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("UpdateCohortDistributionGpCode", It.IsAny<CohortDistributionParticipantDto>(), null), Times.Once);
         _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", caseNumber, null), Times.Once);
     }
 }
