@@ -173,17 +173,14 @@ public class DistributeParticipantActivities
 
             var success = await _cohortDistributionClient.Update(cohortDistribution);
 
-            if (success)
-            {
-                _logger.LogInformation("Successfully updated Primary Care Provider in Cohort Distribution for ParticipantId: {Participant}", request.ParticipantId);
-            }
-
             if (!success)
             {
                 _logger.LogError("Failed to update Primary Care Provider in Cohort Distribution for ParticipantId: {ParticipantId}", request.ParticipantId);
+                return false;
             }
 
-            return success;
+            _logger.LogInformation("Successfully updated Primary Care Provider in Cohort Distribution for ParticipantId: {Participant}", request.ParticipantId);
+            return true;
         }
         catch (Exception ex)
         {
