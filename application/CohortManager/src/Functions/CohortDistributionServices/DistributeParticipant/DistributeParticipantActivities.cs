@@ -151,7 +151,7 @@ public class DistributeParticipantActivities
     {
         try
         {
-            _logger.LogInformation("Updating GP code for ParticipantId: {ParticipantId} to {GpCode}", request.ParticipantId, request.PrimaryCareProvider);
+            _logger.LogInformation("Updating GP code for ParticipantId: {ParticipantId}}", request.ParticipantId);
 
             long nhsNumber = long.Parse(request.NhsNumber);
             var cohortDistribution = await _cohortDistributionClient.GetSingleByFilter(x => x.NHSNumber == nhsNumber);
@@ -164,8 +164,7 @@ public class DistributeParticipantActivities
 
             if (cohortDistribution.PrimaryCareProvider == request.PrimaryCareProvider)
             {
-                _logger.LogInformation("Primary Care Provider for ParticipantId: {ParticipantId} is already up to date: {GpCode}",
-                    request.ParticipantId, request.PrimaryCareProvider);
+                _logger.LogInformation("Primary Care Provider for ParticipantId: {ParticipantId} is already up to date", request.ParticipantId);
                 return true;
             }
 
