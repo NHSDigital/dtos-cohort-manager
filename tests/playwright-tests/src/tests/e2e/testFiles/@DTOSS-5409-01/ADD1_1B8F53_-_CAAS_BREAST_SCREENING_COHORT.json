@@ -3,7 +3,8 @@
     {
         "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber":9997322886
+        "NHSNumber":9997322886,
+        "expectedCount": 1
       }
     }
   ],
