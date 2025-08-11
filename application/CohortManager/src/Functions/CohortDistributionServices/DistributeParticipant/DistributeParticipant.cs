@@ -145,7 +145,7 @@ public class DistributeParticipant
         if (!isAddScenario && string.IsNullOrEmpty(participant.Participant.Postcode)) return;
 
         var logMessage = isAddScenario
-            ? "ADD participant with NHS Number: {NhsNumber} has dummy GP code: {GpCode}, updating Cohort Distribution table"
+            ? "ADD participant with ParticipantId: {ParticipantId} has dummy GP code: {GpCode}, updating Cohort Distribution table"
             : "AMEND participant with ParticipantId: {ParticipantId}, overwriting Primary Care Provider with PDS data: {UpdatedGpCode}";
 
         _logger.LogInformation(logMessage, participant.Participant.ParticipantId, participant.Participant.Postcode);
