@@ -77,7 +77,20 @@ test.describe('@regression @e2e @epic3-med Tests', () => {
 
   });
 
-  testWithTwoAmendments.only('@DTOSS-5409-01 @not-runner-based @bs-select Provide Cohort to BS Select - Transformation_RFR_Rule_4_RDR', {
+  testWithTwoAmendments('@DTOSS-5409-01 @not-runner-based @bs-select Provide Cohort to BS Select - Transformation_RFR_Rule_4_RDR', {
+    /*
+    Note: To be able to test Rule4 validation successfully, Rule54 must be prevented by setting IgnoreParticipantException to true.
+    As a workaround for test, the expectation for validation should be as below.
+
+    "RuleId":54,
+    "RuleDescription":"ValidateBsoCode"
+
+    And should be replace with below with the new solution in the AMENDED2 Test File.
+
+    "RuleId":0,
+    "RuleDescription":"4.ParticipantNotRegisteredToGPWithReasonForRemoval"
+    */
+
     annotation: {
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-4577',

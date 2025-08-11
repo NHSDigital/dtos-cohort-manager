@@ -4,8 +4,8 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber":"9997322886",
-        "RuleId":0,
-        "RuleDescription":"4.ParticipantNotRegisteredToGPWithReasonForRemoval"
+        "RuleId":54,
+        "RuleDescription":"ValidateBsoCode"
       }
     }
   ],
