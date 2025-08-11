@@ -1,13 +1,8 @@
 namespace NHS.CohortManager.Tests.PdsProcessorTests;
 
-using System.Collections.Concurrent;
-using System.Data.Services.Client;
-using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
-using Hl7.Fhir.ElementModel.Types;
-using Hl7.Fhir.Model;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
@@ -52,7 +47,7 @@ public class PdsProcessorTests
     }
 
     [TestMethod]
-    public async System.Threading.Tasks.Task ProcessPdsNotFoundResponse_ProcessesResponse_SendsForDistribution()
+    public async Task ProcessPdsNotFoundResponse_ProcessesResponse_SendsForDistribution()
     {
         var errorResponse = new PdsErrorResponse()
         {
@@ -96,7 +91,7 @@ public class PdsProcessorTests
     }
 
     [TestMethod]
-    public async System.Threading.Tasks.Task ProcessPdsNotFoundResponse_ProcessesResponse_Logs404Happened()
+    public async Task ProcessPdsNotFoundResponse_WithNonInvalidatedResource_LogsError()
     {
         var errorResponse = new PdsErrorResponse()
         {
@@ -141,7 +136,7 @@ public class PdsProcessorTests
 
 
     [TestMethod]
-    public async System.Threading.Tasks.Task UpsertDemographicRecordFromPDS_Updatesrecord_true()
+    public async Task UpsertDemographicRecordFromPDS_WithExistingRecord_ReturnsTrue()
     {
         _dataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic()
         {
@@ -169,7 +164,7 @@ public class PdsProcessorTests
 
 
     [TestMethod]
-    public async System.Threading.Tasks.Task UpsertDemographicRecordFromPDS_AddsNewrecord_true()
+    public async Task UpsertDemographicRecordFromPDS_WithNewRecord_ReturnsTrue()
     {
         var res = await _pdsProcessor.UpsertDemographicRecordFromPDS(new ParticipantDemographic());
 
@@ -199,7 +194,7 @@ public class PdsProcessorTests
     }
 
     [TestMethod]
-    public async System.Threading.Tasks.Task UpsertDemographicRecordFromPDS_FailsToAddNewRecord_False()
+    public async Task UpsertDemographicRecordFromPDS_FailsToAddNewRecord_ReturnsFalse()
     {
         _dataServiceClient.Setup(x => x.Add(It.IsAny<ParticipantDemographic>())).ReturnsAsync(false);
         var res = await _pdsProcessor.UpsertDemographicRecordFromPDS(new ParticipantDemographic());
@@ -229,7 +224,7 @@ public class PdsProcessorTests
     }
 
     [TestMethod]
-    public async System.Threading.Tasks.Task UpsertDemographicRecordFromPDS_UpdateRecordFails_False()
+    public async Task UpsertDemographicRecordFromPDS_UpdateRecordFails_ReturnsFalse()
     {
         _dataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<System.Linq.Expressions.Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic()
         {

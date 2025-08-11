@@ -32,6 +32,12 @@ public class PdsProcessor : IPdsProcessor
         _config = retrievePDSDemographicConfig.Value;
     }
 
+    /// <summary>
+    /// processes pds error responses. Sends a record to distribute participant via service bus
+    /// </summary>
+    /// <param name="pdsResponse"></param>
+    /// <param name="nhsNumber"></param>
+    /// <returns></returns>
     public async Task ProcessPdsNotFoundResponse(HttpResponseMessage pdsResponse, string nhsNumber)
     {
         var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PdsErrorResponse>();
@@ -54,11 +60,15 @@ public class PdsProcessor : IPdsProcessor
         _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
     }
 
-
+    /// <summary>
+    /// sends a participant record to the distribute service bus topic 
+    /// </summary>
+    /// <param name="participant"></param>
+    /// <returns></returns>
     public async Task ProcessRecord(Participant participant)
     {
         var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
-        participant.RecordType = participant.RecordType = Actions.Removed;
+        participant.RecordType = Actions.Removed;
 
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
@@ -73,7 +83,11 @@ public class PdsProcessor : IPdsProcessor
         await _addBatchToQueue.ProcessBatch(updateRecord, _config.ParticipantManagementTopic);
     }
 
-
+    /// <summary>
+    /// adds or updates a demographic record depending on if an record already exists in the database
+    /// </summary>
+    /// <param name="participantDemographic"></param>
+    /// <returns></returns>
     public async Task<bool> UpsertDemographicRecordFromPDS(ParticipantDemographic participantDemographic)
     {
         ParticipantDemographic oldParticipantDemographic = await _participantDemographicClient.GetSingleByFilter(i => i.NhsNumber == participantDemographic.NhsNumber);
