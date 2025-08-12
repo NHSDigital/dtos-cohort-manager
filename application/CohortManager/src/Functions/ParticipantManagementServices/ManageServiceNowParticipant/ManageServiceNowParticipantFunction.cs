@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.ParticipantManagementServices;
 
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
@@ -105,8 +106,7 @@ public class ManageServiceNowParticipantFunction
 
     private async Task<PdsDemographic?> DeserializePdsDemographic(HttpResponseMessage pdsResponse, ServiceNowParticipant serviceNowParticipant)
     {
-        var jsonString = await pdsResponse.Content.ReadAsStringAsync();
-        var pdsDemographic = JsonSerializer.Deserialize<PdsDemographic>(jsonString);
+        var pdsDemographic = await pdsResponse.Content.ReadFromJsonAsync<PdsDemographic>();
 
         if (pdsDemographic is null)
         {

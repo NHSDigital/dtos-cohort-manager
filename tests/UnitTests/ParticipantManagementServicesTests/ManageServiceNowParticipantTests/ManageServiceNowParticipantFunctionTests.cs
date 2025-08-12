@@ -432,7 +432,14 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenSubscribesToNEMSFails_LogsErrorMessageButContinues(HttpStatusCode httpStatusCode)
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_demographic);
+        var json = JsonSerializer.Serialize(new PdsDemographic
+        {
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
+        });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
