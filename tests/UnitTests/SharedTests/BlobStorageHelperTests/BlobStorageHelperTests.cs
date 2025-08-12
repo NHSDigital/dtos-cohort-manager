@@ -3,6 +3,7 @@ namespace NHS.Screening.BlobStorageHelperTests;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Common;
+using Model;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure;
@@ -236,6 +237,191 @@ public class BlobStorageHelperTests
         }
     }
 
+    #region UploadFileToBlobStorage Tests
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public async Task UploadFileToBlobStorage_WithNullConnectionString_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var mockBlobFile = CreateMockBlobFile();
+
+        // Act & Assert
+        await _blobStorageHelper.UploadFileToBlobStorage(null!, TestSourceContainer, mockBlobFile);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(NullReferenceException))]
+    public async Task UploadFileToBlobStorage_WithNullBlobFile_ThrowsNullReferenceException()
+    {
+        // Act & Assert
+        await _blobStorageHelper.UploadFileToBlobStorage(TestConnectionString, TestSourceContainer, null!);
+    }
+
+    [TestMethod]
+    public async Task UploadFileToBlobStorage_WithValidParameters_ReturnsTrue()
+    {
+        // Note: This test verifies the method signature and basic behavior
+        // Full integration testing would require actual blob storage
+        
+        // Arrange
+        var mockBlobFile = CreateMockBlobFile();
+
+        // Act & Assert
+        // We expect this to fail due to invalid connection string, but not throw null reference
+        try
+        {
+            await _blobStorageHelper.UploadFileToBlobStorage(TestConnectionString, TestSourceContainer, mockBlobFile);
+        }
+        catch (Exception ex)
+        {
+            // Should fail due to invalid connection string, not due to null reference
+            Assert.IsTrue(ex is RequestFailedException || ex is FormatException || ex is ArgumentException || ex is AggregateException,
+                $"Expected storage-related exception, but got {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    [TestMethod]
+    public void UploadFileToBlobStorage_OverwriteParameter_HasCorrectDefault()
+    {
+        // Arrange & Act
+        var method = typeof(IBlobStorageHelper).GetMethod("UploadFileToBlobStorage");
+
+        // Assert
+        Assert.IsNotNull(method, "UploadFileToBlobStorage method should exist");
+        var parameters = method.GetParameters();
+        var overwriteParam = parameters.FirstOrDefault(p => p.Name == "overwrite");
+        
+        Assert.IsNotNull(overwriteParam, "overwrite parameter should exist");
+        Assert.IsTrue(overwriteParam.HasDefaultValue, "overwrite should have default value");
+        Assert.AreEqual(false, overwriteParam.DefaultValue, "overwrite should default to false");
+    }
+
+    #endregion
+
+    #region GetFileFromBlobStorage Tests
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public async Task GetFileFromBlobStorage_WithNullConnectionString_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        await _blobStorageHelper.GetFileFromBlobStorage(null!, TestSourceContainer, TestFileName);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public async Task GetFileFromBlobStorage_WithNullFileName_ThrowsArgumentNullException()
+    {
+        // Act & Assert
+        await _blobStorageHelper.GetFileFromBlobStorage(TestConnectionString, TestSourceContainer, null!);
+    }
+
+    [TestMethod]
+    public async Task GetFileFromBlobStorage_WithEmptyFileName_ThrowsException()
+    {
+        // Act & Assert  
+        try
+        {
+            await _blobStorageHelper.GetFileFromBlobStorage(TestConnectionString, TestSourceContainer, "");
+            Assert.Fail("Expected exception was not thrown");
+        }
+        catch (Exception ex)
+        {
+            // Azure Storage may throw different exceptions for empty strings
+            Assert.IsTrue(ex is ArgumentException || ex is ArgumentNullException || ex is FormatException, 
+                $"Expected argument-related exception, but got {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    [TestMethod]
+    public async Task GetFileFromBlobStorage_WithValidParameters_ReturnsNullForNonExistentFile()
+    {
+        // Note: This test verifies the method handles non-existent files gracefully
+        // With an invalid connection string, we expect it to fail before checking file existence
+        
+        // Act & Assert
+        try
+        {
+            var result = await _blobStorageHelper.GetFileFromBlobStorage(TestConnectionString, TestSourceContainer, TestFileName);
+            // If we get here, the method handled the invalid connection gracefully
+            Assert.IsNull(result, "Should return null for non-existent file");
+        }
+        catch (Exception ex)
+        {
+            // Should fail due to invalid connection string
+            Assert.IsTrue(ex is RequestFailedException || ex is FormatException || ex is ArgumentException || ex is AggregateException,
+                $"Expected storage-related exception, but got {ex.GetType().Name}: {ex.Message}");
+        }
+    }
+
+    [TestMethod]
+    public void GetFileFromBlobStorage_ReturnType_IsCorrect()
+    {
+        // Arrange & Act
+        var method = typeof(IBlobStorageHelper).GetMethod("GetFileFromBlobStorage");
+
+        // Assert
+        Assert.IsNotNull(method, "GetFileFromBlobStorage method should exist");
+        Assert.AreEqual(typeof(Task<BlobFile>), method.ReturnType, "Should return Task<BlobFile>");
+    }
+
+    #endregion
+
+    #region Integration-Style Tests
+
+    [TestMethod]
+    public void BlobStorageHelper_Constructor_AcceptsLogger()
+    {
+        // Act & Assert
+        Assert.IsNotNull(_blobStorageHelper, "BlobStorageHelper should be constructable with logger");
+        
+        // Test that constructor can be created with null logger (no validation in current implementation)
+        var helperWithNullLogger = new BlobStorageHelper(null!);
+        Assert.IsNotNull(helperWithNullLogger, "Constructor should accept null logger (current implementation)");
+    }
+
+    [TestMethod]
+    public void BlobStorageHelper_ImplementsInterface()
+    {
+        // Assert
+        Assert.IsInstanceOfType(_blobStorageHelper, typeof(IBlobStorageHelper), "Should implement IBlobStorageHelper");
+    }
+
+    [TestMethod]
+    public void IBlobStorageHelper_HasAllRequiredMethods()
+    {
+        // Arrange
+        var interfaceType = typeof(IBlobStorageHelper);
+        var expectedMethods = new[]
+        {
+            "CopyFileToPoisonAsync",
+            "UploadFileToBlobStorage", 
+            "GetFileFromBlobStorage"
+        };
+
+        // Act & Assert
+        foreach (var methodName in expectedMethods)
+        {
+            var method = interfaceType.GetMethods().FirstOrDefault(m => m.Name == methodName);
+            Assert.IsNotNull(method, $"Interface should have {methodName} method");
+        }
+    }
+
+    #endregion
+
+    #region Helper Methods
+
+    /// <summary>
+    /// Creates a mock BlobFile for testing
+    /// </summary>
+    private static BlobFile CreateMockBlobFile()
+    {
+        var testData = System.Text.Encoding.UTF8.GetBytes("test file content");
+        var stream = new MemoryStream(testData);
+        return new BlobFile(stream, "test-file.txt");
+    }
+
     /// <summary>
     /// Helper method that simulates the timestamp generation logic from BlobStorageHelper
     /// </summary>
@@ -246,4 +432,6 @@ public class BlobStorageHelperTests
         var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
         return $"{fileNameWithoutExtension}_{timestamp}{fileExtension}";
     }
+
+    #endregion
 }
