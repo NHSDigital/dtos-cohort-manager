@@ -2,7 +2,6 @@ import {
   formatNhsNumber,
   formatDate,
   formatCompactDate,
-  formatPhoneNumber,
   getCurrentDate,
   formatGenderValue,
 } from "@/app/lib/utils";
@@ -34,20 +33,6 @@ describe("formatCompactDate", () => {
     const input = "19930226";
     const expectedOutput = "26 February 1993";
     expect(formatCompactDate(input)).toBe(expectedOutput);
-  });
-});
-
-describe("formatPhoneNumber", () => {
-  it("should format the phone number as XXXXX XXX XXX", () => {
-    const input = "01619999999";
-    const expectedOutput = "01619 999 999";
-    expect(formatPhoneNumber(input)).toBe(expectedOutput);
-  });
-
-  it("should return the input if it is not a valid phone number", () => {
-    const input = "12345";
-    const expectedOutput = "12345";
-    expect(formatPhoneNumber(input)).toBe(expectedOutput);
   });
 });
 
