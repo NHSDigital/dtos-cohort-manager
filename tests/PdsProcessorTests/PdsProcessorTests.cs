@@ -30,7 +30,7 @@ public class PdsProcessorTests
             KId = "",
             AuthTokenURL = "",
             ParticipantManagementTopic = "some-fake-topic",
-            ServiceBusConnectionString = "",
+            ServiceBusConnectionString_client_internal = "",
             UseFakePDSServices = false
         };
 
