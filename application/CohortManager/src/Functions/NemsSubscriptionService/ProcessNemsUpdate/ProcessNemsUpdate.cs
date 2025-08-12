@@ -83,8 +83,7 @@ public class ProcessNemsUpdate
 
             pdsResponse.EnsureSuccessStatusCode();
 
-            var participantDemographic = await pdsResponse.Content.ReadFromJsonAsync<ParticipantDemographic>();
-            var retrievedPdsRecord = participantDemographic?.ToPdsDemographic();
+            var retrievedPdsRecord = await pdsResponse.Content.ReadFromJsonAsync<PdsDemographic>();
 
             if (retrievedPdsRecord?.NhsNumber == nhsNumber)
             {
