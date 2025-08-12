@@ -65,18 +65,46 @@ public class ProcessNemsUpdate
     [Function(nameof(ProcessNemsUpdate))]
     public async Task Run([BlobTrigger("nems-updates/{name}", Connection = "nemsmeshfolder_STORAGE")] Stream blobStream, string name)
     {
+        byte[]? originalFileBytes = null;
         try
         {
+            // Buffer the stream so we can re-use it for poison container if needed
+            if (blobStream.CanSeek)
+            {
+                blobStream.Position = 0;
+                using (var ms = new MemoryStream())
+                {
+                    await blobStream.CopyToAsync(ms);
+                    originalFileBytes = ms.ToArray();
+                }
+                blobStream.Position = 0;
+            }
+            else
+            {
+                using (var ms = new MemoryStream())
+                {
+                    await blobStream.CopyToAsync(ms);
+                    originalFileBytes = ms.ToArray();
+                }
+                blobStream = new MemoryStream(originalFileBytes);
+            }
+
             var nhsNumber = await GetNhsNumberFromFile(blobStream, name);
 
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
+            if (nhsNumber == null)
+            {
+                _logger.LogInformation("There is no NHS number, unable to continue.");
+                throw new InvalidDataException("No NHS number found"); // Force poison container
+            }
+
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
                 _logger.LogError("There was a problem parsing the NHS number from blob store in the ProcessNemsUpdate function");
                 throw new InvalidDataException("Invalid NHS Number");
             }
             nhsNumberLong = long.Parse(nhsNumber!);
 
-            var pdsResponse = await RetrievePdsRecord(nhsNumber!);
+            var pdsResponse = await RetrievePdsRecord(nhsNumber);
             if (pdsResponse!.StatusCode == HttpStatusCode.NotFound)
             {
                 _logger.LogError("the PDS function has returned a 404 error for file {FileName}. Moving file to poison container.", name);
@@ -95,9 +123,8 @@ public class ProcessNemsUpdate
             }
             else
             {
-                await UnsubscribeFromNems(nhsNumber!, retrievedPdsRecord!);
+                await UnsubscribeFromNems(nhsNumber, retrievedPdsRecord!);
             }
-
         }
         catch (Exception ex)
         {
@@ -111,7 +138,6 @@ public class ProcessNemsUpdate
                 _logger.LogError(poisonEx, "Failed to copy NEMS file {FileName} to poison container. Manual intervention required.", name);
             }
         }
-
     }
 
     private async Task CopyToPoisonContainer(string fileName)
