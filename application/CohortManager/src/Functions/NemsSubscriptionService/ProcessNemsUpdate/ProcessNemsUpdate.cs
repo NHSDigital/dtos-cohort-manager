@@ -13,7 +13,6 @@ using Microsoft.Extensions.Options;
 using Model;
 using DataServices.Client;
 using System.Net;
-using FluentValidation.Validators;
 
 public class ProcessNemsUpdate
 {
@@ -65,30 +64,8 @@ public class ProcessNemsUpdate
     [Function(nameof(ProcessNemsUpdate))]
     public async Task Run([BlobTrigger("nems-updates/{name}", Connection = "nemsmeshfolder_STORAGE")] Stream blobStream, string name)
     {
-        byte[]? originalFileBytes = null;
         try
         {
-            // Buffer the stream so we can re-use it for poison container if needed
-            if (blobStream.CanSeek)
-            {
-                blobStream.Position = 0;
-                using (var ms = new MemoryStream())
-                {
-                    await blobStream.CopyToAsync(ms);
-                    originalFileBytes = ms.ToArray();
-                }
-                blobStream.Position = 0;
-            }
-            else
-            {
-                using (var ms = new MemoryStream())
-                {
-                    await blobStream.CopyToAsync(ms);
-                    originalFileBytes = ms.ToArray();
-                }
-                blobStream = new MemoryStream(originalFileBytes);
-            }
-
             var nhsNumber = await GetNhsNumberFromFile(blobStream, name);
 
             if (nhsNumber == null)
