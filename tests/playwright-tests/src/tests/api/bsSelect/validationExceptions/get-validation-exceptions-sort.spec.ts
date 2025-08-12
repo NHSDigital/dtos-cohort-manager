@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 import { getValidationExceptions } from '../../../../api/dataService/exceptionService';
 import { getApiQueryParams } from '../../../steps/steps';
 
-test.describe('@DTOSS-10182-01 - Verify exceptions are sorted from oldest to newest by creation date', () => {
+test.describe('@DTOSS-10182-01 - Verify exceptions are sorted from oldest to newest by ServiceNowCreatedDate', () => {
   let apiConfig: any;
   let response: any;
 
