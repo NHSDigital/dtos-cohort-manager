@@ -107,6 +107,51 @@ public class ProcessNemsUpdateTests
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
+
+        // Verify poison copy occurs due to null NHS number handling
+        _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
+            "BlobStorage_ConnectionString",
+            _fileName,
+            "nems-updates"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_PdsReturns404_CopiesFileToPoison_AndStopsProcessing()
+    {
+        // Arrange
+        string fhirJson = LoadTestJson("mock-patient");
+        await using var fileStream = File.OpenRead(fhirJson);
+
+        // Return 404 from PDS
+        var notFoundResponse = new HttpResponseMessage(HttpStatusCode.NotFound)
+        {
+            Content = new StringContent("{}")
+        };
+        _httpClientFunctionMock
+            .Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(notFoundResponse);
+
+        // Act
+        await _sut.Run(fileStream, _fileName);
+
+        // Assert: poison copy invoked
+        _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
+            "BlobStorage_ConnectionString",
+            _fileName,
+            "nems-updates"), Times.Once);
+
+        // Assert: early return means no queueing, no unsubscribe
+        _addBatchToQueueMock.Verify(x => x.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Never);
+        _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Never);
+
+        // Log indicates 404 handled
+        _loggerMock.Verify(x => x.Log(
+            LogLevel.Error,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("the PDS function has returned a 404 error for file")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+        Times.Once);
     }
 
     [TestMethod]
