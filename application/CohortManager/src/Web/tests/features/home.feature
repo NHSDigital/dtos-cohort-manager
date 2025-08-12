@@ -46,3 +46,22 @@ Feature: testing Breast screening - Cohort Manager home page
   Scenario: verify navigation to cookies screen
     And the user clicks on cookies link
     Then they should navigate to 'Cookies on Cohort Manager - Cohort Manager - NHS'
+
+  @epic_4a @req_6330
+  Scenario: verify error message for invalid URL
+    When the user navigates to an invalid URL
+    Then the page should display 'Page not found' on screen
+    And the page not found error screen should include a 'Return to the homepage' link
+    And the page not found error screen should include a 'Contact us' link
+
+  @epic_4a @req_6330
+  Scenario: verify navigation to home from error page
+    When the user navigates to an invalid URL
+    And the user clicks on the 'Return to the homepage' link
+    Then they should navigate to 'Breast screening - Cohort Manager - NHS'
+
+  @epic_4a @req_6330
+  Scenario: verify navigation to contact us from error page
+    When the user navigates to an invalid URL
+    And the user clicks on the 'Contact us' link
+    Then they should navigate to 'Get help with Cohort Manager - Cohort Manager - NHS'

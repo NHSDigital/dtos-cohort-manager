@@ -125,7 +125,8 @@ public class ValidationExceptionData : IValidationExceptionData
             ParticipantPostCode = participantDemographic?.PostCode,
             TelephoneNumberHome = participantDemographic?.TelephoneNumberHome,
             EmailAddressHome = participantDemographic?.EmailAddressHome,
-            PrimaryCareProvider = participantDemographic?.PrimaryCareProvider
+            PrimaryCareProvider = participantDemographic?.PrimaryCareProvider,
+            SupersededByNhsNumber = participantDemographic?.SupersededByNhsNumber,
         };
 
         if (participantDemographic == null)

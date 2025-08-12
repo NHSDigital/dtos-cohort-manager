@@ -12,7 +12,7 @@ using Common.Interfaces;
 /// <summary>
 /// Mock implementation of IHttpClientFunction specifically designed for PDS (Personal Demographics Service) calls.
 /// This mock returns PdsDemographic objects for SendGet calls and FHIR Patient JSON for SendPdsGet calls.
-/// 
+///
 /// WARNING: This is NOT a general-purpose HTTP client mock. It is designed specifically for PDS service testing.
 /// Other services (NEMS, ServiceNow, etc.) should not use this mock as it returns PDS-specific data structures.
 /// </summary>
@@ -29,7 +29,11 @@ public class PdsHttpClientMock : IHttpClientFunction
     public async Task<HttpResponseMessage> SendPost(string url, string data)
     {
         await Task.CompletedTask;
-        return CreateFakeHttpResponse(url);
+        return HttpStubUtilities.CreateFakeHttpResponse(url,"");
+    }
+    public Task<HttpResponseMessage> SendPost(string url, Dictionary<string, string> parameters)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
@@ -58,7 +62,7 @@ public class PdsHttpClientMock : IHttpClientFunction
     {
         var patient = GetPatientMockObject("complete-patient.json");
         await Task.CompletedTask;
-        return CreateFakeHttpResponse(url, patient);
+        return HttpStubUtilities.CreateFakeHttpResponse(url, patient);
     }
 
     private static string GetPatientMockObject(string filename)
@@ -79,7 +83,7 @@ public class PdsHttpClientMock : IHttpClientFunction
     public async Task<HttpResponseMessage> SendPut(string url, string data)
     {
         await Task.CompletedTask;
-        return CreateFakeHttpResponse(url);
+        return HttpStubUtilities.CreateFakeHttpResponse(url,"");
     }
 
     public async Task<bool> SendDelete(string url)
