@@ -42,7 +42,6 @@ public class NemsMeshRetrievalTests
             KeyVaultConnectionString = "KeyVaultConnectionString",
             NemsMeshInboundContainer = TestInboundContainer,
             NemsMeshConfigContainer = TestConfigContainer
-
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -386,7 +385,7 @@ public class NemsMeshRetrievalTests
         // Arrange
         const string customConfigContainer = "custom-config-container";
         const string customInboundContainer = "custom-inbound-container";
-
+        
         var customConfig = new NemsMeshRetrievalConfig
         {
             NemsMeshMailBox = mailboxId,
@@ -404,9 +403,9 @@ public class NemsMeshRetrievalTests
         customConfigOptions.Setup(c => c.Value).Returns(customConfig);
 
         var customNemsMeshRetrieval = new NemsMeshRetrieval(
-            _mockLogger.Object,
-            _meshToBlobTransferHandler,
-            _mockBlobStorageHelper.Object,
+            _mockLogger.Object, 
+            _meshToBlobTransferHandler, 
+            _mockBlobStorageHelper.Object, 
             customConfigOptions.Object
         );
 
@@ -444,14 +443,14 @@ public class NemsMeshRetrievalTests
     {
         // Arrange
         const string customConfigContainer = "my-custom-config";
-
+        
         var customConfig = new NemsMeshRetrievalConfig
         {
             NemsMeshMailBox = mailboxId,
             nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
             NemsMeshPassword = "MeshPassword",
             NemsMeshSharedKey = "MeshSharedKey",
-            NemsMeshKeyPassphrase = "MeshKeyPassphrase",
+            NemsMeshKeyPassphrase = "MeshKeyPassphrase", 
             NemsMeshKeyName = "MeshKeyName",
             KeyVaultConnectionString = "KeyVaultConnectionString",
             NemsMeshInboundContainer = "nems-updates",
@@ -462,9 +461,9 @@ public class NemsMeshRetrievalTests
         customConfigOptions.Setup(c => c.Value).Returns(customConfig);
 
         var customNemsMeshRetrieval = new NemsMeshRetrieval(
-            _mockLogger.Object,
-            _meshToBlobTransferHandler,
-            _mockBlobStorageHelper.Object,
+            _mockLogger.Object, 
+            _meshToBlobTransferHandler, 
+            _mockBlobStorageHelper.Object, 
             customConfigOptions.Object
         );
 
@@ -481,5 +480,6 @@ public class NemsMeshRetrievalTests
         // Assert - Verify that the custom config container is used for UploadFileToBlobStorage
         _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage("BlobStorage_ConnectionString", customConfigContainer, It.IsAny<BlobFile>(), true), Times.Once);
     }
+
 
 }
