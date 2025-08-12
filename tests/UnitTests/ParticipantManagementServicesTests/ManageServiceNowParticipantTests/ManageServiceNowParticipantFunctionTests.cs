@@ -80,7 +80,7 @@ public class ManageServiceNowParticipantFunctionTests
             GivenName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
             DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
-            PostCode = "T35 7ING"
+            PrimaryCareProvider = "T35 7ING"
         };
     }
 
@@ -269,7 +269,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _serviceNowParticipant.RequiredGpCode &&
+                    x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
@@ -370,7 +370,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _serviceNowParticipant.RequiredGpCode &&
+                    x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
@@ -436,7 +436,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.NhsNumber == vhrParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == vhrParticipant.RequiredGpCode &&
+                    x.Participant.PrimaryCareProvider == vhrParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
@@ -492,7 +492,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _serviceNowParticipant.RequiredGpCode &&
+                    x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
@@ -569,7 +569,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.NhsNumber == vhrParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == vhrParticipant.RequiredGpCode &&
+                    x.Participant.PrimaryCareProvider == vhrParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
@@ -635,7 +635,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _serviceNowParticipant.RequiredGpCode &&
+                    x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
@@ -700,7 +700,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _serviceNowParticipant.RequiredGpCode &&
+                    x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
