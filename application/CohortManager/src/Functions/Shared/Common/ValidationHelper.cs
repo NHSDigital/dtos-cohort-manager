@@ -109,6 +109,11 @@ public static class ValidationHelper
     /// </remarks>
     public static string? ParseOutcode(string postcode)
     {
+        if (postcode == "ZZZSECUR")
+        {
+            return postcode;
+        }
+
         string pattern = @"^([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
 
         Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
