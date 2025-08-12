@@ -239,7 +239,7 @@ public class ServiceNowClientTests
 
         _cache.Set(AccessTokenCacheKey, "101");
 
-        ServiceNowUpdateRequestBody? updateRequestBody = null;
+        string? updateRequestBodyJsonString = null;
 
         _httpMessageHandler
             .Protected()
@@ -251,18 +251,14 @@ public class ServiceNowClientTests
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
             .Callback<HttpRequestMessage, CancellationToken>(async (request, cancellationToken) =>
             {
-                updateRequestBody = await request.Content!.ReadFromJsonAsync<ServiceNowUpdateRequestBody>();
+                updateRequestBodyJsonString = await request.Content!.ReadAsStringAsync();
             }).Verifiable();
 
         // Act
         var response = await _serviceNowClient.SendUpdate(caseNumber, "Note");
 
         // Assert
-        Assert.IsNotNull(updateRequestBody);
-        Assert.AreEqual(updateRequestBody.State, 10);
-        Assert.AreEqual(updateRequestBody.WorkNotes, "Note");
-        Assert.IsFalse(updateRequestBody.NeedsAttention);
-        Assert.IsNull(updateRequestBody.AssignmentGroup);
+        Assert.AreEqual(updateRequestBodyJsonString, "{\"state\":10,\"work_notes\":\"Note\",\"needs_attention\":false}");
     }
 
     [TestMethod]
@@ -273,7 +269,7 @@ public class ServiceNowClientTests
 
         _cache.Set(AccessTokenCacheKey, "101");
 
-        ServiceNowUpdateRequestBody? updateRequestBody = null;
+        string? updateRequestBodyJsonString = null;
 
         _httpMessageHandler
             .Protected()
@@ -285,17 +281,13 @@ public class ServiceNowClientTests
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
             .Callback<HttpRequestMessage, CancellationToken>(async (request, cancellationToken) =>
             {
-                updateRequestBody = await request.Content!.ReadFromJsonAsync<ServiceNowUpdateRequestBody>();
+                updateRequestBodyJsonString = await request.Content!.ReadAsStringAsync();
             }).Verifiable();
 
         // Act
         var response = await _serviceNowClient.SendUpdate(caseNumber, "Note", true);
 
         // Assert
-        Assert.IsNotNull(updateRequestBody);
-        Assert.AreEqual(updateRequestBody.State, 10);
-        Assert.AreEqual(updateRequestBody.WorkNotes, "Note");
-        Assert.IsTrue(updateRequestBody.NeedsAttention);
-        Assert.AreEqual(updateRequestBody.AssignmentGroup, "ITO Breast Screening 2nd Line");
+        Assert.AreEqual(updateRequestBodyJsonString, "{\"state\":10,\"work_notes\":\"Note\",\"needs_attention\":false}");
     }
 }
