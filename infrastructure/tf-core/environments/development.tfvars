@@ -139,58 +139,7 @@ app_service_plan = {
   }
 
   instances = {
-    DefaultPlan = {
-      sku_name = "P1v3"
-      autoscale_override = {
-        scaling_rule = {
-          metric = "CpuPercentage"
 
-          capacity_min = "1"
-          capacity_max = "4"
-          capacity_def = "2"
-        }
-      }
-    }
-    HighLoadFunctions = {
-      sku_name = "P2v3"
-      autoscale_override = {
-        scaling_rule = {
-          metric = "CpuPercentage"
-
-          capacity_min = "1"
-          capacity_max = "4"
-          capacity_def = "2"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 4
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
-        }
-      }
-    }
-    RetrieveMeshFile = {
-      sku_name = "P3v3"
-      autoscale_override = {
-        scaling_rule = {
-          metric = "CpuPercentage"
-
-          capacity_min = "1"
-          capacity_max = "1"
-          capacity_def = "1"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
-          inc_scale_value = 1
-
-          dec_scale_type  = "ChangeCount"
-          dec_scale_value = 1
-        }
-      }
-    }
-
-    ## New Instances
     NonScaling = {
       sku_name = "P2v3"
       autoscale_override = {
