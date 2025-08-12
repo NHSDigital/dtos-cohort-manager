@@ -114,9 +114,9 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenNhsNumberSuperseded_SendsServiceNowMessageType1()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = 123
+            NhsNumber = "123"
         });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -209,10 +209,10 @@ public class ManageServiceNowParticipantFunctionTests
         string firstName, string familyName, string dateOfBirth)
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = _serviceNowParticipant.NhsNumber,
-            GivenName = firstName,
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = firstName,
             FamilyName = familyName,
             DateOfBirth = dateOfBirth
         });
@@ -246,7 +246,14 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenServiceNowParticipantIsValidAndDoesNotExistInTheDataStore_AddsTheNewParticipant()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_demographic);
+        var json = JsonSerializer.Serialize(new PdsDemographic
+        {
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
+        });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -302,7 +309,14 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenServiceNowParticipantIsValidAndExistsInTheDataStoreButIsBlocked_DoesNotUpdateTheParticipantAndSendsMessageType1()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_demographic);
+        var json = JsonSerializer.Serialize(new PdsDemographic
+        {
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
+        });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -352,7 +366,14 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenServiceNowParticipantIsValidAndExistsInTheDataStoreAndIsNotBlocked_UpdatesTheParticipant()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_demographic);
+        var json = JsonSerializer.Serialize(new PdsDemographic
+        {
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
+        });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -482,7 +503,14 @@ public class ManageServiceNowParticipantFunctionTests
             ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk
         };
 
-        var json = JsonSerializer.Serialize(_demographic);
+        var json = JsonSerializer.Serialize(new PdsDemographic
+        {
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
+        });
 
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={vhrParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -543,7 +571,14 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenServiceNowParticipantIsNotVhrAndDoesNotExistInDataStore_AddsNewParticipantWithoutVhrFlag()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_demographic);
+        var json = JsonSerializer.Serialize(new PdsDemographic
+        {
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
+        });
 
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -615,7 +650,14 @@ public class ManageServiceNowParticipantFunctionTests
             ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk
         };
 
-        var json = JsonSerializer.Serialize(_demographic);
+        var json = JsonSerializer.Serialize(new PdsDemographic
+        {
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
+        });
 
         var existingParticipant = new ParticipantManagement
         {
@@ -686,7 +728,14 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenParticipantExistsWithVhrFlagAlreadySet_MaintainsVhrFlag()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_demographic);
+        var json = JsonSerializer.Serialize(new PdsDemographic
+        {
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
+        });
 
         var existingParticipant = new ParticipantManagement
         {
@@ -756,7 +805,14 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenNonVhrParticipantExistsWithNullVhrFlag_LeavesVhrFlagAsNull()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_demographic);
+        var json = JsonSerializer.Serialize(new PdsDemographic
+        {
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
+        });
 
         var existingParticipant = new ParticipantManagement
         {

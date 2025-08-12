@@ -17,4 +17,5 @@ public class ExceptionDetails
     public string? EmailAddressHome { get; set; }
     public string? PrimaryCareProvider { get; set; }
     public Gender? Gender { get; set; }
+    public long? SupersededByNhsNumber { get; set; }
 }

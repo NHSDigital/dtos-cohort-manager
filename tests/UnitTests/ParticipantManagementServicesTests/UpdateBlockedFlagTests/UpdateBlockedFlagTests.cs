@@ -122,9 +122,9 @@ public class UpdateBlockedFlagTests
 
 
         var pdsDemoResponse = JsonSerializer.Serialize(
-            new ParticipantDemographic
+            new PdsDemographic
             {
-                NhsNumber = 6427635034,
+                NhsNumber = "6427635034",
                 FamilyName = "Jones",
                 DateOfBirth = "19231012"
             });
@@ -256,9 +256,9 @@ public class UpdateBlockedFlagTests
 
 
         var pdsDemoResponse = JsonSerializer.Serialize(
-            new ParticipantDemographic
+            new PdsDemographic
             {
-                NhsNumber = 6427635034,
+                NhsNumber = "6427635034",
                 FamilyName = "Davies",
                 DateOfBirth = "19231012"
             });
@@ -329,9 +329,9 @@ public class UpdateBlockedFlagTests
             .Returns(Task.FromResult<ParticipantDemographic>(null!));
 
         var pdsDemoResponse = JsonSerializer.Serialize(
-            new ParticipantDemographic
+            new PdsDemographic
             {
-                NhsNumber = 6427635034,
+                NhsNumber = "6427635034",
                 FamilyName = "Jones",
                 DateOfBirth = "19231012"
             });
@@ -367,9 +367,9 @@ public class UpdateBlockedFlagTests
             .Returns(Task.FromResult<ParticipantDemographic>(null!));
 
         var pdsDemoResponse = JsonSerializer.Serialize(
-            new ParticipantDemographic
+            new PdsDemographic
             {
-                NhsNumber = 6427635034,
+                NhsNumber = "6427635034",
                 FamilyName = "Jones",
                 DateOfBirth = "19231012"
             });

@@ -3,6 +3,7 @@ export interface ExceptionDetails {
   dateCreated: string;
   shortDescription: string;
   nhsNumber?: string;
+  supersededByNhsNumber?: string;
   surname: string;
   forename: string;
   dateOfBirth?: string;
