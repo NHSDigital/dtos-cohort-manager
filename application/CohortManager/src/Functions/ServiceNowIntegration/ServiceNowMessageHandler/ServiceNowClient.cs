@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -18,6 +19,10 @@ public class ServiceNowClient : IServiceNowClient
     private readonly ServiceNowMessageHandlerConfig _config;
     private const string AccessTokenCacheKey = "AccessToken";
     private const string AssignmentGroup = "ITO Breast Screening 2nd Line";
+    private static readonly JsonSerializerOptions _sendUpdateJsonSerializerOptions = new()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     public ServiceNowClient(IMemoryCache cache, IHttpClientFactory httpClientFactory,
         ILogger<ServiceNowClient> logger, IOptions<ServiceNowMessageHandlerConfig> config)
@@ -38,7 +43,8 @@ public class ServiceNowClient : IServiceNowClient
             NeedsAttention = needsAttention,
             AssignmentGroup = needsAttention ? AssignmentGroup : null
         };
-        var json = JsonSerializer.Serialize(payload);
+
+        var json = JsonSerializer.Serialize(payload, _sendUpdateJsonSerializerOptions);
 
         return await SendRequest(url, json);
     }
