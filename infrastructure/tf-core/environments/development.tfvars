@@ -1196,7 +1196,7 @@ linux_web_app = {
 
     FrontEndUi = {
       name_suffix          = "web"
-      app_service_plan_key = "DefaultPlan"
+      app_service_plan_key = "NonScaling"
       env_vars = {
         static = {
           AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
