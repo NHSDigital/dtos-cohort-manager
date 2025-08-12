@@ -37,6 +37,26 @@ public class HttpClientFunction : IHttpClientFunction
             throw;
         }
     }
+    public async Task<HttpResponseMessage> SendPost(string url, Dictionary<string, string> parameters)
+    {
+        using var client = _factory.CreateClient();
+
+        url = QueryHelpers.AddQueryString(url, parameters!);
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        try
+        {
+            HttpResponseMessage response = await client.PostAsync(url,null);
+            return response;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, errorMessage, url, ex.Message);
+            throw;
+        }
+    }
 
     public async Task<string> SendGet(string url)
     {
@@ -59,6 +79,19 @@ public class HttpClientFunction : IHttpClientFunction
 
         return await GetAsync(client);
     }
+
+    public async Task<HttpResponseMessage> SendGetResponse(string url, Dictionary<string, string> parameters)
+    {
+        using var client = _factory.CreateClient();
+
+        url = QueryHelpers.AddQueryString(url, parameters!);
+
+        client.BaseAddress = new Uri(url);
+        client.Timeout = _timeout;
+
+        return await client.GetAsync(url);
+    }
+
 
     public async Task<HttpResponseMessage> SendGetResponse(string url)
     {
@@ -216,4 +249,6 @@ public class HttpClientFunction : IHttpClientFunction
 
         return await GetResponseText(response);
     }
+
+
 }

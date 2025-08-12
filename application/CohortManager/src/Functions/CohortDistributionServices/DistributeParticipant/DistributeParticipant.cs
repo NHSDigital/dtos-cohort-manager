@@ -11,7 +11,6 @@ using Model;
 using System.Text.Json;
 using Common;
 using Activities = DistributeParticipantActivities;
-using Model.Enums;
 
 public class DistributeParticipant
 {
@@ -59,7 +58,6 @@ public class DistributeParticipant
         {
             _logger.LogError(ex, "Failed to start distribute participant");
             await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(), "Unknown");
-
         }
     }
 
@@ -111,7 +109,17 @@ public class DistributeParticipant
                 await HandleExceptionAsync(new InvalidOperationException("Failed to add participant to the table"), participantRecord);
                 return;
             }
-            _logger.LogInformation("Participant has been successfully put on the cohort distribution table");
+
+            _logger.LogInformation(
+                "Participant has been successfully put on the cohort distribution table. Participant Id: {ParticipantId}, Screening Id: {ScreeningId}, Source: {FileName}",
+                participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
+
+            // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
+            if (participantRecord.Participant.ReferralFlag == "1")
+            {
+                // In this scenario, the FileName property should be holding the ServiceNow Case Number
+                await context.CallActivityAsync(nameof(Activities.SendServiceNowMessage), participantRecord.FileName);
+            }
         }
         catch (Exception ex)
         {

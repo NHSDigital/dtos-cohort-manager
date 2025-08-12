@@ -9,6 +9,7 @@ import { runnerBasedEpic2MedTestScenariosAdd } from '../e2e/epic2-medpriority-te
 import { runnerBasedEpic3TestScenariosAdd } from '../e2e/epic3-highpriority-tests/epic3-high-priority-testsuite-migrated';
 import { runnerBasedEpic3MedTestScenariosAdd } from '../e2e/epic3-medpriority-tests/epic3-med-priority-testsuite-migrated';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
+import { runnerBasedEpic4cTestScenariosAdd } from '../e2e/epic4c-add-participant-tests/epic4c-testsuite-migrated';
 import { runnerBasedEpic4dTestScenariosAdd } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
 
 
@@ -30,9 +31,12 @@ if (TEST_TYPE == 'RegressionEpic1') {
   scopedTestScenario = runnerBasedEpic3MedTestScenariosAdd;
 } else if (TEST_TYPE == 'RegressionEpic4d') {
   scopedTestScenario = runnerBasedEpic4dTestScenariosAdd;
+} else if (TEST_TYPE == 'RegressionEpic4c') {
+  scopedTestScenario = runnerBasedEpic4cTestScenariosAdd;
 } else {
   scopedTestScenario = runnerBasedEpic123TestScenariosAdd;
 }
+
 
 if (!scopedTestScenario) {
   throw new Error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");

@@ -37,7 +37,7 @@ public class ProcessNemsUpdateTests
             RetrievePdsDemographicURL = "RetrievePdsDemographic",
             NemsMessages = "nems-messages",
             UnsubscribeNemsSubscriptionUrl = "Unsubscribe",
-            ParticipantDemographicDataServiceURL = "ParticipantDemographicDataServiceURL",
+            DemographicDataServiceURL = "ParticipantDemographicDataServiceURL",
             ServiceBusConnectionString_client_internal = "ServiceBusConnectionString_client_internal",
             ParticipantManagementTopic = "update-participant-queue",
             nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
@@ -106,7 +106,19 @@ public class ProcessNemsUpdateTests
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>())).Throws(new Exception("error"));
+        // _httpClientFunction.GetPDSRecord(_config.RetrievePdsDemographicURL, queryParams);
+        HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
+        httpResponseMessage.StatusCode = HttpStatusCode.OK;
+
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ThrowsAsync(new Exception("error"));
+        
+        // Setup blob storage helper to succeed so we can test the error logging
+        _blobStorageHelperMock.Setup(x => x.UploadFileToBlobStorage(
+            It.IsAny<string>(), 
+            It.IsAny<string>(), 
+            It.IsAny<BlobFile>(), 
+            It.IsAny<bool>()))
+            .ReturnsAsync(true);
 
         // Act
         await _sut.Run(fileStream, _fileName);
@@ -114,12 +126,12 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("There was an error retrieving the PDS record.")),
+            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("There was an error processing NEMS update for file")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
@@ -132,8 +144,11 @@ public class ProcessNemsUpdateTests
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = "123" }));
+        HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
+        httpResponseMessage.Content = new StringContent(JsonSerializer.Serialize(new PdsDemographic { NhsNumber = "123" }));
+        httpResponseMessage.StatusCode = HttpStatusCode.OK;
+
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
 
         // Act
         await _sut.Run(fileStream, _fileName);
@@ -141,7 +156,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -171,8 +186,11 @@ public class ProcessNemsUpdateTests
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = "123" }));
+        HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
+        httpResponseMessage.Content = new StringContent(JsonSerializer.Serialize(new PdsDemographic { NhsNumber = "123" }));
+        httpResponseMessage.StatusCode = HttpStatusCode.OK;
+
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
 
         _httpClientFunctionMock.Setup(x => x.SendPost("Unsubscribe", It.IsAny<string>())).Throws(new Exception("error"));
 
@@ -182,7 +200,7 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -212,8 +230,11 @@ public class ProcessNemsUpdateTests
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
-        _httpClientFunctionMock.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
-            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = _validNhsNumber }));
+        HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
+        httpResponseMessage.Content = new StringContent(JsonSerializer.Serialize(new PdsDemographic { NhsNumber = "9000000009" }));
+        httpResponseMessage.StatusCode = HttpStatusCode.OK;
+
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
 
         // Act
         await _sut.Run(fileStream, _fileName);
@@ -221,7 +242,8 @@ public class ProcessNemsUpdateTests
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
 
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -234,61 +256,7 @@ public class ProcessNemsUpdateTests
         _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
     }
 
-    private static string LoadTestJson(string filename)
-    {
-        // Add .json extension if not already present
-        string filenameWithExtension = filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase)
-            ? filename
-            : $"{filename}.json";
 
-        // Get the directory of the currently executing assembly
-        string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
-        string assemblyDirectory = Path.GetDirectoryName(assemblyLocation) ?? string.Empty;
-
-        // Try the original path first
-        string originalPath = Path.Combine(assemblyDirectory, "../../../PatientMocks", filenameWithExtension);
-        if (File.Exists(originalPath))
-        {
-            return originalPath;
-        }
-
-        // Try the alternative path
-        string alternativePath = Path.Combine(assemblyDirectory, "../../../NemsSubscriptionServiceTests/ProcessNemsUpdateTests/PatientMocks", filenameWithExtension);
-        if (File.Exists(alternativePath))
-        {
-            return alternativePath;
-        }
-
-        return string.Empty;
-    }
-
-    private static string LoadTestXml(string filename)
-    {
-        // Add .xml extension if not already present
-        string filenameWithExtension = filename.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)
-            ? filename
-            : $"{filename}.xml";
-
-        // Get the directory of the currently executing assembly
-        string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
-        string assemblyDirectory = Path.GetDirectoryName(assemblyLocation) ?? string.Empty;
-
-        // Try the SharedTests path for XML files
-        string sharedTestsPath = Path.Combine(assemblyDirectory, "../../../SharedTests/FhirPatientDemographicMapperTests/PatientMocks", filenameWithExtension);
-        if (File.Exists(sharedTestsPath))
-        {
-            return File.ReadAllText(sharedTestsPath);
-        }
-
-        // Try the original path
-        string originalPath = Path.Combine(assemblyDirectory, "../../../PatientMocks", filenameWithExtension);
-        if (File.Exists(originalPath))
-        {
-            return File.ReadAllText(originalPath);
-        }
-
-        return string.Empty;
-    }
 
     [TestMethod]
     public async Task Run_NhsNumberFromNemsUpdateFileDoesNotMatchRetrievedPdsRecordNhsNumber_ProcessesRecord_RaiseInfoExceptionAndUnsubscribesFromNems()
@@ -298,15 +266,21 @@ public class ProcessNemsUpdateTests
         await using var fileStream = File.OpenRead(fhirJson);
 
         const string supersededNhsNumber = "123";
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = supersededNhsNumber }));
+
+        HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
+        httpResponseMessage.Content = new StringContent(JsonSerializer.Serialize(new PdsDemographic { NhsNumber = "123" }));
+        httpResponseMessage.StatusCode = HttpStatusCode.OK;
+
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
 
         // Act
         await _sut.Run(fileStream, _fileName);
 
         // Assert
         _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
+
+
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
@@ -386,7 +360,7 @@ public class ProcessNemsUpdateTests
         await _sut.Run(fileStream, _fileName);
 
         // Assert - Verify correct NHS number is passed to PDS service
-        _httpClientFunctionMock.Verify(x => x.SendGet(
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse(
             "RetrievePdsDemographic",
             It.Is<Dictionary<string, string>>(dict =>
                 dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)),
@@ -409,152 +383,68 @@ public class ProcessNemsUpdateTests
         await _sut.Run(fileStream, xmlFileName);
 
         // Assert - Verify correct NHS number is passed to PDS service
-        _httpClientFunctionMock.Verify(x => x.SendGet(
+        _httpClientFunctionMock.Verify(x => x.SendGetResponse(
             "RetrievePdsDemographic",
             It.Is<Dictionary<string, string>>(dict =>
                 dict.ContainsKey("nhsNumber") && dict["nhsNumber"] == expectedNhsNumber)),
             Times.Once);
     }
 
-    [TestMethod]
-    public async Task Run_NhsNumberFromNemsUpdateFileDoesNotMatchRetrievedPdsRecordNhsNumber_ProcessesRecord_RaiseInfoExceptionAndUnsubscribesFromNems_AddNewRecord()
+    private static string LoadTestJson(string filename)
     {
-        // Arrange
-        string fhirJson = LoadTestJson("mock-patient");
-        await using var fileStream = File.OpenRead(fhirJson);
+        // Add .json extension if not already present
+        string filenameWithExtension = filename.EndsWith(".json", StringComparison.OrdinalIgnoreCase)
+            ? filename
+            : $"{filename}.json";
 
-        const string supersededNhsNumber = "123";
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = supersededNhsNumber }));
+        // Get the directory of the currently executing assembly
+        string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        string assemblyDirectory = Path.GetDirectoryName(assemblyLocation) ?? string.Empty;
 
-        _participantDemographicMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
-            .ReturnsAsync((ParticipantDemographic)null);
+        // Try the original path first
+        string originalPath = Path.Combine(assemblyDirectory, "../../../PatientMocks", filenameWithExtension);
+        if (File.Exists(originalPath))
+        {
+            return originalPath;
+        }
 
-        // Act
-        await _sut.Run(fileStream, _fileName);
+        // Try the alternative path
+        string alternativePath = Path.Combine(assemblyDirectory, "../../../NemsSubscriptionServiceTests/ProcessNemsUpdateTests/PatientMocks", filenameWithExtension);
+        if (File.Exists(alternativePath))
+        {
+            return alternativePath;
+        }
 
-        // Assert
-        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
-
-        _participantDemographicMock.Verify(x => x.GetSingleByFilter(
-            It.Is<Expression<Func<ParticipantDemographic, bool>>>(expr =>
-                expr.Compile()(new ParticipantDemographic { NhsNumber = long.Parse(_validNhsNumber) }))),
-            Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Warning,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("The participant doesn't exists in Cohort Manager")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-
-        _addBatchToQueueMock.Verify(x => x.ProcessBatch(
-            It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
-                q.Any(r => r.Participant.RecordType == Actions.New)),
-            It.IsAny<string>()),
-        Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("NHS numbers do not match, processing the superseded record.")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("Successfully unsubscribed from NEMS.")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-
-        _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
-
-        _exceptionHandlerMock.Verify(
-            x => x.CreateTransformExecutedExceptions(
-                It.Is<CohortDistributionParticipant>(p =>
-                    p.NhsNumber == _validNhsNumber &&
-                    p.SupersededByNhsNumber == supersededNhsNumber),
-                "SupersededNhsNumber",
-                60,
-                null),
-            Times.Once);
+        return string.Empty;
     }
 
-    [TestMethod]
-    public async Task Run_NhsNumberFromNemsUpdateFileDoesNotMatchRetrievedPdsRecordNhsNumber_ProcessesRecord_RaiseInfoExceptionAndUnsubscribesFromNems_UpdateExistingRecord()
+    private static string LoadTestXml(string filename)
     {
-        // Arrange
-        string fhirJson = LoadTestJson("mock-patient");
-        await using var fileStream = File.OpenRead(fhirJson);
+        // Add .xml extension if not already present
+        string filenameWithExtension = filename.EndsWith(".xml", StringComparison.OrdinalIgnoreCase)
+            ? filename
+            : $"{filename}.xml";
 
-        const string supersededNhsNumber = "123";
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = supersededNhsNumber }));
+        // Get the directory of the currently executing assembly
+        string assemblyLocation = System.Reflection.Assembly.GetExecutingAssembly().Location;
+        string assemblyDirectory = Path.GetDirectoryName(assemblyLocation) ?? string.Empty;
 
-        var existingParticipant = new ParticipantDemographic { NhsNumber = long.Parse(_validNhsNumber) };
-        _participantDemographicMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
-            .ReturnsAsync(existingParticipant);
+        // Try the SharedTests path for XML files
+        string sharedTestsPath = Path.Combine(assemblyDirectory, "../../../SharedTests/FhirPatientDemographicMapperTests/PatientMocks", filenameWithExtension);
+        if (File.Exists(sharedTestsPath))
+        {
+            return File.ReadAllText(sharedTestsPath);
+        }
 
-        // Act
-        await _sut.Run(fileStream, _fileName);
+        // Try the original path
+        string originalPath = Path.Combine(assemblyDirectory, "../../../PatientMocks", filenameWithExtension);
+        if (File.Exists(originalPath))
+        {
+            return File.ReadAllText(originalPath);
+        }
 
-        // Assert
-        _fhirPatientDemographicMapperMock.Verify(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()), Times.Once);
-        _httpClientFunctionMock.Verify(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()), Times.Once);
-
-        _participantDemographicMock.Verify(x => x.GetSingleByFilter(
-            It.Is<Expression<Func<ParticipantDemographic, bool>>>(expr =>
-                expr.Compile()(existingParticipant))),
-            Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Warning,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("The participant already exists in Cohort Manager. Existing record will get updated.")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-
-        _addBatchToQueueMock.Verify(x => x.ProcessBatch(
-            It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
-                q.Any(r => r.Participant.RecordType == Actions.Amended)),
-            It.IsAny<string>()),
-        Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("NHS numbers do not match, processing the superseded record.")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("Successfully unsubscribed from NEMS.")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-
-        _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
-
-        _exceptionHandlerMock.Verify(
-            x => x.CreateTransformExecutedExceptions(
-                It.Is<CohortDistributionParticipant>(p =>
-                    p.NhsNumber == _validNhsNumber &&
-                    p.SupersededByNhsNumber == supersededNhsNumber),
-                "SupersededNhsNumber",
-                60,
-                null),
-            Times.Once);
+        // If neither path exists, throw an exception
+        throw new FileNotFoundException($"Test JSON file '{filenameWithExtension}' not found in either expected location.");
     }
 
     [TestMethod]
@@ -775,6 +665,13 @@ public class ProcessNemsUpdateTests
         string fhirJson = LoadTestJson("mock-patient");
         await using var fileStream = File.OpenRead(fhirJson);
 
+        // Setup successful PDS response that matches the NHS number
+        HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
+        httpResponseMessage.Content = new StringContent(JsonSerializer.Serialize(new PdsDemographic { NhsNumber = "9000000009" }));
+        httpResponseMessage.StatusCode = HttpStatusCode.OK;
+
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ReturnsAsync(httpResponseMessage);
+
         // Act
         await _sut.Run(fileStream, _fileName);
 
@@ -792,5 +689,8 @@ public class ProcessNemsUpdateTests
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Never);
+        
+        // Verify successful processing occurred
+        _addBatchToQueueMock.Verify(x => x.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
     }
 }

@@ -7,26 +7,43 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using System.Text.Json;
 using Model;
+using Common.Interfaces;
 
 /// <summary>
 /// Mock implementation of IHttpClientFunction specifically designed for PDS (Personal Demographics Service) calls.
 /// This mock returns PdsDemographic objects for SendGet calls and FHIR Patient JSON for SendPdsGet calls.
-/// 
+///
 /// WARNING: This is NOT a general-purpose HTTP client mock. It is designed specifically for PDS service testing.
 /// Other services (NEMS, ServiceNow, etc.) should not use this mock as it returns PDS-specific data structures.
 /// </summary>
 public class PdsHttpClientMock : IHttpClientFunction
 {
+
+    private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
+
+    public PdsHttpClientMock(IFhirPatientDemographicMapper fhirPatientDemographicMapper)
+    {
+        _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
+    }
+
     public async Task<HttpResponseMessage> SendPost(string url, string data)
     {
         await Task.CompletedTask;
-        return CreateFakeHttpResponse(url);
+        return HttpStubUtilities.CreateFakeHttpResponse(url,"");
+    }
+    public Task<HttpResponseMessage> SendPost(string url, Dictionary<string, string> parameters)
+    {
+        throw new NotImplementedException();
     }
 
     public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
     {
         await Task.CompletedTask;
-        return JsonSerializer.Serialize(new PdsDemographic());
+        var patient = GetPatientMockObject("complete-patient.json");
+        var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(patient);
+        var participantDemographic = pdsDemographic.ToParticipantDemographic();
+
+        return JsonSerializer.Serialize(participantDemographic);
     }
 
     public async Task<string> SendGet(string url)
@@ -45,7 +62,7 @@ public class PdsHttpClientMock : IHttpClientFunction
     {
         var patient = GetPatientMockObject("complete-patient.json");
         await Task.CompletedTask;
-        return CreateFakeHttpResponse(url, patient);
+        return HttpStubUtilities.CreateFakeHttpResponse(url, patient);
     }
 
     private static string GetPatientMockObject(string filename)
@@ -66,7 +83,7 @@ public class PdsHttpClientMock : IHttpClientFunction
     public async Task<HttpResponseMessage> SendPut(string url, string data)
     {
         await Task.CompletedTask;
-        return CreateFakeHttpResponse(url);
+        return HttpStubUtilities.CreateFakeHttpResponse(url,"");
     }
 
     public async Task<bool> SendDelete(string url)
@@ -86,6 +103,11 @@ public class PdsHttpClientMock : IHttpClientFunction
         throw new NotImplementedException();
     }
 
+    public async Task<HttpResponseMessage> SendGetResponse(string url, Dictionary<string, string> parameters)
+    {
+        await Task.CompletedTask;
+        throw new NotImplementedException();
+    }
 
     /// <summary>
     /// takes in a fake string content and returns 200 OK response
@@ -106,5 +128,4 @@ public class PdsHttpClientMock : IHttpClientFunction
         httpResponseData.StatusCode = HttpStatusCode.OK;
         return httpResponseData;
     }
-
 }
