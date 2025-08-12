@@ -94,3 +94,20 @@ When('the user clicks on cookies link', async ({ page }) => {
   homePage = new HomePage(page);
   await homePage.clickOnCookiesLink()
 });
+When('the user navigates to an invalid URL', async ({ page }) => {
+  // Navigate to a non-existent page to trigger 404
+  await page.goto('https://localhost:3000/exception');
+});
+Then("the page should display {string} on screen", async ({ page }, errorType) => {
+  // Check for a heading or text that indicates 404
+  await expect(page.getByRole('heading', { name: new RegExp(errorType, 'i') })).toBeVisible();
+});
+Then("the page not found error screen should include a {string} link", async ({ page }, link) => {
+  // Check for the presence of the return link
+  const linkLocator = page.getByRole('link', { name: new RegExp(link, 'i') }).first();
+  await expect(linkLocator).toBeVisible();
+});
+When('the user clicks on the {string} link', async ({ page }, linkText) => {
+  const linkLocator = page.getByRole('link', { name: new RegExp(linkText, 'i') }).first();
+  await linkLocator.click();
+});
