@@ -11,7 +11,7 @@ test.describe('@DTOSS-10182-01 - Verify exceptions are sorted from oldest to new
     response = await getValidationExceptions(request, apiConfig);
   });
 
-  test('Should return 204 if no data is found or 200 with records', async () => {
+  test('@DTOSS-10182-01 - Should return 204 if no data is found or 200 with records', async () => {
     expect(response).toBeDefined();
     expect(response.status).toBeDefined();
     expect([200, 204]).toContain(response.status);
@@ -28,7 +28,7 @@ test.describe('@DTOSS-10182-01 - Verify exceptions are sorted from oldest to new
     }
   });
 
-  test('Should verify all returned records have ServiceNowId and ServiceNowCreatedDate', async () => {
+  test('@DTOSS-10182-01 - Should verify all returned records have ServiceNowId and ServiceNowCreatedDate', async () => {
     if (response.status === 204) {
       console.info('No data found - skipping validation test');
       return;
