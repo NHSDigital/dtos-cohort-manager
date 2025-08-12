@@ -8,7 +8,7 @@
       "meta": {
         "testJiraId": "@DTOSS-9337-01",
         "requirementJiraId": "DTOSS-9337",
-        "additionalTags": "@smoke @e2e @epic4c- Add participant record to test superseded_by_nhs_number"
+        "additionalTags": "@epic3-med @e2e @epic4c- Add participant record to test superseded_by_nhs_number"
       }
     }
   ],
