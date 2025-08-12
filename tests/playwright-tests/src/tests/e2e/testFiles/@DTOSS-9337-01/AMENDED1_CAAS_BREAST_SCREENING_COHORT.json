@@ -12,7 +12,7 @@
       "meta": {
         "testJiraId": "@DTOSS-9337-01",
         "requirementJiraId": "DTOSS-9337",
-        "additionalTags": "@regression @e2e @epic4c- validate primary care provider, reason for removal and superseded number"
+        "additionalTags": "@epic3-med @e2e @epic4c- validate primary care provider, reason for removal and superseded number"
       }
     },
     {
@@ -25,7 +25,7 @@
       "meta": {
         "testJiraId": "@DTOSS-9337-01",
         "requirementJiraId": "DTOSS-9337",
-        "additionalTags": "@regression @e2e @epic4c- validate exception for Superseded_number transformation"
+        "additionalTags": "@epic3-med @e2e @epic4c- validate exception for Superseded_number transformation"
       }
     }
   ],
