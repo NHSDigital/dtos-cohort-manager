@@ -35,16 +35,18 @@ public class ProcessNemsUpdateTests
         var testConfig = new ProcessNemsUpdateConfig
         {
             RetrievePdsDemographicURL = "RetrievePdsDemographic",
-            NemsMessages = "nems-messages",
+            NemsMessages = "nems-updates",
             UnsubscribeNemsSubscriptionUrl = "Unsubscribe",
             DemographicDataServiceURL = "ParticipantDemographicDataServiceURL",
             ServiceBusConnectionString_client_internal = "ServiceBusConnectionString_client_internal",
             ParticipantManagementTopic = "update-participant-queue",
-            nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
-            NemsPoisonContainer = "nems-poison"
+            nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
+
+        Environment.SetEnvironmentVariable("nemsmeshfolder_STORAGE", "BlobStorage_ConnectionString");
+        Environment.SetEnvironmentVariable("fileExceptions", "nems-poison");
 
         _sut = new ProcessNemsUpdate(
             _loggerMock.Object,
@@ -54,8 +56,8 @@ public class ProcessNemsUpdateTests
             _httpClientFunctionMock.Object,
             _exceptionHandlerMock.Object,
             _participantDemographicMock.Object,
-            _blobStorageHelperMock.Object,
-            _config.Object
+            _config.Object,
+            _blobStorageHelperMock.Object
         );
 
         _httpClientFunctionMock.Reset();
@@ -63,6 +65,14 @@ public class ProcessNemsUpdateTests
         _blobStorageHelperMock.Reset();
         _addBatchToQueueMock.Reset();
         _participantDemographicMock.Reset();
+
+        // Default: simulate successful poison copy
+        _blobStorageHelperMock
+            .Setup(x => x.CopyFileToPoisonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
 
         _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>())).Returns(_validNhsNumber);
 
@@ -112,13 +122,7 @@ public class ProcessNemsUpdateTests
 
         _httpClientFunctionMock.Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>())).ThrowsAsync(new Exception("error"));
         
-        // Setup blob storage helper to succeed so we can test the error logging
-        _blobStorageHelperMock.Setup(x => x.UploadFileToBlobStorage(
-            It.IsAny<string>(), 
-            It.IsAny<string>(), 
-            It.IsAny<BlobFile>(), 
-            It.IsAny<bool>()))
-            .ReturnsAsync(true);
+        // No setup required for poison copy; we verify invocation
 
         // Act
         await _sut.Run(fileStream, _fileName);
@@ -463,20 +467,14 @@ public class ProcessNemsUpdateTests
         // Throw exception in AddBatchToQueue to trigger poison container
         _addBatchToQueueMock.Setup(x => x.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()))
             .ThrowsAsync(new InvalidOperationException("Queue error"));
-        _blobStorageHelperMock.Setup(x => x.UploadFileToBlobStorage(
-            It.IsAny<string>(), 
-            It.IsAny<string>(), 
-            It.IsAny<BlobFile>(), 
-            It.IsAny<bool>()))
-            .ReturnsAsync(true);
+        // No setup needed; we assert CopyFileToPoisonAsync is called
         // Act
         await _sut.Run(fileStream, _fileName);
         // Assert
-        _blobStorageHelperMock.Verify(x => x.UploadFileToBlobStorage(
+        _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             "BlobStorage_ConnectionString",
-            "nems-poison",
-            It.Is<BlobFile>(bf => bf.FileName.Contains(_fileName) && bf.FileName.Contains("_")),
-            true), Times.Once);
+            _fileName,
+            "nems-updates"), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -487,7 +485,7 @@ public class ProcessNemsUpdateTests
         _loggerMock.Verify(x => x.Log(
             LogLevel.Information,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("Successfully copied failed NEMS file")),
+            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("Copied failed NEMS file")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
@@ -514,20 +512,13 @@ public class ProcessNemsUpdateTests
         // Return an invalid NHS number that will fail ValidationHelper.ValidateNHSNumber
         _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>()))
             .Returns("123456789"); // Invalid NHS number format
-        _blobStorageHelperMock.Setup(x => x.UploadFileToBlobStorage(
-            It.IsAny<string>(), 
-            It.IsAny<string>(), 
-            It.IsAny<BlobFile>(), 
-            It.IsAny<bool>()))
-            .ReturnsAsync(true);
         // Act
         await _sut.Run(fileStream, _fileName);
         // Assert
-        _blobStorageHelperMock.Verify(x => x.UploadFileToBlobStorage(
+        _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             "BlobStorage_ConnectionString",
-            "nems-poison",
-            It.Is<BlobFile>(bf => bf.FileName.Contains(_fileName)),
-            true), Times.Once);
+            _fileName,
+            "nems-updates"), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -551,20 +542,19 @@ public class ProcessNemsUpdateTests
         // Trigger exception in JSON deserialization
         _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
             .ReturnsAsync("invalid-json");
-        _blobStorageHelperMock.Setup(x => x.UploadFileToBlobStorage(
-            It.IsAny<string>(), 
-            It.IsAny<string>(), 
-            It.IsAny<BlobFile>(), 
-            It.IsAny<bool>()))
-            .ReturnsAsync(false);
+        _blobStorageHelperMock
+            .Setup(x => x.CopyFileToPoisonAsync(
+                It.IsAny<string>(),
+                It.IsAny<string>(),
+                It.IsAny<string>()))
+            .ThrowsAsync(new Exception("copy failed"));
         // Act
         await _sut.Run(fileStream, _fileName);
         // Assert
-        _blobStorageHelperMock.Verify(x => x.UploadFileToBlobStorage(
+        _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             "BlobStorage_ConnectionString",
-            "nems-poison",
-            It.IsAny<BlobFile>(),
-            true), Times.Once);
+            _fileName,
+            "nems-updates"), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -573,51 +563,16 @@ public class ProcessNemsUpdateTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
         _loggerMock.Verify(x => x.Log(
-            LogLevel.Information,
+            LogLevel.Error,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("Successfully copied failed NEMS file")),
+            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("Failed to copy NEMS file")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Never);
+        Times.Once);
         await fileStream.DisposeAsync();
     }
 
-    [TestMethod]
-    public async Task Run_PoisonContainerTimestamp_CreatesUniqueFileName()
-    {
-        // Arrange
-        string fhirJson = LoadTestJson("mock-patient");
-        Stream fileStream;
-        if (!string.IsNullOrEmpty(fhirJson) && File.Exists(fhirJson))
-            fileStream = File.OpenRead(fhirJson);
-        else
-            fileStream = new MemoryStream(Encoding.UTF8.GetBytes("{\"resourceType\":\"Patient\"}"));
-        // Trigger exception in JSON deserialization step, not NHS parsing step
-        _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync("invalid-json-that-throws-exception");
-        _blobStorageHelperMock.Setup(x => x.UploadFileToBlobStorage(
-            It.IsAny<string>(), 
-            It.IsAny<string>(), 
-            It.IsAny<BlobFile>(), 
-            It.IsAny<bool>()))
-            .ReturnsAsync(true);
-        // Act
-        await _sut.Run(fileStream, _fileName);
-        // Assert
-        _blobStorageHelperMock.Verify(x => x.UploadFileToBlobStorage(
-            "BlobStorage_ConnectionString",
-            "nems-poison",
-            It.Is<BlobFile>(bf => ((bf.FileName.Length > _fileName.Length && bf.FileName.EndsWith(_fileName)) && bf.FileName.Contains("_")) && System.Text.RegularExpressions.Regex.IsMatch(bf.FileName, "^\\d{8}_\\d{6}_")),
-            true), Times.Once);
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Error,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("There was an error processing NEMS update for file")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-        await fileStream.DisposeAsync();
-    }
+    // Timestamp-based rename not applicable for poison copy (server-side copy retains original name)
 
     [TestMethod]
     public async Task Run_DataServiceClientThrowsException_CopiesFileToPoisonContainer()
@@ -634,20 +589,14 @@ public class ProcessNemsUpdateTests
             .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = _validNhsNumber }));
         _participantDemographicMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
             .ThrowsAsync(new Exception("DataServiceClient error"));
-        _blobStorageHelperMock.Setup(x => x.UploadFileToBlobStorage(
-            It.IsAny<string>(), 
-            It.IsAny<string>(), 
-            It.IsAny<BlobFile>(), 
-            It.IsAny<bool>()))
-            .ReturnsAsync(true);
+        // No setup needed for poison copy
         // Act
         await _sut.Run(fileStream, _fileName);
         // Assert
-        _blobStorageHelperMock.Verify(x => x.UploadFileToBlobStorage(
+        _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             "BlobStorage_ConnectionString",
-            "nems-poison",
-            It.IsAny<BlobFile>(),
-            true), Times.Once);
+            _fileName,
+            "nems-updates"), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -676,11 +625,10 @@ public class ProcessNemsUpdateTests
         await _sut.Run(fileStream, _fileName);
 
         // Assert - Verify poison container is never called on successful processing
-        _blobStorageHelperMock.Verify(x => x.UploadFileToBlobStorage(
+        _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             It.IsAny<string>(), 
             It.IsAny<string>(), 
-            It.IsAny<BlobFile>(), 
-            It.IsAny<bool>()), Times.Never);
+            It.IsAny<string>()), Times.Never);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
