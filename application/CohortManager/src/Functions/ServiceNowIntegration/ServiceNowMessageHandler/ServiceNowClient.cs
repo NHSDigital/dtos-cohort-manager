@@ -17,6 +17,7 @@ public class ServiceNowClient : IServiceNowClient
     private readonly ILogger<ServiceNowClient> _logger;
     private readonly ServiceNowMessageHandlerConfig _config;
     private const string AccessTokenCacheKey = "AccessToken";
+    private const string AssignmentGroup = "ITO Breast Screening 2nd Line";
 
     public ServiceNowClient(IMemoryCache cache, IHttpClientFactory httpClientFactory,
         ILogger<ServiceNowClient> logger, IOptions<ServiceNowMessageHandlerConfig> config)
@@ -27,13 +28,15 @@ public class ServiceNowClient : IServiceNowClient
         _config = config.Value;
     }
 
-    public async Task<HttpResponseMessage?> SendUpdate(string caseNumber, string workNotes)
+    public async Task<HttpResponseMessage?> SendUpdate(string caseNumber, string workNotes, bool needsAttention = false)
     {
         var url = $"{_config.ServiceNowUpdateUrl}/{caseNumber}";
         var payload = new ServiceNowUpdateRequestBody
         {
             State = 10, // 'Open' state
-            WorkNotes = workNotes
+            WorkNotes = workNotes,
+            NeedsAttention = needsAttention,
+            AssignmentGroup = needsAttention ? AssignmentGroup : null
         };
         var json = JsonSerializer.Serialize(payload);
 
@@ -54,7 +57,7 @@ public class ServiceNowClient : IServiceNowClient
         return await SendRequest(url, json);
     }
 
-    public async Task<HttpResponseMessage?> SendRequest(string url, string json)
+    private async Task<HttpResponseMessage?> SendRequest(string url, string json)
     {
         var httpClient = _httpClientFactory.CreateClient();
 
