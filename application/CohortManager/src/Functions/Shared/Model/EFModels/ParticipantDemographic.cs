@@ -156,4 +156,48 @@ public class ParticipantDemographic
         };
     }
 
+    public PdsDemographic ToPdsDemographic()
+    {
+        return new PdsDemographic
+        {
+            ParticipantId = ParticipantId.ToString(),
+            NhsNumber = NhsNumber.ToString(),
+            SupersededByNhsNumber = SupersededByNhsNumber?.ToString(),
+            PrimaryCareProvider = PrimaryCareProvider,
+            PrimaryCareProviderEffectiveFromDate = PrimaryCareProviderFromDate,
+            CurrentPosting = CurrentPosting,
+            CurrentPostingEffectiveFromDate = CurrentPostingFromDate,
+            NamePrefix = NamePrefix,
+            FirstName = GivenName,
+            OtherGivenNames = OtherGivenName,
+            FamilyName = FamilyName,
+            PreviousFamilyName = PreviousFamilyName,
+            DateOfBirth = DateOfBirth,
+            Gender = Gender.HasValue ? (Gender?)Gender.Value : null,
+            AddressLine1 = AddressLine1,
+            AddressLine2 = AddressLine2,
+            AddressLine3 = AddressLine3,
+            AddressLine4 = AddressLine4,
+            AddressLine5 = AddressLine5,
+            Postcode = PostCode,
+            PafKey = PafKey,
+            UsualAddressEffectiveFromDate = UsualAddressFromDate,
+            DateOfDeath = DateOfDeath,
+            DeathStatus = DeathStatus.HasValue ? (Status?)DeathStatus.Value : null,
+            TelephoneNumber = TelephoneNumberHome,
+            TelephoneNumberEffectiveFromDate = TelephoneNumberHomeFromDate,
+            MobileNumber = TelephoneNumberMob,
+            MobileNumberEffectiveFromDate = TelephoneNumberMobFromDate,
+            EmailAddress = EmailAddressHome,
+            EmailAddressEffectiveFromDate = EmailAddressHomeFromDate,
+            PreferredLanguage = PreferredLanguage,
+            IsInterpreterRequired = InterpreterRequired.HasValue ? InterpreterRequired.Value.ToString() : null,
+            InvalidFlag = InvalidFlag.HasValue ? InvalidFlag.Value.ToString() : null,
+            RecordInsertDateTime = RecordInsertDateTime?.ToString("o"),
+            RecordUpdateDateTime = RecordUpdateDateTime?.ToString("o"),
+            ReasonForRemoval = null, // ParticipantDemographic doesn't have this field
+            RemovalEffectiveFromDate = null // ParticipantDemographic doesn't have this field
+        };
+    }
+
 }
