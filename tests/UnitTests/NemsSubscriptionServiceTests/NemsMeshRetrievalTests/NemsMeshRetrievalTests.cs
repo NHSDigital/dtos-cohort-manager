@@ -28,7 +28,6 @@ public class NemsMeshRetrievalTests
     private const string mailboxId = "TestMailBox";
     private const string TestInboundContainer = "nems-updates";
     private const string TestConfigContainer = "nems-config";
-    private const string TestPoisonContainer = "nems-poison";
 
     public NemsMeshRetrievalTests()
     {
@@ -42,8 +41,7 @@ public class NemsMeshRetrievalTests
             NemsMeshKeyName = "MeshKeyName",
             KeyVaultConnectionString = "KeyVaultConnectionString",
             NemsMeshInboundContainer = TestInboundContainer,
-            NemsMeshConfigContainer = TestConfigContainer,
-            NemsMeshPoisonContainer = TestPoisonContainer
+            NemsMeshConfigContainer = TestConfigContainer
 
         };
 
@@ -400,8 +398,7 @@ public class NemsMeshRetrievalTests
             KeyVaultConnectionString = "KeyVaultConnectionString",
 
             NemsMeshInboundContainer = customInboundContainer,
-            NemsMeshConfigContainer = customConfigContainer,
-            NemsMeshPoisonContainer = "custom-poison-container"
+            NemsMeshConfigContainer = customConfigContainer
 
         };
 
@@ -461,9 +458,7 @@ public class NemsMeshRetrievalTests
             KeyVaultConnectionString = "KeyVaultConnectionString",
 
             NemsMeshInboundContainer = "nems-updates",
-            NemsMeshConfigContainer = customConfigContainer,
-
-            NemsMeshPoisonContainer = "custom-poison"
+            NemsMeshConfigContainer = customConfigContainer
 
         };
 
@@ -491,30 +486,6 @@ public class NemsMeshRetrievalTests
         _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage("BlobStorage_ConnectionString", customConfigContainer, It.IsAny<BlobFile>(), true), Times.Once);
     }
 
-    [TestMethod]
-    public void Config_WithDefaultValues_HasCorrectNemsMeshPoisonContainer()
-    {
-        // Arrange & Act - Using default constructor which sets up default values
-        var defaultConfig = new NemsMeshRetrievalConfig();
-
-        // Assert
-        Assert.AreEqual("nems-poison", defaultConfig.NemsMeshPoisonContainer);
-    }
-
-    [TestMethod]
-    public void Config_WithCustomNemsMeshPoisonContainer_UsesCustomValue()
-    {
-        // Arrange
-        const string customPoisonContainer = "my-custom-poison-container";
-
-        var customConfig = new NemsMeshRetrievalConfig
-        {
-            NemsMeshPoisonContainer = customPoisonContainer
-        };
-
-        // Assert
-        Assert.AreEqual(customPoisonContainer, customConfig.NemsMeshPoisonContainer);
-    }
 
 
 }

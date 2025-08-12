@@ -18,7 +18,6 @@ public class NemsMeshRetrievalConfig
     public string nemsmeshfolder_STORAGE {get; set;}
     public string NemsMeshInboundContainer { get; set; } = "nems-updates";
     public string NemsMeshConfigContainer { get; set; } = "nems-config";
-    public string NemsMeshPoisonContainer { get; set; } = "nems-poison";
     public string NemsMeshServerSideCerts { get; set; }
     public string NemsMeshCertName { get; set; }
     public bool? NemsMeshBypassServerCertificateValidation {get;set;}
