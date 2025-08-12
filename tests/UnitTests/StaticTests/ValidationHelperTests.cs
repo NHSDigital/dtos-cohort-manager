@@ -73,4 +73,29 @@ public class ValidationHelperTests
 
         Assert.IsFalse(result);
     }
+
+    [TestMethod]
+    [DataRow("B33 8TH")]                 // Valid postcode format
+    [DataRow("SW1A 1AA")]                // Valid postcode format
+    [DataRow("SM1 1AA")]                 // Valid postcode format
+    [DataRow("ZZ99 3CZ")]                // dummy postcode format
+    public void ValidatePostcode_ValidPostcode_ReturnsTrue(string postCode)
+    {
+        var result = ValidationHelper.ValidatePostcode(postCode);
+
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    [DataRow("A1")]
+    [DataRow("ABCDE 123")]
+    [DataRow("123 ABC")]
+    [DataRow("W1A")]
+    [DataRow("SW1A1AAA")]
+    public void ValidatePostcode_InvalidPostcode_ReturnsFalse(string postCode)
+    {
+        var result = ValidationHelper.ValidatePostcode(postCode);
+
+        Assert.IsFalse(result);
+    }
 }
