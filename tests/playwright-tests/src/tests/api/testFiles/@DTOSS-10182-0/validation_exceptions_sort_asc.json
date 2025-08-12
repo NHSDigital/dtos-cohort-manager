@@ -1,7 +1,7 @@
 {
   "queryParams":
     {
-        "exceptionStatus": 0,
+        "exceptionStatus": 1,
         "sortOrder": 0
     }
 }
