@@ -53,8 +53,9 @@ services:
     profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:9083
-      - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
-      - NemsMessages="nems-messages"
+      - nemsmeshfolder_STORAGE=${AZURITE_CONNECTION_STRING}
+      - NemsMessages=nems-updates
+      - fileExceptions=nems-poison
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
       - UnsubscribeNemsSubscriptionUrl=http://manage-nems-subscription:9081/api/Unsubscribe

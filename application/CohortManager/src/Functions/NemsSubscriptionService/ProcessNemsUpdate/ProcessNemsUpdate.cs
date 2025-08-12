@@ -24,6 +24,7 @@ public class ProcessNemsUpdate
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
+    private readonly IBlobStorageHelper _blobStorageHelper;
     private readonly ProcessNemsUpdateConfig _config;
     private long nhsNumberLong;
 
@@ -35,7 +36,8 @@ public class ProcessNemsUpdate
         IHttpClientFunction httpClientFunction,
         IExceptionHandler exceptionHandler,
         IDataServiceClient<ParticipantDemographic> participantDemographic,
-        IOptions<ProcessNemsUpdateConfig> processNemsUpdateConfig)
+        IOptions<ProcessNemsUpdateConfig> processNemsUpdateConfig,
+        IBlobStorageHelper blobStorageHelper)
     {
         _logger = logger;
         _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
@@ -45,6 +47,7 @@ public class ProcessNemsUpdate
         _exceptionHandler = exceptionHandler;
         _participantDemographic = participantDemographic;
         _config = processNemsUpdateConfig.Value;
+        _blobStorageHelper = blobStorageHelper;
     }
 
     /// <summary>
@@ -76,8 +79,8 @@ public class ProcessNemsUpdate
             var pdsResponse = await RetrievePdsRecord(nhsNumber!);
             if (pdsResponse!.StatusCode == HttpStatusCode.NotFound)
             {
-                _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
-                // we can stop processing here as we know that not found means the participant ether needed an update or they were actually not found
+                _logger.LogError("the PDS function has returned a 404 error for file {FileName}. Moving file to poison container.", name);
+                await CopyToPoisonContainer(name);
                 return;
             }
 
@@ -98,9 +101,28 @@ public class ProcessNemsUpdate
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There was an error processing NEMS update.");
+            _logger.LogError(ex, "There was an error processing NEMS update for file {FileName}. Moving to poison container.", name);
+            try
+            {
+                await CopyToPoisonContainer(name);
+            }
+            catch (Exception poisonEx)
+            {
+                _logger.LogError(poisonEx, "Failed to copy NEMS file {FileName} to poison container. Manual intervention required.", name);
+            }
         }
 
+    }
+
+    private async Task CopyToPoisonContainer(string fileName)
+    {
+        var connectionString = Environment.GetEnvironmentVariable("nemsmeshfolder_STORAGE");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new InvalidOperationException("Blob storage connection string 'nemsmeshfolder_STORAGE' is not configured.");
+        }
+        await _blobStorageHelper.CopyFileToPoisonAsync(connectionString, fileName, _config.NemsMessages);
+        _logger.LogInformation("Copied failed NEMS file {FileName} to poison container.", fileName);
     }
 
     private async Task UnsubscribeFromNems(string nhsNumber, PdsDemographic retrievedPdsRecord)

@@ -344,6 +344,10 @@ function_apps = {
         {
           env_var_name   = "NemsMessages"
           container_name = "nems-updates"
+        },
+        {
+          env_var_name   = "fileExceptions"
+          container_name = "nems-poison"
         }
       ]
       env_vars_static = {
@@ -1252,6 +1256,9 @@ storage_accounts = {
       }
       nems-config = {
         container_name = "nems-config"
+      }
+      nems-poison = {
+        container_name = "nems-poison"
       }
     }
   }
