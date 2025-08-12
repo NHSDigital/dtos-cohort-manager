@@ -360,7 +360,7 @@ function_apps = {
           container_name = "nems-updates"
         },
         {
-          env_var_name   = "fileExceptions"
+          env_var_name   = "NemsPoisonContainer"
           container_name = "nems-poison"
         }
       ]

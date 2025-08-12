@@ -352,7 +352,7 @@ function_apps = {
           container_name = "nems-updates"
         },
         {
-          env_var_name   = "fileExceptions"
+          env_var_name   = "NemsPoisonContainer"
           container_name = "nems-poison"
         }
       ]
@@ -597,7 +597,7 @@ function_apps = {
           function_app_key = "CohortDistributionDataService"
         },
         {
-          env_var_name     = "BsSelectRequestAuditDataServiceURL"
+          env_var_name     = "BsSelectRequestAuditDataService"
           function_app_key = "BsSelectRequestAuditDataService"
         }
       ]

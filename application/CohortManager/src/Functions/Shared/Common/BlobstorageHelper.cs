@@ -44,6 +44,36 @@ public class BlobStorageHelper : IBlobStorageHelper
         }
     }
 
+    public async Task CopyFileToPoisonAsync(string connectionString, string fileName, string containerName, string poisonContainerName)
+    {
+        var sourceBlobServiceClient = new BlobServiceClient(connectionString);
+        var sourceContainerClient = sourceBlobServiceClient.GetBlobContainerClient(containerName);
+        var sourceBlobClient = sourceContainerClient.GetBlobClient(fileName);
+
+        BlobLeaseClient sourceBlobLease = new(sourceBlobClient);
+
+        var destinationBlobServiceClient = new BlobServiceClient(connectionString);
+        var destinationContainerClient = destinationBlobServiceClient.GetBlobContainerClient(poisonContainerName);
+        var destinationBlobClient = destinationContainerClient.GetBlobClient(fileName);
+
+        await destinationContainerClient.CreateIfNotExistsAsync(PublicAccessType.None);
+
+        try
+        {
+            await sourceBlobLease.AcquireAsync(BlobLeaseClient.InfiniteLeaseDuration);
+            await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
+        }
+        catch (RequestFailedException ex)
+        {
+            _logger.LogError(ex, "There has been a problem while copying the file: {Message}", ex.Message);
+            throw;
+        }
+        finally
+        {
+            await sourceBlobLease.ReleaseAsync();
+        }
+    }
+
     public async Task<bool> UploadFileToBlobStorage(string connectionString, string containerName, BlobFile blobFile, bool overwrite = false)
     {
         var sourceBlobServiceClient = new BlobServiceClient(connectionString);

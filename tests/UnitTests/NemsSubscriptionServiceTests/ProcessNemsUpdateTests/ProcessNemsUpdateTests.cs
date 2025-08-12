@@ -45,7 +45,7 @@ public class ProcessNemsUpdateTests
 
         _config.Setup(c => c.Value).Returns(testConfig);
 
-        Environment.SetEnvironmentVariable("fileExceptions", "nems-poison");
+        Environment.SetEnvironmentVariable("NemsPoisonContainer", "nems-poison");
 
         _sut = new ProcessNemsUpdate(
             _loggerMock.Object,
@@ -68,6 +68,7 @@ public class ProcessNemsUpdateTests
         // Default: simulate successful poison copy
         _blobStorageHelperMock
             .Setup(x => x.CopyFileToPoisonAsync(
+                It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>()))
@@ -111,7 +112,8 @@ public class ProcessNemsUpdateTests
         _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             "BlobStorage_ConnectionString",
             _fileName,
-            "nems-updates"), Times.Once);
+            "nems-updates",
+            "nems-poison"), Times.Once);
     }
 
     [TestMethod]
@@ -137,7 +139,8 @@ public class ProcessNemsUpdateTests
         _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             "BlobStorage_ConnectionString",
             _fileName,
-            "nems-updates"), Times.Once);
+            "nems-updates",
+            "nems-poison"), Times.Once);
 
         // Assert: early return means no queueing, no unsubscribe
         _addBatchToQueueMock.Verify(x => x.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Never);
@@ -518,7 +521,8 @@ public class ProcessNemsUpdateTests
         _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             "BlobStorage_ConnectionString",
             _fileName,
-            "nems-updates"), Times.Once);
+            "nems-updates",
+            "nems-poison"), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -562,7 +566,8 @@ public class ProcessNemsUpdateTests
         _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             "BlobStorage_ConnectionString",
             _fileName,
-            "nems-updates"), Times.Once);
+            "nems-updates",
+            "nems-poison"), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -590,6 +595,7 @@ public class ProcessNemsUpdateTests
             .Setup(x => x.CopyFileToPoisonAsync(
                 It.IsAny<string>(),
                 It.IsAny<string>(),
+                It.IsAny<string>(),
                 It.IsAny<string>()))
             .ThrowsAsync(new Exception("copy failed"));
         // Act
@@ -598,7 +604,8 @@ public class ProcessNemsUpdateTests
         _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             "BlobStorage_ConnectionString",
             _fileName,
-            "nems-updates"), Times.Once);
+            "nems-updates",
+            "nems-poison"), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -640,7 +647,8 @@ public class ProcessNemsUpdateTests
         _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             "BlobStorage_ConnectionString",
             _fileName,
-            "nems-updates"), Times.Once);
+            "nems-updates",
+            "nems-poison"), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -672,6 +680,7 @@ public class ProcessNemsUpdateTests
         _blobStorageHelperMock.Verify(x => x.CopyFileToPoisonAsync(
             It.IsAny<string>(), 
             It.IsAny<string>(), 
+            It.IsAny<string>(),
             It.IsAny<string>()), Times.Never);
 
         _loggerMock.Verify(x => x.Log(
