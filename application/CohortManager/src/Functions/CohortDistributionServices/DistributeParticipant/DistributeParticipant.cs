@@ -11,7 +11,7 @@ using Model;
 using System.Text.Json;
 using Common;
 using Activities = DistributeParticipantActivities;
-using Model.DTO;
+using NHS.CohortManager.Shared.Utilities;
 
 public class DistributeParticipant
 {
@@ -135,6 +135,7 @@ public class DistributeParticipant
         {
             _logger.LogInformation("Updating ServiceNow PrimaryCareProvider for participant {ParticipantId}", participantData.ParticipantId);
             participantData.PrimaryCareProvider = participantRecord.Participant.PrimaryCareProvider;
+            participantData.PrimaryCareProviderEffectiveFromDate = MappingUtilities.FormatDateTime(DateTime.UtcNow);
             participantData.ReferralFlag = true;
         }
     }

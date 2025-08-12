@@ -5,9 +5,9 @@ using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Model;
-using Model.DTO;
 using Moq;
 using NHS.CohortManager.CohortDistributionServices;
+using NHS.CohortManager.Shared.Utilities;
 
 [TestClass]
 public class DistributeParticipantTests
@@ -18,6 +18,7 @@ public class DistributeParticipantTests
     private readonly Mock<TaskOrchestrationContext> _mockContext = new();
     private readonly BasicParticipantCsvRecord _request;
     private readonly CohortDistributionParticipant _cohortDistributionRecord;
+    private readonly string _today = MappingUtilities.FormatDateTime(DateTime.UtcNow);
 
     public DistributeParticipantTests()
     {
@@ -32,7 +33,8 @@ public class DistributeParticipantTests
             },
             Participant = new()
             {
-                PrimaryCareProvider = "T35 7ING"
+                PrimaryCareProvider = "T35 7ING",
+                PrimaryCareProviderEffectiveFromDate = _today
             }
         };
 
@@ -290,7 +292,8 @@ public class DistributeParticipantTests
         // Assert
         _mockContext.Verify(x => x.CallSubOrchestratorAsync<CohortDistributionParticipant?>(
             "ValidationOrchestrator",
-            It.Is<ValidationRecord>(vr => vr.Participant.PrimaryCareProvider == expectedGpCode), null), Times.Once);
+            It.Is<ValidationRecord>(vr => vr.Participant.PrimaryCareProvider == expectedGpCode &&
+            vr.Participant.PrimaryCareProviderEffectiveFromDate == _today), null), Times.Once);
     }
 
     [TestMethod]
@@ -311,7 +314,8 @@ public class DistributeParticipantTests
             "ValidationOrchestrator",
             It.Is<ValidationRecord>(vr =>
                 vr.Participant.PrimaryCareProvider == serviceNowGpCode &&
-                vr.Participant.ReferralFlag == true),
+                vr.Participant.ReferralFlag == true &&
+            vr.Participant.PrimaryCareProviderEffectiveFromDate == _today),
             null), Times.Once);
     }
 
