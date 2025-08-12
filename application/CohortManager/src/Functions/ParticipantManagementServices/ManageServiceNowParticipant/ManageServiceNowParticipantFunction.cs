@@ -56,7 +56,12 @@ public class ManageServiceNowParticipantFunction
                 return;
             }
 
-            // TODO: Add call to subscribe to NEMS (DTOSS-3881)
+            var subscribeToNemsSuccess = await SubscribeParticipantToNEMS(serviceNowParticipant.NhsNumber);
+
+            if (!subscribeToNemsSuccess)
+            {
+                _logger.LogError("Failed to subscribe participant with Id {ParticipantId} to NEMS", participantManagement.ParticipantId);
+            }
 
             var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantDemographic, participantManagement);
 
@@ -76,14 +81,14 @@ public class ManageServiceNowParticipantFunction
     private async Task<ParticipantDemographic?> ValidateAndRetrieveParticipantFromPds(ServiceNowParticipant serviceNowParticipant)
     {
         var pdsResponse = await _httpClientFunction.SendGetResponse($"{_config.RetrievePdsDemographicURL}?nhsNumber={serviceNowParticipant.NhsNumber}");
-        string responseMessage = await _httpClientFunction.GetResponseText(pdsResponse);
+        string responseMessage = await pdsResponse.Content.ReadAsStringAsync();
 
         if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
         {
             await HandleException(new Exception(responseMessage), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
             return null;
         }
-        
+
         if (pdsResponse.StatusCode != HttpStatusCode.OK)
         {
             await HandleException(new Exception($"Request to PDS for ServiceNow Participant returned an unexpected response. Status code: {pdsResponse.StatusCode}"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
@@ -243,5 +248,17 @@ public class ManageServiceNowParticipantFunction
     private static bool CheckIfVhrParticipant(ServiceNowParticipant serviceNowParticipant)
     {
         return serviceNowParticipant.ReasonForAdding == ServiceNowReasonsForAdding.VeryHighRisk;
+    }
+
+    private async Task<bool> SubscribeParticipantToNEMS(long nhsNumber)
+    {
+        var queryParams = new Dictionary<string, string>
+        {
+            {"nhsNumber", nhsNumber.ToString()}
+        };
+
+        var nemsSubscribeResponse = await _httpClientFunction.SendPost(_config.ManageNemsSubscriptionSubscribeURL, queryParams);
+
+        return nemsSubscribeResponse.IsSuccessStatusCode;
     }
 }
