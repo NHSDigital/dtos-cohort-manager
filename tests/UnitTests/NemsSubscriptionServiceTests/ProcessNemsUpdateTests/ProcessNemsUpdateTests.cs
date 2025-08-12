@@ -71,7 +71,8 @@ public class ProcessNemsUpdateTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
-                It.IsAny<string>()))
+                It.IsAny<string>(),
+                It.IsAny<bool>()))
             .Returns(Task.CompletedTask);
 
         _fhirPatientDemographicMapperMock.Setup(x => x.ParseFhirJsonNhsNumber(It.IsAny<string>())).Returns(_validNhsNumber);
@@ -113,7 +114,8 @@ public class ProcessNemsUpdateTests
             "BlobStorage_ConnectionString",
             _fileName,
             "nems-updates",
-            "nems-poison"), Times.Once);
+            "nems-poison",
+            true), Times.Once);
     }
 
     [TestMethod]
@@ -140,7 +142,8 @@ public class ProcessNemsUpdateTests
             "BlobStorage_ConnectionString",
             _fileName,
             "nems-updates",
-            "nems-poison"), Times.Once);
+            "nems-poison",
+            true), Times.Once);
 
         // Assert: early return means no queueing, no unsubscribe
         _addBatchToQueueMock.Verify(x => x.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Never);
@@ -522,7 +525,8 @@ public class ProcessNemsUpdateTests
             "BlobStorage_ConnectionString",
             _fileName,
             "nems-updates",
-            "nems-poison"), Times.Once);
+            "nems-poison",
+            true), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -567,7 +571,8 @@ public class ProcessNemsUpdateTests
             "BlobStorage_ConnectionString",
             _fileName,
             "nems-updates",
-            "nems-poison"), Times.Once);
+            "nems-poison",
+            true), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -596,7 +601,8 @@ public class ProcessNemsUpdateTests
                 It.IsAny<string>(),
                 It.IsAny<string>(),
                 It.IsAny<string>(),
-                It.IsAny<string>()))
+                It.IsAny<string>(),
+                It.IsAny<bool>()))
             .ThrowsAsync(new Exception("copy failed"));
         // Act
         await _sut.Run(fileStream, _fileName);
@@ -605,7 +611,8 @@ public class ProcessNemsUpdateTests
             "BlobStorage_ConnectionString",
             _fileName,
             "nems-updates",
-            "nems-poison"), Times.Once);
+            "nems-poison",
+            true), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -648,7 +655,8 @@ public class ProcessNemsUpdateTests
             "BlobStorage_ConnectionString",
             _fileName,
             "nems-updates",
-            "nems-poison"), Times.Once);
+            "nems-poison",
+            true), Times.Once);
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
@@ -681,7 +689,8 @@ public class ProcessNemsUpdateTests
             It.IsAny<string>(), 
             It.IsAny<string>(), 
             It.IsAny<string>(),
-            It.IsAny<string>()), Times.Never);
+            It.IsAny<string>(),
+            It.IsAny<bool>()), Times.Never);
 
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,

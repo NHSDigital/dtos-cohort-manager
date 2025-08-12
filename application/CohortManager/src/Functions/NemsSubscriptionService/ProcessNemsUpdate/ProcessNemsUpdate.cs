@@ -119,8 +119,8 @@ public class ProcessNemsUpdate
 
     private async Task CopyToPoisonContainer(string fileName)
     {
-        await _blobStorageHelper.CopyFileToPoisonAsync(_config.nemsmeshfolder_STORAGE, fileName, _config.NemsMessages, _config.NemsPoisonContainer);
-        _logger.LogInformation("Copied failed NEMS file {FileName} to poison container.", fileName);
+        await _blobStorageHelper.CopyFileToPoisonAsync(_config.nemsmeshfolder_STORAGE, fileName, _config.NemsMessages, _config.NemsPoisonContainer, addTimestamp: true);
+        _logger.LogInformation("Copied failed NEMS file {FileName} to poison container with timestamp.", fileName);
     }
 
     private async Task UnsubscribeFromNems(string nhsNumber, PdsDemographic retrievedPdsRecord)
