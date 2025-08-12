@@ -40,6 +40,16 @@ export default function ParticipantInformationPanel({
               {formatNhsNumber(exceptionDetails.nhsNumber ?? "")}
             </dd>
           </div>
+          {exceptionDetails.supersededByNhsNumber && (
+            <div className="nhsuk-summary-list__row">
+              <dt className="nhsuk-summary-list__key">
+                Superseded by NHS number
+              </dt>
+              <dd className="nhsuk-summary-list__value">
+                {formatNhsNumber(exceptionDetails.supersededByNhsNumber)}
+              </dd>
+            </div>
+          )}
           <div className="nhsuk-summary-list__row">
             <dt className="nhsuk-summary-list__key">Surname</dt>
             <dd className="nhsuk-summary-list__value">
