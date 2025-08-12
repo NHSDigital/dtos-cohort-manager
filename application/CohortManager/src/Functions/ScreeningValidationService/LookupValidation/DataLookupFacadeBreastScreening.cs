@@ -53,7 +53,7 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
     {
         var outcode = ValidationHelper.ParseOutcode(postcode);
         _logger.LogInformation("Validating Outcode: {Outcode}", outcode);
-        var result = _outcodeClient.GetSingle(outcode).Result;
+        var result = _outcodeClient.GetSingle(outcode.outcode!).Result;
 
         return result != null;
     }
