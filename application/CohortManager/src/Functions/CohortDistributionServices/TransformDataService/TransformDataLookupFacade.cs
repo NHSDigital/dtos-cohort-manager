@@ -60,14 +60,21 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 
         return excludedSMUData!;
     }
+
     public bool ValidateOutcode(string postcode)
     {
-        string outcode = ValidationHelper.ParseOutcode(postcode)
+        var parsedOutCode = ValidationHelper.ParseOutcode(postcode);
+        _ = parsedOutCode.outcode
             ?? throw new TransformationException("Postcode format invalid");
 
-        var result = _outcodeClient.GetSingle(outcode).Result;
+        // we can bypass checking the database if it's a dummy postcode
+        if (!parsedOutCode.isDummyPostCode)
+        {
+            var result = _outcodeClient.GetSingle(parsedOutCode.outcode).Result;
+            return result != null;
+        }
 
-        return result != null;
+        return true;
     }
 
     /// <summary>
@@ -83,7 +90,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 
     public string GetBsoCode(string postcode)
     {
-        string outcode = ValidationHelper.ParseOutcode(postcode)
+        string outcode = ValidationHelper.ParseOutcode(postcode).outcode
             ?? throw new TransformationException("Postcode format invalid");
 
         var result = _outcodeClient.GetSingle(outcode).Result;

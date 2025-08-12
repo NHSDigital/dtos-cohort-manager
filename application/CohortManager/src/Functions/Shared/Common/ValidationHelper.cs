@@ -2,6 +2,8 @@ namespace Common;
 
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Hl7.Fhir.Validation;
+using Model;
 
 public static class ValidationHelper
 {
@@ -100,31 +102,29 @@ public static class ValidationHelper
     }
 
     /// <summary>
-    /// Gets the outcode (1st part of postcode) from the postcode.
+    /// Gets the outcode (1st part of postcode) from the postcode and if the postcode is a dummy code
     /// </summary>
     /// <param name="postcode">a non-null string representing the postcode</param>
     /// <remarks>
     /// Works for valid UK postcodes and dummy postcodes.
     /// Works with or without a space separator between outcode and incode.
     /// </remarks>
-    public static string? ParseOutcode(string postcode)
+    public static (string? outcode, bool isDummyPostCode) ParseOutcode(string postcode)
     {
-        if (postcode == "ZZZSECUR")
-        {
-            return postcode;
-        }
-
+        bool isDummyPostCode = false;
         string pattern = @"^([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
+        string dummyOutCodePattern = @"(([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}|[A-Z]{8})$";
 
         Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
-        if (!match.Success)
+        Match matchDummyOutcode = Regex.Match(postcode, dummyOutCodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+        if (!match.Success && !matchDummyOutcode.Success)
         {
-            return null;
+            return (null, isDummyPostCode);
         }
 
         string outcode = match.Groups[1].Value;
 
-        return outcode;
+        return (outcode, matchDummyOutcode.Success);
     }
 
     private static bool ParseInt32(char value, out int integerValue)
