@@ -87,6 +87,8 @@ public class DistributeParticipant
                 return;
             }
 
+            UpdateServiceNowData(participantData, participantRecord);
+
             ValidationRecord validationRecord = new() { FileName = participantRecord.FileName, Participant = participantData };
 
             // Allocate service provider
@@ -114,19 +116,6 @@ public class DistributeParticipant
                 "Participant has been successfully put on the cohort distribution table. Participant Id: {ParticipantId}, Screening Id: {ScreeningId}, Source: {FileName}",
                 participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
 
-            var updateRequest = GetGpCodeUpdateRequest(participantRecord);
-            if (updateRequest != null)
-            {
-                _logger.LogInformation("ADD participant with ParticipantId: {ParticipantId} has dummy GP code, updating Cohort Distribution table", participantRecord.Participant.ParticipantId);
-
-                var gpCodeProcessingSuccessful = await context.CallActivityAsync<bool>(nameof(Activities.UpdateCohortDistributionGpCode), updateRequest);
-
-                if (!gpCodeProcessingSuccessful)
-                {
-                    await HandleExceptionAsync(new InvalidOperationException("Failed to process GP code for participant"), participantRecord);
-                    return;
-                }
-            }
             // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
             if (participantRecord.Participant.ReferralFlag == "1")
             {
@@ -140,30 +129,14 @@ public class DistributeParticipant
         }
     }
 
-    /// <summary>
-    /// Gets the GP code update request for ADD scenario participants with dummy GP codes.
-    /// Returns null if participant doesn't need GP code update (not ADD scenario or doesn't have dummy GP code).
-    /// Dummy GP codes are identified by postcodes starting with "ZZZ".
-    /// </summary>
-    /// <param name="participant">The participant to check and create update request for</param>
-    /// <returns>CohortDistributionParticipantDto if update needed, null otherwise</returns>
-    private static CohortDistributionParticipantDto? GetGpCodeUpdateRequest(BasicParticipantCsvRecord participant)
+    private void UpdateServiceNowData(CohortDistributionParticipant participantData, BasicParticipantCsvRecord participantRecord)
     {
-        bool isAddScenario = participant.Participant.ReferralFlag == "1";
-        bool hasDummyGpCode = !string.IsNullOrEmpty(participant.Participant.PrimaryCareProvider) &&
-                             participant.Participant.PrimaryCareProvider.StartsWith("ZZZ", StringComparison.OrdinalIgnoreCase);
-
-        if (!isAddScenario || !hasDummyGpCode)
+        if (participantRecord.Participant.ReferralFlag == "1" && !string.IsNullOrEmpty(participantRecord.Participant.PrimaryCareProvider))
         {
-            return null;
+            _logger.LogInformation("Updating ServiceNow PrimaryCareProvider for participant {ParticipantId}", participantData.ParticipantId);
+            participantData.PrimaryCareProvider = participantRecord.Participant.PrimaryCareProvider;
+            participantData.ReferralFlag = true;
         }
-
-        return new CohortDistributionParticipantDto
-        {
-            NhsNumber = participant.BasicParticipantData.NhsNumber!,
-            ParticipantId = participant.Participant.ParticipantId!,
-            PrimaryCareProvider = participant.Participant.PrimaryCareProvider!,
-        };
     }
 
     private async Task HandleExceptionAsync(Exception ex, BasicParticipantCsvRecord participantRecord)
