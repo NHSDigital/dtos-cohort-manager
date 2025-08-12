@@ -7,7 +7,6 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
-using Model.DTO;
 using Model.Enums;
 
 public class DistributeParticipantActivities
