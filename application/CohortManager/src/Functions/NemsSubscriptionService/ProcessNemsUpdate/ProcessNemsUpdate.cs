@@ -119,12 +119,7 @@ public class ProcessNemsUpdate
 
     private async Task CopyToPoisonContainer(string fileName)
     {
-        var connectionString = Environment.GetEnvironmentVariable("nemsmeshfolder_STORAGE");
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new InvalidOperationException("Blob storage connection string 'nemsmeshfolder_STORAGE' is not configured.");
-        }
-        await _blobStorageHelper.CopyFileToPoisonAsync(connectionString, fileName, _config.NemsMessages);
+        await _blobStorageHelper.CopyFileToPoisonAsync(_config.nemsmeshfolder_STORAGE, fileName, _config.NemsMessages);
         _logger.LogInformation("Copied failed NEMS file {FileName} to poison container.", fileName);
     }
 

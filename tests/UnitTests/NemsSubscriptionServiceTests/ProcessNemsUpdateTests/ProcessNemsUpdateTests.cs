@@ -45,7 +45,6 @@ public class ProcessNemsUpdateTests
 
         _config.Setup(c => c.Value).Returns(testConfig);
 
-        Environment.SetEnvironmentVariable("nemsmeshfolder_STORAGE", "BlobStorage_ConnectionString");
         Environment.SetEnvironmentVariable("fileExceptions", "nems-poison");
 
         _sut = new ProcessNemsUpdate(
