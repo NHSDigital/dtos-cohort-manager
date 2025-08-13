@@ -11,8 +11,6 @@ using Model;
 using System.Text.Json;
 using Common;
 using Activities = DistributeParticipantActivities;
-using NHS.CohortManager.Shared.Utilities;
-using Model.Enums;
 
 public class DistributeParticipant
 {
@@ -88,8 +86,6 @@ public class DistributeParticipant
                 return;
             }
 
-            await UpdateServiceNowData(participantData, participantRecord);
-
             ValidationRecord validationRecord = new() { FileName = participantRecord.FileName, Participant = participantData };
 
             // Allocate service provider
@@ -127,27 +123,6 @@ public class DistributeParticipant
         catch (Exception ex)
         {
             await HandleExceptionAsync(ex, participantRecord);
-        }
-    }
-
-    private async Task UpdateServiceNowData(CohortDistributionParticipant participantData, BasicParticipantCsvRecord participantRecord)
-    {
-        if (participantRecord.Participant.ReferralFlag == "1" && !string.IsNullOrEmpty(participantRecord.Participant.PrimaryCareProvider))
-        {
-            _logger.LogInformation("Updating ServiceNow PrimaryCareProvider for participant {ParticipantId}", participantData.ParticipantId);
-            participantData.PrimaryCareProvider = participantRecord.Participant.PrimaryCareProvider;
-            participantData.PrimaryCareProviderEffectiveFromDate = MappingUtilities.FormatDateTime(DateTime.UtcNow);
-            participantData.ReferralFlag = true;
-
-            var logMessage = $"{nameof(participantData.PrimaryCareProvider)}, {nameof(participantData.PrimaryCareProviderEffectiveFromDate)}, {nameof(participantData.ReferralFlag)} updated from ServiceNow data";
-            try
-            {
-                await _exceptionHandler.CreateTransformExecutedExceptions(participantData, logMessage, 0, ExceptionCategory.TransformExecuted);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to create audit exception for participant {ParticipantId} {UpdateServiceNowData} update", participantData.ParticipantId, nameof(UpdateServiceNowData));
-            }
         }
     }
 

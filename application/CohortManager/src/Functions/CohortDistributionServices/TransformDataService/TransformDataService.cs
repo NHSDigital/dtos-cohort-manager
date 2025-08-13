@@ -141,10 +141,13 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-        if (!participant.ReferralFlag ?? false)
+        var ruleType = participant.ReferralFlag switch
         {
-            resultList.AddRange(await re.ExecuteAllRulesAsync("Routine", ruleParameters));
-        }
+            true => "Referred",
+            _ => "Routine",
+        };
+
+        resultList.AddRange(await re.ExecuteAllRulesAsync(ruleType, ruleParameters));
 
         await HandleExceptions(resultList, participant);
         await CreateTransformExecutedExceptions(resultList, participant);
