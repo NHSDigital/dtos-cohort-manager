@@ -185,8 +185,8 @@ public class ProcessNemsUpdateTests
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("There was a problem validating the NHS number")),
-            It.IsAny<Exception?>(),
+            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("There was an error processing NEMS update for file")),
+            It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
     }
@@ -576,8 +576,8 @@ public class ProcessNemsUpdateTests
         _loggerMock.Verify(x => x.Log(
             LogLevel.Error,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("There was an error processing NEMS update for file")),
-            It.IsAny<Exception>(),
+            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("There was a problem validating the NHS number")),
+            It.IsAny<Exception?>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
         await fileStream.DisposeAsync();
