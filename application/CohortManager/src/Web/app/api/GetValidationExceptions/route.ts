@@ -943,7 +943,7 @@ const raisedExceptions = [
     CohortName: "",
     Fatal: 1,
     ServiceNowId: "INC0002764",
-    ServiceNowCreatedDate: "2025-06-16:00:00",
+    ServiceNowCreatedDate: "2025-06-16T00:00:00",
     RecordUpdatedDate: "2025-01-17T09:27:18.25",
   },
   {
