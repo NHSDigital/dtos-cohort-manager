@@ -674,7 +674,7 @@ public class TransformDataServiceTests
         _handleException
             .Verify(i => i.CreateTransformExecutedExceptions(
                 It.IsAny<CohortDistributionParticipant>(),
-                "UpdateServiceNowDataReferralWithPrimaryCareProvider", // Rule name without prefix
+                "UpdateServiceNowDataReferralWithPrimaryCareProvider",
                 It.IsAny<int>(),
                 It.IsAny<ExceptionCategory?>()),
             times: Times.Once);

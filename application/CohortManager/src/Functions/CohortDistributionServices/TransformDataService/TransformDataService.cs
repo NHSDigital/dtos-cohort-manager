@@ -143,9 +143,9 @@ public class TransformDataService
 
         var additionalWorkflow = participant.ReferralFlag switch
         {
-            null => null,       // Null: no additional rules
-            true => "Referred", // True: run Referred rules
-            false => "Routine"  // False: run Routine rules
+            null => null,
+            true => "Referred",
+            false => "Routine"
         };
 
         if (additionalWorkflow != null)
