@@ -16,32 +16,9 @@ public class BlobStorageHelper : IBlobStorageHelper
     }
     public async Task CopyFileToPoisonAsync(string connectionString, string fileName, string containerName)
     {
-        var sourceBlobServiceClient = new BlobServiceClient(connectionString);
-        var sourceContainerClient = sourceBlobServiceClient.GetBlobContainerClient(containerName);
-        var sourceBlobClient = sourceContainerClient.GetBlobClient(fileName);
-
-        BlobLeaseClient sourceBlobLease = new(sourceBlobClient);
-
-        var destinationBlobServiceClient = new BlobServiceClient(connectionString);
-        var destinationContainerClient = destinationBlobServiceClient.GetBlobContainerClient(Environment.GetEnvironmentVariable("fileExceptions"));
-        var destinationBlobClient = destinationContainerClient.GetBlobClient(fileName);
-
-        await destinationContainerClient.CreateIfNotExistsAsync(PublicAccessType.None);
-
-        try
-        {
-            await sourceBlobLease.AcquireAsync(BlobLeaseClient.InfiniteLeaseDuration);
-            await destinationBlobClient.StartCopyFromUriAsync(sourceBlobClient.Uri);
-        }
-        catch (RequestFailedException ex)
-        {
-            _logger.LogError(ex, "There has been a problem while copying the file: {Message}", ex.Message);
-            throw;
-        }
-        finally
-        {
-            await sourceBlobLease.ReleaseAsync();
-        }
+        // Delegate to the extended overload to avoid duplication; preserve env var behaviour
+        var poisonContainerName = Environment.GetEnvironmentVariable("fileExceptions");
+        await CopyFileToPoisonAsync(connectionString, fileName, containerName, poisonContainerName, addTimestamp: false);
     }
 
     public async Task CopyFileToPoisonAsync(string connectionString, string fileName, string containerName, string poisonContainerName, bool addTimestamp = false)
