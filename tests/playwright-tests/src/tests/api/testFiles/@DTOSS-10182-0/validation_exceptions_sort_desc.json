@@ -1,8 +1,8 @@
 {
-  "description": "Validation exceptions - RAISED status, ASCENDING sort (oldest to newest)",
+  "description": "Validation exceptions - RAISED status, DESCENDING sort (newest to oldest)",
   "queryParams": {
     "exceptionStatus": 1,
-    "sortOrder": 0
+    "sortOrder": 1
   },
   "mappings": {
     "exceptionStatus": {
