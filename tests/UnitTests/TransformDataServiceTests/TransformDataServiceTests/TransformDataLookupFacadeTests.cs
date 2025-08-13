@@ -96,6 +96,23 @@ public class TransformDataLookupFacadeTests
     }
 
     [TestMethod]
+    public void ValidateOutcode_OutCodeIsSpecial_ReturnTrue()
+    {
+        // Arrange
+        _outcodeClientMock
+            .Setup(x => x.GetSingle(It.IsAny<string>()))
+            .ReturnsAsync((BsSelectOutCode)null);
+
+        string postcode = "ZZZSECUR";
+
+        // Act
+        bool result = _sut.ValidateOutcode(postcode);
+
+        // Assert
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
     [DataRow("")]
     [DataRow("ABC123")]
     [DataRow("ABC 123")]

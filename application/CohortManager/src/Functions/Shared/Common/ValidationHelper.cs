@@ -1,6 +1,7 @@
 namespace Common;
 
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Hl7.Fhir.Validation;
 using Model;
@@ -111,20 +112,26 @@ public static class ValidationHelper
     /// </remarks>
     public static (string? outcode, bool isDummyPostCode) ParseOutcode(string postcode)
     {
-        bool isDummyPostCode = false;
         string pattern = @"^([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
-        string dummyOutCodePattern = @"(([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}|[A-Z]{8})$";
+        string specialDummyOutCode = "ZZZSECUR";
 
         Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
-        Match matchDummyOutcode = Regex.Match(postcode, dummyOutCodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
-        if (!match.Success && !matchDummyOutcode.Success)
+
+        if (postcode == specialDummyOutCode)
         {
-            return (null, isDummyPostCode);
+            return (postcode, true);
         }
+
+        if (!match.Success)
+        {
+            return (null, false);
+        }
+
+
 
         string outcode = match.Groups[1].Value;
 
-        return (outcode, matchDummyOutcode.Success);
+        return (outcode, false);
     }
 
     private static bool ParseInt32(char value, out int integerValue)

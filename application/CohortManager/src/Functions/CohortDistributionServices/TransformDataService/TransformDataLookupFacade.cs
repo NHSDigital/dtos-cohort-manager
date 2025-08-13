@@ -68,13 +68,14 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
             ?? throw new TransformationException("Postcode format invalid");
 
         // we can bypass checking the database if it's a dummy postcode
-        if (!parsedOutCode.isDummyPostCode)
+        if (parsedOutCode.isDummyPostCode)
         {
-            var result = _outcodeClient.GetSingle(parsedOutCode.outcode).Result;
-            return result != null;
+            return true;
         }
 
-        return true;
+        var result = _outcodeClient.GetSingle(parsedOutCode.outcode).Result;
+        return result != null;
+
     }
 
     /// <summary>
