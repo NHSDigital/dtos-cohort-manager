@@ -88,7 +88,7 @@ public class SendServiceNowMessageFunctionTests
         _serviceNowClientMock.Setup(x => x.SendUpdate(
                 caseNumber,
                 string.Format(string.Format(ServiceNowMessageTemplates.UnableToAddParticipantMessageTemplate, caseNumber)),
-                false))
+                true))
             .ReturnsAsync(updateResponse)
             .Verifiable();
 

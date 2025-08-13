@@ -18,8 +18,7 @@ public class ServiceNowClient : IServiceNowClient
     private readonly ILogger<ServiceNowClient> _logger;
     private readonly ServiceNowMessageHandlerConfig _config;
     private const string AccessTokenCacheKey = "AccessToken";
-    private const string AssignmentGroup = "ITO Breast Screening 2nd Line";
-    private static readonly JsonSerializerOptions _sendUpdateJsonSerializerOptions = new()
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
@@ -41,10 +40,10 @@ public class ServiceNowClient : IServiceNowClient
             State = 10, // 'Open' state
             WorkNotes = workNotes,
             NeedsAttention = needsAttention,
-            AssignmentGroup = needsAttention ? AssignmentGroup : null
+            AssignmentGroup = needsAttention ? _config.ServiceNowAssignmentGroup : null
         };
 
-        var json = JsonSerializer.Serialize(payload, _sendUpdateJsonSerializerOptions);
+        var json = JsonSerializer.Serialize(payload, _jsonSerializerOptions);
 
         return await SendRequest(url, json);
     }
@@ -58,7 +57,7 @@ public class ServiceNowClient : IServiceNowClient
             ResolutionCode = "28", // 'Solved by Automation' resolution code
             CloseNotes = closeNotes
         };
-        var json = JsonSerializer.Serialize(payload);
+        var json = JsonSerializer.Serialize(payload, _jsonSerializerOptions);
 
         return await SendRequest(url, json);
     }

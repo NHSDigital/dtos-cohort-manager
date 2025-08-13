@@ -226,7 +226,7 @@ public class ServiceNowClientTests
 
         // Assert
         Assert.IsNotNull(response);
-        Assert.AreEqual(updateResponseStatusCode, response.StatusCode);
+        Assert.AreEqual(response.StatusCode, updateResponseStatusCode);
         _httpMessageHandler.Verify();
         _httpMessageHandler.VerifyNoOtherCalls();
     }
@@ -258,7 +258,7 @@ public class ServiceNowClientTests
         var response = await _serviceNowClient.SendUpdate(caseNumber, "Note");
 
         // Assert
-        Assert.AreEqual(updateRequestBodyJsonString, "{\"state\":10,\"work_notes\":\"Note\",\"needs_attention\":false}");
+        Assert.AreEqual("{\"state\":10,\"work_notes\":\"Note\",\"needs_attention\":false}", updateRequestBodyJsonString);
     }
 
     [TestMethod]
@@ -288,6 +288,7 @@ public class ServiceNowClientTests
         var response = await _serviceNowClient.SendUpdate(caseNumber, "Note", true);
 
         // Assert
-        Assert.AreEqual(updateRequestBodyJsonString, "{\"state\":10,\"work_notes\":\"Note\",\"needs_attention\":false}");
+        Assert.AreEqual($"{{\"state\":10,\"work_notes\":\"Note\",\"needs_attention\":true,\"assignment_group\":\"{_configMock.Object.Value.ServiceNowAssignmentGroup}\"}}",
+            updateRequestBodyJsonString);
     }
 }
