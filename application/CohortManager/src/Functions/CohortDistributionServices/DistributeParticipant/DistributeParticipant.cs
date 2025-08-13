@@ -89,9 +89,9 @@ public class DistributeParticipant
             ValidationRecord validationRecord = new() { FileName = participantRecord.FileName, Participant = participantData };
 
             var serviceNowParticipant = participantRecord?.Participant.ReferralFlag == "1";
-            if (serviceNowParticipant)
+            if (serviceNowParticipant && !string.IsNullOrEmpty(participantRecord?.Participant.PrimaryCareProvider))
             {
-                validationRecord.Participant.PrimaryCareProvider = participantRecord?.Participant.PrimaryCareProvider;
+                validationRecord.Participant.PrimaryCareProvider = participantRecord.Participant.PrimaryCareProvider;
             }
 
             // Allocate service provider
