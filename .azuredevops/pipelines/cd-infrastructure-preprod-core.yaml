@@ -12,7 +12,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: feat/dtoss-9902-end-to-end-pipeline
+      ref: 34a7e5c3072bddaa350804905c60b9c8e7ae7191
       endpoint: NHSDigital
 
 parameters:
