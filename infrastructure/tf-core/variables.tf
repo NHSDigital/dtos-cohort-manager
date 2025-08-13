@@ -103,7 +103,6 @@ variable "regions" {
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
-    sku_name                 = optional(string, "P2v3")
     os_type                  = optional(string, "Linux")
     vnet_integration_enabled = optional(bool, false)
     zone_balancing_enabled   = optional(bool, false)
@@ -134,6 +133,7 @@ variable "app_service_plan" {
     })
 
     instances = map(object({
+      sku_name           = optional(string, "P2v3")
       autoscale_override = optional(object({
         scaling_rule = object({
           metric              = optional(string)
