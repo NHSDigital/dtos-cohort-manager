@@ -688,11 +688,6 @@
                   "field": "PrimaryCareProviderEffectiveFromDate",
                   "value": "DateTime.UtcNow.ToString(\"yyyy-MM-dd\")",
                   "isExpression": true
-                },
-                {
-                  "field": "ReferralFlag",
-                  "value": true,
-                  "isExpression": false
                 }
               ]
             }
