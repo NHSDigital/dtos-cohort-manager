@@ -124,7 +124,7 @@ app_service_plan = {
       time_aggregation = "Average"
 
       inc_operator        = "GreaterThanOrEqual"
-      inc_threshold       = 20
+      inc_threshold       = 50
       inc_scale_direction = "Increase"
       inc_scale_type      = "ExactCount"
       inc_scale_value     = 4
@@ -147,28 +147,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-      capacity_min = "1"
       capacity_max = "1"
       capacity_def = "1"
 
-      time_grain       = "PT1M"
-      statistic        = "Average"
-      time_window      = "PT1M"
-      time_aggregation = "Average"
-
-      inc_operator        = "GreaterThanOrEqual"
-      inc_threshold       = 20
-      inc_scale_direction = "Increase"
-      inc_scale_type      = "ExactCount"
       inc_scale_value     = 1
-      inc_scale_cooldown  = "PT10M"
-
-      dec_operator        = "LessThan"
-      dec_threshold       = 20
-      dec_scale_direction = "Decrease"
-      dec_scale_type      = "ExactCount"
       dec_scale_value     = 1
-      dec_scale_cooldown  = "PT5M"
 
         }
       }
@@ -183,8 +166,8 @@ app_service_plan = {
           capacity_max = "5"
           capacity_def = "1"
 
-          inc_threshold   = 5
-          dec_threshold   = 5
+          inc_threshold   = 50
+          dec_threshold   = 20
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -198,28 +181,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-      capacity_min = "1"
       capacity_max = "1"
       capacity_def = "1"
 
-      time_grain       = "PT1M"
-      statistic        = "Average"
-      time_window      = "PT1M"
-      time_aggregation = "Average"
-
-      inc_operator        = "GreaterThanOrEqual"
-      inc_threshold       = 20
-      inc_scale_direction = "Increase"
-      inc_scale_type      = "ExactCount"
       inc_scale_value     = 1
-      inc_scale_cooldown  = "PT10M"
-
-      dec_operator        = "LessThan"
-      dec_threshold       = 20
-      dec_scale_direction = "Decrease"
-      dec_scale_type      = "ExactCount"
       dec_scale_value     = 1
-      dec_scale_cooldown  = "PT5M"
 
         }
       }
@@ -234,8 +200,8 @@ app_service_plan = {
           capacity_max = "5"
           capacity_def = "1"
 
-          inc_threshold   = 5
-          dec_threshold   = 5
+          inc_threshold   = 50
+          dec_threshold   = 20
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -253,8 +219,8 @@ app_service_plan = {
           capacity_max = "3"
           capacity_def = "1"
 
-          inc_threshold   = 5
-          dec_threshold   = 5
+          inc_threshold   = 50
+          dec_threshold   = 20
           inc_scale_value = 3
 
           dec_scale_type  = "ChangeCount"
@@ -272,8 +238,8 @@ app_service_plan = {
           capacity_max = "3"
           capacity_def = "1"
 
-          inc_threshold   = 5
-          dec_threshold   = 5
+          inc_threshold   = 50
+          dec_threshold   = 20
           inc_scale_value = 3
 
           dec_scale_type  = "ChangeCount"
