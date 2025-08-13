@@ -113,10 +113,12 @@ export default function ParticipantInformationPanel({
                   {exceptionDetails.moreDetails ||
                     exceptionDetails.shortDescription}
                 </p>
-                <p>
-                  Cohort Manager rule (to be included for reporting):{" "}
-                  {exceptionDetails.reportingId}
-                </p>
+                {exceptionDetails.reportingId && (
+                  <p>
+                    Cohort Manager rule (to be included for reporting):{" "}
+                    {exceptionDetails.reportingId}
+                  </p>
+                )}
               </dd>
             </div>
             {!exceptionDetails.serviceNowId && (
