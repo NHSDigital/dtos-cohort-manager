@@ -132,7 +132,7 @@ export default function ParticipantInformationPanel({
           </dl>
         </div>
       </div>
-      {!isEditMode ? null : (
+      {(isEditMode || !exceptionDetails.serviceNowId) && (
         <div className="nhsuk-card nhsuk-u-margin-bottom-4">
           <div className="nhsuk-card__content">
             <h2 id="exception-status">Exception status</h2>
