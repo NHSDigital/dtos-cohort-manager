@@ -17,4 +17,7 @@ public class ProcessNemsUpdateConfig
     [Required]
     public required string DemographicDataServiceURL { get; set; }
 
+    [Required]
+    public required string nemsmeshfolder_STORAGE { get; set; }
+    public string NemsPoisonContainer { get; set; } = "nems-poison";
 }

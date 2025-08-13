@@ -13,7 +13,6 @@ using Microsoft.Extensions.Options;
 using Model;
 using DataServices.Client;
 using System.Net;
-using FluentValidation.Validators;
 
 public class ProcessNemsUpdate
 {
@@ -24,6 +23,7 @@ public class ProcessNemsUpdate
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
+    private readonly IBlobStorageHelper _blobStorageHelper;
     private readonly ProcessNemsUpdateConfig _config;
     private long nhsNumberLong;
 
@@ -35,7 +35,8 @@ public class ProcessNemsUpdate
         IHttpClientFunction httpClientFunction,
         IExceptionHandler exceptionHandler,
         IDataServiceClient<ParticipantDemographic> participantDemographic,
-        IOptions<ProcessNemsUpdateConfig> processNemsUpdateConfig)
+        IOptions<ProcessNemsUpdateConfig> processNemsUpdateConfig,
+        IBlobStorageHelper blobStorageHelper)
     {
         _logger = logger;
         _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
@@ -45,6 +46,7 @@ public class ProcessNemsUpdate
         _exceptionHandler = exceptionHandler;
         _participantDemographic = participantDemographic;
         _config = processNemsUpdateConfig.Value;
+        _blobStorageHelper = blobStorageHelper;
     }
 
     /// <summary>
@@ -66,18 +68,26 @@ public class ProcessNemsUpdate
         {
             var nhsNumber = await GetNhsNumberFromFile(blobStream, name);
 
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
+            if (nhsNumber == null)
             {
-                _logger.LogError("There was a problem parsing the NHS number from blob store in the ProcessNemsUpdate function");
-                throw new InvalidDataException("Invalid NHS Number");
+                _logger.LogError("No NHS number found in file {FileName}. Moving to poison container.", name);
+                await CopyToPoisonContainer(name);
+                return;
+            }
+
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+            {
+                _logger.LogError("There was a problem validating the NHS number from blob store in the ProcessNemsUpdate function for file {FileName}. Moving to poison container.", name);
+                await CopyToPoisonContainer(name);
+                return;
             }
             nhsNumberLong = long.Parse(nhsNumber!);
 
-            var pdsResponse = await RetrievePdsRecord(nhsNumber!);
+            var pdsResponse = await RetrievePdsRecord(nhsNumber);
             if (pdsResponse!.StatusCode == HttpStatusCode.NotFound)
             {
-                _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
-                // we can stop processing here as we know that not found means the participant ether needed an update or they were actually not found
+                _logger.LogError("the PDS function has returned a 404 error for file {FileName}. Moving file to poison container.", name);
+                await CopyToPoisonContainer(name);
                 return;
             }
 
@@ -92,15 +102,27 @@ public class ProcessNemsUpdate
             }
             else
             {
-                await UnsubscribeFromNems(nhsNumber!, retrievedPdsRecord!);
+                await UnsubscribeFromNems(nhsNumber, retrievedPdsRecord!);
             }
-
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There was an error processing NEMS update.");
+            _logger.LogError(ex, "There was an error processing NEMS update for file {FileName}. Moving to poison container.", name);
+            try
+            {
+                await CopyToPoisonContainer(name);
+            }
+            catch (Exception poisonEx)
+            {
+                _logger.LogError(poisonEx, "Failed to copy NEMS file {FileName} to poison container. Manual intervention required.", name);
+            }
         }
+    }
 
+    private async Task CopyToPoisonContainer(string fileName)
+    {
+        await _blobStorageHelper.CopyFileToPoisonAsync(_config.nemsmeshfolder_STORAGE, fileName, _config.NemsMessages, _config.NemsPoisonContainer, addTimestamp: true);
+        _logger.LogInformation("Copied failed NEMS file {FileName} to poison container with timestamp.", fileName);
     }
 
     private async Task UnsubscribeFromNems(string nhsNumber, PdsDemographic retrievedPdsRecord)
