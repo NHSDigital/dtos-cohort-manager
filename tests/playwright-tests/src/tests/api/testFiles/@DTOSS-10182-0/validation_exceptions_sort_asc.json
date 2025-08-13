@@ -6,8 +6,9 @@
   },
   "mappings": {
     "exceptionStatus": {
+      "0": "All",
       "1": "Raised",
-      "0": "NotRaised"
+      "2": "NotRaised"
     },
     "sortOrder": {
       "0": "ASCENDING (oldest to newest)",
