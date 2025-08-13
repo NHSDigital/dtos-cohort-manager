@@ -3,27 +3,28 @@ import {
   formatDate,
   formatCompactDate,
   formatNhsNumber,
-  formatPhoneNumber,
   formatGenderValue,
 } from "@/app/lib/utils";
 
 interface ParticipantInformationPanelProps {
   readonly exceptionDetails: ExceptionDetails;
+  readonly isEditMode: boolean;
 }
 
 export default function ParticipantInformationPanel({
   exceptionDetails,
+  isEditMode,
 }: Readonly<ParticipantInformationPanelProps>) {
   return (
     <>
       <div
         className={
-          !exceptionDetails.serviceNowId
+          !exceptionDetails.serviceNowId || isEditMode
             ? "nhsuk-card nhsuk-do-dont-list nhsuk-u-margin-bottom-4"
             : "nhsuk-card app-card nhsuk-u-margin-bottom-4"
         }
       >
-        {!exceptionDetails.serviceNowId && (
+        {(!exceptionDetails.serviceNowId || isEditMode) && (
           <span className="nhsuk-do-dont-list__label nhsuk-u-font-weight-bold">
             Portal form: Request to amend incorrect patient PDS record data
           </span>
@@ -40,6 +41,16 @@ export default function ParticipantInformationPanel({
               {formatNhsNumber(exceptionDetails.nhsNumber ?? "")}
             </dd>
           </div>
+          {exceptionDetails.supersededByNhsNumber && (
+            <div className="nhsuk-summary-list__row">
+              <dt className="nhsuk-summary-list__key">
+                Superseded by NHS number
+              </dt>
+              <dd className="nhsuk-summary-list__value">
+                {formatNhsNumber(exceptionDetails.supersededByNhsNumber)}
+              </dd>
+            </div>
+          )}
           <div className="nhsuk-summary-list__row">
             <dt className="nhsuk-summary-list__key">Surname</dt>
             <dd className="nhsuk-summary-list__value">
@@ -68,17 +79,6 @@ export default function ParticipantInformationPanel({
             <dt className="nhsuk-summary-list__key">Current address</dt>
             <dd className="nhsuk-summary-list__value">
               {exceptionDetails.address}
-            </dd>
-          </div>
-          <div className="nhsuk-summary-list__row">
-            <dt className="nhsuk-summary-list__key">Contact details</dt>
-            <dd className="nhsuk-summary-list__value">
-              <p>
-                {formatPhoneNumber(
-                  exceptionDetails.contactDetails?.phoneNumber ?? ""
-                )}
-              </p>
-              <p>{exceptionDetails.contactDetails?.email}</p>
             </dd>
           </div>
           <div className="nhsuk-summary-list__row">
@@ -125,10 +125,10 @@ export default function ParticipantInformationPanel({
           </dl>
         </div>
       </div>
-      {exceptionDetails.serviceNowId ? null : (
+      {!isEditMode ? null : (
         <div className="nhsuk-card nhsuk-u-margin-bottom-4">
           <div className="nhsuk-card__content">
-            <h2>Exception status</h2>
+            <h2 id="exception-status">Exception status</h2>
             <p>
               Entering a ServiceNow case ID will change the status of the
               exception to “Raised”. <br />

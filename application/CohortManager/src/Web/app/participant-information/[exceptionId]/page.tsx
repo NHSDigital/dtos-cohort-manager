@@ -17,6 +17,7 @@ export default async function Page(props: {
   readonly params: Promise<{
     readonly exceptionId: string;
   }>;
+  readonly searchParams?: Promise<{ readonly edit?: string }>;
 }) {
   const session = await auth();
   const isCohortManager = await canAccessCohortManager(session);
@@ -27,6 +28,10 @@ export default async function Page(props: {
 
   const params = await props.params;
   const exceptionId = Number(params.exceptionId);
+  const resolvedSearchParams = props.searchParams
+    ? await props.searchParams
+    : {};
+  const isEditMode = resolvedSearchParams.edit === "true";
 
   try {
     const exception = await fetchExceptions(exceptionId);
@@ -34,6 +39,7 @@ export default async function Page(props: {
     const exceptionDetails: ExceptionDetails = {
       exceptionId: exceptionId,
       nhsNumber: exception.NhsNumber,
+      supersededByNhsNumber: exception.ExceptionDetails.SupersededByNhsNumber,
       surname: exception.ExceptionDetails.FamilyName,
       forename: exception.ExceptionDetails.GivenName,
       dateCreated: exception.DateCreated,
@@ -57,10 +63,6 @@ export default async function Page(props: {
           ? `, ${exception.ExceptionDetails.ParticipantAddressLine5}`
           : ""
       }, ${exception.ExceptionDetails.ParticipantPostCode}`,
-      contactDetails: {
-        phoneNumber: exception.ExceptionDetails.TelephoneNumberHome,
-        email: exception.ExceptionDetails.EmailAddressHome,
-      },
       primaryCareProvider: exception.ExceptionDetails.PrimaryCareProvider,
       serviceNowId: exception.ServiceNowId ?? "",
       serviceNowCreatedDate: exception.ServiceNowCreatedDate,
@@ -93,7 +95,7 @@ export default async function Page(props: {
                   Local reference (exception ID): {exceptionDetails.exceptionId}
                 </span>
               </h1>
-              {exceptionDetails.serviceNowId && (
+              {exceptionDetails.serviceNowId && !isEditMode && (
                 <dl
                   className="nhsuk-summary-list"
                   data-testid="exception-details-labels"
@@ -147,10 +149,11 @@ export default async function Page(props: {
                       className="nhsuk-summary-list__actions"
                       data-testid="change-link"
                     >
-                      <a href="#">
+                      <a href="?edit=true#exception-status">
                         Change{" "}
                         <span className="nhsuk-u-visually-hidden">
                           ServiceNow Case ID
+                          {isEditMode}
                         </span>
                       </a>
                     </dd>
@@ -159,6 +162,7 @@ export default async function Page(props: {
               )}
               <ParticipantInformationPanel
                 exceptionDetails={exceptionDetails}
+                isEditMode={isEditMode}
               />
             </div>
           </div>
