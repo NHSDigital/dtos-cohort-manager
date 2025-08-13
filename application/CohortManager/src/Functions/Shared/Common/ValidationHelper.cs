@@ -113,11 +113,12 @@ public static class ValidationHelper
     public static (string? outcode, bool isDummyPostCode) ParseOutcode(string postcode)
     {
         string pattern = @"^([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
-        string specialDummyOutCode = "ZZZSECUR";
+        string specialDummyOutCodePattern = "^ZZ99|^ZZZSECUR$";
 
         Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+        Match dummyOutCodePattern = Regex.Match(postcode, specialDummyOutCodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
 
-        if (postcode == specialDummyOutCode)
+        if (dummyOutCodePattern.Success)
         {
             return (postcode, true);
         }
