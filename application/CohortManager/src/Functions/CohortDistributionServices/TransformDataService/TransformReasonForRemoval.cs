@@ -2,9 +2,8 @@ namespace NHS.CohortManager.CohortDistributionService;
 
 using Model;
 using Common;
-using Data.Database;
 using System.Text.Json;
-using Apache.Arrow.Types;
+
 
 public class TransformReasonForRemoval : ITransformReasonForRemoval
 {

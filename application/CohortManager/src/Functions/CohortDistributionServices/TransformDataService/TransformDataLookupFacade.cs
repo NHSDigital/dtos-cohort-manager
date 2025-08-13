@@ -64,16 +64,10 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     public bool ValidateOutcode(string postcode)
     {
         var parsedOutCode = ValidationHelper.ParseOutcode(postcode);
-        _ = parsedOutCode.outcode
+        _ = parsedOutCode
             ?? throw new TransformationException("Postcode format invalid");
 
-        // we can bypass checking the database if it's a dummy postcode
-        if (parsedOutCode.isDummyPostCode)
-        {
-            return true;
-        }
-
-        var result = _outcodeClient.GetSingle(parsedOutCode.outcode).Result;
+        var result = _outcodeClient.GetSingle(parsedOutCode).Result;
         return result != null;
 
     }
@@ -91,7 +85,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 
     public string GetBsoCode(string postcode)
     {
-        string outcode = ValidationHelper.ParseOutcode(postcode).outcode
+        string outcode = ValidationHelper.ParseOutcode(postcode)
             ?? throw new TransformationException("Postcode format invalid");
 
         var result = _outcodeClient.GetSingle(outcode).Result;

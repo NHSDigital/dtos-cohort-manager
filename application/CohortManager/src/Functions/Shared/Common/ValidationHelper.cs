@@ -110,7 +110,7 @@ public static class ValidationHelper
     /// Works for valid UK postcodes and dummy postcodes.
     /// Works with or without a space separator between outcode and incode.
     /// </remarks>
-    public static (string? outcode, bool isDummyPostCode) ParseOutcode(string postcode)
+    public static string? ParseOutcode(string postcode)
     {
         string pattern = @"^([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
         string specialDummyOutCodePattern = "^ZZ99|^ZZZSECUR$";
@@ -120,19 +120,16 @@ public static class ValidationHelper
 
         if (dummyOutCodePattern.Success)
         {
-            return (postcode, true);
+            return dummyOutCodePattern.Groups[1].Value;
         }
 
         if (!match.Success)
         {
-            return (null, false);
+            return null;
         }
 
-
-
         string outcode = match.Groups[1].Value;
-
-        return (outcode, false);
+        return outcode;
     }
 
     private static bool ParseInt32(char value, out int integerValue)
