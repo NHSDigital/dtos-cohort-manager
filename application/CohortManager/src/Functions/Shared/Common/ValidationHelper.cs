@@ -103,7 +103,7 @@ public static class ValidationHelper
     }
 
     /// <summary>
-    /// Gets the outcode (1st part of postcode) from the postcode and if the postcode is a dummy code
+    /// Gets the outcode (1st part of postcode) from the postcode.
     /// </summary>
     /// <param name="postcode">a non-null string representing the postcode</param>
     /// <remarks>
@@ -113,15 +113,8 @@ public static class ValidationHelper
     public static string? ParseOutcode(string postcode)
     {
         string pattern = @"^([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
-        string specialDummyOutCodePattern = "^ZZ99|^ZZZSECUR$";
 
         Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
-        Match dummyOutCodePattern = Regex.Match(postcode, specialDummyOutCodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
-
-        if (dummyOutCodePattern.Success)
-        {
-            return dummyOutCodePattern.Groups[1].Value;
-        }
 
         if (!match.Success)
         {

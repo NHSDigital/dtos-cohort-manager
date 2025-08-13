@@ -63,8 +63,13 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 
     public bool ValidateOutcode(string postcode)
     {
-        var parsedOutCode = ValidationHelper.ParseOutcode(postcode);
-        _ = parsedOutCode
+        //if a postcode is a dummy postcode then we want to allow the rules to know that we have a dummy postcode
+        if (postcode.StartsWith("ZZ"))
+        {
+            return false;
+        }
+
+        string parsedOutCode = ValidationHelper.ParseOutcode(postcode)
             ?? throw new TransformationException("Postcode format invalid");
 
         var result = _outcodeClient.GetSingle(parsedOutCode).Result;
