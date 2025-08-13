@@ -70,14 +70,16 @@ public class ProcessNemsUpdate
 
             if (nhsNumber == null)
             {
-                _logger.LogInformation("There is no NHS number, unable to continue.");
-                throw new InvalidDataException("No NHS number found"); // Force poison container
+                _logger.LogError("No NHS number found in file {FileName}. Moving to poison container.", name);
+                await CopyToPoisonContainer(name);
+                return;
             }
 
             if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                _logger.LogError("There was a problem parsing the NHS number from blob store in the ProcessNemsUpdate function");
-                throw new InvalidDataException("Invalid NHS Number");
+                _logger.LogError("There was a problem validating the NHS number from blob store in the ProcessNemsUpdate function for file {FileName}. Moving to poison container.", name);
+                await CopyToPoisonContainer(name);
+                return;
             }
             nhsNumberLong = long.Parse(nhsNumber!);
 
