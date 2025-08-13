@@ -291,4 +291,34 @@ public class ServiceNowClientTests
         Assert.AreEqual($"{{\"state\":10,\"work_notes\":\"Note\",\"needs_attention\":true,\"assignment_group\":\"{_configMock.Object.Value.ServiceNowAssignmentGroup}\"}}",
             updateRequestBodyJsonString);
     }
+
+    [TestMethod]
+    public async Task SendResolution_SendExpectedUpdateRequestBody()
+    {
+        // Arrange
+        var caseNumber = "CS123";
+
+        _cache.Set(AccessTokenCacheKey, "101");
+
+        string? resolutionRequestBodyJsonString = null;
+
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == $"{ServiceNowResolutionUrl}/{caseNumber}"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
+            .Callback<HttpRequestMessage, CancellationToken>(async (request, cancellationToken) =>
+            {
+                resolutionRequestBodyJsonString = await request.Content!.ReadAsStringAsync();
+            }).Verifiable();
+
+        // Act
+        var response = await _serviceNowClient.SendResolution(caseNumber, "Note");
+
+        // Assert
+        Assert.AreEqual("{\"state\":6,\"resolution_code\":\"28\",\"close_notes\":\"Note\"}", resolutionRequestBodyJsonString);
+    }
 }
