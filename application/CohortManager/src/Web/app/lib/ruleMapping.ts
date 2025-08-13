@@ -36,7 +36,7 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
   },
   21: {
     ruleDescription:
-      "The 'Superseded by NHS number’ field has been populated with an NHS number by NBO.",
+      "The 'Superseded by NHS number' field has been populated with an NHS number by NBO.",
     moreDetails: "",
     reportingId: "CMR33",
   },
