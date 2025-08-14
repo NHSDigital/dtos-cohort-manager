@@ -4,9 +4,6 @@ name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
 trigger: none
 pr: none
 
-pool:
-  name: private-pool-prod-uks
-
 resources:
   repositories:
     - repository: dtos-devops-templates
@@ -17,19 +14,52 @@ resources:
 
 parameters:
   - name: dockerImageTag
+    # Used to set the Docker image tag via Terraform in the Continuous Deployment settings of function and container apps
     displayName: 'Docker Image Tag'
     type: string
     default: production
 
   - name: retagImages
+    # Only required until commit hashes are passed in by calling pipeline, except for the
+    # PreProd pipeline which needs to retag images to move them from the Dev ACR to the Prod ACR
     displayName: 'Re-tag Images'
     type: boolean
     default: true
 
+  - name: dockerImageReTagFrom
+    # Only required until commit hashes are passed in by calling pipeline
+    displayName: 'Docker Image Retag from value'
+    type: string
+    default: preprod
+
+  - name: dockerImageReTagTo
+    # Only required until commit hashes are passed in by calling pipeline
+    displayName: 'Docker Image Retag to value'
+    type: string
+    default: production
+
+  - name: terraformActions
+    # This parameter allows the user to run only the plan for testing purposes
+    displayName: 'Apply Terraform Plan'
+    type: string
+    values:
+      - 'PlanOnly'
+      - 'Apply'
+    default: 'Apply'
+
+  - name: testTypes
+    displayName: 'End-2-End Tests to run (enter [] to skip)'
+    type: object
+    default:
+      - smoke_e2e
+
 variables:
+  - name: hostPoolName
+    value: private-pool-prod-uks
   - group: PROD_core_backend
   - group: PROD_audit_backend_remote_state
   - group: PROD_image_pipelines
+  # - group: PROD_automation_testing_pipeline
   - group: PRD_hub_backend_remote_state
   - name: TF_VERSION
     value: 1.11.4
@@ -41,74 +71,43 @@ variables:
     value: production
 
 stages:
-  - stage: re_tag_stage
-    # Only required until commit hashes are passed in by calling pipeline
-    displayName: ACR re-tag
-    condition: eq(variables['Build.Reason'], 'Manual')
-    jobs:
-    - job: re_tag
-      displayName: Re-tag Docker images
-      variables:
-        SELECT_IMAGE_TAG: preprod
-        ADD_IMAGE_TAG: production
-      steps:
-        - template: .azuredevops/templates/steps/acr-import-retag-no-additional-tags.yaml@dtos-devops-templates
-          parameters:
-            serviceConnection: $(SERVICE_CONNECTION)
+- template: ../templates/cd-infrastructure-core-common.yaml
+  parameters:
+    hostPoolName: $(hostPoolName)
+    serviceConnection: $(SERVICE_CONNECTION)
+    targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+    terraformActions: ${{ parameters.terraformActions }}
+    tfVarsFile: environments/$(ENVIRONMENT).tfvars
+    environment: $(ENVIRONMENT)
+    resourceGroupNameSql: $(RESOURCE_GROUP_NAME_SQL)
+    databaseManagementJobName: $(DATABASE_MANAGEMENT_JOB_NAME)
+    dockerImageTag: ${{ parameters.dockerImageTag }}
+    retagImages: ${{ parameters.retagImages }}
+    retagImagesFrom: ${{ parameters.dockerImageReTagFrom }}
+    retagImagesTo: ${{ parameters.dockerImageReTagTo }}
 
-  - stage: terraform_deploy
-    displayName: Terraform Deploy
-    condition: eq(variables['Build.Reason'], 'Manual')
-    variables:
-      tfVarsFile: environments/$(ENVIRONMENT).tfvars
-    jobs:
-      - job: init_and_plan
-        displayName: Init, plan, store artifact
-        steps:
-          - checkout: self
-          - checkout: dtos-devops-templates
-          - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
-            parameters:
-              tfCommandOptions: '-var="docker_image_tag=${{ parameters.dockerImageTag }}"'
-
-      - deployment: terraform_apply
-        displayName: Init, get plan artifact, apply
-        environment: $(ENVIRONMENT)
-        dependsOn: init_and_plan
-        condition: eq(dependencies.init_and_plan.outputs['TerraformPlan.changesPresent'], 'true')
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                - checkout: dtos-devops-templates
-                - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
-
-  - stage: db_changes_stage
-    displayName: Database changes
-    jobs:
-    - job: db_changes
-      pool:
-        name: private-pool-dev-uks
-      displayName: Apply database changes
-      steps:
-        - checkout: self
-        - checkout: dtos-devops-templates
-        - template: .azuredevops/templates/steps/app-container-job-start.yaml@dtos-devops-templates
-          parameters:
-            serviceConnection: $(SERVICE_CONNECTION)
-            targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
-            resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
-            jobName: $(DATABASE_MANAGEMENT_JOB_NAME)
-
-  - stage: restart_functions_stage
-    displayName: Restart Function Apps
-    jobs:
-    - job: restart_functions
-      pool:
-        name: private-pool-dev-uks
-      displayName: Restart Function Apps so they pick up new images
-      steps:
-        - template: .azuredevops/templates/steps/function-apps-restart.yaml@dtos-devops-templates
-          parameters:
-            serviceConnection: $(SERVICE_CONNECTION)
+# Loop to create test stages dynamically based on the testTypes parameter
+- ${{ each testType in parameters.testTypes }}:
+    - stage: ${{ testType }}_stage
+      displayName: Run ${{ testType }} Tests
+      ${{ if eq(testType, 'regression_api') }}:
+        dependsOn: smoke_e2e_stage
+      ${{ if eq(testType, 'regression_e2e_epic1') }}:
+        dependsOn: regression_api_stage
+      ${{ if eq(testType, 'regression_e2e_epic2') }}:
+        dependsOn: regression_e2e_epic1_stage
+      ${{ if eq(testType, 'regression_e2e_epic3') }}:
+        dependsOn: regression_e2e_epic2_stage
+      condition: succeededOrFailed()
+      jobs:
+        - job: ${{ testType }}_job
+          pool:
+            name: $(hostPoolName)
+          steps:
+            - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+              parameters:
+                serviceConnection: $(SERVICE_CONNECTION)
+                testProjectDirectory: "tests/playwright-tests"
+                testfileDirectory: "src/tests/e2e/testFiles"
+                testProjectName: "tests"
+                testType: ${{ testType }}
