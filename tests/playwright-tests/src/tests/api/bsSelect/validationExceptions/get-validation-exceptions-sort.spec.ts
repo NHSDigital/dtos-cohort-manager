@@ -2,14 +2,14 @@ import { test, expect } from '@playwright/test';
 import { getValidationExceptions } from '../../../../api/dataService/exceptionService';
 import { getApiQueryParams } from '../../../steps/steps';
 
-test.describe('DTOSS-10182 - Verify exceptions sorting by DateCreated', () => {
+test.describe('DTOSS-10184 - Verify exceptions sorting by DateCreated', () => {
 
-  test.describe('@DTOSS-10182-01 - Verify exceptions are sorted from oldest to newest by DateCreated', () => {
+  test.describe('@DTOSS-10184-01 - Verify exceptions are sorted from oldest to newest by DateCreated', () => {
     let apiConfig: any;
     let response: any;
 
     test.beforeAll(async ({ request }) => {
-      apiConfig = await getApiQueryParams('@DTOSS-10182-01', 'validation_exceptions_sort_asc');
+      apiConfig = await getApiQueryParams('@DTOSS-10184-01', 'validation_exceptions_sort_asc');
 
       if (apiConfig.description) {
         console.info(`Test configuration: ${apiConfig.description}`);
@@ -18,7 +18,7 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by DateCreated', () => {
       response = await getValidationExceptions(request, apiConfig);
     });
 
-    test('@DTOSS-10182-01 - Should return 204 if no data is found or 200 with records', async () => {
+    test('@DTOSS-10184-01 - Should return 204 if no data is found or 200 with records', async () => {
       expect(response).toBeDefined();
       expect(response.status).toBeDefined();
       expect([200, 204]).toContain(response.status);
@@ -35,7 +35,7 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by DateCreated', () => {
       }
     });
 
-    test('@DTOSS-10182-01 - Should verify all returned records have DateCreated', async () => {
+    test('@DTOSS-10184-01 - Should verify all returned records have DateCreated', async () => {
       if (response.status === 204) {
         console.info('No data found - skipping validation test');
         return;
@@ -63,7 +63,7 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by DateCreated', () => {
       console.info(`Verified all ${items.length} records have required DateCreated fields`);
     });
 
-    test('@DTOSS-10182-01 - Should verify records are sorted in ascending order by DateCreated (oldest to newest)', async () => {
+    test('@DTOSS-10184-01 - Should verify records are sorted in ascending order by DateCreated (oldest to newest)', async () => {
       if (response.status === 204) {
         console.info('No data found - skipping sorting test');
         return;
@@ -98,12 +98,12 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by DateCreated', () => {
     });
   });
 
-  test.describe('@DTOSS-10182-02 - Verify exceptions are sorted from newest to oldest by DateCreated', () => {
+  test.describe('@DTOSS-10184-02 - Verify exceptions are sorted from newest to oldest by DateCreated', () => {
     let apiConfig: any;
     let response: any;
 
     test.beforeAll(async ({ request }) => {
-      apiConfig = await getApiQueryParams('@DTOSS-10182-02', 'validation_exceptions_sort_desc');
+      apiConfig = await getApiQueryParams('@DTOSS-10184-02', 'validation_exceptions_sort_desc');
 
       if (apiConfig.description) {
         console.info(`Test configuration: ${apiConfig.description}`);
@@ -112,7 +112,7 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by DateCreated', () => {
       response = await getValidationExceptions(request, apiConfig);
     });
 
-    test('@DTOSS-10182-02 - Should return 204 if no data is found or 200 with records', async () => {
+    test('@DTOSS-10184-02 - Should return 204 if no data is found or 200 with records', async () => {
       expect(response).toBeDefined();
       expect(response.status).toBeDefined();
       expect([200, 204]).toContain(response.status);
@@ -129,7 +129,7 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by DateCreated', () => {
       }
     });
 
-    test('@DTOSS-10182-02 - Should verify all returned records have DateCreated', async () => {
+    test('@DTOSS-10184-02 - Should verify all returned records have DateCreated', async () => {
       if (response.status === 204) {
         console.info('No data found - skipping validation test');
         return;
@@ -157,7 +157,7 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by DateCreated', () => {
       console.info(`Verified all ${items.length} records have required DateCreated fields`);
     });
 
-    test('@DTOSS-10182-02 - Should verify records are sorted in descending order by DateCreated (newest to oldest)', async () => {
+    test('@DTOSS-10184-02 - Should verify records are sorted in descending order by DateCreated (newest to oldest)', async () => {
       if (response.status === 204) {
         console.info('No data found - skipping sorting test');
         return;
