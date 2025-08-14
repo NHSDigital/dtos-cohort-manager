@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using Model;
+using Microsoft.AspNetCore.WebUtilities;
 
 public class RetrievePdsDemographic
 {
@@ -51,20 +52,11 @@ public class RetrievePdsDemographic
         try
         {
             var nhsNumber = req.Query["nhsNumber"];
-            // Optional: original NEMS blob name when available (parse safely without throwing if missing)
             string? sourceFileName = null;
-            try
+            var parsed = QueryHelpers.ParseQuery(req.Url.Query);
+            if (parsed.TryGetValue("sourceFileName", out var sv))
             {
-                // Prefer robust parsing to avoid KeyNotFound for optional params
-                var parsed = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(req.Url.Query);
-                if (parsed.TryGetValue("sourceFileName", out var sv))
-                {
-                    sourceFileName = sv.ToString();
-                }
-            }
-            catch
-            {
-                // Best-effort: leave null if parsing fails
+                sourceFileName = sv.ToString();
             }
 
             var bearerToken = await _bearerTokenService.GetBearerToken();
