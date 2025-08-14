@@ -220,7 +220,6 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_max = "3"
-
           inc_scale_value = 3
 
           dec_scale_type  = "ChangeCount"
