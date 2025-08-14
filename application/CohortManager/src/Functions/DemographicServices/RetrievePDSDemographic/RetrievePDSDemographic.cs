@@ -51,7 +51,21 @@ public class RetrievePdsDemographic
         try
         {
             var nhsNumber = req.Query["nhsNumber"];
-            var sourceFileName = req.Query["sourceFileName"]; // optional: original NEMS blob name when available
+            // Optional: original NEMS blob name when available (parse safely without throwing if missing)
+            string? sourceFileName = null;
+            try
+            {
+                // Prefer robust parsing to avoid KeyNotFound for optional params
+                var parsed = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(req.Url.Query);
+                if (parsed.TryGetValue("sourceFileName", out var sv))
+                {
+                    sourceFileName = sv.ToString();
+                }
+            }
+            catch
+            {
+                // Best-effort: leave null if parsing fails
+            }
 
             var bearerToken = await _bearerTokenService.GetBearerToken();
             if (bearerToken == null)
