@@ -89,20 +89,18 @@ public class ValidationExceptionData : IValidationExceptionData
             var validationError = ValidateServiceNowId(serviceNowId);
             if (validationError != null)
             {
-                return CreateErrorResponse(validationError, HttpStatusCode.BadRequest, validationError);
+                return CreateErrorResponse(validationError, HttpStatusCode.BadRequest);
             }
 
             var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
             if (exception == null)
             {
-                var errorMessage = $"Exception with ID {exceptionId} not found";
-                return CreateErrorResponse(errorMessage, HttpStatusCode.NotFound);
+                return CreateErrorResponse($"Exception with ID {exceptionId} not found", HttpStatusCode.NotFound);
             }
 
             if (serviceNowId == exception.ServiceNowId)
             {
-                var errorMessage = $"ServiceNowId {serviceNowId} is the same as the existing value";
-                return CreateErrorResponse(errorMessage, HttpStatusCode.BadRequest);
+                return CreateErrorResponse($"ServiceNowId {serviceNowId} is the same as the existing value", HttpStatusCode.BadRequest);
             }
 
             exception.ServiceNowId = serviceNowId;
@@ -111,18 +109,28 @@ public class ValidationExceptionData : IValidationExceptionData
             var updateResult = await _validationExceptionDataServiceClient.Update(exception);
             if (!updateResult)
             {
-                var errorMessage = $"Failed to update exception {exceptionId} in data service";
-                return CreateErrorResponse(errorMessage, HttpStatusCode.InternalServerError);
+                return CreateErrorResponse($"Failed to update exception {exceptionId} in data service", HttpStatusCode.InternalServerError);
             }
 
             return CreateSuccessResponse();
         }
         catch (Exception ex)
         {
-            var errorMessage = $"Error updating ServiceNowID for exception {exceptionId}";
-            _logger.LogError(ex, errorMessage);
-            return CreateErrorResponse(errorMessage, HttpStatusCode.InternalServerError);
+            _logger.LogError(ex, "Error updating ServiceNowID for exception {ExceptionId}", exceptionId);
+            return CreateErrorResponse($"Error updating ServiceNowID for exception {exceptionId}", HttpStatusCode.InternalServerError);
         }
+    }
+
+    private ServiceResponseModel CreateErrorResponse(string errorMessage, HttpStatusCode statusCode)
+    {
+        _logger.LogWarning("Service error occurred: {ErrorMessage}", errorMessage);
+
+        return new ServiceResponseModel
+        {
+            Success = false,
+            ErrorMessage = errorMessage,
+            StatusCode = statusCode
+        };
     }
 
     private static ServiceResponseModel CreateSuccessResponse()
@@ -131,17 +139,6 @@ public class ValidationExceptionData : IValidationExceptionData
         {
             Success = true,
             StatusCode = HttpStatusCode.OK
-        };
-    }
-
-    private ServiceResponseModel CreateErrorResponse(string errorMessage, HttpStatusCode statusCode, string? validationErrorMessage = null)
-    {
-        _logger.LogWarning("Service error occurred: {ErrorMessage}", validationErrorMessage ?? errorMessage);
-        return new ServiceResponseModel
-        {
-            Success = false,
-            ErrorMessage = errorMessage,
-            StatusCode = statusCode
         };
     }
 
