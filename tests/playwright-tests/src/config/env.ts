@@ -13,6 +13,7 @@ const endpointCohortDistributionDataService = process.env.ENDPOINT_COHORT_DISTRI
 const endpointParticipantManagementDataService = process.env.ENDPOINT_PARTICIPANT_MANAGEMENT_DATA_SERVICE ?? '';
 const endpointParticipantDemographicDataService = process.env.ENDPOINT_PARTICIPANT_DEMOGRAPHIC_DATA_SERVICE ?? '';
 const endpointExceptionManagementDataService = process.env.ENDPOINT_EXCEPTION_MANAGEMENT_DATA_SERVICE ?? '';
+const endpointNemsSubscriptionDataService = process.env.ENDPOINT_NEMS_SUBSCRIPTION_DATA_SERVICE ?? '';
 const endpointBsSelectRetrieveCohortDistributionData = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '';
 const endpointBsSelectRetrieveCohortRequestAudit = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_REQUEST_AUDIT ?? '';
 const endpointBsSelectDeleteParticipant = process.env.ENDPOINT_BS_SELECT_DELETE_PARTICIPANT ?? '';
@@ -37,6 +38,7 @@ export const config = {
   endpointBsSelectGetValidationExceptions: endpointBsSelectGetValidationExceptions,
   endpointSerNowReceiveParticipant: endpointSerNowReceiveParticipant,
   invalidEndpointSerNow: invalidEndpointSerNow,
+  endpointNemsSubscriptionDataService: endpointNemsSubscriptionDataService,
   routeBsSelectRetrieveCohortDistributionData: 'api/RetrieveCohortDistributionData',
   routeBsSelectRetrieveCohortRequestAudit: 'api/RetrieveCohortRequestAudit',
   routeBsSelectDeleteParticipant: 'api/DeleteParticipant',
