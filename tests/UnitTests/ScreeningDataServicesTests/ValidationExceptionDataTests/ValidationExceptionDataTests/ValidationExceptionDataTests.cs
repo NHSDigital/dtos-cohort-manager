@@ -260,9 +260,7 @@ public class ValidationExceptionDataTests
         var exceptionId = 999;
         var serviceNowId = "SNOW123456789";
 
-        _validationExceptionDataServiceClient
-            .Setup(x => x.GetSingle(exceptionId.ToString()))
-            .ReturnsAsync((ExceptionManagement?)null);
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync((ExceptionManagement?)null);
 
         // Act
         var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
@@ -292,9 +290,7 @@ public class ValidationExceptionDataTests
             RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
         };
 
-        _validationExceptionDataServiceClient
-            .Setup(x => x.GetSingle(exceptionId.ToString()))
-            .ReturnsAsync(validException);
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync(validException);
 
         // Act
         var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
@@ -323,13 +319,8 @@ public class ValidationExceptionDataTests
             RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
         };
 
-        _validationExceptionDataServiceClient
-            .Setup(x => x.GetSingle(exceptionId.ToString()))
-            .ReturnsAsync(exception);
-
-        _validationExceptionDataServiceClient
-            .Setup(x => x.Update(It.IsAny<ExceptionManagement>()))
-            .ReturnsAsync(false);
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync(exception);
+        _validationExceptionDataServiceClient.Setup(x => x.Update(It.IsAny<ExceptionManagement>())).ReturnsAsync(false);
 
         // Act
         var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
@@ -338,9 +329,7 @@ public class ValidationExceptionDataTests
         result.Success.Should().BeFalse();
         result.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
         result.ErrorMessage.Should().Be($"Failed to update exception {exceptionId} in data service");
-
         _validationExceptionDataServiceClient.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Once);
-
         _logger.VerifyLogger(LogLevel.Warning, $"Service error occurred: Failed to update exception {exceptionId} in data service");
     }
 
@@ -352,9 +341,7 @@ public class ValidationExceptionDataTests
         var serviceNowId = "SNOW123456789";
         var expectedException = new Exception("Database connection failed");
 
-        _validationExceptionDataServiceClient
-            .Setup(x => x.GetSingle(exceptionId.ToString()))
-            .ThrowsAsync(expectedException);
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ThrowsAsync(expectedException);
 
         // Act
         var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
