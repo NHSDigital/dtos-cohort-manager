@@ -9,6 +9,7 @@ features = {
   private_endpoints_enabled            = true
   private_service_connection_is_manual = false
   public_network_access_enabled        = false
+  frontdoor_endpoint_enabled           = true
 }
 
 # these will be merged with compliance tags in locals.tf
@@ -296,7 +297,6 @@ container_app_jobs = {
   apps = {
     db-management = {
       container_app_environment_key = "db-management"
-      docker_env_tag                = "nft"
       docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
     }
@@ -320,7 +320,6 @@ function_apps = {
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "nft"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage         = "false"
@@ -1182,7 +1181,6 @@ linux_web_app = {
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "nft"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage    = "false"
