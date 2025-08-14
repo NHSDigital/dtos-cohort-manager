@@ -109,7 +109,16 @@ export default function ParticipantInformationPanel({
             <div className="nhsuk-summary-list__row">
               <dt className="nhsuk-summary-list__key">More detail</dt>
               <dd className="nhsuk-summary-list__value">
-                {exceptionDetails.shortDescription}
+                <p>
+                  {exceptionDetails.moreDetails ||
+                    exceptionDetails.shortDescription}
+                </p>
+                {exceptionDetails.reportingId && (
+                  <p>
+                    Cohort Manager rule (to be included for reporting):{" "}
+                    {exceptionDetails.reportingId}
+                  </p>
+                )}
               </dd>
             </div>
             {!exceptionDetails.serviceNowId && (
@@ -125,7 +134,7 @@ export default function ParticipantInformationPanel({
           </dl>
         </div>
       </div>
-      {!isEditMode ? null : (
+      {(isEditMode || !exceptionDetails.serviceNowId) && (
         <div className="nhsuk-card nhsuk-u-margin-bottom-4">
           <div className="nhsuk-card__content">
             <h2 id="exception-status">Exception status</h2>
