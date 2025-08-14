@@ -51,6 +51,7 @@ public class RetrievePdsDemographic
         try
         {
             var nhsNumber = req.Query["nhsNumber"];
+            var sourceFileName = req.Query["sourceFileName"]; // optional: original NEMS blob name when available
 
             var bearerToken = await _bearerTokenService.GetBearerToken();
             if (bearerToken == null)
@@ -74,7 +75,7 @@ public class RetrievePdsDemographic
 
             if (response.StatusCode == HttpStatusCode.NotFound || pdsDemographic.ConfidentialityCode == "R")
             {
-                await _pdsProcessor.ProcessPdsNotFoundResponse(response, nhsNumber);
+                await _pdsProcessor.ProcessPdsNotFoundResponse(response, nhsNumber, sourceFileName);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404 please database for details");
             }
 
