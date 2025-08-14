@@ -31,5 +31,5 @@
 
 
 
-export const runnerBasedEpic123TestScenariosAdd = "@DTOSS-6256-01|@DTOSS-6406-01|@DTOSS-7960-01";
+export const runnerBasedEpic123TestScenariosAdd = "@DTOSS-6256-01|@DTOSS-7960-01";
 export const runnerBasedEpic123TestScenariosAddAmend = "@DTOSS-6257-01|@DTOSS-6407-01";
