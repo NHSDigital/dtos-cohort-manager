@@ -54,7 +54,7 @@ regions = {
         cidr_offset                = 6
         delegation_name            = "Microsoft.App/environments"
         service_delegation_name    = "Microsoft.App/environments"
-        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
       }
     }
   }
@@ -220,6 +220,7 @@ app_service_plan = {
           metric = "CpuPercentage"
 
           capacity_max = "3"
+
           inc_scale_value = 3
 
           dec_scale_type  = "ChangeCount"
