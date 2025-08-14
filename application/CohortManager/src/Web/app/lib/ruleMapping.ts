@@ -6,7 +6,7 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
       "It's not possible to have both a current GP practice code and a current reason for removal (RfR), or neither.",
     moreDetails:
       "Either: enter a GP practice code, or enter a reason for removal. Information must only be entered for one of these fields. Both fields cannot be empty.",
-    reportingId: "CMR03",
+    reportingId: "CMR13",
   },
   8: {
     ruleDescription:
