@@ -1,7 +1,7 @@
 name: cohort-manager
 
 services:
-  # CaaS Integration Service
+  # CaaS Integration Service for DTOS
   retrieve-mesh-file:
     container_name: retrieve-mesh-file
     image: cohort-manager-retrieve-mesh-file
