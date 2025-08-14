@@ -1,307 +1,307 @@
-namespace NHS.CohortManager.Tests.UnitTests.ScreeningDataServicesTests;
+namespace NHS.CohortManager.Tests.UnitTests.DataTests;
 
-using Microsoft.Azure.Functions.Worker.Http;
 using System.Net;
 using Model;
 using Moq;
-using System.Text.Json;
-using NHS.CohortManager.ScreeningDataServices;
-using Common;
-using System.Threading.Tasks;
-using Common.Interfaces;
-using Microsoft.Azure.Functions.Worker;
-using System.Text;
-using NHS.CohortManager.Tests.TestUtils;
-
-using Microsoft.Extensions.Logging;
 using Data.Database;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using DataServices.Client;
 
 [TestClass]
 public class UpdateExceptionServiceNowIdTests
 {
-    private readonly Mock<ILogger<GetValidationExceptions>> _loggerMock;
-    private readonly Mock<ICreateResponse> _createResponseMock;
-    private readonly Mock<IValidationExceptionData> _validationDataMock;
-    private readonly Mock<IHttpParserHelper> _httpParserHelperMock;
-    private readonly Mock<IPaginationService<ValidationException>> _paginationServiceMock;
-    private readonly Mock<FunctionContext> _contextMock;
-    private readonly GetValidationExceptions _service;
+    private readonly Mock<ILogger<ValidationExceptionData>> _loggerMock = new();
+    private readonly Mock<IDataServiceClient<ExceptionManagement>> _validationExceptionDataServiceClientMock = new();
+    private readonly Mock<IDataServiceClient<ParticipantDemographic>> _demographicDataServiceClientMock = new();
+    private readonly ValidationExceptionData _service;
+    private readonly ExceptionManagement _validException;
 
     public UpdateExceptionServiceNowIdTests()
     {
-        _loggerMock = new Mock<ILogger<GetValidationExceptions>>();
-        _createResponseMock = new Mock<ICreateResponse>();
-        _validationDataMock = new Mock<IValidationExceptionData>();
-        _httpParserHelperMock = new Mock<IHttpParserHelper>();
-        _paginationServiceMock = new Mock<IPaginationService<ValidationException>>();
-        _contextMock = new Mock<FunctionContext>();
+        _validException = new ExceptionManagement
+        {
+            ExceptionId = 1,
+            ServiceNowId = "EXISTING123",
+            NhsNumber = "1234567890",
+            RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
+        };
 
-        _service = new GetValidationExceptions(
+        _service = new ValidationExceptionData(
             _loggerMock.Object,
-            _createResponseMock.Object,
-            _validationDataMock.Object,
-            _httpParserHelperMock.Object,
-            _paginationServiceMock.Object
+            _validationExceptionDataServiceClientMock.Object,
+            _demographicDataServiceClientMock.Object
         );
     }
 
-    private Mock<HttpRequestData> CreateMockRequest(string requestBody)
-    {
-        var request = new Mock<HttpRequestData>(_contextMock.Object);
-        var bodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBody));
-        request.Setup(r => r.Body).Returns(bodyStream);
-
-        var response = new Mock<HttpResponseData>(_contextMock.Object);
-        response.SetupProperty(r => r.StatusCode);
-        request.Setup(r => r.CreateResponse()).Returns(response.Object);
-
-        return request;
-    }
-
-    private void SetupCreateResponseMock(HttpStatusCode statusCode)
-    {
-        var mockResponse = new Mock<HttpResponseData>(_contextMock.Object);
-        mockResponse.SetupProperty(r => r.StatusCode, statusCode);
-        _createResponseMock.Setup(c => c.CreateHttpResponse(statusCode, It.IsAny<HttpRequestData>(), It.IsAny<string>())).Returns(mockResponse.Object);
-    }
-
     [TestMethod]
-    public async Task UpdateExceptionServiceNowId_ValidRequest_ReturnsOK()
+    public async Task UpdateExceptionServiceNowId_ValidInput_ReturnsSuccess()
     {
         // Arrange
-        var request = new UpdateExceptionServiceNowIdRequest
+        var exceptionId = 1;
+        var serviceNowId = "SNOW123456789";
+        var exception = new ExceptionManagement
         {
-            ExceptionId = 123,
-            ServiceNowId = "INC123456789"
+            ExceptionId = exceptionId,
+            ServiceNowId = "DIFFERENT123",
+            RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
         };
-        var requestBody = JsonSerializer.Serialize(request);
-        var mockRequest = CreateMockRequest(requestBody);
 
-        _validationDataMock.Setup(v => v.UpdateExceptionServiceNowId(123, "INC123456789"))
+        _validationExceptionDataServiceClientMock
+            .Setup(x => x.GetSingle(exceptionId.ToString()))
+            .ReturnsAsync(exception);
+
+        _validationExceptionDataServiceClientMock
+            .Setup(x => x.Update(It.IsAny<ExceptionManagement>()))
             .ReturnsAsync(true);
-        SetupCreateResponseMock(HttpStatusCode.OK);
 
         // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
+        var result = await _service.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
 
         // Assert
+        Assert.IsTrue(result.Success);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _validationDataMock.Verify(v => v.UpdateExceptionServiceNowId(123, "INC123456789"), Times.Once);
+        Assert.IsNull(result.ErrorMessage);
+
+        _validationExceptionDataServiceClientMock.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
+        _validationExceptionDataServiceClientMock.Verify(x => x.Update(It.Is<ExceptionManagement>(e =>
+            e.ServiceNowId == serviceNowId &&
+            e.RecordUpdatedDate > DateTime.UtcNow.AddMinutes(-1))), Times.Once);
     }
 
     [TestMethod]
-    public async Task UpdateExceptionServiceNowId_EmptyRequestBody_ReturnsBadRequest()
+    public async Task UpdateExceptionServiceNowId_ExceptionNotFound_ReturnsNotFound()
     {
         // Arrange
-        var mockRequest = CreateMockRequest(string.Empty);
-        SetupCreateResponseMock(HttpStatusCode.BadRequest);
+        var exceptionId = 999;
+        var serviceNowId = "SNOW123456789";
+
+        _validationExceptionDataServiceClientMock
+            .Setup(x => x.GetSingle(exceptionId.ToString()))
+            .ReturnsAsync((ExceptionManagement?)null);
 
         // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
+        var result = await _service.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
 
         // Assert
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+        Assert.AreEqual($"Exception with ID {exceptionId} not found", result.ErrorMessage);
+
+        _validationExceptionDataServiceClientMock.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
+        _validationExceptionDataServiceClientMock.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UpdateExceptionServiceNowId_SameServiceNowId_ReturnsBadRequest()
+    {
+        // Arrange
+        var exceptionId = 1;
+        var serviceNowId = "EXISTING123";
+
+        _validationExceptionDataServiceClientMock
+            .Setup(x => x.GetSingle(exceptionId.ToString()))
+            .ReturnsAsync(_validException);
+
+        // Act
+        var result = await _service.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
+
+        // Assert
+        Assert.IsFalse(result.Success);
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _createResponseMock.Verify(c => c.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), "Request body cannot be empty."), Times.Once);
+        Assert.AreEqual($"ServiceNowId {serviceNowId} is the same as the existing value", result.ErrorMessage);
+
+        _validationExceptionDataServiceClientMock.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
+        _validationExceptionDataServiceClientMock.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Never);
     }
 
     [TestMethod]
-    public async Task UpdateExceptionServiceNowId_NullRequestBody_ReturnsBadRequest()
+    public async Task UpdateExceptionServiceNowId_UpdateFails_ReturnsInternalServerError()
     {
         // Arrange
-        var mockRequest = CreateMockRequest("   ");
-        SetupCreateResponseMock(HttpStatusCode.BadRequest);
+        var exceptionId = 1;
+        var serviceNowId = "SNOW123456789";
+        var exception = new ExceptionManagement
+        {
+            ExceptionId = exceptionId,
+            ServiceNowId = "DIFFERENT123",
+            RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
+        };
+
+        _validationExceptionDataServiceClientMock
+            .Setup(x => x.GetSingle(exceptionId.ToString()))
+            .ReturnsAsync(exception);
+
+        _validationExceptionDataServiceClientMock
+            .Setup(x => x.Update(It.IsAny<ExceptionManagement>()))
+            .ReturnsAsync(false);
 
         // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
+        var result = await _service.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task UpdateExceptionServiceNowId_InvalidJson_ReturnsInternalServerError()
-    {
-        // Arrange
-        var mockRequest = CreateMockRequest("{invalid json}");
-        SetupCreateResponseMock(HttpStatusCode.InternalServerError);
-
-        // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
-
-        // Assert
+        Assert.IsFalse(result.Success);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        Assert.AreEqual($"Failed to update exception {exceptionId} in data service", result.ErrorMessage);
+
+        _validationExceptionDataServiceClientMock.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Once);
     }
 
     [TestMethod]
-    public async Task UpdateExceptionServiceNowId_MissingExceptionId_ReturnsBadRequest()
+    public async Task UpdateExceptionServiceNowId_DatabaseException_ReturnsInternalServerError()
     {
         // Arrange
-        var request = new UpdateExceptionServiceNowIdRequest
-        {
-            ExceptionId = 0,
-            ServiceNowId = "INC123456789"
-        };
-        var requestBody = JsonSerializer.Serialize(request);
-        var mockRequest = CreateMockRequest(requestBody);
-        SetupCreateResponseMock(HttpStatusCode.BadRequest);
+        var exceptionId = 1;
+        var serviceNowId = "SNOW123456789";
+        var expectedException = new Exception("Database connection failed");
+
+        _validationExceptionDataServiceClientMock
+            .Setup(x => x.GetSingle(exceptionId.ToString()))
+            .ThrowsAsync(expectedException);
 
         // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
+        var result = await _service.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _createResponseMock.Verify(c => c.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), "Invalid request. ExceptionId and ServiceNowId are required."), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task UpdateExceptionServiceNowId_MissingServiceNowId_ReturnsBadRequest()
-    {
-        // Arrange
-        var request = new UpdateExceptionServiceNowIdRequest
-        {
-            ExceptionId = 123,
-            ServiceNowId = string.Empty
-        };
-        var requestBody = JsonSerializer.Serialize(request);
-        var mockRequest = CreateMockRequest(requestBody);
-        SetupCreateResponseMock(HttpStatusCode.BadRequest);
-
-        // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task UpdateExceptionServiceNowId_ServiceNowIdTooShort_ReturnsBadRequest()
-    {
-        // Arrange
-        var request = new UpdateExceptionServiceNowIdRequest
-        {
-            ExceptionId = 123,
-            ServiceNowId = "INC123"
-        };
-        var requestBody = JsonSerializer.Serialize(request);
-        var mockRequest = CreateMockRequest(requestBody);
-        SetupCreateResponseMock(HttpStatusCode.BadRequest);
-
-        // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _createResponseMock.Verify(c => c.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), "ServiceNowID must be at least 9 characters long."), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task UpdateExceptionServiceNowId_ServiceNowIdContainsSpaces_ReturnsBadRequest()
-    {
-        // Arrange
-        var request = new UpdateExceptionServiceNowIdRequest
-        {
-            ExceptionId = 123,
-            ServiceNowId = "INC 123456789"
-        };
-        var requestBody = JsonSerializer.Serialize(request);
-        var mockRequest = CreateMockRequest(requestBody);
-        SetupCreateResponseMock(HttpStatusCode.BadRequest);
-
-        // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _createResponseMock.Verify(c => c.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), "ServiceNowID cannot contain spaces."), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task UpdateExceptionServiceNowId_ServiceNowIdNotAlphanumeric_ReturnsBadRequest()
-    {
-        // Arrange
-        var request = new UpdateExceptionServiceNowIdRequest
-        {
-            ExceptionId = 123,
-            ServiceNowId = "INC123456789!"
-        };
-        var requestBody = JsonSerializer.Serialize(request);
-        var mockRequest = CreateMockRequest(requestBody);
-        SetupCreateResponseMock(HttpStatusCode.BadRequest);
-
-        // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _createResponseMock.Verify(c => c.CreateHttpResponse(HttpStatusCode.BadRequest, It.IsAny<HttpRequestData>(), "ServiceNowID must contain only alphanumeric characters."), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task UpdateExceptionServiceNowId_DatabaseUpdateFails_ReturnsInternalServerError()
-    {
-        // Arrange
-        var request = new UpdateExceptionServiceNowIdRequest
-        {
-            ExceptionId = 123,
-            ServiceNowId = "INC123456789"
-        };
-        var requestBody = JsonSerializer.Serialize(request);
-        var mockRequest = CreateMockRequest(requestBody);
-
-        _validationDataMock.Setup(v => v.UpdateExceptionServiceNowId(123, "INC123456789")).ReturnsAsync(false);
-        SetupCreateResponseMock(HttpStatusCode.InternalServerError);
-
-        // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
-
-        // Assert
+        Assert.IsFalse(result.Success);
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-        _createResponseMock.Verify(c => c.CreateHttpResponse(HttpStatusCode.InternalServerError, It.IsAny<HttpRequestData>(), "Failed to update ServiceNow ID or Exception with ID 123 not found."), Times.Once);
+        Assert.AreEqual($"Error updating ServiceNowID for exception {exceptionId}", result.ErrorMessage);
+
+        _validationExceptionDataServiceClientMock.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
     }
 
     [TestMethod]
-    public async Task UpdateExceptionServiceNowId_DatabaseThrowsException_ReturnsInternalServerError()
+    [DataRow(null)]
+    [DataRow("")]
+    [DataRow("   ")]
+    public async Task UpdateExceptionServiceNowId_EmptyServiceNowId_ReturnsBadRequest(string? serviceNowId)
     {
         // Arrange
-        var request = new UpdateExceptionServiceNowIdRequest
-        {
-            ExceptionId = 123,
-            ServiceNowId = "INC123456789"
-        };
-        var requestBody = JsonSerializer.Serialize(request);
-        var mockRequest = CreateMockRequest(requestBody);
-
-        var expectedException = new Exception("Database error");
-        _validationDataMock.Setup(v => v.UpdateExceptionServiceNowId(123, "INC123456789")).ThrowsAsync(expectedException);
-        SetupCreateResponseMock(HttpStatusCode.InternalServerError);
+        var exceptionId = 1;
 
         // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
+        var result = await _service.UpdateExceptionServiceNowId(exceptionId, serviceNowId ?? "");
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-        _loggerMock.VerifyLogger(LogLevel.Error, "Error processing: UpdateExceptionServiceNowId update ServiceNow ID request", ex => ex == expectedException);
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual("ServiceNowID is required.", result.ErrorMessage);
+
+        _validationExceptionDataServiceClientMock.Verify(x => x.GetSingle(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
-    public async Task UpdateExceptionServiceNowId_ValidServiceNowIdWithMinimumLengthOf9_ReturnsOK()
+    public async Task UpdateExceptionServiceNowId_ServiceNowIdWithSpaces_ReturnsBadRequest()
     {
         // Arrange
-        var request = new UpdateExceptionServiceNowIdRequest
-        {
-            ExceptionId = 123,
-            ServiceNowId = "INC123456"
-        };
-        var requestBody = JsonSerializer.Serialize(request);
-        var mockRequest = CreateMockRequest(requestBody);
-
-        _validationDataMock.Setup(v => v.UpdateExceptionServiceNowId(123, "INC123456")).ReturnsAsync(true);
-        SetupCreateResponseMock(HttpStatusCode.OK);
+        var exceptionId = 1;
+        var serviceNowId = "SNOW 123456789";
 
         // Act
-        var result = await _service.UpdateExceptionServiceNowId(mockRequest.Object);
+        var result = await _service.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
 
         // Assert
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual("ServiceNowID cannot contain spaces.", result.ErrorMessage);
+
+        _validationExceptionDataServiceClientMock.Verify(x => x.GetSingle(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UpdateExceptionServiceNowId_ShortServiceNowId_ReturnsBadRequest()
+    {
+        // Arrange
+        var exceptionId = 1;
+        var serviceNowId = "SNOW123"; // Less than 9 characters
+
+        // Act
+        var result = await _service.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
+
+        // Assert
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual("ServiceNowID must be at least 9 characters long.", result.ErrorMessage);
+
+        _validationExceptionDataServiceClientMock.Verify(x => x.GetSingle(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UpdateExceptionServiceNowId_NonAlphanumericServiceNowId_ReturnsBadRequest()
+    {
+        // Arrange
+        var exceptionId = 1;
+        var serviceNowId = "SNOW123!@#"; // Contains special characters
+
+        // Act
+        var result = await _service.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
+
+        // Assert
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        Assert.AreEqual("ServiceNowID must contain only alphanumeric characters.", result.ErrorMessage);
+
+        _validationExceptionDataServiceClientMock.Verify(x => x.GetSingle(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UpdateExceptionServiceNowId_ServiceNowIdWithLeadingTrailingSpaces_TrimsAndSucceeds()
+    {
+        // Arrange
+        var exceptionId = 1;
+        var serviceNowId = "  SNOW123456789  "; // Spaces around valid ID
+        var trimmedServiceNowId = "SNOW123456789";
+        var exception = new ExceptionManagement
+        {
+            ExceptionId = exceptionId,
+            ServiceNowId = "DIFFERENT123",
+            RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
+        };
+
+        _validationExceptionDataServiceClientMock
+            .Setup(x => x.GetSingle(exceptionId.ToString()))
+            .ReturnsAsync(exception);
+
+        _validationExceptionDataServiceClientMock
+            .Setup(x => x.Update(It.IsAny<ExceptionManagement>()))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _service.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
+
+        // Assert
+        Assert.IsTrue(result.Success);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        _validationExceptionDataServiceClientMock.Verify(x => x.Update(It.Is<ExceptionManagement>(e =>
+            e.ServiceNowId == trimmedServiceNowId)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UpdateExceptionServiceNowId_SuccessfulUpdate_NoErrorLogging()
+    {
+        // Arrange
+        var exceptionId = 1;
+        var serviceNowId = "SNOW123456789";
+        var exception = new ExceptionManagement
+        {
+            ExceptionId = exceptionId,
+            ServiceNowId = "DIFFERENT123",
+            RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
+        };
+
+        _validationExceptionDataServiceClientMock
+            .Setup(x => x.GetSingle(exceptionId.ToString()))
+            .ReturnsAsync(exception);
+
+        _validationExceptionDataServiceClientMock
+            .Setup(x => x.Update(It.IsAny<ExceptionManagement>()))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await _service.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
+
+        // Assert
+        Assert.IsTrue(result.Success);
     }
 }
