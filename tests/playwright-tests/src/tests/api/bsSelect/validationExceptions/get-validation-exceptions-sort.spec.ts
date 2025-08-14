@@ -9,7 +9,7 @@ test.describe('DTOSS-10184 - Verify exceptions sorting by DateCreated', () => {
     let response: any;
 
     test.beforeAll(async ({ request }) => {
-      apiConfig = await getApiQueryParams('@DTOSS-10184-01', 'validation_exceptions_sort_asc');
+      apiConfig = await getApiQueryParams('@DTOSS-10184-01', 'validation_exceptions_notRaised_asc');
 
       if (apiConfig.description) {
         console.info(`Test configuration: ${apiConfig.description}`);
@@ -103,7 +103,7 @@ test.describe('DTOSS-10184 - Verify exceptions sorting by DateCreated', () => {
     let response: any;
 
     test.beforeAll(async ({ request }) => {
-      apiConfig = await getApiQueryParams('@DTOSS-10184-02', 'validation_exceptions_sort_desc');
+      apiConfig = await getApiQueryParams('@DTOSS-10184-02', 'validation_exceptions_notRaised_desc');
 
       if (apiConfig.description) {
         console.info(`Test configuration: ${apiConfig.description}`);

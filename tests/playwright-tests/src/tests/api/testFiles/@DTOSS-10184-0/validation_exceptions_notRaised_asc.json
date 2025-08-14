@@ -1,5 +1,5 @@
 {
-  "description": "Validation exceptions - RAISED status, ASCENDING sort (oldest to newest)",
+  "description": "Validation exceptions - NotRaised status, ASCENDING sort (oldest to newest)",
   "queryParams": {
     "exceptionStatus": 2,
     "sortOrder": 0
