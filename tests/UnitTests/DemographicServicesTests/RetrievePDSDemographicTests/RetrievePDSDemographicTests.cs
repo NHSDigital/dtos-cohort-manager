@@ -84,7 +84,6 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         _httpClientFunction.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
             .ReturnsAsync("{}");
 
-        // Build request with nhsNumber only
         SetupRequest("{}");
         SetupRequestWithQueryParams(new Dictionary<string, string>
         {
@@ -122,7 +121,6 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
 
         var fileName = "nems-file-123.xml";
 
-        // Build request with nhsNumber and sourceFileName
         SetupRequest("{}");
         SetupRequestWithQueryParams(new Dictionary<string, string>
         {
