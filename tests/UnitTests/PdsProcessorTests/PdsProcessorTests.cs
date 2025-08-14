@@ -108,7 +108,7 @@ public class PdsProcessorTests
         // Act
         await _pdsProcessor.ProcessPdsNotFoundResponse(httpResponseMessage, nhsNumber, providedFileName);
 
-        // Assert: ensure the queued record carries the provided filename
+        // Assert
         _addBatchToQueue.Verify(x => x.ProcessBatch(
             It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
                 q.Count == 1 && q.ToArray()[0].FileName == providedFileName),
@@ -122,10 +122,10 @@ public class PdsProcessorTests
         // Arrange
         using var httpResponseMessage = CreatePdsErrorResponse(PdsConstants.InvalidatedResourceCode);
 
-        // Act (omit filename)
+        // Act
         await _pdsProcessor.ProcessPdsNotFoundResponse(httpResponseMessage, nhsNumber);
 
-        // Assert: ensure the queued record uses default when no filename provided
+        // Assert
         _addBatchToQueue.Verify(x => x.ProcessBatch(
             It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
                 q.Count == 1 && q.ToArray()[0].FileName == PdsConstants.DefaultFileName),
