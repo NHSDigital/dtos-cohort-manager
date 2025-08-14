@@ -100,7 +100,7 @@ public class PdsProcessorTests
     [TestMethod]
     public async Task ProcessPdsNotFoundResponse_WithSourceFileName_UsesProvidedFileName()
     {
-        // Arrange invalidated resource 404 error
+        // Arrange
         using var httpResponseMessage = CreatePdsErrorResponse(PdsConstants.InvalidatedResourceCode);
 
         var providedFileName = "nems-file-abc.xml";
@@ -119,7 +119,7 @@ public class PdsProcessorTests
     [TestMethod]
     public async Task ProcessPdsNotFoundResponse_WithoutSourceFileName_FallsBackToDefault()
     {
-        // Arrange invalidated resource 404 error
+        // Arrange
         using var httpResponseMessage = CreatePdsErrorResponse(PdsConstants.InvalidatedResourceCode);
 
         // Act (omit filename)
