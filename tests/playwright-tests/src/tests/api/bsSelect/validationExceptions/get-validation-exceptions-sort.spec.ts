@@ -2,16 +2,15 @@ import { test, expect } from '@playwright/test';
 import { getValidationExceptions } from '../../../../api/dataService/exceptionService';
 import { getApiQueryParams } from '../../../steps/steps';
 
-test.describe('DTOSS-10182 - Verify exceptions sorting by ServiceNowCreatedDate', () => {
+test.describe('DTOSS-10182 - Verify exceptions sorting by DateCreated', () => {
 
-  test.describe('@DTOSS-10182-01 - Verify exceptions are sorted from oldest to newest by ServiceNowCreatedDate', () => {
+  test.describe('@DTOSS-10182-01 - Verify exceptions are sorted from oldest to newest by DateCreated', () => {
     let apiConfig: any;
     let response: any;
 
     test.beforeAll(async ({ request }) => {
       apiConfig = await getApiQueryParams('@DTOSS-10182-01', 'validation_exceptions_sort_asc');
 
-      // Optional: Log the configuration description for better test output
       if (apiConfig.description) {
         console.info(`Test configuration: ${apiConfig.description}`);
       }
@@ -36,7 +35,7 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by ServiceNowCreatedDate'
       }
     });
 
-    test('@DTOSS-10182-01 - Should verify all returned records have ServiceNowId and ServiceNowCreatedDate', async () => {
+    test('@DTOSS-10182-01 - Should verify all returned records have DateCreated', async () => {
       if (response.status === 204) {
         console.info('No data found - skipping validation test');
         return;
@@ -50,23 +49,21 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by ServiceNowCreatedDate'
 
       items.forEach((item: any, index: number) => {
         expect(item).toBeDefined();
-        expect(item.ServiceNowId).toBeTruthy();
-        expect(item.ServiceNowCreatedDate).toBeTruthy();
-        expect(item.ServiceNowId.length).toBeGreaterThan(0);
-        expect(item.ServiceNowCreatedDate.length).toBeGreaterThan(0);
+        expect(item.DateCreated).toBeTruthy();
+        expect(item.DateCreated.length).toBeGreaterThan(0);
 
         // Validate date format
-        const dateObj = new Date(item.ServiceNowCreatedDate);
+        const dateObj = new Date(item.DateCreated);
         expect(dateObj).toBeInstanceOf(Date);
         expect(dateObj.getTime()).not.toBeNaN();
 
-        console.info(`Record ${index + 1}: ServiceNow ID: ${item.ServiceNowId}, Created Date: ${item.ServiceNowCreatedDate}`);
+        console.info(`Record ${index + 1}: Exception ID: ${item.ExceptionId}, Created Date: ${item.DateCreated}`);
       });
 
-      console.info(`Verified all ${items.length} records have required ServiceNowId and ServiceNowCreatedDate fields`);
+      console.info(`Verified all ${items.length} records have required DateCreated fields`);
     });
 
-    test('@DTOSS-10182-01 - Should verify records are sorted in ascending order by ServiceNowCreatedDate (oldest to newest)', async () => {
+    test('@DTOSS-10182-01 - Should verify records are sorted in ascending order by DateCreated (oldest to newest)', async () => {
       if (response.status === 204) {
         console.info('No data found - skipping sorting test');
         return;
@@ -82,11 +79,11 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by ServiceNowCreatedDate'
       }
 
       for (let i = 1; i < items.length; i++) {
-        expect(items[i - 1].ServiceNowCreatedDate).toBeDefined();
-        expect(items[i].ServiceNowCreatedDate).toBeDefined();
+        expect(items[i - 1].DateCreated).toBeDefined();
+        expect(items[i].DateCreated).toBeDefined();
 
-        const prevDate = new Date(items[i - 1].ServiceNowCreatedDate);
-        const currDate = new Date(items[i].ServiceNowCreatedDate);
+        const prevDate = new Date(items[i - 1].DateCreated);
+        const currDate = new Date(items[i].DateCreated);
 
         expect(prevDate).toBeInstanceOf(Date);
         expect(currDate).toBeInstanceOf(Date);
@@ -97,18 +94,17 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by ServiceNowCreatedDate'
         expect(prevDate.getTime()).toBeLessThanOrEqual(currDate.getTime());
       }
 
-      console.info(`Verified ${items.length} records are sorted in ascending order by ServiceNowCreatedDate (oldest to newest)`);
+      console.info(`Verified ${items.length} records are sorted in ascending order by DateCreated (oldest to newest)`);
     });
   });
 
-  test.describe('@DTOSS-10182-02 - Verify exceptions are sorted from newest to oldest by ServiceNowCreatedDate', () => {
+  test.describe('@DTOSS-10182-02 - Verify exceptions are sorted from newest to oldest by DateCreated', () => {
     let apiConfig: any;
     let response: any;
 
     test.beforeAll(async ({ request }) => {
       apiConfig = await getApiQueryParams('@DTOSS-10182-02', 'validation_exceptions_sort_desc');
 
-      // Optional: Log the configuration description for better test output
       if (apiConfig.description) {
         console.info(`Test configuration: ${apiConfig.description}`);
       }
@@ -133,7 +129,7 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by ServiceNowCreatedDate'
       }
     });
 
-    test('@DTOSS-10182-02 - Should verify all returned records have ServiceNowId and ServiceNowCreatedDate', async () => {
+    test('@DTOSS-10182-02 - Should verify all returned records have DateCreated', async () => {
       if (response.status === 204) {
         console.info('No data found - skipping validation test');
         return;
@@ -147,23 +143,21 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by ServiceNowCreatedDate'
 
       items.forEach((item: any, index: number) => {
         expect(item).toBeDefined();
-        expect(item.ServiceNowId).toBeTruthy();
-        expect(item.ServiceNowCreatedDate).toBeTruthy();
-        expect(item.ServiceNowId.length).toBeGreaterThan(0);
-        expect(item.ServiceNowCreatedDate.length).toBeGreaterThan(0);
+        expect(item.DateCreated).toBeTruthy();
+        expect(item.DateCreated.length).toBeGreaterThan(0);
 
         // Validate date format
-        const dateObj = new Date(item.ServiceNowCreatedDate);
+        const dateObj = new Date(item.DateCreated);
         expect(dateObj).toBeInstanceOf(Date);
         expect(dateObj.getTime()).not.toBeNaN();
 
-        console.info(`Record ${index + 1}: ServiceNow ID: ${item.ServiceNowId}, Created Date: ${item.ServiceNowCreatedDate}`);
+        console.info(`Record ${index + 1}: ExceptionID: ${item.ExceptionId}, Created Date: ${item.DateCreated}`);
       });
 
-      console.info(`Verified all ${items.length} records have required ServiceNowId and ServiceNowCreatedDate fields`);
+      console.info(`Verified all ${items.length} records have required DateCreated fields`);
     });
 
-    test('@DTOSS-10182-02 - Should verify records are sorted in descending order by ServiceNowCreatedDate (newest to oldest)', async () => {
+    test('@DTOSS-10182-02 - Should verify records are sorted in descending order by DateCreated (newest to oldest)', async () => {
       if (response.status === 204) {
         console.info('No data found - skipping sorting test');
         return;
@@ -179,11 +173,11 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by ServiceNowCreatedDate'
       }
 
       for (let i = 1; i < items.length; i++) {
-        expect(items[i - 1].ServiceNowCreatedDate).toBeDefined();
-        expect(items[i].ServiceNowCreatedDate).toBeDefined();
+        expect(items[i - 1].DateCreated).toBeDefined();
+        expect(items[i].DateCreated).toBeDefined();
 
-        const prevDate = new Date(items[i - 1].ServiceNowCreatedDate);
-        const currDate = new Date(items[i].ServiceNowCreatedDate);
+        const prevDate = new Date(items[i - 1].DateCreated);
+        const currDate = new Date(items[i].DateCreated);
 
         expect(prevDate).toBeInstanceOf(Date);
         expect(currDate).toBeInstanceOf(Date);
@@ -194,7 +188,7 @@ test.describe('DTOSS-10182 - Verify exceptions sorting by ServiceNowCreatedDate'
         expect(prevDate.getTime()).toBeGreaterThanOrEqual(currDate.getTime());
       }
 
-      console.info(`Verified ${items.length} records are sorted in descending order by ServiceNowCreatedDate (newest to oldest)`);
+      console.info(`Verified ${items.length} records are sorted in descending order by DateCreated (newest to oldest)`);
     });
   });
 });
