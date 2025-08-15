@@ -6,6 +6,9 @@ using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Net.Http;
 using Moq;
 using NHS.CohortManager.DemographicServices;
 
@@ -46,33 +49,37 @@ public class PdsProcessorTests
 
     }
 
-    [TestMethod]
-    public async Task ProcessPdsNotFoundResponse_ProcessesResponse_SendsForDistribution()
+    private static HttpResponseMessage CreatePdsErrorResponse(string code)
     {
         var errorResponse = new PdsErrorResponse()
         {
-            issue = new List<PdsIssue>()
+            issue = new List<PdsIssue>
             {
-                new PdsIssue()
+                new PdsIssue
                 {
-                    code = "",
-                    details = new PdsErrorDetails()
+                    code = string.Empty,
+                    details = new PdsErrorDetails
                     {
-                        coding = new List<PdsCoding>()
+                        coding = new List<PdsCoding>
                         {
-                            new PdsCoding()
-                            {
-                                code = "INVALIDATED_RESOURCE"
-                            }
+                            new PdsCoding { code = code }
                         }
                     }
                 }
             }
         };
 
-        HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
-        httpResponseMessage.Content = new StringContent(JsonSerializer.Serialize(errorResponse));
+        var msg = new HttpResponseMessage
+        {
+            Content = new StringContent(JsonSerializer.Serialize(errorResponse))
+        };
+        return msg;
+    }
 
+    [TestMethod]
+    public async Task ProcessPdsNotFoundResponse_ProcessesResponse_SendsForDistribution()
+    {
+        using var httpResponseMessage = CreatePdsErrorResponse(PdsConstants.InvalidatedResourceCode);
         await _pdsProcessor.ProcessPdsNotFoundResponse(httpResponseMessage, nhsNumber);
 
         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
@@ -91,32 +98,45 @@ public class PdsProcessorTests
     }
 
     [TestMethod]
+    public async Task ProcessPdsNotFoundResponse_WithSourceFileName_UsesProvidedFileName()
+    {
+        // Arrange
+        using var httpResponseMessage = CreatePdsErrorResponse(PdsConstants.InvalidatedResourceCode);
+
+        var providedFileName = "nems-file-abc.xml";
+
+        // Act
+        await _pdsProcessor.ProcessPdsNotFoundResponse(httpResponseMessage, nhsNumber, providedFileName);
+
+        // Assert
+        _addBatchToQueue.Verify(x => x.ProcessBatch(
+            It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
+                q.Count == 1 && q.ToArray()[0].FileName == providedFileName),
+            It.IsAny<string>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProcessPdsNotFoundResponse_WithoutSourceFileName_FallsBackToDefault()
+    {
+        // Arrange
+        using var httpResponseMessage = CreatePdsErrorResponse(PdsConstants.InvalidatedResourceCode);
+
+        // Act
+        await _pdsProcessor.ProcessPdsNotFoundResponse(httpResponseMessage, nhsNumber);
+
+        // Assert
+        _addBatchToQueue.Verify(x => x.ProcessBatch(
+            It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
+                q.Count == 1 && q.ToArray()[0].FileName == PdsConstants.DefaultFileName),
+            It.IsAny<string>()),
+            Times.Once);
+    }
+
+    [TestMethod]
     public async Task ProcessPdsNotFoundResponse_WithNonInvalidatedResource_LogsError()
     {
-        var errorResponse = new PdsErrorResponse()
-        {
-            issue = new List<PdsIssue>()
-            {
-                new PdsIssue()
-                {
-                    code = "",
-                    details = new PdsErrorDetails()
-                    {
-                        coding = new List<PdsCoding>()
-                        {
-                            new PdsCoding()
-                            {
-                                code = ""
-                            }
-                        }
-                    }
-                }
-            }
-        };
-
-        HttpResponseMessage httpResponseMessage = new HttpResponseMessage();
-        httpResponseMessage.Content = new StringContent(JsonSerializer.Serialize(errorResponse));
-
+        using var httpResponseMessage = CreatePdsErrorResponse("");
         await _pdsProcessor.ProcessPdsNotFoundResponse(httpResponseMessage, nhsNumber);
 
         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
