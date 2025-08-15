@@ -1,7 +1,10 @@
 namespace Common;
 
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Hl7.Fhir.Validation;
+using Model;
 
 public static class ValidationHelper
 {
@@ -109,21 +112,16 @@ public static class ValidationHelper
     /// </remarks>
     public static string? ParseOutcode(string postcode)
     {
-        if (postcode == "ZZZSECUR")
-        {
-            return postcode;
-        }
-
         string pattern = @"^([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
 
         Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+
         if (!match.Success)
         {
             return null;
         }
 
         string outcode = match.Groups[1].Value;
-
         return outcode;
     }
 

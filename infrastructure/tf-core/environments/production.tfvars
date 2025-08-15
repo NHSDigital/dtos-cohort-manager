@@ -9,6 +9,7 @@ features = {
   private_endpoints_enabled            = true
   private_service_connection_is_manual = false
   public_network_access_enabled        = false
+  frontdoor_endpoint_enabled           = true
 }
 
 # these will be merged with compliance tags in locals.tf
@@ -335,6 +336,10 @@ function_apps = {
         {
           env_var_name   = "NemsMessages"
           container_name = "nems-updates"
+        },
+        {
+          env_var_name   = "NemsPoisonContainer"
+          container_name = "nems-poison"
         }
       ]
       env_vars_static = {
@@ -1253,6 +1258,9 @@ storage_accounts = {
       }
       nems-config = {
         container_name = "nems-config"
+      }
+      nems-poison = {
+        container_name = "nems-poison"
       }
     }
   }
