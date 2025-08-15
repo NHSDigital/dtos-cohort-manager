@@ -54,5 +54,6 @@ export async function updateExceptions(
     redirect(apiErrorUrl);
   }
 
-  redirect(`/participant-information/${exceptionId}`);
+  const successUrl = isEditMode ? "/exceptions/raised" : "/exceptions";
+  redirect(successUrl);
 }
