@@ -62,7 +62,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
                 var patientXml = ExtractPatientXmlFromBundle(xml);
                 if (string.IsNullOrEmpty(patientXml))
                     return string.Empty;
-                
+
                 var parser = new FhirXmlParser();
                 var patient = parser.Parse<Patient>(patientXml);
                 return ExtractNhsNumberFromPatient(patient);
@@ -86,10 +86,10 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
     {
         var doc = new XmlDocument();
         doc.LoadXml(bundleXml);
-        
+
         var nsManager = new XmlNamespaceManager(doc.NameTable);
         nsManager.AddNamespace("fhir", "http://hl7.org/fhir");
-        
+
         var patientNode = doc.SelectSingleNode("//fhir:Patient", nsManager);
         return patientNode?.OuterXml ?? string.Empty;
     }
@@ -100,7 +100,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         if (patient?.Identifier == null) return patient?.Id ?? string.Empty;
 
         // Look for NHS number identifier
-        var nhsIdentifier = patient.Identifier.FirstOrDefault(id => 
+        var nhsIdentifier = patient.Identifier.FirstOrDefault(id =>
             id.System == "https://fhir.nhs.uk/Id/nhs-number");
 
         return nhsIdentifier?.Value ?? patient.Id ?? string.Empty;
@@ -375,7 +375,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
             if (languageComponent != null)
             {
                 var languageCoding = (languageComponent.Value as CodeableConcept)?.Coding?.FirstOrDefault();
-                demographic.PreferredLanguage = languageCoding?.Display ?? languageCoding?.Code;
+                demographic.PreferredLanguage = languageCoding?.Code ?? languageCoding?.Display;
             }
 
             if (interpreterComponent != null && interpreterComponent.Value is FhirBoolean interpreterBool && interpreterBool.Value.HasValue)
