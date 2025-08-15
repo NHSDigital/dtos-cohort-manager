@@ -680,11 +680,6 @@
             "Context": {
               "transformFields": [
                 {
-                  "field": "PrimaryCareProvider",
-                  "value": "participant.PrimaryCareProvider",
-                  "isExpression": true
-                },
-                {
                   "field": "PrimaryCareProviderEffectiveFromDate",
                   "value": "DateTime.UtcNow.ToString(\"yyyy-MM-dd\")",
                   "isExpression": true
