@@ -2,7 +2,9 @@ namespace Data.Database;
 
 using System;
 using System.Data;
+using System.Net;
 using System.Threading.Tasks;
+using Common;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -79,28 +81,78 @@ public class ValidationExceptionData : IValidationExceptionData
         return false;
     }
 
-    public async Task<bool> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId)
+    public async Task<ServiceResponseModel> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId)
     {
         try
         {
-            var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
+            serviceNowId = serviceNowId?.Trim() ?? string.Empty;
+            var validationError = ValidateServiceNowId(serviceNowId);
+            if (validationError != null)
+            {
+                return CreateErrorResponse(validationError, HttpStatusCode.BadRequest);
+            }
 
+            var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
             if (exception == null)
             {
-                _logger.LogWarning("Exception with ID {ExceptionId} not found", exceptionId);
-                return false;
+                return CreateErrorResponse($"Exception with ID {exceptionId} not found", HttpStatusCode.NotFound);
+            }
+
+            if (serviceNowId == exception.ServiceNowId)
+            {
+                return CreateErrorResponse($"ServiceNowId {serviceNowId} is the same as the existing value", HttpStatusCode.BadRequest);
             }
 
             exception.ServiceNowId = serviceNowId;
             exception.RecordUpdatedDate = DateTime.UtcNow;
 
-            return await _validationExceptionDataServiceClient.Update(exception);
+            var updateResult = await _validationExceptionDataServiceClient.Update(exception);
+            if (!updateResult)
+            {
+                return CreateErrorResponse($"Failed to update exception {exceptionId} in data service", HttpStatusCode.InternalServerError);
+            }
+
+            return CreateSuccessResponse();
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error updating ServiceNowID for exception {ExceptionId}", exceptionId);
-            return false;
+            return CreateErrorResponse($"Error updating ServiceNowID for exception {exceptionId}", HttpStatusCode.InternalServerError);
         }
+    }
+
+    private ServiceResponseModel CreateErrorResponse(string errorMessage, HttpStatusCode statusCode)
+    {
+        _logger.LogWarning("Service error occurred: {ErrorMessage}", errorMessage);
+
+        return new ServiceResponseModel
+        {
+            Success = false,
+            ErrorMessage = errorMessage,
+            StatusCode = statusCode
+        };
+    }
+
+    private static ServiceResponseModel CreateSuccessResponse()
+    {
+        return new ServiceResponseModel
+        {
+            Success = true,
+            StatusCode = HttpStatusCode.OK
+        };
+    }
+
+    private static string? ValidateServiceNowId(string serviceNowId)
+    {
+        if (string.IsNullOrWhiteSpace(serviceNowId))
+            return "ServiceNowID is required.";
+        if (serviceNowId.Contains(' '))
+            return "ServiceNowID cannot contain spaces.";
+        if (serviceNowId.Length < 9)
+            return "ServiceNowID must be at least 9 characters long.";
+        if (!serviceNowId.All(char.IsLetterOrDigit))
+            return "ServiceNowID must contain only alphanumeric characters.";
+        return null;
     }
 
     private ValidationException? GetExceptionDetails(ValidationException? exception, ParticipantDemographic? participantDemographic)
