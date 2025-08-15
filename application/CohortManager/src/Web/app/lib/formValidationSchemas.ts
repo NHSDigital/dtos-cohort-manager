@@ -17,7 +17,6 @@ export const updateExceptionsSchema = (isEditMode: boolean = false) =>
         return val.length >= 1;
       }, "ServiceNow case ID is required")
       .refine((val) => {
-        // In edit mode, allow empty string
         if (isEditMode && val === "") {
           return true;
         }
@@ -25,7 +24,6 @@ export const updateExceptionsSchema = (isEditMode: boolean = false) =>
         return val.length >= 9;
       }, "ServiceNow case ID must be nine characters or more")
       .refine((val) => {
-        // In edit mode, allow empty string
         if (isEditMode && val === "") {
           return true;
         }
@@ -33,7 +31,6 @@ export const updateExceptionsSchema = (isEditMode: boolean = false) =>
         return !val.includes(" ");
       }, "ServiceNow case ID must not contain spaces")
       .refine((val) => {
-        // In edit mode, allow empty string
         if (isEditMode && val === "") {
           return true;
         }
