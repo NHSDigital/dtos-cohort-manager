@@ -53,7 +53,7 @@ public class GetValidationExceptions
 
         try
         {
-            if (exceptionId != 0)
+            if (exceptionId > 0)
             {
                 var exceptionById = await _validationData.GetExceptionById(exceptionId);
                 return exceptionById == null
