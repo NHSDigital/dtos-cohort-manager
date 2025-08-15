@@ -18,7 +18,10 @@ export default async function Page(props: {
   readonly params: Promise<{
     readonly exceptionId: string;
   }>;
-  readonly searchParams?: Promise<{ readonly edit?: string }>;
+  readonly searchParams?: Promise<{
+    readonly edit?: string;
+    readonly error?: string;
+  }>;
 }) {
   const session = await auth();
   const isCohortManager = await canAccessCohortManager(session);
@@ -170,6 +173,7 @@ export default async function Page(props: {
               <ParticipantInformationPanel
                 exceptionDetails={exceptionDetails}
                 isEditMode={isEditMode}
+                searchParams={resolvedSearchParams}
               />
             </div>
           </div>
