@@ -157,9 +157,9 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Block participant
     const blockPayload = {
-      NhsNumber: String(nhsNumber),
-      FamilyName: String(addInputParticipantRecord[0].family_name),
-      DateOfBirth: String(addInputParticipantRecord[0].date_of_birth)
+      NhsNumber: nhsNumber,
+      FamilyName: addInputParticipantRecord[0].family_name,
+      DateOfBirth: addInputParticipantRecord[0].date_of_birth
     };
     await BlockParticipant(request, blockPayload);
 
@@ -178,9 +178,9 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Unblock participant
     const unblockPayload = {
-      NhsNumber: String(nhsNumber),
-      FamilyName: String(addInputParticipantRecord[0].family_name),
-      DateOfBirth: String(addInputParticipantRecord[0].date_of_birth)
+      NhsNumber: nhsNumber,
+      FamilyName: addInputParticipantRecord[0].family_name,
+      DateOfBirth: addInputParticipantRecord[0].date_of_birth
     };
     await UnblockParticipant(request, unblockPayload);
 
@@ -301,9 +301,9 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Block participant
     const blockPayload = {
-      NhsNumber: String(nhsNumber),
-      FamilyName: String(addInputParticipantRecord[0].family_name),
-      DateOfBirth: String(addInputParticipantRecord[0].date_of_birth)
+      NhsNumber: nhsNumber,
+      FamilyName: addInputParticipantRecord[0].family_name,
+      DateOfBirth: addInputParticipantRecord[0].date_of_birth
     };
     await BlockParticipant(request, blockPayload);
 
@@ -322,9 +322,9 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Unblock participant
     const unblockPayload = {
-      NhsNumber: String(nhsNumber),
-      FamilyName: String(addInputParticipantRecord[0].family_name),
-      DateOfBirth: String(addInputParticipantRecord[0].date_of_birth)
+      NhsNumber: nhsNumber,
+      FamilyName: addInputParticipantRecord[0].family_name,
+      DateOfBirth: addInputParticipantRecord[0].date_of_birth
     };
     await UnblockParticipant(request, unblockPayload);
 
