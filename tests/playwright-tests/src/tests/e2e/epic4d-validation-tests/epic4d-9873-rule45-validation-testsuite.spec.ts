@@ -29,8 +29,8 @@ test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async ()
         
         
         await test.step(`And participants received from exception service api should be 3 with status code of 200`, async () => {
-            // There should be exceptions for rule 45 and 3601, plus an exception to say that a participant cannot be added to cohort distribution as there is an exception
-            const ExpectedRowCount = 3; 
+            // There should be exceptions for rule 45 and to say that a participant cannot be added to cohort distribution as there is an exception
+            const ExpectedRowCount = 2; 
 
             const response = await getRecordsFromExceptionService(request);
         
@@ -67,8 +67,8 @@ test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async ()
         
         
         await test.step(`And participants received from exception service api should be 2 with status code of 200`, async () => {
-            // There should be exceptions for rule 45 and 3601, plus an exception to say that a participant cannot be added to cohort distribution as there is an exception
-            const ExpectedRowCount = 3; 
+            // There should be exceptions for rule 45 and to say that a participant cannot be added to cohort distribution as there is an exception
+            const ExpectedRowCount = 2; 
 
             const response = await getRecordsFromExceptionService(request);
         
@@ -105,8 +105,8 @@ test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async ()
         
         
         await test.step(`And participants received from exception service api should be 3 with status code of 200`, async () => {
-            // There should be exceptions for rule 45 and 3601, plus an exception to say that a participant cannot be added to cohort distribution as there is an exception
-            const ExpectedRowCount = 3; 
+            // There should be exceptions for rule 45 and to say that a participant cannot be added to cohort distribution as there is an exception
+            const ExpectedRowCount = 2; 
 
             const response = await getRecordsFromExceptionService(request);
         
