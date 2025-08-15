@@ -28,7 +28,7 @@ public class ManageServiceNowParticipantFunctionTests
 
     private readonly string _messageType1Request;
     private readonly string _messageType2Request;
-    private readonly ParticipantDemographic _demographic;
+    private readonly PdsDemographic _matchingPdsDemographic;
 
     public ManageServiceNowParticipantFunctionTests()
     {
@@ -42,7 +42,7 @@ public class ManageServiceNowParticipantFunctionTests
             ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
             ReasonForAdding = ServiceNowReasonsForAdding.RequiresCeasing,
-            RequiredGpCode = "T35 7ING"
+            RequiredGpCode = "ZZZ123"
         };
 
         var config = new ManageServiceNowParticipantConfig
@@ -74,13 +74,12 @@ public class ManageServiceNowParticipantFunctionTests
             MessageType = ServiceNowMessageType.AddRequestInProgress
         });
 
-        _demographic = new ParticipantDemographic
+        _matchingPdsDemographic = new PdsDemographic
         {
-            NhsNumber = _serviceNowParticipant.NhsNumber,
-            GivenName = _serviceNowParticipant.FirstName,
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
-            PrimaryCareProvider = "T35 7ING"
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd")
         };
     }
 
@@ -247,14 +246,7 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenServiceNowParticipantIsValidAndDoesNotExistInTheDataStore_AddsTheNewParticipant()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new PdsDemographic
-        {
-            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
-            FirstName = _serviceNowParticipant.FirstName,
-            FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
-            Postcode = "SW1A 2AA"
-        });
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -310,14 +302,7 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenServiceNowParticipantIsValidAndExistsInTheDataStoreButIsBlocked_DoesNotUpdateTheParticipantAndSendsMessageType1()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new PdsDemographic
-        {
-            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
-            FirstName = _serviceNowParticipant.FirstName,
-            FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
-            Postcode = "SW1A 2AA"
-        });
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -335,7 +320,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _serviceNowParticipant.RequiredGpCode &&
+                    x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
@@ -367,14 +352,7 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenServiceNowParticipantIsValidAndExistsInTheDataStoreAndIsNotBlocked_UpdatesTheParticipant()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new PdsDemographic
-        {
-            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
-            FirstName = _serviceNowParticipant.FirstName,
-            FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
-            Postcode = "SW1A 2AA"
-        });
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -433,14 +411,7 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenSubscribesToNEMSFails_LogsErrorMessageButContinues(HttpStatusCode httpStatusCode)
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new PdsDemographic
-        {
-            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
-            FirstName = _serviceNowParticipant.FirstName,
-            FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
-            Postcode = "SW1A 2AA"
-        });
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
@@ -472,7 +443,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
-                    x.Participant.Postcode == _demographic.PostCode &&
+                    x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
@@ -512,14 +483,7 @@ public class ManageServiceNowParticipantFunctionTests
             RequiredGpCode = "T35 7ING"
         };
 
-        var json = JsonSerializer.Serialize(new PdsDemographic
-        {
-            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
-            FirstName = _serviceNowParticipant.FirstName,
-            FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
-            Postcode = "SW1A 2AA"
-        });
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
 
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={vhrParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -580,14 +544,7 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenServiceNowParticipantIsNotVhrAndDoesNotExistInDataStore_AddsNewParticipantWithoutVhrFlag()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new PdsDemographic
-        {
-            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
-            FirstName = _serviceNowParticipant.FirstName,
-            FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
-            Postcode = "SW1A 2AA"
-        });
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
 
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -660,14 +617,7 @@ public class ManageServiceNowParticipantFunctionTests
             RequiredGpCode = "T35 7ING"
         };
 
-        var json = JsonSerializer.Serialize(new PdsDemographic
-        {
-            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
-            FirstName = _serviceNowParticipant.FirstName,
-            FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
-            Postcode = "SW1A 2AA"
-        });
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
 
         var existingParticipant = new ParticipantManagement
         {
@@ -738,14 +688,7 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenParticipantExistsWithVhrFlagAlreadySet_MaintainsVhrFlag()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new PdsDemographic
-        {
-            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
-            FirstName = _serviceNowParticipant.FirstName,
-            FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
-            Postcode = "SW1A 2AA"
-        });
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
 
         var existingParticipant = new ParticipantManagement
         {
@@ -815,14 +758,7 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenNonVhrParticipantExistsWithNullVhrFlag_LeavesVhrFlagAsNull()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new PdsDemographic
-        {
-            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
-            FirstName = _serviceNowParticipant.FirstName,
-            FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
-            Postcode = "SW1A 2AA"
-        });
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
 
         var existingParticipant = new ParticipantManagement
         {

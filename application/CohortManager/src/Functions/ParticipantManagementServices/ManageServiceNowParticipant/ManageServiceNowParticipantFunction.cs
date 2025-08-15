@@ -64,7 +64,7 @@ public class ManageServiceNowParticipantFunction
                 _logger.LogError("Failed to subscribe participant with Id {ParticipantId} to NEMS", participantManagement.ParticipantId);
             }
 
-            var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, pdsDemographic, participantManagement);
+            var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantManagement);
 
             var sendToQueueSuccess = await _queueClient.AddAsync(participantForDistribution, _config.CohortDistributionTopic);
 
