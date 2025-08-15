@@ -27,13 +27,11 @@ let mockDataStore: {
 
 // Initialize the data store with fresh data from JSON
 const initializeDataStore = () => {
-  if (!mockDataStore) {
-    mockDataStore = {
-      exceptions: { ...mockDataJson.exceptions },
-      notRaisedExceptions: [...mockDataJson.notRaisedExceptions],
-      raisedExceptions: [...mockDataJson.raisedExceptions],
-    };
-  }
+  mockDataStore ??= {
+    exceptions: { ...mockDataJson.exceptions },
+    notRaisedExceptions: [...mockDataJson.notRaisedExceptions],
+    raisedExceptions: [...mockDataJson.raisedExceptions],
+  };
   return mockDataStore;
 };
 
@@ -87,21 +85,18 @@ const updateListExceptions = (
         store.notRaisedExceptions[index] = listItem;
       }
     }
+  } else if (isNowRaised) {
+    // Move from notRaised to raised
+    store.notRaisedExceptions = store.notRaisedExceptions.filter(
+      (e) => e.ExceptionId !== exception.ExceptionId
+    );
+    store.raisedExceptions.push(listItem);
   } else {
-    // Status changed, move between lists
-    if (isNowRaised) {
-      // Move from notRaised to raised
-      store.notRaisedExceptions = store.notRaisedExceptions.filter(
-        (e) => e.ExceptionId !== exception.ExceptionId
-      );
-      store.raisedExceptions.push(listItem);
-    } else {
-      // Move from raised to notRaised
-      store.raisedExceptions = store.raisedExceptions.filter(
-        (e) => e.ExceptionId !== exception.ExceptionId
-      );
-      store.notRaisedExceptions.push(listItem);
-    }
+    // Move from raised to notRaised
+    store.raisedExceptions = store.raisedExceptions.filter(
+      (e) => e.ExceptionId !== exception.ExceptionId
+    );
+    store.notRaisedExceptions.push(listItem);
   }
 };
 

@@ -39,7 +39,7 @@ export default function ParticipantInformationPanel({
             There is a problem
           </h2>
           <div className="nhsuk-error-summary__body">
-            <ul className="nhsuk-list nhsuk-error-summary__list" role="list">
+            <ul className="nhsuk-list nhsuk-error-summary__list">
               <li>
                 <a href="#service-now-case-id">{validationError}</a>
               </li>
