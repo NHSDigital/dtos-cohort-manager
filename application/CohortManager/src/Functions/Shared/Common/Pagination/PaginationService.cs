@@ -66,7 +66,7 @@ public class PaginationService<T> : IPaginationService<T>
         return headers;
     }
 
-    private List<string> BuildLinkHeaders<TEntity>(HttpRequestData request, PaginationResult<TEntity> paginationResult)
+    private static List<string> BuildLinkHeaders<TEntity>(HttpRequestData request, PaginationResult<TEntity> paginationResult)
     {
         var linkHeaders = new List<string>();
         var baseUrl = request.Url.GetLeftPart(UriPartial.Path);
@@ -86,7 +86,7 @@ public class PaginationService<T> : IPaginationService<T>
         return linkHeaders;
     }
 
-    private string RemoveLastIdParam(string queryString)
+    private static string RemoveLastIdParam(string queryString)
     {
         if (string.IsNullOrEmpty(queryString)) return "";
 
