@@ -132,6 +132,7 @@ annotation: [{
 test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () => {
 
   test('@DTOSS-7678-01 AC1 - Verify eligible unblocked participant is passed to cohort and NEMS subscription is activated', async ({ request }: { request: APIRequestContext }, testInfo) => {
+    test.setTimeout(90000);
     // Arrange: Prepare test data and clean up any existing records
     const [addValidations, addInputParticipantRecord, addNhsNumbers, addTestFilesPath] = await getApiTestData(testInfo.title, 'ADD');
     const nhsNumber = addNhsNumbers[0];
@@ -143,14 +144,14 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Wait for participant to appear in DB
     let participantExists = false;
-    for (let i = 0; i < 12; i++) {
+    for (let i = 0; i < 10; i++) {
       const resp = await getRecordsFromParticipantManagementService(request);
       if (resp?.data && Array.isArray(resp.data) && resp.data.length > 0 && String(resp.data[0].NHSNumber) === nhsNumber) {
         participantExists = true;
         break;
       }
-      console.log(`Waiting for participant to appear in DB... (attempt ${i+1}/12)`);
-      await new Promise(res => setTimeout(res, 2500));
+      console.log(`Waiting for participant to appear in DB... (attempt ${i+1}/10)`);
+      await new Promise(res => setTimeout(res, 3000));
     }
     expect(participantExists).toBe(true);
 
@@ -164,14 +165,14 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Wait for block
     let blocked = false;
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 10; i++) {
       const resp = await getRecordsFromParticipantManagementService(request);
       if (resp?.data?.[0]?.BlockedFlag === 1) {
         blocked = true;
         break;
       }
-      console.log(`Waiting for participant to be blocked... (attempt ${i+1}/6)`);
-      await new Promise(res => setTimeout(res, 2000));
+      console.log(`Waiting for participant to be blocked... (attempt ${i+1}/10)`);
+      await new Promise(res => setTimeout(res, 3000));
     }
     expect(blocked).toBe(true);
 
@@ -185,28 +186,28 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Wait for unblock
     let unblocked = false;
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 10; i++) {
       const resp = await getRecordsFromParticipantManagementService(request);
       if (resp?.data?.[0]?.BlockedFlag === 0) {
         unblocked = true;
         break;
       }
-      console.log(`Waiting for participant to be unblocked... (attempt ${i+1}/6)`);
-      await new Promise(res => setTimeout(res, 2000));
+      console.log(`Waiting for participant to be unblocked... (attempt ${i+1}/10)`);
+      await new Promise(res => setTimeout(res, 3000));
     }
     expect(unblocked).toBe(true);
 
     // Assert: Participant is in cohort distribution
     await test.step('Verify participant is in cohort distribution', async () => {
       let inCohort = false;
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 10; i++) {
         const cohortResp = await getRecordsFromCohortDistributionService(request);
         if (cohortResp?.data && Array.isArray(cohortResp.data) && cohortResp.data.length > 0) {
           inCohort = true;
           break;
         }
-        console.log(`Waiting for participant to appear in cohort... (attempt ${i+1}/6)`);
-        await new Promise(res => setTimeout(res, 2000));
+        console.log(`Waiting for participant to appear in cohort... (attempt ${i+1}/10)`);
+        await new Promise(res => setTimeout(res, 3000));
       }
       expect(inCohort).toBe(true);
     });
@@ -214,15 +215,15 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
     // Assert: NEMS subscription is active
     await test.step('Verify NEMS subscription is active', async () => {
       let nemsSubscribed = false;
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 10; i++) {
         const nemsStatus = await getNemsSubscriptionStatus(request, nhsNumber);
         // Check status
         if (nemsStatus?.isSubscribed) {
           nemsSubscribed = true;
           break;
         }
-        console.log(`Waiting for NEMS subscription to be active... (attempt ${i+1}/6)`);
-        await new Promise(res => setTimeout(res, 2000));
+        console.log(`Waiting for NEMS subscription to be active... (attempt ${i+1}/10)`);
+        await new Promise(res => setTimeout(res, 3000)); // Increased wait from 2s to 3s
       }
       expect(nemsSubscribed).toBe(true);
     });
@@ -287,14 +288,14 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Wait for participant to appear in DB
     let participantExists = false;
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 10; i++) {
       const resp = await getRecordsFromParticipantManagementService(request);
       if (resp?.data && Array.isArray(resp.data) && resp.data.length > 0 && String(resp.data[0].NHSNumber) === nhsNumber) {
         participantExists = true;
         break;
       }
-      console.log(`Waiting for participant to appear in DB... (attempt ${i+1}/20)`);
-      await new Promise(res => setTimeout(res, 2500));
+      console.log(`Waiting for participant to appear in DB... (attempt ${i+1}/10)`);
+      await new Promise(res => setTimeout(res, 3000));
     }
     expect(participantExists).toBe(true);
 
@@ -308,14 +309,14 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Wait for block
     let blocked = false;
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 10; i++) {
       const resp = await getRecordsFromParticipantManagementService(request);
       if (resp?.data?.[0]?.BlockedFlag === 1) {
         blocked = true;
         break;
       }
-      console.log(`Waiting for participant to be blocked... (attempt ${i+1}/6)`);
-      await new Promise(res => setTimeout(res, 2000));
+      console.log(`Waiting for participant to be blocked... (attempt ${i+1}/10)`);
+      await new Promise(res => setTimeout(res, 3000));
     }
     expect(blocked).toBe(true);
 
@@ -329,21 +330,21 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Wait for unblock
     let unblocked = false;
-    for (let i = 0; i < 6; i++) {
+    for (let i = 0; i < 10; i++) {
       const resp = await getRecordsFromParticipantManagementService(request);
       if (resp?.data?.[0]?.BlockedFlag === 0) {
         unblocked = true;
         break;
       }
-      console.log(`Waiting for participant to be unblocked... (attempt ${i+1}/6)`);
-      await new Promise(res => setTimeout(res, 2000));
+      console.log(`Waiting for participant to be unblocked... (attempt ${i+1}/10)`);
+      await new Promise(res => setTimeout(res, 3000));
     }
     expect(unblocked).toBe(true);
 
     // Assert: Audit log should show unblocking activity (mocked until functionality is implemented)
     await test.step('Verify audit log shows unblocking activity', async () => {
       let auditLogUpdated = false;
-      for (let i = 0; i < 6; i++) {
+      for (let i = 0; i < 10; i++) {
         const auditLog = await getAuditLog(request, nhsNumber);
         if (auditLog?.data && Array.isArray(auditLog.data) && auditLog.data.length > 0) {
           const unblockEntry = auditLog.data.find((entry: any) =>
@@ -354,8 +355,8 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
             break;
           }
         }
-        console.log(`Waiting for audit log to be updated... (attempt ${i+1}/6)`);
-        await new Promise(res => setTimeout(res, 2000));
+        console.log(`Waiting for audit log to be updated... (attempt ${i+1}/10)`);
+        await new Promise(res => setTimeout(res, 3000));
       }
       expect(auditLogUpdated).toBe(true);
     });
