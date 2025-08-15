@@ -5,7 +5,6 @@ trigger: none
 pr: none
 
 pool:
-  #vmImage: ubuntu-latest
   name: private-pool-dev-uks
 
 resources:
@@ -13,7 +12,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 7d1540f568fb00f527e388aa0acfff807c6d367c
+      ref: 34a7e5c3072bddaa350804905c60b9c8e7ae7191
       endpoint: NHSDigital
 
 parameters:
@@ -21,10 +20,35 @@ parameters:
     displayName: 'Docker Image Tag'
     type: string
     default: development
+
+  - name: retagImages
+    displayName: 'Re-tag Images'
+    type: boolean
+    default: false
+
+  - name: terraformActions
+    # This parameter allows the user to run only the plan for testing purposes
+    displayName: 'Apply Terraform Plan'
+    type: string
+    values:
+      - 'PlanOnly'
+      - 'Apply'
+    default: 'Apply'
     
+  - name: testTypes
+    type: object
+    default:
+      - smoke_e2e
+      - regression_api
+      - regression_e2e_epic1
+      - regression_e2e_epic2
+      - regression_e2e_epic3
+
 variables:
   - group: DEV_core_backend
   - group: DEV_audit_backend_remote_state
+  - group: DEV_image_pipelines
+  - group: DEV_automation_testing_pipeline
   - group: DEV_hub_backend_remote_state
   - name: TF_VERSION
     value: 1.11.4
@@ -36,8 +60,8 @@ variables:
     value: development
 
 stages:
-  - stage: terraform_plan
-    displayName: Terraform Plan
+  - stage: terraform_deploy
+    displayName: Terraform Deploy
     condition: eq(variables['Build.Reason'], 'Manual')
     variables:
       tfVarsFile: environments/$(ENVIRONMENT).tfvars
@@ -51,14 +75,11 @@ stages:
             parameters:
               tfCommandOptions: '-var="docker_image_tag=${{ parameters.dockerImageTag }}"'
 
-  - stage: terraform_apply
-    displayName: Terraform Apply
-    dependsOn: [terraform_plan]
-    condition: and(eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
-    jobs:
       - deployment: terraform_apply
         displayName: Init, get plan artifact, apply
         environment: $(ENVIRONMENT)
+        dependsOn: init_and_plan
+        condition: and(eq(dependencies.init_and_plan.outputs['TerraformPlan.changesPresent'], 'true'), in('${{ parameters.terraformActions }}', 'Apply'))
         strategy:
           runOnce:
             deploy:
@@ -66,3 +87,59 @@ stages:
                 - checkout: self
                 - checkout: dtos-devops-templates
                 - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+
+  - stage: db_changes_stage
+    displayName: Database changes
+    jobs:
+    - job: db_changes
+      pool:
+        name: private-pool-dev-uks
+      displayName: Apply database changes
+      steps:
+        - checkout: self
+        - checkout: dtos-devops-templates
+        - template: .azuredevops/templates/steps/app-container-job-start.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: $(SERVICE_CONNECTION)
+            targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+            resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
+            jobName: $(DATABASE_MANAGEMENT_JOB_NAME)
+
+  - stage: restart_functions_stage
+    displayName: Restart Function Apps
+    jobs:
+    - job: restart_functions
+      pool:
+        name: private-pool-dev-uks
+      displayName: Restart Function Apps so they pick up new images
+      steps:
+        - template: .azuredevops/templates/steps/function-apps-restart.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: $(SERVICE_CONNECTION)
+
+  - ${{ each testType in parameters.testTypes }}:
+      - stage: ${{ testType }}_stage
+        displayName: Run ${{ testType }} Tests
+        ${{ if eq(testType, 'regression_api') }}:
+          dependsOn: smoke_e2e_stage
+        ${{ if eq(testType, 'regression_e2e_epic1') }}:
+          dependsOn: regression_api_stage
+        ${{ if eq(testType, 'regression_e2e_epic2') }}:
+          dependsOn: regression_e2e_epic1_stage
+        ${{ if eq(testType, 'regression_e2e_epic3') }}:
+          dependsOn: regression_e2e_epic2_stage
+        condition: succeededOrFailed()
+        variables:
+          TARGET_ENVIRONMENT: $(TARGET_ENVIRONMENT)
+        jobs:
+          - job: ${{ testType }}_job
+            pool:
+              name: private-pool-dev-uks
+            steps:
+              - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+                parameters:
+                  serviceConnection: $(SERVICE_CONNECTION)
+                  testProjectDirectory: "tests/playwright-tests"
+                  testfileDirectory: "src/tests/e2e/testFiles"
+                  testProjectName: "tests"
+                  testType: ${{ testType }}

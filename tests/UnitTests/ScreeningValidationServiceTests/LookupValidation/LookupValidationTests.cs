@@ -213,45 +213,6 @@ public class LookupValidationTests
         Assert.IsFalse(body.Contains("45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal"));
     }
 
-    [TestMethod]
-    [DataRow("InvalidPCP")]
-    public async Task Run_ValidatePrimaryCareProvider_ReturnValidationException(string primaryCareProvider)
-    {
-        // Arrange
-        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
-
-        // Act
-        var response = await _sut.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        StringAssert.Contains(body, "3601.ValidatePrimaryCareProvider.BSSelect.NonFatal");
-    }
-
-    [TestMethod]
-    [DataRow("ValidPCP")]
-    [DataRow(null)]
-    public async Task Run_ValidatePrimaryCareProvider_ReturnNoContent(string primaryCareProvider)
-    {
-        // Arrange
-        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
-
-        // Act
-        var response = await _sut.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-    }
-
     #region Validate BSO Code (Rule 54)
     [TestMethod]
     [DataRow("RPR", "", "", Actions.Amended)]

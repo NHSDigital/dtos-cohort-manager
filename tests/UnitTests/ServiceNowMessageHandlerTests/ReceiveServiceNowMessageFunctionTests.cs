@@ -29,6 +29,7 @@ public class ReceiveServiceNowMessageFunctionTests
         {
             ServiceNowRefreshAccessTokenUrl = "https://www.example.net/refresh",
             ServiceNowUpdateUrl = "https://www.example.net/update",
+            ServiceNowResolutionUrl = "https://www.example.net/resolution",
             ServiceNowClientId = "123",
             ServiceNowClientSecret = "ABC",
             ServiceNowRefreshToken = "DEF",
@@ -61,7 +62,7 @@ public class ReceiveServiceNowMessageFunctionTests
         _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
         _mockQueueClient.Setup(x => x.AddAsync(It.Is<ServiceNowParticipant>(p =>
                 p.ScreeningId == 1 &&
-                p.ServiceNowRecordNumber == caseNumber &&
+                p.ServiceNowCaseNumber == caseNumber &&
                 p.NhsNumber == long.Parse(nhsNumber) &&
                 p.FirstName == forename &&
                 p.FamilyName == familyName &&
@@ -140,7 +141,7 @@ public class ReceiveServiceNowMessageFunctionTests
         _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
         _mockQueueClient.Setup(x => x.AddAsync(It.Is<ServiceNowParticipant>(p =>
                 p.ScreeningId == 1 &&
-                p.ServiceNowRecordNumber == caseNumber &&
+                p.ServiceNowCaseNumber == caseNumber &&
                 p.NhsNumber == long.Parse(nhsNumber) &&
                 p.FirstName == forename &&
                 p.FamilyName == familyName &&

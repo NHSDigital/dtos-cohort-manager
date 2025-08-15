@@ -1,0 +1,74 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": "9997614022",
+        "ReasonForRemoval": null,
+        "PrimaryCareProvider": "A12345",
+        "ReasonForRemovalDate": null
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": "9997614022",
+        "expectedCount": 1
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "ADD",
+        "NHSNumber": "9997614022",
+        "BlockedFlag": 1,
+        "expectedCount": 1,
+        "EligibilityFlag": 1,
+        "ExceptionFlag": 0
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 1,
+      "nhs_number": "9997614022",
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "A12345",
+      "primary_care_effective_from_date": "20240101",
+      "current_posting": "BD",
+      "current_posting_effective_from_date": "20240101",
+      "name_prefix": "Mr",
+      "given_name": "BLOCKEDADD",
+      "other_given_name": "TEST",
+      "family_name": "BLOCKEDADD",
+      "previous_family_name": null,
+      "date_of_birth": "19700101",
+      "gender": 1,
+      "address_line_1": "123 BLOCK STREET",
+      "address_line_2": "TESTVILLE",
+      "address_line_3": "BLOCKSHIRE",
+      "address_line_4": "ENGLAND",
+      "address_line_5": "UNITED KINGDOM",
+      "postcode": "LS1 1AA",
+      "paf_key": "TEST123",
+      "address_effective_from_date": "20240101",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "01234567890",
+      "home_telephone_effective_from_date": "20240101",
+      "mobile_telephone_number": "07777123456",
+      "mobile_telephone_effective_from_date": "20240101",
+      "email_address": "blocked.add@example.com",
+      "email_address_effective_from_date": "20240101",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": ["9997614022"]
+}

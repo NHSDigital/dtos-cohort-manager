@@ -3,7 +3,9 @@ import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
 import { fetchExceptionsRaisedSorted } from "@/app/lib/fetchExceptions";
+import { getRuleMapping } from "@/app/lib/ruleMapping";
 import ExceptionsTable from "@/app/components/exceptionsTable";
+import SortExceptionsForm from "@/app/components/sortExceptionsForm";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
@@ -28,6 +30,17 @@ export default async function Page({
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
 
+  const sortOptions = [
+    {
+      value: "0",
+      label: "Status last updated (most recent first)",
+    },
+    {
+      value: "1",
+      label: "Status last updated (oldest first)",
+    },
+  ];
+
   try {
     const exceptions = await fetchExceptionsRaisedSorted(sortBy);
 
@@ -36,17 +49,24 @@ export default async function Page({
         ExceptionId: string;
         DateCreated: Date;
         RuleDescription: string;
+        RuleId: number;
         NhsNumber: number;
         ServiceNowId?: string;
         ServiceNowCreatedDate?: Date;
-      }) => ({
-        exceptionId: exception.ExceptionId,
-        dateCreated: exception.DateCreated,
-        shortDescription: exception.RuleDescription,
-        nhsNumber: exception.NhsNumber,
-        serviceNowId: exception.ServiceNowId ?? "",
-        serviceNowCreatedDate: exception.ServiceNowCreatedDate,
-      })
+      }) => {
+        const ruleMapping = getRuleMapping(
+          exception.RuleId,
+          exception.RuleDescription
+        );
+        return {
+          exceptionId: exception.ExceptionId,
+          dateCreated: exception.DateCreated,
+          shortDescription: ruleMapping.ruleDescription,
+          nhsNumber: exception.NhsNumber,
+          serviceNowId: exception.ServiceNowId ?? "",
+          serviceNowCreatedDate: exception.ServiceNowCreatedDate,
+        };
+      }
     );
 
     return (
@@ -58,13 +78,22 @@ export default async function Page({
               <h1 data-testid="heading-raised">
                 Raised breast screening exceptions
               </h1>
-              <p
-                className="nhsuk-u-text-align-right"
-                data-testid="raised-exception-count"
-              >
-                Showing {exceptionDetails.length} of {exceptions.TotalItems}{" "}
-                results
-              </p>
+
+              <div className="app-form-results-container">
+                <SortExceptionsForm
+                  sortBy={sortBy}
+                  options={sortOptions}
+                  hiddenText="raised exceptions"
+                  testId="sort-raised-exceptions"
+                />
+                <p
+                  className="app-results-text"
+                  data-testid="raised-exception-count"
+                >
+                  Showing {exceptionDetails.length} of {exceptions.TotalItems}{" "}
+                  results
+                </p>
+              </div>
               <div className="nhsuk-card">
                 <div className="nhsuk-card__content">
                   <ExceptionsTable

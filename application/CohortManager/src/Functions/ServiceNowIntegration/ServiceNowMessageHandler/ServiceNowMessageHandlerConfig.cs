@@ -9,6 +9,8 @@ public class ServiceNowMessageHandlerConfig
     [Required]
     public required string ServiceNowUpdateUrl { get; set; }
     [Required]
+    public required string ServiceNowResolutionUrl { get; set; }
+    [Required]
     public required string ServiceNowClientId { get; set; }
     [Required]
     public required string ServiceNowClientSecret { get; set; }
@@ -18,4 +20,6 @@ public class ServiceNowMessageHandlerConfig
     public required string ServiceBusConnectionString_client_internal { get; set; }
     [Required]
     public required string ServiceNowParticipantManagementTopic { get; set; }
+    [Required]
+    public string ServiceNowAssignmentGroup { get; set; } = "ITO Breast Screening 2nd Line";
 }

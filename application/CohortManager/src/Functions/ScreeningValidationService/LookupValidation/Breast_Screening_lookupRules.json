@@ -25,18 +25,6 @@
         }
       },
       {
-        "RuleName": "3601.ValidatePrimaryCareProvider.BSSelect.NonFatal",
-        "Expression": "ValidPrimaryCareProvider",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Invalid primary care provider GP practice code\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal",
         "LocalParams": [
           {

@@ -2,9 +2,8 @@ namespace NHS.CohortManager.CohortDistributionService;
 
 using Model;
 using Common;
-using Data.Database;
 using System.Text.Json;
-using Apache.Arrow.Types;
+
 
 public class TransformReasonForRemoval : ITransformReasonForRemoval
 {
@@ -32,7 +31,7 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
 
         var rule1 = participantNotRegisteredToGP && validOutcode && !string.IsNullOrEmpty(participant.Postcode);
         var rule2 = participantNotRegisteredToGP && !validOutcode && !string.IsNullOrEmpty(existingPrimaryCareProvider) && !existingPrimaryCareProvider.StartsWith("ZZZ");
-        var rule3 = participantNotRegisteredToGP && !validOutcode && !string.IsNullOrEmpty(existingPrimaryCareProvider) && existingPrimaryCareProvider.StartsWith("ZZZ");
+        var rule3 = participantNotRegisteredToGP && (string.IsNullOrEmpty(participant.Postcode) || !validOutcode) && !string.IsNullOrEmpty(existingPrimaryCareProvider) && existingPrimaryCareProvider.StartsWith("ZZZ");
         var rule4 = participantNotRegisteredToGP && !validOutcode && string.IsNullOrEmpty(existingPrimaryCareProvider);
 
         if (rule1 || rule2)
@@ -42,13 +41,20 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
             participant.ReasonForRemoval = null;
             participant.PrimaryCareProvider = GetDummyPrimaryCareProvider(participant.Postcode ?? "", existingPrimaryCareProvider, validOutcode);
 
-            await _exceptionHandler.CreateTransformExecutedExceptions(participant,"ReasonForRemovalRule",ruleId);
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant, "ReasonForRemovalRule", ruleId);
 
             return participant;
         }
         else if (rule3)
         {
+            participant.PrimaryCareProvider = existingParticipant.PrimaryCareProvider;
+            participant.PrimaryCareProviderEffectiveFromDate = existingParticipant.PrimaryCareProviderDate?.ToString("yyyy-MM-dd") ?? "";
+            participant.ReasonForRemoval = existingParticipant.ReasonForRemoval;
+            participant.ReasonForRemovalEffectiveFromDate = existingParticipant.ReasonForRemovalDate?.ToString("yyyy-MM-dd") ?? "";
+
             await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", "3.ParticipantNotRegisteredToGPWithReasonForRemoval", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
+
+            return participant;
         }
         else if (rule4)
         {

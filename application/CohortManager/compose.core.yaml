@@ -28,16 +28,19 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: NemsSubscriptionService/NemsMeshRetrieval/Dockerfile
-    profiles: [non-essential]
+    profiles: [nems]
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - nemsmeshfolder_STORAGE=${AZURITE_CONNECTION_STRING}
-      - MeshApiBaseUrl=https://localhost:8700/messageexchange
-      - BSSMailBox=X26ABC1
-      - MeshPassword=${MESHPASSWORD}
-      - MeshSharedKey=${MESHSHAREDKEY}
-      - MeshKeyName=meshpfx.pfx
-      - MeshKeyPassphrase=${MESHKEYPASSPHRASE}
+      - NemsMeshApiBaseUrl=https://localhost:8700/messageexchange
+      - NemsMeshMailBox=${NEMS_MESH_MAILBOX}
+      - NemsMeshPassword=${NEMS_MESH_PASSWORD}
+      - NemsMeshSharedKey=${NEMS_MESH_SHARED_KEY}
+      - NemsMeshKeyName=nemsmeshpfx.pfx
+      - NemsMeshKeyPassphrase=${NEMS_MESH_KEY_PASSPHRASE}
+      - NemsMeshBypassServerCertificateValidation=true
+      - NemsMeshInboundContainer=nems-updates
+      - NemsMeshConfigContainer=nems-config
       - ASPNETCORE_URLS=http://*:7058
 
   process-nems-update:
@@ -50,12 +53,15 @@ services:
     profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:9083
-      - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
-      - NemsMessages="nems-messages"
+      - nemsmeshfolder_STORAGE=${AZURITE_CONNECTION_STRING}
+      - NemsMessages=nems-updates
+      - NemsPoisonContainer=nems-poison
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
       - UnsubscribeNemsSubscriptionUrl=http://manage-nems-subscription:9081/api/Unsubscribe
-      - UpdateQueueName=update-participant-queue
+      - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ParticipantManagementTopic=participant-management-topic
 
   receive-caas-file:
     container_name: receive-caas-file
@@ -117,6 +123,7 @@ services:
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
       - SendServiceNowMessageURL=http://servicenow-message-handler:9092/api/servicenow/send
       - ParticipantManagementURL=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - CohortDistributionTopic=cohort-distribution-topic
 
   update-blocked-flag:
     container_name: update-blocked-flag
@@ -134,6 +141,9 @@ services:
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ManageNemsSubscriptionUnsubscribeURL=http://manage-nems-subscription:9081/api/Unsubscribe
+      - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/ManageNemsSubscriptionSubscribeURL
+      - RetrievePdsDemographicURL=http://etrieve-pds-demographic:8082/api/RetrievePdsDemographic
 
   delete-participant:
     container_name: delete-participant
@@ -235,7 +245,9 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: DemographicServices/RetrievePDSDemographic/Dockerfile
-    profiles: [not-implemented]
+    profiles: [service-now, nems]
+    ports:
+      - 8082:8082
     environment:
       - ASPNETCORE_URLS=http://*:8082
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -245,13 +257,16 @@ services:
       - Audience=https://int.api.service.nhs.uk/oauth2/token
       - AuthTokenURL=https://int.api.service.nhs.uk/oauth2/token
       - LocalPrivateKeyFileName=RetrievePdsDemographic-DEV1.pem.key
-      - ClientId="Get-private-key-from-NHS-dev-portal"
+      - ParticipantManagementTopic=participant-management-topic
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ClientId=Get-private-key-from-NHS-dev-portal
+      - UseFakePDSServices=true
 
   manage-nems-subscription:
       container_name: manage-nems-subscription
       image: cohort-manager-manage-nems-subscription
       networks: [cohman-network]
-      profiles: [non-essential]
+      profiles: [nems]
       build:
         context: ./src/Functions/
         dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile
@@ -300,17 +315,19 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegration/ServiceNowMessageHandler/Dockerfile
-    profiles: [non-essential]
+    profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:9092
       - ServiceNowRefreshAccessTokenUrl=https://nhsdigitaldev.service-now.com/oauth_token.do
       - ServiceNowUpdateUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate
+      - ServiceNowResolutionUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution
       - ServiceNowClientId=${SERVICENOW_CLIENT_ID}
       - ServiceNowClientSecret=${SERVICENOW_CLIENT_SECRET}
       - ServiceNowRefreshToken=${SERVICENOW_REFRESH_TOKEN}
+      - ServiceNowParticipantManagementTopic=servicenow-participant-management-topic
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
     ports:
-      - "9092:9092"
+      - 9092:9092
 
   servicenow-cohort-lookup:
     container_name: servicenow-cohort-lookup
@@ -319,7 +336,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegration/ServiceNowCohortLookup/Dockerfile
-    profiles: [non-essential]
+    profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:7180
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException

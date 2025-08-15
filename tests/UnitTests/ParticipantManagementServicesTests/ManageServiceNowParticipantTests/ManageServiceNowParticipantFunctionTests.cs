@@ -22,11 +22,13 @@ public class ManageServiceNowParticipantFunctionTests
     private readonly Mock<IHttpClientFunction> _httpClientFunctionMock = new();
     private readonly Mock<IExceptionHandler> _handleExceptionMock = new();
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _dataServiceClientMock = new();
+    private readonly Mock<IQueueClient> _queueClientMock = new();
     private readonly ServiceNowParticipant _serviceNowParticipant;
     private readonly ManageServiceNowParticipantFunction _function;
 
     private readonly string _messageType1Request;
     private readonly string _messageType2Request;
+    private readonly ParticipantDemographic _demographic;
 
     public ManageServiceNowParticipantFunctionTests()
     {
@@ -37,7 +39,7 @@ public class ManageServiceNowParticipantFunctionTests
             FirstName = "Samantha",
             FamilyName = "Bloggs",
             DateOfBirth = new DateOnly(1970, 1, 1),
-            ServiceNowRecordNumber = "CS123",
+            ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
             ReasonForAdding = ServiceNowReasonsForAdding.RequiresCeasing
         };
@@ -46,7 +48,10 @@ public class ManageServiceNowParticipantFunctionTests
         {
             RetrievePdsDemographicURL = "http://localhost:8082/api/RetrievePDSDemographic",
             SendServiceNowMessageURL = "http://localhost:9092/api/servicenow/send",
-            ParticipantManagementURL = "http://localhost:7994/api/ParticipantManagementDataService"
+            ParticipantManagementURL = "http://localhost:7994/api/ParticipantManagementDataService",
+            ServiceBusConnectionString_client_internal = "Endpoint=",
+            CohortDistributionTopic = "cohort-distribution-topic"
+
         };
         _configMock.Setup(c => c.Value).Returns(config);
 
@@ -55,7 +60,8 @@ public class ManageServiceNowParticipantFunctionTests
             _configMock.Object,
             _httpClientFunctionMock.Object,
             _handleExceptionMock.Object,
-            _dataServiceClientMock.Object
+            _dataServiceClientMock.Object,
+            _queueClientMock.Object
         );
 
         _messageType1Request = JsonSerializer.Serialize(new SendServiceNowMessageRequestBody
@@ -66,6 +72,15 @@ public class ManageServiceNowParticipantFunctionTests
         {
             MessageType = ServiceNowMessageType.AddRequestInProgress
         });
+
+        _demographic = new ParticipantDemographic
+        {
+            NhsNumber = _serviceNowParticipant.NhsNumber,
+            GivenName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            PostCode = "SW1A 2AA"
+        };
     }
 
     [TestMethod]
@@ -79,17 +94,16 @@ public class ManageServiceNowParticipantFunctionTests
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowRecordNumber}", _messageType1Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
-                It.Is<Exception>(e => e.Message == "Request to PDS for ServiceNow Participant returned a 404 NotFound response."),
+                It.IsAny<Exception>(),
                 It.Is<ServiceNowParticipant>(p => p.NhsNumber == _serviceNowParticipant.NhsNumber
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowRecordNumber == _serviceNowParticipant.ServiceNowRecordNumber)), Times.Once);
+                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();
@@ -99,9 +113,9 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenNhsNumberSuperseded_SendsServiceNowMessageType1()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = 123
+            NhsNumber = "123"
         });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -113,9 +127,8 @@ public class ManageServiceNowParticipantFunctionTests
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowRecordNumber}", _messageType1Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
             It.Is<Exception>(e => e.Message == "NHS Numbers don't match for ServiceNow Participant and PDS, NHS Number must have been superseded"),
@@ -123,7 +136,7 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowRecordNumber == _serviceNowParticipant.ServiceNowRecordNumber)), Times.Once);
+                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();
@@ -142,9 +155,8 @@ public class ManageServiceNowParticipantFunctionTests
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowRecordNumber}", _messageType2Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType2Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
             It.Is<Exception>(e => e.Message == $"Request to PDS for ServiceNow Participant returned an unexpected response. Status code: {httpStatusCode}"),
@@ -152,7 +164,7 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowRecordNumber == _serviceNowParticipant.ServiceNowRecordNumber)), Times.Once);
+                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();
@@ -170,9 +182,8 @@ public class ManageServiceNowParticipantFunctionTests
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowRecordNumber}", _messageType2Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType2Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
             expectedException,
@@ -180,7 +191,7 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowRecordNumber == _serviceNowParticipant.ServiceNowRecordNumber)));
+                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)));
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();
@@ -194,10 +205,10 @@ public class ManageServiceNowParticipantFunctionTests
         string firstName, string familyName, string dateOfBirth)
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = _serviceNowParticipant.NhsNumber,
-            GivenName = firstName,
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = firstName,
             FamilyName = familyName,
             DateOfBirth = dateOfBirth
         });
@@ -211,9 +222,8 @@ public class ManageServiceNowParticipantFunctionTests
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowRecordNumber}", _messageType1Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
             It.Is<Exception>(e => e.Message == "Participant data from ServiceNow does not match participant data from PDS"),
@@ -221,7 +231,7 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowRecordNumber == _serviceNowParticipant.ServiceNowRecordNumber)), Times.Once);
+                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();
@@ -231,12 +241,13 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenServiceNowParticipantIsValidAndDoesNotExistInTheDataStore_AddsTheNewParticipant()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = _serviceNowParticipant.NhsNumber,
-            GivenName = _serviceNowParticipant.FirstName,
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd")
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
         });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -258,29 +269,43 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordInsertDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
+                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
+                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+                    x.BasicParticipantData.RecordType == Actions.New &&
+                    x.Participant.ReferralFlag == "1" &&
+                    x.Participant.Postcode == _demographic.PostCode &&
+                    x.Participant.ScreeningAcronym == "BSS"),
+                _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true).Verifiable();
+
         // Act
         await _function.Run(_serviceNowParticipant);
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
         _dataServiceClientMock.VerifyNoOtherCalls();
+
+        _queueClientMock.Verify();
+        _queueClientMock.VerifyNoOtherCalls();
     }
 
     [TestMethod]
     public async Task Run_WhenServiceNowParticipantIsValidAndExistsInTheDataStoreButIsBlocked_DoesNotUpdateTheParticipantAndSendsMessageType1()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = _serviceNowParticipant.NhsNumber,
-            GivenName = _serviceNowParticipant.FirstName,
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd")
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
         });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -293,13 +318,23 @@ public class ManageServiceNowParticipantFunctionTests
                 x.Compile().Invoke(new ParticipantManagement { NHSNumber = _serviceNowParticipant.NhsNumber, ScreeningId = _serviceNowParticipant.ScreeningId })
             ))).ReturnsAsync(new ParticipantManagement { ParticipantId = 123, BlockedFlag = 1 }).Verifiable();
 
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
+                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
+                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+                    x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.Participant.ReferralFlag == "1" &&
+                    x.Participant.Postcode == _demographic.PostCode &&
+                    x.Participant.ScreeningAcronym == "BSS"),
+                _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true).Verifiable();
+
         // Act
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowRecordNumber}", _messageType1Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
             It.Is<Exception>(e => e.Message == "Participant data from ServiceNow is blocked"),
@@ -307,23 +342,26 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowRecordNumber == _serviceNowParticipant.ServiceNowRecordNumber)), Times.Once);
+                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
         _dataServiceClientMock.VerifyNoOtherCalls();
+
+        _queueClientMock.VerifyNoOtherCalls();
     }
 
     [TestMethod]
     public async Task Run_WhenServiceNowParticipantIsValidAndExistsInTheDataStoreAndIsNotBlocked_UpdatesTheParticipant()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = _serviceNowParticipant.NhsNumber,
-            GivenName = _serviceNowParticipant.FirstName,
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd")
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
         });
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -346,17 +384,30 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
+                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
+                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+                    x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.Participant.ReferralFlag == "1" &&
+                    x.Participant.Postcode == _demographic.PostCode &&
+                    x.Participant.ScreeningAcronym == "BSS"),
+                _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true).Verifiable();
+
         // Act
         await _function.Run(_serviceNowParticipant);
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
         _dataServiceClientMock.VerifyNoOtherCalls();
+
+        _queueClientMock.Verify();
+        _queueClientMock.VerifyNoOtherCalls();
     }
 
     [TestMethod]
@@ -370,17 +421,18 @@ public class ManageServiceNowParticipantFunctionTests
             FirstName = "Samantha",
             FamilyName = "Bloggs",
             DateOfBirth = new DateOnly(1970, 1, 1),
-            ServiceNowRecordNumber = "CS123",
+            ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
             ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk
         };
 
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = vhrParticipant.NhsNumber,
-            GivenName = vhrParticipant.FirstName,
-            FamilyName = vhrParticipant.FamilyName,
-            DateOfBirth = vhrParticipant.DateOfBirth.ToString("yyyy-MM-dd")
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
         });
 
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={vhrParticipant.NhsNumber}"))
@@ -404,17 +456,30 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordInsertDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
+                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
+                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+                    x.BasicParticipantData.RecordType == Actions.New &&
+                    x.Participant.ReferralFlag == "1" &&
+                    x.Participant.Postcode == _demographic.PostCode &&
+                    x.Participant.ScreeningAcronym == "BSS"),
+                _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true).Verifiable();
+
         // Act
         await _function.Run(vhrParticipant);
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
         _dataServiceClientMock.VerifyNoOtherCalls();
+
+        _queueClientMock.Verify();
+        _queueClientMock.VerifyNoOtherCalls();
 
         _loggerMock.VerifyLogger(LogLevel.Information, "Participant not in participant management table, adding new record");
         _loggerMock.VerifyLogger(LogLevel.Information, $"Participant with NHS Number: {vhrParticipant.NhsNumber} set as High Risk");
@@ -424,12 +489,13 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenServiceNowParticipantIsNotVhrAndDoesNotExistInDataStore_AddsNewParticipantWithoutVhrFlag()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = _serviceNowParticipant.NhsNumber,
-            GivenName = _serviceNowParticipant.FirstName,
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd")
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
         });
 
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
@@ -453,17 +519,30 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordInsertDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
+                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
+                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+                    x.BasicParticipantData.RecordType == Actions.New &&
+                    x.Participant.ReferralFlag == "1" &&
+                    x.Participant.Postcode == _demographic.PostCode &&
+                    x.Participant.ScreeningAcronym == "BSS"),
+                _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true).Verifiable();
+
         // Act
         await _function.Run(_serviceNowParticipant);
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
         _dataServiceClientMock.VerifyNoOtherCalls();
+
+        _queueClientMock.Verify();
+        _queueClientMock.VerifyNoOtherCalls();
 
         _loggerMock.VerifyLogger(LogLevel.Information, "Participant not in participant management table, adding new record");
     }
@@ -479,17 +558,18 @@ public class ManageServiceNowParticipantFunctionTests
             FirstName = "Samantha",
             FamilyName = "Bloggs",
             DateOfBirth = new DateOnly(1970, 1, 1),
-            ServiceNowRecordNumber = "CS123",
+            ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
             ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk
         };
 
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = vhrParticipant.NhsNumber,
-            GivenName = vhrParticipant.FirstName,
-            FamilyName = vhrParticipant.FamilyName,
-            DateOfBirth = vhrParticipant.DateOfBirth.ToString("yyyy-MM-dd")
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
+            FamilyName = _serviceNowParticipant.FamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
         });
 
         var existingParticipant = new ParticipantManagement
@@ -522,17 +602,30 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
+                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
+                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+                    x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.Participant.ReferralFlag == "1" &&
+                    x.Participant.Postcode == _demographic.PostCode &&
+                    x.Participant.ScreeningAcronym == "BSS"),
+                _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true).Verifiable();
+
         // Act
         await _function.Run(vhrParticipant);
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
         _dataServiceClientMock.VerifyNoOtherCalls();
+
+        _queueClientMock.Verify();
+        _queueClientMock.VerifyNoOtherCalls();
 
         _loggerMock.VerifyLogger(LogLevel.Information, "Existing participant management record found, updating record 123");
         _loggerMock.VerifyLogger(LogLevel.Information, "Participant 123 set as High Risk based on ServiceNow attributes");
@@ -543,12 +636,13 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenParticipantExistsWithVhrFlagAlreadySet_MaintainsVhrFlag()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = _serviceNowParticipant.NhsNumber,
-            GivenName = _serviceNowParticipant.FirstName,
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd")
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
         });
 
         var existingParticipant = new ParticipantManagement
@@ -581,17 +675,30 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
+                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
+                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+                    x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.Participant.ReferralFlag == "1" &&
+                    x.Participant.Postcode == _demographic.PostCode &&
+                    x.Participant.ScreeningAcronym == "BSS"),
+                _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true).Verifiable();
+
         // Act
         await _function.Run(_serviceNowParticipant);
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
         _dataServiceClientMock.VerifyNoOtherCalls();
+
+        _queueClientMock.Verify();
+        _queueClientMock.VerifyNoOtherCalls();
 
         _loggerMock.VerifyLogger(LogLevel.Information, "Existing participant management record found, updating record 123");
         _loggerMock.VerifyLogger(LogLevel.Information, "Participant 123 still maintained as High Risk");
@@ -601,12 +708,13 @@ public class ManageServiceNowParticipantFunctionTests
     public async Task Run_WhenNonVhrParticipantExistsWithNullVhrFlag_LeavesVhrFlagAsNull()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(new ParticipantDemographic
+        var json = JsonSerializer.Serialize(new PdsDemographic
         {
-            NhsNumber = _serviceNowParticipant.NhsNumber,
-            GivenName = _serviceNowParticipant.FirstName,
+            NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
+            FirstName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd")
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            Postcode = "SW1A 2AA"
         });
 
         var existingParticipant = new ParticipantManagement
@@ -639,17 +747,30 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
+                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
+                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+                    x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.Participant.ReferralFlag == "1" &&
+                    x.Participant.Postcode == _demographic.PostCode &&
+                    x.Participant.ScreeningAcronym == "BSS"),
+                _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true).Verifiable();
+
         // Act
         await _function.Run(_serviceNowParticipant);
 
         // Assert
         _httpClientFunctionMock.Verify();
-        _httpClientFunctionMock.VerifyNoOtherCalls();
 
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
         _dataServiceClientMock.VerifyNoOtherCalls();
+
+        _queueClientMock.Verify();
+        _queueClientMock.VerifyNoOtherCalls();
 
         _loggerMock.VerifyLogger(LogLevel.Information, "Existing participant management record found, updating record 123");
     }

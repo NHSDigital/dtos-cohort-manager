@@ -10,4 +10,8 @@ public class ManageServiceNowParticipantConfig
     public required string SendServiceNowMessageURL { get; set; }
     [Required, Url]
     public required string ParticipantManagementURL { get; set; }
+    [Required]
+    public required string ServiceBusConnectionString_client_internal { get; set; }
+    [Required]
+    public required string CohortDistributionTopic { get; set; }
 }

@@ -11,223 +11,512 @@ using DataServices.Client;
 using System.Linq.Expressions;
 using System.Collections.Specialized;
 using NHS.CohortManager.ParticipantManagementService;
+using RulesEngine.Models;
+using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Options;
+using System.Text.Json;
+using System.Text;
 
 [TestClass]
 public class UpdateBlockedFlagTests
 {
-    private readonly Mock<IDataServiceClient<ParticipantManagement>> _dsMockParticipantManagement = new();
-    private readonly Mock<IDataServiceClient<ParticipantDemographic>> _dsMockParticipantDemographic = new();
-    private readonly Mock<ILogger<UpdateBlockedFlag>> _loggerMock = new();
-    private readonly Mock<ICreateResponse> _createResponseMock = new();
-    private readonly Mock<IExceptionHandler> _exceptionHandler = new();
-    private readonly SetupRequest _setupRequest = new();
     private readonly UpdateBlockedFlag _sut;
-    private readonly NameValueCollection queryParams;
+    private readonly Mock<IDataServiceClient<ParticipantManagement>> _mockParticipantManagementClient = new();
+    private readonly Mock<IDataServiceClient<ParticipantDemographic>> _mockParticipantDemographicClient = new();
+    private readonly Mock<ILogger<UpdateBlockedFlag>> _mockUpdateBlockedFlagLogger = new();
+    private readonly Mock<ILogger<BlockParticipantHandler>> _mockHandlerLogger = new();
+    private readonly Mock<ICreateResponse> _mockCreateResponse = new();
+    private readonly BlockParticipantHandler _blockParticipantHandler;
+    private readonly Mock<IHttpClientFunction> _mockHttpClient = new();
+    private readonly Mock<IOptions<UpdateBlockedFlagConfig>> _mockConfig = new();
+    private Mock<HttpRequestData> _request;
+    private readonly SetupRequest _setupRequest = new();
 
     public UpdateBlockedFlagTests()
     {
-        queryParams = new NameValueCollection
+        _mockConfig.Setup(x => x.Value).Returns(new UpdateBlockedFlagConfig
         {
-            { "NhsNumber", "8253303483"},
-            { "ScreeningId", "1"},
-            { "DateOfBirth", "01/01/2000"},
-            { "FamilyName", "Smith"}
+            ParticipantDemographicDataServiceURL = "participantManagementUrl",
+            ParticipantManagementUrl = "ParticipantManagementUrl",
+            ExceptionFunctionURL = "ExceptionFunctionUrl",
+            ManageNemsSubscriptionSubscribeURL = "NemsSubscribeUrl",
+            ManageNemsSubscriptionUnsubscribeURL = "NemsUnsubscribeUrl",
+            RetrievePdsDemographicURL = "RetrievePdsDemographicUrl"
+        });
+        _blockParticipantHandler = new BlockParticipantHandler(_mockHandlerLogger.Object, _mockParticipantManagementClient.Object, _mockParticipantDemographicClient.Object, _mockHttpClient.Object, _mockConfig.Object);
+        _sut = new UpdateBlockedFlag(_mockUpdateBlockedFlagLogger.Object, _mockCreateResponse.Object, _blockParticipantHandler);
+
+        _mockCreateResponse.Setup(x => x.CreateHttpResponseWithBodyAsync(
+                It.IsAny<HttpStatusCode>(),
+                It.IsAny<HttpRequestData>(),
+                It.IsAny<string>()))
+            .Returns((HttpStatusCode statusCode, HttpRequestData req, string responseBody) =>
+            {
+                var response = req.CreateResponse(statusCode);
+                response.WriteString(responseBody);
+                return Task.FromResult(response);
+            });
+    }
+
+    [TestMethod]
+    public async Task BlockParticipant_ExistingParticipant_ReturnsSuccess()
+    {
+        //arrange
+        var requestBody = new BlockParticipantDto
+        {
+            NhsNumber = 6427635034,
+            FamilyName = "Jones",
+            DateOfBirth = "1923-10-12"
         };
 
-        _createResponseMock.Setup(x => x.CreateHttpResponse(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
-            .Returns((HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(requestBody));
+
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync(new ParticipantManagement
             {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "application/json; charset=utf-8");
-                response.WriteString(ResponseBody);
-                return response;
+                NHSNumber = 6427635034,
+                BlockedFlag = 0,
+
+            });
+        _mockParticipantDemographicClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
+            .ReturnsAsync(new ParticipantDemographic
+            {
+                NhsNumber = 6427635034,
+                FamilyName = "Jones",
+                DateOfBirth = "19231012"
             });
 
-        _createResponseMock.Setup(x => x.CreateHttpResponseWithBodyAsync(It.IsAny<HttpStatusCode>(), It.IsAny<HttpRequestData>(), It.IsAny<string>()))
-            .Returns(async (HttpStatusCode statusCode, HttpRequestData req, string ResponseBody) =>
+        _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>()))
+            .ReturnsAsync(true);
+        _mockHttpClient.Setup(x => x.SendPost("NemsUnsubscribeUrl", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(new HttpResponseMessage
             {
-                var response = req.CreateResponse(statusCode);
-                response.Headers.Add("Content-Type", "application/json; charset=utf-8");
-                await response.WriteStringAsync(ResponseBody);
-                return response;
+                StatusCode = HttpStatusCode.OK
             });
 
-        _dsMockParticipantDemographic
-            .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
-            .ReturnsAsync(new ParticipantDemographic());
-        _dsMockParticipantManagement
-            .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
-            .ReturnsAsync(new ParticipantManagement());
-        _dsMockParticipantManagement
-            .Setup(x => x.Update(It.IsAny<ParticipantManagement>()))
+
+        //act
+        var result = await _sut.BlockParticipant(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _mockHttpClient.Verify(x => x.SendPost("NemsUnsubscribeUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockParticipantManagementClient.Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Once);
+        _mockHttpClient.VerifyNoOtherCalls();
+    }
+    [TestMethod]
+    public async Task BlockParticipant_NonExistentParticipant_ReturnsSuccess()
+    {
+        //arrange
+        var requestBody = new BlockParticipantDto
+        {
+            NhsNumber = 6427635034,
+            FamilyName = "Jones",
+            DateOfBirth = "1923-10-12"
+        };
+
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(requestBody));
+
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .Returns(Task.FromResult<ParticipantManagement>(null!));
+
+
+        var pdsDemoResponse = JsonSerializer.Serialize(
+            new PdsDemographic
+            {
+                NhsNumber = "6427635034",
+                FamilyName = "Jones",
+                DateOfBirth = "19231012"
+            });
+
+        _mockHttpClient.Setup(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(pdsDemoResponse);
+
+        _mockParticipantManagementClient.Setup(x => x.Add(It.IsAny<ParticipantManagement>()))
             .ReturnsAsync(true);
 
 
-        _sut = new UpdateBlockedFlag(_dsMockParticipantManagement.Object, _dsMockParticipantDemographic.Object, _loggerMock.Object, _createResponseMock.Object, _exceptionHandler.Object);
+        //act
+        var result = await _sut.BlockParticipant(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _mockHttpClient.Verify(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockParticipantManagementClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()));
+        _mockParticipantManagementClient.Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Once);
+        _mockParticipantManagementClient.VerifyNoOtherCalls();
+        _mockHttpClient.VerifyNoOtherCalls();
     }
-
     [TestMethod]
-    public async Task BlockParticipant_ValidRequest_UpdateBlockedFlag()
+    public async Task BlockParticipant_InvalidNhsNumber_ReturnsFailure()
     {
-        // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(queryParams);
-
-        // Act
-        var response = await _sut.BlockParticipant(request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-        _dsMockParticipantManagement
-            .Verify(x => x.Update(It.Is<ParticipantManagement>(pm => pm.BlockedFlag == 1)), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task UnblockParticipant_ValidRequest_UpdateBlockedFlag()
-    {
-        // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(queryParams);
-
-        // Act
-        var response = await _sut.UnblockParticipant(request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
-        _dsMockParticipantManagement
-            .Verify(x => x.Update(It.Is<ParticipantManagement>(pm => pm.BlockedFlag == 0)), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task BlockParticipant_ParticipantDoesNotExistInDemographicTable_ReturnNotFound()
-    {
-        // Arrange
-        var request = _setupRequest.Setup("");
-
-        _dsMockParticipantDemographic
-            .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
-            .ReturnsAsync((ParticipantDemographic?)null);
-
-        request.Setup(r => r.Query).Returns(queryParams);
-
-        // Act
-        var response = await _sut.BlockParticipant(request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-            It.IsAny<KeyNotFoundException>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>()),
-            Times.Once);
-        Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task BlockParticipant_UpdateFails_ReturnInternalServerError()
-    {
-        // Arrange
-        var request = _setupRequest.Setup("");
-
-        _dsMockParticipantManagement
-            .Setup(x => x.Update(It.IsAny<ParticipantManagement>()))
-            .ReturnsAsync(false);
-
-        request.Setup(r => r.Query).Returns(queryParams);
-
-        // Act
-        var response = await _sut.BlockParticipant(request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-            It.IsAny<Exception>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>()),
-            Times.Once);
-        Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task BlockParticipant_NoResponseParticipantManagement_ReturnInternalServerError()
-    {
-        // Arrange
-        var request = _setupRequest.Setup("");
-        request.Setup(r => r.Query).Returns(queryParams);
-
-        //Simulates no response from the Participant management service.
-        _dsMockParticipantManagement.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>())).Throws(new Exception());
-
-        // Act
-        var response = await _sut.BlockParticipant(request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-            It.IsAny<Exception>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>()),
-            Times.Once);
-        Assert.AreEqual(HttpStatusCode.InternalServerError, response.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task BlockParticipant_InvalidNHSNumber_ReturnBadRequest()
-    {
-        // Arrange
-        var request = _setupRequest.Setup("");
-        var queryParams = new NameValueCollection
+        //arrange
+        var requestBody = new BlockParticipantDto
         {
-            { "NhsNumber", "1234567890"},
-            { "ScreeningId", "1"},
-            { "DateOfBirth", "01/01/2000"},
-            { "LastName", "Smith"}
+            NhsNumber = 6427635035,
+            FamilyName = "Jones",
+            DateOfBirth = "1923-10-12"
         };
 
-        request.Setup(r => r.Query).Returns(queryParams);
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(requestBody));
 
-        // Act
-        var response = await _sut.BlockParticipant(request.Object);
+        //act
+        var result = await _sut.BlockParticipant(_request.Object);
 
-        // Assert
-        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-            It.IsAny<InvalidDataException>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>()),
-            Times.Once);
-        Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+        //asset
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+    [TestMethod]
+    public async Task BlockParticipant_ParticipantAlreadyBlocked_ReturnsFailure()
+    {
+        //arrange
+        var requestBody = new BlockParticipantDto
+        {
+            NhsNumber = 6427635034,
+            FamilyName = "Jones",
+            DateOfBirth = "1923-10-12"
+        };
+
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(requestBody));
+
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync(new ParticipantManagement
+            {
+                NHSNumber = 6427635034,
+                BlockedFlag = 1,
+
+            });
+
+        //act
+        var result = await _sut.BlockParticipant(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _mockHttpClient.Verify(x => x.SendPost("NemsUnsubscribeUrl", It.IsAny<Dictionary<string, string>>()), Times.Never);
+        _mockHttpClient.VerifyNoOtherCalls();
+        _mockParticipantManagementClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()), Times.Once);
+        _mockParticipantManagementClient.VerifyNoOtherCalls();
+
+    }
+    [TestMethod]
+    public async Task BlockParticipant_ExistingParticipantFailsThreePointCheck_ReturnsSuccess()
+    {
+        //arrange
+        var requestBody = new BlockParticipantDto
+        {
+            NhsNumber = 6427635034,
+            FamilyName = "Jones",
+            DateOfBirth = "1923-10-12"
+        };
+
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(requestBody));
+
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync(new ParticipantManagement
+            {
+                NHSNumber = 6427635034,
+                BlockedFlag = 0,
+
+            });
+        _mockParticipantDemographicClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
+            .ReturnsAsync(new ParticipantDemographic
+            {
+                NhsNumber = 6427635034,
+                FamilyName = "Davies",
+                DateOfBirth = "19231012"
+            });
+
+        //act
+        var result = await _sut.BlockParticipant(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _mockHttpClient.Verify(x => x.SendPost("NemsUnsubscribeUrl", It.IsAny<Dictionary<string, string>>()), Times.Never);
+        _mockHttpClient.VerifyNoOtherCalls();
+        _mockParticipantManagementClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()), Times.Once);
+        _mockParticipantManagementClient.VerifyNoOtherCalls();
+        _mockParticipantDemographicClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()), Times.Once);
+        _mockParticipantDemographicClient.VerifyNoOtherCalls();
+    }
+    [TestMethod]
+    public async Task BlockParticipant_NonExistentParticipantFailsThreePointCheck_ReturnsFailure()
+    {
+        //arrange
+        var requestBody = new BlockParticipantDto
+        {
+            NhsNumber = 6427635034,
+            FamilyName = "Jones",
+            DateOfBirth = "1923-10-12"
+        };
+
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(requestBody));
+
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .Returns(Task.FromResult<ParticipantManagement>(null!));
+
+
+        var pdsDemoResponse = JsonSerializer.Serialize(
+            new PdsDemographic
+            {
+                NhsNumber = "6427635034",
+                FamilyName = "Davies",
+                DateOfBirth = "19231012"
+            });
+
+        _mockHttpClient.Setup(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(pdsDemoResponse);
+
+        _mockParticipantManagementClient.Setup(x => x.Add(It.IsAny<ParticipantManagement>()))
+            .ReturnsAsync(true);
+
+
+        //act
+        var result = await _sut.BlockParticipant(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _mockHttpClient.Verify(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockParticipantManagementClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()));
+        _mockParticipantManagementClient.VerifyNoOtherCalls();
+        _mockHttpClient.VerifyNoOtherCalls();
+    }
+    [TestMethod]
+    public async Task GetParticipant_ParticipantExistsInCM_ReturnsSuccess()
+    {
+        //arrange
+        var requestBody = new BlockParticipantDto
+        {
+            NhsNumber = 6427635034,
+            FamilyName = "Jones",
+            DateOfBirth = "1923-10-12"
+        };
+
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(requestBody));
+
+        _mockParticipantDemographicClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
+            .ReturnsAsync(new ParticipantDemographic
+            {
+                NhsNumber = 6427635034,
+                FamilyName = "Jones",
+                DateOfBirth = "19231012"
+            });
+
+
+
+        //act
+        var result = await _sut.GetParticipantDetails(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _mockParticipantDemographicClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()));
+        _mockParticipantManagementClient.VerifyNoOtherCalls();
+        _mockHttpClient.VerifyNoOtherCalls();
+    }
+    [TestMethod]
+    public async Task GetParticipant_ParticipantOnlyInPDS_ReturnsSuccess()
+    {
+        //arrange
+        var requestBody = new BlockParticipantDto
+        {
+            NhsNumber = 6427635034,
+            FamilyName = "Jones",
+            DateOfBirth = "1923-10-12"
+        };
+
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(requestBody));
+
+        _mockParticipantDemographicClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
+            .Returns(Task.FromResult<ParticipantDemographic>(null!));
+
+        var pdsDemoResponse = JsonSerializer.Serialize(
+            new PdsDemographic
+            {
+                NhsNumber = "6427635034",
+                FamilyName = "Jones",
+                DateOfBirth = "19231012"
+            });
+
+        _mockHttpClient.Setup(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(pdsDemoResponse);
+
+
+        //act
+        var result = await _sut.GetParticipantDetails(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _mockHttpClient.Verify(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockParticipantDemographicClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()));
+        _mockParticipantManagementClient.VerifyNoOtherCalls();
+        _mockHttpClient.VerifyNoOtherCalls();
+    }
+    [TestMethod]
+    public async Task GetParticipant_ParticipantNotExists_ReturnsFailure()
+    {
+        //arrange
+        var requestBody = new BlockParticipantDto
+        {
+            NhsNumber = 6427635034,
+            FamilyName = "Jones",
+            DateOfBirth = "1923-10-12"
+        };
+
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(requestBody));
+
+        _mockParticipantDemographicClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()))
+            .Returns(Task.FromResult<ParticipantDemographic>(null!));
+
+        var pdsDemoResponse = JsonSerializer.Serialize(
+            new PdsDemographic
+            {
+                NhsNumber = "6427635034",
+                FamilyName = "Jones",
+                DateOfBirth = "19231012"
+            });
+
+        _mockHttpClient.Setup(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))
+            .Returns(Task.FromResult<string?>("")!);
+
+
+        //act
+        var result = await _sut.GetParticipantDetails(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+        _mockHttpClient.Verify(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockParticipantDemographicClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()), Times.Once);
+        _mockParticipantManagementClient.VerifyNoOtherCalls();
+        _mockHttpClient.VerifyNoOtherCalls();
+    }
+    [TestMethod]
+    public async Task GetParticipant_InvalidNhsNumber_ReturnsFailure()
+    {
+        //arrange
+        var requestBody = new BlockParticipantDto
+        {
+            NhsNumber = 6427635035,
+            FamilyName = "Jones",
+            DateOfBirth = "1923-10-12"
+        };
+
+        _request = _setupRequest.Setup(JsonSerializer.Serialize(requestBody));
+
+        //act
+        var result = await _sut.GetParticipantDetails(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+    [TestMethod]
+    public async Task UnblockParticipant_ParticipantIsBlocked_ReturnsSuccess()
+    {
+        //arrange
+        var queryParams = new NameValueCollection
+        {
+            {"nhsNumber","6427635034"}
+        };
+        _request = _setupRequest.Setup("", queryParams, HttpMethod.Post);
+
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync(new ParticipantManagement
+            {
+                NHSNumber = 6427635034,
+                BlockedFlag = 1,
+                EligibilityFlag = 1
+            });
+
+        _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>()))
+            .ReturnsAsync(true);
+
+        _mockHttpClient.Setup(x => x.SendPost("NemsSubscribeUrl", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK
+            });
+
+
+        //act
+        var result = await _sut.UnblockParticipant(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _mockHttpClient.Verify(x => x.SendPost("NemsSubscribeUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockParticipantManagementClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()), Times.Once);
+        _mockParticipantManagementClient.Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Once);
+        _mockParticipantManagementClient.VerifyNoOtherCalls();
+        _mockHttpClient.VerifyNoOtherCalls();
     }
 
     [TestMethod]
-    public async Task BlockParticipant_MissingQueryParams_ReturnBadRequest()
+    [DataRow("6427635035")]
+    [DataRow("642763")]
+    [DataRow("abs7635035")]
+    public async Task UnblockParticipant_InvalidNhsNumber_ReturnsFailure(string nhsNumber)
     {
-        // Arrange
-        var request = _setupRequest.Setup("");
+        //arrange
         var queryParams = new NameValueCollection
         {
-            { "NhsNumber", "8253303483"},
-            { "ScreeningId", "1"},
-            { "DateOfBirth", "01/01/2000"}
+            {"nhsNumber",nhsNumber}
         };
+        _request = _setupRequest.Setup("", queryParams, HttpMethod.Post);
 
-        request.Setup(r => r.Query).Returns(queryParams);
+        //act
+        var result = await _sut.UnblockParticipant(_request.Object);
 
-        // Act
-        var response = await _sut.BlockParticipant(request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(x => x.CreateSystemExceptionLogFromNhsNumber(
-            It.IsAny<InvalidDataException>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>(),
-            It.IsAny<string>()),
-            Times.Once);
-        Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+        //asset
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
     }
+    [TestMethod]
+    public async Task UnblockParticipant_ParticipantNotFound_ReturnsFailure()
+    {
+        //arrange
+        var queryParams = new NameValueCollection
+        {
+            {"nhsNumber","6427635034"}
+        };
+        _request = _setupRequest.Setup("", queryParams, HttpMethod.Post);
+
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .Returns(Task.FromResult<ParticipantManagement>(null!));
+
+        //act
+        var result = await _sut.UnblockParticipant(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.NotFound, result.StatusCode);
+        _mockParticipantManagementClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()), Times.Once);
+        _mockHttpClient.VerifyNoOtherCalls();
+    }
+    [TestMethod]
+    public async Task UnblockParticipant_ParticipantNotBlocked_ReturnBadRequest()
+    {
+        //arrange
+        var queryParams = new NameValueCollection
+        {
+            {"nhsNumber","6427635034"}
+        };
+        _request = _setupRequest.Setup("", queryParams, HttpMethod.Post);
+
+        _mockParticipantManagementClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync(new ParticipantManagement
+            {
+                NHSNumber = 6427635034,
+                BlockedFlag = 0,
+                EligibilityFlag = 1
+            });
+
+
+        //act
+        var result = await _sut.UnblockParticipant(_request.Object);
+
+        //asset
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+        _mockParticipantManagementClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()), Times.Once);
+        _mockParticipantManagementClient.VerifyNoOtherCalls();
+        _mockHttpClient.VerifyNoOtherCalls();
+    }
+
+
+
+
 }

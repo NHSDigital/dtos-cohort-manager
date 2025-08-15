@@ -49,13 +49,13 @@ public class ManageNemsSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
             {
                 _logger.LogError("NHS number is required and must be valid format");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
-            var result = await _subscriptionManager.CreateAndSendSubscriptionAsync(nhsNumber);
+            var result = await _subscriptionManager.CreateAndSendSubscriptionAsync(nhsNumber!);
 
             if (!result.Success)
             {
