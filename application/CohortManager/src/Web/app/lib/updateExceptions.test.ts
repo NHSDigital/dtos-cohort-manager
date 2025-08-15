@@ -48,6 +48,42 @@ describe("updateExceptions", () => {
             { message: "ServiceNow ID must be at least 9 characters long" },
           ],
         },
+
+// Mock the validation schema with a simple jest.fn()
+const mockSafeParse = jest.fn();
+jest.mock("./formValidationSchemas", () => ({
+  updateExceptionsSchema: jest.fn(() => ({
+    safeParse: mockSafeParse,
+  })),
+}));
+
+import { updateExceptions } from "./updateExceptions";
+import { redirect } from "next/navigation";
+
+const mockRedirect = redirect as jest.MockedFunction<typeof redirect>;
+
+describe("updateExceptions", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+    process.env.EXCEPTIONS_API_URL = "https://api.example.com";
+
+    // Mock global fetch for all tests
+    global.fetch = jest.fn();
+  });
+
+  afterEach(() => {
+    delete process.env.EXCEPTIONS_API_URL;
+  });
+
+  describe("validation errors", () => {
+    it("redirects with validation error when ServiceNow ID is invalid", async () => {
+      mockSafeParse.mockReturnValue({
+        success: false,
+        error: {
+          issues: [
+            { message: "ServiceNow ID must be at least 9 characters long" },
+          ],
+        },
       });
 
       const formData = new FormData();
@@ -131,7 +167,7 @@ describe("updateExceptions", () => {
       formData.append("isEditMode", "false");
 
       await expect(updateExceptions(2073, formData)).rejects.toThrow(
-        "NEXT_REDIRECT;/participant-information/2073"
+        "NEXT_REDIRECT;/exceptions"
       );
 
       expect(fetch).toHaveBeenCalledWith(
@@ -148,9 +184,7 @@ describe("updateExceptions", () => {
         }
       );
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        "/participant-information/2073"
-      );
+      expect(mockRedirect).toHaveBeenCalledWith("/exceptions");
     });
 
     it("handles empty ServiceNow ID (clearing the field)", async () => {
@@ -175,7 +209,7 @@ describe("updateExceptions", () => {
       formData.append("isEditMode", "false");
 
       await expect(updateExceptions(2073, formData)).rejects.toThrow(
-        "NEXT_REDIRECT;/participant-information/2073"
+        "NEXT_REDIRECT;/exceptions"
       );
 
       expect(fetch).toHaveBeenCalledWith(
@@ -192,9 +226,7 @@ describe("updateExceptions", () => {
         }
       );
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        "/participant-information/2073"
-      );
+      expect(mockRedirect).toHaveBeenCalledWith("/exceptions");
     });
   });
 
