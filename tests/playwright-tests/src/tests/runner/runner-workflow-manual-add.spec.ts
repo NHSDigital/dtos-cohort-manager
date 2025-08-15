@@ -35,9 +35,6 @@ test.beforeAll(async () => {
       const participantReq = item as ParticipantRecord;
       await sendParticipantViaSnowAPI(apiContext, participantReq);
     }));
-
-  // const runTimeParquetFile = await createParquetFromJson(addData.nhsNumbers, updatedParticipantRecords, addData.testFilesPath, "ADD", false);
-  // await processFileViaStorage(runTimeParquetFile);
 });
 
 test.afterAll(async () => {
@@ -50,8 +47,7 @@ addData.validations.forEach((validations) => {
   test(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
     annotation: [
       { type: 'TestId', description: validations.meta?.testJiraId ?? '' },
-      { type: 'RequirementId', description: validations.meta?.requirementJiraId ?? '' },
-      { type: 'manualAdd', description: validations.meta?.requirementJiraId ?? '' },
+      { type: 'RequirementId', description: validations.meta?.requirementJiraId ?? '' }
     ],
   }, async ({ request }) => {
     await validateSqlDatabaseFromAPI(request, [validations]);
