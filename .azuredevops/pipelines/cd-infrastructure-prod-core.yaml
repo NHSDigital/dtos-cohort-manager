@@ -47,12 +47,6 @@ parameters:
       - 'Apply'
     default: 'Apply'
 
-  - name: testTypes
-    displayName: 'End-2-End Tests to run (enter [] to skip)'
-    type: object
-    default:
-      - smoke_e2e
-
 variables:
   - name: hostPoolName
     value: private-pool-prod-uks
@@ -85,29 +79,3 @@ stages:
     retagImages: ${{ parameters.retagImages }}
     retagImagesFrom: ${{ parameters.dockerImageReTagFrom }}
     retagImagesTo: ${{ parameters.dockerImageReTagTo }}
-
-# Loop to create test stages dynamically based on the testTypes parameter
-- ${{ each testType in parameters.testTypes }}:
-    - stage: ${{ testType }}_stage
-      displayName: Run ${{ testType }} Tests
-      ${{ if eq(testType, 'regression_api') }}:
-        dependsOn: smoke_e2e_stage
-      ${{ if eq(testType, 'regression_e2e_epic1') }}:
-        dependsOn: regression_api_stage
-      ${{ if eq(testType, 'regression_e2e_epic2') }}:
-        dependsOn: regression_e2e_epic1_stage
-      ${{ if eq(testType, 'regression_e2e_epic3') }}:
-        dependsOn: regression_e2e_epic2_stage
-      condition: succeededOrFailed()
-      jobs:
-        - job: ${{ testType }}_job
-          pool:
-            name: $(hostPoolName)
-          steps:
-            - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
-              parameters:
-                serviceConnection: $(SERVICE_CONNECTION)
-                testProjectDirectory: "tests/playwright-tests"
-                testfileDirectory: "src/tests/e2e/testFiles"
-                testProjectName: "tests"
-                testType: ${{ testType }}
