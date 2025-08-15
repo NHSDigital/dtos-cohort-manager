@@ -82,11 +82,10 @@ public class ManageServiceNowParticipantFunction
     private async Task<PdsDemographic?> ValidateAndRetrieveParticipantFromPds(ServiceNowParticipant serviceNowParticipant)
     {
         var pdsResponse = await _httpClientFunction.SendGetResponse($"{_config.RetrievePdsDemographicURL}?nhsNumber={serviceNowParticipant.NhsNumber}");
-        string responseMessage = await pdsResponse.Content.ReadAsStringAsync();
 
         if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
         {
-            await HandleException(new Exception(responseMessage), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
+            await HandleException(new Exception("Request to PDS for ServiceNow Participant returned a NotFound response."), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
             return null;
         }
 
