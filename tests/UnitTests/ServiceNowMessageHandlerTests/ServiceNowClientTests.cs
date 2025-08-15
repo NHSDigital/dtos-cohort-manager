@@ -2,6 +2,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowMessageHandlerTests;
 
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -71,7 +72,7 @@ public class ServiceNowClientTests
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
-            });
+            }).Verifiable();
         _httpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -79,26 +80,15 @@ public class ServiceNowClientTests
                 ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == $"{ServiceNowUpdateUrl}/{caseNumber}"),
                 ItExpr.IsAny<CancellationToken>()
             )
-            .ReturnsAsync(new HttpResponseMessage(updateResponseStatusCode));
+            .ReturnsAsync(new HttpResponseMessage(updateResponseStatusCode)).Verifiable();
 
         // Act
-        var response = await _serviceNowClient.SendUpdate(caseNumber, "Note");
+        var response = await _serviceNowClient.SendUpdate(caseNumber, "Note", false);
 
         // Assert
         Assert.IsNotNull(response);
         Assert.AreEqual(updateResponseStatusCode, response.StatusCode);
-        _httpMessageHandler.Protected().Verify(
-            "SendAsync",
-            Times.Once(),
-            ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Post && req.RequestUri.ToString() == ServiceNowRefreshAccessTokenUrl),
-            ItExpr.IsAny<CancellationToken>()
-        );
-        _httpMessageHandler.Protected().Verify(
-            "SendAsync",
-            Times.Once(),
-            ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == $"{ServiceNowUpdateUrl}/{caseNumber}"),
-            ItExpr.IsAny<CancellationToken>()
-        );
+        _httpMessageHandler.Verify();
         Assert.AreEqual("101", _cache.Get(AccessTokenCacheKey));
     }
 
@@ -121,7 +111,7 @@ public class ServiceNowClientTests
                 ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == $"{ServiceNowUpdateUrl}/{caseNumber}"),
                 ItExpr.IsAny<CancellationToken>()
             )
-            .ReturnsAsync(new HttpResponseMessage(updateResponseStatusCode));
+            .ReturnsAsync(new HttpResponseMessage(updateResponseStatusCode)).Verifiable();
 
         // Act
         var response = await _serviceNowClient.SendUpdate(caseNumber, "Note");
@@ -129,12 +119,7 @@ public class ServiceNowClientTests
         // Assert
         Assert.IsNotNull(response);
         Assert.AreEqual(updateResponseStatusCode, response.StatusCode);
-        _httpMessageHandler.Protected().Verify(
-            "SendAsync",
-            Times.Once(),
-            ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == $"{ServiceNowUpdateUrl}/{caseNumber}"),
-            ItExpr.IsAny<CancellationToken>()
-        );
+        _httpMessageHandler.Verify();
         _httpMessageHandler.VerifyNoOtherCalls();
     }
 
@@ -151,19 +136,14 @@ public class ServiceNowClientTests
                 ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Post && req.RequestUri.ToString() == ServiceNowRefreshAccessTokenUrl),
                 ItExpr.IsAny<CancellationToken>()
             )
-            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Unauthorized));
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Unauthorized)).Verifiable();
 
         // Act
         var response = await _serviceNowClient.SendUpdate(caseNumber, "Note");
 
         // Assert
         Assert.IsNull(response);
-        _httpMessageHandler.Protected().Verify(
-            "SendAsync",
-            Times.Once(),
-            ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Post && req.RequestUri.ToString() == ServiceNowRefreshAccessTokenUrl),
-            ItExpr.IsAny<CancellationToken>()
-        );
+        _httpMessageHandler.Verify();
         _httpMessageHandler.VerifyNoOtherCalls();
     }
 
@@ -196,7 +176,7 @@ public class ServiceNowClientTests
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
             {
                 Content = new StringContent(jsonResponse, Encoding.UTF8, "application/json")
-            });
+            }).Verifiable();
 
         // Act
         var response = await _serviceNowClient.SendUpdate(caseNumber, "Note");
@@ -204,6 +184,7 @@ public class ServiceNowClientTests
         // Assert
         Assert.IsNotNull(response);
         Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        Assert.AreEqual("102", _cache.Get(AccessTokenCacheKey));
         _httpMessageHandler.Protected().Verify(
             "SendAsync",
             Times.Exactly(2),
@@ -216,7 +197,6 @@ public class ServiceNowClientTests
             ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Post && req.RequestUri.ToString() == ServiceNowRefreshAccessTokenUrl),
             ItExpr.IsAny<CancellationToken>()
         );
-        Assert.AreEqual("102", _cache.Get(AccessTokenCacheKey));
         _httpMessageHandler.VerifyNoOtherCalls();
     }
 
@@ -239,20 +219,106 @@ public class ServiceNowClientTests
                 ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == $"{ServiceNowResolutionUrl}/{caseNumber}"),
                 ItExpr.IsAny<CancellationToken>()
             )
-            .ReturnsAsync(new HttpResponseMessage(updateResponseStatusCode));
+            .ReturnsAsync(new HttpResponseMessage(updateResponseStatusCode)).Verifiable();
 
         // Act
         var response = await _serviceNowClient.SendResolution(caseNumber, "Note");
 
         // Assert
         Assert.IsNotNull(response);
-        Assert.AreEqual(updateResponseStatusCode, response.StatusCode);
-        _httpMessageHandler.Protected().Verify(
-            "SendAsync",
-            Times.Once(),
-            ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == $"{ServiceNowResolutionUrl}/{caseNumber}"),
-            ItExpr.IsAny<CancellationToken>()
-        );
+        Assert.AreEqual(response.StatusCode, updateResponseStatusCode);
+        _httpMessageHandler.Verify();
         _httpMessageHandler.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    public async Task SendUpdate_WhenNeedsAttentionIsFalse_SendExpectedUpdateRequestBody()
+    {
+        // Arrange
+        var caseNumber = "CS123";
+
+        _cache.Set(AccessTokenCacheKey, "101");
+
+        string? updateRequestBodyJsonString = null;
+
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == $"{ServiceNowUpdateUrl}/{caseNumber}"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
+            .Callback<HttpRequestMessage, CancellationToken>(async (request, cancellationToken) =>
+            {
+                updateRequestBodyJsonString = await request.Content!.ReadAsStringAsync();
+            }).Verifiable();
+
+        // Act
+        var response = await _serviceNowClient.SendUpdate(caseNumber, "Note");
+
+        // Assert
+        Assert.AreEqual("{\"state\":10,\"work_notes\":\"Note\",\"needs_attention\":false}", updateRequestBodyJsonString);
+    }
+
+    [TestMethod]
+    public async Task SendUpdate_WhenNeedsAttentionIsTrue_SendExpectedUpdateRequestBody()
+    {
+        // Arrange
+        var caseNumber = "CS123";
+
+        _cache.Set(AccessTokenCacheKey, "101");
+
+        string? updateRequestBodyJsonString = null;
+
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == $"{ServiceNowUpdateUrl}/{caseNumber}"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
+            .Callback<HttpRequestMessage, CancellationToken>(async (request, cancellationToken) =>
+            {
+                updateRequestBodyJsonString = await request.Content!.ReadAsStringAsync();
+            }).Verifiable();
+
+        // Act
+        var response = await _serviceNowClient.SendUpdate(caseNumber, "Note", true);
+
+        // Assert
+        Assert.AreEqual($"{{\"state\":10,\"work_notes\":\"Note\",\"needs_attention\":true,\"assignment_group\":\"{_configMock.Object.Value.ServiceNowAssignmentGroup}\"}}",
+            updateRequestBodyJsonString);
+    }
+
+    [TestMethod]
+    public async Task SendResolution_SendExpectedUpdateRequestBody()
+    {
+        // Arrange
+        var caseNumber = "CS123";
+
+        _cache.Set(AccessTokenCacheKey, "101");
+
+        string? resolutionRequestBodyJsonString = null;
+
+        _httpMessageHandler
+            .Protected()
+            .Setup<Task<HttpResponseMessage>>(
+                "SendAsync",
+                ItExpr.Is<HttpRequestMessage>(req => req.Method == HttpMethod.Put && req.RequestUri.ToString() == $"{ServiceNowResolutionUrl}/{caseNumber}"),
+                ItExpr.IsAny<CancellationToken>()
+            )
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
+            .Callback<HttpRequestMessage, CancellationToken>(async (request, cancellationToken) =>
+            {
+                resolutionRequestBodyJsonString = await request.Content!.ReadAsStringAsync();
+            }).Verifiable();
+
+        // Act
+        var response = await _serviceNowClient.SendResolution(caseNumber, "Note");
+
+        // Assert
+        Assert.AreEqual("{\"state\":6,\"resolution_code\":\"28\",\"close_notes\":\"Note\"}", resolutionRequestBodyJsonString);
     }
 }
