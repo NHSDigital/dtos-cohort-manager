@@ -48,42 +48,6 @@ describe("updateExceptions", () => {
             { message: "ServiceNow ID must be at least 9 characters long" },
           ],
         },
-
-// Mock the validation schema with a simple jest.fn()
-const mockSafeParse = jest.fn();
-jest.mock("./formValidationSchemas", () => ({
-  updateExceptionsSchema: jest.fn(() => ({
-    safeParse: mockSafeParse,
-  })),
-}));
-
-import { updateExceptions } from "./updateExceptions";
-import { redirect } from "next/navigation";
-
-const mockRedirect = redirect as jest.MockedFunction<typeof redirect>;
-
-describe("updateExceptions", () => {
-  beforeEach(() => {
-    jest.clearAllMocks();
-    process.env.EXCEPTIONS_API_URL = "https://api.example.com";
-
-    // Mock global fetch for all tests
-    global.fetch = jest.fn();
-  });
-
-  afterEach(() => {
-    delete process.env.EXCEPTIONS_API_URL;
-  });
-
-  describe("validation errors", () => {
-    it("redirects with validation error when ServiceNow ID is invalid", async () => {
-      mockSafeParse.mockReturnValue({
-        success: false,
-        error: {
-          issues: [
-            { message: "ServiceNow ID must be at least 9 characters long" },
-          ],
-        },
       });
 
       const formData = new FormData();
@@ -227,6 +191,48 @@ describe("updateExceptions", () => {
       );
 
       expect(mockRedirect).toHaveBeenCalledWith("/exceptions");
+    });
+
+    it("successfully updates ServiceNow ID in edit mode and redirects to raised exceptions", async () => {
+      mockSafeParse.mockReturnValue({
+        success: true,
+        data: { serviceNowID: "INC1234567890" },
+      });
+
+      global.fetch = jest.fn().mockResolvedValue({
+        ok: true,
+        json: jest.fn().mockResolvedValue({
+          message:
+            "Exception record updated with ServiceNow number successfully",
+          exceptionId: 2073,
+          previousServiceNowId: "INC0000000000",
+          newServiceNowId: "INC1234567890",
+        }),
+      });
+
+      const formData = new FormData();
+      formData.append("serviceNowID", "INC1234567890");
+      formData.append("isEditMode", "true");
+
+      await expect(updateExceptions(2073, formData)).rejects.toThrow(
+        "NEXT_REDIRECT;/exceptions/raised"
+      );
+
+      expect(fetch).toHaveBeenCalledWith(
+        "https://api.example.com/api/UpdateException",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ExceptionId: "2073",
+            ServiceNowNumber: "INC1234567890",
+          }),
+        }
+      );
+
+      expect(mockRedirect).toHaveBeenCalledWith("/exceptions/raised");
     });
   });
 
@@ -403,7 +409,7 @@ describe("updateExceptions", () => {
       formData.append("isEditMode", "false");
 
       await expect(updateExceptions(2075, formData)).rejects.toThrow(
-        "NEXT_REDIRECT;/participant-information/2075"
+        "NEXT_REDIRECT;/exceptions"
       );
 
       expect(fetch).toHaveBeenCalledWith(
@@ -416,9 +422,7 @@ describe("updateExceptions", () => {
         })
       );
 
-      expect(mockRedirect).toHaveBeenCalledWith(
-        "/participant-information/2075"
-      );
+      expect(mockRedirect).toHaveBeenCalledWith("/exceptions");
     });
 
     it("handles very long ServiceNow IDs", async () => {
@@ -441,7 +445,7 @@ describe("updateExceptions", () => {
       formData.append("isEditMode", "false");
 
       await expect(updateExceptions(2073, formData)).rejects.toThrow(
-        "NEXT_REDIRECT;/participant-information/2073"
+        "NEXT_REDIRECT;/exceptions"
       );
 
       expect(fetch).toHaveBeenCalledWith(
@@ -477,7 +481,7 @@ describe("updateExceptions", () => {
       formData.append("isEditMode", "false");
 
       await expect(updateExceptions(2073, formData)).rejects.toThrow(
-        "NEXT_REDIRECT;/participant-information/2073"
+        "NEXT_REDIRECT;/exceptions"
       );
 
       expect(fetch).toHaveBeenCalledWith(
