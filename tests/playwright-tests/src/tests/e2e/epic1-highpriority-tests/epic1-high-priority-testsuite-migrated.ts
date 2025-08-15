@@ -24,6 +24,6 @@
 // This equates to "@epic1-" tags, configured in the package.json at the playwright-tests root location.
 
 
-export const runnerBasedEpic1TestScenariosAdd = "@DTOSS-3648-01|@DTOSS-3661-01|@DTOSS-3662-01|@DTOSS-3197-01|@DTOSS-3744-01|@DTOSS-3660-01";
+export const runnerBasedEpic1TestScenariosAdd = "@DTOSS-3648-01|@DTOSS-3661-01|@DTOSS-3197-01|@DTOSS-3744-01|@DTOSS-3660-01";
 export const runnerBasedEpic1TestScenariosAmend = "@DTOSS-3217-01|@DTOSS-3661-02|@DTOSS-3662-02|@DTOSS-3217-02";
 

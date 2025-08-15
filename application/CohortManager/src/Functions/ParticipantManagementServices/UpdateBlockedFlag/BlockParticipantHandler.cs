@@ -141,7 +141,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
         var pdsRecordsMatch = ValidateRecordsMatch(pdsParticipant, blockParticipantRequest);
         var pdsResponseBody = JsonSerializer.Serialize(new BlockParticipantDto
         {
-            NhsNumber = pdsParticipant.NhsNumber,
+            NhsNumber = long.Parse(pdsParticipant.NhsNumber),
             FamilyName = pdsParticipant.FamilyName!,
             DateOfBirth = pdsParticipant.DateOfBirth!
         });
@@ -161,7 +161,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
         var participantManagementRecord = new ParticipantManagement
         {
-            NHSNumber = pdsParticipant.NhsNumber,
+            NHSNumber = long.Parse(pdsParticipant.NhsNumber),
             BlockedFlag = 1,
             EligibilityFlag = 0,
         };
@@ -219,7 +219,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
         return await _participantManagementDataService.Update(participant);
     }
 
-    private async Task<ParticipantDemographic> GetPDSParticipant(long nhsNumber)
+    private async Task<PdsDemographic> GetPDSParticipant(long nhsNumber)
     {
         var pdsResponse = await _httpClient.SendGet(_config.RetrievePdsDemographicURL, CreateNhsNumberQueryParams(nhsNumber));
         if (string.IsNullOrEmpty(pdsResponse))
@@ -228,7 +228,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             return null!;
         }
 
-        var pdsDemographic = JsonSerializer.Deserialize<ParticipantDemographic>(pdsResponse);
+        var pdsDemographic = JsonSerializer.Deserialize<PdsDemographic>(pdsResponse);
 
         return pdsDemographic!;
     }
@@ -247,6 +247,23 @@ public class BlockParticipantHandler : IBlockParticipantHandler
         }
         return string.Equals(participant.FamilyName, dto.FamilyName, StringComparison.InvariantCultureIgnoreCase)
             && participant.NhsNumber == dto.NhsNumber
+            && parsedDob == dtoDateOfBirth;
+    }
+
+    private static bool ValidateRecordsMatch(PdsDemographic participant, BlockParticipantDto dto)
+    {
+
+        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd",new CultureInfo("en-GB"),DateTimeStyles.None, out var dtoDateOfBirth ))
+        {
+            throw new FormatException("Date of Birth not in the correct format");
+        }
+
+        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd",new CultureInfo("en-GB"),DateTimeStyles.None, out var parsedDob))
+        {
+            return false;
+        }
+        return string.Equals(participant.FamilyName, dto.FamilyName, StringComparison.InvariantCultureIgnoreCase)
+            && long.Parse(participant.NhsNumber) == dto.NhsNumber
             && parsedDob == dtoDateOfBirth;
     }
 

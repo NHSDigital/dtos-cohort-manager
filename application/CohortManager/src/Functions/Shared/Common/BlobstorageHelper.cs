@@ -16,6 +16,13 @@ public class BlobStorageHelper : IBlobStorageHelper
     }
     public async Task CopyFileToPoisonAsync(string connectionString, string fileName, string containerName)
     {
+        // Delegate to the extended overload to avoid duplication; preserve env var behaviour
+        var poisonContainerName = Environment.GetEnvironmentVariable("fileExceptions");
+        await CopyFileToPoisonAsync(connectionString, fileName, containerName, poisonContainerName, addTimestamp: false);
+    }
+
+    public async Task CopyFileToPoisonAsync(string connectionString, string fileName, string containerName, string poisonContainerName, bool addTimestamp = false)
+    {
         var sourceBlobServiceClient = new BlobServiceClient(connectionString);
         var sourceContainerClient = sourceBlobServiceClient.GetBlobContainerClient(containerName);
         var sourceBlobClient = sourceContainerClient.GetBlobClient(fileName);
@@ -23,8 +30,19 @@ public class BlobStorageHelper : IBlobStorageHelper
         BlobLeaseClient sourceBlobLease = new(sourceBlobClient);
 
         var destinationBlobServiceClient = new BlobServiceClient(connectionString);
-        var destinationContainerClient = destinationBlobServiceClient.GetBlobContainerClient(Environment.GetEnvironmentVariable("fileExceptions"));
-        var destinationBlobClient = destinationContainerClient.GetBlobClient(fileName);
+        var destinationContainerClient = destinationBlobServiceClient.GetBlobContainerClient(poisonContainerName);
+        
+        // Conditionally add timestamp to prevent collisions and maintain audit trail
+        var destinationFileName = fileName;
+        if (addTimestamp)
+        {
+            var timestamp = DateTime.UtcNow.ToString("yyyyMMdd_HHmmss");
+            var fileExtension = Path.GetExtension(fileName);
+            var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(fileName);
+            destinationFileName = $"{fileNameWithoutExtension}_{timestamp}{fileExtension}";
+        }
+        
+        var destinationBlobClient = destinationContainerClient.GetBlobClient(destinationFileName);
 
         await destinationContainerClient.CreateIfNotExistsAsync(PublicAccessType.None);
 
@@ -36,7 +54,7 @@ public class BlobStorageHelper : IBlobStorageHelper
         catch (RequestFailedException ex)
         {
             _logger.LogError(ex, "There has been a problem while copying the file: {Message}", ex.Message);
-            throw;
+            throw new InvalidOperationException($"Failed to copy file '{fileName}' from container '{containerName}' to poison container as '{destinationFileName}'.", ex);
         }
         finally
         {

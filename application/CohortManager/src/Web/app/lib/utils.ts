@@ -25,10 +25,6 @@ export const formatCompactDate = (dateString: string): string => {
   return date.toLocaleDateString("en-GB", options);
 };
 
-export const formatPhoneNumber = (phoneNumber: string): string => {
-  return phoneNumber.replace(/(\d{5})(\d{3})(\d{3})/, "$1 $2 $3");
-};
-
 export function getCurrentDate(): string {
   const date = new Date();
   const year = date.getFullYear();

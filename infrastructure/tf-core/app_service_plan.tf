@@ -31,7 +31,7 @@ module "app-service-plan" {
   log_analytics_workspace_id                        = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_appserviceplan_metrics = local.monitor_diagnostic_setting_appserviceplan_metrics
   os_type                                           = lookup(each.value, "os_type", var.app_service_plan.os_type)
-  sku_name                                          = lookup(each.value, "sku_name", var.app_service_plan.sku_name)
+  sku_name                                          = each.value.sku_name
   zone_balancing_enabled                            = lookup(each.value, "zone_balancing_enabled", var.app_service_plan.zone_balancing_enabled)
   vnet_integration_subnet_id                        = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
   wildcard_ssl_cert_name                            = each.value.wildcard_ssl_cert_key

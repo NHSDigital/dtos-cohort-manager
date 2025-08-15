@@ -2,7 +2,7 @@ namespace Common;
 
 public class PaginationService<T> : IPaginationService<T>
 {
-        private const int pageSize = 20;
+    private const int pageSize = 10;
 
     public PaginationResult<T> GetPaginatedResult(
         IQueryable<T> source,
@@ -19,7 +19,7 @@ public class PaginationService<T> : IPaginationService<T>
         var idList = source.Select(idSelector).OrderBy(id => id).ToList();
 
         // Get the index of the lastId
-        int lastIdIndex = lastId.HasValue? idList.IndexOf(lastId.Value) : -1;
+        int lastIdIndex = lastId.HasValue ? idList.IndexOf(lastId.Value) : -1;
         int currentPage = lastIdIndex >= 0 ? (lastIdIndex / pageSize) + 2 : 1;
         var totalItems = source.Count();
         var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);

@@ -38,7 +38,7 @@ public class PdsProcessor : IPdsProcessor
     /// <param name="pdsResponse"></param>
     /// <param name="nhsNumber"></param>
     /// <returns></returns>
-    public async Task ProcessPdsNotFoundResponse(HttpResponseMessage pdsResponse, string nhsNumber)
+    public async Task ProcessPdsNotFoundResponse(HttpResponseMessage pdsResponse, string nhsNumber, string? sourceFileName = null)
     {
         var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PdsErrorResponse>();
         // we now create a record as an update record and send to the manage participant function. Reason for removal for date should be today and the reason for remove of ORR
@@ -54,7 +54,7 @@ public class PdsProcessor : IPdsProcessor
             var participant = new Participant(pdsDemographic);
             participant.RecordType = Actions.Removed;
             //sends record for an update
-            await ProcessRecord(participant);
+            await ProcessRecord(participant, sourceFileName);
             return;
         }
         _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
@@ -65,7 +65,7 @@ public class PdsProcessor : IPdsProcessor
     /// </summary>
     /// <param name="participant"></param>
     /// <returns></returns>
-    public async Task ProcessRecord(Participant participant)
+    public async Task ProcessRecord(Participant participant, string? fileName = null)
     {
         var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
         participant.RecordType = Actions.Removed;
@@ -73,7 +73,7 @@ public class PdsProcessor : IPdsProcessor
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
             BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = PdsConstants.DefaultFileName,
+            FileName = string.IsNullOrWhiteSpace(fileName) ? PdsConstants.DefaultFileName : fileName,
             Participant = participant
         };
 

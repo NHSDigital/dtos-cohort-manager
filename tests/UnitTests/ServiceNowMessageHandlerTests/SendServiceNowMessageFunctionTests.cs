@@ -55,8 +55,10 @@ public class SendServiceNowMessageFunctionTests
         _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
 
         var updateResponse = new HttpResponseMessage(HttpStatusCode.OK);
-        _serviceNowClientMock.Setup(x => x.SendUpdate(caseNumber,
-                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber))))
+        _serviceNowClientMock.Setup(x => x.SendUpdate(
+                caseNumber,
+                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber)),
+                false))
             .ReturnsAsync(updateResponse)
             .Verifiable();
 
@@ -83,8 +85,10 @@ public class SendServiceNowMessageFunctionTests
         _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
 
         var updateResponse = new HttpResponseMessage(HttpStatusCode.OK);
-        _serviceNowClientMock.Setup(x => x.SendUpdate(caseNumber,
-                string.Format(string.Format(ServiceNowMessageTemplates.UnableToAddParticipantMessageTemplate, caseNumber))))
+        _serviceNowClientMock.Setup(x => x.SendUpdate(
+                caseNumber,
+                string.Format(string.Format(ServiceNowMessageTemplates.UnableToAddParticipantMessageTemplate, caseNumber)),
+                true))
             .ReturnsAsync(updateResponse)
             .Verifiable();
 
@@ -141,8 +145,10 @@ public class SendServiceNowMessageFunctionTests
         _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
 
         var updateResponse = new HttpResponseMessage(statusCode);
-        _serviceNowClientMock.Setup(x => x.SendUpdate(caseNumber,
-                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber))))
+        _serviceNowClientMock.Setup(x => x.SendUpdate(
+                caseNumber,
+                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber)),
+                false))
             .ReturnsAsync(updateResponse)
             .Verifiable();
 
@@ -169,8 +175,10 @@ public class SendServiceNowMessageFunctionTests
         _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
 
         var updateResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-        _serviceNowClientMock.Setup(x => x.SendUpdate(caseNumber,
-                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber))))
+        _serviceNowClientMock.Setup(x => x.SendUpdate(
+                caseNumber,
+                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber)),
+                false))
             .ReturnsAsync((HttpResponseMessage)null)
             .Verifiable();
 
@@ -197,8 +205,10 @@ public class SendServiceNowMessageFunctionTests
         _httpRequestMock.Setup(r => r.Body).Returns(requestBodyStream);
 
         var updateResponse = new HttpResponseMessage(HttpStatusCode.Unauthorized);
-        _serviceNowClientMock.Setup(x => x.SendUpdate(caseNumber,
-                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber))))
+        _serviceNowClientMock.Setup(x => x.SendUpdate(
+                caseNumber,
+                string.Format(string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber)),
+                false))
             .ThrowsAsync(new HttpRequestException())
             .Verifiable();
 

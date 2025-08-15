@@ -69,7 +69,7 @@ public class SendServiceNowMessageFunction
             {
                 case ServiceNowMessageType.UnableToAddParticipant:
                     var unableToAddMessage = string.Format(ServiceNowMessageTemplates.UnableToAddParticipantMessageTemplate, caseNumber);
-                    response = await _serviceNowClient.SendUpdate(caseNumber, unableToAddMessage);
+                    response = await _serviceNowClient.SendUpdate(caseNumber, unableToAddMessage, true);
                     break;
                 case ServiceNowMessageType.AddRequestInProgress:
                     var addRequestInProgessMessage = string.Format(ServiceNowMessageTemplates.AddRequestInProgressMessageTemplate, caseNumber);
@@ -83,7 +83,7 @@ public class SendServiceNowMessageFunction
 
             if (response == null || !response.IsSuccessStatusCode)
             {
-                _logger.LogError("Failed to update ServiceNow. StatusCode: {StatusCode} CaseNumber: {CaseNumber}", response?.StatusCode.ToString() ?? "Unknown", caseNumber);
+                _logger.LogError("Failed to update ServiceNow. StatusCode: {StatusCode}, CaseNumber: {CaseNumber}", response?.StatusCode.ToString() ?? "Unknown", caseNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 

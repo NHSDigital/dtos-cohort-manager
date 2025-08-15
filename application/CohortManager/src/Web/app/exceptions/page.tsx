@@ -3,6 +3,7 @@ import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
 import { fetchExceptionsNotRaisedSorted } from "@/app/lib/fetchExceptions";
+import { getRuleMapping } from "@/app/lib/ruleMapping";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import SortExceptionsForm from "@/app/components/sortExceptionsForm";
 import Breadcrumb from "@/app/components/breadcrumb";
@@ -48,17 +49,24 @@ export default async function Page({
         ExceptionId: string;
         DateCreated: Date;
         RuleDescription: string;
+        RuleId: number;
         NhsNumber: number;
         ServiceNowId?: string;
         ServiceNowCreatedDate?: Date;
-      }) => ({
-        exceptionId: exception.ExceptionId,
-        dateCreated: exception.DateCreated,
-        shortDescription: exception.RuleDescription,
-        nhsNumber: exception.NhsNumber,
-        serviceNowId: exception.ServiceNowId ?? "",
-        serviceNowCreatedDate: exception.ServiceNowCreatedDate,
-      })
+      }) => {
+        const ruleMapping = getRuleMapping(
+          exception.RuleId,
+          exception.RuleDescription
+        );
+        return {
+          exceptionId: exception.ExceptionId,
+          dateCreated: exception.DateCreated,
+          shortDescription: ruleMapping.ruleDescription,
+          nhsNumber: exception.NhsNumber,
+          serviceNowId: exception.ServiceNowId ?? "",
+          serviceNowCreatedDate: exception.ServiceNowCreatedDate,
+        };
+      }
     );
 
     return (

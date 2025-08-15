@@ -65,13 +65,11 @@ public class ExceptionManagement
         return new ValidationException
         {
             ExceptionId = ExceptionId,
-            FileName = FileName,
             NhsNumber = NhsNumber,
             DateCreated = DateCreated,
             DateResolved = DateResolved,
             RuleId = RuleId,
             RuleDescription = RuleDescription,
-            ErrorRecord = ErrorRecord,
             Category = Category,
             ScreeningName = ScreeningName,
             ExceptionDate = ExceptionDate,

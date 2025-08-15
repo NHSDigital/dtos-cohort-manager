@@ -19,6 +19,7 @@ var host = new HostBuilder()
     })
     .AddTelemetry()
     .AddExceptionHandler()
+    .AddServiceBusClient(config.ServiceBusConnectionString_client_internal)
     .AddHttpClient()
     .Build();
 

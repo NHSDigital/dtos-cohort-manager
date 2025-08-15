@@ -1,12 +1,10 @@
 export interface ExceptionsAPI {
   ExceptionId: number;
-  FileName: string;
   NhsNumber: string;
   DateCreated: string;
   DateResolved: string;
   RuleId: number;
   RuleDescription: string;
-  ErrorRecord: string;
   Category: number;
   ScreeningName: string;
   ExceptionDate: string;
@@ -32,5 +30,6 @@ export interface ExceptionAPIDetails extends ExceptionsAPI {
     TelephoneNumberHome: string;
     EmailAddressHome: string;
     PrimaryCareProvider: string;
+    SupersededByNhsNumber?: string;
   };
 }

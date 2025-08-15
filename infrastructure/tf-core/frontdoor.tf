@@ -1,7 +1,7 @@
 module "frontdoor_endpoint" {
   source = "../../../dtos-devops-templates/infrastructure/modules/cdn-frontdoor-endpoint"
 
-  for_each = var.frontdoor_endpoint
+  for_each = var.features.frontdoor_endpoint_enabled ? var.frontdoor_endpoint : {}
 
   providers = {
     azurerm     = azurerm.hub # Each project's Front Door profile (with secrets) resides in Hub since it's shared infra with a Non-live/Live deployment pattern

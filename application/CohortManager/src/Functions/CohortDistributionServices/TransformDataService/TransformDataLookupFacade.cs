@@ -60,14 +60,21 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 
         return excludedSMUData!;
     }
+
     public bool ValidateOutcode(string postcode)
     {
-        string outcode = ValidationHelper.ParseOutcode(postcode)
+        //if a postcode is a dummy postcode then we want to allow the rules to know that we have a dummy postcode
+        if (postcode.StartsWith("ZZ"))
+        {
+            return false;
+        }
+
+        string parsedOutCode = ValidationHelper.ParseOutcode(postcode)
             ?? throw new TransformationException("Postcode format invalid");
 
-        var result = _outcodeClient.GetSingle(outcode).Result;
-
+        var result = _outcodeClient.GetSingle(parsedOutCode).Result;
         return result != null;
+
     }
 
     /// <summary>

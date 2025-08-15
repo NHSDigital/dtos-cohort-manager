@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -17,6 +18,10 @@ public class ServiceNowClient : IServiceNowClient
     private readonly ILogger<ServiceNowClient> _logger;
     private readonly ServiceNowMessageHandlerConfig _config;
     private const string AccessTokenCacheKey = "AccessToken";
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new()
+    {
+        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
+    };
 
     public ServiceNowClient(IMemoryCache cache, IHttpClientFactory httpClientFactory,
         ILogger<ServiceNowClient> logger, IOptions<ServiceNowMessageHandlerConfig> config)
@@ -27,15 +32,18 @@ public class ServiceNowClient : IServiceNowClient
         _config = config.Value;
     }
 
-    public async Task<HttpResponseMessage?> SendUpdate(string caseNumber, string workNotes)
+    public async Task<HttpResponseMessage?> SendUpdate(string caseNumber, string workNotes, bool needsAttention = false)
     {
         var url = $"{_config.ServiceNowUpdateUrl}/{caseNumber}";
         var payload = new ServiceNowUpdateRequestBody
         {
             State = 10, // 'Open' state
-            WorkNotes = workNotes
+            WorkNotes = workNotes,
+            NeedsAttention = needsAttention,
+            AssignmentGroup = needsAttention ? _config.ServiceNowAssignmentGroup : null
         };
-        var json = JsonSerializer.Serialize(payload);
+
+        var json = JsonSerializer.Serialize(payload, _jsonSerializerOptions);
 
         return await SendRequest(url, json);
     }
@@ -49,12 +57,12 @@ public class ServiceNowClient : IServiceNowClient
             ResolutionCode = "28", // 'Solved by Automation' resolution code
             CloseNotes = closeNotes
         };
-        var json = JsonSerializer.Serialize(payload);
+        var json = JsonSerializer.Serialize(payload, _jsonSerializerOptions);
 
         return await SendRequest(url, json);
     }
 
-    public async Task<HttpResponseMessage?> SendRequest(string url, string json)
+    private async Task<HttpResponseMessage?> SendRequest(string url, string json)
     {
         var httpClient = _httpClientFactory.CreateClient();
 
