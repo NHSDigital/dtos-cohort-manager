@@ -4,6 +4,7 @@ import { auth } from "@/app/lib/auth";
 import { fetchExceptions } from "@/app/lib/fetchExceptions";
 import { canAccessCohortManager } from "@/app/lib/access";
 import { formatDate } from "@/app/lib/utils";
+import { getRuleMapping } from "@/app/lib/ruleMapping";
 import Breadcrumb from "@/app/components/breadcrumb";
 import ParticipantInformationPanel from "@/app/components/participantInformationPanel";
 import Unauthorised from "@/app/components/unauthorised";
@@ -35,6 +36,10 @@ export default async function Page(props: {
 
   try {
     const exception = await fetchExceptions(exceptionId);
+    const ruleMapping = getRuleMapping(
+      exception.RuleId,
+      exception.RuleDescription
+    );
 
     const exceptionDetails: ExceptionDetails = {
       exceptionId: exceptionId,
@@ -43,7 +48,9 @@ export default async function Page(props: {
       surname: exception.ExceptionDetails.FamilyName,
       forename: exception.ExceptionDetails.GivenName,
       dateCreated: exception.DateCreated,
-      shortDescription: exception.RuleDescription,
+      shortDescription: ruleMapping.ruleDescription,
+      moreDetails: ruleMapping.moreDetails,
+      reportingId: ruleMapping.reportingId,
       dateOfBirth: exception.ExceptionDetails.DateOfBirth,
       gender: exception.ExceptionDetails.Gender,
       address: `${exception.ExceptionDetails.ParticipantAddressLine1}${

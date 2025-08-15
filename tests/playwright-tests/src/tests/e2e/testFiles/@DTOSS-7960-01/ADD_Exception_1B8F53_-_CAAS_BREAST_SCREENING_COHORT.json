@@ -4,11 +4,11 @@
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9995512882,
-        "ExceptionFlag": 1
+        "ExceptionFlag": 0
       },
       "meta": {
         "testJiraId": "@DTOSS-7960-01",
-        "requirementJiraId": "DTOSS-6256",
+        "requirementJiraId": "DTOSS-6256, DTOSS-10571",
         "additionalTags": "@smoke @e2e Tests Verify GP Practice Code Exception flag in participant management set to 1"
       }
     }
@@ -20,7 +20,7 @@
       "serial_change_number": 1,
       "nhs_number": 9995512882,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": "G82 141",
+      "primary_care_provider": "A91151",
       "primary_care_effective_from_date": "20130319",
       "current_posting": "SUN",
       "current_posting_effective_from_date": "20130319",
