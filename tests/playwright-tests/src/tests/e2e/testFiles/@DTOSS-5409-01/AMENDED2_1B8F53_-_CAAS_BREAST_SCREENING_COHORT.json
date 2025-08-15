@@ -3,9 +3,25 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber":"9997322886",
-        "RuleId":54,
-        "RuleDescription":"ValidateBsoCode"
+        "NhsNumber": "9997322886",
+        "RuleId": 54,
+        "RuleDescription": "ValidateBsoCode"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9990000395",
+        "RuleId": 54,
+        "RuleDescription": "ValidateBsoCode"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9990000409",
+        "RuleId": 54,
+        "RuleDescription": "ValidateBsoCode"
       }
     }
   ],
@@ -49,9 +65,91 @@
       "is_interpreter_required": false,
       "invalid_flag": false,
       "eligibility": true
+    },
+    {
+      "record_type": "AMENDED",
+      "change_time_stamp": null,
+      "serial_change_number": 3,
+      "nhs_number": 9990000395,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": null,
+      "primary_care_effective_from_date": null,
+      "current_posting": "DMS",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "A.ML",
+      "given_name": "NewTest1",
+      "other_given_name": "Test",
+      "family_name": "Adani1",
+      "previous_family_name": "Test2",
+      "date_of_birth": "19710101",
+      "gender": 1,
+      "address_line_1": "247 SpaightSpaightSpTeeeeeeest Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "Test",
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": null,
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20240501",
+      "reason_for_removal": "RDI",
+      "reason_for_removal_effective_from_date": "20250802",
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "016199999990",
+      "home_telephone_effective_from_date": "20240501",
+      "mobile_telephone_number": "07888888888",
+      "mobile_telephone_effective_from_date": "20240501",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20240501",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    },
+    {
+      "record_type": "AMENDED",
+      "change_time_stamp": null,
+      "serial_change_number": 3,
+      "nhs_number": 9990000409,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": null,
+      "primary_care_effective_from_date": null,
+      "current_posting": "DMS",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "A.ML",
+      "given_name": "NewTest1",
+      "other_given_name": "Test",
+      "family_name": "Adani1",
+      "previous_family_name": "Test2",
+      "date_of_birth": "19710101",
+      "gender": 1,
+      "address_line_1": "247 SpaightSpaightSpTeeeeeeest Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "Test",
+      "address_line_4": "Chelmsford",
+      "address_line_5": "United Kingdom",
+      "postcode": null,
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20240501",
+      "reason_for_removal": "RPR",
+      "reason_for_removal_effective_from_date": "20250802",
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "016199999990",
+      "home_telephone_effective_from_date": "20240501",
+      "mobile_telephone_number": "07888888888",
+      "mobile_telephone_effective_from_date": "20240501",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20240501",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
     }
   ],
   "nhsNumbers": [
-    "9997322886"
+    "9997322886",
+    "9990000395",
+    "9990000409"
   ]
 }
