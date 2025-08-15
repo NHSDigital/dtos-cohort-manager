@@ -1,0 +1,134 @@
+parameters:
+  - name: hostPoolName
+    type: string
+  - name: serviceConnection
+    type: string
+  - name: targetSubscriptionId
+    type: string
+  - name: terraformActions
+    type: string
+  - name: tfVarsFile
+    type: string
+  - name: environment
+    type: string
+  - name: resourceGroupNameSql
+    type: string
+  - name: databaseManagementJobName
+    type: string
+  - name: dockerImageTag
+    type: string
+  - name: retagImages
+    type: boolean
+  - name: retagImagesFrom
+    type: string
+  - name: retagImagesTo
+    type: string
+
+stages:
+- stage: re_tag_stage
+  # Only required until commit hashes are passed in by calling pipeline, except for the
+  # PreProd pipeline which needs to retag images to move them from the Dev ACR to the Prod ACR
+  displayName: ACR re-tag
+  condition: |
+    and(
+      eq(variables['Build.Reason'], 'Manual'), 
+      in('${{ parameters.retagImages }}', 'true')
+    )
+  pool:
+    name: ${{ parameters.hostPoolName }}
+  jobs:
+    - job: re_tag
+      displayName: Re-tag Docker images
+      variables:
+        SELECT_IMAGE_TAG: ${{ parameters.retagImagesFrom }}
+        ADD_IMAGE_TAG: ${{ parameters.retagImagesTo }}
+      steps:
+        - template: .azuredevops/templates/steps/acr-import-retag-no-additional-tags.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: ${{ parameters.serviceConnection }}
+
+- stage: terraform_deploy
+  displayName: Terraform Deploy
+  dependsOn:
+  - re_tag_stage
+  condition: | 
+    and(
+      eq(variables['Build.Reason'], 'Manual'),
+      in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped')
+    )
+  variables:
+    tfVarsFile: ${{ parameters.tfVarsFile }}
+  pool:
+    name: ${{ parameters.hostPoolName }}
+  jobs:
+    - job: init_and_plan
+      displayName: Init, plan, store artifact
+      steps:
+        - checkout: self
+        - checkout: dtos-devops-templates
+        - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+          parameters:
+            tfCommandOptions: '-var="docker_image_tag=${{ parameters.dockerImageTag }}"'
+
+    - deployment: terraform_apply
+      displayName: Init, get plan artifact, apply
+      environment: ${{ parameters.environment }}
+      dependsOn: init_and_plan
+      condition: |
+        and(
+          eq(dependencies.init_and_plan.outputs['TerraformPlan.changesPresent'], 'true'), 
+          in('${{ parameters.terraformActions }}', 'Apply')
+        )
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - checkout: self
+              - checkout: dtos-devops-templates
+              - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
+
+- stage: db_changes_stage
+  displayName: Database changes
+  condition: |
+    and(
+      eq(variables['Build.Reason'], 'Manual'),
+      or(
+        in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
+        in(dependencies.terraform_deploy.result, 'Succeeded', 'Skipped')
+      )
+    )
+  pool:
+    name: ${{ parameters.hostPoolName }}
+  jobs:
+    - job: db_changes
+      displayName: Apply database changes
+      steps:
+        - checkout: self
+        - checkout: dtos-devops-templates
+        - template: .azuredevops/templates/steps/app-container-job-start.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: ${{ parameters.serviceConnection }}
+            targetSubscriptionId: ${{ parameters.targetSubscriptionId }}
+            resourceGroupName: ${{ parameters.resourceGroupNameSql }}
+            jobName: ${{ parameters.databaseManagementJobName }}
+
+- stage: restart_functions_stage
+  displayName: Restart Function Apps
+  condition: |
+    and(
+      eq(variables['Build.Reason'], 'Manual'),
+      or(
+        in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
+        in(dependencies.terraform_deploy.result, 'Succeeded', 'Skipped'),
+        in(dependencies.db_changes_stage.result, 'Succeeded', 'Skipped')
+      )
+    )
+  pool:
+    name: ${{ parameters.hostPoolName }}
+  jobs:
+    - job: restart_functions
+      displayName: Restart Function Apps to load new images
+      steps:
+        - template: .azuredevops/templates/steps/function-apps-restart.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: ${{ parameters.serviceConnection }}

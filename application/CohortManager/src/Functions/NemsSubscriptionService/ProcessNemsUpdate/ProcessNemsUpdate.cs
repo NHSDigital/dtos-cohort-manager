@@ -83,7 +83,7 @@ public class ProcessNemsUpdate
             }
             nhsNumberLong = long.Parse(nhsNumber!);
 
-            var pdsResponse = await RetrievePdsRecord(nhsNumber);
+            var pdsResponse = await RetrievePdsRecord(nhsNumber, name);
             if (pdsResponse!.StatusCode == HttpStatusCode.NotFound)
             {
                 _logger.LogError("the PDS function has returned a 404 error for file {FileName}. Moving file to poison container.", name);
@@ -98,11 +98,11 @@ public class ProcessNemsUpdate
             if (retrievedPdsRecord?.NhsNumber == nhsNumber)
             {
                 _logger.LogInformation("NHS numbers match, processing the retrieved PDS record.");
-                await ProcessRecord(new Participant(retrievedPdsRecord!));
+                await ProcessRecord(new Participant(retrievedPdsRecord!), name);
             }
             else
             {
-                await UnsubscribeFromNems(nhsNumber, retrievedPdsRecord!);
+                await UnsubscribeFromNems(nhsNumber, retrievedPdsRecord!, name);
             }
         }
         catch (Exception ex)
@@ -125,7 +125,7 @@ public class ProcessNemsUpdate
         _logger.LogInformation("Copied failed NEMS file {FileName} to poison container with timestamp.", fileName);
     }
 
-    private async Task UnsubscribeFromNems(string nhsNumber, PdsDemographic retrievedPdsRecord)
+    private async Task UnsubscribeFromNems(string nhsNumber, PdsDemographic retrievedPdsRecord, string fileName)
     {
         var supersededRecord = new PdsDemographic()
         {
@@ -137,7 +137,7 @@ public class ProcessNemsUpdate
         };
 
         _logger.LogInformation("NHS numbers do not match, processing the superseded record.");
-        await ProcessRecord(new Participant(supersededRecord));
+        await ProcessRecord(new Participant(supersededRecord), fileName);
 
         /*information exception raised for RuleId 60 and Rule name 'SupersededNhsNumber'*/
         var ruleId = 60;  // Rule 60 is for Superseded rule
@@ -182,17 +182,18 @@ public class ProcessNemsUpdate
         }
     }
 
-    private async Task<HttpResponseMessage> RetrievePdsRecord(string nhsNumber)
+    private async Task<HttpResponseMessage> RetrievePdsRecord(string nhsNumber, string sourceFileName)
     {
         var queryParams = new Dictionary<string, string>()
         {
-            {"nhsNumber", nhsNumber }
+            {"nhsNumber", nhsNumber },
+            {"sourceFileName", sourceFileName }
         };
 
         return await _httpClientFunction.SendGetResponse(_config.RetrievePdsDemographicURL, queryParams);
     }
 
-    private async Task ProcessRecord(Participant participant)
+    private async Task ProcessRecord(Participant participant, string fileName)
     {
         var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
 
@@ -214,7 +215,7 @@ public class ProcessNemsUpdate
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
             BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = "NemsMessages",
+            FileName = fileName,
             Participant = participant
         };
 

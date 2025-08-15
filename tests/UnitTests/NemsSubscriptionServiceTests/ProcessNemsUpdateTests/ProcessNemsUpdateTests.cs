@@ -444,6 +444,35 @@ public class ProcessNemsUpdateTests
             Times.Once);
     }
 
+    [TestMethod]
+    public async Task Run_Sets_FileName_To_OriginalBlobName()
+    {
+        // Arrange
+        string fhirJson = LoadTestJson("mock-patient");
+        await using var fileStream = File.OpenRead(fhirJson);
+
+        var pdsDemographic = new PdsDemographic { NhsNumber = _validNhsNumber };
+        var httpResponseMessage = new HttpResponseMessage
+        {
+            Content = new StringContent(JsonSerializer.Serialize(pdsDemographic)),
+            StatusCode = HttpStatusCode.OK
+        };
+
+        _httpClientFunctionMock
+            .Setup(x => x.SendGetResponse(It.IsAny<string>(), It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(httpResponseMessage);
+
+        // Act
+        await _sut.Run(fileStream, _fileName);
+
+        // Assert the queued record carries the original file name
+        _addBatchToQueueMock.Verify(x => x.ProcessBatch(
+            It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
+                q.Count == 1 && q.ToArray()[0].FileName == _fileName),
+            It.IsAny<string>()),
+            Times.Once);
+    }
+
     private static string LoadTestJson(string filename)
     {
         // Add .json extension if not already present
