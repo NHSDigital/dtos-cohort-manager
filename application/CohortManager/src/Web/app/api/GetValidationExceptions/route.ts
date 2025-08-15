@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
-import MockDataStore from "@/app/data/mockDataStore";
-
-// Get the shared data store instance
-const dataStore = MockDataStore.getInstance();
+import mockDataStore from "@/app/data/mockDataStore";
 
 function sortExceptions<
   T extends { DateCreated: string; ServiceNowCreatedDate?: string }
@@ -47,7 +44,7 @@ export async function GET(request: Request) {
   // Handle single exception requests - get fresh data from store
   if (exceptionId !== null) {
     const id = Number(exceptionId);
-    const exception = dataStore.getException(id);
+    const exception = mockDataStore.getException(id);
 
     if (exception) {
       return NextResponse.json(exception, { status: 200 });
@@ -61,14 +58,14 @@ export async function GET(request: Request) {
 
   // Handle list requests - get fresh data from store
   if (notRaisedOnly) {
-    const notRaisedExceptions = dataStore.getNotRaisedExceptions();
+    const notRaisedExceptions = mockDataStore.getNotRaisedExceptions();
     const sortedItems = sortExceptions([...notRaisedExceptions], sortBy);
     const response = createExceptionListResponse(sortedItems);
     return NextResponse.json(response, { status: 200 });
   }
 
   if (raisedOnly) {
-    const raisedExceptions = dataStore.getRaisedExceptions();
+    const raisedExceptions = mockDataStore.getRaisedExceptions();
     const sortedItems = sortExceptions(
       [...raisedExceptions],
       sortBy,

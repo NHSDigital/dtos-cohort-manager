@@ -1,13 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import MockDataStore from "@/app/data/mockDataStore";
+import mockDataStore from "@/app/data/mockDataStore";
 
 interface UpdateExceptionRequest {
   ExceptionId: string;
   ServiceNowNumber?: string;
 }
-
-// Get the shared data store instance
-const dataStore = MockDataStore.getInstance();
 export async function PUT(request: NextRequest) {
   try {
     // 1. Read and validate request body
@@ -61,7 +58,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // 4. Check & Fetch Exception Record from shared data store
-    const exceptionData = dataStore.getException(exceptionId);
+    const exceptionData = mockDataStore.getException(exceptionId);
     if (!exceptionData) {
       console.warn(`No exception found with ID: ${exceptionId}`);
       return NextResponse.json(
@@ -75,7 +72,7 @@ export async function PUT(request: NextRequest) {
     const newServiceNowId = updateRequest.ServiceNowNumber || "";
 
     // Use the data store's update method to ensure consistency across both APIs
-    const updateSuccess = dataStore.updateExceptionServiceNow(
+    const updateSuccess = mockDataStore.updateExceptionServiceNow(
       exceptionId,
       newServiceNowId
     );
@@ -90,7 +87,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Get the updated exception to return current values
-    const updatedException = dataStore.getException(exceptionId);
+    const updatedException = mockDataStore.getException(exceptionId);
 
     return NextResponse.json(
       {
