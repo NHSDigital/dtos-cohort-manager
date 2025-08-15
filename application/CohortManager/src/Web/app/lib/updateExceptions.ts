@@ -10,7 +10,9 @@ export async function updateExceptions(
   const serviceNowID = formData.get("serviceNowID") as string;
   const isEditMode = formData.get("isEditMode") === "true";
 
-  const parsedData = updateExceptionsSchema.safeParse({ serviceNowID });
+  const parsedData = updateExceptionsSchema(isEditMode).safeParse({
+    serviceNowID,
+  });
 
   if (!parsedData.success) {
     const firstError = parsedData.error.issues[0]?.message;

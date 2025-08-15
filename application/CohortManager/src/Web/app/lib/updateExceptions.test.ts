@@ -14,20 +14,17 @@ jest.mock("next/navigation", () => ({
 }));
 
 // Mock the validation schema with a simple jest.fn()
+const mockSafeParse = jest.fn();
 jest.mock("./formValidationSchemas", () => ({
-  updateExceptionsSchema: {
-    safeParse: jest.fn(),
-  },
+  updateExceptionsSchema: jest.fn(() => ({
+    safeParse: mockSafeParse,
+  })),
 }));
 
 import { updateExceptions } from "./updateExceptions";
 import { redirect } from "next/navigation";
-import { updateExceptionsSchema } from "./formValidationSchemas";
 
 const mockRedirect = redirect as jest.MockedFunction<typeof redirect>;
-const mockSafeParse = updateExceptionsSchema.safeParse as jest.MockedFunction<
-  typeof updateExceptionsSchema.safeParse
->;
 
 describe("updateExceptions", () => {
   beforeEach(() => {
