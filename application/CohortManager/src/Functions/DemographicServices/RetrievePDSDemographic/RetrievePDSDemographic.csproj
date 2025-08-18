@@ -25,9 +25,6 @@
     <None Update="RetrievePdsDemographic-DEV1.pem.key">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="complete-patient.json">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Update="RetrievePdsDemographic-test1.pem.key">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
