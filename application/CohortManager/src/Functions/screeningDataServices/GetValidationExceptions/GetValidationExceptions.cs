@@ -111,10 +111,10 @@ public class GetValidationExceptions
 
             if (!response.Success)
             {
-                return _createResponse.CreateHttpResponse(response.StatusCode, req, response.ErrorMessage ?? "Failed to update ServiceNowId");
+                return _createResponse.CreateHttpResponse(response.StatusCode, req, response.Message ?? "Failed to update ServiceNowId");
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "ServiceNow ID updated successfully.");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response.Message);
         }
         catch (Exception ex)
         {

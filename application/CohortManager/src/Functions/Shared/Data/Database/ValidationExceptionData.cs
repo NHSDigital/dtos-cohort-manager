@@ -98,10 +98,7 @@ public class ValidationExceptionData : IValidationExceptionData
                 return CreateErrorResponse($"Exception with ID {exceptionId} not found", HttpStatusCode.NotFound);
             }
 
-            if (serviceNowId == exception.ServiceNowId)
-            {
-                return CreateErrorResponse($"ServiceNowId {serviceNowId} is the same as the existing value", HttpStatusCode.BadRequest);
-            }
+            bool serviceNowIdChanged = serviceNowId != exception.ServiceNowId;
 
             exception.ServiceNowId = serviceNowId;
             exception.RecordUpdatedDate = DateTime.UtcNow;
@@ -112,7 +109,11 @@ public class ValidationExceptionData : IValidationExceptionData
                 return CreateErrorResponse($"Failed to update exception {exceptionId} in data service", HttpStatusCode.InternalServerError);
             }
 
-            return CreateSuccessResponse();
+            string successMessage = serviceNowIdChanged
+                        ? "ServiceNow ID updated successfully"
+                        : "ServiceNow ID unchanged, but record updated date refreshed";
+
+            return CreateSuccessResponse(successMessage);
         }
         catch (Exception ex)
         {
@@ -121,26 +122,23 @@ public class ValidationExceptionData : IValidationExceptionData
         }
     }
 
-    private ServiceResponseModel CreateErrorResponse(string errorMessage, HttpStatusCode statusCode)
+    private ServiceResponseModel CreateResponse(bool success, HttpStatusCode statusCode, string message)
     {
-        _logger.LogWarning("Service error occurred: {ErrorMessage}", errorMessage);
+        if (!success)
+        {
+            _logger.LogWarning("Service error occurred: {ErrorMessage}", message);
+        }
 
         return new ServiceResponseModel
         {
-            Success = false,
-            ErrorMessage = errorMessage,
-            StatusCode = statusCode
+            Success = success,
+            StatusCode = statusCode,
+            Message = message,
         };
     }
 
-    private static ServiceResponseModel CreateSuccessResponse()
-    {
-        return new ServiceResponseModel
-        {
-            Success = true,
-            StatusCode = HttpStatusCode.OK
-        };
-    }
+    private ServiceResponseModel CreateSuccessResponse(string message) => CreateResponse(true, HttpStatusCode.OK, message);
+    private ServiceResponseModel CreateErrorResponse(string message, HttpStatusCode statusCode) => CreateResponse(false, statusCode, message);
 
     private static string? ValidateServiceNowId(string serviceNowId)
     {
