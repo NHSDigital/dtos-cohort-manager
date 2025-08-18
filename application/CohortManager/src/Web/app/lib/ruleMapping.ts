@@ -13,6 +13,7 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
       "Record from CaaS is either missing from or is not recognised by Cohort Manager.",
     moreDetails: "Raise with Cohorting as a Service (CaaS).",
     reportingId: "CMR4",
+    portalFormTitle: "Portal form: Raise with Cohorting as a Service (CaaS)",
   },
   10: {
     ruleDescription:
@@ -46,6 +47,7 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
     moreDetails:
       "Raise with Cohorting as a Service (CaaS). An amendment cannot be applied as the record has not yet been added to the cohort. There may have been a delay in adding the new record to Cohort Manager.  ",
     reportingId: "CMR39",
+    portalFormTitle: "Portal form: Raise with Cohorting as a Service (CaaS)",
   },
   30: {
     ruleDescription: "Postcode is in the wrong format.",
@@ -63,6 +65,7 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
     ruleDescription: "GP practice code does not exist.",
     moreDetails: "Raise with Breast Screening Select (BSS).",
     reportingId: "CMR45",
+    portalFormTitle: "Portal form: Raise with Breast Screening Select (BSS)",
   },
   39: {
     ruleDescription: "Missing surname.",
