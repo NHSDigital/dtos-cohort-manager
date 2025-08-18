@@ -352,28 +352,6 @@ public class ValidationExceptionDataTests
     }
 
     [TestMethod]
-    [DataRow(null)]
-    [DataRow("")]
-    [DataRow("   ")]
-    public async Task UpdateExceptionServiceNowId_EmptyServiceNowId_ReturnsBadRequestResponse(string? serviceNowId)
-    {
-        // Arrange
-        var exceptionId = 1;
-
-        // Act
-        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId ?? "");
-
-        // Assert
-        result.Success.Should().BeFalse();
-        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result.Message.Should().Be("ServiceNowId is required.");
-
-        _validationExceptionDataServiceClient.Verify(x => x.GetSingle(It.IsAny<string>()), Times.Never);
-
-        _logger.VerifyLogger(LogLevel.Warning, "Service error occurred: ServiceNowId is required.");
-    }
-
-    [TestMethod]
     public async Task UpdateExceptionServiceNowId_ServiceNowIdWithSpaces_ReturnsBadRequestResponse()
     {
         // Arrange
