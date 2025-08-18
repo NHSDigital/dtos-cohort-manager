@@ -35,6 +35,9 @@ jobs:
   deploy:
     name: Deploy
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
     strategy:
       matrix:
         environment: ${{ fromJson(inputs.environments) }}
@@ -46,11 +49,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v5
 
-      - uses: azure/login@bbcc074a232a35d7283353c18aabf0de1d557775
+      - uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
         with:
           client-id: ${{ secrets.AZURE_CLIENT_ID }}
           tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Make script executable
+        run: chmod +x scripts/bash/wait_ado_pipeline.sh
 
       - name: Call deployment pipeline
         run: |
@@ -68,15 +74,16 @@ jobs:
             ["prod"]=""
           )
 
-          parameters='dockerImageTag=${{inputs.commit_sha}} retagImages=false testTypes=[${test_types[matrix.environment]}]'
+          git_short_sha=$(git rev-parse --short ${{inputs.commit_sha}})
+          parameters="dockerImageTag=${git_short_sha} testTypes=[${test_types[${{ matrix.environment }}]}]"
 
           echo "Starting Azure devops pipeline \"Deploy to Azure - Core ${{ matrix.environment }}\"..."
-          # RUN_ID=$(az pipelines run \
-          #   --commit-id ${{inputs.commit_sha}} \
-          #   --name "Deploy to Azure - Core ${{ matrix.environment }}" \
-          #   --org "${organisation}" \
-          #   --project "${project_name}" \
-          #   --parameters $parameters \
-          #   --output tsv --query id)
+          RUN_ID=$(az pipelines run \
+            --commit-id ${{inputs.commit_sha}} \
+            --name "Deploy to Azure - Core ${{ matrix.environment }}" \
+            --org "${organisation}" \
+            --project "${project_name}" \
+            --parameters $parameters \
+            --output tsv --query id)
 
-          # scripts/bash/wait_ado_pipeline.sh "$RUN_ID" https://dev.azure.com/nhse-dtos "${project_name}"
+          scripts/bash/wait_ado_pipeline.sh "$RUN_ID" https://dev.azure.com/nhse-dtos "${project_name}" 600
