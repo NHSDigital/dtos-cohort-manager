@@ -83,7 +83,7 @@ public class ManageServiceNowParticipantFunction
             await HandleException(new Exception(responseMessage), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
             return null;
         }
-        
+
         if (pdsResponse.StatusCode != HttpStatusCode.OK)
         {
             await HandleException(new Exception($"Request to PDS for ServiceNow Participant returned an unexpected response. Status code: {pdsResponse.StatusCode}"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);

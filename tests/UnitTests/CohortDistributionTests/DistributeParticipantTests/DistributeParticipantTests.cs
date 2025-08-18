@@ -7,6 +7,7 @@ using Microsoft.Extensions.Options;
 using Model;
 using Moq;
 using NHS.CohortManager.CohortDistributionServices;
+using NHS.CohortManager.Shared.Utilities;
 
 [TestClass]
 public class DistributeParticipantTests
@@ -17,6 +18,7 @@ public class DistributeParticipantTests
     private readonly Mock<TaskOrchestrationContext> _mockContext = new();
     private readonly BasicParticipantCsvRecord _request;
     private readonly CohortDistributionParticipant _cohortDistributionRecord;
+    private readonly string _today = MappingUtilities.FormatDateTime(DateTime.UtcNow);
 
     public DistributeParticipantTests()
     {
@@ -27,9 +29,13 @@ public class DistributeParticipantTests
             {
                 RecordType = "ADD",
                 NhsNumber = "122345",
-                ScreeningId = "1"
+                ScreeningId = "1",
             },
             Participant = new()
+            {
+                PrimaryCareProvider = "T35 7ING",
+                PrimaryCareProviderEffectiveFromDate = _today
+            }
         };
 
         _cohortDistributionRecord = new()
@@ -84,14 +90,15 @@ public class DistributeParticipantTests
     [TestMethod]
     public async Task DistributeParticipantOrchestrator_ValidRequest_AddParticipantAndDoesNotSendServiceNowMessage()
     {
+        // Arrange
+        _request.Participant.ParticipantId = "1234";
+
         // Act
         await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
 
         // Assert
-        _mockContext
-            .Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null));
-        _mockContext
-            .Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Never());
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null));
+        _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Never());
     }
 
     [TestMethod]
