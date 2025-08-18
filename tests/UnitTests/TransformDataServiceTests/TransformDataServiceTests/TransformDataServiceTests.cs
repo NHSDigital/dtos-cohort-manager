@@ -116,7 +116,7 @@ public class TransformDataServiceTests
     public async Task Run_ParticipantReferred_DoNotRunRoutineRules()
     {
         // Arrange
-        _requestBody.Participant.ReferralFlag = true;
+        _requestBody.Participant.ReferralFlag = null;
 
         // Breaks rule InvalidFlagTrueAndNoPrimaryCareProvider in the routine rules
         _requestBody.Participant.PrimaryCareProvider = "G82650";
@@ -187,7 +187,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), ruleId,ExceptionCategory.TransformExecuted), times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), ruleId, ExceptionCategory.TransformExecuted), times: Times.Once);
     }
 
     [TestMethod]
@@ -218,7 +218,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId,null), times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId, null), times: Times.Once);
     }
 
     [TestMethod]
@@ -249,7 +249,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId,null), times: Times.Never);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId, null), times: Times.Never);
     }
 
 
@@ -277,7 +277,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), 83,ExceptionCategory.TransformExecuted), times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), 83, ExceptionCategory.TransformExecuted), times: Times.Once);
     }
 
     [TestMethod]
@@ -357,7 +357,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>(),null), times: Times.Exactly(13));
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>(), null), times: Times.Exactly(13));
     }
 
     //TODO: This test needs fixing as it doesnt test anything.
@@ -424,7 +424,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "CharacterRules", 71,null), times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "CharacterRules", 71, null), times: Times.Once);
 
     }
 
@@ -488,7 +488,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherFirstNameDoesNotExist", 14,null), times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherFirstNameDoesNotExist", 14, null), times: Times.Once);
     }
 
     [TestMethod]
@@ -526,7 +526,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherInvalidFlagTrueAndNoPrimaryCareProvider", 0,null), times: Times.Once);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherInvalidFlagTrueAndNoPrimaryCareProvider", 0, null), times: Times.Once);
 
     }
 
@@ -621,7 +621,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
         _handleException
-            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumber", 60,null),
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumber", 60, null),
             times: Times.Once);
     }
 
@@ -651,6 +651,86 @@ public class TransformDataServiceTests
         _handleException
             .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "RecordDeleted", 0, null),
             times: Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_ParticipantReferred_RunReferredRules()
+    {
+        // Arrange - Set up referred participant without triggering routine rules
+        _requestBody.Participant.ReferralFlag = true;
+        _requestBody.Participant.PrimaryCareProvider = "G82650";
+        _requestBody.Participant.RecordType = Actions.New;
+        _requestBody.Participant.InvalidFlag = "0"; // Don't trigger routine rules
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(
+                It.IsAny<CohortDistributionParticipant>(),
+                "UpdateServiceNowDataReferralWithPrimaryCareProvider",
+                It.IsAny<int>(),
+                It.IsAny<ExceptionCategory?>()),
+            times: Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_ParticipantReferredWithoutPrimaryCareProvider_DoNotRunReferredRules()
+    {
+        // Arrange
+        _requestBody.Participant.ReferralFlag = true;
+        _requestBody.Participant.PrimaryCareProvider = null;
+        _requestBody.Participant.RecordType = Actions.New;
+        _requestBody.Participant.InvalidFlag = "0";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(
+                It.IsAny<CohortDistributionParticipant>(),
+                "UpdateServiceNowDataReferralWithPrimaryCareProvider",
+                It.IsAny<int>(),
+                It.IsAny<ExceptionCategory?>()),
+            times: Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Run_ParticipantReferred_TransformFieldsCorrectly()
+    {
+        // Arrange
+        _requestBody.Participant.ReferralFlag = true;
+        _requestBody.Participant.PrimaryCareProvider = "G82650";
+        _requestBody.Participant.RecordType = Actions.New;
+        _requestBody.Participant.InvalidFlag = "0";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        Assert.AreEqual(true, actualResponse?.ReferralFlag);
+        Assert.AreEqual("G82650", actualResponse?.PrimaryCareProvider);
+        Assert.IsNotNull(actualResponse?.PrimaryCareProviderEffectiveFromDate);
     }
 
     private void SetUpRequestBody(string json)
