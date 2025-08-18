@@ -57,7 +57,8 @@ export default function ParticipantInformationPanel({
       >
         {(!exceptionDetails.serviceNowId || isEditMode) && (
           <span className="nhsuk-do-dont-list__label nhsuk-u-font-weight-bold">
-            Portal form: Request to amend incorrect patient PDS record data
+            {exceptionDetails.portalFormTitle ||
+              "Portal form: Request to amend incorrect patient PDS record data"}
           </span>
         )}
         <h2>Participant details</h2>
