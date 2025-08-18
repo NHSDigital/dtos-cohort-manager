@@ -3,13 +3,26 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9998380197,
-        "PreferredLanguage": "en"
+        "NHSNumber": 9998380197
       },
       "meta": {
         "testJiraId": "@DTOSS-3883-01",
         "requirementJiraId": "@DTOSS-3883-01",
-        "additionalTags": "@DTOSS-3883-01 @e2e @epic4c- Tests Preferred Language Validation New Participant in Participant Demographic for preferred language"
+        "additionalTags": "@DTOSS-3883-01 @e2e @epic4c- Tests Listed Rule 2 validation is passed, Record exists in CohortDistribution"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "ADD",
+        "NHSNumber": 9998380197,
+        "ReferralFlag" : 1,
+        "ScreeningId" : 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3883-02",
+        "requirementJiraId": "@DTOSS-3883-02",
+        "additionalTags": "@DTOSS-3883-02 @e2e @epic4c- Tests Record has screening ID = 1 and self referral flag is true"
       }
     }
   ],
