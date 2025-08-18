@@ -142,8 +142,6 @@ public class ValidationExceptionData : IValidationExceptionData
 
     private static string? ValidateServiceNowId(string serviceNowId)
     {
-        if (string.IsNullOrWhiteSpace(serviceNowId))
-            return "ServiceNowId is required.";
         if (serviceNowId.Contains(' '))
             return "ServiceNowId cannot contain spaces.";
         if (serviceNowId.Length < 9)

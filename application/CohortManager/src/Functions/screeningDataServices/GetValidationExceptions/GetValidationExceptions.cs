@@ -102,7 +102,7 @@ public class GetValidationExceptions
             }
 
             var updateRequest = JsonSerializer.Deserialize<UpdateExceptionServiceNowIdRequest>(requestBody);
-            if (updateRequest == null || updateRequest.ExceptionId == 0 || string.IsNullOrWhiteSpace(updateRequest.ServiceNowId))
+            if (updateRequest == null || updateRequest.ExceptionId == 0)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid request. ExceptionId and ServiceNowId is required.");
             }
