@@ -35,8 +35,6 @@ public class ValidationExceptionDataTests
         _exceptionCategory = ExceptionCategory.NBO;
     }
 
-    #region GetAllFilteredExceptions
-
     [TestMethod]
     public async Task GetAllFilteredExceptions_AllStatusWithAscendingSortOrder_ReturnsAllExceptionsAscendingSortOrder()
     {
@@ -177,9 +175,7 @@ public class ValidationExceptionDataTests
         result!.First().ExceptionId.Should().Be(1);
         result!.Last().ExceptionId.Should().Be(4);
     }
-    #endregion
 
-    #region GetExceptionById
     [DataRow(1)]
     [DataRow(2)]
     [DataRow(3)]
@@ -214,12 +210,9 @@ public class ValidationExceptionDataTests
         // Assert
         result.Should().BeNull();
     }
-    #endregion
-
-    #region UpdateExceptionServiceNowId - ServiceResponseModel Tests
 
     [TestMethod]
-    public async Task UpdateExceptionServiceNowId_ValidInput_ReturnsSuccessResponse()
+    public async Task UpdateExceptionServiceNowId_ValidInputWithDifferentServiceNowId_ReturnsSuccessResponseWithUpdatedMessage()
     {
         // Arrange
         var exceptionId = 1;
@@ -245,7 +238,38 @@ public class ValidationExceptionDataTests
         // Assert
         result.Success.Should().BeTrue();
         result.StatusCode.Should().Be(HttpStatusCode.OK);
-        result.ErrorMessage.Should().BeNull();
+        result.Message.Should().Be("ServiceNowId updated successfully");
+
+        _validationExceptionDataServiceClient.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
+        _validationExceptionDataServiceClient.Verify(x => x.Update(It.Is<ExceptionManagement>(e =>
+            e.ServiceNowId == serviceNowId &&
+            e.RecordUpdatedDate > DateTime.UtcNow.AddMinutes(-1))), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UpdateExceptionServiceNowId_SameServiceNowId_ReturnsSuccessResponseWithUnchangedMessage()
+    {
+        // Arrange
+        var exceptionId = 1;
+        var serviceNowId = "EXISTING123";
+        var validException = new ExceptionManagement
+        {
+            ExceptionId = 1,
+            ServiceNowId = "EXISTING123",
+            NhsNumber = "1234567890",
+            RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
+        };
+
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync(validException);
+        _validationExceptionDataServiceClient.Setup(x => x.Update(It.IsAny<ExceptionManagement>())).ReturnsAsync(true);
+
+        // Act
+        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
+
+        // Assert
+        result.Success.Should().BeTrue();
+        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.Message.Should().Be("ServiceNowId unchanged, but record updated date has been updated");
 
         _validationExceptionDataServiceClient.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
         _validationExceptionDataServiceClient.Verify(x => x.Update(It.Is<ExceptionManagement>(e =>
@@ -268,42 +292,12 @@ public class ValidationExceptionDataTests
         // Assert
         result.Success.Should().BeFalse();
         result.StatusCode.Should().Be(HttpStatusCode.NotFound);
-        result.ErrorMessage.Should().Be($"Exception with ID {exceptionId} not found");
+        result.Message.Should().Be($"Exception with ID {exceptionId} not found");
 
         _validationExceptionDataServiceClient.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
         _validationExceptionDataServiceClient.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Never);
 
         _logger.VerifyLogger(LogLevel.Warning, $"Service error occurred: Exception with ID {exceptionId} not found");
-    }
-
-    [TestMethod]
-    public async Task UpdateExceptionServiceNowId_SameServiceNowId_ReturnsBadRequestResponse()
-    {
-        // Arrange
-        var exceptionId = 1;
-        var serviceNowId = "EXISTING123";
-        var validException = new ExceptionManagement
-        {
-            ExceptionId = 1,
-            ServiceNowId = "EXISTING123",
-            NhsNumber = "1234567890",
-            RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
-        };
-
-        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync(validException);
-
-        // Act
-        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
-
-        // Assert
-        result.Success.Should().BeFalse();
-        result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result.ErrorMessage.Should().Be($"ServiceNowId {serviceNowId} is the same as the existing value");
-
-        _validationExceptionDataServiceClient.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
-        _validationExceptionDataServiceClient.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Never);
-
-        _logger.VerifyLogger(LogLevel.Warning, $"Service error occurred: ServiceNowId {serviceNowId} is the same as the existing value");
     }
 
     [TestMethod]
@@ -328,7 +322,7 @@ public class ValidationExceptionDataTests
         // Assert
         result.Success.Should().BeFalse();
         result.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-        result.ErrorMessage.Should().Be($"Failed to update exception {exceptionId} in data service");
+        result.Message.Should().Be($"Failed to update exception {exceptionId} in data service");
         _validationExceptionDataServiceClient.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Once);
         _logger.VerifyLogger(LogLevel.Warning, $"Service error occurred: Failed to update exception {exceptionId} in data service");
     }
@@ -349,12 +343,12 @@ public class ValidationExceptionDataTests
         // Assert
         result.Success.Should().BeFalse();
         result.StatusCode.Should().Be(HttpStatusCode.InternalServerError);
-        result.ErrorMessage.Should().Be($"Error updating ServiceNowID for exception {exceptionId}");
+        result.Message.Should().Be($"Error updating ServiceNowId for exception {exceptionId}");
 
         _validationExceptionDataServiceClient.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
 
-        _logger.VerifyLogger(LogLevel.Error, $"Error updating ServiceNowID for exception {exceptionId}", e => e == expectedException);
-        _logger.VerifyLogger(LogLevel.Warning, $"Service error occurred: Error updating ServiceNowID for exception {exceptionId}");
+        _logger.VerifyLogger(LogLevel.Error, $"Error updating ServiceNowId for exception {exceptionId}", e => e == expectedException);
+        _logger.VerifyLogger(LogLevel.Warning, $"Service error occurred: Error updating ServiceNowId for exception {exceptionId}");
     }
 
     [TestMethod]
@@ -372,11 +366,11 @@ public class ValidationExceptionDataTests
         // Assert
         result.Success.Should().BeFalse();
         result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result.ErrorMessage.Should().Be("ServiceNowID is required.");
+        result.Message.Should().Be("ServiceNowId is required.");
 
         _validationExceptionDataServiceClient.Verify(x => x.GetSingle(It.IsAny<string>()), Times.Never);
 
-        _logger.VerifyLogger(LogLevel.Warning, "Service error occurred: ServiceNowID is required.");
+        _logger.VerifyLogger(LogLevel.Warning, "Service error occurred: ServiceNowId is required.");
     }
 
     [TestMethod]
@@ -392,11 +386,11 @@ public class ValidationExceptionDataTests
         // Assert
         result.Success.Should().BeFalse();
         result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result.ErrorMessage.Should().Be("ServiceNowID cannot contain spaces.");
+        result.Message.Should().Be("ServiceNowId cannot contain spaces.");
 
         _validationExceptionDataServiceClient.Verify(x => x.GetSingle(It.IsAny<string>()), Times.Never);
 
-        _logger.VerifyLogger(LogLevel.Warning, "Service error occurred: ServiceNowID cannot contain spaces.");
+        _logger.VerifyLogger(LogLevel.Warning, "Service error occurred: ServiceNowId cannot contain spaces.");
     }
 
     [TestMethod]
@@ -412,11 +406,11 @@ public class ValidationExceptionDataTests
         // Assert
         result.Success.Should().BeFalse();
         result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result.ErrorMessage.Should().Be("ServiceNowID must be at least 9 characters long.");
+        result.Message.Should().Be("ServiceNowId must be at least 9 characters long.");
 
         _validationExceptionDataServiceClient.Verify(x => x.GetSingle(It.IsAny<string>()), Times.Never);
 
-        _logger.VerifyLogger(LogLevel.Warning, "Service error occurred: ServiceNowID must be at least 9 characters long.");
+        _logger.VerifyLogger(LogLevel.Warning, "Service error occurred: ServiceNowId must be at least 9 characters long.");
     }
 
     [TestMethod]
@@ -432,11 +426,11 @@ public class ValidationExceptionDataTests
         // Assert
         result.Success.Should().BeFalse();
         result.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-        result.ErrorMessage.Should().Be("ServiceNowID must contain only alphanumeric characters.");
+        result.Message.Should().Be("ServiceNowId must contain only alphanumeric characters.");
 
         _validationExceptionDataServiceClient.Verify(x => x.GetSingle(It.IsAny<string>()), Times.Never);
 
-        _logger.VerifyLogger(LogLevel.Warning, "Service error occurred: ServiceNowID must contain only alphanumeric characters.");
+        _logger.VerifyLogger(LogLevel.Warning, "Service error occurred: ServiceNowId must contain only alphanumeric characters.");
     }
 
     [TestMethod]
@@ -467,91 +461,9 @@ public class ValidationExceptionDataTests
         // Assert
         result.Success.Should().BeTrue();
         result.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.Message.Should().Be("ServiceNowId updated successfully");
 
         _validationExceptionDataServiceClient.Verify(x => x.Update(It.Is<ExceptionManagement>(e =>
             e.ServiceNowId == trimmedServiceNowId)), Times.Once);
     }
-
-    #endregion
-
-    #region UpdateExceptionServiceNowId - Legacy Bool Tests
-
-    [TestMethod]
-    public async Task UpdateExceptionServiceNowId_ValidExceptionWithServiceNowId_ReturnsSuccess()
-    {
-        // Arrange
-        var exceptionId = 1;
-        var serviceNowId = "SNW123456";
-        var existingException = new ExceptionManagement
-        {
-            ExceptionId = exceptionId,
-            ServiceNowId = "OldServiceNow",
-            RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
-        };
-
-        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync(existingException);
-        _validationExceptionDataServiceClient.Setup(x => x.Update(It.IsAny<ExceptionManagement>())).ReturnsAsync(true);
-
-        // Act
-        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
-
-        // Assert
-        result.Success.Should().BeTrue();
-        _validationExceptionDataServiceClient.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task UpdateExceptionServiceNowId_InvalidExceptionId_ReturnsFalse()
-    {
-        // Arrange
-        var exceptionId = 999;
-        var serviceNowId = "SNW123456";
-
-        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync((ExceptionManagement)null);
-        _validationExceptionDataServiceClient.Setup(x => x.Update(It.IsAny<ExceptionManagement>())).ReturnsAsync(true);
-
-        // Act
-        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
-
-        // Assert
-        result.Success.Should().BeFalse();
-        _validationExceptionDataServiceClient.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Never);
-    }
-
-    [TestMethod]
-    public async Task UpdateExceptionServiceNowId_UpdateFails_ReturnsFalse()
-    {
-        // Arrange
-        var exceptionId = 1;
-        var serviceNowId = "SNW123456";
-        var existingException = new ExceptionManagement { ExceptionId = exceptionId };
-
-        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync(existingException);
-        _validationExceptionDataServiceClient.Setup(x => x.Update(It.IsAny<ExceptionManagement>())).ReturnsAsync(false);
-
-        // Act
-        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
-
-        // Assert
-        result.Success.Should().BeFalse();
-    }
-
-    [TestMethod]
-    public async Task UpdateExceptionServiceNowId_ExceptionThrown_ReturnsFalseAndLogsError()
-    {
-        // Arrange
-        var exceptionId = 1;
-        var serviceNowId = "SNW123456";
-        var expectedException = new Exception("Database connection failed");
-
-        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ThrowsAsync(expectedException);
-
-        // Act
-        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
-
-        // Assert
-        result.Success.Should().BeFalse();
-        _logger.VerifyLogger(LogLevel.Error, $"Error updating ServiceNowID for exception {exceptionId}", e => e == expectedException);
-    }
-    #endregion
 }
