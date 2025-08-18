@@ -257,6 +257,8 @@ services:
       - Audience=https://int.api.service.nhs.uk/oauth2/token
       - AuthTokenURL=https://int.api.service.nhs.uk/oauth2/token
       - LocalPrivateKeyFileName=RetrievePdsDemographic-DEV1.pem.key
+      - ParticipantManagementTopic=participant-management-topic
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - ClientId=Get-private-key-from-NHS-dev-portal
       - UseFakePDSServices=true
 

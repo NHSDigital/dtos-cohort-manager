@@ -17,7 +17,6 @@ public class DistributeParticipant
     private readonly ILogger<DistributeParticipant> _logger;
     private readonly DistributeParticipantConfig _config;
     private readonly IExceptionHandler _exceptionHandler;
-
     public DistributeParticipant(ILogger<DistributeParticipant> logger, IOptions<DistributeParticipantConfig> config,
                                 IExceptionHandler exceptionHandler)
     {
@@ -89,6 +88,12 @@ public class DistributeParticipant
 
             ValidationRecord validationRecord = new() { FileName = participantRecord.FileName, Participant = participantData };
 
+            var serviceNowParticipant = participantRecord?.Participant.ReferralFlag == "1";
+            if (serviceNowParticipant && !string.IsNullOrEmpty(participantRecord?.Participant.PrimaryCareProvider))
+            {
+                validationRecord.Participant.PrimaryCareProvider = participantRecord.Participant.PrimaryCareProvider;
+            }
+
             // Allocate service provider
             validationRecord.ServiceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
 
@@ -115,7 +120,7 @@ public class DistributeParticipant
                 participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
 
             // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
-            if (participantRecord.Participant.ReferralFlag == "1")
+            if (serviceNowParticipant)
             {
                 // In this scenario, the FileName property should be holding the ServiceNow Case Number
                 await context.CallActivityAsync(nameof(Activities.SendServiceNowMessage), participantRecord.FileName);
@@ -133,3 +138,4 @@ public class DistributeParticipant
         await _exceptionHandler.CreateSystemExceptionLog(ex, participantRecord.BasicParticipantData, participantRecord.FileName);
     }
 }
+
