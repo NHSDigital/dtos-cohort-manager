@@ -109,9 +109,7 @@ public class ValidationExceptionData : IValidationExceptionData
                 return CreateErrorResponse($"Failed to update exception {exceptionId} in data service", HttpStatusCode.InternalServerError);
             }
 
-            string successMessage = serviceNowIdChanged
-                        ? "ServiceNowId updated successfully"
-                        : "ServiceNowId unchanged, but record updated date has been updated";
+            string successMessage = serviceNowIdChanged ? "ServiceNowId updated successfully" : "ServiceNowId unchanged, but record updated date has been updated";
 
             return CreateSuccessResponse(successMessage);
         }
