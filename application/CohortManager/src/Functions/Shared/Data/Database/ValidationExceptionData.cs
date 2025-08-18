@@ -110,15 +110,15 @@ public class ValidationExceptionData : IValidationExceptionData
             }
 
             string successMessage = serviceNowIdChanged
-                        ? "ServiceNow ID updated successfully"
-                        : "ServiceNow ID unchanged, but record updated date refreshed";
+                        ? "ServiceNowId updated successfully"
+                        : "ServiceNowId unchanged, but record updated date has been updated";
 
             return CreateSuccessResponse(successMessage);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating ServiceNowID for exception {ExceptionId}", exceptionId);
-            return CreateErrorResponse($"Error updating ServiceNowID for exception {exceptionId}", HttpStatusCode.InternalServerError);
+            _logger.LogError(ex, "Error updating ServiceNowId for exception {ExceptionId}", exceptionId);
+            return CreateErrorResponse($"Error updating ServiceNowId for exception {exceptionId}", HttpStatusCode.InternalServerError);
         }
     }
 

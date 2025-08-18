@@ -118,7 +118,7 @@ public class GetValidationExceptions
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing: {Function} update ServiceNow ID request", nameof(UpdateExceptionServiceNowId));
+            _logger.LogError(ex, "Error processing: {Function} update ServiceNowId request", nameof(UpdateExceptionServiceNowId));
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
