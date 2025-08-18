@@ -31,5 +31,6 @@
     "@types/node": "22.13.14",
     "@types/parquetjs": "0.10.6",
     "cross-env": "^7.0.3"
-  }
+  },
+  "_comment": "Adding 4b-unblock tests to smoke_e2e temporarily so I can test branch in Dev."
 }
