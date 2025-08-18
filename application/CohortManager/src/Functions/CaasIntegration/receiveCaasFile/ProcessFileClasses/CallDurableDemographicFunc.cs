@@ -102,7 +102,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
         {
             _logger.LogError(ex, "An error occurred: {Message}. not sending {BatchSize} records to queue", ex.Message, batchSize);
             //we process the participant record here in batch so don't have a single record or know why a single record has failed
-            await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(), fileName);
+            await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant());
 
             await _copyFailedBatchToBlob.writeBatchToBlob(
                 JsonSerializer.Serialize(participants),

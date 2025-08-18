@@ -50,14 +50,13 @@ public class LookupValidation
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
-            await _handleException.CreateSystemExceptionLog(ex, requestBody.ExistingParticipant, requestBody.FileName);
+            await _handleException.CreateSystemExceptionLog(ex, requestBody.ExistingParticipant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
-        Participant newParticipant = null;
 
         try
         {
-            newParticipant = requestBody.NewParticipant;
+            Participant newParticipant = requestBody.NewParticipant;
 
             var ruleFileName = $"{newParticipant.ScreeningName}_lookupRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName {RuleFileName}", ruleFileName);
@@ -80,16 +79,14 @@ public class LookupValidation
                 new RuleParameter("dbLookup", _dataLookup)
             };
 
-            bool routineParticipant = requestBody.NewParticipant.ReferralFlag == "false";
-
             var resultList = new List<RuleResultTree>();
 
-            if (newParticipant.RecordType != Actions.Removed && routineParticipant)
+            if (newParticipant.RecordType != Actions.Removed && !newParticipant.ReferralFlag)
             {
                 resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             }
 
-            if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType) && routineParticipant)
+            if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType) && !newParticipant.ReferralFlag)
             {
                 _logger.LogInformation("Executing workflow {RecordType}", newParticipant.RecordType);
                 var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
@@ -109,7 +106,7 @@ public class LookupValidation
         }
         catch (Exception ex)
         {
-            _handleException.CreateSystemExceptionLog(ex, newParticipant, "");
+            await _handleException.CreateSystemExceptionLog(ex, requestBody.NewParticipant);
             _logger.LogError(ex, "Error while processing lookup Validation message: {Message}", ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
 

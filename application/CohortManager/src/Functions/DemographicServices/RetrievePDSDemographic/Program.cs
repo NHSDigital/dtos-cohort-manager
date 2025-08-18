@@ -19,7 +19,6 @@ var host = new HostBuilder()
         services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
         services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();
         services.AddSingleton<IAddBatchToQueue, AddBatchToQueue>();
-        services.AddSingleton<ICreateBasicParticipantData, CreateBasicParticipantData>();
         // Register health checks
         services.AddBasicHealthCheck("RetrievePdsDemographic");
     })

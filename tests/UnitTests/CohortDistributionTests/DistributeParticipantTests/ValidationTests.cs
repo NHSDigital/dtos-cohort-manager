@@ -48,7 +48,7 @@ public class ValidationTests
         {
             ParticipantId = "1234",
             NhsNumber = "5678",
-            ScreeningServiceId = "Screening123",
+            ScreeningId = "Screening123",
             Postcode = "AB1 2CD"
         };
 

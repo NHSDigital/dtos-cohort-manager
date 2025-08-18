@@ -3,7 +3,7 @@ namespace Model;
 using Enums;
 using NHS.CohortManager.Shared.Utilities;
 
-public class CohortDistributionParticipant
+public class CohortDistributionParticipant : IParticipant, IDemographic
 {
     public CohortDistributionParticipant()
     {
@@ -87,7 +87,7 @@ public class CohortDistributionParticipant
         ReasonForRemovalEffectiveFromDate = participant.ReasonForRemovalDate.ToString();
         RecordInsertDateTime = demographic.RecordInsertDateTime;
         RecordUpdateDateTime = participant.RecordUpdateDateTime.ToString();
-        ScreeningServiceId = participant.ScreeningId.ToString();
+        ScreeningId = participant.ScreeningId.ToString();
         Extracted = null;
         RecordType = participant.RecordType;
         CurrentPosting = demographic.CurrentPosting;
@@ -128,7 +128,7 @@ public class CohortDistributionParticipant
         IsInterpreterRequired = demographic.InterpreterRequired.ToString();
         ReasonForRemoval = participant.ReasonForRemoval;
         ReasonForRemovalEffectiveFromDate = MappingUtilities.FormatDateTime(participant.ReasonForRemovalDate);
-        ScreeningServiceId = participant.ScreeningId.ToString();
+        ScreeningId = participant.ScreeningId.ToString();
         Extracted = null;
         RecordType = participant.RecordType;
         CurrentPosting = demographic.CurrentPosting;
@@ -173,16 +173,19 @@ public class CohortDistributionParticipant
     public string? RecordUpdateDateTime { get; set; }
     public string? Extracted { get; set; }
     public string? ScreeningAcronym { get; set; }
-    public string? ScreeningServiceId { get; set; }
+    public string ScreeningId { get; set; }
     public string? ScreeningName { get; set; }
     public string? EligibilityFlag { get; set; }
     public short? ExceptionFlag { get; set; }
     public string? CurrentPosting { get; set; }
     public string? CurrentPostingEffectiveFromDate { get; set; }
     public string? ParticipantId { get; set; }
-    public string RecordType { get; set; }
+    public string? RecordType { get; set; }
     public string? InvalidFlag { get; set; }
-    public bool? ReferralFlag { get; set; }
+    public bool ReferralFlag { get; set; }
+    public string? Source { get; set; }
+    public string? PafKey { get; set; }
+    public Status? DeathStatus { get; set; }
 
 
     public CohortDistribution ToCohortDistribution()

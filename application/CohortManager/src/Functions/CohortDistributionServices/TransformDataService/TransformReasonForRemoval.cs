@@ -5,6 +5,7 @@ using Common;
 using Data.Database;
 using System.Text.Json;
 using Apache.Arrow.Types;
+using Model.Enums;
 
 public class TransformReasonForRemoval : ITransformReasonForRemoval
 {
@@ -53,13 +54,13 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
             participant.ReasonForRemoval = existingParticipant.ReasonForRemoval;
             participant.ReasonForRemovalEffectiveFromDate = existingParticipant.ReasonForRemovalDate?.ToString("yyyy-MM-dd") ?? "";
 
-            await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", "3.ParticipantNotRegisteredToGPWithReasonForRemoval", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLog("3.ParticipantNotRegisteredToGPWithReasonForRemoval", participant, ExceptionCategory.TransformExecuted);
 
             return participant;
         }
         else if (rule4)
         {
-            await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, "", "4.ParticipantNotRegisteredToGPWithReasonForRemoval", participant.ScreeningName ?? "", JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLog("3.ParticipantNotRegisteredToGPWithReasonForRemoval", participant, ExceptionCategory.TransformExecuted);
         }
         else
         {

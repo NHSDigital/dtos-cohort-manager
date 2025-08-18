@@ -39,15 +39,14 @@ public class ManageParticipant
     [Function(nameof(ManageParticipant))]
     public async Task Run([ServiceBusTrigger(topicName: "%ParticipantManagementTopic%", subscriptionName: "%ManageParticipantSubscription%", Connection = "ServiceBusConnectionString_internal")] string message)
     {
-        var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(message)!;
-        Participant participant = participantRecord.Participant;
+        var participant = JsonSerializer.Deserialize<Participant>(message)!;
         try
         {
-            _logger.LogInformation("Recieved manage participant request");
+            _logger.LogInformation("Received manage participant request");
             bool nhsNumberValid = ValidationHelper.ValidateNHSNumber(participant.NhsNumber);
             if (!nhsNumberValid)
             {
-                await HandleException(new ArgumentException("NHS Number invalid"), participant, participantRecord.FileName);
+                await HandleException(new ArgumentException("NHS Number invalid"), participant);
                 return;
             }
 
@@ -67,12 +66,12 @@ public class ManageParticipant
             }
             else if (databaseParticipant.BlockedFlag == 1)
             {
-                await HandleException(new InvalidOperationException("Participant is blocked"), participant, participantRecord.FileName);
+                await HandleException(new InvalidOperationException("Participant is blocked"), participant);
                 return;
             }
             else
             {
-                _logger.LogInformation("Existing participant managment record found, updating record {ParticipantId}", databaseParticipant.ParticipantId);
+                _logger.LogInformation("Existing participant management record found, updating record {ParticipantId}", databaseParticipant.ParticipantId);
                 var participantManagement = participant.ToParticipantManagement();
                 participantManagement.ParticipantId = databaseParticipant.ParticipantId;
                 participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
@@ -83,21 +82,21 @@ public class ManageParticipant
 
             if (!dataServiceResponse)
             {
-                await HandleException(new InvalidOperationException("Participant Management Data Service request failed"), participant, participantRecord.FileName);
+                await HandleException(new InvalidOperationException("Participant Management Data Service request failed"), participant);
                 return;
             }
 
-            await _queueClient.AddAsync(participantRecord, _config.CohortDistributionTopic);
+            await _queueClient.AddAsync(new BasicParticipantData(participant), _config.CohortDistributionTopic);
         }
         catch (Exception ex)
         {
-            await HandleException(ex, participant, participantRecord.FileName);
+            await HandleException(ex, participant);
         }
     }
 
-    private async Task HandleException(Exception ex, Participant participant, string fileName)
+    private async Task HandleException(Exception ex, Participant participant)
     {
-        _logger.LogError(ex, "Manage Exception failed");
-        await _handleException.CreateSystemExceptionLog(ex, participant, fileName);
+        _logger.LogError(ex, "Manage Participant failed");
+        await _handleException.CreateSystemExceptionLog(ex, participant);
     }
 }

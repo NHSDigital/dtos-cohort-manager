@@ -5,7 +5,7 @@ using System;
 using System.Globalization;
 using NHS.CohortManager.Shared.Utilities;
 
-public class Participant
+public class Participant : IParticipant, IDemographic
 {
     public Participant() { }
     public Participant(ParticipantManagement pm)
@@ -25,7 +25,7 @@ public class Participant
         BusinessRuleVersion = pm.BusinessRuleVersion;
         ExceptionFlag = pm.ExceptionFlag.ToString();
         BlockedFlag = pm.BlockedFlag.ToString();
-        ReferralFlag = pm.ReferralFlag.ToString();
+        ReferralFlag = pm.ReferralFlag == 1;
         RecordInsertDateTime = pm.RecordInsertDateTime.ToString();
         RecordUpdateDateTime = pm.RecordUpdateDateTime.ToString();
 
@@ -68,12 +68,12 @@ public class Participant
         RecordUpdateDateTime = cohortDistributionParticipant.RecordUpdateDateTime;
         ScreeningAcronym = cohortDistributionParticipant.ScreeningAcronym;
         ScreeningName = cohortDistributionParticipant.ScreeningName;
-        ScreeningId = cohortDistributionParticipant.ScreeningServiceId;
+        ScreeningId = cohortDistributionParticipant.ScreeningId;
         CurrentPosting = cohortDistributionParticipant.CurrentPosting;
         CurrentPostingEffectiveFromDate = cohortDistributionParticipant.CurrentPostingEffectiveFromDate;
         EligibilityFlag = cohortDistributionParticipant.EligibilityFlag;
         InvalidFlag = cohortDistributionParticipant.InvalidFlag;
-        ReferralFlag = cohortDistributionParticipant.ReferralFlag.ToString();
+        ReferralFlag = cohortDistributionParticipant.ReferralFlag;
     }
 
     public Participant(PdsDemographic pdsDemographic)
@@ -172,7 +172,7 @@ public class Participant
             BusinessRuleVersion = BusinessRuleVersion,
             ExceptionFlag = MappingUtilities.ParseStringFlag(ExceptionFlag ?? "0"),
             BlockedFlag = MappingUtilities.ParseStringFlag(BlockedFlag ?? "0"),
-            ReferralFlag = MappingUtilities.ParseStringFlag(ReferralFlag ?? "0"),
+            ReferralFlag = Convert.ToInt16(ReferralFlag),
             RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime),
             RecordUpdateDateTime = MappingUtilities.ParseDates(RecordUpdateDateTime),
         };
@@ -196,7 +196,8 @@ public class Participant
     public string? RecordType { get; set; }
     public string? ChangeTimeStamp { get; set; }
     public string? SerialChangeNumber { get; set; }
-    public string? NhsNumber { get; set; }
+    public string NhsNumber { get; set; }
+    public string ScreeningId { get; set; }
     public string? SupersededByNhsNumber { get; set; }
     public string? PrimaryCareProvider { get; set; }
     public string? PrimaryCareProviderEffectiveFromDate { get; set; }
@@ -231,14 +232,14 @@ public class Participant
     public string? IsInterpreterRequired { get; set; }
     public string? InvalidFlag { get; set; }
     public string? ParticipantId { get; set; }
-    public string? ScreeningId { get; set; }
     public string? BusinessRuleVersion { get; set; }
     public string? ExceptionFlag { get; set; }
     public string? BlockedFlag { get; set; }
-    public string? ReferralFlag { get; set; }
+    public bool ReferralFlag { get; set; }
     public string? RecordInsertDateTime { get; set; }
     public string? RecordUpdateDateTime { get; set; }
     public string? ScreeningAcronym { get; set; }
     public string? ScreeningName { get; set; }
     public string? EligibilityFlag { get; set; }
+    public string? Source { get; set; }
 }

@@ -61,6 +61,7 @@ public class ReceiveCaasFileHelper : IReceiveCaasFileHelper
                 PreferredLanguage = Convert.ToString(rec.PreferredLanguage),
                 InvalidFlag = Convert.ToString(rec.InvalidFlag),
                 EligibilityFlag = BitStringFromNullableBoolean(rec.EligibilityFlag),
+                Source = name
             };
         }
         catch (Exception ex)

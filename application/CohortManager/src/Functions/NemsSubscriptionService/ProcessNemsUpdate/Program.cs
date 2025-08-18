@@ -16,7 +16,6 @@ var host = new HostBuilder()
     .ConfigureServices(services =>
     {
         services.AddSingleton<IFhirPatientDemographicMapper, FhirPatientDemographicMapper>();
-        services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddBlobStorageHealthCheck("ProcessNemsUpdate");
     })

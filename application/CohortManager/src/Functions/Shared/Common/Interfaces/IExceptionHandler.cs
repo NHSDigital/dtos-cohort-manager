@@ -16,14 +16,16 @@ public interface IExceptionHandler
     /// <param name="exception">The exception to be written to the database.</param>
     /// <param name="participant">The participant that created the exception.</param>
     /// <param name="fileName">The file name of the file containing the participant.</param>
-    Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName, string category = "");
+    Task CreateSystemExceptionLog(Exception exception, IParticipant participant, ExceptionCategory category = ExceptionCategory.Non);
+    Task CreateSystemExceptionLog(string exceptionMessage, IParticipant participant, ExceptionCategory category = ExceptionCategory.Non);
     /// <summary>
-    /// Overloaded method to create a system exception given BasicParticipantData.
+    /// Overload for creating a system exception for errors when handling requests
     /// </summary>
     /// <param name="exception">The exception to be written to the database.</param>
-    /// <param name="participant">The participant that created the exception.</param>
-    /// <param name="fileName">The file name of the file containing the participant.</param>
-    Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName);
+    /// <param name="requestBody">The request body of the request that caused the error</param>
+    /// <param name="category">The exception category</param>
+    /// <returns></returns>
+    Task CreateSystemExceptionLog(Exception exception, string requestBody, ExceptionCategory category = ExceptionCategory.Non);
     /// <summary>
     /// Overloaded method to create a system exception given ServiceNowParticipant.
     /// </summary>
@@ -35,18 +37,13 @@ public interface IExceptionHandler
     /// </summary>
     /// <param name="validationErrors">A list of the validation errors</param>
     /// <param name="participantCsvRecord">The participant that triggered them</param>
-    Task<bool> CreateValidationExceptionLog(IEnumerable<ValidationRuleResult> validationErrors, ParticipantCsvRecord participantCsvRecord);
-    [Obsolete]
-    Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord);
+    Task<bool> CreateValidationExceptionLog(IEnumerable<ValidationRuleResult> validationErrors, Participant participantCsvRecord);
     Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord);
-    Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord);
-    Task CreateDeletedRecordException(BasicParticipantCsvRecord participantCsvRecord);
     /// <summary>
     /// Method to create a transformation exception and send it to the DB.
     /// </summary>
     /// <param name="tansformationErrors">RuleResultTree containing the transformations that have failed.</param>
     /// <param name="participant">The participant that caused the exception.</param>
     Task CreateTransformationExceptionLog(IEnumerable<RuleResultTree> transformationErrors, CohortDistributionParticipant participant);
-    Task CreateSchemaValidationException(BasicParticipantCsvRecord participantCsvRecord, string description);
     Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId, ExceptionCategory? exceptionCategory = null);
 }

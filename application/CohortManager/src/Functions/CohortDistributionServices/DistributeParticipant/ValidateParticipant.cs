@@ -103,7 +103,7 @@ public class ValidateParticipant
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to validate participant {ParticipantId}", validationRecord.Participant.ParticipantId);
-            await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(validationRecord.Participant), validationRecord.FileName);
+            await _exceptionHandler.CreateSystemExceptionLog(ex, validationRecord.Participant, ExceptionCategory.Non);
             return null;
         }
     }
@@ -152,11 +152,7 @@ public class ValidateParticipant
     [Function(nameof(StaticValidation))]
     public async Task<List<ValidationRuleResult>?> StaticValidation([ActivityTrigger] ValidationRecord validationRecord)
     {
-        var request = new ParticipantCsvRecord
-        {
-            Participant = new Participant(validationRecord.Participant),
-            FileName = validationRecord.FileName
-        };
+        var request = new Participant(validationRecord.Participant);
 
         var json = JsonSerializer.Serialize(request);
 
@@ -186,7 +182,7 @@ public class ValidateParticipant
         {
             NewParticipant = new Participant(validationRecord.Participant),
             ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
-            FileName = validationRecord.FileName
+            FileName = validationRecord.Participant.Source
         };
 
         var json = JsonSerializer.Serialize(request);
@@ -241,15 +237,12 @@ public class ValidateParticipant
     public async Task HandleValidationExceptions([ActivityTrigger] ValidationExceptionRecord validationExceptionRecord)
     {
         // Send exceptions to DB
-        ParticipantCsvRecord participantRecord = new()
-        {
-            Participant = new Participant(validationExceptionRecord.ValidationRecord.Participant),
-            FileName = validationExceptionRecord.ValidationRecord.FileName
-        };
 
-        var exceptionCreated = await _exceptionHandler.CreateValidationExceptionLog(validationExceptionRecord.ValidationExceptions, participantRecord);
+        Participant participant = new Participant(validationExceptionRecord.ValidationRecord.Participant);
 
-        var participantManagement = await _participantManagementClient.GetSingle(participantRecord.Participant.ParticipantId);
+        var exceptionCreated = await _exceptionHandler.CreateValidationExceptionLog(validationExceptionRecord.ValidationExceptions, participant);
+
+        var participantManagement = await _participantManagementClient.GetSingle(participant.ParticipantId);
         participantManagement.ExceptionFlag = 1;
 
         var exceptionFlagUpdated = await _participantManagementClient.Update(participantManagement);
@@ -257,6 +250,6 @@ public class ValidateParticipant
         {
             throw new IOException("Failed to update exception flag");
         }
-        _logger.LogInformation("Created validation exception and set exception flag to 1 for participant {ParticipantId}", participantRecord.Participant.ParticipantId);
+        _logger.LogInformation("Created validation exception and set exception flag to 1 for participant {ParticipantId}", participant.ParticipantId);
     }
 }

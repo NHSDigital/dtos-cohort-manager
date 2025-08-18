@@ -35,20 +35,18 @@ public class StaticValidation
     [Function("StaticValidation")]
     public async Task<HttpResponseData> RunAsync([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post")] HttpRequestData req)
     {
-        ParticipantCsvRecord participantCsvRecord;
+        Participant participant;
 
         try
         {
             using (var reader = new StreamReader(req.Body, Encoding.UTF8))
             {
                 var requestBodyJson = await reader.ReadToEndAsync();
-                participantCsvRecord = JsonSerializer.Deserialize<ParticipantCsvRecord>(requestBodyJson);
+                participant = JsonSerializer.Deserialize<Participant>(requestBodyJson);
             }
 
-            var ruleFileName = $"{participantCsvRecord.Participant.ScreeningName}_staticRules.json".Replace(" ", "_");
+            var ruleFileName = $"{participant.ScreeningName}_staticRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName: {RuleFileName}", ruleFileName);
-
-            bool routineParticipant = participantCsvRecord.Participant.ReferralFlag == "false";
 
             var json = await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
@@ -62,25 +60,25 @@ public class StaticValidation
             var re = new RulesEngine.RulesEngine(rules, reSettings);
 
             var ruleParameters = new[] {
-                new RuleParameter("participant", participantCsvRecord.Participant)
+                new RuleParameter("participant", participant)
             };
 
             var resultList = new List<RuleResultTree>();
 
-            if (participantCsvRecord.Participant.RecordType != Actions.Removed)
+            if (participant.RecordType != Actions.Removed)
             {
                 resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-                if (routineParticipant)
+                if (!participant.ReferralFlag)
                 {
                     resultList.AddRange(await re.ExecuteAllRulesAsync("Routine_Common", ruleParameters));
                 }
             }
 
-            if (re.GetAllRegisteredWorkflowNames().Contains(participantCsvRecord.Participant.RecordType))
+            if (re.GetAllRegisteredWorkflowNames().Contains(participant.RecordType))
                 {
-                    _logger.LogInformation("Executing workflow {RecordType}", participantCsvRecord.Participant.RecordType);
-                    var ActionResults = await re.ExecuteAllRulesAsync(participantCsvRecord.Participant.RecordType, ruleParameters);
+                    _logger.LogInformation("Executing workflow {RecordType}", participant.RecordType);
+                    var ActionResults = await re.ExecuteAllRulesAsync(participant.RecordType, ruleParameters);
                     resultList.AddRange(ActionResults);
                 }
 

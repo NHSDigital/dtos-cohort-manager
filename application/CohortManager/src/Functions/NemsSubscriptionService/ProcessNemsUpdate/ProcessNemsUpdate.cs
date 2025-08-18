@@ -19,7 +19,6 @@ public class ProcessNemsUpdate
 {
     private readonly ILogger<ProcessNemsUpdate> _logger;
     private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
-    private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IHttpClientFunction _httpClientFunction;
     private readonly IExceptionHandler _exceptionHandler;
@@ -30,7 +29,6 @@ public class ProcessNemsUpdate
     public ProcessNemsUpdate(
         ILogger<ProcessNemsUpdate> logger,
         IFhirPatientDemographicMapper fhirPatientDemographicMapper,
-        ICreateBasicParticipantData createBasicParticipantData,
         IAddBatchToQueue addBatchToQueue,
         IHttpClientFunction httpClientFunction,
         IExceptionHandler exceptionHandler,
@@ -39,7 +37,6 @@ public class ProcessNemsUpdate
     {
         _logger = logger;
         _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
-        _createBasicParticipantData = createBasicParticipantData;
         _addBatchToQueue = addBatchToQueue;
         _httpClientFunction = httpClientFunction;
         _exceptionHandler = exceptionHandler;
@@ -88,7 +85,9 @@ public class ProcessNemsUpdate
             if (retrievedPdsRecord?.NhsNumber == nhsNumber)
             {
                 _logger.LogInformation("NHS numbers match, processing the retrieved PDS record.");
-                await ProcessRecord(new Participant(retrievedPdsRecord!));
+                Participant participant = new(retrievedPdsRecord);
+                participant.Source = name;
+                await ProcessRecord(participant);
             }
             else
             {
@@ -172,7 +171,7 @@ public class ProcessNemsUpdate
 
     private async Task ProcessRecord(Participant participant)
     {
-        var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
+        var updateRecord = new ConcurrentQueue<Participant>();
 
         // TODO validate all dates in record before enqueuing
         var existingParticipant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);
@@ -189,14 +188,7 @@ public class ProcessNemsUpdate
             _logger.LogWarning("The participant already exists in Cohort Manager. Existing record will get updated.");
         }
 
-        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
-        {
-            BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = "NemsMessages",
-            Participant = participant
-        };
-
-        updateRecord.Enqueue(basicParticipantCsvRecord);
+        updateRecord.Enqueue(participant);
 
         _logger.LogInformation("Sending record to the update queue.");
 

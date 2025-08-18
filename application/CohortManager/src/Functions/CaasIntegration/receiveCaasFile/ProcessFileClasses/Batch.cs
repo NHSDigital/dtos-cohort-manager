@@ -7,15 +7,15 @@ public class Batch
 {
     public Batch()
     {
-        AddRecords = new ConcurrentQueue<BasicParticipantCsvRecord>();
-        UpdateRecords = new ConcurrentQueue<BasicParticipantCsvRecord>();
-        DeleteRecords = new ConcurrentQueue<BasicParticipantCsvRecord>();
+        AddRecords = new ConcurrentQueue<Participant>();
+        UpdateRecords = new ConcurrentQueue<Participant>();
+        DeleteRecords = new ConcurrentQueue<Participant>();
         DemographicData = new ConcurrentQueue<ParticipantDemographic>();
     }
 
-    public ConcurrentQueue<BasicParticipantCsvRecord> AddRecords { get; set; }
-    public ConcurrentQueue<BasicParticipantCsvRecord> UpdateRecords { get; set; }
-    public ConcurrentQueue<BasicParticipantCsvRecord> DeleteRecords { get; set; }
+    public ConcurrentQueue<Participant> AddRecords { get; set; }
+    public ConcurrentQueue<Participant> UpdateRecords { get; set; }
+    public ConcurrentQueue<Participant> DeleteRecords { get; set; }
     public ConcurrentQueue<ParticipantDemographic> DemographicData { get; set; }
 
 }

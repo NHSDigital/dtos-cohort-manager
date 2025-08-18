@@ -2,10 +2,10 @@ namespace Model;
 
 using Model.Enums;
 
-public class Demographic
+public class Demographic : IDemographic
 {
     public string? ParticipantId { get; set; }
-    public string? NhsNumber { get; set; }
+    public required string NhsNumber { get; set; }
     public string? SupersededByNhsNumber { get; set; }
     public string? PrimaryCareProvider { get; set; }
     public string? PrimaryCareProviderEffectiveFromDate { get; set; }
@@ -39,6 +39,4 @@ public class Demographic
     public string? InvalidFlag { get; set; }
     public string? RecordInsertDateTime { get; set; }
     public string? RecordUpdateDateTime { get; set; }
-
-    public Demographic() { }
 }

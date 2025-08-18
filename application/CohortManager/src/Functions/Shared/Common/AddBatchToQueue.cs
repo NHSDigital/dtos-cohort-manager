@@ -13,7 +13,7 @@ public class AddBatchToQueue : IAddBatchToQueue
         _queueClient = queueClient;
     }
 
-    public async Task ProcessBatch(ConcurrentQueue<BasicParticipantCsvRecord> batch, string queueName)
+    public async Task ProcessBatch(ConcurrentQueue<Participant> batch, string queueName)
     {
         if (batch != null && !batch.IsEmpty)
         {
@@ -21,7 +21,7 @@ public class AddBatchToQueue : IAddBatchToQueue
         }
     }
 
-    private async Task AddMessagesAsync(ConcurrentQueue<BasicParticipantCsvRecord> currentBatch, string queueName)
+    private async Task AddMessagesAsync(ConcurrentQueue<Participant> currentBatch, string queueName)
     {
         var itemsToAdd = currentBatch;
 
@@ -42,8 +42,8 @@ public class AddBatchToQueue : IAddBatchToQueue
         await Task.WhenAll(tasks.ToArray());
     }
 
-    public async Task AddMessage(BasicParticipantCsvRecord basicParticipantCsvRecord, string queueName)
+    public async Task AddMessage(Participant participant, string queueName)
     {
-        await _queueClient.AddAsync<BasicParticipantCsvRecord>(basicParticipantCsvRecord, queueName);
+        await _queueClient.AddAsync<Participant>(participant, queueName);
     }
 }

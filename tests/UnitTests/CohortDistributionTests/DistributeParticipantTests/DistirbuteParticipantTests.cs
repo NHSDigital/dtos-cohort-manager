@@ -36,7 +36,7 @@ public class DistributeParticipantTests
         {
             ParticipantId = "1234",
             NhsNumber = "122345",
-            ScreeningServiceId = "Screening123",
+            ScreeningId = "Screening123",
             Postcode = "AB1 2CD"
         };
 

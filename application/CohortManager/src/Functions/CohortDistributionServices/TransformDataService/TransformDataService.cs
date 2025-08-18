@@ -98,7 +98,7 @@ public class TransformDataService
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "An error occurred during transformation");
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "", participant.ScreeningName, JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLog(ex, participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req);
         }
         catch (TransformationException ex)
@@ -108,7 +108,7 @@ public class TransformDataService
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "", participant.ScreeningName, JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLog(ex, participant);
             _logger.LogWarning(ex, "exception occurred while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
@@ -141,7 +141,7 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-        if (!participant.ReferralFlag ?? false)
+        if (!participant.ReferralFlag)
         {
             resultList.AddRange(await re.ExecuteAllRulesAsync("Routine", ruleParameters));
         }

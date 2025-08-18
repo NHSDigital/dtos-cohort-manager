@@ -33,7 +33,7 @@ public class CopyFailedBatchToBlob : ICopyFailedBatchToBlob
             if (copied)
             {
                 _logger.LogInformation("adding failed batch to blob was successful");
-                await _handleException.CreateSystemExceptionLog(invalidOperationException, new Participant(), "file name unknown but batch was copied to FailedBatch blob store");
+                await _handleException.CreateSystemExceptionLog(invalidOperationException, new Participant());
                 return true;
             }
             _logger.LogInformation("adding failed batch to blob was unsuccessful");

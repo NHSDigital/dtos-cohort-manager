@@ -11,6 +11,7 @@ using Model;
 using System.Text.Json;
 using Common;
 using Activities = DistributeParticipantActivities;
+using Model.Enums;
 
 public class DistributeParticipant
 {
@@ -42,9 +43,9 @@ public class DistributeParticipant
     {
         try
         {
-            var participantRecord = JsonSerializer.Deserialize<BasicParticipantCsvRecord>(messageBody);
+            var participantRecord = JsonSerializer.Deserialize<BasicParticipantData>(messageBody);
 
-            if (string.IsNullOrWhiteSpace(participantRecord.BasicParticipantData.ScreeningId) || string.IsNullOrWhiteSpace(participantRecord.BasicParticipantData.NhsNumber))
+            if (string.IsNullOrWhiteSpace(participantRecord.ScreeningId) || string.IsNullOrWhiteSpace(participantRecord.NhsNumber))
             {
                 await HandleExceptionAsync(new ArgumentException("One or more of the required parameters is missing"), participantRecord);
                 return;
@@ -57,7 +58,7 @@ public class DistributeParticipant
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to start distribute participant");
-            await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(), "Unknown");
+            await _exceptionHandler.CreateSystemExceptionLog(ex, messageBody, ExceptionCategory.Non);
         }
     }
 
@@ -68,11 +69,11 @@ public class DistributeParticipant
     [Function(nameof(DistributeParticipantOrchestrator))]
     public async Task DistributeParticipantOrchestrator([OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        var participantRecord = context.GetInput<BasicParticipantCsvRecord>();
+        var participantRecord = context.GetInput<BasicParticipantData>();
         try
         {
             // Retrieve participant data
-            var participantData = await context.CallActivityAsync<CohortDistributionParticipant>(nameof(Activities.RetrieveParticipantData), participantRecord.BasicParticipantData);
+            var participantData = await context.CallActivityAsync<CohortDistributionParticipant>(nameof(Activities.RetrieveParticipantData), participantRecord);
             if (participantData is null)
             {
                 await HandleExceptionAsync(new KeyNotFoundException("Could not find participant data"), participantRecord);
@@ -87,10 +88,10 @@ public class DistributeParticipant
                 return;
             }
 
-            ValidationRecord validationRecord = new() { FileName = participantRecord.FileName, Participant = participantData };
+            ValidationRecord validationRecord = new() {Participant = participantData };
 
             // Allocate service provider
-            validationRecord.ServiceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
+            validationRecord.ServiceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord);
 
             // Validation & Transformation
             var transformedParticipant = await context.CallSubOrchestratorAsync<CohortDistributionParticipant?>(nameof(ValidateParticipant.ValidationOrchestrator), validationRecord);
@@ -110,15 +111,11 @@ public class DistributeParticipant
                 return;
             }
 
-            _logger.LogInformation(
-                "Participant has been successfully put on the cohort distribution table. Participant Id: {ParticipantId}, Screening Id: {ScreeningId}, Source: {FileName}",
-                participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
-
             // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
-            if (participantRecord.Participant.ReferralFlag == "1")
+            if (participantData.ReferralFlag == true)
             {
                 // In this scenario, the FileName property should be holding the ServiceNow Case Number
-                await context.CallActivityAsync(nameof(Activities.SendServiceNowMessage), participantRecord.FileName);
+                await context.CallActivityAsync(nameof(Activities.SendServiceNowMessage), participantRecord.Source);
             }
         }
         catch (Exception ex)
@@ -127,9 +124,9 @@ public class DistributeParticipant
         }
     }
 
-    private async Task HandleExceptionAsync(Exception ex, BasicParticipantCsvRecord participantRecord)
+    private async Task HandleExceptionAsync(Exception ex, IParticipant participantRecord)
     {
         _logger.LogError(ex, "Distribute Participant failed");
-        await _exceptionHandler.CreateSystemExceptionLog(ex, participantRecord.BasicParticipantData, participantRecord.FileName);
+        await _exceptionHandler.CreateSystemExceptionLog(ex, participantRecord, ExceptionCategory.Non);
     }
 }

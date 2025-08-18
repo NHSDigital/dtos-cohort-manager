@@ -108,19 +108,19 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
     public PdsDemographic MapPatientToPDSDemographic(Patient patient)
     {
-        var demographic = new PdsDemographic();
-
         if (patient == null)
         {
             throw new ArgumentNullException(nameof(patient));
         }
 
-        // Basic Identifiers
-        demographic.NhsNumber = patient.Id; // We set to PDS NHS even if different from request
-        demographic.ParticipantId = null; // We do not know the Participant ID from PDS
-        demographic.RecordUpdateDateTime = null; // We do not know the RecordUpdateDateTime from PDS
-        demographic.RecordInsertDateTime = null; // We do not know the RecordInsertDateTime from PDS
-        demographic.DateOfBirth = patient.BirthDate;
+        var demographic = new PdsDemographic(patient.Id) // We set to PDS NHS even if different from request
+        {
+            // Basic Identifiers
+            ParticipantId = null, // We do not know the Participant ID from PDS
+            RecordUpdateDateTime = null, // We do not know the RecordUpdateDateTime from PDS
+            RecordInsertDateTime = null, // We do not know the RecordInsertDateTime from PDS
+            DateOfBirth = patient.BirthDate
+        }; 
 
         // CurrentPosting & CurrentPostingEffectiveFromDate
         // these are not set as not available in PDS
@@ -138,7 +138,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         return demographic;
     }
 
-    private static void MapPrimaryCareProvider(Patient patient, Demographic demographic)
+    private static void MapPrimaryCareProvider(Patient patient, IDemographic demographic)
     {
         if (patient.GeneralPractitioner == null || patient.GeneralPractitioner.Count == 0)
             return;
@@ -153,7 +153,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
             demographic.PrimaryCareProviderEffectiveFromDate = gp.Identifier.Period.Start.ToString();
     }
 
-    private static void MapNames(Patient patient, Demographic demographic)
+    private static void MapNames(Patient patient, IDemographic demographic)
     {
         // Look for a previous name (maiden name or old name) to populate previous family name
         var previousName = patient.Name?.FirstOrDefault(n => n.Use == HumanName.NameUse.Maiden || n.Use == HumanName.NameUse.Old);
@@ -184,7 +184,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         demographic.FamilyName = usualName.Family;  // Family/surname
     }
 
-    private static void MapGender(Patient patient, Demographic demographic)
+    private static void MapGender(Patient patient, IDemographic demographic)
     {
         // Gender mapping to our enum
         if (patient.Gender.HasValue)
@@ -207,7 +207,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
     }
 
-    private static void MapAddress(Patient patient, Demographic demographic)
+    private static void MapAddress(Patient patient, IDemographic demographic)
     {
         // Find the home address or first available address
         var homeAddress = GetHomeAddress(patient);
@@ -226,7 +226,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
             ?? patient.Address?.FirstOrDefault();
     }
 
-    private static void MapAddressComponents(Address address, Demographic demographic)
+    private static void MapAddressComponents(Address address, IDemographic demographic)
     {
         // Map address lines
         if (address.Line != null)
@@ -250,7 +250,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
     }
 
-    private static void MapPafKeyFromExtensions(Address homeAddress, Demographic demographic)
+    private static void MapPafKeyFromExtensions(Address homeAddress, IDemographic demographic)
     {
         if (homeAddress?.Extension == null)
             return;
@@ -277,7 +277,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         demographic.PafKey = valueString.Value;
     }
 
-    private static void MapDeathInformation(Patient patient, Demographic demographic)
+    private static void MapDeathInformation(Patient patient, IDemographic demographic)
     {
         // Death Date
         if (patient.Deceased is FhirDateTime deceasedDate)
@@ -307,7 +307,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
             : null;
     }
 
-    private static void MapContactInformation(Patient patient, Demographic demographic)
+    private static void MapContactInformation(Patient patient, IDemographic demographic)
     {
         if (patient.Telecom == null)
         {
@@ -362,7 +362,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         }
     }
 
-    private static void MapLanguagePreferences(Patient patient, Demographic demographic)
+    private static void MapLanguagePreferences(Patient patient, IDemographic demographic)
     {
         var languageExtension = patient.Extension?.FirstOrDefault(e =>
             e.Url == FhirExtensionUrls.UkCoreNhsCommunication);

@@ -1,5 +1,7 @@
 namespace Model;
 
+using Model.Enums;
+
 public class ValidationException
 {
     public int ExceptionId { get; set; }

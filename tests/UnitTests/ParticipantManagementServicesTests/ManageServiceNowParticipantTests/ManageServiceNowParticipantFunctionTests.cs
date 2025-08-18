@@ -39,7 +39,7 @@ public class ManageServiceNowParticipantFunctionTests
             FirstName = "Samantha",
             FamilyName = "Bloggs",
             DateOfBirth = new DateOnly(1970, 1, 1),
-            ServiceNowCaseNumber = "CS123",
+            Source = "CS123",
             BsoCode = "ABC",
             ReasonForAdding = ServiceNowReasonsForAdding.RequiresCeasing
         };
@@ -94,7 +94,7 @@ public class ManageServiceNowParticipantFunctionTests
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.Source}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
@@ -103,7 +103,7 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
+                && p.Source == _serviceNowParticipant.Source)), Times.Once);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();
@@ -127,7 +127,7 @@ public class ManageServiceNowParticipantFunctionTests
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.Source}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
@@ -136,7 +136,7 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
+                && p.Source == _serviceNowParticipant.Source)), Times.Once);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();
@@ -155,7 +155,7 @@ public class ManageServiceNowParticipantFunctionTests
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType2Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.Source}", _messageType2Request), Times.Once());
         _httpClientFunctionMock.Verify();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
@@ -164,7 +164,7 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
+                && p.Source == _serviceNowParticipant.Source)), Times.Once);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();
@@ -182,7 +182,7 @@ public class ManageServiceNowParticipantFunctionTests
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType2Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.Source}", _messageType2Request), Times.Once());
         _httpClientFunctionMock.Verify();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
@@ -191,7 +191,7 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)));
+                && p.Source == _serviceNowParticipant.Source)));
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();
@@ -222,7 +222,7 @@ public class ManageServiceNowParticipantFunctionTests
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.Source}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
@@ -231,7 +231,7 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
+                && p.Source == _serviceNowParticipant.Source)), Times.Once);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();
@@ -263,7 +263,7 @@ public class ManageServiceNowParticipantFunctionTests
             .ReturnsAsync(true).Verifiable();
 
         _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.FileName == _serviceNowParticipant.Source &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.New &&
@@ -305,7 +305,7 @@ public class ManageServiceNowParticipantFunctionTests
             ))).ReturnsAsync(new ParticipantManagement { ParticipantId = 123, BlockedFlag = 1 }).Verifiable();
 
         _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.FileName == _serviceNowParticipant.Source &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
@@ -319,7 +319,7 @@ public class ManageServiceNowParticipantFunctionTests
         await _function.Run(_serviceNowParticipant);
 
         // Assert
-        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.Source}", _messageType1Request), Times.Once());
         _httpClientFunctionMock.Verify();
 
         _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
@@ -328,7 +328,7 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FirstName == _serviceNowParticipant.FirstName
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
-                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
+                && p.Source == _serviceNowParticipant.Source)), Times.Once);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
@@ -364,7 +364,7 @@ public class ManageServiceNowParticipantFunctionTests
             .ReturnsAsync(true).Verifiable();
 
         _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.FileName == _serviceNowParticipant.Source &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
@@ -400,7 +400,7 @@ public class ManageServiceNowParticipantFunctionTests
             FirstName = "Samantha",
             FamilyName = "Bloggs",
             DateOfBirth = new DateOnly(1970, 1, 1),
-            ServiceNowCaseNumber = "CS123",
+            Source = "CS123",
             BsoCode = "ABC",
             ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk
         };
@@ -429,7 +429,7 @@ public class ManageServiceNowParticipantFunctionTests
             .ReturnsAsync(true).Verifiable();
 
         _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.FileName == _serviceNowParticipant.Source &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.New &&
@@ -485,7 +485,7 @@ public class ManageServiceNowParticipantFunctionTests
             .ReturnsAsync(true).Verifiable();
 
         _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.FileName == _serviceNowParticipant.Source &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.New &&
@@ -523,7 +523,7 @@ public class ManageServiceNowParticipantFunctionTests
             FirstName = "Samantha",
             FamilyName = "Bloggs",
             DateOfBirth = new DateOnly(1970, 1, 1),
-            ServiceNowCaseNumber = "CS123",
+            Source = "CS123",
             BsoCode = "ABC",
             ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk
         };
@@ -561,7 +561,7 @@ public class ManageServiceNowParticipantFunctionTests
             .ReturnsAsync(true).Verifiable();
 
         _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.FileName == _serviceNowParticipant.Source &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
@@ -627,7 +627,7 @@ public class ManageServiceNowParticipantFunctionTests
             .ReturnsAsync(true).Verifiable();
 
         _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.FileName == _serviceNowParticipant.Source &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&
@@ -692,7 +692,7 @@ public class ManageServiceNowParticipantFunctionTests
             .ReturnsAsync(true).Verifiable();
 
         _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.FileName == _serviceNowParticipant.Source &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
                     x.BasicParticipantData.RecordType == Actions.Amended &&

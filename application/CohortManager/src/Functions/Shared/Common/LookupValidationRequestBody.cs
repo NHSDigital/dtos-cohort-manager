@@ -11,10 +11,9 @@ public class LookupValidationRequestBody
 
     public LookupValidationRequestBody() { }
 
-    public LookupValidationRequestBody(Participant existingParticipant, Participant newParticipant, string fileName)
+    public LookupValidationRequestBody(Participant existingParticipant, Participant newParticipant)
     {
         ExistingParticipant = existingParticipant;
         NewParticipant = newParticipant;
-        FileName = fileName;
     }
 }

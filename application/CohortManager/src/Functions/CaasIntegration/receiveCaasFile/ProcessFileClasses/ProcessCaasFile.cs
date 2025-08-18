@@ -17,7 +17,6 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly ILogger<ProcessCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
     private readonly ICallDurableDemographicFunc _callDurableDemographicFunc;
-    private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
@@ -29,7 +28,6 @@ public class ProcessCaasFile : IProcessCaasFile
 
     public ProcessCaasFile(
         ILogger<ProcessCaasFile> logger,
-        ICreateBasicParticipantData createBasicParticipantData,
         IAddBatchToQueue addBatchToQueue,
         IReceiveCaasFileHelper receiveCaasFileHelper,
         IExceptionHandler exceptionHandler,
@@ -41,7 +39,6 @@ public class ProcessCaasFile : IProcessCaasFile
     )
     {
         _logger = logger;
-        _createBasicParticipantData = createBasicParticipantData;
         _addBatchToQueue = addBatchToQueue;
         _receiveCaasFileHelper = receiveCaasFileHelper;
         _exceptionHandler = exceptionHandler;
@@ -59,45 +56,51 @@ public class ProcessCaasFile : IProcessCaasFile
     /// <param name="values"></param>
     /// <param name="options"></param>
     /// <param name="screeningService"></param>
-    /// <param name="name"></param>
+    /// <param name="filename"></param>
     /// <returns></returns>
-    public async Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningLkp screeningService, string name)
+    public async Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningLkp screeningService, string filename)
     {
         var currentBatch = new Batch();
         await Parallel.ForEachAsync(values, options, async (rec, cancellationToken) =>
         {
-            var participant = _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId.ToString(), screeningService.ScreeningName, name);
+            var participant = _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId.ToString(), screeningService.ScreeningName, filename);
 
             if (participant == null)
             {
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception($"Could not map participant in file {name}"), rec.NhsNumber.ToString(), name, screeningService.ScreeningName, "");
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception($"Could not map participant in file {filename}"), rec.NhsNumber.ToString(), filename, screeningService.ScreeningName, "");
                 return;
             }
 
             if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
             {
-                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed in for participant {participant} and file {name}"), participant, name, nameof(ExceptionCategory.CaaS));
+                // TODO: Nil return files need to be handled properly in receive
+                var category = ExceptionCategory.CaaS;
+                if (participant.NhsNumber == "0" || participant.NhsNumber == "0000000000")
+                {
+                    category = ExceptionCategory.NilReturnFile;
+                }
+                await _exceptionHandler.CreateSystemExceptionLog("Invalid NHS Number in CaaS file", participant, category);
                 return; // skip current participant
             }
 
             if (!_validateDates.ValidateAllDates(participant))
             {
-                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data {participant} and file name {name}"), participant, name);
+                await _exceptionHandler.CreateSystemExceptionLog($"Invalid effective date found in participant data", participant, ExceptionCategory.CaaS);
                 return; // Skip current participant
             }
 
             if (!_recordsProcessTracker.RecordAlreadyProcessed(participant.RecordType, participant.NhsNumber))
             {
-                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Duplicate Participant was in the file"), participant, name);
+                await _exceptionHandler.CreateSystemExceptionLog($"Duplicate Participant was in the file", participant, ExceptionCategory.File);
                 return; // Skip current participant
             }
 
-            await AddRecordToBatch(participant, currentBatch, name);
+            await AddRecordToBatch(participant, currentBatch);
         });
 
-        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI, name))
+        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI, filename))
         {
-            await AddBatchToQueue(currentBatch, name);
+            await AddBatchToQueue(currentBatch);
         }
     }
 
@@ -108,21 +111,15 @@ public class ProcessCaasFile : IProcessCaasFile
     /// <param name="currentBatch"></param>
     /// <param name="FileName"></param>
     /// <returns></returns>
-    private async Task AddRecordToBatch(Participant participant, Batch currentBatch, string fileName)
+    private async Task AddRecordToBatch(Participant participant, Batch currentBatch)
     {
-        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
-        {
-            BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = fileName,
-            Participant = participant
-        };
         // take note: we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
         switch (participant.RecordType?.Trim())
         {
 
             case Actions.New:
-                var DemographicRecordUpdated = await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
-                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
+                var DemographicRecordUpdated = await UpdateOldDemographicRecord(participant);
+                currentBatch.AddRecords.Enqueue(participant);
                 if (DemographicRecordUpdated)
                 {
                     break;
@@ -131,24 +128,24 @@ public class ProcessCaasFile : IProcessCaasFile
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 break;
             case Actions.Amended:
-                if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
+                if (!await UpdateOldDemographicRecord(participant))
                 {
-                    await CreateError(participant, fileName);
+                    await CreateError(participant);
                     break;
                 }
-                currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
+                currentBatch.UpdateRecords.Enqueue(participant);
                 break;
             case Actions.Removed:
-                currentBatch.DeleteRecords.Enqueue(basicParticipantCsvRecord);
+                currentBatch.DeleteRecords.Enqueue(participant);
                 break;
             default:
-                await _exceptionHandler.CreateSchemaValidationException(basicParticipantCsvRecord, "RecordType was not set to an expected value");
+                await _exceptionHandler.CreateSystemExceptionLog("RecordType was not set to an expected value", participant, ExceptionCategory.Schema);
                 break;
         }
 
     }
 
-    private async Task AddBatchToQueue(Batch currentBatch, string name)
+    private async Task AddBatchToQueue(Batch currentBatch)
     {
         _logger.LogInformation("sending {Count} records to queue", currentBatch.AddRecords.Count + currentBatch.UpdateRecords.Count);
 
@@ -157,32 +154,32 @@ public class ProcessCaasFile : IProcessCaasFile
 
         foreach (var updateRecords in currentBatch.DeleteRecords)
         {
-            await RemoveParticipant(updateRecords, name);
+            await RemoveParticipant(updateRecords);
         }
         // this used to release memory from being used
         currentBatch = null;
     }
 
-    private async Task<bool> UpdateOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
+    private async Task<bool> UpdateOldDemographicRecord(Participant participant)
     {
         try
         {
             long nhsNumber;
-            if (!long.TryParse(basicParticipantCsvRecord.Participant.NhsNumber, out nhsNumber))
+            if (!long.TryParse(participant.NhsNumber, out nhsNumber))
             {
                 throw new FormatException("Unable to parse NHS Number");
             }
 
-            var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
+            var participantDemographic = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
 
-            if (participant == null)
+            if (participantDemographic == null)
             {
                 _logger.LogWarning("The participant could not be found, when trying to update old Participant");
                 return false;
             }
 
-            var participantForUpdate = basicParticipantCsvRecord.Participant.ToParticipantDemographic();
-            participantForUpdate.ParticipantId = participant.ParticipantId;
+            var participantForUpdate = participant.ToParticipantDemographic();
+            participantForUpdate.ParticipantId = participantDemographic.ParticipantId;
 
             var updated = await _participantDemographic.Update(participantForUpdate);
             if (updated)
@@ -197,13 +194,13 @@ public class ProcessCaasFile : IProcessCaasFile
         catch (Exception ex)
         {
             _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await CreateError(basicParticipantCsvRecord.Participant, name);
+            await CreateError(participant);
         }
         return false;
     }
 
     // TODO: refactor now that it all uses one queue
-    private async Task RemoveParticipant(BasicParticipantCsvRecord basicParticipantCsvRecord, string filename)
+    private async Task RemoveParticipant(Participant participant)
     {
         var allowDeleteRecords = _config.AllowDeleteRecords;
         try
@@ -211,33 +208,33 @@ public class ProcessCaasFile : IProcessCaasFile
             if (allowDeleteRecords)
             {
                 _logger.LogInformation("AllowDeleteRecords flag is true, delete record sent to RemoveParticipant function.");
-                await _addBatchToQueue.AddMessage(basicParticipantCsvRecord, _config.ParticipantManagementTopic);
+                await _addBatchToQueue.AddMessage(participant, _config.ParticipantManagementTopic);
             }
             else
             {
-                await _exceptionHandler.CreateDeletedRecordException(basicParticipantCsvRecord);
+                await _exceptionHandler.CreateSystemExceptionLog("Record received was flagged for deletion", participant, ExceptionCategory.DeleteRecord);
                 _logger.LogInformation("AllowDeleteRecords flag is false, exception raised for delete record.");
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await CreateError(basicParticipantCsvRecord.Participant, filename);
+            await CreateError(participant);
         }
     }
 
-    private async Task CreateError(Participant participant, string filename)
+    private async Task CreateError(Participant participant)
     {
         try
         {
-            _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
-            var errorDescription = $"a record has failed to process with the NHS Number: REDACTED because of an incorrect record type";
-            await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorDescription, "", JsonSerializer.Serialize(participant));
+            var errorDescription = $"A record has failed to process in file {participant.Source}";
+            _logger.LogError(errorDescription);
+            await _exceptionHandler.CreateSystemExceptionLog(errorDescription, participant, ExceptionCategory.File);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Handling the exception failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await _exceptionHandler.CreateSystemExceptionLog(ex, participant, filename);
+            await _exceptionHandler.CreateSystemExceptionLog(ex, participant);
         }
     }
 }

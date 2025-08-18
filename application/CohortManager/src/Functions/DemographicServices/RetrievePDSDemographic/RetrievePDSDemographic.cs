@@ -24,7 +24,6 @@ public class RetrievePdsDemographic
     private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
     private readonly IBearerTokenService _bearerTokenService;
-    private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private const string PdsParticipantUrlFormat = "{0}/{1}";
 
@@ -36,7 +35,6 @@ public class RetrievePdsDemographic
         IFhirPatientDemographicMapper fhirPatientDemographicMapper,
         IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig,
         IDataServiceClient<ParticipantDemographic> participantDemographicClient,
-        ICreateBasicParticipantData createBasicParticipantData,
         IAddBatchToQueue addBatchToQueue,
         IBearerTokenService bearerTokenService
     )
@@ -47,7 +45,6 @@ public class RetrievePdsDemographic
         _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
         _config = retrievePDSDemographicConfig.Value;
         _participantDemographicClient = participantDemographicClient;
-        _createBasicParticipantData = createBasicParticipantData;
         _bearerTokenService = bearerTokenService;
         _addBatchToQueue = addBatchToQueue;
     }
@@ -84,7 +81,7 @@ public class RetrievePdsDemographic
             {
                 await ProcessPdsNotFoundResponse(response, nhsNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404 please database for details");
-            }
+            } 
 
             response.EnsureSuccessStatusCode();
 
@@ -127,17 +124,11 @@ public class RetrievePdsDemographic
 
     private async Task ProcessRecord(Participant participant)
     {
-        var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
+        var updateRecord = new ConcurrentQueue<Participant>();
+        participant.Source = PdsConstants.DefaultFileName;
         participant.RecordType = participant.RecordType = Actions.Removed;
 
-        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
-        {
-            BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = PdsConstants.DefaultFileName,
-            Participant = participant
-        };
-
-        updateRecord.Enqueue(basicParticipantCsvRecord);
+        updateRecord.Enqueue(participant);
 
         _logger.LogInformation("Sending record to the update queue.");
         await _addBatchToQueue.ProcessBatch(updateRecord, _config.ParticipantManagementTopic);
