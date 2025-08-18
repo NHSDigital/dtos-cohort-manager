@@ -30,6 +30,7 @@ public class BasicParticipantCsvRecord
         {
             ReferralFlag = "1",
             Postcode = pdsDemographic.Postcode,
+            PrimaryCareProvider = serviceNowParticipant.RequiredGpCode,
             ScreeningAcronym = "BSS" // TODO: Remove hardcoding when adding support for additional screening programs
         };
     }
