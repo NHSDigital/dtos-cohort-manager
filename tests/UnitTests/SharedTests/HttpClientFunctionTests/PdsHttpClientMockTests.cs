@@ -6,173 +6,44 @@ using System.Net;
 using System.Text.Json;
 using Common.Interfaces;
 using Moq;
+using System.Runtime.CompilerServices;
+using Castle.Core.Logging;
+using Microsoft.Extensions.Logging;
 
 [TestClass]
 public class PdsHttpClientMockTests
 {
     private PdsHttpClientMock _mockFunction = null!;
 
-    private Mock<IFhirPatientDemographicMapper> _fhirPatientDemographicMapper = new();
+    private readonly Mock<IHttpClientFactory> _mockClientFactory = new();
+    private readonly Mock<ILogger<HttpClientFunction>> _mockHttpLogger = new();
+    private readonly Mock<ILogger<PdsHttpClientMock>> _mockLogger = new();
+
 
     [TestInitialize]
     public void Setup()
     {
-        _mockFunction = new PdsHttpClientMock(_fhirPatientDemographicMapper.Object);
-
-        _fhirPatientDemographicMapper.Setup(x => x.ParseFhirJson(It.IsAny<string>())).Returns(new PdsDemographic()
-        {
-            NhsNumber = "9000000009",
-            IsInterpreterRequired = "true"
-        });
+        _mockFunction = new PdsHttpClientMock(_mockHttpLogger.Object, _mockClientFactory.Object, _mockLogger.Object);
     }
 
     [TestMethod]
     public async Task SendGet_WithParameters_ReturnsPdsDemographicJson()
     {
         // Arrange
-        var url = "http://test.com";
-        var parameters = new Dictionary<string, string> { { "nhsNumber", "9000000009" } };
-
+        var url = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient/9000000009";
         // Act
-        var result = await _mockFunction.SendGet(url, parameters);
+        var result = await _mockFunction.SendPdsGet(url,"token");
 
         // Assert
         Assert.IsNotNull(result);
 
         // Verify it's valid JSON and deserializes to PdsDemographic
-        var pdsDemographic = JsonSerializer.Deserialize<ParticipantDemographic>(result);
+        var resultString = await result.Content.ReadAsStringAsync();
+        var pdsDemographic = JsonSerializer.Deserialize<ParticipantDemographic>(resultString);
         Assert.IsNotNull(pdsDemographic);
 
         //verify that is some default set
         Assert.AreEqual(pdsDemographic.ParticipantId, 0);
-    }
-
-    [TestMethod]
-    public async Task SendGet_WithParameters_ReturnsValidJsonStructure()
-    {
-        // Arrange
-        var url = "http://test.com";
-        var parameters = new Dictionary<string, string> { { "test", "value" } };
-
-        // Act
-        var result = await _mockFunction.SendGet(url, parameters);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.IsTrue(result.StartsWith("{"));
-        Assert.IsTrue(result.EndsWith("}"));
-
-        // Verify JSON is valid by deserializing
-        try
-        {
-            JsonSerializer.Deserialize<ParticipantDemographic>(result);
-        }
-        catch (Exception ex)
-        {
-            Assert.Fail($"Should be able to deserialize as PdsDemographic without errors: {ex.Message}");
-        }
-    }
-
-    [TestMethod]
-    public async Task SendGet_WithParameters_ParticipantIdIsStringNotNumber()
-    {
-        // Arrange
-        var url = "http://test.com";
-        var parameters = new Dictionary<string, string>();
-
-        // Act
-        var result = await _mockFunction.SendGet(url, parameters);
-
-        // Assert
-        Assert.IsNotNull(result);
-
-        // Parse as JsonDocument to check the raw JSON structure
-        using var doc = JsonDocument.Parse(result);
-        var root = doc.RootElement;
-
-        // If ParticipantId exists in JSON, it should be null, not a number
-        if (root.TryGetProperty("ParticipantId", out var participantIdElement))
-        {
-            Assert.AreEqual(JsonValueKind.Number, participantIdElement.ValueKind,
-                "ParticipantId should be null (string default) not a number");
-        }
-
-        // This is the critical test - ensure deserialization doesn't fail
-        try
-        {
-            JsonSerializer.Deserialize<ParticipantDemographic>(result);
-        }
-        catch (Exception ex)
-        {
-            Assert.Fail($"Should be able to deserialize as PdsDemographic without JSON conversion errors: {ex.Message}");
-        }
-    }
-
-    [TestMethod]
-    public async Task SendPost_ReturnsOkHttpResponse()
-    {
-        // Arrange
-        var url = "http://test.com";
-        var data = "test data";
-
-        // Act
-        var result = await _mockFunction.SendPost(url, data);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task SendPost_WithEmptyUrl_ReturnsInternalServerError()
-    {
-        // Arrange
-        var url = string.Empty;
-        var data = "test data";
-
-        // Act
-        var result = await _mockFunction.SendPost(url, data);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task SendPdsGet_ReturnsOkHttpResponseWithFhirPatientJson()
-    {
-        // Arrange
-        var url = "http://test.com";
-        var bearerToken = "fake-token";
-
-        // Act
-        var result = await _mockFunction.SendPdsGet(url, bearerToken);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-
-        var content = await result.Content.ReadAsStringAsync();
-        Assert.IsNotNull(content);
-
-        // Content might be empty if complete-patient.json file not found in test environment
-        // The important thing is that we get a successful HTTP response for PDS calls
-        Assert.IsTrue(content.Length >= 0, "Should return FHIR Patient content (even if empty)");
-    }
-
-    [TestMethod]
-    public async Task SendPut_ReturnsOkHttpResponse()
-    {
-        // Arrange
-        var url = "http://test.com";
-        var data = "test data";
-
-        // Act
-        var result = await _mockFunction.SendPut(url, data);
-
-        // Assert
-        Assert.IsNotNull(result);
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
@@ -193,51 +64,6 @@ public class PdsHttpClientMockTests
         Assert.AreEqual(content, result);
     }
 
-    [TestMethod]
-    public async Task SendDelete_ThrowsNotImplementedException()
-    {
-        // Arrange
-        var url = "http://test.com";
-
-        // Act & Assert
-        await Assert.ThrowsExceptionAsync<NotImplementedException>(
-            () => _mockFunction.SendDelete(url));
-    }
-
-    [TestMethod]
-    public async Task SendGet_WithoutParameters_ThrowsNotImplementedException()
-    {
-        // Arrange
-        var url = "http://test.com";
-
-        // Act & Assert
-        await Assert.ThrowsExceptionAsync<NotImplementedException>(
-            () => _mockFunction.SendGet(url));
-    }
-
-    [TestMethod]
-    public async Task SendGetOrThrowAsync_ReturnsEmptyString()
-    {
-        // Arrange
-        var url = "http://test.com";
-
-        // Act
-        var result = await _mockFunction.SendGetOrThrowAsync(url);
-
-        // Assert
-        Assert.AreEqual(string.Empty, result);
-    }
-
-    [TestMethod]
-    public async Task SendGetResponse_ThrowsNotImplementedException()
-    {
-        // Arrange
-        var url = "http://test.com";
-
-        // Act & Assert
-        await Assert.ThrowsExceptionAsync<NotImplementedException>(
-            () => _mockFunction.SendGetResponse(url));
-    }
 
     [TestMethod]
     public void PdsMockFunction_ImplementsIHttpClientFunction()
