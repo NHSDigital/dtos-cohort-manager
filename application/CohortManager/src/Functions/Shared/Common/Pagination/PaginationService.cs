@@ -6,7 +6,7 @@ public class PaginationService<T> : IPaginationService<T>
 {
     private const int pageSize = 10;
 
-    public PaginationResult<T> GetPaginatedResult(IQueryable<T> source, int? lastId, Func<T, int> idSelector = null)
+    public PaginationResult<T> GetPaginatedResult(IQueryable<T> source, int? lastId, Func<T, int>? idSelector = null)
     {
         // If no idSelector is provided, try to use a default 'Id' property
         if (idSelector == null)

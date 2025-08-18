@@ -63,6 +63,11 @@ public class GetValidationExceptions
 
             var allExceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
 
+            if (allExceptions == null)
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+            }
+
             var paginatedResult = _paginationService.GetPaginatedResult(allExceptions.AsQueryable(), lastId == 0 ? null : lastId, e => e.ExceptionId);
             if (!paginatedResult.Items.Any())
             {
