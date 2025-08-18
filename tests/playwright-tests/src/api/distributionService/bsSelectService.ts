@@ -31,6 +31,12 @@ export const getRecordsFromParticipantManagementService = (
   return apiClient.get(request, `${config.endpointParticipantManagementDataService}api/${config.participantManagementService}`);
 };
 
+export const getRecordsFromParticipantDemographicService = (
+  request: APIRequestContext
+): Promise<ApiResponse> => {
+  return apiClient.get(request, `${config.endpointParticipantDemographicDataService}api/${config.participantDemographicDataService}`);
+};
+
 export const deleteParticipant = (
   request: APIRequestContext,
   payload: {
