@@ -6,6 +6,7 @@ using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Hl7.Fhir.ElementModel.Types;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -113,34 +114,38 @@ public class ServiceNowClient : IServiceNowClient
         }
 
         _logger.LogInformation("Refreshing access token...");
-        accessToken = await RefreshAccessTokenAsync();
+        var response = await RefreshAccessTokenAsync();
 
-        if (accessToken == null)
+        if (response == null)
         {
             return null;
         }
 
-        // ServiceNow access token is valid for 24 hours so setting cache expiry to slightly below
-        var expires = new TimeSpan(23, 55, 0);
+        var expires = new TimeSpan(0, 0, response.ExpiresIn);
+
         var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
-        _cache.Set(AccessTokenCacheKey, accessToken, cacheEntryOptions);
+        _cache.Set(AccessTokenCacheKey, response.AccessToken, cacheEntryOptions);
 
         _logger.LogInformation("Access token refreshed and cache updated");
 
-        return accessToken;
+        return response.AccessToken;
     }
 
-    private async Task<string?> RefreshAccessTokenAsync()
+    private async Task<ServiceNowRefreshAccessTokenResponseBody?> RefreshAccessTokenAsync()
     {
         var httpClient = _httpClientFactory.CreateClient();
 
         var dict = new Dictionary<string, string>
         {
-            { "grant_type", "refresh_token" },
+            { "grant_type", _config.ServiceNowGrantType },
             { "client_id", _config.ServiceNowClientId },
-            { "client_secret", _config.ServiceNowClientSecret },
-            { "refresh_token", _config.ServiceNowRefreshToken }
+            { "client_secret", _config.ServiceNowClientSecret }
         };
+
+        if (_config.ServiceNowGrantType == "refresh_token" && _config.ServiceNowRefreshToken is not null)
+        {
+            dict.Add("refresh_token", _config.ServiceNowRefreshToken);
+        }
 
         var request = new HttpRequestMessage(HttpMethod.Post, _config.ServiceNowRefreshAccessTokenUrl)
         {
@@ -157,6 +162,6 @@ public class ServiceNowClient : IServiceNowClient
 
         var responseBody = await response.Content.ReadFromJsonAsync<ServiceNowRefreshAccessTokenResponseBody>();
 
-        return responseBody!.AccessToken;
+        return responseBody;
     }
 }
