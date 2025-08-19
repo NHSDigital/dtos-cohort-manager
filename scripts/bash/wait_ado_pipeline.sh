@@ -5,7 +5,7 @@ set -euo pipefail
 RUN_ID="$1"
 ORG_URL="$2"
 PROJECT="$3"
-TIMEOUT_SECONDS="${4:-900}"  # Default to 15 minutes if not provided
+TIMEOUT_SECONDS="${4:-300}"  # Default to 5 minutes if not provided
 
 SLEEP_TIME=15
 

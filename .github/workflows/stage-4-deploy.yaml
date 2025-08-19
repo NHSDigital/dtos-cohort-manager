@@ -86,4 +86,4 @@ jobs:
             --parameters $parameters \
             --output tsv --query id)
 
-          scripts/bash/wait_ado_pipeline.sh "$RUN_ID" https://dev.azure.com/nhse-dtos "${project_name}" 600
+          scripts/bash/wait_ado_pipeline.sh "$RUN_ID" https://dev.azure.com/nhse-dtos "${project_name}" 900
