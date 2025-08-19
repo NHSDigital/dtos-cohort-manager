@@ -19,7 +19,6 @@ public class ProcessNemsUpdateTests
 {
     private readonly Mock<ILogger<ProcessNemsUpdate>> _loggerMock = new();
     private static readonly Mock<IFhirPatientDemographicMapper> _fhirPatientDemographicMapperMock = new();
-    private readonly Mock<ICreateBasicParticipantData> _createBasicParticipantDataMock = new();
     private readonly Mock<IAddBatchToQueue> _addBatchToQueueMock = new();
     private readonly Mock<IHttpClientFunction> _httpClientFunctionMock = new();
     private readonly Mock<IOptions<ProcessNemsUpdateConfig>> _config = new();
@@ -46,7 +45,6 @@ public class ProcessNemsUpdateTests
         _sut = new ProcessNemsUpdate(
             _loggerMock.Object,
             _fhirPatientDemographicMapperMock.Object,
-            _createBasicParticipantDataMock.Object,
             _addBatchToQueueMock.Object,
             _httpClientFunctionMock.Object,
             _exceptionHandlerMock.Object,
@@ -161,7 +159,7 @@ public class ProcessNemsUpdateTests
 
         _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
 
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -205,7 +203,7 @@ public class ProcessNemsUpdateTests
 
         _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
 
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -238,7 +236,7 @@ public class ProcessNemsUpdateTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
 
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.Once);
     }
 
 
@@ -284,7 +282,7 @@ public class ProcessNemsUpdateTests
         Times.Once);
 
         _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.Once);
 
         //Verify the exception handler was called
         _exceptionHandlerMock.Verify(

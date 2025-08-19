@@ -40,10 +40,9 @@ public class AzureQueueStorageHelperTests
     [TestMethod]
     public async Task AddItemToQueueAsync_AddsRecordToQueue_True()
     {
-        var testRecord = new ParticipantCsvRecord
+        var testRecord = new Participant
         {
-            Participant = new Participant(),
-            FileName = "test file name",
+            Source = "test file name",
 
         };
 
@@ -79,7 +78,7 @@ public class AzureQueueStorageHelperTests
 
         var _queueHelper = new AzureStorageQueueClient(new Mock<ILogger<AzureStorageQueueClient>>().Object, mockQueueClientFactory.Object);
 
-        var res = await _queueHelper.AddAsync<ParticipantCsvRecord>(new ParticipantCsvRecord(), "Some_Bad_Queue_Name");
+        var res = await _queueHelper.AddAsync<Participant>(new Participant(), "Some_Bad_Queue_Name");
 
         Assert.IsFalse(res);
     }

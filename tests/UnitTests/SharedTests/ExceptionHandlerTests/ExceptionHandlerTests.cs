@@ -33,14 +33,14 @@ public class ExceptionHandlerTests
     public async Task CreateSystemExceptionLog_IsCalledWithParticipantExceptionAndFileName_Success(string NhsNumber)
     {
         // Arrange
-        var participant = new Participant() { NhsNumber = NhsNumber };
+        var participant = new Participant() { NhsNumber = NhsNumber, Source = "filename" };
 
         _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                   .Returns(Task.FromResult(true))
                   .Verifiable();
 
         // Act
-        await _function.CreateSystemExceptionLog(new Exception("Test exception"), participant, "filename");
+        await _function.CreateSystemExceptionLog(new Exception("Test exception"), participant);
 
         // Assert - when NhsNumber is not null (even if empty or whitespace), ExceptionFlag should be set to "Y"
         _exceptionSender.Verify(call => call.sendToCreateException(
@@ -52,14 +52,14 @@ public class ExceptionHandlerTests
     public async Task CreateSystemExceptionLog_IsCalledWithParticipantWithNullNhsNumber_SetsExceptionFlagToNull(string NhsNumber)
     {
         // Arrange
-        var participant = new Participant() { NhsNumber = NhsNumber };
+        var participant = new Participant() { NhsNumber = NhsNumber, Source = "filename" };
 
         _exceptionSender.Setup(x => x.sendToCreateException(It.IsAny<ValidationException>()))
                      .Returns(Task.FromResult(true))
                      .Verifiable();
 
         // Act
-        await _function.CreateSystemExceptionLog(new Exception("Test exception"), participant, "filename");
+        await _function.CreateSystemExceptionLog(new Exception("Test exception"), participant);
 
         // Assert - when NhsNumber is null, the JSON should show ExceptionFlag as null
         _exceptionSender.Verify(call => call.sendToCreateException(
@@ -80,10 +80,8 @@ public class ExceptionHandlerTests
     public async Task CreateValidationExceptionLog_IsCalledWithAllFatalErrorsAndParticipant_LogsFatalMessage(string participantId)
     {
         // Arrange
-        var participantCsvRecord = new ParticipantCsvRecord()
-        {
-            Participant = new Participant() { ParticipantId = participantId, NhsNumber = participantId }
-        };
+
+        var participant = new Participant() { ParticipantId = participantId, NhsNumber = participantId, Source = "filename" };
         IEnumerable<RuleResultTree> validationErrors = new List<RuleResultTree>()
         {
             GenerateSampleRuleResultTree(CreateSampleRule())
@@ -93,7 +91,7 @@ public class ExceptionHandlerTests
                          .Returns(Task.FromResult(true))
                          .Verifiable();
         // Act
-        var result = await _function.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
+        var result = await _function.CreateValidationExceptionLog(validationErrors, participant);
 
         // Build the expected log message.
         var expectedId = participantId ?? "(null)";
@@ -664,31 +662,4 @@ public class ExceptionHandlerTests
         return rule;
     }
 
-    private static RuleResultTree GenerateSampleRuleResultTree(Rule rule)
-    {
-        var resultTree = new RuleResultTree
-        {
-            Rule = rule,
-            IsSuccess = true,
-            Inputs = new Dictionary<string, object>(),
-            ActionResult = new ActionResult(),
-            ExceptionMessage = string.Empty
-        };
-
-        var childResults = new List<RuleResultTree>
-        {
-            new RuleResultTree
-            {
-                Rule = rule,
-                IsSuccess = true,
-                Inputs = new Dictionary<string, object>(),
-                ActionResult = new ActionResult(),
-                ExceptionMessage = string.Empty
-            }
-        };
-
-        resultTree.ChildResults = childResults;
-
-        return resultTree;
-    }
 }

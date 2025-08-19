@@ -59,10 +59,10 @@ public class LookupValidationTests
             FirstName = "John",
             FamilyName = "Smith",
             ScreeningName = "Breast Screening",
-            ReferralFlag = "false"
+            ReferralFlag = false
         };
 
-        _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv");
+        _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant);
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
             var response = new Mock<HttpResponseData>(_context.Object);
@@ -102,7 +102,7 @@ public class LookupValidationTests
     public async Task Run_ParticipantReferred_DoNotRunRules()
     {
         // Arrange
-        _requestBody.NewParticipant.ReferralFlag = "true";
+        _requestBody.NewParticipant.ReferralFlag = true;
         _requestBody.ExistingParticipant.BlockedFlag = "1";
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);

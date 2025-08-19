@@ -25,7 +25,7 @@ public class StaticValidationTests
     private readonly Mock<HttpRequestData> _request;
     private readonly CreateResponse _createResponse = new();
     private readonly ServiceCollection _serviceCollection = new();
-    private readonly ParticipantCsvRecord _participantCsvRecord;
+    private readonly Participant _participant;
     private readonly StaticValidation _function;
 
     public StaticValidationTests()
@@ -51,29 +51,26 @@ public class StaticValidationTests
             return response.Object;
         });
 
-        _participantCsvRecord = new ParticipantCsvRecord()
+        _participant = new Participant()
         {
-            FileName = "test",
-            Participant = new Participant()
-            {
-                ScreeningName = "Breast Screening",
-                NhsNumber = "1211111881",
-                RecordType = Actions.New,
-                AddressLine1 = "Address1",
-                AddressLine2 = "Address2",
-                AddressLine3 = "Address3",
-                AddressLine4 = "Address4",
-                AddressLine5 = "Address5",
-                PrimaryCareProvider = "E85121",
-                DateOfBirth = "20130112",
-                FirstName = "Test",
-                FamilyName = "Test",
-                InvalidFlag = "0",
-                IsInterpreterRequired = "0",
-                CurrentPosting = "ABC",
-                EligibilityFlag = "1",
-                ReferralFlag = "false"
-            }
+            ScreeningName = "Breast Screening",
+            NhsNumber = "1211111881",
+            RecordType = Actions.New,
+            AddressLine1 = "Address1",
+            AddressLine2 = "Address2",
+            AddressLine3 = "Address3",
+            AddressLine4 = "Address4",
+            AddressLine5 = "Address5",
+            PrimaryCareProvider = "E85121",
+            DateOfBirth = "20130112",
+            FirstName = "Test",
+            FamilyName = "Test",
+            InvalidFlag = "0",
+            IsInterpreterRequired = "0",
+            CurrentPosting = "ABC",
+            EligibilityFlag = "1",
+            ReferralFlag = false,
+            Source = "test1"
         };
     }
 
@@ -104,10 +101,10 @@ public class StaticValidationTests
     public async Task Run_ParticipantReferred_DoNotRunRoutineRules()
     {
         // Arrange
-        _participantCsvRecord.Participant.ReferralFlag = "true";
-        _participantCsvRecord.Participant.PrimaryCareProvider = "ABC";
-        _participantCsvRecord.Participant.ReasonForRemoval = "123";
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.ReferralFlag = true;
+        _participant.PrimaryCareProvider = "ABC";
+        _participant.ReasonForRemoval = "123";
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -121,9 +118,9 @@ public class StaticValidationTests
     public async Task Run_ParticipantReferred_RunCommonRules()
     {
         // Arrange
-        _participantCsvRecord.Participant.ReferralFlag = "true";
-        _participantCsvRecord.Participant.Postcode = "ZzZ99 LZ";
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.ReferralFlag = true;
+        _participant.Postcode = "ZzZ99 LZ";
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -142,10 +139,10 @@ public class StaticValidationTests
     public async Task Run_ValidRecordType_ReturnNoContent(string recordType, string eligibilityFlag)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = recordType;
-        _participantCsvRecord.Participant.EligibilityFlag = eligibilityFlag;
+        _participant.RecordType = recordType;
+        _participant.EligibilityFlag = eligibilityFlag;
 
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -162,8 +159,8 @@ public class StaticValidationTests
     public async Task Run_InvalidRecordType_ReturnValidationException(string recordType)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = recordType;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = recordType;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -179,9 +176,9 @@ public class StaticValidationTests
     public async Task Run_DelRecord_DoNotRunCommonRules()
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.Removed;
-        _participantCsvRecord.Participant.EligibilityFlag = "0";
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = Actions.Removed;
+        _participant.EligibilityFlag = "0";
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -213,8 +210,8 @@ public class StaticValidationTests
     public async Task Run_ValidPostcode_ReturnNoContent(string postcode)
     {
         // Arrange
-        _participantCsvRecord.Participant.Postcode = postcode;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.Postcode = postcode;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -236,8 +233,8 @@ public class StaticValidationTests
     public async Task Run_InvalidPostcode_ReturnValidationException(string postcode)
     {
         // Arrange
-        _participantCsvRecord.Participant.Postcode = postcode;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.Postcode = postcode;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -254,13 +251,13 @@ public class StaticValidationTests
     public async Task Run_AddWithAdress_ReturnNoContent()
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.New;
-        _participantCsvRecord.Participant.AddressLine1 = "SomeAddress";
-        _participantCsvRecord.Participant.AddressLine2 = "";
-        _participantCsvRecord.Participant.AddressLine3 = "";
-        _participantCsvRecord.Participant.AddressLine4 = "";
-        _participantCsvRecord.Participant.AddressLine5 = "";
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = Actions.New;
+        _participant.AddressLine1 = "SomeAddress";
+        _participant.AddressLine2 = "";
+        _participant.AddressLine3 = "";
+        _participant.AddressLine4 = "";
+        _participant.AddressLine5 = "";
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -274,13 +271,13 @@ public class StaticValidationTests
     public async Task Run_AddWithEmptyAddress_ReturnValidationException()
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.New;
-        _participantCsvRecord.Participant.AddressLine1 = "";
-        _participantCsvRecord.Participant.AddressLine2 = "";
-        _participantCsvRecord.Participant.AddressLine3 = "";
-        _participantCsvRecord.Participant.AddressLine4 = "";
-        _participantCsvRecord.Participant.AddressLine5 = "";
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = Actions.New;
+        _participant.AddressLine1 = "";
+        _participant.AddressLine2 = "";
+        _participant.AddressLine3 = "";
+        _participant.AddressLine4 = "";
+        _participant.AddressLine5 = "";
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -295,13 +292,13 @@ public class StaticValidationTests
     public async Task Run_AmendWithEmptyAddress_ReturnNoContent()
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.Amended;
-        _participantCsvRecord.Participant.AddressLine1 = "";
-        _participantCsvRecord.Participant.AddressLine2 = "";
-        _participantCsvRecord.Participant.AddressLine3 = "";
-        _participantCsvRecord.Participant.AddressLine4 = "";
-        _participantCsvRecord.Participant.AddressLine5 = "";
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = Actions.Amended;
+        _participant.AddressLine1 = "";
+        _participant.AddressLine2 = "";
+        _participant.AddressLine3 = "";
+        _participant.AddressLine4 = "";
+        _participant.AddressLine5 = "";
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -319,10 +316,10 @@ public class StaticValidationTests
     public async Task Run_CompatiblePcpAndRfr_ReturnNoContent(string primaryCareProvider, string reasonForRemoval)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.Amended;
-        _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
-        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = Actions.Amended;
+        _participant.PrimaryCareProvider = primaryCareProvider;
+        _participant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -338,9 +335,9 @@ public class StaticValidationTests
     public async Task Run_IncompatiblePcpAndRfr_ReturnValidationException(string primaryCareProvider, string reasonForRemoval)
     {
         // Arrange
-        _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
-        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.PrimaryCareProvider = primaryCareProvider;
+        _participant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -360,8 +357,8 @@ public class StaticValidationTests
     public async Task Run_ValidDateOfBirth_ReturnNoContent(string dateOfBirth)
     {
         // Arrange
-        _participantCsvRecord.Participant.DateOfBirth = dateOfBirth;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.DateOfBirth = dateOfBirth;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -381,8 +378,8 @@ public class StaticValidationTests
     public async Task Run_InvalidDateOfBirth_ReturnValidationException(string dateOfBirth)
     {
         // Arrange
-        _participantCsvRecord.Participant.DateOfBirth = dateOfBirth;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.DateOfBirth = dateOfBirth;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -405,9 +402,9 @@ public class StaticValidationTests
     public async Task Run_ValidFamilyName_ReturnNoContent(string familyName)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.New;
-        _participantCsvRecord.Participant.FamilyName = familyName;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = Actions.New;
+        _participant.FamilyName = familyName;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -423,9 +420,9 @@ public class StaticValidationTests
     public async Task Run_InvalidFamilyName_ReturnValidationException(string familyName)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.New;
-        _participantCsvRecord.Participant.FamilyName = familyName;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = Actions.New;
+        _participant.FamilyName = familyName;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -446,9 +443,9 @@ public class StaticValidationTests
     public async Task Run_ValidFirstName_ReturnNoContent(string givenName)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.New;
-        _participantCsvRecord.Participant.FirstName = givenName;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = Actions.New;
+        _participant.FirstName = givenName;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -464,9 +461,9 @@ public class StaticValidationTests
     public async Task Run_InvalidFirstName_ReturnValidationExceptions(string firstName)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.New;
-        _participantCsvRecord.Participant.FirstName = firstName;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = Actions.New;
+        _participant.FirstName = firstName;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -484,11 +481,11 @@ public class StaticValidationTests
     public async Task Run_ValidDeathStatus_ReturnNoContent(string recordType, Status deathStatus, string reasonForRemoval)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = recordType;
-        _participantCsvRecord.Participant.DeathStatus = deathStatus;
-        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
-        _participantCsvRecord.Participant.PrimaryCareProvider = null;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = recordType;
+        _participant.DeathStatus = deathStatus;
+        _participant.ReasonForRemoval = reasonForRemoval;
+        _participant.PrimaryCareProvider = null;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -505,10 +502,10 @@ public class StaticValidationTests
     public async Task Run_InvalidDeathStatus_ReturnValidationException(string recordType, Status deathStatus, string reasonForRemoval)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = recordType;
-        _participantCsvRecord.Participant.DeathStatus = deathStatus;
-        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = recordType;
+        _participant.DeathStatus = deathStatus;
+        _participant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -530,10 +527,10 @@ public class StaticValidationTests
     public async Task Run_ValidDateOfDeath_ReturnNoContent(string date)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.Amended;
-        _participantCsvRecord.Participant.DateOfDeath = date;
-        _participantCsvRecord.Participant.EligibilityFlag = "0";
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = Actions.Amended;
+        _participant.DateOfDeath = date;
+        _participant.EligibilityFlag = "0";
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -551,9 +548,9 @@ public class StaticValidationTests
     public async Task Run_InvalidDateOfDeath_ReturnValidationException(string date)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = Actions.Amended;
-        _participantCsvRecord.Participant.DateOfDeath = date;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = Actions.Amended;
+        _participant.DateOfDeath = date;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -572,8 +569,8 @@ public class StaticValidationTests
     public async Task Run_ValidInterpreterRequiredFlag_ReturnNoContent(string isInterpreterRequired)
     {
         // Arrange
-        _participantCsvRecord.Participant.IsInterpreterRequired = isInterpreterRequired;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.IsInterpreterRequired = isInterpreterRequired;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -589,8 +586,8 @@ public class StaticValidationTests
     public async Task Run_InvalidInterpreterRequiredFlag_ReturnValidationExcpetion(string isInterpreterRequired)
     {
         // Arrange
-        _participantCsvRecord.Participant.IsInterpreterRequired = isInterpreterRequired;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.IsInterpreterRequired = isInterpreterRequired;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -610,12 +607,12 @@ public class StaticValidationTests
     public async Task Run_ValidRfr_ReturnNoContent(string? supersededByNhsNumber, string? ReasonForRemoval, string? pcp)
     {
         // Arrange
-        _participantCsvRecord.Participant.SupersededByNhsNumber = supersededByNhsNumber;
-        _participantCsvRecord.Participant.ReasonForRemoval = ReasonForRemoval;
-        _participantCsvRecord.Participant.PrimaryCareProvider = pcp;
-        _participantCsvRecord.Participant.RecordType = Actions.Amended;
+        _participant.SupersededByNhsNumber = supersededByNhsNumber;
+        _participant.ReasonForRemoval = ReasonForRemoval;
+        _participant.PrimaryCareProvider = pcp;
+        _participant.RecordType = Actions.Amended;
 
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -630,9 +627,9 @@ public class StaticValidationTests
     public async Task Run_InvalidRfr_ReturnValidationException(string? supersededByNhsNumber, string ReasonForRemoval)
     {
         // Arrange
-        _participantCsvRecord.Participant.SupersededByNhsNumber = supersededByNhsNumber;
-        _participantCsvRecord.Participant.ReasonForRemoval = ReasonForRemoval;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.SupersededByNhsNumber = supersededByNhsNumber;
+        _participant.ReasonForRemoval = ReasonForRemoval;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -657,9 +654,9 @@ public class StaticValidationTests
     public async Task Run_IncompatibleCurrentPostingAndPrimaryCareProvider_ReturnValidationException(string? currentPosting, string? primaryCareProvider)
     {
         // Arrange
-        _participantCsvRecord.Participant.CurrentPosting = currentPosting;
-        _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.CurrentPosting = currentPosting;
+        _participant.PrimaryCareProvider = primaryCareProvider;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -677,11 +674,11 @@ public class StaticValidationTests
     public async Task Run_CompatibleCurrentPostingAndPrimaryCareProvider_ReturnNoContent(string? currentPosting, string? primaryCareProvider, string? rfr)
     {
         // Arrange
-        _participantCsvRecord.Participant.CurrentPosting = currentPosting;
-        _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
-        _participantCsvRecord.Participant.ReasonForRemoval = rfr;
-        _participantCsvRecord.Participant.RecordType = Actions.Amended;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.CurrentPosting = currentPosting;
+        _participant.PrimaryCareProvider = primaryCareProvider;
+        _participant.ReasonForRemoval = rfr;
+        _participant.RecordType = Actions.Amended;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -699,9 +696,9 @@ public class StaticValidationTests
     public async Task Run_InvalidEligibilityFlag_ReturnValidationException(string recordType, string eligibilityFlag)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = recordType;
-        _participantCsvRecord.Participant.EligibilityFlag = eligibilityFlag;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = recordType;
+        _participant.EligibilityFlag = eligibilityFlag;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -719,9 +716,9 @@ public class StaticValidationTests
     public async Task Run_ValidEligibilityFlag_ReturnNoContent(string recordType, string eligibilityFlag)
     {
         // Arrange
-        _participantCsvRecord.Participant.RecordType = recordType;
-        _participantCsvRecord.Participant.EligibilityFlag = eligibilityFlag;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        _participant.RecordType = recordType;
+        _participant.EligibilityFlag = eligibilityFlag;
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act
@@ -736,7 +733,7 @@ public class StaticValidationTests
     public async Task Run_ValidParticipantFile_ReturnNoContent()
     {
         // Arrange
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 
         // Act

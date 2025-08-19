@@ -28,14 +28,11 @@ public class AddBatchToQueueTest
         //arrange
         Environment.SetEnvironmentVariable("AzureWebJobsStorage", "AzureWebJobsStorage");
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
-        BasicParticipantCsvRecord basicParticipantCsvRecord = new BasicParticipantCsvRecord();
-        basicParticipantCsvRecord.FileName = "TestFile";
-        basicParticipantCsvRecord.BasicParticipantData = new BasicParticipantData() { NhsNumber = "1234567890" };
-        basicParticipantCsvRecord.Participant = new Participant() { NhsNumber = "1234567890" };
+        Participant participant = new() { NhsNumber = "1234567890", Source = "TestFile" };
 
-        var queue = new ConcurrentQueue<BasicParticipantCsvRecord>();
+        var queue = new ConcurrentQueue<Participant>();
 
-        queue.Enqueue(basicParticipantCsvRecord);
+        queue.Enqueue(participant);
 
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
@@ -43,7 +40,7 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(queue, "AddQueueName");
 
         //Assert
-        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once());
+        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<Participant>(), It.IsAny<string>()), Times.Once());
     }
 
     [TestMethod]
@@ -53,14 +50,14 @@ public class AddBatchToQueueTest
         Environment.SetEnvironmentVariable("AzureWebJobsStorage", "AzureWebJobsStorage");
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
-        var queue = new ConcurrentQueue<BasicParticipantCsvRecord>();
+        var queue = new ConcurrentQueue<Participant>();
         Environment.SetEnvironmentVariable("AddQueueName", "AddQueueName");
 
         // Act
         await _addBatchToQueue.ProcessBatch(queue, "AddQueueName");
 
         //Assert
-        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<Participant>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -77,6 +74,6 @@ public class AddBatchToQueueTest
         await _addBatchToQueue.ProcessBatch(null, "AddQueueName");
 
         //Assert
-        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+        _mockQueueStorageHelper.Verify(x => x.AddAsync(It.IsAny<Participant>(), It.IsAny<string>()), Times.Never);
     }
 }

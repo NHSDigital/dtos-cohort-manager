@@ -22,7 +22,7 @@ public class ManageParticipantTests
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _participantManagementClientMock = new();
     private readonly Mock<IQueueClient> _queueClientMock = new();
     private readonly ManageParticipant _sut;
-    private readonly BasicParticipantCsvRecord _request;
+    private readonly Participant _request;
 
     public ManageParticipantTests()
     {
@@ -46,7 +46,7 @@ public class ManageParticipantTests
             .ReturnsAsync((ParticipantManagement)null);
 
         _queueClientMock
-            .Setup(x => x.AddAsync(It.IsAny<ParticipantCsvRecord>(), testConfig.CohortDistributionTopic))
+            .Setup(x => x.AddAsync(It.IsAny<Participant>(), testConfig.CohortDistributionTopic))
             .ReturnsAsync(true);
 
         _sut = new ManageParticipant(
@@ -57,38 +57,35 @@ public class ManageParticipantTests
             _handleException.Object
         );
 
-        _request = new BasicParticipantCsvRecord
+        _request = new Participant
         {
-            FileName = "mockFileName",
-            Participant = new Participant
-            {
-                NhsNumber = "9444567877",
-                ScreeningName = "mockScreeningName",
-                SupersededByNhsNumber = "789012",
-                PrimaryCareProvider = "ABC Clinic",
-                NamePrefix = "Mr.",
-                FirstName = "John",
-                OtherGivenNames = "Middle",
-                FamilyName = "Doe",
-                DateOfBirth = "1990-01-01",
-                Gender = Gender.Male,
-                AddressLine1 = "123 Main Street",
-                AddressLine2 = "Apt 101",
-                AddressLine3 = "Suburb",
-                AddressLine4 = "City",
-                AddressLine5 = "State",
-                Postcode = "12345",
-                ReasonForRemoval = "Moved",
-                ReasonForRemovalEffectiveFromDate = "2024-04-23",
-                DateOfDeath = "2024-04",
-                TelephoneNumber = "123-456-7890",
-                MobileNumber = "987-654-3210",
-                EmailAddress = "john.doe@example.com",
-                PreferredLanguage = "English",
-                IsInterpreterRequired = "0",
-                RecordType = Actions.Amended,
-                ScreeningId = "1"
-            }
+            Source = "mockFileName",
+            NhsNumber = "9444567877",
+            ScreeningName = "mockScreeningName",
+            SupersededByNhsNumber = "789012",
+            PrimaryCareProvider = "ABC Clinic",
+            NamePrefix = "Mr.",
+            FirstName = "John",
+            OtherGivenNames = "Middle",
+            FamilyName = "Doe",
+            DateOfBirth = "1990-01-01",
+            Gender = Gender.Male,
+            AddressLine1 = "123 Main Street",
+            AddressLine2 = "Apt 101",
+            AddressLine3 = "Suburb",
+            AddressLine4 = "City",
+            AddressLine5 = "State",
+            Postcode = "12345",
+            ReasonForRemoval = "Moved",
+            ReasonForRemovalEffectiveFromDate = "2024-04-23",
+            DateOfDeath = "2024-04",
+            TelephoneNumber = "123-456-7890",
+            MobileNumber = "987-654-3210",
+            EmailAddress = "john.doe@example.com",
+            PreferredLanguage = "English",
+            IsInterpreterRequired = "0",
+            RecordType = Actions.Amended,
+            ScreeningId = "1"
         };
 
     }
@@ -105,7 +102,7 @@ public class ManageParticipantTests
         _participantManagementClientMock
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
-            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantData>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -125,14 +122,14 @@ public class ManageParticipantTests
         _participantManagementClientMock
             .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
-            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantData>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
     public async Task Run_InvalidNhsNumber_CreateExceptionAndReturn()
     {
         // Arrange
-        _request.Participant.NhsNumber = "12345";
+        _request.NhsNumber = "12345";
 
         // Act
         await _sut.Run(JsonSerializer.Serialize(_request));
@@ -143,13 +140,12 @@ public class ManageParticipantTests
         _participantManagementClientMock
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
-            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantData>(), It.IsAny<string>()), Times.Never);
         _handleException
             .Verify(i => i.CreateSystemExceptionLog(
                 It.IsAny<ArgumentException>(),
                 It.IsAny<Participant>(),
-                It.IsAny<string>(),
-                ""), Times.Once);
+                ExceptionCategory.Non), Times.Once);
     }
 
     [TestMethod]
@@ -169,13 +165,12 @@ public class ManageParticipantTests
         _participantManagementClientMock
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
-            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantData>(), It.IsAny<string>()), Times.Never);
         _handleException
             .Verify(i => i.CreateSystemExceptionLog(
                 It.IsAny<InvalidOperationException>(),
                 It.IsAny<Participant>(),
-                It.IsAny<string>(),
-                ""), Times.Once);
+                ExceptionCategory.Non), Times.Once);
     }
 
     [TestMethod]
@@ -195,12 +190,11 @@ public class ManageParticipantTests
         _participantManagementClientMock
             .Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock
-            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+            .Verify(x => x.AddAsync(It.IsAny<BasicParticipantData>(), It.IsAny<string>()), Times.Never);
         _handleException
             .Verify(i => i.CreateSystemExceptionLog(
                 It.IsAny<InvalidOperationException>(),
                 It.IsAny<Participant>(),
-                It.IsAny<string>(),
-                ""), Times.Once);
+                ExceptionCategory.Non), Times.Once);
     }
 }

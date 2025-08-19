@@ -5,6 +5,7 @@ using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.Enums;
 using Moq;
 using NHS.CohortManager.CohortDistributionServices;
 
@@ -15,21 +16,18 @@ public class DistributeParticipantTests
     private readonly Mock<IOptions<DistributeParticipantConfig>> _config = new();
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<TaskOrchestrationContext> _mockContext = new();
-    private readonly BasicParticipantCsvRecord _request;
+    private readonly BasicParticipantData  _request;
     private readonly CohortDistributionParticipant _cohortDistributionRecord;
 
     public DistributeParticipantTests()
     {
         _request = new()
         {
-            FileName = "testfile",
-            BasicParticipantData = new()
-            {
-                RecordType = "ADD",
-                NhsNumber = "122345",
-                ScreeningId = "1"
-            },
-            Participant = new()
+            Source = "testfile",
+            RecordType = "ADD",
+            NhsNumber = "122345",
+            ScreeningId = "1"
+
         };
 
         _cohortDistributionRecord = new()
@@ -57,7 +55,7 @@ public class DistributeParticipantTests
         _config.Setup(x => x.Value).Returns(config);
 
         _mockContext
-            .Setup(x => x.GetInput<BasicParticipantCsvRecord>())
+            .Setup(x => x.GetInput<BasicParticipantData >())
             .Returns(_request);
 
         _mockContext
@@ -99,8 +97,8 @@ public class DistributeParticipantTests
     {
         // Arrange
         var caseNumber = "CS123";
-        _request.Participant.ReferralFlag = "1";
-        _request.FileName = caseNumber;
+        _request.ReferralFlag = true;
+        _request.Source = caseNumber;
 
         // Act
         await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
@@ -130,7 +128,7 @@ public class DistributeParticipantTests
             .Verify(x => x.CreateSystemExceptionLog(
                 It.IsAny<KeyNotFoundException>(),
                 It.IsAny<BasicParticipantData>(),
-                It.IsAny<string>()
+                ExceptionCategory.Non
             ));
     }
 
@@ -150,7 +148,7 @@ public class DistributeParticipantTests
             .Verify(x => x.CreateSystemExceptionLog(
                 It.IsAny<ArgumentException>(),
                 It.IsAny<BasicParticipantData>(),
-                It.IsAny<string>()
+                ExceptionCategory.Non
             ));
     }
 
@@ -188,7 +186,7 @@ public class DistributeParticipantTests
             .Verify(x => x.CreateSystemExceptionLog(
                 It.IsAny<InvalidOperationException>(),
                 It.IsAny<BasicParticipantData>(),
-                It.IsAny<string>()
+                ExceptionCategory.Non
             ));
     }
 
@@ -210,7 +208,7 @@ public class DistributeParticipantTests
             .Verify(x => x.CreateSystemExceptionLog(
                 It.IsAny<Exception>(),
                 It.IsAny<BasicParticipantData>(),
-                It.IsAny<string>()
+                ExceptionCategory.Non
             ));
     }
 }

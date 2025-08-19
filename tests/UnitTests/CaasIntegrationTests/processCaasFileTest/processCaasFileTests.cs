@@ -8,6 +8,7 @@ using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.Enums;
 using Moq;
 using NHS.Screening.ReceiveCaasFile;
 
@@ -16,7 +17,6 @@ public class ProcessCaasFileTests
 {
     private readonly Mock<ILogger<ProcessCaasFile>> _loggerMock = new();
     private readonly Mock<IReceiveCaasFileHelper> _receiveCaasFileHelperMock = new();
-    private readonly Mock<ICreateBasicParticipantData> _createBasicParticipantDataMock = new();
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
     private readonly Mock<IAddBatchToQueue> _addBatchToQueueMock = new();
     private readonly Mock<RecordsProcessedTracker> _recordsProcessedTrackerMock = new();
@@ -36,7 +36,6 @@ public class ProcessCaasFileTests
         _config.Setup(c => c.Value).Returns(config);
         return new ProcessCaasFile(
             _loggerMock.Object,
-            _createBasicParticipantDataMock.Object,
             _addBatchToQueueMock.Object,
             _receiveCaasFileHelperMock.Object,
             _exceptionHandlerMock.Object,
@@ -86,7 +85,7 @@ public class ProcessCaasFileTests
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
 
         // Assert
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.AtLeastOnce);
 
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
            It.IsAny<EventId>(),
@@ -120,9 +119,9 @@ public class ProcessCaasFileTests
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
         // Assert
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.AtLeastOnce);
 
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.AtLeastOnce);
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sending 0 records to queue")),
@@ -156,7 +155,7 @@ public class ProcessCaasFileTests
 
         // Assert
         _exceptionHandlerMock.Verify(handler => handler.CreateSystemExceptionLog(
-            It.IsAny<Exception>(), It.IsAny<Participant>(), It.IsAny<string>(), It.IsAny<string>()),
+            It.IsAny<Exception>(), It.IsAny<Participant>(), ExceptionCategory.Non),
             Times.Once);
     }
 
@@ -185,8 +184,11 @@ public class ProcessCaasFileTests
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
 
         // Assert
-        _exceptionHandlerMock.Verify(handler => handler.CreateSystemExceptionLog(
-            It.IsAny<Exception>(), It.IsAny<Participant>(), It.IsAny<string>(), It.IsAny<string>()),
+        _exceptionHandlerMock
+            .Verify(handler => handler.CreateSystemExceptionLog(
+                It.IsAny<Exception>(),
+                It.IsAny<Participant>(),
+                ExceptionCategory.Non),
             Times.AtLeastOnce);
     }
 
@@ -199,13 +201,13 @@ public class ProcessCaasFileTests
             .ReturnsAsync(true);
 
         var updateParticipant = processCaasFile.GetType().GetMethod("UpdateOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
-        var basicParticipantCsvRecord = new BasicParticipantCsvRecord()
+        var participant = new Participant()
         {
-            FileName = "testFile",
-            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Amended },
-            Participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended }
+            Source = "testFile",
+            NhsNumber = "1234567890",
+            RecordType = Actions.Amended
         };
-        var arguments = new object[] { basicParticipantCsvRecord, "TestName" };
+        var arguments = new object[] { participant, "TestName" };
 
         // Act
         var task = (Task)updateParticipant.Invoke(processCaasFile, arguments);
@@ -249,11 +251,11 @@ public class ProcessCaasFileTests
     {
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
-        var basicParticipantCsvRecord = new BasicParticipantCsvRecord()
+        var participant = new Participant()
         {
-            FileName = "testFile",
-            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Amended },
-            Participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended }
+            Source = "testFile",
+            NhsNumber = "1234567890",
+            RecordType = Actions.Amended
         };
 
         var response = new ParticipantDemographic { ParticipantId = 1, GivenName = "" };
@@ -267,7 +269,7 @@ public class ProcessCaasFileTests
             .ThrowsAsync(new Exception("some exception"));
 
         var updateParticipant = processCaasFile.GetType().GetMethod("UpdateOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
-        var arguments = new object[] { basicParticipantCsvRecord, "TestName" };
+        var arguments = new object[] { participant, "TestName" };
 
         // Act
         var task = (Task)updateParticipant.Invoke(processCaasFile, arguments);
@@ -289,27 +291,27 @@ public class ProcessCaasFileTests
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(false));
         var method = processCaasFile.GetType().GetMethod("RemoveParticipant", BindingFlags.Instance | BindingFlags.NonPublic);
-        var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Removed };
-        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        var participant = new Participant
         {
-            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
-            FileName = "testFile",
-            Participant = participant
+            NhsNumber = "1234567890",
+            RecordType = Actions.Removed,
+            Source = "testFile",
         };
 
-        _exceptionHandlerMock.Setup(m => m.CreateDeletedRecordException(
-            It.IsAny<BasicParticipantCsvRecord>()))
-            .Returns(Task.CompletedTask);
 
-        var arguments = new object[] { basicParticipantCsvRecord, "testFile" };
+        var arguments = new object[] { participant, "testFile" };
 
         // Act
         var task = (Task)method.Invoke(processCaasFile, arguments);
         await task;
 
-        // Assert: expect CreateDeletedRecordException to be invoked
-        _exceptionHandlerMock.Verify(m => m.CreateDeletedRecordException(
-            It.IsAny<BasicParticipantCsvRecord>()), Times.Once);
+        // Assert
+        _exceptionHandlerMock
+            .Verify(handler => handler.CreateSystemExceptionLog(
+                It.IsAny<Exception>(),
+                It.IsAny<Participant>(),
+                ExceptionCategory.DeleteRecord),
+            Times.AtLeastOnce);
         _loggerMock.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Information),
             It.IsAny<EventId>(),
@@ -325,15 +327,14 @@ public class ProcessCaasFileTests
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
         var method = processCaasFile.GetType().GetMethod("RemoveParticipant", BindingFlags.Instance | BindingFlags.NonPublic);
-        var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Removed };
-        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        var participant = new Participant
         {
-            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
-            FileName = "testFile",
-            Participant = participant
+            NhsNumber = "1234567890",
+            RecordType = Actions.Removed,
+            Source = "testFile"
         };
 
-        var arguments = new object[] { basicParticipantCsvRecord, "testFile" };
+        var arguments = new object[] { participant, "testFile" };
 
         // Act
         var task = (Task)method.Invoke(processCaasFile, arguments);
@@ -355,40 +356,12 @@ public class ProcessCaasFileTests
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(false));
         var method = processCaasFile.GetType().GetMethod("RemoveParticipant", BindingFlags.Instance | BindingFlags.NonPublic);
-        var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.Removed };
-        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
+        var participant = new Participant
         {
-            BasicParticipantData = new BasicParticipantData { NhsNumber = "1234567890", RecordType = Actions.Removed },
-            FileName = "testFile",
-            Participant = participant
+            NhsNumber = "1234567890",
+            RecordType = Actions.Removed,
+            Source = "testFile",
         };
-
-        _exceptionHandlerMock.Setup(m => m.CreateDeletedRecordException(
-            It.IsAny<BasicParticipantCsvRecord>()))
-            .ThrowsAsync(new Exception("some new exception"));
-
-        var arguments = new object[] { basicParticipantCsvRecord, "testFile" };
-
-        // Act
-        var task = (Task)method.Invoke(processCaasFile, arguments);
-        await task;
-
-        // Assert: expect CreateDeletedRecordException to be invoked and error logged
-        _exceptionHandlerMock.Verify(m => m.CreateDeletedRecordException(
-            It.IsAny<BasicParticipantCsvRecord>()), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task CreateError_ExceptionOccurred_LogsAndHandlesException()
-    {
-        // Arrange
-        var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
-        var method = processCaasFile.GetType().GetMethod("CreateError", BindingFlags.Instance | BindingFlags.NonPublic);
-        var participant = new Participant { NhsNumber = "1234567890", RecordType = "Invalid" };
-
-        _exceptionHandlerMock.Setup(m => m.CreateRecordValidationExceptionLog(
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(true);
 
         var arguments = new object[] { participant, "testFile" };
 
@@ -396,16 +369,11 @@ public class ProcessCaasFileTests
         var task = (Task)method.Invoke(processCaasFile, arguments);
         await task;
 
-        // Assert
-        _exceptionHandlerMock.Verify(m => m.CreateRecordValidationExceptionLog(
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
-            Times.Once);
-        _loggerMock.Verify(x => x.Log(
-            It.Is<LogLevel>(l => l == LogLevel.Error),
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Cannot parse record type")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
+        // Assert: expect CreateDeletedRecordException to be invoked and error logged
+        _exceptionHandlerMock
+            .Verify(m => m.CreateSystemExceptionLog(
+                It.IsAny<string>(),
+                It.IsAny<Participant>(),
+                ExceptionCategory.DeleteRecord), Times.Once);
     }
 }

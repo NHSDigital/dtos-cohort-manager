@@ -21,7 +21,6 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     private static readonly Mock<IOptions<RetrievePDSDemographicConfig>> _mockConfig = new();
     private static readonly Mock<IFhirPatientDemographicMapper> _mockFhirPatientDemographicMapper = new();
     private static readonly Mock<IDataServiceClient<ParticipantDemographic>> _mockParticipantDemographicClient = new();
-    private static readonly Mock<ICreateBasicParticipantData> _mockCreateBasicParticipantService = new();
     private static readonly Mock<IAddBatchToQueue> _mockAddBatchToQueue = new();
 
     private static Mock<IBearerTokenService> _bearerTokenService = new();
@@ -38,7 +37,6 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
         _mockFhirPatientDemographicMapper.Object,
         _mockConfig.Object,
         _mockParticipantDemographicClient.Object,
-        _mockCreateBasicParticipantService.Object,
         _mockAddBatchToQueue.Object,
         _bearerTokenService.Object
         ))
