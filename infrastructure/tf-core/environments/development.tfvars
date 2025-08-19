@@ -1016,10 +1016,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL  = "https://sandbox.api.service.nhs.ukpersonal-demographics/FHIR/R4/Patient"
+        RetrievePdsParticipantURL  = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
         Kid                        = "RetrievePdsDemographic-DEV1"
-        Audience                   = "https://sandbox.api.service.nhs.ukoauth2/token"
-        AuthTokenURL               = "https://sandbox.api.service.nhs.ukoauth2/token"
+        Audience                   = "https://sandbox.api.service.nhs.uk/oauth2/token"
+        AuthTokenURL               = "https://sandbox.api.service.nhs.uk/oauth2/token"
         KeyNamePrivateKey          = "PDSPRIVATEKEY"
         UseFakePDSServices         = "true"
         ParticipantManagementTopic = "participant-management"
