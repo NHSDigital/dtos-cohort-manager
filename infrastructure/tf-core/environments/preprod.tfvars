@@ -316,7 +316,8 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
+        MeshCertName                        = "MeshCert"
+        BypassServerCertificateValidation   = "true"
       }
     }
 
