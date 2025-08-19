@@ -126,7 +126,7 @@ public class ServiceNowClient : IServiceNowClient
         var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expiration);
         _cache.Set(AccessTokenCacheKey, response.AccessToken, cacheEntryOptions);
 
-        _logger.LogInformation("Access token refreshed and stored in cache with an expiration of {expiration}", expiration);
+        _logger.LogInformation("Access token refreshed and stored in cache with an expiration of {Expiration}", expiration);
 
         return response.AccessToken;
     }
