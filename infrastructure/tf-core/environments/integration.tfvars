@@ -310,7 +310,8 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
+        MeshCertName                        = "MeshCert"
+        BypassServerCertificateValidation   = "true"
       }
     }
 
@@ -873,9 +874,10 @@ function_apps = {
       key_vault_url           = "KeyVaultConnectionString"
       service_bus_connections = ["internal"]
       env_vars_static = {
-        ServiceNowRefreshAccessTokenUrl      = "https://nhsdigitaldev.service-now.com/oauth_token.do"
-        ServiceNowUpdateUrl                  = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
-        ServiceNowResolutionUrl              = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution"
+        ServiceNowRefreshAccessTokenUrl      = "https://nhsdigitaltraining.service-now.com/oauth_token.do"
+        ServiceNowUpdateUrl                  = "https://nhsdigitaltraining.service-now.com/api/x_nhsd_intstation/nhs_integration/7ce726ef1b4b66d0772fa756b04bcb2a/CohortCaseUpdate"
+        ServiceNowResolutionUrl              = "https://nhsdigitaltraining.service-now.com/api/x_nhsd_intstation/nhs_integration/7ce726ef1b4b66d0772fa756b04bcb2a/CohortCaseResolution"
+        ServiceNowGrantType                  = "client_credentials"
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }

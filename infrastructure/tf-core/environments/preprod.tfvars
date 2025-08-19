@@ -316,7 +316,8 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
+        MeshCertName                        = "MeshCert"
+        BypassServerCertificateValidation   = "true"
       }
     }
 
@@ -882,6 +883,7 @@ function_apps = {
         ServiceNowRefreshAccessTokenUrl      = ""                                  # TODO: Get value
         ServiceNowUpdateUrl                  = ""                                  # TODO: Get value
         ServiceNowResolutionUrl              = ""                                  # TODO: Get value
+        ServiceNowGrantType                  = ""                                  # TODO: Get value
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
