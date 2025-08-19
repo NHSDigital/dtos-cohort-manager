@@ -8,7 +8,7 @@ import { getValidationExceptions } from '../../../api/exceptionManagementService
 import { config } from '../../../config/env';
 
 // NEMS subscription checks have been removed as the requirement was recently descoped (see DTOSS-3889).
-// If NEMS integration is reintroduced, please add or restore relevant tests for this story here.
+// If NEMS integration is reintroduced, add or restore relevant tests for this story here.
 
 /**
  * Returning a mock audit log entry for unblocking because the real audit logging is not yet implemented as part of R0.
@@ -68,11 +68,22 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
       FamilyName: addInputParticipantRecord[0].family_name,
       DateOfBirth: addInputParticipantRecord[0].date_of_birth
     };
-    await BlockParticipant(request, blockPayload);
+    console.log('BlockParticipant payload:', blockPayload);
+    const blockResponse = await BlockParticipant(request, blockPayload);
+    console.log('BlockParticipant response:', blockResponse);
 
-    // Check blocked flag
-    let blockResp = await getRecordsFromParticipantManagementService(request);
-    expect(blockResp?.data?.[0]?.BlockedFlag).toBe(1);
+    // Wait until the participant is actually blocked
+    let blocked = false;
+    for (let i = 0; i < 6; i++) {
+      const resp = await getRecordsFromParticipantManagementService(request);
+      if (resp?.data?.[0]?.BlockedFlag === 1) {
+        blocked = true;
+        break;
+      }
+      console.log(`Waiting for participant to be blocked... (attempt ${i+1}/6)`);
+      await new Promise(res => setTimeout(res, 2000));
+    }
+    expect(blocked).toBe(true);
 
     // Unblock participant
     const unblockPayload = {
@@ -171,11 +182,22 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
       FamilyName: addInputParticipantRecord[0].family_name,
       DateOfBirth: addInputParticipantRecord[0].date_of_birth
     };
-    await BlockParticipant(request, blockPayload);
+    console.log('BlockParticipant payload:', blockPayload);
+    const blockResponse = await BlockParticipant(request, blockPayload);
+    console.log('BlockParticipant response:', blockResponse);
 
-    // Immediately check blocked flag, log response
-    let blockResp = await getRecordsFromParticipantManagementService(request);
-    expect(blockResp?.data?.[0]?.BlockedFlag).toBe(1);
+    // Wait until the participant is actually blocked
+    let blocked = false;
+    for (let i = 0; i < 6; i++) {
+      const resp = await getRecordsFromParticipantManagementService(request);
+      if (resp?.data?.[0]?.BlockedFlag === 1) {
+        blocked = true;
+        break;
+      }
+      console.log(`Waiting for participant to be blocked... (attempt ${i+1}/6)`);
+      await new Promise(res => setTimeout(res, 2000));
+    }
+    expect(blocked).toBe(true);
 
     // Unblock the participant
     const unblockPayload = {
