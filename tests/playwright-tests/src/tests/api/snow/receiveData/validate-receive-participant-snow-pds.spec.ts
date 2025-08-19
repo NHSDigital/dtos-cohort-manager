@@ -4,18 +4,22 @@ import { receiveParticipantViaServiceNow, invalidServiceNowEndpoint, getRecordsF
 import { loadParticipantPayloads, omitField } from '../../../fixtures/jsonDataReader';
 import { ParticipantRecord } from '../../../../interface/InputData';
 import { ApiResponse } from '../../../../api/core/types';
+import { cleanupDatabaseFromAPI } from '../../../steps/steps';
 
 test.describe.serial('@regression @service_now @api Verify Add Participant data', async () => {
 
   let participantData: Record<string, ParticipantRecord>;
 
-  test.beforeAll(() => {
+  const testNumbers = ["9998380197", "9000000009"];
+
+  test.beforeEach(async ({request}) => {
     const folderName = '@DTOSS-8375-01';
     const fileName = 'ADD-participantPayload.json';
     participantData = loadParticipantPayloads(folderName, fileName);
+    await cleanupDatabaseFromAPI(request, testNumbers);
   });
 
-  test('@DTOSS-10006 Add - Verify Participant Record: Happy Path case of data match', async ({ request }) => {
+  test.only('@DTOSS-10006 Add - Verify Participant Record: Happy Path case of data match', async ({ request }) => {
     annotation: [{
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-10006',
