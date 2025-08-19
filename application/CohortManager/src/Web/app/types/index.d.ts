@@ -4,6 +4,7 @@ export interface ExceptionDetails {
   shortDescription: string;
   moreDetails?: string;
   reportingId?: string;
+  portalFormTitle?: string;
   nhsNumber?: string;
   supersededByNhsNumber?: string;
   surname?: string;
@@ -24,6 +25,7 @@ export interface RuleMapping {
   ruleDescription: string;
   moreDetails?: string;
   reportingId?: string;
+  portalFormTitle?: string;
 }
 
 export interface ReportDetails {
