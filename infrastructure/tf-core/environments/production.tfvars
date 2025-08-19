@@ -866,9 +866,10 @@ function_apps = {
       key_vault_url           = "KeyVaultConnectionString"
       service_bus_connections = ["internal"]
       env_vars_static = {
-        ServiceNowRefreshAccessTokenUrl      = "" # TODO: Get value
-        ServiceNowUpdateUrl                  = "" # TODO: Get value
-        ServiceNowResolutionUrl              = "" # TODO: Get value
+        ServiceNowRefreshAccessTokenUrl      = ""                                  # TODO: Get value
+        ServiceNowUpdateUrl                  = ""                                  # TODO: Get value
+        ServiceNowResolutionUrl              = ""                                  # TODO: Get value
+        ServiceNowGrantType                  = ""                                  # TODO: Get value
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }

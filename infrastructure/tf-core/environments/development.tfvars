@@ -970,6 +970,7 @@ function_apps = {
         ServiceNowRefreshAccessTokenUrl      = "https://nhsdigitaldev.service-now.com/oauth_token.do"
         ServiceNowUpdateUrl                  = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
         ServiceNowResolutionUrl              = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution"
+        ServiceNowGrantType                  = "refresh_token"
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
