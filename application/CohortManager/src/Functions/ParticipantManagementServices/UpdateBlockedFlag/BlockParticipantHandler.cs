@@ -248,7 +248,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
 
         return string.Equals(participant.FamilyName, dto.FamilyName, StringComparison.InvariantCultureIgnoreCase)
             && participant.NhsNumber == dto.NhsNumber
-            && parsedDob == dtoDateOfBirth; ;
+            && parsedDob == dtoDateOfBirth;
     }
 
     private static bool ValidateRecordsMatch(PdsDemographic participant, BlockParticipantDto dto)
