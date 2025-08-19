@@ -395,6 +395,11 @@ function_apps = {
         {
           env_var_name     = "ParticipantManagementURL"
           function_app_key = "ParticipantManagementDataService"
+        },
+        {
+          env_var_name     = "ManageNemsSubscriptionSubscribeURL"
+          function_app_key = "ManageNemsSubscription"
+          endpoint_name    = "Subscribe"
         }
       ]
       env_vars_static = {
