@@ -1,17 +1,15 @@
 import { expect, test } from '../../fixtures/test-fixtures';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, validateSqlDatabaseFromAPI, cleanupDatabaseFromAPI } from '../../steps/steps';
-import { BlockParticipant, deleteParticipant, getRecordsFromParticipantManagementService, sendHttpPOSTCall, sendHttpGet} from '../../../api/distributionService/bsSelectService';
-import { expectStatus, composeValidators} from '../../../api/responseValidators';
+import { getRecordsFromParticipantManagementService, sendHttpPOSTCall, sendHttpGet} from '../../../api/distributionService/bsSelectService';
 import { TestHooks } from '../../hooks/test-hooks';
-import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 import { APIRequestContext, TestInfo } from '@playwright/test';
-import { getValidationExceptions } from '../../../api/exceptionManagementService/validationExceptions';
 import { config } from '../../../config/env';
 import { getRecordsFromExceptionService } from '../../../api/dataService/exceptionService';
+
 annotation: [{
   type: 'Requirement',
-  description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-2622'
+  description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-7667'
 }]
 
 test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
