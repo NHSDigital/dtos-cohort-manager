@@ -35,6 +35,7 @@ public class ServiceNowClientTests
             ServiceNowRefreshAccessTokenUrl = ServiceNowRefreshAccessTokenUrl,
             ServiceNowUpdateUrl = ServiceNowUpdateUrl,
             ServiceNowResolutionUrl = ServiceNowResolutionUrl,
+            ServiceNowGrantType = "refresh_token",
             ServiceNowClientId = "123",
             ServiceNowClientSecret = "ABC",
             ServiceNowRefreshToken = "DEF",
@@ -61,7 +62,7 @@ public class ServiceNowClientTests
         // Arrange
         var caseNumber = "CS123";
 
-        var jsonResponse = JsonSerializer.Serialize(new ServiceNowRefreshAccessTokenResponseBody { AccessToken = "101" });
+        var jsonResponse = JsonSerializer.Serialize(new ServiceNowRefreshAccessTokenResponseBody { AccessToken = "101", ExpiresIn = 1800 });
         _httpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
@@ -165,7 +166,7 @@ public class ServiceNowClientTests
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.Unauthorized))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
 
-        var jsonResponse = JsonSerializer.Serialize(new ServiceNowRefreshAccessTokenResponseBody { AccessToken = "102" });
+        var jsonResponse = JsonSerializer.Serialize(new ServiceNowRefreshAccessTokenResponseBody { AccessToken = "102", ExpiresIn = 1800 });
         _httpMessageHandler
             .Protected()
             .Setup<Task<HttpResponseMessage>>(
