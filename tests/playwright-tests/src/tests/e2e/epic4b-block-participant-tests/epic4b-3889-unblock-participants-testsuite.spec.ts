@@ -39,7 +39,7 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
   test('@DTOSS-7678-01 AC1 - Verify eligible unblocked participant is passed to cohort', async ({ request }: { request: APIRequestContext }, testInfo) => {
     test.setTimeout(90000);
-    // Arrange: Prepare test data and clean up any existing records
+    // Prepare test data and clean up any existing records
     const [addValidations, addInputParticipantRecord, addNhsNumbers, addTestFilesPath] = await getApiTestData(testInfo.title, 'ADD');
     const nhsNumber = addNhsNumbers[0];
     await cleanupDatabaseFromAPI(request, [nhsNumber]);
@@ -50,9 +50,10 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Wait for participant to appear in DB
     let participantExists = false;
+    let participantResp;
     for (let i = 0; i < 10; i++) {
-      const resp = await getRecordsFromParticipantManagementService(request);
-      if (resp?.data && Array.isArray(resp.data) && resp.data.length > 0 && String(resp.data[0].NHSNumber) === nhsNumber) {
+      participantResp = await getRecordsFromParticipantManagementService(request);
+      if (participantResp?.data && Array.isArray(participantResp.data) && participantResp.data.length > 0 && String(participantResp.data[0].NHSNumber) === nhsNumber) {
         participantExists = true;
         break;
       }
@@ -69,18 +70,9 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
     };
     await BlockParticipant(request, blockPayload);
 
-    // Wait for block
-    let blocked = false;
-    for (let i = 0; i < 10; i++) {
-      const resp = await getRecordsFromParticipantManagementService(request);
-      if (resp?.data?.[0]?.BlockedFlag === 1) {
-        blocked = true;
-        break;
-      }
-      console.log(`Waiting for participant to be blocked... (attempt ${i+1}/10)`);
-      await new Promise(res => setTimeout(res, 3000));
-    }
-    expect(blocked).toBe(true);
+    // Check blocked flag
+    let blockResp = await getRecordsFromParticipantManagementService(request);
+    expect(blockResp?.data?.[0]?.BlockedFlag).toBe(1);
 
     // Unblock participant
     const unblockPayload = {
@@ -90,18 +82,9 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
     };
     await UnblockParticipant(request, unblockPayload);
 
-    // Wait for unblock
-    let unblocked = false;
-    for (let i = 0; i < 10; i++) {
-      const resp = await getRecordsFromParticipantManagementService(request);
-      if (resp?.data?.[0]?.BlockedFlag === 0) {
-        unblocked = true;
-        break;
-      }
-      console.log(`Waiting for participant to be unblocked... (attempt ${i+1}/10)`);
-      await new Promise(res => setTimeout(res, 3000));
-    }
-    expect(unblocked).toBe(true);
+    // Immediately check unblocked flag
+    let unblockResp = await getRecordsFromParticipantManagementService(request);
+    expect(unblockResp?.data?.[0]?.BlockedFlag).toBe(0);
 
     // Assert: Participant is in cohort distribution
     await test.step('Verify participant is in cohort distribution', async () => {
@@ -170,9 +153,10 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
 
     // Wait for participant to be in DB
     let participantExists = false;
+    let participantResp;
     for (let i = 0; i < 10; i++) {
-      const resp = await getRecordsFromParticipantManagementService(request);
-      if (resp?.data && Array.isArray(resp.data) && resp.data.length > 0 && String(resp.data[0].NHSNumber) === nhsNumber) {
+      participantResp = await getRecordsFromParticipantManagementService(request);
+      if (participantResp?.data && Array.isArray(participantResp.data) && participantResp.data.length > 0 && String(participantResp.data[0].NHSNumber) === nhsNumber) {
         participantExists = true;
         break;
       }
@@ -189,18 +173,9 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
     };
     await BlockParticipant(request, blockPayload);
 
-    // Wait for block
-    let blocked = false;
-    for (let i = 0; i < 10; i++) {
-      const resp = await getRecordsFromParticipantManagementService(request);
-      if (resp?.data?.[0]?.BlockedFlag === 1) {
-        blocked = true;
-        break;
-      }
-      console.log(`Waiting for participant to be blocked... (attempt ${i+1}/10)`);
-      await new Promise(res => setTimeout(res, 3000));
-    }
-    expect(blocked).toBe(true);
+    // Immediately check blocked flag, log response
+    let blockResp = await getRecordsFromParticipantManagementService(request);
+    expect(blockResp?.data?.[0]?.BlockedFlag).toBe(1);
 
     // Unblock the participant
     const unblockPayload = {
@@ -210,18 +185,9 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
     };
     await UnblockParticipant(request, unblockPayload);
 
-    // Wait for the unblock
-    let unblocked = false;
-    for (let i = 0; i < 10; i++) {
-      const resp = await getRecordsFromParticipantManagementService(request);
-      if (resp?.data?.[0]?.BlockedFlag === 0) {
-        unblocked = true;
-        break;
-      }
-      console.log(`Waiting for participant to be unblocked... (attempt ${i+1}/10)`);
-      await new Promise(res => setTimeout(res, 3000));
-    }
-    expect(unblocked).toBe(true);
+    // Immediately check unblocked flag, log response
+    let unblockResp = await getRecordsFromParticipantManagementService(request);
+    expect(unblockResp?.data?.[0]?.BlockedFlag).toBe(0);
 
     // Assert: Audit log should show unblocking activity (mocked until functionality is implemented post R0)
     await test.step('Verify audit log shows unblocking activity', async () => {
@@ -244,3 +210,4 @@ test.describe('@regression @e2e @epic4b-unblock-tests @smoke Tests', async () =>
     });
   });
 });
+
