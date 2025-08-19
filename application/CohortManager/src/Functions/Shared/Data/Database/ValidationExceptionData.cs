@@ -120,6 +120,19 @@ public class ValidationExceptionData : IValidationExceptionData
         }
     }
 
+    public async Task<List<ValidationException>?> GetExceptionsByReportDate(DateTime reportDate)
+    {
+        var startDate = reportDate.Date;
+        var endDate = startDate.AddDays(1);
+
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x =>
+            (x.Category == (int)ExceptionCategory.Confusion || x.Category == (int)ExceptionCategory.Superseded) &&
+            x.DateCreated >= startDate &&
+            x.DateCreated < endDate);
+
+        return exceptions?.Select(s => s.ToValidationException()).ToList();
+    }
+
     private ServiceResponseModel CreateResponse(bool success, HttpStatusCode statusCode, string message)
     {
         if (!success)

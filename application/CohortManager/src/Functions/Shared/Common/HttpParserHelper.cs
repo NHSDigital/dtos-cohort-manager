@@ -70,4 +70,45 @@ public class HttpParserHelper : IHttpParserHelper
 
         return Enum.TryParse<T>(queryString, true, out var result) ? result : defaultValue;
     }
+
+    /// <summary>
+    /// Parses a DateTime query parameter from the request. Supports various date formats.
+    /// </summary>
+    /// <param name="req">The HTTP request data</param>
+    /// <param name="key">The query parameter key name</param>
+    /// <returns>The parsed DateTime value or null if parsing fails or parameter is missing</returns>
+    public DateTime? GetQueryParameterAsDateTime(HttpRequestData req, string key)
+    {
+        var queryString = req.Query[key];
+
+        if (string.IsNullOrWhiteSpace(queryString))
+        {
+            return null;
+        }
+
+        string[] formats = {
+        "yyyy-MM-dd",
+        "yyyy/MM/dd",
+        "dd/MM/yyyy",
+        "dd-MM-yyyy",
+        "MM/dd/yyyy",
+        "MM-dd-yyyy",
+        "yyyy-MM-ddTHH:mm:ss",
+        "yyyy-MM-ddTHH:mm:ssZ",
+        "yyyy-MM-dd HH:mm:ss"
+    };
+
+        if (DateTime.TryParse(queryString, out DateTime result))
+        {
+            return result;
+        }
+
+        if (DateTime.TryParseExact(queryString, formats, null, System.Globalization.DateTimeStyles.None, out result))
+        {
+            return result;
+        }
+
+        _logger.LogWarning("Failed to parse date parameter '{Key}' with value '{Value}'", key, queryString);
+        return null;
+    }
 }
