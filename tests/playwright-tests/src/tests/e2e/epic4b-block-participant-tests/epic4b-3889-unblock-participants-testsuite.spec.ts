@@ -8,10 +8,10 @@ import { getValidationExceptions } from '../../../api/exceptionManagementService
 import { config } from '../../../config/env';
 
 // NEMS subscription checks have been removed as the requirement was recently descoped (see DTOSS-3889).
-// If NEMS integration is reintroduced, restore relevant tests for this story here.
+// If NEMS integration is reintroduced, please add or restore relevant tests for this story here.
 
 /**
- * We're returning a mock audit log entry for unblocking as the real audit logging is not yet implemented as part of R0.
+ * Returning a mock audit log entry for unblocking because the real audit logging is not yet implemented as part of R0.
  */
 async function getAuditLog(request: APIRequestContext, nhsNumber: string) {
   console.warn('INFO: Audit logging not required for this release, using mock implementation');
