@@ -54,7 +54,7 @@ regions = {
         cidr_offset                = 6
         delegation_name            = "Microsoft.App/environments"
         service_delegation_name    = "Microsoft.App/environments"
-        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
       }
     }
   }
@@ -316,7 +316,8 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
+        MeshCertName                        = "MeshCert"
+        BypassServerCertificateValidation   = "true"
       }
     }
 
@@ -408,6 +409,11 @@ function_apps = {
         {
           env_var_name     = "ParticipantManagementURL"
           function_app_key = "ParticipantManagementDataService"
+        },
+        {
+          env_var_name     = "ManageNemsSubscriptionSubscribeURL"
+          function_app_key = "ManageNemsSubscription"
+          endpoint_name    = "Subscribe"
         }
       ]
       env_vars_static = {
@@ -882,6 +888,7 @@ function_apps = {
         ServiceNowRefreshAccessTokenUrl      = ""                                  # TODO: Get value
         ServiceNowUpdateUrl                  = ""                                  # TODO: Get value
         ServiceNowResolutionUrl              = ""                                  # TODO: Get value
+        ServiceNowGrantType                  = ""                                  # TODO: Get value
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }

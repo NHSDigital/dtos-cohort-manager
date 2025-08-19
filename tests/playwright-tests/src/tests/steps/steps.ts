@@ -1,12 +1,13 @@
 import { test, APIRequestContext, expect } from "@playwright/test";
 import { checkBlobExists, uploadToLocalStorage } from "../../storage/azureStorage";
-import { InputData } from "../../interface/InputData";
+import { InputData, ParticipantRecord } from "../../interface/InputData";
 import { config } from "../../config/env";
 import * as fs from 'fs';
 import path from "path";
 import { validateApiResponse } from "../../api/apiHelper";
 import { cleanDataBaseUsingServices } from "../../api/dataService/dataServiceCleaner";
 import { ensureNhsNumbersStartWith999 } from "../fixtures/testDataHelper";
+import { receiveParticipantViaServiceNow } from "../../api/distributionService/bsSelectService";
 
 
 export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers: string[]) {
@@ -28,6 +29,16 @@ export async function processFileViaStorage(parquetFilePath: string) {
   return test.step(`Process file via Storage`, async () => {
     await uploadToLocalStorage(parquetFilePath);
   });
+}
+
+
+export async function sendParticipantViaSnowAPI(request: APIRequestContext,
+  payload: ParticipantRecord ) {
+  return test.step(`Process file via SnowAPI`, async () => {
+    await receiveParticipantViaServiceNow(request,payload);
+  });
+
+
 }
 
 export async function getTestData(scenarioFolderName: string
