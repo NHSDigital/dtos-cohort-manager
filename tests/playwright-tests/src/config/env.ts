@@ -22,7 +22,7 @@ const endpointSerNowReceiveParticipant = process.env.ENDPOINT_SERVICE_NOW_MESSAG
 const invalidEndpointSerNow = process.env.INVALID_ENDPOINT_SERVICE_NOW_MESSAGE_HANDLER ?? '';
 const participantPayloadPath = process.env.PARTICIPANT_PAYLOAD_PATH ?? '';
 const createPDSDemographicEnv = process.env.ENDPOINT_PDS_DEMOGRAPHIC ?? '';
-const SubToNemsEndPoint = process.env.ENDPOINT_SUB_TO_NEMS ?? ''
+const subToNemsEndPoint = process.env.ENDPOINT_SUB_TO_NEMS ?? ''
 
 export const config = {
   baseURL,
@@ -40,7 +40,7 @@ export const config = {
   endpointSerNowReceiveParticipant: endpointSerNowReceiveParticipant,
   createPDSDemographic: createPDSDemographicEnv,
   invalidEndpointSerNow: invalidEndpointSerNow,
-  SubToNems: SubToNemsEndPoint,
+  SubToNems: subToNemsEndPoint,
   SubToNemsPath: 'api/Subscribe',
   routeBsSelectRetrieveCohortDistributionData: 'api/RetrieveCohortDistributionData',
   routeBsSelectRetrieveCohortRequestAudit: 'api/RetrieveCohortRequestAudit',

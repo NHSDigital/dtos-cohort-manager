@@ -294,17 +294,7 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
       }
 
       expect(matchingObject).toHaveProperty(fieldName);
-    
-      let returnedValue = matchingObject[fieldName];
-
-      var returnedStringValue = returnedValue?.toString();
-      if(returnedStringValue == undefined ) 
-        {
-          returnedStringValue = "null";
-        }
-      var expectedValueStringValue = `${expectedValue}`
-
-      expect(returnedStringValue).toBe(expectedValueStringValue);
+      expect(matchingObject[fieldName]).toBe(expectedValue);
       console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
     }
   }

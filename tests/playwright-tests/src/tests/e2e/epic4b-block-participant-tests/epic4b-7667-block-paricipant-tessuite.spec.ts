@@ -1,11 +1,12 @@
 import { expect, test } from '../../fixtures/test-fixtures';
 import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { getApiTestData, processFileViaStorage, validateSqlDatabaseFromAPI, cleanupDatabaseFromAPI } from '../../steps/steps';
-import { getRecordsFromParticipantManagementService, sendHttpPOSTCall, sendHttpGet} from '../../../api/distributionService/bsSelectService';
+import { getRecordsFromParticipantManagementService} from '../../../api/distributionService/bsSelectService';
 import { TestHooks } from '../../hooks/test-hooks';
 import { APIRequestContext, TestInfo } from '@playwright/test';
 import { config } from '../../../config/env';
 import { getRecordsFromExceptionService } from '../../../api/dataService/exceptionService';
+import { sendHttpGet, sendHttpPOSTCall } from '../../../api/core/sendHTTPRequest';
 
 annotation: [{
   type: 'Requirement',
@@ -28,9 +29,9 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
       await processFileViaStorage(parquetFile);
     });
     
-    var nhsNumberFromPds = 0;
-    var familyName = "";
-    var dateOfBirth = "";
+    let nhsNumberFromPds = 0;
+    let familyName = "";
+    let dateOfBirth = "";
 
     await test.step(`Then participant should be in the participant management table`, async () => {
       
@@ -41,13 +42,12 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     // Call the block participant function
     await test.step(`Go to PDS and get the participant data for the blocking of a participant that already exists in the database`, async () => {
         // Call the block participant function
-        var url = `${config.createPDSDemographic}${config.createPDSDemographicPath}?nhsNumber=${nhsNumbers[0 ]}`;
-      //var body = JSON.stringify({ NhsNumber: parseInt(nhsNumbers[0]), FamilyName: inputParticipantRecord[0].family_name, DateOfBirth: inputParticipantRecord[0].date_of_birth })
+        let url = `${config.createPDSDemographic}${config.createPDSDemographicPath}?nhsNumber=${nhsNumbers[0]}`;
 
-        var response = await sendHttpGet(url)
+        let response = await sendHttpGet(url)
         expect(response.status).toBe(200)
 
-        var json = await response.json();
+        let json = await response.json();
         nhsNumberFromPds = json["NhsNumber"];
         familyName = json["FamilyName"]
         dateOfBirth = json["DateOfBirth"];
@@ -62,28 +62,29 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     };
 
     await test.step(`running step to make sure that item can be subscribed to in nems`, async () => {
-      var subscribeToNemsResponse = await sendHttpPOSTCall(`${config.SubToNems}${config.SubToNemsPath}?nhsNumber=${nhsNumbers[0]}`, "");
+      let subscribeToNemsResponse = await sendHttpPOSTCall(`${config.SubToNems}${config.SubToNemsPath}?nhsNumber=${nhsNumbers[0]}`, "");
       
       expect(subscribeToNemsResponse.status).toBe(200);
     });
 
     await test.step(`Send block to existing participant and make sure they are blocked`, async () => {
       
-      var url = `${config.endpointBsSelectUpdateBlockFlag}${config.routeBsSelectBlockParticipant}`;
-      var body = JSON.stringify(blockPayload);
-      var response = await sendHttpPOSTCall(url, body);
+      let url = `${config.endpointBsSelectUpdateBlockFlag}${config.routeBsSelectBlockParticipant}`;
+      let body = JSON.stringify(blockPayload);
+      let response = await sendHttpPOSTCall(url, body);
       expect(response.status).toBe(200);
     });
 
 
      await test.step(`the participant has been blocked`, async () => {
       let blocked = false;
-      while(!blocked) {
+      for(let i =0; i<10; i++) {
           const resp = await getRecordsFromParticipantManagementService(request);
           if (resp?.data?.[0]?.BlockedFlag === 1) {
             blocked = true;
+            break;
           }
-          console.log(`Waiting for participant to be blocked...`);
+          console.log(`Waiting for participant to be blocked...(${i}/10)`);
           await new Promise(res => setTimeout(res, 2000));
         }
         expect(blocked).toBe(true);
@@ -98,26 +99,25 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
       
       await processFileViaStorage(parquetFile);
 
-      let stopCheckingForValidations = false;
-      var validationExceptions;
-      while(!stopCheckingForValidations)
+      let validationExceptions;
+      for(let i =0; i<10; i++)
       {
           const responseFromExceptions = await getRecordsFromExceptionService(request);
           if(responseFromExceptions.data !== null)
           {
             validationExceptions = responseFromExceptions.data
-            stopCheckingForValidations=true  
+            break;
           }
-          console.log(`waiting for exception for participant blocked to be added to exception table...`);
+          console.log(`waiting for exception for participant blocked to be added to exception table...({${i}/10)`);
           await new Promise(res => setTimeout(res, 2000));
       }
 
-      var getUrl = `${config.endpointParticipantManagementDataService}api/${config.participantManagementService}`;
+      let getUrl = `${config.endpointParticipantManagementDataService}api/${config.participantManagementService}`;
       var response = await sendHttpGet(getUrl);
 
       
 
-      var cohortDistributionServiceUrl = `${config.endpointCohortDistributionDataService}api/${config.cohortDistributionService}`
+      let cohortDistributionServiceUrl = `${config.endpointCohortDistributionDataService}api/${config.cohortDistributionService}`
 
       var response = await sendHttpGet(cohortDistributionServiceUrl);
       var jsonResponse = await response.json();
@@ -127,7 +127,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
               && jsonResponse.length === 1 
               && validationExceptions.length === 1 
               && validationExceptions[0].RuleDescription === "Participant is blocked"
-            ).toBeTruthy()
+            ).toBeTruthy();
     });
   });
 });
