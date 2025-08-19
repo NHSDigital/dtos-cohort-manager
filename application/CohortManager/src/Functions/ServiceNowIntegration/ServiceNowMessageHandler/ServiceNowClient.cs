@@ -121,12 +121,12 @@ public class ServiceNowClient : IServiceNowClient
             return null;
         }
 
-        var expires = new TimeSpan(0, 0, response.ExpiresIn);
+        var expiration = new TimeSpan(0, 0, response.ExpiresIn);
 
-        var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
+        var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expiration);
         _cache.Set(AccessTokenCacheKey, response.AccessToken, cacheEntryOptions);
 
-        _logger.LogInformation("Access token refreshed and cache updated");
+        _logger.LogInformation("Access token refreshed and stored in cache with an expiration of {expiration}", expiration);
 
         return response.AccessToken;
     }
