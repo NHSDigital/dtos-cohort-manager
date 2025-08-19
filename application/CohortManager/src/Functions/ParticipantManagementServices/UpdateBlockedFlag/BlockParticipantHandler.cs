@@ -259,7 +259,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             throw new FormatException("Date of Birth not in the correct format");
         }
 
-        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd", new CultureInfo("en-GB"), DateTimeStyles.None, out var parsedDob))
+        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyy-MM-dd", new CultureInfo("en-GB"), DateTimeStyles.None, out var parsedDob))
         {
             return false;
         }

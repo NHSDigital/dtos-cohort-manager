@@ -122,12 +122,10 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
       var response = await sendHttpGet(cohortDistributionServiceUrl);
       var jsonResponse = await response.json();
 
-      expect(
-              response.status === 200 
-              && jsonResponse.length === 1 
-              && validationExceptions.length === 1 
-              && validationExceptions[0].RuleDescription === "Participant is blocked"
-            ).toBeTruthy();
+      expect(response.status === 200).toBeTruthy()
+      expect(jsonResponse.length === 1).toBeTruthy();
+      expect(validationExceptions.length === 1).toBeTruthy();
+      expect(validationExceptions[0].RuleDescription === "Participant is blocked").toBeTruthy();
     });
   });
 });
