@@ -9,6 +9,10 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   metadata:
     name: "Set CI/CD metadata"
