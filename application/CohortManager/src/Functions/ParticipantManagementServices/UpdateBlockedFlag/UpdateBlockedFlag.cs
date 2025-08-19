@@ -40,7 +40,6 @@ public class UpdateBlockedFlag
     {
 
 
-        _logger.LogInformation("Block Participant Called");
         try
         {
             var blockParticipantDTOJson = await req.ReadAsStringAsync();

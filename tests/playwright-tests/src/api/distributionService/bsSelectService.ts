@@ -55,6 +55,7 @@ export const BlockParticipant = (
   return apiClient.postWithQuery(request, endpoint, payload);
 };
 
+
 export const UnblockParticipant = (
   request: APIRequestContext,
   payload: {
@@ -82,3 +83,30 @@ export const invalidServiceNowEndpoint = (
   const endpoint = `${config.invalidEndpointSerNow}${config.invalidRouteSerNowEndpoint}`;
   return apiClient.post(request, endpoint, payload);
 };
+
+export const sendHttpPOSTCall = 
+  async (
+  url: string,
+  body: string
+): Promise<Response> => 
+{
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: body 
+  });
+
+  return response;     
+}
+
+export const sendHttpGet = 
+  async (
+    url: string
+): Promise<Response> => 
+{
+  const response = await fetch(url);
+  return response;
+}
+
