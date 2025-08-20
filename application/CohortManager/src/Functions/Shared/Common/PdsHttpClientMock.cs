@@ -54,7 +54,7 @@ public class PdsHttpClientMock : HttpClientFunction
     {
 
         string path = nhsNumber is null ? "MockedPDSData/complete-patient.json" : $"MockedPDSData/complete-patient-{nhsNumber}.json";
-        if(!File.Exists(path))
+        if (!File.Exists(path))
         {
             return null;
         }

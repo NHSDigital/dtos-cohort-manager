@@ -123,6 +123,7 @@ services:
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
       - SendServiceNowMessageURL=http://servicenow-message-handler:9092/api/servicenow/send
       - ParticipantManagementURL=http://participant-management-data-service:7994/api/ParticipantManagementDataService
+      - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
       - CohortDistributionTopic=cohort-distribution-topic
 
   update-blocked-flag:
@@ -142,7 +143,7 @@ services:
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ManageNemsSubscriptionUnsubscribeURL=http://manage-nems-subscription:9081/api/Unsubscribe
-      - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/ManageNemsSubscriptionSubscribeURL
+      - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
       - RetrievePdsDemographicURL=http://etrieve-pds-demographic:8082/api/RetrievePdsDemographic
 
   delete-participant:
@@ -321,6 +322,7 @@ services:
       - ServiceNowRefreshAccessTokenUrl=https://nhsdigitaldev.service-now.com/oauth_token.do
       - ServiceNowUpdateUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate
       - ServiceNowResolutionUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution
+      - ServiceNowGrantType=refresh_token
       - ServiceNowClientId=${SERVICENOW_CLIENT_ID}
       - ServiceNowClientSecret=${SERVICENOW_CLIENT_SECRET}
       - ServiceNowRefreshToken=${SERVICENOW_REFRESH_TOKEN}

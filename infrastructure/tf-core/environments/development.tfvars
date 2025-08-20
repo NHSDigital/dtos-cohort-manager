@@ -54,7 +54,7 @@ regions = {
         cidr_offset                = 6
         delegation_name            = "Microsoft.App/environments"
         service_delegation_name    = "Microsoft.App/environments"
-        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
       }
     }
   }
@@ -115,8 +115,8 @@ app_service_plan = {
       metric = "CpuPercentage"
 
       capacity_min = "1"
-      capacity_max = "4"
-      capacity_def = "2"
+      capacity_max = "3"
+      capacity_def = "1"
 
       time_grain       = "PT1M"
       statistic        = "Average"
@@ -124,10 +124,10 @@ app_service_plan = {
       time_aggregation = "Average"
 
       inc_operator        = "GreaterThanOrEqual"
-      inc_threshold       = 20
+      inc_threshold       = 50
       inc_scale_direction = "Increase"
       inc_scale_type      = "ExactCount"
-      inc_scale_value     = 4
+      inc_scale_value     = 3
       inc_scale_cooldown  = "PT10M"
 
       dec_operator        = "LessThan"
@@ -147,28 +147,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-      capacity_min = "1"
       capacity_max = "1"
       capacity_def = "1"
 
-      time_grain       = "PT1M"
-      statistic        = "Average"
-      time_window      = "PT1M"
-      time_aggregation = "Average"
-
-      inc_operator        = "GreaterThanOrEqual"
-      inc_threshold       = 20
-      inc_scale_direction = "Increase"
-      inc_scale_type      = "ExactCount"
       inc_scale_value     = 1
-      inc_scale_cooldown  = "PT10M"
-
-      dec_operator        = "LessThan"
-      dec_threshold       = 20
-      dec_scale_direction = "Decrease"
-      dec_scale_type      = "ExactCount"
       dec_scale_value     = 1
-      dec_scale_cooldown  = "PT5M"
 
         }
       }
@@ -179,12 +162,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
           capacity_max = "5"
-          capacity_def = "1"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -198,28 +176,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-      capacity_min = "1"
       capacity_max = "1"
       capacity_def = "1"
 
-      time_grain       = "PT1M"
-      statistic        = "Average"
-      time_window      = "PT1M"
-      time_aggregation = "Average"
-
-      inc_operator        = "GreaterThanOrEqual"
-      inc_threshold       = 20
-      inc_scale_direction = "Increase"
-      inc_scale_type      = "ExactCount"
       inc_scale_value     = 1
-      inc_scale_cooldown  = "PT10M"
-
-      dec_operator        = "LessThan"
-      dec_threshold       = 20
-      dec_scale_direction = "Decrease"
-      dec_scale_type      = "ExactCount"
       dec_scale_value     = 1
-      dec_scale_cooldown  = "PT5M"
 
         }
       }
@@ -230,12 +191,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
           capacity_max = "5"
-          capacity_def = "1"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -249,12 +205,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
           capacity_max = "3"
-          capacity_def = "1"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
           inc_scale_value = 3
 
           dec_scale_type  = "ChangeCount"
@@ -268,12 +219,8 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
           capacity_max = "3"
-          capacity_def = "1"
 
-          inc_threshold   = 5
-          dec_threshold   = 5
           inc_scale_value = 3
 
           dec_scale_type  = "ChangeCount"
@@ -496,6 +443,11 @@ function_apps = {
         {
           env_var_name     = "ParticipantManagementURL"
           function_app_key = "ParticipantManagementDataService"
+        },
+        {
+          env_var_name     = "ManageNemsSubscriptionSubscribeURL"
+          function_app_key = "ManageNemsSubscription"
+          endpoint_name    = "Subscribe"
         }
       ]
       env_vars_static = {
@@ -970,6 +922,7 @@ function_apps = {
         ServiceNowRefreshAccessTokenUrl      = "https://nhsdigitaldev.service-now.com/oauth_token.do"
         ServiceNowUpdateUrl                  = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
         ServiceNowResolutionUrl              = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution"
+        ServiceNowGrantType                  = "refresh_token"
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
@@ -1063,10 +1016,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL  = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        RetrievePdsParticipantURL  = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
         Kid                        = "RetrievePdsDemographic-DEV1"
-        Audience                   = "https://int.api.service.nhs.uk/oauth2/token"
-        AuthTokenURL               = "https://int.api.service.nhs.uk/oauth2/token"
+        Audience                   = "https://sandbox.api.service.nhs.uk/oauth2/token"
+        AuthTokenURL               = "https://sandbox.api.service.nhs.uk/oauth2/token"
         KeyNamePrivateKey          = "PDSPRIVATEKEY"
         UseFakePDSServices         = "true"
         ParticipantManagementTopic = "participant-management"
@@ -1094,6 +1047,7 @@ function_apps = {
         NemsSubscriptionProfile               = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
         NemsSubscriptionCriteria              = "https://fhir.nhs.uk/Id/nhs-number"
         NemsBypassServerCertificateValidation = "true"
+        IsStubbed                             = "true"
       }
     }
 
@@ -1206,6 +1160,7 @@ linux_web_app = {
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort-dev.non-live.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
+          NODE_ENV             = "development"
         }
         from_key_vault = {
           # env_var_name           = "key_vault_secret_name"
