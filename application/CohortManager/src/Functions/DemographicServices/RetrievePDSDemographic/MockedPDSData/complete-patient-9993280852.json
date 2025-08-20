@@ -1,10 +1,10 @@
 {
   "resourceType": "Patient",
-  "id": "9998695511",
+  "id": "9993280852",
   "identifier": [
     {
       "system": "https://fhir.nhs.uk/Id/nhs-number",
-      "value": "9998695511",
+      "value": "9993280852",
       "extension": [
         {
           "url": "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-NHSNumberVerificationStatus",
@@ -43,7 +43,7 @@
       "given": [
         "Jane"
       ],
-      "family": "Doe",
+      "family": "Smith",
       "prefix": [
         "Mrs"
       ]
@@ -103,15 +103,15 @@
               {
                 "system": "https://fhir.hl7.org.uk/CodeSystem/UKCore-DeathNotificationStatus",
                 "version": "1.0.0",
-                "code": "",
-                "display": ""
+                "code": "2",
+                "display": "Formal - death notice received from Registrar of Deaths"
               }
             ]
           }
         },
         {
           "url": "systemEffectiveDate",
-          "valueDateTime": ""
+          "valueDateTime": "2010-10-22T00:00:00+00:00"
         }
       ]
     },

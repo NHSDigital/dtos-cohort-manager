@@ -43,7 +43,7 @@
       "given": [
         "Jane"
       ],
-      "family": "Doe",
+      "family": "Smith",
       "prefix": [
         "Mrs"
       ]
@@ -103,15 +103,15 @@
               {
                 "system": "https://fhir.hl7.org.uk/CodeSystem/UKCore-DeathNotificationStatus",
                 "version": "1.0.0",
-                "code": "2",
-                "display": "Formal - death notice received from Registrar of Deaths"
+                "code": "",
+                "display": ""
               }
             ]
           }
         },
         {
           "url": "systemEffectiveDate",
-          "valueDateTime": "2010-10-22T00:00:00+00:00"
+          "valueDateTime": ""
         }
       ]
     },
