@@ -21,6 +21,8 @@ const endpointBsSelectGetValidationExceptions = process.env.ENDPOINT_BS_SELECT_G
 const endpointSerNowReceiveParticipant = process.env.ENDPOINT_SERVICE_NOW_MESSAGE_HANDLER ?? '';
 const invalidEndpointSerNow = process.env.INVALID_ENDPOINT_SERVICE_NOW_MESSAGE_HANDLER ?? '';
 const participantPayloadPath = process.env.PARTICIPANT_PAYLOAD_PATH ?? '';
+const createPDSDemographicEnv = process.env.ENDPOINT_PDS_DEMOGRAPHIC ?? '';
+const subToNemsEndPoint = process.env.ENDPOINT_SUB_TO_NEMS ?? ''
 
 export const config = {
   baseURL,
@@ -36,7 +38,10 @@ export const config = {
   endpointBsSelectUpdateBlockFlag: endpointBsSelectUpdateBlockFlag,
   endpointBsSelectGetValidationExceptions: endpointBsSelectGetValidationExceptions,
   endpointSerNowReceiveParticipant: endpointSerNowReceiveParticipant,
+  createPDSDemographic: createPDSDemographicEnv,
   invalidEndpointSerNow: invalidEndpointSerNow,
+  SubToNems: subToNemsEndPoint,
+  SubToNemsPath: 'api/Subscribe',
   routeBsSelectRetrieveCohortDistributionData: 'api/RetrieveCohortDistributionData',
   routeBsSelectRetrieveCohortRequestAudit: 'api/RetrieveCohortRequestAudit',
   routeBsSelectDeleteParticipant: 'api/DeleteParticipant',
@@ -49,6 +54,7 @@ export const config = {
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',
   participantDemographicDataService: 'ParticipantDemographicDataService',
+  createPDSDemographicPath: 'api/RetrievePdsDemographic',
   participantPayloadPath: 'src/tests/api/testFiles',
   e2eTestFilesPath: 'e2e/testFiles',
   apiTestFilesPath: 'api/testFiles',
