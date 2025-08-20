@@ -10,6 +10,8 @@ using Model;
 using Model.Enums;
 using System;
 using System.Linq;
+using Azure.Storage.Blobs.Models;
+using System.Globalization;
 
 public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 {
@@ -134,6 +136,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         MapLanguagePreferences(patient, demographic);
         MapRemovalInformation(patient, demographic);
         MapSecurityMetadata(patient, demographic);
+        MapDates();
 
         return demographic;
     }
@@ -151,6 +154,24 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
         if (gp.Identifier.Period?.Start != null)
             demographic.PrimaryCareProviderEffectiveFromDate = gp.Identifier.Period.Start.ToString();
+    }
+
+    private static void MapDates(Patient patient, Demographic demographic)
+    {
+        var patientDateOfBirth = DateTime.TryParseExact(patient.BirthDate, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempDate);
+        if (!patientDateOfBirth)
+        {
+            throw new Exception("there was a problem parsing the date of birth");
+        }
+        demographic.DateOfBirth = tempDate.ToString();
+        demographic.UsualAddressEffectiveFromDate
+        demographic.DateOfDeath
+        demographic.TelephoneNumberEffectiveFromDate
+        demographic.MobileNumberEffectiveFromDate
+        demographic.EmailAddressEffectiveFromDate
+        demographic.RecordInsertDateTime
+        demographic.RecordUpdateDateTime =
+
     }
 
     private static void MapNames(Patient patient, Demographic demographic)
@@ -246,7 +267,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         // Map effective date
         if (address.Period?.Start != null)
         {
-            demographic.UsualAddressEffectiveFromDate = address.Period.Start.ToString();
+            demographic.UsualAddressEffectiveFromDate = address.Period.Start;
         }
     }
 
@@ -451,4 +472,15 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
         demographic.ConfidentialityCode = confidentialityCoding.Code;
     }
+
+    private static string ConvertDateTime(string dateToConvert)
+    {
+        var patientDateOfBirth = DateTime.TryParseExact(dateToConvert, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempDate);
+        if (!patientDateOfBirth)
+        {
+            throw new Exception("there was a problem parsing the date of birth");
+        }
+        return tempDate.ToString();
+    }
+
 }
