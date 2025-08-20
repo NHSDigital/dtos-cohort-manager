@@ -1,11 +1,5 @@
 name: "CI/CD publish"
 
-on:
-  pull_request:
-    types: [closed]
-    branches:
-      - main
-
 jobs:
   metadata:
     name: "Set CI/CD metadata"
