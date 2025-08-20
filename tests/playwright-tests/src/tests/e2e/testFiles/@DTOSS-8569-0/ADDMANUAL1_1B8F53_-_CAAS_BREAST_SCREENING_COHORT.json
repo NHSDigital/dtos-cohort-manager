@@ -1,0 +1,46 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9996310000
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8569-01",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e Tests Self Referral rule passes and record exists in CohortDistribution"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "ADD",
+        "NHSNumber": 9996310000,
+        "ReferralFlag": 1,
+        "ScreeningId": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10022-02",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e Verify ScreeningId=1 and ReferralFlag=true (Self Referral)"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "number": "CS0573850",
+      "u_case_variable_data": {
+        "nhs_number": "9996310000",
+        "forename_": "Jane",
+        "surname_family_name": "Doe",
+        "date_of_birth": "2010-10-22",
+        "enter_dummy_gp_code": "ZZZDKL",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
+      }
+    }
+  ],
+  "nhsNumbers": [
+    "9996310000"
+  ]
+}
