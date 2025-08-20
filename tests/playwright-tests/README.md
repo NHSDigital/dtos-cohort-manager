@@ -112,3 +112,11 @@ The validation engine accepts a JSON configuration to validate API responses. Be
 
 - Example Usage 1 – [with meta information for automatic test script generation using runner workflow](../playwright-tests/src/tests/e2e/testFiles/@DTOSS-3217-01/ADD_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.json)
 - Example Usage 2 – [multiply input participant records based on unique NHS numbers](../playwright-tests/src/tests/api/testFiles/@DTOSS-5928-01/ADD-10-records-expected.json)
+
+### mountebank
+
+1. install - `npm install -g mountebank`
+2. run - `mb`
+3. create the imposter using curl, copy the curl command from [mb-imposter.txt](mb-imposter.txt)
+4. send requests to the stubs as defined in [mb-imposter.txt](mb-imposter.txt)
+5. query http://localhost:2525/imposters/4545 to see requests made to the imposter

@@ -1,0 +1,83 @@
+curl -i -X POST -H 'Content-Type: application/json' http://localhost:2525/imposters --data '{
+  "port": 4545,
+  "protocol": "http",
+  "recordRequests": "true",
+  "defaultResponse": {
+    "statusCode": 400
+  },
+  "stubs":
+  [
+    {
+      "responses":
+      [
+        {
+          "is":
+          {
+            "statusCode": 200,
+            "body": {
+              "access_token": "TestAccessToken-123",
+              "refresh_token": "TestRefreshToken-123",
+              "scope": "IntegrationStationAll",
+              "token_type": "Bearer",
+              "expires_in": 1800
+            },
+            "headers": {}
+          }
+        }
+      ],
+      "predicates":
+      [
+        {
+          "equals": {
+            "path": "/oauth_token.do",
+            "method": "POST",
+            "headers": {
+              "Content-Type": "application/x-www-form-urlencoded"
+            },
+            "form": {
+              "grant_type": "refresh_token",
+              "client_id": "TestClientId-123",
+              "client_secret": "TestClientSecret-123",
+              "refresh_token": "TestRefreshToken-123"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "responses":
+      [
+        {
+          "is":
+          {
+            "statusCode": 200,
+            "body": {},
+            "headers": {}
+          }
+        }
+      ],
+      "predicates":
+      [
+        {
+          "and":
+          [
+            {
+              "startsWith": {
+                "path": "/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate/"
+              }
+            },
+            {
+              "equals": {
+                "method": "PUT",
+                "headers": {
+                  "Content-Type": "application/json",
+                  "Authorization": "Bearer TestAccessToken-123"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}'
