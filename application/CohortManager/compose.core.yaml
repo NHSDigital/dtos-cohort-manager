@@ -5,6 +5,7 @@ services:
   retrieve-mesh-file:
     container_name: retrieve-mesh-file
     image: cohort-manager-retrieve-mesh-file
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -24,6 +25,7 @@ services:
   nems-mesh-retrieval:
     container_name: nems-mesh-retrieval
     image: cohort-manager-nems-mesh-retrieval
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -46,6 +48,7 @@ services:
   process-nems-update:
     container_name: process-nems-update
     image: cohort-manager-process-nems-update
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -66,10 +69,13 @@ services:
   receive-caas-file:
     container_name: receive-caas-file
     image: cohort-manager-receive-caas-file
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CaasIntegration/receiveCaasFile/Dockerfile
+    ports:
+      - "7060:7060"
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
@@ -93,6 +99,7 @@ services:
   manage-participant:
     container_name: manage-participant
     image: cohort-manager-manage-participant
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -109,6 +116,7 @@ services:
   manage-servicenow-participant:
     container_name: manage-servicenow-participant
     image: cohort-manager-manage-servicenow-participant
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -129,6 +137,7 @@ services:
   update-blocked-flag:
     container_name: update-blocked-flag
     image: cohort-manager-update-blocked-flag
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -144,11 +153,12 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ManageNemsSubscriptionUnsubscribeURL=http://manage-nems-subscription:9081/api/Unsubscribe
       - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
-      - RetrievePdsDemographicURL=http://etrieve-pds-demographic:8082/api/RetrievePdsDemographic
+      - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePdsDemographic
 
   delete-participant:
     container_name: delete-participant
     image: cohort-manager-delete-participant
+    platform: "linux/amd64"
     networks: [cohman-network]
     ports:
     - "7087:7087"
@@ -167,6 +177,7 @@ services:
   create-exception:
     container_name: create-exception
     image: cohort-manager-create-exception
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -181,6 +192,7 @@ services:
   update-exception:
     container_name: update-exception
     image: cohort-manager-update-exception
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -194,6 +206,7 @@ services:
   get-validation-exceptions:
     container_name: get-validation-exceptions
     image: cohort-manager-get-validation-exceptions
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -211,6 +224,7 @@ services:
   static-validation:
     container_name: static-validation
     image: cohort-manager-static-validation
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -223,6 +237,7 @@ services:
   lookup-validation:
     container_name: lookup-validation
     image: cohort-manager-lookup-validation
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -242,6 +257,7 @@ services:
   retrieve-pds-demographic:
     container_name: retrieve-pds-demographic
     image: cohort-manager-retrieve-pds-demographic
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -266,6 +282,7 @@ services:
   manage-nems-subscription:
       container_name: manage-nems-subscription
       image: cohort-manager-manage-nems-subscription
+      platform: "linux/amd64"
       networks: [cohman-network]
       profiles: [nems]
       build:
@@ -295,6 +312,7 @@ services:
   durable-demographic-function:
     container_name: durable-demographic-function
     image: cohort-manager-durable-demographic-function
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -312,6 +330,7 @@ services:
   servicenow-message-handler:
     container_name: servicenow-message-handler
     image: cohort-manager-servicenow-message-handler
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -334,6 +353,7 @@ services:
   servicenow-cohort-lookup:
     container_name: servicenow-cohort-lookup
     image: cohort-manager-servicenow-cohort-lookup
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -351,6 +371,7 @@ services:
     build:
       context: ./src/Web
       dockerfile: Dockerfile
+    platform: "linux/amd64"
     restart: always
     profiles: [ui]
     ports:
