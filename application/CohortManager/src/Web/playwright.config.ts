@@ -63,10 +63,7 @@ export default defineConfig({
     {
       name: "Edge (Windows)",
       use: {
-        ...devices["Desktop Chrome"],
-        launchOptions: {
-          args: ["--ignore-certificate-errors"],
-        },
+        channel: "msedge",
       },
     },
 
@@ -160,4 +157,12 @@ export default defineConfig({
     //   },
     // },
   ],
+
+  /* Run your local dev server before starting the tests */
+  webServer: {
+    command: "npm run dev:secure",
+    url: "https://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+    ignoreHTTPSErrors: true,
+  },
 });
