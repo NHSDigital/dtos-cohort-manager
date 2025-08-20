@@ -34,7 +34,10 @@ export default defineConfig({
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: "https://localhost:3000",
+    // Use HTTPS locally (matches dev:secure) but fall back to HTTP on CI to avoid self-signed cert readiness issues.
+    baseURL: process.env.CI
+      ? "http://localhost:3000"
+      : "https://localhost:3000",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on",
@@ -158,11 +161,23 @@ export default defineConfig({
     // },
   ],
 
-  // /* Run your local dev server before starting the tests */
-  // webServer: {
-  //   command: "npm run dev:secure",
-  //   url: "https://localhost:3000",
-  //   reuseExistingServer: !process.env.CI,
-  //   ignoreHTTPSErrors: true,
-  // },
+  /* Run the local dev server before starting the tests.
+   * We use the secure dev variant so baseURL https://localhost:3000 works.
+   * Playwright will wait for the URL to respond before executing tests and
+   * will terminate the server when the test run finishes.
+   */
+  webServer: process.env.CI
+    ? {
+        // In CI run a production build for stability (no HMR, faster ready signal)
+        command: "npm run build && npm run start",
+        url: "http://localhost:3000",
+        reuseExistingServer: false,
+        timeout: 180 * 1000,
+      }
+    : {
+        command: "npm run dev:secure",
+        url: "https://localhost:3000",
+        reuseExistingServer: true,
+        timeout: 120 * 1000,
+      },
 });

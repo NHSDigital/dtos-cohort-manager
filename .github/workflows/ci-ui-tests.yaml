@@ -5,7 +5,6 @@ on:
     paths:
       - "application/CohortManager/src/Web/**"
     branches: [main]
-  workflow_dispatch:
 
 jobs:
   test:
@@ -14,29 +13,26 @@ jobs:
     defaults:
       run:
         working-directory: application/CohortManager/src/Web
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          cache: "npm"
-          cache-dependency-path: application/CohortManager/src/Web/package-lock.json
-
+          node-version: lts/*
       - name: Install dependencies
         run: npm ci
-
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
-
-      - name: Start the application
+      - name: Run BDD Playwright tests
         env:
           AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           SERVICE_NAME: ${{ vars.SERVICE_NAME }}
           NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
           EXCEPTIONS_API_URL: ${{ vars.EXCEPTIONS_API_URL }}
           COHORT_MANAGER_RBAC_CODE: ${{ vars.COHORT_MANAGER_USERS }}
-        run: |
-          npm run dev:secure & npm run test:e2e
+        run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
