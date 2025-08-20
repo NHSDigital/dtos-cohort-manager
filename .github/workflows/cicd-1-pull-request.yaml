@@ -77,22 +77,6 @@ jobs:
           export VERSION="${{ steps.variables.outputs.version }}"
           export DOES_PULL_REQUEST_EXIST="${{ steps.pr_exists.outputs.does_pull_request_exist }}"
           make list-variables
-  validate-title-stage:
-    name: Validate PR title
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-    env:
-      GITHUB_TOKEN: ${{ github.token }}
-    if: github.event_name == 'pull_request'
-    steps:
-      - uses: amannn/action-semantic-pull-request@v5
-        id: validate
-      - uses: thollander/actions-comment-pull-request@v2
-        if: ${{ failure() && steps.validate.conclusion == 'failure' }}
-        with:
-          message: |
-            Your Pull Request title must meet the conventional commit standards, please see the following documentation - https://www.conventionalcommits.org/en/v1.0.0/#specification
   commit-stage: # Recommended maximum execution time is 2 minutes
     name: "Commit stage"
     needs: [metadata]
@@ -173,3 +157,19 @@ jobs:
       environments: "[\"sandbox\"]"
       commit_sha: ${{ github.event.pull_request.head.sha }}
     secrets: inherit
+  validate-title-stage:
+    name: Validate PR title
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: amannn/action-semantic-pull-request@v5
+        id: validate
+      - uses: thollander/actions-comment-pull-request@v2
+        if: ${{ failure() && steps.validate.conclusion == 'failure' }}
+        with:
+          message: |
+            Your Pull Request title must meet the conventional commit standards, please see the following documentation - https://www.conventionalcommits.org/en/v1.0.0/#specification
