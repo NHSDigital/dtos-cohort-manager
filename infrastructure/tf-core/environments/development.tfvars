@@ -1016,10 +1016,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL  = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        RetrievePdsParticipantURL  = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
         Kid                        = "RetrievePdsDemographic-DEV1"
-        Audience                   = "https://int.api.service.nhs.uk/oauth2/token"
-        AuthTokenURL               = "https://int.api.service.nhs.uk/oauth2/token"
+        Audience                   = "https://sandbox.api.service.nhs.uk/oauth2/token"
+        AuthTokenURL               = "https://sandbox.api.service.nhs.uk/oauth2/token"
         KeyNamePrivateKey          = "PDSPRIVATEKEY"
         UseFakePDSServices         = "true"
         ParticipantManagementTopic = "participant-management"
@@ -1047,6 +1047,7 @@ function_apps = {
         NemsSubscriptionProfile               = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
         NemsSubscriptionCriteria              = "https://fhir.nhs.uk/Id/nhs-number"
         NemsBypassServerCertificateValidation = "true"
+        IsStubbed                             = "true"
       }
     }
 
@@ -1159,6 +1160,7 @@ linux_web_app = {
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort-dev.non-live.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
+          NODE_ENV             = "development"
         }
         from_key_vault = {
           # env_var_name           = "key_vault_secret_name"
