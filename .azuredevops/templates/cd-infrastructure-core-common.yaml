@@ -49,8 +49,6 @@ stages:
 
 - stage: terraform_deploy
   displayName: Terraform Deploy
-  dependsOn:
-  - re_tag_stage
   condition: | 
     and(
       eq(variables['Build.Reason'], 'Manual'),
