@@ -10,8 +10,6 @@ using Model;
 using Model.Enums;
 using System;
 using System.Linq;
-using Azure.Storage.Blobs.Models;
-using System.Globalization;
 using NHS.CohortManager.Shared.Utilities;
 
 public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
