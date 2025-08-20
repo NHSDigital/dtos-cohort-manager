@@ -65,7 +65,7 @@ jobs:
           SOURCE_CODE_PATH: ${{ inputs.function_app_source_code_path }}
           MANUAL_BUILD_ALL: ${{ inputs.build_all_images || false }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash scripts/deployments/get-docker-names.sh
+        run: bash scripts/deployment/get-docker-names.sh
 
   build-and-push:
     runs-on: ubuntu-latest
