@@ -12,6 +12,7 @@ using System;
 using System.Linq;
 using Azure.Storage.Blobs.Models;
 using System.Globalization;
+using NHS.CohortManager.Shared.Utilities;
 
 public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 {
@@ -122,7 +123,6 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         demographic.ParticipantId = null; // We do not know the Participant ID from PDS
         demographic.RecordUpdateDateTime = null; // We do not know the RecordUpdateDateTime from PDS
         demographic.RecordInsertDateTime = null; // We do not know the RecordInsertDateTime from PDS
-        demographic.DateOfBirth = patient.BirthDate;
 
         // CurrentPosting & CurrentPostingEffectiveFromDate
         // these are not set as not available in PDS
@@ -136,7 +136,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         MapLanguagePreferences(patient, demographic);
         MapRemovalInformation(patient, demographic);
         MapSecurityMetadata(patient, demographic);
-        MapDates();
+        MapDates(patient, demographic);
 
         return demographic;
     }
@@ -153,24 +153,14 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         demographic.PrimaryCareProvider = gp.Identifier.Value;
 
         if (gp.Identifier.Period?.Start != null)
-            demographic.PrimaryCareProviderEffectiveFromDate = gp.Identifier.Period.Start.ToString();
+            demographic.PrimaryCareProviderEffectiveFromDate = FormatDates(gp.Identifier.Period.Start);
     }
 
     private static void MapDates(Patient patient, Demographic demographic)
     {
-        var patientDateOfBirth = DateTime.TryParseExact(patient.BirthDate, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempDate);
-        if (!patientDateOfBirth)
-        {
-            throw new Exception("there was a problem parsing the date of birth");
-        }
-        demographic.DateOfBirth = tempDate.ToString();
-        demographic.UsualAddressEffectiveFromDate
-        demographic.DateOfDeath
-        demographic.TelephoneNumberEffectiveFromDate
-        demographic.MobileNumberEffectiveFromDate
-        demographic.EmailAddressEffectiveFromDate
-        demographic.RecordInsertDateTime
-        demographic.RecordUpdateDateTime =
+        demographic.DateOfBirth = FormatDates(patient.BirthDate);
+        demographic.RecordInsertDateTime = DateTime.Today.ToString("yyyyMMdd");
+        demographic.RecordUpdateDateTime = DateTime.Today.ToString("yyyyMMdd");
 
     }
 
@@ -267,7 +257,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         // Map effective date
         if (address.Period?.Start != null)
         {
-            demographic.UsualAddressEffectiveFromDate = address.Period.Start;
+            demographic.UsualAddressEffectiveFromDate = FormatDates(address.Period.Start);
         }
     }
 
@@ -303,7 +293,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         // Death Date
         if (patient.Deceased is FhirDateTime deceasedDate)
         {
-            demographic.DateOfDeath = deceasedDate.Value;
+            demographic.DateOfDeath = FormatDates(deceasedDate.Value);
         }
 
         // Death notification status
@@ -379,7 +369,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
         if (contactPoint.Period?.Start != null)
         {
-            setDateAction(contactPoint.Period.Start.ToString());
+            setDateAction(FormatDates(contactPoint.Period.Start));
         }
     }
 
@@ -473,14 +463,10 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         demographic.ConfidentialityCode = confidentialityCoding.Code;
     }
 
-    private static string ConvertDateTime(string dateToConvert)
+    private static string FormatDates(string dateToConvert)
     {
-        var patientDateOfBirth = DateTime.TryParseExact(dateToConvert, "yyyyMMdd", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime tempDate);
-        if (!patientDateOfBirth)
-        {
-            throw new Exception("there was a problem parsing the date of birth");
-        }
-        return tempDate.ToString();
+        var parsedDateTime = MappingUtilities.ParseDates(dateToConvert);
+        return parsedDateTime?.ToString("yyyyMMdd")!;
     }
 
 }
