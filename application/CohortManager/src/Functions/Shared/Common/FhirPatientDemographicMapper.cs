@@ -10,7 +10,6 @@ using Model;
 using Model.Enums;
 using System;
 using System.Linq;
-using NHS.CohortManager.Shared.Utilities;
 
 public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 {
@@ -121,7 +120,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         demographic.ParticipantId = null; // We do not know the Participant ID from PDS
         demographic.RecordUpdateDateTime = null; // We do not know the RecordUpdateDateTime from PDS
         demographic.RecordInsertDateTime = null; // We do not know the RecordInsertDateTime from PDS
-        demographic.DateOfBirth = FormatDates(patient.BirthDate);
+        demographic.DateOfBirth = patient.BirthDate;
 
         // CurrentPosting & CurrentPostingEffectiveFromDate
         // these are not set as not available in PDS
@@ -151,7 +150,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         demographic.PrimaryCareProvider = gp.Identifier.Value;
 
         if (gp.Identifier.Period?.Start != null)
-            demographic.PrimaryCareProviderEffectiveFromDate = FormatDates(gp.Identifier.Period.Start);
+            demographic.PrimaryCareProviderEffectiveFromDate = gp.Identifier.Period.Start.ToString();
     }
 
     private static void MapNames(Patient patient, Demographic demographic)
@@ -247,7 +246,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         // Map effective date
         if (address.Period?.Start != null)
         {
-            demographic.UsualAddressEffectiveFromDate = FormatDates(address.Period.Start);
+            demographic.UsualAddressEffectiveFromDate = address.Period.Start.ToString();
         }
     }
 
@@ -359,7 +358,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
         if (contactPoint.Period?.Start != null)
         {
-            setDateAction(FormatDates(contactPoint.Period.Start));
+            setDateAction(contactPoint.Period.Start.ToString());
         }
     }
 
@@ -452,11 +451,4 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
         demographic.ConfidentialityCode = confidentialityCoding.Code;
     }
-
-    private static string FormatDates(string dateToConvert)
-    {
-        var parsedDateTime = MappingUtilities.ParseDates(dateToConvert);
-        return parsedDateTime?.ToString("yyyyMMdd")!;
-    }
-
 }
