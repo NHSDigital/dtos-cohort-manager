@@ -150,7 +150,7 @@ jobs:
   deploy-stage:
     if: github.ref == 'refs/heads/main' && github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'deploy')
     name: Deploy pr-${{ github.event.pull_request.number }} for commit ${{ github.event.pull_request.head.sha }}
-    needs: [acceptance-stage]
+    needs: [metadata, build-image-stage]
     permissions:
       id-token: write
       contents: read
