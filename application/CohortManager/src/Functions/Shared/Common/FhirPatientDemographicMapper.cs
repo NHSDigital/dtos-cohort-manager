@@ -123,6 +123,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         demographic.ParticipantId = null; // We do not know the Participant ID from PDS
         demographic.RecordUpdateDateTime = null; // We do not know the RecordUpdateDateTime from PDS
         demographic.RecordInsertDateTime = null; // We do not know the RecordInsertDateTime from PDS
+        demographic.DateOfBirth = FormatDates(patient.BirthDate);
 
         // CurrentPosting & CurrentPostingEffectiveFromDate
         // these are not set as not available in PDS
@@ -136,7 +137,6 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         MapLanguagePreferences(patient, demographic);
         MapRemovalInformation(patient, demographic);
         MapSecurityMetadata(patient, demographic);
-        MapDates(patient, demographic);
 
         return demographic;
     }
@@ -154,14 +154,6 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
 
         if (gp.Identifier.Period?.Start != null)
             demographic.PrimaryCareProviderEffectiveFromDate = FormatDates(gp.Identifier.Period.Start);
-    }
-
-    private static void MapDates(Patient patient, Demographic demographic)
-    {
-        demographic.DateOfBirth = FormatDates(patient.BirthDate);
-        demographic.RecordInsertDateTime = DateTime.Today.ToString("yyyyMMdd");
-        demographic.RecordUpdateDateTime = DateTime.Today.ToString("yyyyMMdd");
-
     }
 
     private static void MapNames(Patient patient, Demographic demographic)
@@ -293,7 +285,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
         // Death Date
         if (patient.Deceased is FhirDateTime deceasedDate)
         {
-            demographic.DateOfDeath = FormatDates(deceasedDate.Value);
+            demographic.DateOfDeath = deceasedDate.Value;
         }
 
         // Death notification status
