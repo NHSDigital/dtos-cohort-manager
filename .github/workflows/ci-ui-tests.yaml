@@ -47,22 +47,9 @@ jobs:
             echo "Waiting for app to start..."
             sleep 5
           done
-
-          # Run the tests
-          npm run test:e2e
-
-      - name: run epic 4a tests
-        env:
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          SERVICE_NAME: ${{ vars.SERVICE_NAME }}
-          NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
-          EXCEPTIONS_API_URL: ${{ vars.EXCEPTIONS_API_URL }}
-          COHORT_MANAGER_RBAC_CODE: ${{ vars.COHORT_MANAGER_USERS }}
+      - name: Run UI tests
         run: |
-
-
-          # Run the tests
-          npm run test:e2e:epic_4a
+          npm run test:e2e
 
       - name: Upload test results
         if: always()
