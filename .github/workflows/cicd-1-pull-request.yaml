@@ -153,6 +153,7 @@ jobs:
     needs: [acceptance-stage]
     permissions:
       id-token: write
+      contents: read
     uses: ./.github/workflows/stage-4-deploy.yaml
     with:
       environments: "[\"sandbox\"]"
