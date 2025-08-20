@@ -236,15 +236,16 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     private static bool ValidateRecordsMatch(ParticipantDemographic participant, BlockParticipantDto dto)
     {
 
-        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd",new CultureInfo("en-GB"),DateTimeStyles.None, out var dtoDateOfBirth ))
+        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd", new CultureInfo("en-GB"), DateTimeStyles.None, out var dtoDateOfBirth))
         {
             throw new FormatException("Date of Birth not in the correct format");
         }
 
-        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd",new CultureInfo("en-GB"),DateTimeStyles.None, out var parsedDob))
+        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd", new CultureInfo("en-GB"), DateTimeStyles.None, out var parsedDob))
         {
             return false;
         }
+
         return string.Equals(participant.FamilyName, dto.FamilyName, StringComparison.InvariantCultureIgnoreCase)
             && participant.NhsNumber == dto.NhsNumber
             && parsedDob == dtoDateOfBirth;
@@ -253,12 +254,12 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     private static bool ValidateRecordsMatch(PdsDemographic participant, BlockParticipantDto dto)
     {
 
-        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd",new CultureInfo("en-GB"),DateTimeStyles.None, out var dtoDateOfBirth ))
+        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd", new CultureInfo("en-GB"), DateTimeStyles.None, out var dtoDateOfBirth))
         {
             throw new FormatException("Date of Birth not in the correct format");
         }
 
-        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd",new CultureInfo("en-GB"),DateTimeStyles.None, out var parsedDob))
+        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd", new CultureInfo("en-GB"), DateTimeStyles.None, out var parsedDob))
         {
             return false;
         }
