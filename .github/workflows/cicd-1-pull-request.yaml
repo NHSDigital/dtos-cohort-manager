@@ -9,6 +9,10 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
 
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   metadata:
     name: "Set CI/CD metadata"
@@ -118,7 +122,7 @@ jobs:
   build-image-stage: # Recommended maximum execution time is 3 minutes
     name: "Image build stage"
     needs: [metadata, commit-stage, test-stage, analysis-stage]
-    uses: NHSDigital/dtos-devops-templates/.github/workflows/stage-3-build-images.yaml@main
+    uses: ./.github/workflows/stage-3-build-images.yaml
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     with:
       docker_compose_file: application/CohortManager/compose.yaml
@@ -126,6 +130,7 @@ jobs:
       environment_tag: ${{ needs.metadata.outputs.environment_tag }}
       function_app_source_code_path: application/CohortManager/src
       project_name: cohort-manager
+      build_all_images: true
     secrets: inherit
   acceptance-stage: # Recommended maximum execution time is 10 minutes
     name: "Acceptance stage"
@@ -141,6 +146,17 @@ jobs:
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
     secrets: inherit
+  deploy-stage:
+    if: github.ref == 'refs/heads/main' && github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'deploy')
+    name: Deploy pr-${{ github.event.pull_request.number }} for commit ${{ github.event.pull_request.head.sha }}
+    needs: [acceptance-stage]
+    permissions:
+      id-token: write
+    uses: ./.github/workflows/stage-4-deploy.yaml
+    with:
+      environments: "[\"sandbox\"]"
+      commit_sha: ${{ github.event.pull_request.head.sha }}
+    secrets: inherit
   validate-title-stage:
     name: Validate PR title
     runs-on: ubuntu-latest
@@ -152,7 +168,6 @@ jobs:
     steps:
       - uses: amannn/action-semantic-pull-request@v5
         id: validate
-
       - uses: thollander/actions-comment-pull-request@v2
         if: ${{ failure() && steps.validate.conclusion == 'failure' }}
         with:
