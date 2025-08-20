@@ -6,6 +6,7 @@ import { TestHooks } from '../../hooks/test-hooks';
 import { APIRequestContext, TestInfo } from '@playwright/test';
 import { config } from '../../../config/env';
 import { getRecordsFromExceptionService } from '../../../api/dataService/exceptionService';
+import { sendHttpGet, sendHttpPOSTCall } from '../../../api/core/sendHTTPRequest';
 
 annotation: [{
   type: 'Requirement',
@@ -67,7 +68,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
       let body = JSON.stringify(blockPayload);
       let response = await sendHttpPOSTCall(url, body);
       expect(response.status).toBe(200);
-      expect(response.data == "Participant Has been blocked");
+      expect(response.body == "Participant Has been blocked");
     });
     
 
