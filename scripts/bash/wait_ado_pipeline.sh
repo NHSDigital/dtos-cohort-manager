@@ -5,9 +5,9 @@ set -euo pipefail
 RUN_ID="$1"
 ORG_URL="$2"
 PROJECT="$3"
+TIMEOUT_SECONDS="${4:-300}"  # Default to 5 minutes if not provided
 
 SLEEP_TIME=15
-TIMEOUT_SECONDS=300
 
 echo "Waiting for Azure DevOps pipeline run $RUN_ID to complete..."
 
