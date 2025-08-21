@@ -27,8 +27,8 @@ parameters:
     default: smoke_e2e
 
 stages:
-  - stage: ${{ parameters.testType }}_stage
-    displayName: Run ${{ parameters.testType }} Tests
+  - stage: $adhoc_tests_stage
+    displayName: Run adhoc Tests
     condition: succeededOrFailed()
     variables:
       TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
