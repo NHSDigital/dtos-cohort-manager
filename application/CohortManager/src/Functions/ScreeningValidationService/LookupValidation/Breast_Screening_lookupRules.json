@@ -36,10 +36,6 @@
             "Expression": "!(EnglishPostingCategory || newParticipant.CurrentPosting == \"ENG\" || newParticipant.CurrentPosting == \"IM\" || newParticipant.CurrentPosting == \"DMS\")"
           },
           {
-            "Name": "PrimaryCareExists",
-            "Expression": "dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
-          },
-          {
             "Name": "IsExcluded",
             "Expression": "dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)"
           }
