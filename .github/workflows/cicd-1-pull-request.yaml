@@ -147,20 +147,8 @@ jobs:
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
     secrets: inherit
-  diagnostic-stage:
-    name: Debug PR Close/Merge Params
-    runs-on: ubuntu-latest
-    steps:
-      - name: Output PR event parameters
-        run: |
-          echo "github.event_name: ${{ github.event_name }}"
-          echo "github.event.action: ${{ github.event.action }}"
-          echo "github.event.pull_request.merged: ${{ github.event.pull_request.merged }}"
-          echo "github.event.pull_request.base.ref: ${{ github.event.pull_request.base.ref }}"
-          echo "github.event.pull_request.labels: ${{ toJson(github.event.pull_request.labels) }}"
-          echo "deploy label present: ${{ contains(github.event.pull_request.labels.*.name, 'deploy') }}"
   deploy-stage:
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' && contains(github.event.pull_request.labels.*.name, 'deploy')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Deploy pr-${{ github.event.pull_request.number }} for commit ${{ github.event.pull_request.head.sha }}
     needs: [metadata, build-image-stage]
     permissions:
