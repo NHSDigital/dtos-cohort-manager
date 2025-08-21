@@ -129,7 +129,7 @@ public class FhirParserHelperTests
             EmailAddressEffectiveFromDate = "2019-01-01",
 
             // Language Preferences
-            PreferredLanguage = "French",
+            PreferredLanguage = "fr",
             IsInterpreterRequired = "True",
 
             // Removal Information
@@ -428,7 +428,7 @@ public class FhirParserHelperTests
         var result = _fhirPatientDemographicMapper.ParseFhirJson(json);
 
         // Assert
-        Assert.AreEqual("French", result.PreferredLanguage);
+        Assert.AreEqual("fr", result.PreferredLanguage);
         Assert.IsNull(result.IsInterpreterRequired);
     }
 

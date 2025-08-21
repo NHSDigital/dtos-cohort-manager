@@ -17,7 +17,7 @@ public class BasicParticipantCsvRecord
 
     }
 
-    public BasicParticipantCsvRecord(ServiceNowParticipant serviceNowParticipant, PdsDemographic pdsDemographic, ParticipantManagement? participantManagement)
+    public BasicParticipantCsvRecord(ServiceNowParticipant serviceNowParticipant, ParticipantManagement? participantManagement)
     {
         FileName = serviceNowParticipant.ServiceNowCaseNumber;
         BasicParticipantData = new BasicParticipantData
@@ -29,7 +29,7 @@ public class BasicParticipantCsvRecord
         Participant = new Participant
         {
             ReferralFlag = "1",
-            Postcode = pdsDemographic.Postcode,
+            PrimaryCareProvider = serviceNowParticipant.RequiredGpCode,
             ScreeningAcronym = "BSS" // TODO: Remove hardcoding when adding support for additional screening programs
         };
     }

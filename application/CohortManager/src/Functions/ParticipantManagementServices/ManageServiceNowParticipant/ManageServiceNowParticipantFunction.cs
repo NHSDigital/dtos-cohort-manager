@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.ParticipantManagementServices;
 
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
@@ -56,9 +57,14 @@ public class ManageServiceNowParticipantFunction
                 return;
             }
 
-            // TODO: Add call to subscribe to NEMS (DTOSS-3881)
+            var subscribeToNemsSuccess = await SubscribeParticipantToNEMS(serviceNowParticipant.NhsNumber);
 
-            var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, pdsDemographic, participantManagement);
+            if (!subscribeToNemsSuccess)
+            {
+                _logger.LogError("Failed to subscribe participant with Id {ParticipantId} to NEMS", participantManagement.ParticipantId);
+            }
+
+            var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantManagement);
 
             var sendToQueueSuccess = await _queueClient.AddAsync(participantForDistribution, _config.CohortDistributionTopic);
 
@@ -76,14 +82,13 @@ public class ManageServiceNowParticipantFunction
     private async Task<PdsDemographic?> ValidateAndRetrieveParticipantFromPds(ServiceNowParticipant serviceNowParticipant)
     {
         var pdsResponse = await _httpClientFunction.SendGetResponse($"{_config.RetrievePdsDemographicURL}?nhsNumber={serviceNowParticipant.NhsNumber}");
-        string responseMessage = await _httpClientFunction.GetResponseText(pdsResponse);
 
         if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
         {
-            await HandleException(new Exception(responseMessage), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
+            await HandleException(new Exception("Request to PDS for ServiceNow Participant returned a NotFound response."), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
             return null;
         }
-        
+
         if (pdsResponse.StatusCode != HttpStatusCode.OK)
         {
             await HandleException(new Exception($"Request to PDS for ServiceNow Participant returned an unexpected response. Status code: {pdsResponse.StatusCode}"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
@@ -100,8 +105,7 @@ public class ManageServiceNowParticipantFunction
 
     private async Task<PdsDemographic?> DeserializePdsDemographic(HttpResponseMessage pdsResponse, ServiceNowParticipant serviceNowParticipant)
     {
-        var jsonString = await pdsResponse.Content.ReadAsStringAsync();
-        var pdsDemographic = JsonSerializer.Deserialize<PdsDemographic>(jsonString);
+        var pdsDemographic = await pdsResponse.Content.ReadFromJsonAsync<PdsDemographic>();
 
         if (pdsDemographic is null)
         {
@@ -243,5 +247,17 @@ public class ManageServiceNowParticipantFunction
     private static bool CheckIfVhrParticipant(ServiceNowParticipant serviceNowParticipant)
     {
         return serviceNowParticipant.ReasonForAdding == ServiceNowReasonsForAdding.VeryHighRisk;
+    }
+
+    private async Task<bool> SubscribeParticipantToNEMS(long nhsNumber)
+    {
+        var queryParams = new Dictionary<string, string>
+        {
+            {"nhsNumber", nhsNumber.ToString()}
+        };
+
+        var nemsSubscribeResponse = await _httpClientFunction.SendPost(_config.ManageNemsSubscriptionSubscribeURL, queryParams);
+
+        return nemsSubscribeResponse.IsSuccessStatusCode;
     }
 }
