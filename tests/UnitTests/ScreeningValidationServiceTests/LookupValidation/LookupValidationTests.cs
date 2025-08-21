@@ -315,8 +315,7 @@ public class LookupValidationTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(newCurrentPosting)).Returns(newCurrentPosting);
+        _lookupValidation.Setup(x => x.ValidatePostingCategories(newCurrentPosting)).Returns(true);
         _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(newCurrentPosting)).Returns(true);
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(false);
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(newPrimaryCareProvider)).Returns(false);
