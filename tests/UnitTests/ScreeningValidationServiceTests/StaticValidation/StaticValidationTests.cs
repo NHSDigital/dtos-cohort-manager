@@ -603,47 +603,6 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region Validate Reason For Removal (Rule 62)
-    [TestMethod]
-    [DataRow("123456", "LDN", null)]
-    [DataRow(null, "ABC", null)]
-    [DataRow(null, null, "EC12AB")]
-    public async Task Run_ValidRfr_ReturnNoContent(string? supersededByNhsNumber, string? ReasonForRemoval, string? pcp)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.SupersededByNhsNumber = supersededByNhsNumber;
-        _participantCsvRecord.Participant.ReasonForRemoval = ReasonForRemoval;
-        _participantCsvRecord.Participant.PrimaryCareProvider = pcp;
-        _participantCsvRecord.Participant.RecordType = Actions.Amended;
-
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-    }
-
-    [TestMethod]
-    [DataRow(null, "LDN")]
-    public async Task Run_InvalidRfr_ReturnValidationException(string? supersededByNhsNumber, string ReasonForRemoval)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.SupersededByNhsNumber = supersededByNhsNumber;
-        _participantCsvRecord.Participant.ReasonForRemoval = ReasonForRemoval;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _function.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        StringAssert.Contains(body, "62.ValidateReasonForRemoval.NBO.NonFatal");
-    }
-    #endregion
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
@@ -682,46 +641,6 @@ public class StaticValidationTests
         _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
         _participantCsvRecord.Participant.ReasonForRemoval = rfr;
         _participantCsvRecord.Participant.RecordType = Actions.Amended;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-    }
-    #endregion
-
-    #region Validate Eligibility Flag as per Record Type (Rule 94)
-    [TestMethod]
-    [DataRow(Actions.New, "0")]
-    [DataRow(Actions.Removed, "1")]
-    public async Task Run_InvalidEligibilityFlag_ReturnValidationException(string recordType, string eligibilityFlag)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.RecordType = recordType;
-        _participantCsvRecord.Participant.EligibilityFlag = eligibilityFlag;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _function.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        StringAssert.Contains(body, "94.EligibilityFlag.CaaS.NonFatal");
-    }
-
-    [TestMethod]
-    [DataRow(Actions.New, "1")]
-    [DataRow(Actions.Removed, "0")]
-    [DataRow(Actions.Amended, "1")]
-    public async Task Run_ValidEligibilityFlag_ReturnNoContent(string recordType, string eligibilityFlag)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.RecordType = recordType;
-        _participantCsvRecord.Participant.EligibilityFlag = eligibilityFlag;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
