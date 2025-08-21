@@ -1,0 +1,89 @@
+{
+  "validations": [
+     {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "AMENDED",
+        "NHSNumber": 9990000026,
+        "ReferralFlag": 1,
+        "ScreeningId": 1,
+        "IsHigherRisk": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8484-05",
+        "requirementJiraId": "@DTOSS-8484-05",
+        "additionalTags": "@DTOSS-8484-06 @e2e @epic4c- Verify exception is raised when record fails to meet validation rules 3, Verify Participant exists in Participant Management"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9990000026,
+        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8484-06",
+        "requirementJiraId": "@DTOSS-8484-06",
+        "additionalTags": "@DTOSS-8484-06 @e2e @epic4c- Verify exception is raised when record fails to meet validation rules 3, Record does not exit exists in CohortDistribution"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9990000026",
+        "RuleId": 30,
+        "RuleDescription": "Postcode invalid"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8484-07",
+        "requirementJiraId": "DTOSS-8484",
+        "additionalTags": "@DTOSS-8484-07 @e2e @epic4c- Verify exception is raised when record fails to meet validation rules 3, Record fails postcode validation logged in exception management"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "AMENDED",
+      "change_time_stamp": null,
+      "serial_change_number": 2,
+      "nhs_number": 9990000026,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": null,
+      "primary_care_effective_from_date": null,
+      "current_posting": null,
+      "current_posting_effective_from_date": null,
+      "name_prefix": "Mrs",
+      "given_name": "Jane",
+      "other_given_name": null,
+      "family_name": "Wright",
+      "previous_family_name": null,
+      "date_of_birth": "19841022",
+      "gender": 2,
+      "address_line_1": "1 Trevelyan Square",
+      "address_line_2": "Boar Lane",
+      "address_line_3": "City Centre",
+      "address_line_4": "Leeds",
+      "address_line_5": "West Yorkshire",
+      "postcode": "LS189H6AE",
+      "paf_key": "12345678",
+      "address_effective_from_date": "20200101",
+      "reason_for_removal": "SCT",
+      "reason_for_removal_effective_from_date": "",
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "01619999999",
+      "home_telephone_effective_from_date": "20240909",
+      "mobile_telephone_number": null,
+      "mobile_telephone_effective_from_date": null,
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": null,
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9992039310"
+  ]
+}

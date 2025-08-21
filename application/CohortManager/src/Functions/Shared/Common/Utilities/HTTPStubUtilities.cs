@@ -20,7 +20,7 @@ public static class HttpStubUtilities
         }
         HttpResponseData.Headers.Location = location;
         HttpResponseData.Content = new StringContent(content);
-        HttpResponseData.StatusCode = HttpStatusCode.OK;
+        HttpResponseData.StatusCode = httpStatusCode;
         return HttpResponseData;
     }
 
