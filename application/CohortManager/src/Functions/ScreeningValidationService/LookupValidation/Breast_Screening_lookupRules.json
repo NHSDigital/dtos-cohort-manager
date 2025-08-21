@@ -76,36 +76,6 @@
           }
         ],
         "Expression": "!(reasonForRemoval AND postcode AND primaryCareProvider)"
-      },
-      {
-        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.ParticipantLocationRemainingOutsideOfCohort.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "ExistingParticipantInDMS",
-            "Expression": "(!string.IsNullOrEmpty(existingParticipant.CurrentPosting) AND  existingParticipant.CurrentPosting == \"DMS\" AND !string.IsNullOrEmpty(existingParticipant.PrimaryCareProvider) AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(existingParticipant.PrimaryCareProvider))"
-          },
-          {
-            "Name": "existingParticipantPosting",
-            "Expression": "ExistingParticipantInDMS OR (dbLookup.RetrievePostingCategory(existingParticipant.CurrentPosting) == \"WALES\")"
-          },
-          {
-            "Name": "NewParticipantInDMS",
-            "Expression": "(!string.IsNullOrEmpty(existingParticipant.CurrentPosting) AND  newParticipant.CurrentPosting == \"DMS\" AND !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider))"
-          },
-          {
-            "Name": "newParticipantPosting",
-            "Expression": "NewParticipantInDMS OR (dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"WALES\")"
-          }
-        ],
-        "Expression": "!(existingParticipantPosting AND newParticipantPosting)",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Resident in not included area in cohort moving to same or another area not included in cohort.\""
-            }
-          }
-        }
       }
     ]
   }
