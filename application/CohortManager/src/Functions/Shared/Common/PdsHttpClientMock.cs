@@ -42,7 +42,8 @@ public class PdsHttpClientMock : HttpClientFunction
 
         if (patient == null)
         {
-            return HttpStubUtilities.CreateFakeHttpResponse(url, "NotFound", HttpStatusCode.NotFound);
+            var notFoundResponseBody = await File.ReadAllTextAsync("MockedPDSData/patient-not-found.json");
+            return HttpStubUtilities.CreateFakeHttpResponse(url, notFoundResponseBody, HttpStatusCode.NotFound);
         }
         return HttpStubUtilities.CreateFakeHttpResponse(url, patient);
 

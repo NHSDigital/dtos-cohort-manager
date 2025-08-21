@@ -75,13 +75,13 @@ public class RetrievePdsDemographic
             var response = await _httpClientFunction.SendPdsGet(url, bearerToken);
             string jsonResponse = "";
 
+            jsonResponse = await _httpClientFunction.GetResponseText(response);
+
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
                 await _pdsProcessor.ProcessPdsNotFoundResponse(response, nhsNumber, sourceFileName);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404 please database for details");
             }
-
-            jsonResponse = await _httpClientFunction.GetResponseText(response);
 
             var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
 
