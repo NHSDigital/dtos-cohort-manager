@@ -1,4 +1,4 @@
-curl -i -X POST -H 'Content-Type: application/json' http://localhost:2525/imposters --data '{
+{
   "port": 4545,
   "protocol": "http",
   "recordRequests": "true",
@@ -80,4 +80,4 @@ curl -i -X POST -H 'Content-Type: application/json' http://localhost:2525/impost
       ]
     }
   ]
-}'
+}

@@ -115,8 +115,7 @@ The validation engine accepts a JSON configuration to validate API responses. Be
 
 ### mountebank
 
-1. install - `npm install -g mountebank`
-2. run - `mb`
-3. create the imposter using curl, copy the curl command from [mb-imposter.txt](mb-imposter.txt)
-4. send requests to the stubs as defined in [mb-imposter.txt](mb-imposter.txt)
-5. query http://localhost:2525/imposters/4545 to see requests made to the imposter
+1. Install - `npm install -g mountebank`
+2. Run - `mb --configfile mb-imposter.json`
+3. Send requests to the stubs as defined in [mb-imposter.txt](mb-imposter.json)
+4. GET http://localhost:2525/imposters/4545 to see requests made to the stubs
