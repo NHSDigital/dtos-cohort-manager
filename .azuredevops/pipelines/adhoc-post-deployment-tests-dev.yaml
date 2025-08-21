@@ -33,7 +33,7 @@ stages:
     variables:
       TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
     jobs:
-      - job: ${{ testType }}_job
+      - job: ${{ parameters.testType }}_job
         pool:
           name: private-pool-dev-uks
         steps:
