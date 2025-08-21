@@ -27,8 +27,8 @@ parameters:
     default: smoke_e2e
 
 stages:
-  - stage: ${{ testType }}_stage
-    displayName: Run ${{ testType }} Tests
+  - stage: ${{ parameters.testType }}_stage
+    displayName: Run ${{ parameters.testType }} Tests
     condition: succeededOrFailed()
     variables:
       TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
@@ -43,4 +43,4 @@ stages:
               testProjectDirectory: "tests/playwright-tests"
               testfileDirectory: "src/tests/e2e/testFiles"
               testProjectName: "tests"
-              testType: ${{ testType }}
+              testType: ${{ parameters.testType }}
