@@ -149,7 +149,7 @@ jobs:
     secrets: inherit
   deploy-stage:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    name: Deploy pr-${{ github.event.pull_request.number }} for commit ${{ github.event.pull_request.head.sha }}
+    name: Deploy environments for commit ${{ github.sha }}
     needs: [metadata, build-image-stage]
     permissions:
       id-token: write
@@ -157,7 +157,7 @@ jobs:
     uses: ./.github/workflows/stage-4-deploy.yaml
     with:
       environments: "[\"sandbox\"]"
-      commit_sha: ${{ github.event.pull_request.head.sha }}
+      commit_sha: ${{ github.sha }}
     secrets: inherit
   validate-title-stage:
     name: Validate PR title
