@@ -28,4 +28,5 @@
 
 export const runnerBasedEpic4cTestScenariosAdd = "@DTOSS-9337-01";
 export const runnerBasedEpic4cTestScenariosAmend = "@DTOSS-9337-01";
-export const runnerBasedEpic4cTestScenariosManualAdd = "@DTOSS-3883-01";
+// Include DTOSS-10022 manual self-referral validation alongside existing scenario
+export const runnerBasedEpic4cTestScenariosManualAdd = "@DTOSS-3883-01|@DTOSS-8569-01";
