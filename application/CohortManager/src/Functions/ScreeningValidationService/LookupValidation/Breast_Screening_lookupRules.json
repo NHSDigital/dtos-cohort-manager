@@ -28,15 +28,23 @@
         "RuleName": "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal",
         "LocalParams": [
           {
-            "Name": "AcceptedCurrentPosting",
-            "Expression": "newParticipant.CurrentPosting != null && dbLookup.ValidatePostingCategories(newParticipant.CurrentPosting)"
+            "Name": "EnglishPostingCategory",
+            "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\""
+          },
+          {
+            "Name": "InvalidPostingCategory",
+            "Expression": "!(EnglishPostingCategory || newParticipant.CurrentPosting == \"ENG\" || newParticipant.CurrentPosting == \"IM\" || newParticipant.CurrentPosting == \"DMS\")"
+          },
+          {
+            "Name": "PrimaryCareExists",
+            "Expression": "dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
           },
           {
             "Name": "IsExcluded",
             "Expression": "dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)"
-          }  
+          }
         ],
-        "Expression": "!AcceptedCurrentPosting || ValidPrimaryCareProvider || IsExcluded",
+        "Expression": "(InvalidPostingCategory || ValidPrimaryCareProvider || IsExcluded)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
