@@ -302,14 +302,9 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-
     [DataRow("DMS", "Z00000")]
     [DataRow("ENG", "Z00000")] 
-    [DataRow("IM", "Z00000")] 
-    public async Task Run_ParticipantPrimaryCareProviderDoesNotExistAndNotInExcludedSMU_ReturnValidationException(string newCurrentPosting, string newPrimaryCareProvider)
-    [DataRow("DMS", "ABC")]
-    [DataRow("ENG", "ABC")] 
-    [DataRow("IM", "ABC")] 
+    [DataRow("IM", "Z00000")]
     public async Task Run_ParticipantLocationRemainingOutsideOfCohortAndNotInExcludedSMU_ReturnValidationException(string newCurrentPosting, string newPrimaryCareProvider)
     {
         // Arrange
