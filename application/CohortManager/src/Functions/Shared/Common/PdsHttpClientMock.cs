@@ -50,12 +50,13 @@ public class PdsHttpClientMock : HttpClientFunction
 
     }
 
-    private static async Task<string?> GetPatientMockObject(string? nhsNumber = null)
+    private async Task<string?> GetPatientMockObject(string? nhsNumber = null)
     {
 
         string path = nhsNumber is null ? "MockedPDSData/complete-patient.json" : $"MockedPDSData/complete-patient-{nhsNumber}.json";
         if (!File.Exists(path))
         {
+            _logger.LogWarning("Mocked PDS Data file couldn't be found");
             return null;
         }
         return await File.ReadAllTextAsync(path);
