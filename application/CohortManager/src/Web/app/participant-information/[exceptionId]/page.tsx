@@ -54,6 +54,7 @@ export default async function Page(props: {
       shortDescription: ruleMapping.ruleDescription,
       moreDetails: ruleMapping.moreDetails,
       reportingId: ruleMapping.reportingId,
+      portalFormTitle: ruleMapping.portalFormTitle,
       dateOfBirth: exception.ExceptionDetails.DateOfBirth,
       gender: exception.ExceptionDetails.Gender,
       address: `${exception.ExceptionDetails.ParticipantAddressLine1}${
@@ -118,7 +119,8 @@ export default async function Page(props: {
                       Portal form used
                     </dt>
                     <dd className="nhsuk-summary-list__value">
-                      Request to amend incorrect patient PDS record data
+                      {exceptionDetails.portalFormTitle ||
+                        "Request to amend incorrect patient PDS record data"}
                     </dd>
                     <dd className="nhsuk-summary-list__actions"></dd>
                   </div>

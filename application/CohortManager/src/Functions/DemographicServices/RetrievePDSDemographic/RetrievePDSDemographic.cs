@@ -5,7 +5,6 @@ using System.Net;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
-using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
