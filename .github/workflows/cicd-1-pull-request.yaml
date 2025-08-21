@@ -158,7 +158,7 @@ jobs:
     with:
       environments: "[\"sandbox\"]"
       commit_sha: ${{ github.sha }}
-      secrets: inherit
+    secrets: inherit
   validate-title-stage:
     name: Validate PR title
     runs-on: ubuntu-latest
