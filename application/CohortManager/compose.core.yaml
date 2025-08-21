@@ -113,7 +113,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/ManageServiceNowParticipant/Dockerfile
-    profiles: [non-essential]
+    profiles: [service-now]
     environment:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ServiceNowParticipantManagementTopic=servicenow-participant-management-topic
@@ -267,7 +267,7 @@ services:
       container_name: manage-nems-subscription
       image: cohort-manager-manage-nems-subscription
       networks: [cohman-network]
-      profiles: [nems]
+      profiles: [nems, service-now]
       build:
         context: ./src/Functions/
         dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile
