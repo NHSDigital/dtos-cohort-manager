@@ -90,11 +90,11 @@ public class FhirParserHelperTests
             ParticipantId = null,
             RecordUpdateDateTime = null,
             RecordInsertDateTime = null,
-            DateOfBirth = "20101022",
+            DateOfBirth = "2010-10-22",
 
             // Primary Care Provider
             PrimaryCareProvider = "Y12345",
-            PrimaryCareProviderEffectiveFromDate = "20200101",
+            PrimaryCareProviderEffectiveFromDate = "2020-01-01",
 
             // Name Information
             NamePrefix = "Mrs",
@@ -114,7 +114,7 @@ public class FhirParserHelperTests
             AddressLine5 = "West Yorkshire",
             Postcode = "LS1 6AE",
             PafKey = "12345678",
-            UsualAddressEffectiveFromDate = "20200101",
+            UsualAddressEffectiveFromDate = "2020-01-01",
 
             // Death Information
             DateOfDeath = "2010-10-22T00:00:00+00:00",
@@ -122,11 +122,11 @@ public class FhirParserHelperTests
 
             // Contact Information
             TelephoneNumber = "01632960587", // Home phone
-            TelephoneNumberEffectiveFromDate = "20200101",
+            TelephoneNumberEffectiveFromDate = "2020-01-01",
             MobileNumber = null, // No mobile phone in the sample
             MobileNumberEffectiveFromDate = null,
             EmailAddress = "jane.smith@example.com",
-            EmailAddressEffectiveFromDate = "20190101",
+            EmailAddressEffectiveFromDate = "2019-01-01",
 
             // Language Preferences
             PreferredLanguage = "fr",
@@ -215,7 +215,7 @@ public class FhirParserHelperTests
 
         // Basic Information
         Assert.AreEqual("9000000025", result.NhsNumber);
-        Assert.AreEqual("20101022", result.DateOfBirth);
+        Assert.AreEqual("2010-10-22", result.DateOfBirth);
         Assert.AreEqual(Gender.Female, result.Gender);
 
         // Name Information
@@ -340,7 +340,7 @@ public class FhirParserHelperTests
 
         // Assert
         Assert.AreEqual("07700900123", result.MobileNumber);
-        Assert.AreEqual("20200101", result.MobileNumberEffectiveFromDate);
+        Assert.AreEqual("2020-01-01", result.MobileNumberEffectiveFromDate);
     }
 
     [TestMethod]
