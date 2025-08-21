@@ -5,11 +5,12 @@ services:
   retrieve-mesh-file:
     container_name: retrieve-mesh-file
     image: cohort-manager-retrieve-mesh-file
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CaasIntegration/RetrieveMeshFile/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [non-essential]
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -25,11 +26,12 @@ services:
   nems-mesh-retrieval:
     container_name: nems-mesh-retrieval
     image: cohort-manager-nems-mesh-retrieval
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: NemsSubscriptionService/NemsMeshRetrieval/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [nems]
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -48,11 +50,12 @@ services:
   process-nems-update:
     container_name: process-nems-update
     image: cohort-manager-process-nems-update
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: NemsSubscriptionService/ProcessNemsUpdate/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:9083
@@ -69,11 +72,12 @@ services:
   receive-caas-file:
     container_name: receive-caas-file
     image: cohort-manager-receive-caas-file
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CaasIntegration/receiveCaasFile/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     ports:
       - "7060:7060"
     environment:
@@ -99,11 +103,12 @@ services:
   manage-participant:
     container_name: manage-participant
     image: cohort-manager-manage-participant
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/ManageParticipant/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     environment:
       - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
@@ -116,11 +121,12 @@ services:
   manage-servicenow-participant:
     container_name: manage-servicenow-participant
     image: cohort-manager-manage-servicenow-participant
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/ManageServiceNowParticipant/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [non-essential]
     environment:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -137,11 +143,12 @@ services:
   update-blocked-flag:
     container_name: update-blocked-flag
     image: cohort-manager-update-blocked-flag
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/UpdateBlockedFlag/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [non-essential]
     ports:
       - "7027:7027"
@@ -158,13 +165,14 @@ services:
   delete-participant:
     container_name: delete-participant
     image: cohort-manager-delete-participant
-    platform: "linux/amd64"
     networks: [cohman-network]
     ports:
     - "7087:7087"
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/DeleteParticipant/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     environment:
       - ASPNETCORE_URLS=http://*:7087
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -177,11 +185,12 @@ services:
   create-exception:
     container_name: create-exception
     image: cohort-manager-create-exception
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ExceptionHandling/CreateException/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -192,11 +201,12 @@ services:
   update-exception:
     container_name: update-exception
     image: cohort-manager-update-exception
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ExceptionHandling/UpdateException/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:7070
@@ -206,11 +216,12 @@ services:
   get-validation-exceptions:
     container_name: get-validation-exceptions
     image: cohort-manager-get-validation-exceptions
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/GetValidationExceptions/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [ui]
     environment:
       - ASPNETCORE_URLS=http://*:7071
@@ -224,11 +235,12 @@ services:
   static-validation:
     container_name: static-validation
     image: cohort-manager-static-validation
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ScreeningValidationService/StaticValidation/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     environment:
       - ASPNETCORE_URLS=http://*:7074
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -237,11 +249,12 @@ services:
   lookup-validation:
     container_name: lookup-validation
     image: cohort-manager-lookup-validation
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ScreeningValidationService/LookupValidation/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     environment:
       - ASPNETCORE_URLS=http://*:7075
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -257,11 +270,12 @@ services:
   retrieve-pds-demographic:
     container_name: retrieve-pds-demographic
     image: cohort-manager-retrieve-pds-demographic
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: DemographicServices/RetrievePDSDemographic/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [service-now, nems]
     ports:
       - 8082:8082
@@ -282,12 +296,13 @@ services:
   manage-nems-subscription:
       container_name: manage-nems-subscription
       image: cohort-manager-manage-nems-subscription
-      platform: "linux/amd64"
       networks: [cohman-network]
       profiles: [nems]
       build:
         context: ./src/Functions/
         dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile
+        args:
+          PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
       environment:
         - ASPNETCORE_URLS=http://*:9081
         - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
@@ -312,11 +327,12 @@ services:
   durable-demographic-function:
     container_name: durable-demographic-function
     image: cohort-manager-durable-demographic-function
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: DemographicServices/DemographicDurableFunction/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     environment:
       - ASPNETCORE_URLS=http://*:7079
       - WEBSITE_HOSTNAME=durable-demographic-function:7079
@@ -330,11 +346,12 @@ services:
   servicenow-message-handler:
     container_name: servicenow-message-handler
     image: cohort-manager-servicenow-message-handler
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegration/ServiceNowMessageHandler/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:9092
@@ -353,11 +370,12 @@ services:
   servicenow-cohort-lookup:
     container_name: servicenow-cohort-lookup
     image: cohort-manager-servicenow-cohort-lookup
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegration/ServiceNowCohortLookup/Dockerfile
+      args:
+        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:7180
@@ -371,7 +389,6 @@ services:
     build:
       context: ./src/Web
       dockerfile: Dockerfile
-    platform: "linux/amd64"
     restart: always
     profiles: [ui]
     ports:

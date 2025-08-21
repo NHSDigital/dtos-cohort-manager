@@ -1,0 +1,42 @@
+name: cohort-manager
+
+services:
+  retrieve-mesh-file:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  nems-mesh-retrieval:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  process-nems-update:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  receive-caas-file:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  manage-participant:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  manage-servicenow-participant:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  update-blocked-flag:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  delete-participant:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  create-exception:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  update-exception:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  get-validation-exceptions:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  static-validation:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  lookup-validation:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  retrieve-pds-demographic:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  manage-nems-subscription:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  durable-demographic-function:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  servicenow-message-handler:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  servicenow-cohort-lookup:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  web:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+

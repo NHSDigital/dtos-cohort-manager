@@ -1,0 +1,26 @@
+name: cohort-manager
+
+services:
+  exception-management-data-service:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  bs-request-audit-data-service:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  screening-lkp-data-service:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  gene-code-lkp-data-service:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  higher-risk-referral-reason-lkp-data-service:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  participant-demographic-data-service:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  participant-management-data-service:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  cohort-distribution-data-service:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  nems-subscription-data-service:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  reference-data-service:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+  servicenow-cases-data-service:
+    platform: "${PLATFORM_OVERRIDE:-linux/amd64}"
+
