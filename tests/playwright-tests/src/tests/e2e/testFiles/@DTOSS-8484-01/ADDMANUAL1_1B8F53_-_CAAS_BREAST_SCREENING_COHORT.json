@@ -1,0 +1,50 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "RecordType": "ADD",
+        "NHSNumber": 9997614018,
+        "ReferralFlag" : 1,
+        "ScreeningId" : 1,
+        "IsHigherRisk": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3883-01",
+        "requirementJiraId": "@DTOSS-3883-01",
+        "additionalTags": "@DTOSS-8484-02 @e2e @epic4c- VHR, Tests Listed Rule 3 validation is passed, Record exists in CohortDistribution"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "ADD",
+        "NHSNumber": 9997614018,
+        "ReferralFlag" : 1,
+        "ScreeningId" : 1,
+        "IsHigherRisk": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8484-01",
+        "requirementJiraId": "@DTOSS-8484-01",
+        "additionalTags": "@DTOSS-8484-01 @e2e @epic4c- Self-Referral,This test case is to validate that participant record with Screening ID = 1 and the Referral_flag = true has passed rule 3 validation"
+      }
+    }
+  ],
+ "inputParticipantRecord": [
+    {
+      "record_type": "ADD",
+      "serial_change_number": 1,
+      "nhs_number": "9997614018",
+      "forename_": "Jane",
+      "surname_family_name": "Doe",
+      "date_of_birth": "2010-10-22",
+      "enter_dummy_gp_code": "ZZZDKL",
+      "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+      "reason_for_adding": "eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached"
+    }
+  ],
+  "nhsNumbers": [
+    "9997614018"
+  ]
+}
