@@ -150,7 +150,6 @@ jobs:
   diagnostic-stage:
     name: Debug PR Close/Merge Params
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
     steps:
       - name: Output PR event parameters
         run: |
