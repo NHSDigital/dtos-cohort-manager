@@ -27,7 +27,7 @@ parameters:
     default: smoke_e2e
 
 stages:
-  - stage: $adhoc_tests_stage
+  - stage: adhoc_tests_stage
     displayName: Run adhoc Tests
     condition: succeededOrFailed()
     variables:
