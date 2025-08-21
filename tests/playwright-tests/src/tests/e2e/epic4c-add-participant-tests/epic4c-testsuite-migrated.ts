@@ -28,4 +28,7 @@
 
 export const runnerBasedEpic4cTestScenariosAdd = "@DTOSS-9337-01";
 export const runnerBasedEpic4cTestScenariosAmend = "@DTOSS-9337-01";
+// export const runnerBasedEpic4cTestScenariosManualAdd = "";
 export const runnerBasedEpic4cTestScenariosManualAdd = "@DTOSS-3883-01";
+export const runnerBasedEpic4cTestScenariosManualAmend = "@DTOSS-3883-01";
+//export const runnerBasedEpic4cTestScenariosManualAmend = "";
