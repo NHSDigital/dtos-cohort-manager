@@ -88,4 +88,4 @@ jobs:
 
           echo "Click here to view the ADO pipeline: ${organisation}/${project_name}/_build/results?buildId=${RUN_ID}"
 
-          scripts/bash/wait_ado_pipeline.sh "$RUN_ID" https://dev.azure.com/nhse-dtos "${project_name}" 1800
+          scripts/bash/wait_ado_pipeline.sh "$RUN_ID" "${organisation}" "${project_name}" 1800
