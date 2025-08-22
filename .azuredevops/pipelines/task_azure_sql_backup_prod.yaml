@@ -1,0 +1,53 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+schedules:
+  - cron: "0 2 * * *" # Run daily at 2:00 AM UTC
+    displayName: 'Run Backup'
+    branches:
+      include:
+      - main
+    always: true
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 34a7e5c3072bddaa350804905c60b9c8e7ae7191
+      endpoint: NHSDigital
+
+variables:
+  - name: hostPoolName
+    value: private-pool-prod-uks
+  - group: PROD_core_backend
+  - group: PROD_image_pipelines
+  - name: TF_VERSION
+    value: 1.11.4
+  - name: TF_PLAN_ARTIFACT
+    value: tf_plan_core_PROD
+  - name: TF_DIRECTORY
+    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
+  - name: ENVIRONMENT
+    value: production
+
+stages:
+- stage: db_backup_stage
+  displayName: Database backup stage
+  pool:
+    name: $(hostPoolName)
+  jobs:
+    - job: db_changes
+      displayName: Create Database Backup and Upload to Storage Account
+      steps:
+        - checkout: self
+        - checkout: dtos-devops-templates
+        - template: .azuredevops/templates/steps/app-container-job-start.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: $(SERVICE_CONNECTION)
+            targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+            resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
+            jobName: ca-db-backup-uksouth
