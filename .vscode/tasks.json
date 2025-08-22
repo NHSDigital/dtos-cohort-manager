@@ -1,0 +1,660 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Restart dependencies",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose -f compose.deps.yaml down && podman compose -f compose.deps.yaml up"
+      },
+      "windows": {
+        "command": "docker compose -f compose.deps.yaml down && docker compose -f compose.deps.yaml up",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "cwd": "./application/CohortManager"
+      }
+    },
+    {
+      "label": "Restart application",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose down && podman compose up"
+      },
+      "windows": {
+        "command": "docker compose down && docker compose up",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "cwd": "./application/CohortManager"
+      }
+    },
+    {
+      "label": "Build applciation in docker",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose down && podman compose -f compose.core.yaml build && podman compose -f compose.cohort-distribution.yaml build && podman compose -f compose.data-services.yaml build"
+      },
+      "windows": {
+        "command": "docker compose down && docker compose -f compose.core.yaml build && docker compose -f compose.cohort-distribution.yaml build && docker compose -f compose.data-services.yaml build",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        },
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
+      },
+      "options": {
+        "cwd": "./application/CohortManager",
+        "statusbar": {
+          "hide": false
+        }
+      }
+    },
+    {
+      "label": "Run DB Migrations",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose -f compose.deps.yaml down db-migration && podman compose -f compose.deps.yaml build db-migration && podman compose -f compose.deps.yaml up db-migration"
+      },
+      "windows": {
+        "command": "docker compose -f compose.deps.yaml down db-migration && docker compose -f compose.deps.yaml build db-migration && docker compose -f compose.deps.yaml up db-migration",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "cwd": "./application/CohortManager"
+      }
+    },
+    {
+      "label": "Restart whole application (incl. non-essential services)",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose --profile \"*\" down && podman compose --profile \"*\" up"
+      },
+      "windows": {
+        "command": "docker compose --profile \"*\" down && docker compose --profile \"*\" up",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "new"
+      },
+      "options": {
+        "cwd": "./application/CohortManager"
+      }
+    },
+    {
+      "label": "Build whole application (incl. non-essential services)",
+      "type": "shell",
+      "osx": {
+        "command": "podman compose down && podman compose -f compose.core.yaml --profile \"*\" build && podman compose -f compose.cohort-distribution.yaml --profile \"*\" build && podman compose -f compose.data-services.yaml --profile \"*\" build"
+      },
+      "windows": {
+        "command": "docker compose down && docker compose -f compose.core.yaml --profile \"*\" build && docker compose -f compose.cohort-distribution.yaml --profile \"*\" build && docker compose -f compose.data-services.yaml --profile \"*\" build",
+        "options": {
+          "shell": {
+            "executable": "wsl.exe"
+          }
+        }
+      },
+      "group": {
+        "kind": "build"
+      },
+      "options": {
+        "cwd": "./application/CohortManager",
+        "statusbar": {
+          "hide": false
+        }
+      }
+    },
+    {
+      "label": "Run All Functions",
+      "dependsOrder": "parallel",
+      "dependsOn": [
+        "CaasIntegration/receiveCaasFile",
+        "CaasIntegration/RetrieveMeshFile",
+        "DemographicServices/DemographicDurableFunction",
+        "DemographicServices/ManageNemsSubscription",
+        "DemographicServices/RetrievePDSDemographic",
+        "ParticipantManagementServices/DeleteParticipant",
+        "ParticipantManagementServices/ManageParticipant",
+        "ParticipantManagementServices/ManageServiceNowParticipant",
+        "ParticipantManagementServices/UpdateBlockedFlag",
+        "ExceptionHandling/CreateException",
+        "ExceptionHandling/UpdateException",
+        "screeningDataServices/BsSelectRequestAudit",
+        "screeningDataServices/CohortDistributionDataService",
+        "screeningDataServices/ExceptionManagementDataService",
+        "screeningDataServices/GeneCodeLkpDataService",
+        "screeningDataServices/GetValidationExceptions",
+        "screeningDataServices/HigherRiskReferralReasonLkpDataService",
+        "screeningDataServices/NemsSubscriptionDataService",
+        "screeningDataServices/ParticipantDemographicDataService",
+        "screeningDataServices/ParticipantManagementDataService",
+        "screeningDataServices/ReferenceDataService",
+        "screeningDataServices/ScreeningLkpDataService",
+        "screeningDataServices/ServiceNowCasesDataService",
+        "ScreeningValidationService/LookupValidation",
+        "ScreeningValidationService/RemoveValidationException",
+        "ScreeningValidationService/StaticValidation",
+        "CohortDistributionServices/DistributeParticipant",
+        "CohortDistributionServices/RetrieveCohortDistribution",
+        "CohortDistributionServices/RetrieveCohortRequest",
+        "CohortDistributionServices/TransformDataService",
+      ],
+      "options": {
+        "statusbar": {
+          "hide": true
+        }
+      },
+      "problemMatcher": [
+        "$func-dotnet-watch"
+      ],
+      "isBackground": true
+    },
+    {
+      "label": "CaasIntegration/receiveCaasFile",
+      "type": "shell",
+      "command": "func start",
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CaasIntegration/receiveCaasFile",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CaasIntegration/RetrieveMeshFile",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 1 && func start"
+      },
+      "windows": {
+        "command": "timeout 1 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CaasIntegration/RetrieveMeshFile",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "DemographicServices/DemographicDurableFunction",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 1.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 2 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/DemographicServices/DemographicDurableFunction",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "ParticipantManagementServices/DeleteParticipant",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 2 && func start"
+      },
+      "windows": {
+        "command": "timeout 3 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/DeleteParticipant",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "ParticipantManagementServices/ManageParticipant",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 2.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 4 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/ManageParticipant",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "ParticipantManagementServices/ManageServiceNowParticipant",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 3 && func start"
+      },
+      "windows": {
+        "command": "timeout 5 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/ManageServiceNowParticipant",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "ExceptionHandling/CreateException",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 4 && func start"
+      },
+      "windows": {
+        "command": "timeout 7 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ExceptionHandling/CreateException",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "ExceptionHandling/UpdateException",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 3.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 6 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ExceptionHandling/UpdateException",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/BsSelectRequestAudit",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 4.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 8 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/BsSelectRequestAudit",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/CohortDistributionDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 5 && func start"
+      },
+      "windows": {
+        "command": "timeout 9 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/CohortDistributionDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/ExceptionManagementDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 5.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 10 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ExceptionManagementDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/GeneCodeLkpDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 6 && func start"
+      },
+      "windows": {
+        "command": "timeout 11 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/GeneCodeLkpDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/GetValidationExceptions",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 6.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 12 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/GetValidationExceptions",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "ScreeningValidationService/LookupValidation",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 7 && func start"
+      },
+      "windows": {
+        "command": "timeout 13 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/LookupValidation",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "ScreeningValidationService/RemoveValidationException",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 7.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 14 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/RemoveValidationException",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "ScreeningValidationService/StaticValidation",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 8 && func start"
+      },
+      "windows": {
+        "command": "timeout 15 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/StaticValidation",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/CreateCohortDistribution",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 8.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 16 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/CreateCohortDistribution",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/RetrieveParticipantData",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 9 && func start"
+      },
+      "windows": {
+        "command": "timeout 17 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RetrieveParticipantData",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/ServiceProviderAllocationService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 9.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 18 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/ServiceProviderAllocationService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/ValidateCohortDistributionRecord",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 10 && func start"
+      },
+      "windows": {
+        "command": "timeout 19 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/ValidateCohortDistributionRecord",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/TransformDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 10.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 20 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/TransformDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/AddCohortDistributionData",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 11 && func start"
+      },
+      "windows": {
+        "command": "timeout 21 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/AddCohortDistributionData",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/ScreeningLkpDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 11 && func start"
+      },
+      "windows": {
+        "command": "timeout 21 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ScreeningLkpDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    }
+  ]
+}
