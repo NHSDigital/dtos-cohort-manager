@@ -170,7 +170,7 @@
         "ScreeningValidationService/StaticValidation",
         "CohortDistributionServices/DistributeParticipant",
         "CohortDistributionServices/RetrieveCohortDistribution",
-        "CohortDistributionServices/RetrieveCohortRequest",
+        "CohortDistributionServices/RetrieveCohortRequestAudit",
         "CohortDistributionServices/TransformDataService",
       ],
       "options": {
@@ -639,10 +639,10 @@
       "label": "screeningDataServices/ScreeningLkpDataService",
       "type": "shell",
       "osx": {
-        "command": "sleep 11 && func start"
+        "command": "sleep 11.5 && func start"
       },
       "windows": {
-        "command": "timeout 21 && func start",
+        "command": "timeout 22 && func start",
         "options": {
           "shell": {
             "executable": "cmd.exe"
@@ -651,6 +651,195 @@
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/screeningDataServices/ScreeningLkpDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/HigherRiskReferralReasonLkpDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 12 && func start"
+      },
+      "windows": {
+        "command": "timeout 23 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/HigherRiskReferralReasonLkpDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/NemsSubscriptionDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 12.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 24 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/NemsSubscriptionDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/ParticipantDemographicDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 13 && func start"
+      },
+      "windows": {
+        "command": "timeout 25 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ParticipantDemographicDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/ParticipantManagementDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 13.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 26 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ParticipantManagementDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+     {
+      "label": "screeningDataServices/ReferenceDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 14 && func start"
+      },
+      "windows": {
+        "command": "timeout 27 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ReferenceDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/ServiceNowCasesDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 14.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 28 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ServiceNowCasesDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/DistributeParticipant",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 15 && func start"
+      },
+      "windows": {
+        "command": "timeout 29 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/DistributeParticipant",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/RetrieveCohortDistribution",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 15.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 30 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RetrieveCohortDistribution",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/RetrieveCohortRequestAudit",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 16 && func start"
+      },
+      "windows": {
+        "command": "timeout 31 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RetrieveCohortRequestAudit",
         "statusbar": {
           "hide": true
         }
