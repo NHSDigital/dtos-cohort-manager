@@ -24,7 +24,7 @@ parameters:
     # PreProd pipeline which needs to retag images to move them from the Dev ACR to the Prod ACR
     displayName: 'Re-tag Images'
     type: boolean
-    default: true
+    default: false
 
   - name: dockerImageReTagFrom
     # Only required until commit hashes are passed in by calling pipeline
@@ -92,15 +92,7 @@ stages:
 - ${{ each testType in parameters.testTypes }}:
     - stage: ${{ testType }}_stage
       displayName: Run ${{ testType }} Tests
-      ${{ if eq(testType, 'regression_api') }}:
-        dependsOn: smoke_e2e_stage
-      ${{ if eq(testType, 'regression_e2e_epic1') }}:
-        dependsOn: regression_api_stage
-      ${{ if eq(testType, 'regression_e2e_epic2') }}:
-        dependsOn: regression_e2e_epic1_stage
-      ${{ if eq(testType, 'regression_e2e_epic3') }}:
-        dependsOn: regression_e2e_epic2_stage
-      condition: succeededOrFailed()
+      condition: always()
       jobs:
         - job: ${{ testType }}_job
           pool:
