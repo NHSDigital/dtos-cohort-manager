@@ -21,7 +21,7 @@
       },
       "options": {
         "cwd": "./application/CohortManager"
-      },
+      }
     },
     {
       "label": "Restart application",
@@ -43,7 +43,7 @@
       },
       "options": {
         "cwd": "./application/CohortManager"
-      },
+      }
     },
     {
       "label": "Build applciation in docker",
@@ -58,10 +58,10 @@
             "executable": "wsl.exe"
           }
         },
-      "group": {
-        "kind": "build",
-        "isDefault": true
-        },
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        }
       },
       "options": {
         "cwd": "./application/CohortManager",
@@ -143,32 +143,45 @@
       "dependsOrder": "parallel",
       "dependsOn": [
         "CaasIntegration/receiveCaasFile",
-        "DemographicServices/DemographicDataManagementFunction",
-        "ParticipantManagementServices/addParticipant",
-        "ParticipantManagementServices/updateParticipant",
-        "ParticipantManagementServices/RemoveParticipant",
+        "CaasIntegration/RetrieveMeshFile",
+        "DemographicServices/DemographicDurableFunction",
+        "DemographicServices/ManageNemsSubscription",
+        "DemographicServices/RetrievePDSDemographic",
+        "ParticipantManagementServices/DeleteParticipant",
+        "ParticipantManagementServices/ManageParticipant",
+        "ParticipantManagementServices/ManageServiceNowParticipant",
+        "ParticipantManagementServices/UpdateBlockedFlag",
         "ExceptionHandling/CreateException",
-        "screeningDataServices/createParticipant",
-        "screeningDataServices/DemographicDataService",
-        "screeningDataServices/markParticipantAsEligible",
-        "screeningDataServices/markParticipantAsIneligible",
-        "screeningDataServices/updateParticipantDetails",
-        "ScreeningValidationService/FileValidation",
+        "ExceptionHandling/UpdateException",
+        "screeningDataServices/BsSelectRequestAudit",
+        "screeningDataServices/CohortDistributionDataService",
+        "screeningDataServices/ExceptionManagementDataService",
+        "screeningDataServices/GeneCodeLkpDataService",
+        "screeningDataServices/GetValidationExceptions",
+        "screeningDataServices/HigherRiskReferralReasonLkpDataService",
+        "screeningDataServices/NemsSubscriptionDataService",
+        "screeningDataServices/ParticipantDemographicDataService",
+        "screeningDataServices/ParticipantManagementDataService",
+        "screeningDataServices/ReferenceDataService",
+        "screeningDataServices/ScreeningLkpDataService",
+        "screeningDataServices/ServiceNowCasesDataService",
         "ScreeningValidationService/LookupValidation",
         "ScreeningValidationService/RemoveValidationException",
         "ScreeningValidationService/StaticValidation",
-        "CohortDistributionServices/CreateCohortDistribution",
-        "CohortDistributionServices/RetrieveParticipantData",
-        "CohortDistributionServices/ServiceProviderAllocationService",
-        "CohortDistributionServices/ValidateCohortDistributionRecord",
+        "CohortDistributionServices/DistributeParticipant",
+        "CohortDistributionServices/RetrieveCohortDistribution",
+        "CohortDistributionServices/RetrieveCohortRequestAudit",
         "CohortDistributionServices/TransformDataService",
-        "CohortDistributionServices/AddCohortDistributionData"
       ],
       "options": {
         "statusbar": {
           "hide": true
         }
-      }
+      },
+      "problemMatcher": [
+        "$func-dotnet-watch"
+      ],
+      "isBackground": true
     },
     {
       "label": "CaasIntegration/receiveCaasFile",
@@ -182,7 +195,7 @@
       }
     },
     {
-      "label": "CaasIntegration/processCaasFile",
+      "label": "CaasIntegration/RetrieveMeshFile",
       "type": "shell",
       "osx": {
         "command": "sleep 1 && func start"
@@ -196,14 +209,14 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/CaasIntegration/processCaasFile",
+        "cwd": "application/CohortManager/src/Functions/CaasIntegration/RetrieveMeshFile",
         "statusbar": {
           "hide": true
         }
       }
     },
     {
-      "label": "DemographicServices/DemographicDataManagementFunction",
+      "label": "DemographicServices/DemographicDurableFunction",
       "type": "shell",
       "osx": {
         "command": "sleep 1.5 && func start"
@@ -217,14 +230,14 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/DemographicServices/DemographicDataManagementFunction",
+        "cwd": "application/CohortManager/src/Functions/DemographicServices/DemographicDurableFunction",
         "statusbar": {
           "hide": true
         }
       }
     },
     {
-      "label": "ParticipantManagementServices/addParticipant",
+      "label": "ParticipantManagementServices/DeleteParticipant",
       "type": "shell",
       "osx": {
         "command": "sleep 2 && func start"
@@ -238,14 +251,14 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/addParticipant",
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/DeleteParticipant",
         "statusbar": {
           "hide": true
         }
       }
     },
     {
-      "label": "ParticipantManagementServices/updateParticipant",
+      "label": "ParticipantManagementServices/ManageParticipant",
       "type": "shell",
       "osx": {
         "command": "sleep 2.5 && func start"
@@ -259,14 +272,14 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/updateParticipant",
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/ManageParticipant",
         "statusbar": {
           "hide": true
         }
       }
     },
     {
-      "label": "ParticipantManagementServices/RemoveParticipant",
+      "label": "ParticipantManagementServices/ManageServiceNowParticipant",
       "type": "shell",
       "osx": {
         "command": "sleep 3 && func start"
@@ -280,7 +293,7 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/RemoveParticipant",
+        "cwd": "application/CohortManager/src/Functions/ParticipantManagementServices/ManageServiceNowParticipant",
         "statusbar": {
           "hide": true
         }
@@ -308,7 +321,7 @@
       }
     },
     {
-      "label": "screeningDataServices/createParticipant",
+      "label": "ExceptionHandling/UpdateException",
       "type": "shell",
       "osx": {
         "command": "sleep 3.5 && func start"
@@ -322,14 +335,14 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/createParticipant",
+        "cwd": "application/CohortManager/src/Functions/ExceptionHandling/UpdateException",
         "statusbar": {
           "hide": true
         }
       }
     },
     {
-      "label": "screeningDataServices/DemographicDataService",
+      "label": "screeningDataServices/BsSelectRequestAudit",
       "type": "shell",
       "osx": {
         "command": "sleep 4.5 && func start"
@@ -343,14 +356,14 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/DemographicDataService",
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/BsSelectRequestAudit",
         "statusbar": {
           "hide": true
         }
       }
     },
     {
-      "label": "screeningDataServices/markParticipantAsEligible",
+      "label": "screeningDataServices/CohortDistributionDataService",
       "type": "shell",
       "osx": {
         "command": "sleep 5 && func start"
@@ -364,14 +377,14 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/markParticipantAsEligible",
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/CohortDistributionDataService",
         "statusbar": {
           "hide": true
         }
       }
     },
     {
-      "label": "screeningDataServices/markParticipantAsIneligible",
+      "label": "screeningDataServices/ExceptionManagementDataService",
       "type": "shell",
       "osx": {
         "command": "sleep 5.5 && func start"
@@ -385,14 +398,14 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/markParticipantAsIneligible",
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ExceptionManagementDataService",
         "statusbar": {
           "hide": true
         }
       }
     },
     {
-      "label": "screeningDataServices/updateParticipantDetails",
+      "label": "screeningDataServices/GeneCodeLkpDataService",
       "type": "shell",
       "osx": {
         "command": "sleep 6 && func start"
@@ -406,14 +419,14 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/screeningDataServices/updateParticipantDetails",
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/GeneCodeLkpDataService",
         "statusbar": {
           "hide": true
         }
       }
     },
     {
-      "label": "ScreeningValidationService/FileValidation",
+      "label": "screeningDataServices/GetValidationExceptions",
       "type": "shell",
       "osx": {
         "command": "sleep 6.5 && func start"
@@ -427,7 +440,7 @@
         }
       },
       "options": {
-        "cwd": "application/CohortManager/src/Functions/ScreeningValidationService/FileValidation",
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/GetValidationExceptions",
         "statusbar": {
           "hide": true
         }
@@ -626,10 +639,10 @@
       "label": "screeningDataServices/ScreeningLkpDataService",
       "type": "shell",
       "osx": {
-        "command": "sleep 11 && func start"
+        "command": "sleep 11.5 && func start"
       },
       "windows": {
-        "command": "timeout 21 && func start",
+        "command": "timeout 22 && func start",
         "options": {
           "shell": {
             "executable": "cmd.exe"
@@ -638,6 +651,195 @@
       },
       "options": {
         "cwd": "application/CohortManager/src/Functions/screeningDataServices/ScreeningLkpDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/HigherRiskReferralReasonLkpDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 12 && func start"
+      },
+      "windows": {
+        "command": "timeout 23 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/HigherRiskReferralReasonLkpDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/NemsSubscriptionDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 12.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 24 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/NemsSubscriptionDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/ParticipantDemographicDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 13 && func start"
+      },
+      "windows": {
+        "command": "timeout 25 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ParticipantDemographicDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/ParticipantManagementDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 13.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 26 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ParticipantManagementDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+     {
+      "label": "screeningDataServices/ReferenceDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 14 && func start"
+      },
+      "windows": {
+        "command": "timeout 27 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ReferenceDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "screeningDataServices/ServiceNowCasesDataService",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 14.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 28 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/screeningDataServices/ServiceNowCasesDataService",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/DistributeParticipant",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 15 && func start"
+      },
+      "windows": {
+        "command": "timeout 29 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/DistributeParticipant",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/RetrieveCohortDistribution",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 15.5 && func start"
+      },
+      "windows": {
+        "command": "timeout 30 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RetrieveCohortDistribution",
+        "statusbar": {
+          "hide": true
+        }
+      }
+    },
+    {
+      "label": "CohortDistributionServices/RetrieveCohortRequestAudit",
+      "type": "shell",
+      "osx": {
+        "command": "sleep 16 && func start"
+      },
+      "windows": {
+        "command": "timeout 31 && func start",
+        "options": {
+          "shell": {
+            "executable": "cmd.exe"
+          }
+        }
+      },
+      "options": {
+        "cwd": "application/CohortManager/src/Functions/CohortDistributionServices/RetrieveCohortRequestAudit",
         "statusbar": {
           "hide": true
         }
