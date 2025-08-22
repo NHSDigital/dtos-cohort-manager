@@ -33,18 +33,14 @@
           },
           {
             "Name": "InvalidPostingCategory",
-            "Expression": "!(EnglishPostingCategory || new[] {\"ENG\", \"DMS\", \"IM\"}.Contains(newParticipant.CurrentPosting))"
+            "Expression": "!(EnglishPostingCategory || newParticipant.CurrentPosting == \"ENG\" || newParticipant.CurrentPosting == \"IM\" || newParticipant.CurrentPosting == \"DMS\")"
           },
-          {
-            "Name": "PrimaryCareExists",
-            "Expression": "dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
-          }, 
           {
             "Name": "IsExcluded",
             "Expression": "dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "(InvalidPostingCategory || string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || PrimaryCareExists || IsExcluded)",
+        "Expression": "(InvalidPostingCategory || ValidPrimaryCareProvider || IsExcluded)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
