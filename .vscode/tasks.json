@@ -46,7 +46,7 @@
       },
     },
     {
-      "label": "Build applciation in docker",
+      "label": "Build application in docker",
       "type": "shell",
       "osx": {
         "command": "bash ../../scripts/podman/amd64-build-from-compose.sh compose.core.yaml compose.cohort-distribution.yaml compose.data-services.yaml"
@@ -717,10 +717,10 @@
       "label": "Spin up Docker for E2E regression (build + start)",
       "type": "shell",
       "osx": {
-        "command": "bash ../../scripts/podman/amd64-build-from-compose.sh compose.core.yaml compose.cohort-distribution.yaml compose.data-services.yaml && podman compose -f compose.deps.yaml up -d --no-build && (podman compose -f compose.deps.yaml up db-migration --no-build || true) && (podman compose -f compose.deps.yaml rm -f db-migration || true) && podman compose down && podman compose --profile \"service-now\" --profile \"bs-select\" --profile \"non-essential\" up -d --no-build"
+        "command": "bash ../../scripts/podman/amd64-build-from-compose.sh compose.core.yaml compose.cohort-distribution.yaml compose.data-services.yaml && podman compose -f compose.deps.yaml up -d --no-build && podman compose -f compose.deps.yaml up db-migration --no-build; podman compose -f compose.deps.yaml rm -f db-migration; podman compose down && podman compose --profile \"service-now\" --profile \"bs-select\" --profile \"non-essential\" --profile \"nems\" up -d --no-build"
       },
       "windows": {
-        "command": "docker compose down && docker compose -f compose.core.yaml build && docker compose -f compose.cohort-distribution.yaml build && docker compose -f compose.data-services.yaml build && docker compose -f compose.deps.yaml up -d && (docker compose -f compose.deps.yaml up --build db-migration || true) && (docker compose -f compose.deps.yaml rm -f db-migration || true) && docker compose down && docker compose --profile \"service-now\" --profile \"bs-select\" --profile \"non-essential\" up -d",
+        "command": "docker compose down && docker compose -f compose.core.yaml build && docker compose -f compose.cohort-distribution.yaml build && docker compose -f compose.data-services.yaml build && docker compose -f compose.deps.yaml up -d && docker compose -f compose.deps.yaml up --build db-migration; docker compose -f compose.deps.yaml rm -f db-migration; docker compose down && docker compose --profile \"service-now\" --profile \"bs-select\" --profile \"non-essential\" --profile \"nems\" up -d",
         "options": { "shell": { "executable": "wsl.exe" } }
       },
       "options": { 
