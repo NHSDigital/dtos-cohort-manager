@@ -41,33 +41,16 @@ function epicToNpmScript(epic) {
   return map[epic];
 }
 
-async function waitHttp(targets, maxAttempts=90, intervalMs=3000) {
-  function httpStatus(u) { return new Promise(resolve => {
-    const h = new URL(u);
-    const mod = h.protocol === 'https:' ? require('https') : require('http');
-    const req = mod.request({ hostname:h.hostname, port:h.port, path:h.pathname || '/', method:'GET', timeout:2000 }, res => {
-      const code = res.statusCode || 0; res.resume(); resolve(code);
+// Use health-check script for better error reporting and consistency
+async function waitForServices() {
+  const { execSync } = require('node:child_process');
+  try {
+    execSync('node scripts/health-check.js --max-attempts 120 --interval 3000', { 
+      stdio: 'inherit',
+      cwd: __dirname 
     });
-    req.on('timeout', () => { req.destroy(new Error('timeout')); });
-    req.on('error', () => resolve(0));
-    req.end();
-  }); }
-  for (const t of targets) {
-    const h = new URL(t);
-    const host = h.hostname; const port = Number(h.port || (h.protocol==='https:'?443:80));
-    let attempt=0;
-    while (true) {
-      attempt++;
-      const code = await httpStatus(t);
-      // Consider 2xx-3xx ready; also accept 400/405 for POST-only endpoints
-      if ((code >= 200 && code < 400) || code === 400 || code === 405) {
-        log(`Ready (HTTP ${code}): ${t}`);
-        break;
-      }
-      if (attempt>=maxAttempts) { throw new Error(`Timeout waiting for ${t}`); }
-      log(`Waiting on ${t} (${attempt}/${maxAttempts})...`);
-      await new Promise(r=>setTimeout(r, intervalMs));
-    }
+  } catch (error) {
+    throw new Error('Health check failed: ' + error.message);
   }
 }
 
@@ -75,9 +58,19 @@ async function waitHttp(targets, maxAttempts=90, intervalMs=3000) {
   const { epic } = parseArgs();
   const testScript = epicToNpmScript(epic);
 
-  // __dirname = tests/playwright-tests/scripts
-  // repo root is three levels up
-  const repoRoot = path.resolve(__dirname, '..', '..', '..');
+  // Find repo root by looking for .git directory
+  let repoRoot = __dirname;
+  while (repoRoot !== path.dirname(repoRoot)) {
+    if (require('fs').existsSync(path.join(repoRoot, '.git'))) {
+      break;
+    }
+    repoRoot = path.dirname(repoRoot);
+  }
+  
+  if (!require('fs').existsSync(path.join(repoRoot, '.git'))) {
+    throw new Error('Could not find git repository root');
+  }
+  
   const cohortDir = path.join(repoRoot, 'application', 'CohortManager');
   const testsDir = path.join(repoRoot, 'tests', 'playwright-tests');
 
@@ -90,34 +83,36 @@ async function waitHttp(targets, maxAttempts=90, intervalMs=3000) {
 
   // 2) Ensure deps up and migrations complete
   run('podman compose -f compose.deps.yaml up -d');
+  
   // Run db-migration to completion to ensure schema is ready
+  log('Running database migrations...');
   try {
     run('podman compose -f compose.deps.yaml up --build db-migration');
   } catch (e) {
-    // db-migration is expected to exit after completion; non-zero here indicates failure
-    throw e;
-  } finally {
-    // cleanup any exited migration container
-    try { run('podman compose -f compose.deps.yaml rm -f db-migration'); } catch {}
+    log('Database migration failed or completed with non-zero exit code');
+    // Check if migration actually failed or just completed
+    const result = spawnSync('podman', ['compose', '-f', 'compose.deps.yaml', 'ps', 'db-migration'], { encoding: 'utf8' });
+    if (result.stdout && result.stdout.includes('Exited (0)')) {
+      log('Migration completed successfully (exit code 0)');
+    } else {
+      throw new Error('Database migration failed: ' + e.message);
+    }
+  }
+  
+  // Cleanup migration container
+  try { 
+    run('podman compose -f compose.deps.yaml rm -f db-migration'); 
+  } catch (cleanupError) {
+    log('Warning: Failed to cleanup migration container: ' + cleanupError.message);
   }
 
   // 3) Start app profiles in detached mode
   run('podman compose down');
-  // Include non-essential profile to ensure ManageServiceNowParticipant is started
-  run('podman compose --profile service-now --profile bs-select --profile non-essential up -d');
+  // Include non-essential profile to ensure ManageServiceNowParticipant is started, and nems profile for manage-nems-subscription
+  run('podman compose --profile service-now --profile bs-select --profile non-essential --profile nems up -d');
 
   // 4) Wait for readiness
-  const targets = [
-    'http://localhost:7994/api/ParticipantManagementDataService',
-    'http://localhost:7993/api/ParticipantDemographicDataService',
-    'http://localhost:7992/api/CohortDistributionDataService',
-    'http://localhost:7078/api/RetrieveCohortDistributionData',
-    'http://localhost:8082/api/health',
-    'http://localhost:7086/api/RetrieveCohortRequestAudit',
-    // Prefer health endpoint (GET) for ServiceNow handler
-    'http://localhost:9092/api/health'
-  ];
-  await waitHttp(targets, 120, 3000);
+  await waitForServices();
 
   // small stabilization delay
   await new Promise(r=>setTimeout(r, 3000));
