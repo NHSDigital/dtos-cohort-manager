@@ -4,7 +4,6 @@ services:
   exception-management-data-service:
     container_name: exception-management-data-service
     image: cohort-manager-exception-management-data-service
-    platform: "linux/amd64"
     ports:
       - 7911:7911
     networks: [cohman-network]
@@ -19,23 +18,19 @@ services:
   bs-request-audit-data-service:
     container_name: bs-request-audit-data-service
     image: cohort-manager-bs-request-audit-data-service
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/BsSelectRequestAudit/Dockerfile
     profiles: [bs-select]
-    ports:
-      - 7956:7956
     environment:
-      - ASPNETCORE_URLS=http://*:7956
+      - ASPNETCORE_URLS=http://*:7989
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - AcceptableLatencyThresholdMs=500
 
   screening-lkp-data-service:
     container_name: screening-lkp-data-service
     image: cohort-manager-screening-lkp-data-service
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -48,7 +43,6 @@ services:
   gene-code-lkp-data-service:
     container_name: gene-code-lkp-data-service
     image: cohort-manager-gene-code-lkp-data-service
-    platform: "linux/amd64"
     networks: [cohman-network]
     profiles: [not-implemented]
     build:
@@ -62,7 +56,6 @@ services:
   higher-risk-referral-reason-lkp-data-service:
     container_name: higher-risk-referral-reason-lkp-data-service
     image: cohort-manager-higher-risk-referral-reason-lkp-data-service
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -76,7 +69,6 @@ services:
   participant-demographic-data-service:
     container_name: participant-demographic-data-service
     image: cohort-manager-participant-demographic-data-service
-    platform: "linux/amd64"
     ports:
       - 7993:7993
     networks: [cohman-network]
@@ -91,7 +83,6 @@ services:
   participant-management-data-service:
     container_name: participant-management-data-service
     image: cohort-manager-participant-management-data-service
-    platform: "linux/amd64"
     ports:
       - 7994:7994
     networks: [cohman-network]
@@ -106,7 +97,6 @@ services:
   cohort-distribution-data-service:
     container_name: cohort-distribution-data-service
     image: cohort-manager-cohort-distribution-data-service
-    platform: "linux/amd64"
     ports:
       - 7992:7992
     networks: [cohman-network]
@@ -121,7 +111,6 @@ services:
   nems-subscription-data-service:
     container_name: nems-subscription-data-service
     image: cohort-manager-nems-subscription-data-service
-    platform: "linux/amd64"
     networks: [cohman-network]
     profiles: [nems]
     build:
@@ -135,7 +124,6 @@ services:
   reference-data-service:
     container_name: reference-data-service
     image: cohort-manager-reference-data-service
-    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
@@ -148,7 +136,6 @@ services:
   servicenow-cases-data-service:
      container_name: servicenow-cases-data-service
      image: cohort-manager-servicenow-cases-data-service
-     platform: "linux/amd64"
      networks: [cohman-network]
      profiles: [service-now]
      build:

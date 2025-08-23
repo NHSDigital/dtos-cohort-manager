@@ -17,11 +17,12 @@ FROM base AS function
 COPY ./CaasIntegration/RetrieveMeshFile /src/dotnet-function-app
 WORKDIR /src/dotnet-function-app
 
-RUN dotnet restore
-RUN dotnet publish *.csproj --output /home/site/wwwroot --no-restore
+RUN --mount=type=cache,target=/root/.nuget/packages \
+    dotnet publish *.csproj --output /home/site/wwwroot
+
 # To enable ssh & remote debugging on app service change the base image to the one below
 # FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0-appservice
-FROM --platform=linux/amd64 mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0
+FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0
 ENV AzureWebJobsScriptRoot=/home/site/wwwroot \
     AzureFunctionsJobHost__Logging__Console__IsEnabled=true
 

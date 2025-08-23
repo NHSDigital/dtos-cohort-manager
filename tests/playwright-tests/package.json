@@ -15,8 +15,7 @@
     "test:regression_e2e_epic4d": "cross-env TEST_TYPE=RegressionEpic4d npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic4d-",
     "test": "cross-env TEST_TYPE=SMOKE npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @e2e\"",
     "test:validation-exceptions": "cross-env TEST_TYPE=VALIDATION npx playwright test tests/api/bsselect/validationExceptions/ --project=dev --config=src/config/playwright.config.ts",
-    "test:service_now": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@service_now\"",
-    "e2e:health": "node scripts/health-check.js"
+    "test:service_now": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@service_now\""
   },
   "keywords": [],
   "author": "",

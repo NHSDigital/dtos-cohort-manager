@@ -24,26 +24,6 @@
       },
     },
     {
-      "label": "Spin up Docker for E2E regression (build + start)",
-      "type": "shell",
-      "osx": {
-        "command": "podman compose down && podman compose -f compose.core.yaml build && podman compose -f compose.cohort-distribution.yaml build && podman compose -f compose.data-services.yaml build && podman compose -f compose.deps.yaml up -d && (podman compose -f compose.deps.yaml up --build db-migration || true) && (podman compose -f compose.deps.yaml rm -f db-migration || true) && podman compose down && podman compose --profile \"service-now\" --profile \"bs-select\" --profile \"non-essential\" up -d"
-      },
-      "windows": {
-        "command": "docker compose down && docker compose -f compose.core.yaml build && docker compose -f compose.cohort-distribution.yaml build && docker compose -f compose.data-services.yaml build && docker compose -f compose.deps.yaml up -d && (docker compose -f compose.deps.yaml up --build db-migration || true) && (docker compose -f compose.deps.yaml rm -f db-migration || true) && docker compose down && docker compose --profile \"service-now\" --profile \"bs-select\" --profile \"non-essential\" up -d",
-        "options": {
-          "shell": { "executable": "wsl.exe" }
-        }
-      },
-      "options": {
-        "cwd": "./application/CohortManager"
-      },
-      "presentation": {
-        "reveal": "always",
-        "panel": "new"
-      }
-    },
-    {
       "label": "Restart application",
       "type": "shell",
       "osx": {
@@ -662,58 +642,6 @@
           "hide": true
         }
       }
-    },
-    {
-      "label": "E2E: Epic1 regression (reuse containers)",
-      "type": "shell",
-      "osx": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic1" },
-      "windows": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic1", "options": { "shell": { "executable": "wsl.exe" } } },
-      "options": { "cwd": "./tests/playwright-tests" },
-      "presentation": { "reveal": "always", "panel": "new" }
-    },
-    {
-      "label": "E2E: Epic2 regression (reuse containers)",
-      "type": "shell",
-      "osx": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic2" },
-      "windows": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic2", "options": { "shell": { "executable": "wsl.exe" } } },
-      "options": { "cwd": "./tests/playwright-tests" },
-      "presentation": { "reveal": "always", "panel": "new" }
-    },
-    {
-      "label": "E2E: Epic3 regression (reuse containers)",
-      "type": "shell",
-      "osx": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic3" },
-      "windows": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic3", "options": { "shell": { "executable": "wsl.exe" } } },
-      "options": { "cwd": "./tests/playwright-tests" },
-      "presentation": { "reveal": "always", "panel": "new" }
-    },
-    {
-      "label": "E2E: Epic4C regression (reuse containers)",
-      "type": "shell",
-      "osx": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic4c" },
-      "windows": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic4c", "options": { "shell": { "executable": "wsl.exe" } } },
-      "options": { "cwd": "./tests/playwright-tests" },
-      "presentation": { "reveal": "always", "panel": "new" }
-    },
-    {
-      "label": "E2E: Epic4D regression (reuse containers)",
-      "type": "shell",
-      "osx": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic4d" },
-      "windows": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic4d", "options": { "shell": { "executable": "wsl.exe" } } },
-      "options": { "cwd": "./tests/playwright-tests" },
-      "presentation": { "reveal": "always", "panel": "new" }
-    },
-    {
-      "label": "Prune: Podman/Docker build cache",
-      "type": "shell",
-      "osx": {
-        "command": "set +e; echo 'Pruning Podman build cache…'; podman builder prune -a -f; echo 'Podman disk usage:'; podman system df"
-      },
-      "windows": {
-        "command": "set +e && echo Pruning Docker build cache… && docker builder prune -a -f && echo Docker disk usage: && docker system df",
-        "options": { "shell": { "executable": "wsl.exe" } }
-      },
-      "presentation": { "reveal": "always", "panel": "new" }
     }
   ]
 }
