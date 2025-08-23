@@ -5,7 +5,7 @@
       "label": "Restart dependencies",
       "type": "shell",
       "osx": {
-        "command": "podman compose -f compose.deps.yaml down && podman compose -f compose.deps.yaml up"
+        "command": "podman compose -f compose.deps.yaml down && podman compose -f compose.deps.yaml up --no-build"
       },
       "windows": {
         "command": "docker compose -f compose.deps.yaml down && docker compose -f compose.deps.yaml up",
@@ -27,7 +27,7 @@
       "label": "Restart application",
       "type": "shell",
       "osx": {
-        "command": "podman compose down && podman compose up"
+        "command": "podman compose down && podman compose up --no-build"
       },
       "windows": {
         "command": "docker compose down && docker compose up",
@@ -49,7 +49,7 @@
       "label": "Build applciation in docker",
       "type": "shell",
       "osx": {
-        "command": "podman compose down && podman compose -f compose.core.yaml build && podman compose -f compose.cohort-distribution.yaml build && podman compose -f compose.data-services.yaml build"
+        "command": "bash ../../scripts/podman/amd64-build-from-compose.sh compose.core.yaml compose.cohort-distribution.yaml compose.data-services.yaml"
       },
       "windows": {
         "command": "docker compose down && docker compose -f compose.core.yaml build && docker compose -f compose.cohort-distribution.yaml build && docker compose -f compose.data-services.yaml build",
@@ -74,7 +74,7 @@
       "label": "Run DB Migrations",
       "type": "shell",
       "osx": {
-        "command": "podman compose -f compose.deps.yaml down db-migration && podman compose -f compose.deps.yaml build db-migration && podman compose -f compose.deps.yaml up db-migration"
+        "command": "bash ../../scripts/podman/amd64-build-from-compose.sh compose.deps.yaml && podman compose -f compose.deps.yaml up db-migration --no-build"
       },
       "windows": {
         "command": "docker compose -f compose.deps.yaml down db-migration && docker compose -f compose.deps.yaml build db-migration && docker compose -f compose.deps.yaml up db-migration",
@@ -96,7 +96,7 @@
       "label": "Restart whole application (incl. non-essential services)",
       "type": "shell",
       "osx": {
-        "command": "podman compose --profile \"*\" down && podman compose --profile \"*\" up"
+        "command": "podman compose --profile \"*\" down && podman compose --profile \"*\" up --no-build"
       },
       "windows": {
         "command": "docker compose --profile \"*\" down && docker compose --profile \"*\" up",
@@ -118,7 +118,7 @@
       "label": "Build whole application (incl. non-essential services)",
       "type": "shell",
       "osx": {
-        "command": "podman compose down && podman compose -f compose.core.yaml --profile \"*\" build && podman compose -f compose.cohort-distribution.yaml --profile \"*\" build && podman compose -f compose.data-services.yaml --profile \"*\" build"
+        "command": "bash ../../scripts/podman/amd64-build-from-compose.sh compose.core.yaml compose.cohort-distribution.yaml compose.data-services.yaml"
       },
       "windows": {
         "command": "docker compose down && docker compose -f compose.core.yaml --profile \"*\" build && docker compose -f compose.cohort-distribution.yaml --profile \"*\" build && docker compose -f compose.data-services.yaml --profile \"*\" build",
@@ -642,6 +642,92 @@
           "hide": true
         }
       }
+    },
+    {
+      "label": "E2E: Epic1 regression",
+      "type": "shell",
+      "osx": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic1" },
+      "windows": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic1", "options": { "shell": { "executable": "wsl.exe" } } },
+      "options": { 
+        "cwd": "./tests/playwright-tests",
+        "statusbar": { "hide": true }
+      },
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "E2E: Epic2 regression",
+      "type": "shell",
+      "osx": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic2" },
+      "windows": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic2", "options": { "shell": { "executable": "wsl.exe" } } },
+      "options": { 
+        "cwd": "./tests/playwright-tests",
+        "statusbar": { "hide": true }
+      },
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "E2E: Epic3 regression",
+      "type": "shell",
+      "osx": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic3" },
+      "windows": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic3", "options": { "shell": { "executable": "wsl.exe" } } },
+      "options": { 
+        "cwd": "./tests/playwright-tests",
+        "statusbar": { "hide": true }
+      },
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "E2E: Epic4C regression",
+      "type": "shell",
+      "osx": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic4c" },
+      "windows": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic4c", "options": { "shell": { "executable": "wsl.exe" } } },
+      "options": { 
+        "cwd": "./tests/playwright-tests",
+        "statusbar": { "hide": true }
+      },
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "E2E: Epic4D regression",
+      "type": "shell",
+      "osx": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic4d" },
+      "windows": { "command": "node scripts/health-check.js && npm run test:regression_e2e_epic4d", "options": { "shell": { "executable": "wsl.exe" } } },
+      "options": { 
+        "cwd": "./tests/playwright-tests",
+        "statusbar": { "hide": true }
+      },
+      "presentation": { "reveal": "always", "panel": "new" }
+    },
+    {
+      "label": "Prune: Podman/Docker build cache",
+      "type": "shell",
+      "osx": {
+        "command": "set +e; echo 'Pruning Podman build cache…'; podman builder prune -a -f; echo 'Podman disk usage:'; podman system df"
+      },
+      "windows": {
+        "command": "set +e && echo Pruning Docker build cache… && docker builder prune -a -f && echo Docker disk usage: && docker system df",
+        "options": { "shell": { "executable": "wsl.exe" } }
+      },
+      "presentation": { "reveal": "always", "panel": "new" },
+      "options": {
+        "statusbar": { "hide": true }
+      }
+    },
+    {
+      "label": "Spin up Docker for E2E regression (build + start)",
+      "type": "shell",
+      "osx": {
+        "command": "bash ../../scripts/podman/amd64-build-from-compose.sh compose.core.yaml compose.cohort-distribution.yaml compose.data-services.yaml && podman compose -f compose.deps.yaml up -d --no-build && (podman compose -f compose.deps.yaml up db-migration --no-build || true) && (podman compose -f compose.deps.yaml rm -f db-migration || true) && podman compose down && podman compose --profile \"service-now\" --profile \"bs-select\" --profile \"non-essential\" up -d --no-build"
+      },
+      "windows": {
+        "command": "docker compose down && docker compose -f compose.core.yaml build && docker compose -f compose.cohort-distribution.yaml build && docker compose -f compose.data-services.yaml build && docker compose -f compose.deps.yaml up -d && (docker compose -f compose.deps.yaml up --build db-migration || true) && (docker compose -f compose.deps.yaml rm -f db-migration || true) && docker compose down && docker compose --profile \"service-now\" --profile \"bs-select\" --profile \"non-essential\" up -d",
+        "options": { "shell": { "executable": "wsl.exe" } }
+      },
+      "options": { 
+        "cwd": "./application/CohortManager",
+        "statusbar": { "hide": true }
+      },
+      "presentation": { "reveal": "always", "panel": "new" }
     }
   ]
 }
