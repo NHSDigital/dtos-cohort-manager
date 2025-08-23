@@ -4,12 +4,11 @@ services:
   distribute-participant:
     container_name: distribute-participant
     image: cohort-manager-distribute-participant
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/DistributeParticipant/Dockerfile
-      args:
-        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     environment:
       - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - CohortDistributionTopic=cohort-distribution-topic
@@ -32,12 +31,11 @@ services:
   retrieve-cohort-distribution-data:
     container_name: retrieve-cohort-distribution-data
     image: cohort-manager-retrieve-cohort-distribution-data
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveCohortDistribution/Dockerfile
-      args:
-        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [bs-select]
     ports:
       - "7078:7078"
@@ -52,12 +50,11 @@ services:
   retrieve-cohort-request-audit:
     container_name: retrieve-cohort-request-audit
     image: cohort-manager-retrieve-cohort-request-audit
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveCohortRequestAudit/Dockerfile
-      args:
-        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     profiles: [bs-select]
     ports:
       - "7086:7086"
@@ -71,12 +68,11 @@ services:
   transform-data-service:
     container_name: transform-data-service
     image: cohort-manager-transform-data-service
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/TransformDataService/Dockerfile
-      args:
-        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     environment:
       - ASPNETCORE_URLS=http://*:7080
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -90,12 +86,11 @@ services:
   remove-validation-exception-data:
     container_name: remove-validation-exception-data
     image: cohort-manager-remove-validation-exception-data
+    platform: "linux/amd64"
     networks: [cohman-network]
     build:
       context: ./src/Functions/
       dockerfile: ScreeningValidationService/RemoveValidationException/Dockerfile
-      args:
-        PLATFORM_SUFFIX: ${PLATFORM_SUFFIX}
     environment:
       - ASPNETCORE_URLS=http://*:7085
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
