@@ -23,6 +23,8 @@ services:
       context: ./src/Functions/
       dockerfile: screeningDataServices/BsSelectRequestAudit/Dockerfile
     profiles: [bs-select]
+    ports:
+      - 7989:7989
     environment:
       - ASPNETCORE_URLS=http://*:7989
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
