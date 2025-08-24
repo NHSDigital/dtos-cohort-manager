@@ -13,15 +13,17 @@ using Model;
 using Model.Enums;
 
 /// <summary>
-/// Azure Function for retrieving cohort distribution data based on ScreeningServiceId.
+/// Azure Function for retrieving validation exceptions.
 /// </summary>
 /// <param name="req">The HTTP request data containing query parameters and request details.</param>
-/// <param name="exceptionId">query parameter used to search for an exception by Id..</param>
-/// if not exceptionId is passed in the full list of exceptions will be returned
+/// <param name="exceptionId">Query parameter used to search for an exception by Id.</param>
+/// <param name="reportDate">Query parameter to retrieve exceptions within 24 hours of the specified date (Confusion and Superseded categories only).</param>
+/// If no exceptionId is passed, the full list of exceptions will be returned.
 /// <returns>
 /// HTTP response with:
 /// - 204 No Content if no data is found.
-/// - 200 OK - List<GetValidationExceptions> or single GetValidationExcept in JSON format .
+/// - 200 OK - List&lt;ValidationException&gt; or single ValidationException in JSON format.
+/// - 400 Bad Request if reportDate is in the future.
 /// - 500 Internal Server Error if an exception occurs.
 /// </returns>
 public class GetValidationExceptions
@@ -50,9 +52,28 @@ public class GetValidationExceptions
         var exceptionStatus = HttpParserHelper.GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
         var sortOrder = HttpParserHelper.GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
         var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
+        var reportDate = _httpParserHelper.GetQueryParameterAsDateTime(req, "reportDate");
 
         try
         {
+
+            if (reportDate.HasValue)
+            {
+                if (reportDate.Value > DateTime.UtcNow.Date)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date cannot be in the future.");
+                }
+
+                var exceptionsByReportDate = await _validationData.GetExceptionsByReportDate(reportDate.Value);
+
+                if (exceptionsByReportDate == null || exceptionsByReportDate.Count == 0)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+                }
+
+                var result = _paginationService.GetPaginatedResult(exceptionsByReportDate.AsQueryable(), lastId, e => e.ExceptionId);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(result));
+            }
             if (exceptionId != 0)
             {
                 var exceptionById = await _validationData.GetExceptionById(exceptionId);
