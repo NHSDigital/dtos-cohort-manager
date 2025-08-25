@@ -3,65 +3,77 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9993773360
+        "NHSNumber": 9997450310
       },
       "meta": {
         "testJiraId": "@DTOSS-8375-01",
         "requirementJiraId": "@DTOSS-8375-01",
-        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify valid record between PDS and SNOW in cohort distribution table"
+        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify 1.valid record between PDS and SNOW in cohort distribution table"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "RecordType": "ADD",
-        "NHSNumber": 9993773360,
+        "NHSNumber": 9997450310,
         "ReferralFlag": 1,
         "ScreeningId": 1
       },
       "meta": {
         "testJiraId": "@DTOSS-8375-01",
         "requirementJiraId": "@DTOSS-8375-01",
-        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify valid record between PDS and SNOW in participant management table"
+        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify 1.valid record between PDS and SNOW in participant management table"
       }
     },
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": 9993773360,
+        "NhsNumber": 9997450310,
         "GivenName": "Jane",
         "FamilyName": "Doe"
       },
       "meta": {
         "testJiraId": "@DTOSS-8375-01",
         "requirementJiraId": "@DTOSS-8375-01",
-        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify valid record between PDS and SNOW in participant demographic table"
+        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify 1.valid record between PDS and SNOW in participant demographic table"
       }
     },
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9998695511",
-        "RuleId": -2146233088,
-        "RuleDescription": "Participant data from ServiceNow does not match participant data from PDS"
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9997450310
       },
       "meta": {
         "testJiraId": "@DTOSS-8375-01",
         "requirementJiraId": "@DTOSS-8375-01",
-        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10007 Exception is raised for FamilyName mismatch between SNOW & PDS"
+        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify valid record-AMENDED between PDS and SNOW in cohort distribution table"
       }
     },
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9993280852",
-        "RuleId": -2146233088,
-        "RuleDescription": "Participant data from ServiceNow does not match participant data from PDS"
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "AMENDED",
+        "NHSNumber": 9997450310,
+        "ReferralFlag": 1,
+        "ScreeningId": 1
       },
       "meta": {
         "testJiraId": "@DTOSS-8375-01",
         "requirementJiraId": "@DTOSS-8375-01",
-        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10008 Exception is raised for DateofBirth mismatch between SNOW & PDS"
+        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify 2.valid record-AMENDED between PDS and SNOW in participant management table"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9997450310,
+        "GivenName": "Jane",
+        "FamilyName": "Doe"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8375-01",
+        "requirementJiraId": "@DTOSS-8375-01",
+        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify 2.valid record-AMENDED between PDS and SNOW in participant demographic table"
       }
     }
   ],
@@ -69,7 +81,7 @@
     {
       "number": "CS0573846",
       "u_case_variable_data": {
-        "nhs_number": "9993773360",
+        "nhs_number": "9997450310",
         "forename_": "Jane",
         "surname_family_name": "Doe",
         "date_of_birth": "2010-10-22",
@@ -79,24 +91,12 @@
       }
     },
     {
-      "number": "CS0573847",
+      "number": "CS0573846",
       "u_case_variable_data": {
-        "nhs_number": "9998695511",
+        "nhs_number": "9997450310",
         "forename_": "Jane",
-        "surname_family_name": "Smith",
+        "surname_family_name": "Doe",
         "date_of_birth": "2010-10-22",
-        "enter_dummy_gp_code": "ZZZDKL",
-        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
-        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
-      }
-    },
-    {
-      "number": "CS0573857",
-      "u_case_variable_data": {
-        "nhs_number": "9993280852",
-        "forename_": "Jane",
-        "surname_family_name": "Smith",
-        "date_of_birth": "2010-10-20",
         "enter_dummy_gp_code": "ZZZDKL",
         "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
         "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
@@ -104,8 +104,7 @@
     }
   ],
   "nhsNumbers": [
-    "9993773360",
-    "9998695511",
-    "9993280852"
+    "9997450310",
+    "9997450310"
   ]
 }
