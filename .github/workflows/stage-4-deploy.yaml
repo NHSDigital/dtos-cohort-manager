@@ -61,7 +61,7 @@ jobs:
       - name: Call deployment pipeline
         run: |
           # Define common variables
-          organisation='https://dev.azure.com/nhse-dtos/'
+          organisation='https://dev.azure.com/nhse-dtos'
           project_name='dtos-cohort-manager'
 
           # Define which tests to run based on the environment
@@ -86,6 +86,6 @@ jobs:
             --parameters $parameters \
             --output tsv --query id)
 
-          echo "Click here to view the ADO pipeline: ${organisation}/nhse-dtos/${project_name}/_build/results?buildId=${RUN_ID}"
+          echo "Click here to view the ADO pipeline: ${organisation}/${project_name}/_build/results?buildId=${RUN_ID}"
 
-          scripts/bash/wait_ado_pipeline.sh "$RUN_ID" https://dev.azure.com/nhse-dtos "${project_name}" 1800
+          scripts/bash/wait_ado_pipeline.sh "$RUN_ID" "${organisation}" "${project_name}" 1800
