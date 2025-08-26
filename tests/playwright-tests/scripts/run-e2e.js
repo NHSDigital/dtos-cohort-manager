@@ -8,15 +8,21 @@
    epic1, epic2, epic3, epic4c, epic4d, epic1med, epic2med, epic3med
 */
 const { spawnSync } = require('node:child_process');
+const os = require('node:os');
 const path = require('node:path');
 const { URL } = require('node:url');
 const net = require('node:net');
+
+const SAFE_PATH = process.platform === 'darwin'
+  ? '/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin'
+  : '/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin';
+const SAFE_ENV = { ...process.env, PATH: SAFE_PATH };
 
 function log(msg) { console.log(`[e2e] ${msg}`); }
 function run(bin, args = [], opts = {}) {
   const printable = [bin, ...args].join(' ');
   log(`$ ${printable}`);
-  const res = spawnSync(bin, args, { stdio: 'inherit', ...opts });
+  const res = spawnSync(bin, args, { stdio: 'inherit', env: SAFE_ENV, ...opts });
   if (res.error) throw res.error;
   if (typeof res.status === 'number' && res.status !== 0) {
     const err = new Error(`Command failed (${res.status}): ${printable}`);
@@ -53,9 +59,10 @@ function epicToNpmScript(epic) {
 
 // Use health-check script for better error reporting and consistency
 async function waitForServices() {
-  const res = spawnSync('node', ['scripts/health-check.js', '--max-attempts', '120', '--interval', '3000'], {
+  const res = spawnSync(process.execPath, ['scripts/health-check.js', '--max-attempts', '5', '--interval', '3000'], {
     stdio: 'inherit',
     cwd: __dirname,
+    env: SAFE_ENV,
   });
   if (res.error) throw new Error('Health check failed: ' + res.error.message);
   if (typeof res.status === 'number' && res.status !== 0) {
@@ -100,7 +107,7 @@ async function waitForServices() {
   } catch (e) {
     log('Database migration failed or completed with non-zero exit code');
     // Check if migration actually failed or just completed
-    const result = spawnSync('podman', ['compose', '-f', 'compose.deps.yaml', 'ps', 'db-migration'], { encoding: 'utf8' });
+    const result = spawnSync('podman', ['compose', '-f', 'compose.deps.yaml', 'ps', 'db-migration'], { encoding: 'utf8', env: SAFE_ENV });
     if (result.stdout && result.stdout.includes('Exited (0)')) {
       log('Migration completed successfully (exit code 0)');
     } else {
