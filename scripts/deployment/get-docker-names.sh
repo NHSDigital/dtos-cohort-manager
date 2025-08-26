@@ -1,90 +1,150 @@
 #!/bin/bash
 
-declare -A docker_functions_map=(
-    ["CaasIntegration/receiveCaasFile"]="receive-caas-file"
-    ["CaasIntegration/RetrieveMeshFile"]="retrieve-mesh-file"
-    ["ExceptionHandling/CreateException"]="create-exception"
-    ["CohortDistributionServices/AddCohortDistributionData"]="add-cohort-distribution-data"
-    ["CohortDistributionServices/CreateCohortDistribution"]="create-cohort-distribution" #inconsistent file name for the function (should be create-cohort-distribution-data )
-    #["CohortDistributionServices/GetCohortDistributionParticipants"]="get-cohort-distribution-participants" # will be used in the future
-    ["CohortDistributionServices/RetrieveCohortDistribution"]="retrieve-cohort-distribution-data"
-    #["CohortDistributionServices/RetrieveCohortReplay"]="retrieve-cohort-replay" - function removed in PR#509
-    ["CohortDistributionServices/RetrieveCohortRequestAudit"]="retrieve-cohort-request-audit"
-    ["CohortDistributionServices/RetrieveParticipantData"]="retrieve-participant-data"
-    ["CohortDistributionServices/ServiceProviderAllocationService"]="allocate-service-provider"
-    ["CohortDistributionServices/TransformDataService"]="transform-data-service"
-    ["CohortDistributionServices/ValidateCohortDistributionRecord"]="validate-cohort-distribution-record"
-    ["DemographicServices/DemographicDataManagementFunction"]="demographic-data-management"
-    ["DemographicServices/DemographicDurableFunction"]="durable-demographic-function"
-    ["DemographicServices/RetrievePDSDemographic"]="retrieve-pds-demographic"
-    ["ParticipantManagementServices/RemoveParticipant"]="remove-participant"
-    ["ParticipantManagementServices/addParticipant"]="add-participant"
-    ["ParticipantManagementServices/updateParticipant"]="update-participant"
-    ["ParticipantManagementServices/GetParticipantReferenceData"]="get-participant-reference-data"
-    ["ParticipantManagementServices/CheckParticipantExists"]="check-participant-exists"
-    ["ParticipantManagementServices/UpdateParticipantFromScreeningProvider"]="update-participant-from-screening-provider"
-    ["screeningDataServices/BsSelectGpPractice"]="bs-select-gp-practice-data-service"
-    ["ParticipantManagementServices/CheckParticipantExists"]="check-participant-exists"
-    ["ServiceNowIntegrationService"]="receive-service-now-message"
-    ["screeningDataServices/BsSelectOutCode"]="bs-select-outcode-data-service"
-    ["screeningDataServices/BsSelectRequestAudit"]="bs-request-audit-data-service"
-    ["screeningDataServices/CohortDistributionDataService"]="cohort-distribution-data-service"
-    ["screeningDataServices/createParticipant"]="create-participant"
-    ["screeningDataServices/CurrentPostingDataService"]="current-posting-data-service"
-    ["screeningDataServices/ExceptionManagementDataService"]="exception-management-data-service"
-    ["screeningDataServices/ExcludedSMULookupDataService"]="excluded-smu-data-service"
-    ["screeningDataServices/GeneCodeLkpDataService"]="gene-code-lkp-data-service"
-    ["screeningDataServices/GetValidationExceptions"]="get-validation-exceptions"
-    ["screeningDataServices/GPPractice"]="gppractice-data-service"
-    ["screeningDataServices/HigherRiskReferralReasonLkpDataService"]="higher-risk-referral-reason-lkp-data-service"
-    ["screeningDataServices/LanguageCodesDataService"]="language-code-data-service"
-    ["screeningDataServices/markParticipantAsEligible"]="mark-participant-as-eligible"
-    ["screeningDataServices/markParticipantAsIneligible"]="mark-participant-as-ineligible"
-    ["screeningDataServices/ParticipantManagementDataService"]="participant-management-data-service"
-    ["screeningDataServices/ParticipantDemographicDataService"]="participant-demographic-data-service"
-    ["screeningDataServices/ScreeningLkpDataService"]="screening-lkp-data-service"
-    ["screeningDataServices/updateParticipantDetails"]="update-participant-details"
-    ["ScreeningValidationService/FileValidation"]="file-validation"
-    ["ScreeningValidationService/LookupValidation"]="lookup-validation"
-    ["ScreeningValidationService/StaticValidation"]="static-validation"
-    ["ScreeningValidationService/RemoveValidationException"]="remove-validation-exception-data"
-)
+set -eo pipefail
 
-changed_functions=""
+remove_from_array() {
+    local item_to_remove="$1"
+    local -n target_array="$2"  # Use nameref to modify the array directly
+    local filtered_array=()
 
-if [ -z "$CHANGED_FOLDERS" ]; then
-    changed_functions="null"
-    echo "No files changed"
-elif [[ "$CHANGED_FOLDERS" == *Shared* ]]; then
-    echo "Shared folder changed, returning all functions"
-    for key in "${!docker_functions_map[@]}"; do
-        changed_functions+=" ${docker_functions_map[$key]}"
-        echo "Adding in: ${docker_functions_map[$key]}"
+    for item in "${target_array[@]}"; do
+        [[ "$item" != "$item_to_remove" ]] && filtered_array+=("$item")
     done
-else
-    echo "files changed $CHANGED_FOLDERS "
-    for folder in $CHANGED_FOLDERS; do
-      echo "Add this function in: ${folder} "
-      echo "Add this which maps to: ${docker_functions_map[$folder]} "
-      changed_functions+=" ${docker_functions_map[$folder]}"
-    done
+
+    target_array=("${filtered_array[@]}")
+}
+
+if [[ -z "${COMPOSE_FILES_CSV}" ]]; then
+    echo "❌ Error: COMPOSE_FILES_CSV has not been defined (comma separated)."
+    exit 1
 fi
 
-# Format the output for the github matrix:
-changed_functions_json=$(printf '["%s"]' "$(echo $changed_functions | sed 's/ /","/g')")
+# CHANGED_FOLDERS_CSV can be supplied via environment variable for local testing
+if [[ -z "${CHANGED_FOLDERS_CSV}" ]]; then
+    if [[ -z "${SOURCE_CODE_PATH}" ]]; then
+        echo "❌ Error: SOURCE_CODE_PATH has not been defined."
+        exit 1
+    fi
+    if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/main" ]]; then
+        # Merge to main - compare merged code with main immediately prior to the merge (HEAD^), needs 'fetch-depth: 2' parameter for actions/checkout@v4
+        mapfile -t source_changes < <(git diff --name-only HEAD^ -- "${SOURCE_CODE_PATH}" | sed -r 's#(^.*/).*$#\1#' | sort -u)
+    else
+        # PR creation or update - compare feature branch with main, folder paths only, unique list
+        git fetch origin main
+        mapfile -t source_changes < <(git diff --name-only origin/main..HEAD -- "${SOURCE_CODE_PATH}" | sed -r 's#(^.*/).*$#\1#' | sort -u)
+    fi
+else
+    IFS=',' read -r -a source_changes <<< "${CHANGED_FOLDERS_CSV}"
+fi
 
-# The full list of functions. Uncomment the next block when you want to redeploy all the functions.
-# changed_functions_json='["receive-caas-file","create-exception","add-cohort-distribution-data",\
-# "create-cohort-distribution","retrieve-cohort-distribution-data",\
-# "retrieve-participant-data","allocate-service-provider","transform-data-service","validate-cohort-distribution-record",\
-# "demographic-data-management","remove-participant","add-participant","update-participant",\
-# "create-participant","demographic-data-service","get-validation-exceptions","mark-participant-as-eligible","\
-# "mark-participant-as-ineligible","update-participant-details","file-validation","lookup-validation","static-validation",\
-# "remove-validation-exception-data","retrieve-cohort-replay","retrieve-cohort-request-audit","retrieve-mesh-file"]'
+echo -e "\nChanged source code folder(s):"
+printf "  - %s\n" "${source_changes[@]}"
+echo
 
-# changed_functions_json='["receive-caas-file","create-exception"]'
+# If MANUAL_BUILD_ALL is true
+if [[ "${MANUAL_BUILD_ALL,,}" == "true" ]]; then
+    echo "MANUAL_BUILD_ALL is true. Change detection based on specific folders will be skipped; all services will be included."
+    source_changes=()
+fi
 
-echo "Final list of functions to rebuild:"
-echo "$changed_functions_json"
+[[ -n "${EXCLUDED_CONTAINERS_CSV}" ]] && EXCLUSION_FILTER="select($(echo "${EXCLUDED_CONTAINERS_CSV}" | awk -v ORS='' '{split($0, arr, ","); for (i in arr) printf ".container_name != \"%s\" and ", arr[i]} END {print "1"}')) |"
 
-echo "FUNC_NAMES=$changed_functions_json" >> "$GITHUB_OUTPUT"
+IFS_OLD=$IFS
+IFS=$', \n'
+
+echo "Adding Docker compose file includes..."
+files_to_process=(${COMPOSE_FILES_CSV})
+while [ ${#files_to_process[@]} -gt 0 ]; do
+    compose_file="${files_to_process[0]}"
+    files_to_process=("${files_to_process[@]:1}")  # Remove the first file from the list
+    includes=($(yq -r '.include[]' "${compose_file}"))
+
+    for include in "${includes[@]}"; do
+        echo "  - ${include}"
+        if [[ ! ",${COMPOSE_FILES_CSV}," =~ ",${include}," ]]; then
+            COMPOSE_FILES_CSV="${COMPOSE_FILES_CSV},$(dirname "${compose_file}")/${include}"
+            files_to_process+=("$(dirname "${compose_file}")/${include}")
+        fi
+    done
+done
+echo
+
+changed_services=()
+non_matched_changes=()
+
+for compose_file in ${COMPOSE_FILES_CSV}; do
+
+    echo -e "Parsing Docker compose file '${compose_file}'...\n"
+    declare -A docker_services_map=()
+
+    # STEP 1 - Create a map of folder paths to services
+    for service in $(yq eval ".services[] | ${EXCLUSION_FILTER} .container_name" "${compose_file}"); do
+        # Combine the context and dockerfile variables to determine the container root
+        # We need to filter these since there are various ways these can be defined (leading ./ or trailing / for instance)
+        context=$(yq eval ".services[] | select(.container_name == \"$service\") | .build.context" "${compose_file}")
+        dockerfile=$(yq eval ".services[] | select(.container_name == \"$service\") | .build.dockerfile" "${compose_file}")
+
+        if [[ -z "${dockerfile}" ]] || [[ -z "${context}" ]]; then
+            continue
+        fi
+        context_filtered=$(echo "${context}" | sed 's#^\./src/##' | sed 's#^\./##' | sed 's#/$##')
+        dockerfile_filtered=$(echo "${dockerfile}" | sed 's#^\./##' | sed 's#\/Dockerfile##' | sed 's#Dockerfile##')
+        if [[ -n "${context_filtered}" ]] && [[ -n "${dockerfile_filtered}" ]]; then
+            function_path="${context_filtered}/${dockerfile_filtered}"
+        else
+            function_path="${context_filtered}${dockerfile_filtered}"
+        fi
+        docker_services_map[${function_path}]=${service}
+    done
+
+    printf "%-50s %-50s\n" "Service" "Path"
+    printf "%-50s %-50s\n" "-------" "----"
+    for key in "${!docker_services_map[@]}"; do
+        printf "%-50s %-50s\n" "${docker_services_map[$key]}" "$key"
+    done
+    echo
+
+    # STEP 2 - Now check the source code changes against the map created in STEP 1 to determine which containers to build
+    if [[ "${MANUAL_BUILD_ALL,,}" == "true" ]]; then
+        echo "MANUAL_BUILD_ALL: Adding all services from '${compose_file}'."
+        for key in "${!docker_services_map[@]}"; do
+            changed_services+=("${docker_services_map[$key]}")
+        done
+    elif [[ ${#source_changes[@]} -eq 0 ]]; then
+        echo "No files changed."
+    else
+        echo "Application change detected, building all images."
+        for key in "${!docker_services_map[@]}"; do
+            changed_services+=("${docker_services_map[$key]}")
+        done
+    fi
+    echo
+done
+
+if [ ${#non_matched_changes[@]} -ne 0 ]; then
+    # Remove duplicates (non-matched items across several compose files)
+    mapfile -t unique_changes < <(printf "%s\n" "${non_matched_changes[@]}" | sort -u)
+
+    warning_message=$(
+        cat <<EOF
+⚠️ Warning!
+The following source code changes did not match any services defined in the provided Docker compose file(s):
+$(printf '  - %s\n' "${unique_changes[@]}")
+
+EOF
+)
+    echo -e "$warning_message\n"
+    echo "#### $warning_message" >> "$GITHUB_STEP_SUMMARY"
+fi
+
+changed_services_json="$(jq -c -n '$ARGS.positional | unique' --args "${changed_services[@]}")"
+services_json="$(jq -c -n '$ARGS.positional | unique' --args "${docker_services_map[@]}")"
+
+IFS=$IFS_OLD
+echo "List of services to build:"
+echo "${changed_services_json}"
+echo "FUNC_NAMES=${changed_services_json}" >> "${GITHUB_OUTPUT}"
+echo "ALL_SERVICES=%{services_json}" >> "${GITHUB_OUTPUT}"
+
+# Assumes all compose files are together in the same folder
+echo "DOCKER_COMPOSE_DIR=$(dirname "${compose_file}")" >> "${GITHUB_OUTPUT}"

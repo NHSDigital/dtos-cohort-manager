@@ -154,9 +154,13 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     {
         var pdsParticipant = await GetPDSParticipant(blockParticipantRequest.NhsNumber);
 
-        if (pdsParticipant == null || !ValidateRecordsMatch(pdsParticipant, blockParticipantRequest))
+        if (pdsParticipant == null)
         {
             return new BlockParticipantResult(false, "Participant details do not match a records in Cohort Manager or PDS");
+        }
+        if (!ValidateRecordsMatch(pdsParticipant, blockParticipantRequest))
+        {
+            return new BlockParticipantResult(false, "Participant record exists with Nhs number but did not match the request");
         }
 
         var participantManagementRecord = new ParticipantManagement
@@ -259,7 +263,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             throw new FormatException("Date of Birth not in the correct format");
         }
 
-        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd", new CultureInfo("en-GB"), DateTimeStyles.None, out var parsedDob))
+        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyy-MM-dd", new CultureInfo("en-GB"), DateTimeStyles.None, out var parsedDob))
         {
             return false;
         }
