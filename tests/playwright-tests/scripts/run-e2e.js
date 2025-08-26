@@ -21,12 +21,17 @@ function resolveBin(name) {
     `/opt/homebrew/bin/${name}`,
   ];
   for (const p of candidates) {
+    if (!fs.existsSync(p)) continue;
     try {
-      if (fs.existsSync(p)) {
-        fs.accessSync(p, fs.constants.X_OK);
-        return p;
+      fs.accessSync(p, fs.constants.X_OK);
+      return p;
+    } catch (err) {
+      if (err && (err.code === 'EACCES' || err.code === 'EPERM' || err.code === 'ENOENT')) {
+        // Candidate exists but is not executable or disappeared; try next
+        continue;
       }
-    } catch (_) { /* continue */ }
+      throw err;
+    }
   }
   // Fall back to relying on PATH
   return name;
@@ -49,10 +54,16 @@ function run(bin, args = [], opts = {}) {
 function parseArgs() {
   const args = process.argv.slice(2);
   const out = { forceInstall: false };
+  let skipNext = false;
   for (let i=0; i<args.length; i++) {
+    if (skipNext) { skipNext = false; continue; }
     const a = args[i];
-    if (a === '--epic' && args[i+1]) { out.epic = args[++i].toLowerCase(); }
-    else if (a === '--force-install' || a === '--install') { out.forceInstall = true; }
+    if (a === '--epic' && args[i+1]) {
+      out.epic = String(args[i+1]).toLowerCase();
+      skipNext = true;
+    } else if (a === '--force-install' || a === '--install') {
+      out.forceInstall = true;
+    }
   }
   if (!out.epic) { console.error('Error: --epic is required'); process.exit(1); }
   return out;
