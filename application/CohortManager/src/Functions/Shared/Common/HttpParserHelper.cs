@@ -1,5 +1,6 @@
 namespace Common;
 
+using System.Globalization;
 using System.Net;
 using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -98,12 +99,12 @@ public class HttpParserHelper : IHttpParserHelper
         "yyyy-MM-dd HH:mm:ss"
     };
 
-        if (DateTime.TryParse(queryString, out DateTime result))
+        if (DateTime.TryParse(queryString, CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime result))
         {
             return result;
         }
 
-        if (DateTime.TryParseExact(queryString, formats, null, System.Globalization.DateTimeStyles.None, out result))
+        if (DateTime.TryParseExact(queryString, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out result))
         {
             return result;
         }
