@@ -148,15 +148,16 @@ jobs:
       version: "${{ needs.metadata.outputs.version }}"
     secrets: inherit
   deploy-stage:
-    if: github.ref == 'refs/heads/main' && github.event.action == 'closed' && contains(github.event.pull_request.labels.*.name, 'deploy')
-    name: Deploy pr-${{ github.event.pull_request.number }} for commit ${{ github.event.pull_request.head.sha }}
-    needs: [acceptance-stage]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    name: Deploy environments for commit ${{ github.sha }}
+    needs: [metadata, build-image-stage]
     permissions:
       id-token: write
+      contents: read
     uses: ./.github/workflows/stage-4-deploy.yaml
     with:
       environments: "[\"sandbox\"]"
-      commit_sha: ${{ github.event.pull_request.head.sha }}
+      commit_sha: ${{ github.sha }}
     secrets: inherit
   validate-title-stage:
     name: Validate PR title

@@ -124,7 +124,7 @@ app_service_plan = {
       time_aggregation = "Average"
 
       inc_operator        = "GreaterThanOrEqual"
-      inc_threshold       = 50
+      inc_threshold       = 60
       inc_scale_direction = "Increase"
       inc_scale_type      = "ExactCount"
       inc_scale_value     = 2
