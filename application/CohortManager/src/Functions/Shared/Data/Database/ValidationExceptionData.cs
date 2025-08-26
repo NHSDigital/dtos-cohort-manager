@@ -124,13 +124,12 @@ public class ValidationExceptionData : IValidationExceptionData
     {
         var hasReportCategory = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
         var filterByCategoryAndDate = hasReportCategory && reportDate.HasValue;
-
         var startDate = reportDate?.Date ?? DateTime.MinValue;
         var endDate = startDate.AddDays(1);
 
-        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => filterByCategoryAndDate
-        ? x.Category == (int)exceptionCategory && x.DateCreated >= startDate && x.DateCreated < endDate
-        : x.Category == (int)ExceptionCategory.Confusion || x.Category == (int)ExceptionCategory.Superseded);
+        var exceptions = filterByCategoryAndDate
+            ? await _validationExceptionDataServiceClient.GetByFilter(x => x.Category.HasValue && x.Category.Value == (int)exceptionCategory && x.DateCreated >= startDate && x.DateCreated < endDate)
+            : await _validationExceptionDataServiceClient.GetByFilter(x => x.Category.HasValue && (x.Category.Value == (int)ExceptionCategory.Confusion || x.Category.Value == (int)ExceptionCategory.Superseded));
 
         return exceptions?.Select(s => s.ToValidationException()).ToList();
     }
