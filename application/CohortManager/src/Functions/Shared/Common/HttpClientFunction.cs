@@ -113,7 +113,7 @@ public class HttpClientFunction : IHttpClientFunction
         return await GetOrThrowAsync(client);
     }
 
-    public async Task<HttpResponseMessage> SendPdsGet(string url, string bearerToken)
+    public virtual async Task<HttpResponseMessage> SendPdsGet(string url, string bearerToken)
     {
         using var client = _factory.CreateClient();
 
