@@ -7,13 +7,23 @@
  Supported values for --epic:
    epic1, epic2, epic3, epic4c, epic4d, epic1med, epic2med, epic3med
 */
-const { execSync, spawnSync } = require('node:child_process');
+const { spawnSync } = require('node:child_process');
 const path = require('node:path');
 const { URL } = require('node:url');
 const net = require('node:net');
 
 function log(msg) { console.log(`[e2e] ${msg}`); }
-function run(cmd, opts={}) { log(`$ ${cmd}`); execSync(cmd, { stdio: 'inherit', ...opts }); }
+function run(bin, args = [], opts = {}) {
+  const printable = [bin, ...args].join(' ');
+  log(`$ ${printable}`);
+  const res = spawnSync(bin, args, { stdio: 'inherit', ...opts });
+  if (res.error) throw res.error;
+  if (typeof res.status === 'number' && res.status !== 0) {
+    const err = new Error(`Command failed (${res.status}): ${printable}`);
+    err.status = res.status;
+    throw err;
+  }
+}
 
 function parseArgs() {
   const args = process.argv.slice(2);
@@ -43,14 +53,13 @@ function epicToNpmScript(epic) {
 
 // Use health-check script for better error reporting and consistency
 async function waitForServices() {
-  const { execSync } = require('node:child_process');
-  try {
-    execSync('node scripts/health-check.js --max-attempts 120 --interval 3000', { 
-      stdio: 'inherit',
-      cwd: __dirname 
-    });
-  } catch (error) {
-    throw new Error('Health check failed: ' + error.message);
+  const res = spawnSync('node', ['scripts/health-check.js', '--max-attempts', '120', '--interval', '3000'], {
+    stdio: 'inherit',
+    cwd: __dirname,
+  });
+  if (res.error) throw new Error('Health check failed: ' + res.error.message);
+  if (typeof res.status === 'number' && res.status !== 0) {
+    throw new Error('Health check failed with exit code: ' + res.status);
   }
 }
 
@@ -76,18 +85,18 @@ async function waitForServices() {
 
   // 1) Build services
   process.chdir(cohortDir);
-  run('podman compose down');
-  run('podman compose -f compose.core.yaml build');
-  run('podman compose -f compose.cohort-distribution.yaml build');
-  run('podman compose -f compose.data-services.yaml build');
+  run('podman', ['compose', 'down']);
+  run('podman', ['compose', '-f', 'compose.core.yaml', 'build']);
+  run('podman', ['compose', '-f', 'compose.cohort-distribution.yaml', 'build']);
+  run('podman', ['compose', '-f', 'compose.data-services.yaml', 'build']);
 
   // 2) Ensure deps up and migrations complete
-  run('podman compose -f compose.deps.yaml up -d');
+  run('podman', ['compose', '-f', 'compose.deps.yaml', 'up', '-d']);
   
   // Run db-migration to completion to ensure schema is ready
   log('Running database migrations...');
   try {
-    run('podman compose -f compose.deps.yaml up --build db-migration');
+    run('podman', ['compose', '-f', 'compose.deps.yaml', 'up', '--build', 'db-migration']);
   } catch (e) {
     log('Database migration failed or completed with non-zero exit code');
     // Check if migration actually failed or just completed
@@ -101,15 +110,15 @@ async function waitForServices() {
   
   // Cleanup migration container
   try { 
-    run('podman compose -f compose.deps.yaml rm -f db-migration'); 
+    run('podman', ['compose', '-f', 'compose.deps.yaml', 'rm', '-f', 'db-migration']); 
   } catch (cleanupError) {
     log('Warning: Failed to cleanup migration container: ' + cleanupError.message);
   }
 
   // 3) Start app profiles in detached mode
-  run('podman compose down');
+  run('podman', ['compose', 'down']);
   // Include non-essential profile to ensure ManageServiceNowParticipant is started, and nems profile for manage-nems-subscription
-  run('podman compose --profile service-now --profile bs-select --profile non-essential --profile nems up -d');
+  run('podman', ['compose', '--profile', 'service-now', '--profile', 'bs-select', '--profile', 'non-essential', '--profile', 'nems', 'up', '-d']);
 
   // 4) Wait for readiness
   await waitForServices();
@@ -119,6 +128,6 @@ async function waitForServices() {
 
   // 5) Install and run tests
   process.chdir(testsDir);
-  run('npm install');
-  run(`npm run ${testScript}`);
+  run('npm', ['install']);
+  run('npm', ['run', testScript]);
 })();
