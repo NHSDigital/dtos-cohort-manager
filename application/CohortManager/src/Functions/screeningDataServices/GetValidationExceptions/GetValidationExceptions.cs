@@ -59,11 +59,12 @@ public class GetValidationExceptions
         {
             if (isReport)
             {
-                var hasSpecificCategory = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
+                var isReportCategories = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
 
-                if (hasSpecificCategory && !reportDate.HasValue) return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date is required when filtering by Confusion or Superseded category.");
+                if (isReportCategories && !reportDate.HasValue) return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date is required when filtering by Confusion or Superseded category.");
 
                 if (reportDate.HasValue && reportDate.Value > DateTime.UtcNow.Date) return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date cannot be in the future.");
+                if (reportDate.HasValue && !isReportCategories) return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid category for report. Only Confusion and Superseded categories are supported.");
 
                 var reportExceptions = await _validationData.GetReportExceptions(reportDate, exceptionCategory);
 
