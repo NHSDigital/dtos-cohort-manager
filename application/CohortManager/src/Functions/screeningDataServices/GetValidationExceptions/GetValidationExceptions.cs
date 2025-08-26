@@ -53,7 +53,7 @@ public class GetValidationExceptions
         var sortOrder = HttpParserHelper.GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
         var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
         var reportDate = _httpParserHelper.GetQueryParameterAsDateTime(req, "reportDate");
-        var isReport = _httpParserHelper.GetQueryParameterAsBool(req, "isReport") ?? false;
+        var isReport = _httpParserHelper.GetQueryParameterAsBool(req, "isReport");
 
         try
         {
