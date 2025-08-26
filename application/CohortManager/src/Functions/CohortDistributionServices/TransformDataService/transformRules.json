@@ -7,7 +7,7 @@
         "LocalParams": [
           {
             "Name": "DMSInSMU",
-            "Expression": "participant.CurrentPosting == \"DMS\" && dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(participant.PrimaryCareProvider))"
+            "Expression": "participant.CurrentPosting == \"DMS\" && dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(participant.PrimaryCareProvider)"
           },
           {
             "Name": "WelshCurrentPosting",
@@ -21,14 +21,14 @@
             "Context": {
               "transformFields": [
                 {
-                  "isExpression": false,
+                  "isExpression": true,
                   "field": "PrimaryCareProvider",
                   "value": null
                 },
                 {
                   "field": "ReasonForRemoval",
                   "value": "ORR",
-                  "isExpression": false
+                  "isExpression": true
                 },
                 {
                   "field": "ReasonForRemovalEffectiveFromDate",
