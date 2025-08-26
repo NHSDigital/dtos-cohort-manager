@@ -53,33 +53,24 @@ public class GetValidationExceptions
         var sortOrder = HttpParserHelper.GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
         var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
         var reportDate = _httpParserHelper.GetQueryParameterAsDateTime(req, "reportDate");
+        var isReport = _httpParserHelper.GetQueryParameterAsBool(req, "isReport") ?? false;
 
         try
         {
-
-            if (reportDate.HasValue)
+            if (isReport)
             {
-                if (reportDate.Value > DateTime.UtcNow.Date)
-                {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date cannot be in the future.");
-                }
+                var hasSpecificCategory = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
 
-                var exceptionsByReportDate = await _validationData.GetExceptionsByReportDate(reportDate.Value);
+                if (hasSpecificCategory && !reportDate.HasValue) return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date is required when filtering by Confusion or Superseded category.");
 
-                if (exceptionsByReportDate == null || exceptionsByReportDate.Count == 0)
-                {
-                    return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-                }
+                if (reportDate.HasValue && reportDate.Value > DateTime.UtcNow.Date) return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date cannot be in the future.");
 
-                var result = _paginationService.GetPaginatedResult(exceptionsByReportDate.AsQueryable(), lastId, e => e.ExceptionId);
+                var reportExceptions = await _validationData.GetReportExceptions(reportDate, exceptionCategory);
+
+                if (reportExceptions?.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+
+                var result = _paginationService.GetPaginatedResult(reportExceptions.AsQueryable(), lastId, e => e.ExceptionId);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(result));
-            }
-            if (exceptionId != 0)
-            {
-                var exceptionById = await _validationData.GetExceptionById(exceptionId);
-                return exceptionById == null
-                    ? _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req)
-                    : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById));
             }
 
             var exceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);

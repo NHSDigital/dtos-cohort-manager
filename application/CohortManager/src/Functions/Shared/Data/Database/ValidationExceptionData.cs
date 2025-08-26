@@ -120,15 +120,17 @@ public class ValidationExceptionData : IValidationExceptionData
         }
     }
 
-    public async Task<List<ValidationException>?> GetExceptionsByReportDate(DateTime reportDate)
+    public async Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory)
     {
-        var startDate = reportDate.Date;
+        var hasReportCategory = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
+        var filterByCategoryAndDate = hasReportCategory && reportDate.HasValue;
+
+        var startDate = reportDate?.Date ?? DateTime.MinValue;
         var endDate = startDate.AddDays(1);
 
-        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x =>
-            (x.Category == (int)ExceptionCategory.Confusion || x.Category == (int)ExceptionCategory.Superseded) &&
-            x.DateCreated >= startDate &&
-            x.DateCreated < endDate);
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => filterByCategoryAndDate
+        ? x.Category == (int)exceptionCategory && x.DateCreated >= startDate && x.DateCreated < endDate
+        : x.Category == (int)ExceptionCategory.Confusion || x.Category == (int)ExceptionCategory.Superseded);
 
         return exceptions?.Select(s => s.ToValidationException()).ToList();
     }

@@ -11,5 +11,5 @@ public interface IValidationExceptionData
     Task<ValidationException?> GetExceptionById(int exceptionId);
     Task<bool> RemoveOldException(string nhsNumber, string screeningName);
     Task<ServiceResponseModel> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId);
-    Task<List<ValidationException>?> GetExceptionsByReportDate(DateTime reportDate);
+    Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory);
 }
