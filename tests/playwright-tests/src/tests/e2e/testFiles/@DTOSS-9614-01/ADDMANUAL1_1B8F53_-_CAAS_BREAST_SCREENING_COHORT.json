@@ -9,7 +9,19 @@
       "meta": {
         "testJiraId": "@DTOSS-9614-01",
         "requirementJiraId": "@DTOSS-9614-01",
-        "additionalTags": "@DTOSS-9614-01 @e2e @epic4c- Add record with a dummy GP code should not be transformed"
+        "additionalTags": "@DTOSS-9614-01 @e2e @epic4c- Add record with a dummy GP code should not be transformed (cohort distribution)"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9994045571,
+        "PrimaryCareProvider": "ZZZDKL"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-9614-01",
+        "requirementJiraId": "@DTOSS-9614-01",
+        "additionalTags": "@DTOSS-9614-01 @e2e @epic4c- Add record with a dummy GP code should not be transformed (participant demographic)"
       }
     }
   ],
@@ -19,8 +31,8 @@
       "u_case_variable_data": {
         "nhs_number": "9994045571",
         "forename_": "Jane",
-        "surname_family_name": "Doe",
-        "date_of_birth": "2010-10-22",
+        "surname_family_name": "Smith",
+        "date_of_birth": "1980-10-22",
         "enter_dummy_gp_code": "ZZZDKL",
         "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
         "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"

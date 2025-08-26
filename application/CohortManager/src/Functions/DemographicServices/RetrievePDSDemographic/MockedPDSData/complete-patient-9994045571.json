@@ -52,14 +52,14 @@
   "gender": "female",
   "birthDate": "1980-10-22",
   "multipleBirthInteger": 1,
-  "deceasedDateTime": "2010-10-22T00:00:00+00:00",
+  "deceasedDateTime": "",
   "generalPractitioner": [
     {
       "id": "254406A3",
       "type": "Organization",
       "identifier": {
         "system": "https://fhir.nhs.uk/Id/ods-organization-code",
-        "value": "Y12345",
+        "value": "ZZZDKL",
         "period": {
           "start": "2020-01-01",
           "end": "2021-12-31"
@@ -299,7 +299,7 @@
         "Leeds",
         "West Yorkshire"
       ],
-      "postalCode": "LS1 6AE",
+      "postalCode": "BN20 6AE",
       "extension": [
         {
           "url": "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-AddressKey",
