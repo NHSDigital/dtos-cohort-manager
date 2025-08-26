@@ -93,7 +93,26 @@ echo "Running frontend tests to generate coverage"
 if [ -d "application/CohortManager/src/Web" ]; then
   (
     cd application/CohortManager/src/Web || exit 1
-    npm ci
+    # Configure npm to better handle transient 429s and avoid extra work
+    export npm_config_audit=false
+    export npm_config_fund=false
+    export npm_config_fetch_retries=5
+    export npm_config_fetch_retry_factor=2
+    export npm_config_fetch_retry_mintimeout=20000
+    export npm_config_fetch_retry_maxtimeout=120000
+    export npm_config_prefer_offline=true
+    # Retry npm ci with simple backoff to survive registry rate limits
+    n=0
+    until [ "$n" -ge 3 ]
+    do
+      npm ci && break
+      n=$((n+1))
+      sleep $((n*15))
+    done
+    if [ "$n" -ge 3 ]; then
+      echo "npm ci failed after retries" >&2
+      exit 1
+    fi
     npm run test:unit:coverage
     mkdir -p "${COVERAGE_FULL_PATH}"
     cp coverage/lcov.info "${COVERAGE_FULL_PATH}/lcov.info"
