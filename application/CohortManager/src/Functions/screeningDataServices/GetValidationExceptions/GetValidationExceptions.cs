@@ -58,12 +58,16 @@ public class GetValidationExceptions
             if (exceptionId > 0)
             {
                 var exceptionById = await _validationData.GetExceptionById(exceptionId);
-                return exceptionById == null ? _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req) : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById));
+                return exceptionById == null
+                ? _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req)
+                : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById));
             }
 
             var isReportCategory = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
 
-            return isReport ? await HandleReportRequest(req, reportDate, exceptionCategory, isReportCategory, lastId) : await HandleStandardRequestWithHeaders(req, exceptionStatus, sortOrder, exceptionCategory, lastId);
+            return isReport
+            ? await HandleReportRequest(req, reportDate, exceptionCategory, isReportCategory, lastId)
+            : await HandleStandardRequestWithHeaders(req, exceptionStatus, sortOrder, exceptionCategory, lastId);
         }
         catch (Exception ex)
         {
