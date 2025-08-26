@@ -57,45 +57,68 @@ public class GetValidationExceptions
 
         try
         {
-            if (exceptionId != 0)
+            if (exceptionId > 0)
             {
-                var isReportCategories = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
-
-                if (isReportCategories && !reportDate.HasValue) return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date is required when filtering by Confusion or Superseded category.");
-
-                if (reportDate.HasValue && reportDate.Value > DateTime.UtcNow.Date) return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date cannot be in the future.");
-                if (reportDate.HasValue && !isReportCategories) return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid category for report. Only Confusion and Superseded categories are supported.");
-
-                var reportExceptions = await _validationData.GetReportExceptions(reportDate, exceptionCategory);
-
-                if (reportExceptions?.Count == 0) return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-
-                var result = _paginationService.GetPaginatedResult(reportExceptions.AsQueryable(), lastId, e => e.ExceptionId);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(result));
+                var exceptionById = await _validationData.GetExceptionById(exceptionId);
+                return exceptionById == null ? _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req) : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById));
             }
 
-            var allExceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
+            var isReportCategory = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
 
-            if (allExceptions == null)
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-            }
-
-            var paginatedResult = _paginationService.GetPaginatedResult(allExceptions.AsQueryable(), lastId == 0 ? null : lastId, e => e.ExceptionId);
-            if (!paginatedResult.Items.Any())
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-            }
-
-            var headers = _paginationService.BuildPaginationHeaders(req, paginatedResult);
-
-            return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResult.Items), headers);
+            return isReport ? await HandleReportRequest(req, reportDate, exceptionCategory, isReportCategory, lastId) : await HandleStandardRequestWithHeaders(req, exceptionStatus, sortOrder, exceptionCategory, lastId);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing: {Function} validation exceptions request", nameof(GetValidationExceptions));
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
+    }
+
+    private async Task<HttpResponseData> HandleReportRequest(HttpRequestData req, DateTime? reportDate, ExceptionCategory exceptionCategory, bool hasSpecificCategory, int lastId)
+    {
+        if (hasSpecificCategory && !reportDate.HasValue)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date is required when filtering by Confusion or Superseded category.");
+        }
+
+        if (reportDate.HasValue && reportDate.Value > DateTime.UtcNow.Date)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date cannot be in the future.");
+        }
+
+        var reportExceptions = await _validationData.GetReportExceptions(reportDate, exceptionCategory);
+        return CreatePaginatedResponse(req, reportExceptions, lastId);
+    }
+
+    private HttpResponseData CreatePaginatedResponse(HttpRequestData req, List<ValidationException>? exceptions, int lastId)
+    {
+        if (exceptions?.Count == 0 || exceptions == null)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+        }
+
+        var result = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId, e => e.ExceptionId);
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(result));
+    }
+
+    private async Task<HttpResponseData> HandleStandardRequestWithHeaders(HttpRequestData req, ExceptionStatus exceptionStatus, SortOrder sortOrder, ExceptionCategory exceptionCategory, int lastId)
+    {
+        var allExceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
+
+        if (allExceptions == null)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+        }
+
+        var paginatedResult = _paginationService.GetPaginatedResult(allExceptions.AsQueryable(), lastId == 0 ? null : lastId, e => e.ExceptionId);
+
+        if (!paginatedResult.Items.Any())
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+        }
+
+        var headers = _paginationService.BuildPaginationHeaders(req, paginatedResult);
+        return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResult.Items), headers);
     }
 
     /// <summary>
