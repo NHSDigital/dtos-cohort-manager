@@ -446,89 +446,106 @@ public class ValidationExceptionDataTests
     }
 
     [TestMethod]
-    public async Task GetExceptionsByReportDate_ValidReportDate_ReturnsExceptionsWithinDateRange()
+    public async Task GetReportExceptions_ConfusionCategoryWithDate_ReturnsFilteredExceptions()
     {
         // Arrange
-        var reportDate = DateTime.UtcNow.Date.AddDays(-1);
-        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => (e.Category == 12 || e.Category == 13) && e.DateCreated >= reportDate && e.DateCreated < reportDate.AddDays(1)).ToList());
-        _demographicDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new List<ParticipantDemographic> { new() { NhsNumber = 666666666 } });
+        var reportDate = DateTime.UtcNow.Date;
+        var exceptionCategory = ExceptionCategory.Confusion;
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 12 && e.DateCreated >= reportDate && e.DateCreated < reportDate.AddDays(1)).ToList());
 
         // Act
-        var result = await validationExceptionData.GetExceptionsByReportDate(reportDate);
+        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(1);
+        result?.First().ExceptionId.Should().Be(5);
+        result?.First().Category.Should().Be(12);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_SupersededCategoryWithDate_ReturnsFilteredExceptions()
+    {
+        // Arrange
+        var reportDate = DateTime.UtcNow.Date.AddDays(-1);
+        var exceptionCategory = ExceptionCategory.Superseded;
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 13 && e.DateCreated >= reportDate && e.DateCreated < reportDate.AddDays(1)).ToList());
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
+        result?.First().ExceptionId.Should().Be(6);
+        result?.First().Category.Should().Be(13);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_NoDateNoSpecificCategory_ReturnsAllConfusionAndSuperseded()
+    {
+        // Arrange
+        var exceptionCategory = ExceptionCategory.NBO;
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList());
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(null, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(2);
+        result.Should().Contain(e => e.ExceptionId == 5);
         result.Should().Contain(e => e.ExceptionId == 6);
     }
 
     [TestMethod]
-    public async Task GetExceptionsByReportDate_NoExceptionsInDateRange_ReturnsEmptyList()
+    public async Task GetReportExceptions_SpecificCategoryWithoutDate_ReturnsAllConfusionAndSuperseded()
+    {
+        // Arrange
+        var exceptionCategory = ExceptionCategory.Confusion;
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList());
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(null, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(2);
+        result.Should().Contain(e => e.ExceptionId == 5);
+        result.Should().Contain(e => e.ExceptionId == 6);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_DateWithoutSpecificCategory_ReturnsAllConfusionAndSuperseded()
+    {
+        // Arrange
+        var reportDate = DateTime.UtcNow.Date;
+        var exceptionCategory = ExceptionCategory.NBO;
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList());
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(2);
+        result.Should().Contain(e => e.ExceptionId == 5);
+        result.Should().Contain(e => e.ExceptionId == 6);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_NoMatchingExceptions_ReturnsEmptyList()
     {
         // Arrange
         var reportDate = DateTime.UtcNow.Date.AddDays(-10);
+        var exceptionCategory = ExceptionCategory.Confusion;
         _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(new List<ExceptionManagement>());
 
         // Act
-        var result = await validationExceptionData.GetExceptionsByReportDate(reportDate);
+        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().BeOfType<List<ValidationException>>();
         result.Should().BeEmpty();
-    }
-
-    [TestMethod]
-    public async Task GetExceptionsByReportDate_TodaysDate_ReturnsExceptionsForToday()
-    {
-        // Arrange
-        var reportDate = DateTime.UtcNow.Date;
-        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => (e.Category == 12 || e.Category == 13) && e.DateCreated >= reportDate && e.DateCreated < reportDate.AddDays(1)).ToList());
-        _demographicDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new List<ParticipantDemographic> { new() { NhsNumber = 5555555555 } });
-
-        // Act
-        var result = await validationExceptionData.GetExceptionsByReportDate(reportDate);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().HaveCount(1);
-        result.Should().Contain(e => e.ExceptionId == 5);
-    }
-
-    [TestMethod]
-    public async Task GetExceptionsByReportDate_ConfusionCategory_ReturnsConfusionExceptions()
-    {
-        // Arrange
-        var reportDate = DateTime.UtcNow.Date;
-        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 12 && e.DateCreated >= reportDate && e.DateCreated < reportDate.AddDays(1)).ToList());
-        _demographicDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new List<ParticipantDemographic> { new() { NhsNumber = 5555555555 } });
-
-        // Act
-        var result = await validationExceptionData.GetExceptionsByReportDate(reportDate);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().HaveCount(1);
-        result?.First().Category.Should().Be(12);
-        result?.First().ExceptionId.Should().Be(5);
-    }
-
-    [TestMethod]
-    public async Task GetExceptionsByReportDate_SupersededCategory_ReturnsSupersededExceptions()
-    {
-        // Arrange
-        var reportDate = DateTime.UtcNow.Date.AddDays(-1);
-        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 13 && e.DateCreated >= reportDate && e.DateCreated < reportDate.AddDays(1)).ToList());
-        _demographicDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new List<ParticipantDemographic> { new() { NhsNumber = 6666666666 } });
-
-        // Act
-        var result = await validationExceptionData.GetExceptionsByReportDate(reportDate);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().HaveCount(1);
-        result?.First().Category.Should().Be(13);
-        result?.First().ExceptionId.Should().Be(6);
     }
 }
