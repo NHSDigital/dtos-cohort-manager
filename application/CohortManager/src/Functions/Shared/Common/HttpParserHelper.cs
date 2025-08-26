@@ -15,9 +15,8 @@ public class HttpParserHelper : IHttpParserHelper
         _logger = logger;
         _createResponse = createResponse;
     }
-    public int GetQueryParameterAsInt(HttpRequestData req, string key)
+    public int GetQueryParameterAsInt(HttpRequestData req, string key, int defaultValue = 0)
     {
-        var defaultValue = 0;
         var queryString = req.Query[key];
         return int.TryParse(queryString, out int value) ? value : defaultValue;
     }

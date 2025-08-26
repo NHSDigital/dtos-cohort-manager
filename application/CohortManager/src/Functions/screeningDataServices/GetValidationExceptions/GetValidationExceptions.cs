@@ -57,7 +57,7 @@ public class GetValidationExceptions
 
         try
         {
-            if (isReport)
+            if (exceptionId != 0)
             {
                 var isReportCategories = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
 
@@ -74,16 +74,22 @@ public class GetValidationExceptions
                 return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(result));
             }
 
-            var exceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
+            var allExceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
 
-            if (exceptions == null || exceptions.Count == 0)
+            if (allExceptions == null)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
             }
 
-            var paginatedResults = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId, e => e.ExceptionId);
+            var paginatedResult = _paginationService.GetPaginatedResult(allExceptions.AsQueryable(), lastId == 0 ? null : lastId, e => e.ExceptionId);
+            if (!paginatedResult.Items.Any())
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+            }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResults));
+            var headers = _paginationService.BuildPaginationHeaders(req, paginatedResult);
+
+            return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResult.Items), headers);
         }
         catch (Exception ex)
         {
