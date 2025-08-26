@@ -24,20 +24,9 @@ public class GetValidationExceptionsTests
     private readonly Mock<FunctionContext> _contextMock = new();
     private readonly Mock<HttpRequestData> _requestMock;
     private readonly GetValidationExceptions _service;
-public class GetValidationExceptionsTests
-{
-    private readonly Mock<ILogger<GetValidationExceptions>> _loggerMock = new();
-    private readonly Mock<ICreateResponse> _createResponseMock = new();
-    private readonly Mock<IValidationExceptionData> _validationDataMock = new();
-    private readonly Mock<IHttpParserHelper> _httpParserHelperMock = new();
-    private readonly Mock<IPaginationService<ValidationException>> _paginationServiceMock = new();
-    private readonly Mock<FunctionContext> _contextMock = new();
-    private readonly Mock<HttpRequestData> _requestMock;
-    private readonly GetValidationExceptions _service;
     private readonly List<ValidationException> _exceptionList;
     private readonly ExceptionCategory _exceptionCategory;
 
-    public GetValidationExceptionsTests()
     public GetValidationExceptionsTests()
     {
         _requestMock = new Mock<HttpRequestData>(_contextMock.Object);
@@ -46,9 +35,6 @@ public class GetValidationExceptionsTests
 
         _exceptionList = new List<ValidationException>
         {
-            new() { ExceptionId = 1, Category = 0 },
-            new() { ExceptionId = 2, Category = 3 },
-            new() { ExceptionId = 3, Category = 3 }
             new() { ExceptionId = 1, Category = 0 },
             new() { ExceptionId = 2, Category = 3 },
             new() { ExceptionId = 3, Category = 3 }
@@ -165,7 +151,6 @@ public class GetValidationExceptionsTests
 
         // Act
         var result = await _service.Run(_requestMock.Object);
-        var result = await _service.Run(_requestMock.Object);
 
         // Assert
         Assert.IsNotNull(result);
@@ -192,7 +177,6 @@ public class GetValidationExceptionsTests
 
         // Act
         var result = await _service.Run(_requestMock.Object);
-        var result = await _service.Run(_requestMock.Object);
 
         // Assert
         Assert.IsNotNull(result);
@@ -213,7 +197,6 @@ public class GetValidationExceptionsTests
         _validationDataMock.Setup(s => s.GetExceptionById(exceptionId)).ReturnsAsync((ValidationException?)null);
 
         // Act
-        var result = await _service.Run(_requestMock.Object);
         var result = await _service.Run(_requestMock.Object);
 
         // Assert
@@ -246,7 +229,6 @@ public class GetValidationExceptionsTests
 
         // Act
         var result = await _service.Run(_requestMock.Object);
-        var result = await _service.Run(_requestMock.Object);
 
         // Assert
         Assert.IsNotNull(result);
@@ -266,7 +248,6 @@ public class GetValidationExceptionsTests
         _validationDataMock.Setup(s => s.GetAllFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ThrowsAsync(new Exception("Simulated failure"));
 
         // Act
-        var result = await _service.Run(_requestMock.Object);
         var result = await _service.Run(_requestMock.Object);
 
         // Assert
