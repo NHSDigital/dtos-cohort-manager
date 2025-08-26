@@ -13,19 +13,9 @@ using Model;
 using Model.Enums;
 
 /// <summary>
-/// Azure Function for retrieving validation exceptions.
+/// Azure Function for retrieving and managing validation exceptions.
+/// Provides endpoints for exception queries, reports, and ServiceNowId updates.
 /// </summary>
-/// <param name="req">The HTTP request data containing query parameters and request details.</param>
-/// <param name="exceptionId">Query parameter used to search for an exception by Id.</param>
-/// <param name="reportDate">Query parameter to retrieve exceptions within 24 hours of the specified date (Confusion and Superseded categories only).</param>
-/// If no exceptionId is passed, the full list of exceptions will be returned.
-/// <returns>
-/// HTTP response with:
-/// - 204 No Content if no data is found.
-/// - 200 OK - List&lt;ValidationException&gt; or single ValidationException in JSON format.
-/// - 400 Bad Request if reportDate is in the future.
-/// - 500 Internal Server Error if an exception occurs.
-/// </returns>
 public class GetValidationExceptions
 {
     private readonly ILogger<GetValidationExceptions> _logger;
@@ -33,7 +23,6 @@ public class GetValidationExceptions
     private readonly IValidationExceptionData _validationData;
     private readonly IHttpParserHelper _httpParserHelper;
     private readonly IPaginationService<ValidationException> _paginationService;
-
 
     public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationExceptionData validationData, IHttpParserHelper httpParserHelper, IPaginationService<ValidationException> paginationService)
     {
@@ -44,6 +33,15 @@ public class GetValidationExceptions
         _paginationService = paginationService;
     }
 
+    /// <summary>
+    /// Retrieves validation exceptions based on query parameters.
+    /// Supports single exception lookup, filtered lists, and report-based queries.
+    /// </summary>
+    /// <param name="req">The HTTP request data containing query parameters.</param>
+    /// <returns>
+    /// HTTP response containing validation exceptions in JSON format.
+    /// Returns 200 OK with data, 204 No Content if empty, 400 Bad Request for validation errors, or 500 Internal Server Error.
+    /// </returns>
     [Function(nameof(GetValidationExceptions))]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
@@ -122,9 +120,9 @@ public class GetValidationExceptions
     }
 
     /// <summary>
-    /// Updates the ServiceNow ID for a specific validation exception.
+    /// Updates the ServiceNowId for a specific validation exception.
     /// </summary>
-    /// <param name="req">The HTTP request data containing the exception ID and ServiceNow ID.</param>
+    /// <param name="req">The HTTP request data containing the exceptionId and ServiceNowId.</param>
     /// <returns>
     /// HTTP response with:
     /// - 200 OK if the update is successful
