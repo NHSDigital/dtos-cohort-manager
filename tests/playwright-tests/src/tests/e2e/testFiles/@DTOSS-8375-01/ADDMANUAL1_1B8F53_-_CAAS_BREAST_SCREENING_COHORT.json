@@ -10,7 +10,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8375-01",
         "requirementJiraId": "@DTOSS-8375-01",
-        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify valid record between PDS and SNOW in cohort distribution table"
+        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 1.verify valid record between PDS and SNOW in cohort distribution table"
       }
     },
     {
@@ -24,7 +24,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8375-01",
         "requirementJiraId": "@DTOSS-8375-01",
-        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify valid record between PDS and SNOW in participant management table"
+        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 2.verify valid record between PDS and SNOW in participant management table"
       }
     },
     {
@@ -37,7 +37,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8375-01",
         "requirementJiraId": "@DTOSS-8375-01",
-        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 verify valid record between PDS and SNOW in participant demographic table"
+        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10006 3.verify valid record between PDS and SNOW in participant demographic table"
       }
     },
     {
@@ -50,7 +50,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8375-01",
         "requirementJiraId": "@DTOSS-8375-01",
-        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10007 Exception is raised for FamilyName mismatch between SNOW & PDS"
+        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10007 1.Exception is raised for FamilyName mismatch between SNOW & PDS"
       }
     },
     {
@@ -63,7 +63,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8375-01",
         "requirementJiraId": "@DTOSS-8375-01",
-        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10008 Exception is raised for DateofBirth mismatch between SNOW & PDS"
+        "additionalTags": "@DTOSS-8375-01 @e2e @epic4c- DTOSS-10008 2.Exception is raised for DateofBirth mismatch between SNOW & PDS"
       }
     }
   ],
