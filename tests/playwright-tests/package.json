@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test:smoke_e2e": "cross-env TEST_TYPE=SMOKE npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@epic4c\"",
+    "test:smoke_e2e": "cross-env TEST_TYPE=SMOKE npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @e2e\"",
     "test:regression_api": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@regression @api\"",
     "test:regression_e2e_epic1": "cross-env TEST_TYPE=RegressionEpic1 npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic1-high",
     "test:regression_e2e_epic2": "cross-env TEST_TYPE=RegressionEpic2 npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic2-high",
