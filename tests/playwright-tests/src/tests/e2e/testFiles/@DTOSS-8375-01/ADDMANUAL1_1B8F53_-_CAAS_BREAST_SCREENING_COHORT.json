@@ -3,7 +3,9 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9993773360
+        "NHSNumber": 9993773360,
+        "GivenName": "Jane",
+        "FamilyName": "Doe"
       },
       "meta": {
         "testJiraId": "@DTOSS-8375-01",
