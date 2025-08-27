@@ -1,0 +1,30 @@
+{
+  "resourceType": "Patient",
+  "id": "9998524334",
+  "identifier": [
+    {
+      "system": "https://fhir.nhs.uk/Id/nhs-number",
+      "value": "9998524334",
+      "extension": [
+        {
+          "url": "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-NHSNumberVerificationStatus",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://fhir.hl7.org.uk/CodeSystem/UKCore-NHSNumberVerificationStatus",
+                "version": "1.0.0",
+                "code": "01",
+                "display": "Number present and verified"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "meta": { "versionId": "1" },
+  "name": [ { "use": "usual", "given": ["Jane"], "family": "Doe", "prefix": ["Mrs"] } ],
+  "gender": "female",
+  "birthDate": "2010-10-22"
+}
+
