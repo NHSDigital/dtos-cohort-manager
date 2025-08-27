@@ -78,8 +78,7 @@ export default async function Page(props: {
         </main>
       </>
     );
-  } catch (error) {
-    console.error("Error fetching report details:", error);
+  } catch {
     return (
       <>
         <Breadcrumb items={breadcrumbItems} />

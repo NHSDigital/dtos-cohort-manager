@@ -5,7 +5,9 @@ export async function fetchReports(exceptionCategory: number, date: string) {
 
   const response = await fetch(apiUrl);
   if (!response.ok) {
-    throw new Error(`Error fetching data for reports: ${response.statusText}`);
+    throw new Error(
+      `Error fetching data for reports: ${response.status} ${response.statusText} from ${apiUrl}`
+    );
   }
   return response.json();
 }

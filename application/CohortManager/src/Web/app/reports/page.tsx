@@ -36,14 +36,12 @@ export default async function Page() {
       d.setDate(today.getDate() - i);
       const dateString = formatIsoDate(d);
 
-      // NHS number change (category 13)
       reports.push({
         reportId: `${dateString}?category=13`,
         dateCreated: dateString,
         category: 13,
       });
 
-      // Possible confusion (category 12)
       reports.push({
         reportId: `${dateString}?category=12`,
         dateCreated: dateString,
