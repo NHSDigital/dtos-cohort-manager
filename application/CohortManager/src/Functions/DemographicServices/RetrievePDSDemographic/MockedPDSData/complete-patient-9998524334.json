@@ -26,5 +26,18 @@
   "name": [ { "use": "usual", "given": ["Jane"], "family": "Doe", "prefix": ["Mrs"] } ],
   "gender": "female",
   "birthDate": "2010-10-22"
+  ,
+  "address": [
+    {
+      "use": "home",
+      "line": [
+        "1 Test Street",
+        "Testville",
+        "",
+        "Leeds",
+        "West Yorkshire"
+      ],
+      "postalCode": "LS1 1AA"
+    }
+  ]
 }
-

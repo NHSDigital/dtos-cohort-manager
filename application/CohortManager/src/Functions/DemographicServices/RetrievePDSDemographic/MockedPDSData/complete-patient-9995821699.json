@@ -26,5 +26,18 @@
   "name": [ { "use": "usual", "given": ["Liz"], "family": "Blake", "prefix": ["Mrs"] } ],
   "gender": "female",
   "birthDate": "2002-02-02"
+  ,
+  "address": [
+    {
+      "use": "home",
+      "line": [
+        "3 Test Street",
+        "Testville",
+        "",
+        "Leeds",
+        "West Yorkshire"
+      ],
+      "postalCode": "LS1 1AC"
+    }
+  ]
 }
-
