@@ -3,6 +3,8 @@ resource "azurerm_resource_group" "rg_vnet" {
 
   name     = "${module.regions_config[each.key].names.resource-group}-networking"
   location = each.key
+
+  tags = local.merged_tags
 }
 
 resource "azurerm_resource_group" "rg_private_endpoints" {
@@ -10,6 +12,8 @@ resource "azurerm_resource_group" "rg_private_endpoints" {
 
   name     = "${module.regions_config[each.key].names.resource-group}-private-endpoints"
   location = each.key
+
+  tags = local.merged_tags
 }
 
 module "vnet" {
@@ -28,7 +32,7 @@ module "vnet" {
 
   dns_servers = [data.terraform_remote_state.hub.outputs.private_dns_resolver_inbound_ips[each.key].private_dns_resolver_ip]
 
-  tags = var.tags
+  tags = local.merged_tags
 }
 
 /*--------------------------------------------------------------------------------------------------
