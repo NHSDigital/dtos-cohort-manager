@@ -83,7 +83,7 @@ public class GetValidationExceptions
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date is required when filtering by Confusion or Superseded category.");
         }
 
-        if (reportDate.HasValue && reportDate.Value > DateTime.UtcNow.Date)
+        if (reportDate.HasValue && reportDate.Value > DateTime.Now.Date)
         {
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date cannot be in the future.");
         }
