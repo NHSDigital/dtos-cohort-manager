@@ -123,22 +123,23 @@ public class ValidationExceptionData : IValidationExceptionData
     public async Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory)
     {
         var isSpecificReportCategory = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
-        var filterByDate = reportDate.HasValue;
-        var startDate = reportDate?.Date ?? DateTime.MinValue;
-        var endDate = startDate.AddDays(1);
 
-        var allExceptions = await _validationExceptionDataServiceClient.GetByFilter(x =>
-            x.Category.HasValue && (x.Category.Value == (int)ExceptionCategory.Confusion || x.Category.Value == (int)ExceptionCategory.Superseded));
+        var filteredExceptions = (await _validationExceptionDataServiceClient.GetByFilter(x =>
+            x.Category.HasValue && (x.Category.Value == (int)ExceptionCategory.Confusion || x.Category.Value == (int)ExceptionCategory.Superseded)))?.AsEnumerable();
 
-        var categoryFilteredExceptions = isSpecificReportCategory
-            ? allExceptions?.Where(x => x.Category.Value == (int)exceptionCategory)
-            : allExceptions;
+        if (isSpecificReportCategory)
+        {
+            filteredExceptions = filteredExceptions?.Where(x => x.Category.HasValue && x.Category.Value == (int)exceptionCategory);
+        }
 
-        var exceptions = filterByDate
-            ? categoryFilteredExceptions?.Where(x => x.DateCreated >= startDate && x.DateCreated < endDate)
-            : categoryFilteredExceptions;
+        if (reportDate.HasValue)
+        {
+            var startDate = reportDate.Value.Date;
+            var endDate = startDate.AddDays(1);
+            filteredExceptions = filteredExceptions?.Where(x => x.DateCreated >= startDate && x.DateCreated < endDate);
+        }
 
-        return exceptions?.Select(s => s.ToValidationException()).ToList();
+        return filteredExceptions?.Select(s => s.ToValidationException()).ToList();
     }
 
     private ServiceResponseModel CreateResponse(bool success, HttpStatusCode statusCode, string message)
