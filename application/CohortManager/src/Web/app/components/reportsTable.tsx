@@ -52,7 +52,11 @@ export default function ExceptionsTable({
               >
                 Demographic change{" "}
               </span>
-              {exception.description}
+              {exception.category === 12
+                ? "Possible confusion"
+                : exception.category === 13
+                ? "NHS number change"
+                : exception.category}
             </td>
             <td className="nhsuk-table__cell">
               <span
@@ -61,9 +65,7 @@ export default function ExceptionsTable({
               >
                 Action{" "}
               </span>
-              <Link href={`/reports/${exception.reportId}`}>
-                View report {exception.reportId}
-              </Link>
+              <Link href={`/reports/${exception.reportId}`}>View report</Link>
             </td>
           </tr>
         ))}

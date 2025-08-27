@@ -1,5 +1,37 @@
 {
   "exceptions": {
+    "3001": {
+      "ExceptionId": 3001,
+      "NhsNumber": "7777777777",
+      "DateCreated": "2025-08-27T09:00:00",
+      "DateResolved": "9999-12-31T00:00:00",
+      "RuleId": 99,
+      "RuleDescription": "Reporting exception generated for monthly report",
+      "Category": 12,
+      "ScreeningName": "Breast Screening",
+      "ExceptionDate": "2025-08-01T00:00:00",
+      "CohortName": "",
+      "Fatal": 0,
+      "ExceptionDetails": {
+        "GivenName": "William",
+        "FamilyName": "Taylor",
+        "DateOfBirth": "19830507",
+        "ParticipantAddressLine1": "258 Willow Road",
+        "ParticipantAddressLine2": "",
+        "ParticipantAddressLine3": "Suburb",
+        "ParticipantAddressLine4": "Liverpool",
+        "ParticipantAddressLine5": "UK",
+        "ParticipantPostCode": "L8 9CD",
+        "TelephoneNumberHome": "07890123456",
+        "EmailAddressHome": "william.taylor@example.com",
+        "PrimaryCareProvider": "E97531",
+        "Gender": 1,
+        "SupersededByNhsNumber": ""
+      },
+      "ServiceNowId": "INC0003001",
+      "ServiceNowCreatedDate": "2025-08-27T10:00:00",
+      "RecordUpdatedDate": "2025-08-27T10:00:00"
+    },
     "2073": {
       "ExceptionId": 2073,
       "NhsNumber": "1211111881",
@@ -607,6 +639,38 @@
       "ServiceNowId": "",
       "ServiceNowCreatedDate": "",
       "RecordUpdatedDate": "2025-05-16T09:18:54.41"
+    },
+    "4001": {
+      "ExceptionId": 4001,
+      "NhsNumber": "3333333333",
+      "DateCreated": "2025-08-27T09:15:00",
+      "DateResolved": "9999-12-31T00:00:00",
+      "RuleId": 99,
+      "RuleDescription": "Reporting exception generated for monthly report",
+      "Category": 13,
+      "ScreeningName": "Breast Screening",
+      "ExceptionDate": "2025-08-01T00:00:00",
+      "CohortName": "",
+      "Fatal": 0,
+      "ExceptionDetails": {
+        "GivenName": "Sarah",
+        "FamilyName": "Green",
+        "DateOfBirth": "19791223",
+        "ParticipantAddressLine1": "12 Meadow View",
+        "ParticipantAddressLine2": "",
+        "ParticipantAddressLine3": "",
+        "ParticipantAddressLine4": "Sheffield",
+        "ParticipantAddressLine5": "UK",
+        "ParticipantPostCode": "S1 2CD",
+        "TelephoneNumberHome": "07900111222",
+        "EmailAddressHome": "sarah.green@example.com",
+        "PrimaryCareProvider": "E11223",
+        "Gender": 2,
+        "SupersededByNhsNumber": "4444444444"
+      },
+      "ServiceNowId": "INC0004001",
+      "ServiceNowCreatedDate": "2025-08-27T12:00:00",
+      "RecordUpdatedDate": "2025-08-27T12:00:00"
     }
   },
   "notRaisedExceptions": [
@@ -901,6 +965,38 @@
   ],
   "raisedExceptions": [
     {
+      "ExceptionId": 3001,
+      "NhsNumber": "7777777777",
+      "DateCreated": "2025-08-27T09:00:00",
+      "DateResolved": "9999-12-31T00:00:00",
+      "RuleId": 99,
+      "RuleDescription": "Reporting exception generated for monthly report",
+      "Category": 12,
+      "ScreeningName": "Breast Screening",
+      "ExceptionDate": "2025-08-01T00:00:00",
+      "CohortName": "",
+      "Fatal": 0,
+      "ExceptionDetails": {
+        "GivenName": "William",
+        "FamilyName": "Taylor",
+        "DateOfBirth": "19830507",
+        "ParticipantAddressLine1": "258 Willow Road",
+        "ParticipantAddressLine2": "",
+        "ParticipantAddressLine3": "Suburb",
+        "ParticipantAddressLine4": "Liverpool",
+        "ParticipantAddressLine5": "UK",
+        "ParticipantPostCode": "L8 9CD",
+        "TelephoneNumberHome": "07890123456",
+        "EmailAddressHome": "william.taylor@example.com",
+        "PrimaryCareProvider": "E97531",
+        "Gender": 1,
+        "SupersededByNhsNumber": ""
+      },
+      "ServiceNowId": "INC0003001",
+      "ServiceNowCreatedDate": "2025-08-27T10:00:00",
+      "RecordUpdatedDate": "2025-08-27T10:00:00"
+    },
+    {
       "ExceptionId": 2083,
       "NhsNumber": "1211111881",
       "DateCreated": "2025-05-16T14:26:09.28",
@@ -947,6 +1043,22 @@
       "ServiceNowId": "INC0002766",
       "ServiceNowCreatedDate": "2025-06-12T00:00:00",
       "RecordUpdatedDate": "2025-01-19T09:27:18.25"
+    },
+    {
+      "ExceptionId": 4001,
+      "NhsNumber": "3333333333",
+      "DateCreated": "2025-08-27T09:15:00",
+      "DateResolved": "9999-12-31T00:00:00",
+      "RuleId": 99,
+      "RuleDescription": "Reporting exception generated for monthly report",
+      "Category": 13,
+      "ScreeningName": "Breast Screening",
+      "ExceptionDate": "2025-08-01T00:00:00",
+      "CohortName": "",
+      "Fatal": 0,
+      "ServiceNowId": "INC0004001",
+      "ServiceNowCreatedDate": "2025-08-27T12:00:00",
+      "RecordUpdatedDate": "2025-08-27T12:00:00"
     }
   ]
 }
