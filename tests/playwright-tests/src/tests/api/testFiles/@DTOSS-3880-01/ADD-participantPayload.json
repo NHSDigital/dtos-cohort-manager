@@ -2,10 +2,10 @@
   "validParticipantRecord-vhr": {
     "number": "CS0573847",
     "u_case_variable_data": {
-      "nhs_number": "1236547089",
-      "forename_": "Leah",
-      "surname_family_name": "Bloggs",
-      "date_of_birth": "2000-01-01",
+      "nhs_number": "9992039310",
+      "forename_": "Anne",
+      "surname_family_name": "Smith",
+      "date_of_birth": "2010-10-22",
       "enter_dummy_gp_code": "ZZZGBR",
       "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
       "reason_for_adding": "eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached"
