@@ -168,6 +168,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             NHSNumber = long.Parse(pdsParticipant.NhsNumber),
             BlockedFlag = 1,
             EligibilityFlag = 0,
+            RecordType = "ADD"
         };
 
         var participantManagementAdded = await _participantManagementDataService.Add(participantManagementRecord);
