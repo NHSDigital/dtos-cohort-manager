@@ -1,6 +1,6 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
 import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, sendParticipantViaSnowAPI, validateSqlDatabaseFromAPI } from '../steps/steps';
-import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
+import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../json/json-updater';
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { runnerBasedEpic4cTestScenariosManualAmend } from '../e2e/epic4c-add-participant-tests/epic4c-testsuite-migrated';
 import { ParticipantRecord } from '../../interface/InputData';
@@ -49,9 +49,9 @@ test.afterAll(async () => {
   await apiContext.dispose();
 });
 
-console.log('Number of validations:', addData.validations?.length);
+console.log('Number of validations:', amendData.validations?.length);
 
-addData.validations.forEach((validations) => {
+amendData.validations.forEach((validations) => {
   test(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
     annotation: [
       { type: 'TestId', description: validations.meta?.testJiraId ?? '' },
