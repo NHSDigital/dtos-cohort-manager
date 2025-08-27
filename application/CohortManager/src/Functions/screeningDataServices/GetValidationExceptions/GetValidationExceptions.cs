@@ -78,11 +78,6 @@ public class GetValidationExceptions
 
     private async Task<HttpResponseData> HandleReportRequest(HttpRequestData req, DateTime? reportDate, ExceptionCategory exceptionCategory, bool hasSpecificCategory, int lastId)
     {
-        if (hasSpecificCategory && !reportDate.HasValue)
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date is required when filtering by Confusion or Superseded category.");
-        }
-
         if (reportDate.HasValue && reportDate.Value > DateTime.Now.Date)
         {
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date cannot be in the future.");
