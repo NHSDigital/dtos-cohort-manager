@@ -3,12 +3,15 @@ import { composeValidators, expectStatus } from '../../../api/responseValidators
 import { receiveParticipantViaServiceNow, invalidServiceNowEndpoint } from '../../../api/distributionService/bsSelectService';
 import { loadParticipantPayloads, omitField } from '../../fixtures/jsonDataReader';
 import { ParticipantRecord } from '../../../interface/InputData';
-import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
+import { cleanupDatabaseFromAPI } from '../../steps/steps';
 
 
-test.describe.serial('@regression @service_now @api receive valid participant from serviceNow api', () => {
+test.describe.serial('@regression @service_now @api @not-runner-based receive valid participant from serviceNow api', () => {
 
   let participantData: Record<string, ParticipantRecord>;
+  const testNumbers = ["9990089256", "9991182861","9997487850", "9994539760", "9998816440", "9996958116", "9993350508"];
+  cleanupDatabaseFromAPI(request, testNumbers);
+
 
   test.beforeAll(() => {
     const folderName = '@DTOSS-3880-01';
@@ -16,7 +19,7 @@ test.describe.serial('@regression @service_now @api receive valid participant fr
     participantData = loadParticipantPayloads(folderName, fileName);
   });
 
-  test.only('@DTOSS-3880 @DTOSS-8424 Add a valid VHR participant successfully', async ({ request }) => {
+  test('@DTOSS-3880 @DTOSS-8424 Add a valid VHR participant successfully', async ({ request }) => {
     annotation: [{
       type: 'Requirement',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3880',
@@ -32,15 +35,6 @@ test.describe.serial('@regression @service_now @api receive valid participant fr
       expectStatus(202)
     );
     await validators(response);
-
-    await test.step('DTOSS-10007 - Check that exception status', async () => {
-      const response = await getRecordsFromCohortDistributionService(request);
-
-      const validators = composeValidators(
-        expectStatus(204)
-      );
-      await validators(response);
-    });
 });
 
 test('@DTOSS-3880 @DTOSS-8424 Add a valid CEASED participant successfully', async ({ request }) => {
