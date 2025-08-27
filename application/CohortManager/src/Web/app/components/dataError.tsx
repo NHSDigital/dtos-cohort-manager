@@ -1,10 +1,12 @@
 import Link from "next/link";
 
+type DataErrorProps = Readonly<{
+  entity?: "exceptions" | "reports";
+}>;
+
 export default async function DataError({
   entity = "exceptions",
-}: {
-  entity?: "exceptions" | "reports";
-}) {
+}: DataErrorProps) {
   return (
     <main className="nhsuk-main-wrapper" id="maincontent" role="main">
       <div className="nhsuk-grid-row">

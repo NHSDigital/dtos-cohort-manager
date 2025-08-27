@@ -104,9 +104,7 @@ export async function GET(request: Request) {
     const sortedItems = sortExceptions(
       [...dateFiltered],
       usingSort,
-      (isRaised ? "ServiceNowCreatedDate" : "DateCreated") as
-        | "ServiceNowCreatedDate"
-        | "DateCreated"
+      isRaised ? "ServiceNowCreatedDate" : "DateCreated"
     );
 
     const response = createExceptionListResponse(

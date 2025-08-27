@@ -39,6 +39,12 @@ export default async function Page(props: {
     ? await props.searchParams
     : {};
   const categoryId = Number(resolvedSearchParams.category);
+  const categoryTitle =
+    categoryId === 12
+      ? "Possible confusion"
+      : categoryId === 13
+      ? "NHS number change"
+      : String(categoryId);
 
   try {
     const report = await fetchReports(categoryId, date);
@@ -50,11 +56,7 @@ export default async function Page(props: {
           <div className="nhsuk-grid-row">
             <div className="nhsuk-grid-column-full">
               <h1 data-testid="heading-report-details">
-                {categoryId === 12
-                  ? "Possible confusion"
-                  : categoryId === 13
-                  ? "NHS number change"
-                  : categoryId}
+                {categoryTitle}
                 <span className="nhsuk-caption-xl">{formatDate(date)}</span>
               </h1>
               {report ? (
