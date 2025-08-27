@@ -18,7 +18,8 @@
         "NHSNumber": 9995219204,
         "ReferralFlag": 1,
         "IsHigherRisk": 1,
-        "ScreeningId": 1
+        "ScreeningId": 1,
+        "ExceptionFlag": 0
       },
       "meta": {
         "testJiraId": "@DTOSS-8569-02",
@@ -32,7 +33,8 @@
         "RecordType": "ADD",
         "NHSNumber": 9998524334,
         "ReferralFlag": 1,
-        "ScreeningId": 1
+        "ScreeningId": 1,
+        "ExceptionFlag": 0
       },
       "meta": {
         "testJiraId": "@DTOSS-8569-01",
@@ -46,7 +48,8 @@
         "RecordType": "ADD",
         "NHSNumber": 9995821699,
         "ReferralFlag": 1,
-        "ScreeningId": 1
+        "ScreeningId": 1,
+        "ExceptionFlag": 0
       },
       "meta": {
         "testJiraId": "@DTOSS-8569-03",
@@ -75,6 +78,42 @@
         "testJiraId": "@DTOSS-8569-03",
         "requirementJiraId": "DTOSS-8569",
         "additionalTags": "@epic4c- @e2e Verify participant record with Screening ID = 1 and the Referral_flag = true passed Transformation rule 2 (Cease) [CohortDistribution]"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9998524334",
+        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8569-01",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e Self Referral: no exceptions raised (ExceptionManagement)"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9995219204",
+        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8569-02",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e VHR: no exceptions raised (ExceptionManagement)"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9995821699",
+        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8569-03",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e Cease: no exceptions raised (ExceptionManagement)"
       }
     },
     
