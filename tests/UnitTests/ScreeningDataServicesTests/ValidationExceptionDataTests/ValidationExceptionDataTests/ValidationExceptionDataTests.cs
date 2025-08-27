@@ -451,7 +451,84 @@ public class ValidationExceptionDataTests
         // Arrange
         var reportDate = DateTime.UtcNow.Date;
         var exceptionCategory = ExceptionCategory.Confusion;
-        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 12 && e.DateCreated >= reportDate && e.DateCreated < reportDate.AddDays(1)).ToList());
+        var confusionAndSupersededExceptions = _exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(confusionAndSupersededExceptions);
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
+        result?.First().ExceptionId.Should().Be(5);
+        result?.First().Category.Should().Be(12);
+        result?.First().DateCreated.Should().Be(reportDate);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_SupersededCategoryWithDate_ReturnsFilteredExceptions()
+    {
+        // Arrange
+        var reportDate = DateTime.UtcNow.Date.AddDays(-1);
+        var exceptionCategory = ExceptionCategory.Superseded;
+        var confusionAndSupersededExceptions = _exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(confusionAndSupersededExceptions);
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
+        result?.First().ExceptionId.Should().Be(6);
+        result?.First().Category.Should().Be(13);
+        result?.First().DateCreated.Should().Be(reportDate);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_NoDateNoSpecificCategory_ReturnsAllConfusionAndSuperseded()
+    {
+        // Arrange
+        var exceptionCategory = ExceptionCategory.NBO;
+        var confusionAndSupersededExceptions = _exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(confusionAndSupersededExceptions);
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(null, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(2);
+        result.Should().Contain(e => e.ExceptionId == 5 && e.Category == 12);
+        result.Should().Contain(e => e.ExceptionId == 6 && e.Category == 13);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_SpecificCategoryWithoutDate_ReturnsOnlySpecificCategory()
+    {
+        // Arrange
+        var exceptionCategory = ExceptionCategory.Confusion;
+        var confusionAndSupersededExceptions = _exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(confusionAndSupersededExceptions);
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(null, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
+        result?.First().ExceptionId.Should().Be(5);
+        result?.First().Category.Should().Be(12);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_DateWithoutSpecificCategory_ReturnsAllConfusionAndSupersededForDate()
+    {
+        // Arrange
+        var reportDate = DateTime.UtcNow.Date;
+        var exceptionCategory = ExceptionCategory.NBO;
+        var confusionAndSupersededExceptions = _exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(confusionAndSupersededExceptions);
 
         // Act
         var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
@@ -464,15 +541,15 @@ public class ValidationExceptionDataTests
     }
 
     [TestMethod]
-    public async Task GetReportExceptions_SupersededCategoryWithDate_ReturnsFilteredExceptions()
+    public async Task GetReportExceptions_SupersededCategoryWithoutDate_ReturnsOnlySupersededCategory()
     {
         // Arrange
-        var reportDate = DateTime.UtcNow.Date.AddDays(-1);
         var exceptionCategory = ExceptionCategory.Superseded;
-        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 13 && e.DateCreated >= reportDate && e.DateCreated < reportDate.AddDays(1)).ToList());
+        var confusionAndSupersededExceptions = _exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(confusionAndSupersededExceptions);
 
         // Act
-        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
+        var result = await validationExceptionData.GetReportExceptions(null, exceptionCategory);
 
         // Assert
         result.Should().NotBeNull();
@@ -482,64 +559,13 @@ public class ValidationExceptionDataTests
     }
 
     [TestMethod]
-    public async Task GetReportExceptions_NoDateNoSpecificCategory_ReturnsAllConfusionAndSuperseded()
-    {
-        // Arrange
-        var exceptionCategory = ExceptionCategory.NBO;
-        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList());
-
-        // Act
-        var result = await validationExceptionData.GetReportExceptions(null, exceptionCategory);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().HaveCount(2);
-        result.Should().Contain(e => e.ExceptionId == 5);
-        result.Should().Contain(e => e.ExceptionId == 6);
-    }
-
-    [TestMethod]
-    public async Task GetReportExceptions_SpecificCategoryWithoutDate_ReturnsAllConfusionAndSuperseded()
-    {
-        // Arrange
-        var exceptionCategory = ExceptionCategory.Confusion;
-        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList());
-
-        // Act
-        var result = await validationExceptionData.GetReportExceptions(null, exceptionCategory);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().HaveCount(2);
-        result.Should().Contain(e => e.ExceptionId == 5);
-        result.Should().Contain(e => e.ExceptionId == 6);
-    }
-
-    [TestMethod]
-    public async Task GetReportExceptions_DateWithoutSpecificCategory_ReturnsAllConfusionAndSuperseded()
-    {
-        // Arrange
-        var reportDate = DateTime.UtcNow.Date;
-        var exceptionCategory = ExceptionCategory.NBO;
-        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(_exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList());
-
-        // Act
-        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
-
-        // Assert
-        result.Should().NotBeNull();
-        result.Should().HaveCount(2);
-        result.Should().Contain(e => e.ExceptionId == 5);
-        result.Should().Contain(e => e.ExceptionId == 6);
-    }
-
-    [TestMethod]
     public async Task GetReportExceptions_NoMatchingExceptions_ReturnsEmptyList()
     {
         // Arrange
         var reportDate = DateTime.UtcNow.Date.AddDays(-10);
         var exceptionCategory = ExceptionCategory.Confusion;
-        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(new List<ExceptionManagement>());
+        var confusionAndSupersededExceptions = _exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(confusionAndSupersededExceptions);
 
         // Act
         var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
