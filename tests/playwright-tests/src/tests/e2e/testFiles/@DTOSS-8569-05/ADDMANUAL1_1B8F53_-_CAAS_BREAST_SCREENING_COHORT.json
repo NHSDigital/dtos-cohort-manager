@@ -2,27 +2,16 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9996310003,
-        "expectedCount": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8569-04",
-        "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Exception path: record not present in CohortDistribution"
-      }
-    },
-    {
-      "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9996310003",
+        "NhsNumber": "9996310999",
         "expectedCount": 1,
+        "DateResolved": "9999-12-31T00:00:00",
         "RuleDescriptionContains": "servicenow"
       },
       "meta": {
-        "testJiraId": "@DTOSS-8569-04",
+        "testJiraId": "@DTOSS-8569-05",
         "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Exception path: exception raised (ExceptionManagement)"
+        "additionalTags": "@epic4c- @e2e Exception path: system failure (ExceptionManagement)"
       }
     }
   ],
@@ -30,7 +19,7 @@
     {
       "number": "CS0573853",
       "u_case_variable_data": {
-        "nhs_number": "9996310003",
+        "nhs_number": "9996310999",
         "forename_": "Jane",
         "surname_family_name": "Smith",
         "date_of_birth": "2003-03-03",
@@ -41,6 +30,6 @@
     }
   ],
   "nhsNumbers": [
-    "9996310003"
+    "9996310999"
   ]
 }
