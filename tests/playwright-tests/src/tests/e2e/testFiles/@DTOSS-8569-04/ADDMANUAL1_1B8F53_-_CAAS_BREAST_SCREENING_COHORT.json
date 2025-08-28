@@ -22,7 +22,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8569-04",
         "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Exception path: exception raised (ExceptionManagement)"
+        "additionalTags": "@epic4c- @e2e @incomplete Exception path: exception raised (ExceptionManagement)"
       }
     }
   ],

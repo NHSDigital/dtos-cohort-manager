@@ -11,7 +11,7 @@
       "meta": {
         "testJiraId": "@DTOSS-8569-05",
         "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Exception path: system failure (ExceptionManagement)"
+        "additionalTags": "@epic4c- @e2e @incomplete Exception path: system failure (ExceptionManagement)"
       }
     }
   ],
