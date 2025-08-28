@@ -235,6 +235,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdsProcessorTests", "..\..\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlobStorageHelperTests", "..\..\..\..\tests\UnitTests\SharedTests\BlobStorageHelperTests\BlobStorageHelperTests.csproj", "{BFA68329-98DD-4039-B009-C6DF23146765}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshCaaSSubscribeIntegrationTests", "..\..\..\..\tests\integration-tests\MeshCaaSSubscribeIntegrationTests\MeshCaaSSubscribeIntegrationTests.csproj", "{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1397,6 +1399,18 @@ Global
 		{7C5D0C23-FB1B-4D95-A3A0-AC217B1CFC1B}.Release|x64.Build.0 = Release|Any CPU
 		{7C5D0C23-FB1B-4D95-A3A0-AC217B1CFC1B}.Release|x86.ActiveCfg = Release|Any CPU
 		{7C5D0C23-FB1B-4D95-A3A0-AC217B1CFC1B}.Release|x86.Build.0 = Release|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Debug|x64.Build.0 = Debug|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Debug|x86.Build.0 = Debug|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Release|x64.ActiveCfg = Release|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Release|x64.Build.0 = Release|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Release|x86.ActiveCfg = Release|Any CPU
+		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
