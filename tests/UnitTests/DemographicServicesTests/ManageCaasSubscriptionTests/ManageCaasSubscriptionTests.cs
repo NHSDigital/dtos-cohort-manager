@@ -11,7 +11,6 @@ using Moq;
 using NHS.CohortManager.DemographicServices;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Net.Http;
-using System.Net;
 
 [TestClass]
 public class ManageCaasSubscriptionTests
