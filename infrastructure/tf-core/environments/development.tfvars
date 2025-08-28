@@ -1051,6 +1051,22 @@ function_apps = {
       }
     }
 
+    ManageCaasSubscription = {
+      name_suffix            = "manage-caas-subscription"
+      function_endpoint_name = "ManageCaasSubscription"
+      app_service_plan_key   = "NonScaling"
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+      env_vars_static = {
+        # Minimal stubbed config; expand later if needed
+        IsStubbed = "true"
+      }
+    }
+
     ReferenceDataService = {
       name_suffix            = "reference-data-service"
       function_endpoint_name = "ReferenceDataService"

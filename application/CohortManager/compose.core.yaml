@@ -59,6 +59,8 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
       - UnsubscribeNemsSubscriptionUrl=http://manage-nems-subscription:9081/api/Unsubscribe
+      # CAAS manage subscription stub available at manage-caas-subscription when needed
+      # - UnsubscribeCaasSubscriptionUrl=http://manage-caas-subscription:9084/api/Unsubscribe
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - ParticipantManagementTopic=participant-management-topic
@@ -144,6 +146,8 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ManageNemsSubscriptionUnsubscribeURL=http://manage-nems-subscription:9081/api/Unsubscribe
       - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
+      # - ManageCaasSubscriptionUnsubscribeURL=http://manage-caas-subscription:9084/api/Unsubscribe
+      # - ManageCaasSubscriptionSubscribeURL=http://manage-caas-subscription:9084/api/Subscribe
       - RetrievePdsDemographicURL=http://etrieve-pds-demographic:8082/api/RetrievePdsDemographic
 
   delete-participant:
@@ -292,6 +296,25 @@ services:
         - IsStubbed=true
       ports:
         - "9081:9081"
+
+  manage-caas-subscription:
+      container_name: manage-caas-subscription
+      image: cohort-manager-manage-caas-subscription
+      networks: [cohman-network]
+      profiles: [nems]
+      build:
+        context: ./src/Functions/
+        dockerfile: DemographicServices/ManageCaasSubscription/Dockerfile
+      environment:
+        - ASPNETCORE_URLS=http://*:9084
+        - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+        - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+        - ManageNemsSubscriptionDataServiceURL=http://manage-nems-subscription:9081/api/NemsSubscriptionDataService
+        - ManageNemsSubscriptionBaseURL=http://manage-nems-subscription:9081
+        - CaasToMailbox=${CAAS_SUBSCRIBE_TO_MAILBOX:-CAAS_TO}
+        - CaasFromMailbox=${CAAS_SUBSCRIBE_FROM_MAILBOX:-CAAS_FROM}
+      ports:
+        - "9084:9084"
 
   durable-demographic-function:
     container_name: durable-demographic-function

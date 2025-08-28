@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProjectGuid>{C1C2D3E4-5678-49AB-9CDE-0F1A2B3C4D5E}</ProjectGuid>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+    <PackageReference Include="Moq" Version="4.20.70" />
+  </ItemGroup>
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\TestUtils\TestUtils.csproj" />
+    <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
+    <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\DemographicServices\ManageCaasSubscription\ManageCaasSubscription.csproj" />
+  </ItemGroup>
+</Project>
+
