@@ -108,6 +108,10 @@ public class TransformString
         var transformedEmail = (string?)rulesList.Where(result => result.IsSuccess)
                                         .Select(result => result.ActionResult.Output)
                                         .FirstOrDefault();
+        if (transformedEmail != emailAddress)
+        {
+            ParticipantUpdated = true;
+        }
         return transformedEmail;
     }        
 
