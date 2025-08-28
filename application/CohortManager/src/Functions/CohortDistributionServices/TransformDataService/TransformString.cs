@@ -53,7 +53,7 @@ public class TransformString
 
     private async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
-        string allowedCharacters = @"^[a-zA-Z0-9\s.,\-()'+:?!¬*]+$";
+        string allowedCharacters = @"^[a-zA-Z0-9\s.,\-()'+:?!¬￢*]+$";
         TimeSpan matchTimeout = TimeSpan.FromSeconds(2); // Adjust timeout as needed
 
         // Skip if the field is null or doesn't have any invalid chars
@@ -104,7 +104,7 @@ public class TransformString
 
     private async Task<string?> CheckEmailCharacters(string emailAddress)
     {
-        HashSet<char> invalidCharacters = ['\u005c', '*', '\u00a3', '`', '~', '|'];
+        HashSet<char> invalidCharacters = ['\\', '*', '£', '`', '~', '|'];
         bool invalidFlag = false;
 
         foreach (char character in emailAddress)
