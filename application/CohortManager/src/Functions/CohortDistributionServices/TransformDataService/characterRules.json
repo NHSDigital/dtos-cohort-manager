@@ -257,7 +257,7 @@
     ]
   },
   {
-    "WorkflowName": "72.InvalidEmailCharacter",
+    "WorkflowName": "71.InvalidEmailCharacter",
     "Rules": [
       {
         "RuleName": "EmailContainsBackslash",

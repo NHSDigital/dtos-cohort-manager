@@ -124,10 +124,10 @@ public class TransformString
 
     private async Task<string?> CheckEmailCharacters(string emailAddress)
     {
-        var rulesList = await _ruleEngine.ExecuteAllRulesAsync("72.InvalidEmailCharacter", emailAddress);
+        var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.InvalidEmailCharacter", emailAddress);
         var transformedEmail = (string?)rulesList.Where(result => result.IsSuccess)
                                         .Select(result => result.ActionResult.Output)
-                                        .FirstOrDefault() ?? emailAddress;
+                                        .FirstOrDefault();
         return transformedEmail;
     }        
 
