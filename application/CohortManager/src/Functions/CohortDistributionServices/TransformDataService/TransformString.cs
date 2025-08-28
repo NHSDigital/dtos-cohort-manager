@@ -101,18 +101,28 @@ public class TransformString
         }
         return stringBuilder.ToString();
     }
-
+    
     private async Task<string?> CheckEmailCharacters(string emailAddress)
     {
+        string? transformedEmail = emailAddress;
         var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.InvalidEmailCharacter", emailAddress);
-        var transformedEmail = (string?)rulesList.Where(result => result.IsSuccess)
-                                        .Select(result => result.ActionResult.Output)
-                                        .FirstOrDefault();
+
+        // Only modify transformedEmail if a rule was successful
+        var successfulResult = rulesList.FirstOrDefault(result => result.IsSuccess);
+        if (successfulResult != null)
+        {
+            transformedEmail = (string?)successfulResult.ActionResult.Output;
+        }
+
+        Console.WriteLine("transformed:" + transformedEmail + " original: " + emailAddress);
+
         if (transformedEmail != emailAddress)
         {
             ParticipantUpdated = true;
         }
+
         return transformedEmail;
-    }        
+    }
+
 
 }
