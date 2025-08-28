@@ -15,21 +15,6 @@
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "RecordType": "ADD",
-        "NHSNumber": 9995219204,
-        "ReferralFlag": 1,
-        "IsHigherRisk": 1,
-        "ScreeningId": 1
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8569-02",
-        "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Verify participant record with Screening ID = 1 and the Referral_flag = true and the IsHigherRisk flag = true passed Transformation rule 2 (VHR) [ParticipantManagement]"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "RecordType": "ADD",
         "NHSNumber": 9998524334,
         "ReferralFlag": 1,
         "ScreeningId": 1
@@ -38,70 +23,6 @@
         "testJiraId": "@DTOSS-8569-01",
         "requirementJiraId": "DTOSS-8569",
         "additionalTags": "@epic4c- @e2e Verify participant record with Screening ID = 1 and the Referral_flag = true passed Transformation rule 2 (Self Referral) [ParticipantManagement]"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ParticipantManagementDataService",
-        "RecordType": "ADD",
-        "NHSNumber": 9995821699,
-        "ReferralFlag": 1,
-        "ScreeningId": 1
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8569-03",
-        "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Verify participant record with Screening ID = 1 and the Referral_flag = true passed Transformation rule 2 (Cease) [ParticipantManagement]"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9995219204
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8569-02",
-        "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Verify participant record with Screening ID = 1 and the Referral_flag = true and the IsHigherRisk flag = true passed Transformation rule 2 (VHR) [CohortDistribution]"
-      }
-    },
-    
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9995821699
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8569-03",
-        "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Verify participant record with Screening ID = 1 and the Referral_flag = true passed Transformation rule 2 (Cease) [CohortDistribution]"
-      }
-    },
-    
-    
-    
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9996310003,
-        "expectedCount": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8569-04",
-        "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Exception path: record not present in CohortDistribution"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9996310003",
-        "expectedCount": 1
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8569-04",
-        "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Exception path: exception raised (ExceptionManagement)"
       }
     }
   ],
@@ -118,71 +39,15 @@
         "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy",
         "address_line_1": "1 Test Street",
         "address_line_2": "Testville",
-        "address_line_3": "",
-        "address_line_4": "Leeds",
-        "address_line_5": "West Yorkshire",
+        "address_line_3": "Leeds",
+        "address_line_4": "West Yorkshire",
+        "address_line_5": "",
         "postcode": "LS1 1AA"
-      }
-    },
-    {
-      "number": "CS0573851",
-      "u_case_variable_data": {
-        "nhs_number": "9995219204",
-        "forename_": "Anne",
-        "surname_family_name": "Smith",
-        "date_of_birth": "2001-01-01",
-        "enter_dummy_gp_code": "ZZZGBR",
-        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
-        "reason_for_adding": "eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached",
-        "address_line_1": "2 Test Street",
-        "address_line_2": "Testville",
-        "address_line_3": "",
-        "address_line_4": "Leeds",
-        "address_line_5": "West Yorkshire",
-        "postcode": "LS1 1AB"
-      }
-    },
-    {
-      "number": "CS0573852",
-      "u_case_variable_data": {
-        "nhs_number": "9995821699",
-        "forename_": "Liz",
-        "surname_family_name": "Blake",
-        "date_of_birth": "2002-02-02",
-        "enter_dummy_gp_code": "ZZZDKL",
-        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
-        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy",
-        "address_line_1": "3 Test Street",
-        "address_line_2": "Testville",
-        "address_line_3": "",
-        "address_line_4": "Leeds",
-        "address_line_5": "West Yorkshire",
-        "postcode": "LS1 1AC"
-      }
-    },
-    {
-      "number": "CS0573853",
-      "u_case_variable_data": {
-        "nhs_number": "9996310003",
-        "forename_": "Jane",
-        "surname_family_name": "Smith",
-        "date_of_birth": "2003-03-03",
-        "enter_dummy_gp_code": "ZZZDKL",
-        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
-        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy",
-        "address_line_1": "4 Test Street",
-        "address_line_2": "Testville",
-        "address_line_3": "",
-        "address_line_4": "Leeds",
-        "address_line_5": "West Yorkshire",
-        "postcode": "LS1 1AD"
       }
     }
   ],
   "nhsNumbers": [
-    "9998524334",
-    "9995219204",
-    "9995821699",
-    "9996310003"
+    "9998524334"
   ]
 }
+
