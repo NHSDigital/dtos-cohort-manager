@@ -40,24 +40,32 @@ public class ManageCaasSubscription
     [Function("Subscribe")]
     public async Task<HttpResponseData> Subscribe([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
-        var nhsNumber = req.Query["nhsNumber"];
-        if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+        try
         {
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
-        }
+            var nhsNumber = req.Query["nhsNumber"];
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
+            }
 
-        // Forward to MeshSendCaasSubscribeStub (Shared)
-        long.TryParse(nhsNumber, out var nhsNo);
-        var toMailbox = _config.Value.CaasToMailbox;
-        var fromMailbox = _config.Value.CaasFromMailbox;
-        if (string.IsNullOrWhiteSpace(toMailbox) || string.IsNullOrWhiteSpace(fromMailbox))
-        {
-            _logger.LogError("CAAS mailbox configuration missing. CaasToMailbox or CaasFromMailbox not set.");
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "CAAS mailbox configuration missing.");
+            // Forward to MeshSendCaasSubscribeStub (Shared)
+            long.TryParse(nhsNumber, out var nhsNo);
+            var toMailbox = _config.Value.CaasToMailbox;
+            var fromMailbox = _config.Value.CaasFromMailbox;
+            if (string.IsNullOrWhiteSpace(toMailbox) || string.IsNullOrWhiteSpace(fromMailbox))
+            {
+                _logger.LogError("CAAS mailbox configuration missing. CaasToMailbox or CaasFromMailbox not set.");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "CAAS mailbox configuration missing.");
+            }
+            var messageId = await _meshSendCaasSubscribe.SendSubscriptionRequest(nhsNo, toMailbox, fromMailbox);
+            _logger.LogInformation("CAAS Subscribe forwarded to Mesh stub. NHS: {Nhs}, MessageId: {Msg}", nhsNo, messageId);
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Subscription request accepted. MessageId: {messageId}");
         }
-        var messageId = await _meshSendCaasSubscribe.SendSubscriptionRequest(nhsNo, toMailbox, fromMailbox);
-        _logger.LogInformation("CAAS Subscribe forwarded to Mesh stub. NHS: {Nhs}, MessageId: {Msg}", nhsNo, messageId);
-        return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Subscription request accepted. MessageId: {messageId}");
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending CAAS subscribe request");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while sending the CAAS subscription request.");
+        }
     }
 
     [Function("Unsubscribe")]

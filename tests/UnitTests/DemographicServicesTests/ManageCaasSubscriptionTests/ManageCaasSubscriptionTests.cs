@@ -113,11 +113,31 @@ public class ManageCaasSubscriptionTests
     }
 
     [TestMethod]
+    public async Task Unsubscribe_Invalid_ReturnsBadRequest()
+    {
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "" } }, HttpMethod.Post);
+        var res = await _sut.Unsubscribe(req.Object);
+        Assert.AreEqual(HttpStatusCode.BadRequest, res.StatusCode);
+    }
+
+    [TestMethod]
     public async Task CheckSubscriptionStatus_Valid_ReturnsOk()
     {
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Get);
         var res = await _sut.CheckSubscriptionStatus(req.Object);
         Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
+    }
+
+    [DataTestMethod]
+    [DataRow((string)null)]
+    [DataRow("")]
+    [DataRow("abc")]
+    [DataRow("12345")]
+    public async Task CheckSubscriptionStatus_InvalidInputs_ReturnsBadRequest(string nhsNumber)
+    {
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", nhsNumber } }, HttpMethod.Get);
+        var res = await _sut.CheckSubscriptionStatus(req.Object);
+        Assert.AreEqual(HttpStatusCode.BadRequest, res.StatusCode);
     }
 
     [TestMethod]
@@ -158,6 +178,18 @@ public class ManageCaasSubscriptionTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
+        _requestHandler.Verify(r => r.HandleRequest(It.Is<HttpRequestData>(h => object.ReferenceEquals(h, req.Object)), "my-key"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task NemsSubscriptionDataService_HandlerThrows_ReturnsInternalServerError()
+    {
+        var req = _setupRequest.Setup(null, new NameValueCollection(), HttpMethod.Get);
+        _requestHandler
+            .Setup(r => r.HandleRequest(It.IsAny<HttpRequestData>(), It.IsAny<string>()))
+            .ThrowsAsync(new Exception("boom"));
+        var res = await _sut.NemsSubscriptionDataService(req.Object, "key");
+        Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
     }
 
     [TestMethod]
@@ -170,5 +202,37 @@ public class ManageCaasSubscriptionTests
 
         var res = await _sut.CheckSubscriptionStatus(req.Object);
         Assert.AreEqual(HttpStatusCode.NotFound, res.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task CheckSubscriptionStatus_AccessorThrows_ReturnsInternalServerError()
+    {
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Get);
+        _nemsAccessor
+            .Setup(a => a.GetSingle(It.IsAny<System.Linq.Expressions.Expression<Func<NemsSubscription, bool>>>() ))
+            .ThrowsAsync(new Exception("db-error"));
+        var res = await _sut.CheckSubscriptionStatus(req.Object);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Subscribe_MeshCalled_WithConfigMailboxes()
+    {
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+        var res = await _sut.Subscribe(req.Object);
+        Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
+        _mesh.Verify(m => m.SendSubscriptionRequest(9000000009L, "TEST_TO", "TEST_FROM"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Subscribe_MeshThrows_ReturnsInternalServerError()
+    {
+        _mesh
+            .Setup(m => m.SendSubscriptionRequest(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ThrowsAsync(new Exception("mesh-down"));
+
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+        var res = await _sut.Subscribe(req.Object);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
     }
 }
