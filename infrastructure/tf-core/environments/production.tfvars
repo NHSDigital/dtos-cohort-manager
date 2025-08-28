@@ -9,6 +9,7 @@ features = {
   private_endpoints_enabled            = true
   private_service_connection_is_manual = false
   public_network_access_enabled        = false
+  frontdoor_endpoint_enabled           = true
 }
 
 # these will be merged with compliance tags in locals.tf
@@ -53,7 +54,7 @@ regions = {
         cidr_offset                = 6
         delegation_name            = "Microsoft.App/environments"
         service_delegation_name    = "Microsoft.App/environments"
-        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
       }
     }
   }
@@ -335,6 +336,10 @@ function_apps = {
         {
           env_var_name   = "NemsMessages"
           container_name = "nems-updates"
+        },
+        {
+          env_var_name   = "NemsPoisonContainer"
+          container_name = "nems-poison"
         }
       ]
       env_vars_static = {
@@ -390,6 +395,11 @@ function_apps = {
         {
           env_var_name     = "ParticipantManagementURL"
           function_app_key = "ParticipantManagementDataService"
+        },
+        {
+          env_var_name     = "ManageNemsSubscriptionSubscribeURL"
+          function_app_key = "ManageNemsSubscription"
+          endpoint_name    = "Subscribe"
         }
       ]
       env_vars_static = {
@@ -861,9 +871,10 @@ function_apps = {
       key_vault_url           = "KeyVaultConnectionString"
       service_bus_connections = ["internal"]
       env_vars_static = {
-        ServiceNowRefreshAccessTokenUrl      = "" # TODO: Get value
-        ServiceNowUpdateUrl                  = "" # TODO: Get value
-        ServiceNowResolutionUrl              = "" # TODO: Get value
+        ServiceNowRefreshAccessTokenUrl      = ""                                  # TODO: Get value
+        ServiceNowUpdateUrl                  = ""                                  # TODO: Get value
+        ServiceNowResolutionUrl              = ""                                  # TODO: Get value
+        ServiceNowGrantType                  = ""                                  # TODO: Get value
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
@@ -1248,6 +1259,9 @@ storage_accounts = {
       }
       nems-config = {
         container_name = "nems-config"
+      }
+      nems-poison = {
+        container_name = "nems-poison"
       }
     }
   }

@@ -22,10 +22,15 @@ var nemsConfig = config;
 
 X509Certificate2 nemsCertificate;
 
-
-// Load NEMS certificate up-front and inject into DI
-
-nemsCertificate = await nemsConfig.LoadNemsCertificateAsync(logger);
+if (nemsConfig.IsStubbed)
+{
+    logger.LogInformation("ManageNemsSubscription is running in stubbed mode; skipping certificate load.");
+    nemsCertificate = new X509Certificate2();
+}
+else
+{
+    nemsCertificate = await nemsConfig.LoadNemsCertificateAsync(logger);
+}
 
 
 host.ConfigureFunctionsWebApplication();

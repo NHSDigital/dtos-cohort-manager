@@ -3,29 +3,63 @@ import {
   formatDate,
   formatCompactDate,
   formatNhsNumber,
-  formatPhoneNumber,
   formatGenderValue,
 } from "@/app/lib/utils";
+import { updateExceptions } from "@/app/lib/updateExceptions";
 
 interface ParticipantInformationPanelProps {
   readonly exceptionDetails: ExceptionDetails;
+  readonly isEditMode: boolean;
+  readonly searchParams?: { [key: string]: string | string[] | undefined };
 }
 
 export default function ParticipantInformationPanel({
   exceptionDetails,
+  isEditMode,
+  searchParams,
 }: Readonly<ParticipantInformationPanelProps>) {
+  const updateExceptionsWithId = updateExceptions.bind(
+    null,
+    exceptionDetails.exceptionId
+  );
+
+  const validationError = searchParams?.error as string;
+  const hasError = !!validationError;
+
   return (
     <>
+      {hasError && (
+        <div
+          className="nhsuk-error-summary"
+          aria-labelledby="error-summary-title"
+          role="alert"
+          tabIndex={-1}
+        >
+          <h2 className="nhsuk-error-summary__title" id="error-summary-title">
+            There is a problem
+          </h2>
+          <div className="nhsuk-error-summary__body">
+            <ul className="nhsuk-list nhsuk-error-summary__list">
+              <li>
+                <a href="#service-now-case-id">{validationError}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      )}
+
       <div
         className={
-          !exceptionDetails.serviceNowId
+          !exceptionDetails.serviceNowId || isEditMode
             ? "nhsuk-card nhsuk-do-dont-list nhsuk-u-margin-bottom-4"
             : "nhsuk-card app-card nhsuk-u-margin-bottom-4"
         }
       >
-        {!exceptionDetails.serviceNowId && (
+        {(!exceptionDetails.serviceNowId || isEditMode) && (
           <span className="nhsuk-do-dont-list__label nhsuk-u-font-weight-bold">
-            Portal form: Request to amend incorrect patient PDS record data
+            Portal form:{" "}
+            {exceptionDetails.portalFormTitle ||
+              "Request to amend incorrect patient PDS record data"}
           </span>
         )}
         <h2>Participant details</h2>
@@ -81,17 +115,6 @@ export default function ParticipantInformationPanel({
             </dd>
           </div>
           <div className="nhsuk-summary-list__row">
-            <dt className="nhsuk-summary-list__key">Contact details</dt>
-            <dd className="nhsuk-summary-list__value">
-              <p>
-                {formatPhoneNumber(
-                  exceptionDetails.contactDetails?.phoneNumber ?? ""
-                )}
-              </p>
-              <p>{exceptionDetails.contactDetails?.email}</p>
-            </dd>
-          </div>
-          <div className="nhsuk-summary-list__row">
             <dt className="nhsuk-summary-list__key">
               Registered practice code
             </dt>
@@ -119,7 +142,16 @@ export default function ParticipantInformationPanel({
             <div className="nhsuk-summary-list__row">
               <dt className="nhsuk-summary-list__key">More detail</dt>
               <dd className="nhsuk-summary-list__value">
-                {exceptionDetails.shortDescription}
+                <p>
+                  {exceptionDetails.moreDetails ||
+                    exceptionDetails.shortDescription}
+                </p>
+                {exceptionDetails.reportingId && (
+                  <p>
+                    Cohort Manager rule (to be included for reporting):{" "}
+                    {exceptionDetails.reportingId}
+                  </p>
+                )}
               </dd>
             </div>
             {!exceptionDetails.serviceNowId && (
@@ -135,10 +167,10 @@ export default function ParticipantInformationPanel({
           </dl>
         </div>
       </div>
-      {exceptionDetails.serviceNowId ? null : (
+      {(isEditMode || !exceptionDetails.serviceNowId) && (
         <div className="nhsuk-card nhsuk-u-margin-bottom-4">
           <div className="nhsuk-card__content">
-            <h2>Exception status</h2>
+            <h2 id="exception-status">Exception status</h2>
             <p>
               Entering a ServiceNow case ID will change the status of the
               exception to “Raised”. <br />
@@ -150,8 +182,12 @@ export default function ParticipantInformationPanel({
               delete any case ID previously entered and then save the changes
               with this field left empty.
             </p>
-            <form>
-              <div className="nhsuk-form-group">
+            <form action={updateExceptionsWithId}>
+              <div
+                className={`nhsuk-form-group ${
+                  hasError ? "nhsuk-form-group--error" : ""
+                }`}
+              >
                 <label
                   className="nhsuk-label nhsuk-u-font-weight-bold"
                   htmlFor="service-now-case-id"
@@ -162,14 +198,32 @@ export default function ParticipantInformationPanel({
                 <div className="nhsuk-hint" id="service-now-case-id-hint">
                   For example, CS1234567
                 </div>
+                {hasError && (
+                  <span
+                    className="nhsuk-error-message"
+                    id="service-now-case-id-error"
+                  >
+                    <span className="nhsuk-u-visually-hidden">Error:</span>
+                    {validationError}
+                  </span>
+                )}
                 <input
-                  className="nhsuk-input nhsuk-input--width-10"
+                  className={`nhsuk-input nhsuk-input--width-10 ${
+                    hasError ? "nhsuk-input--error" : ""
+                  }`}
                   data-testid="service-now-case-id-input"
                   id="service-now-case-id"
-                  name="service-now-case-id"
+                  name="serviceNowID"
                   type="text"
-                  aria-describedby="service-now-case-id-hint"
+                  aria-describedby={`service-now-case-id-hint ${
+                    hasError ? "service-now-case-id-error" : ""
+                  }`}
                   defaultValue={exceptionDetails.serviceNowId ?? ""}
+                />
+                <input
+                  type="hidden"
+                  name="isEditMode"
+                  value={isEditMode ? "true" : "false"}
                 />
               </div>
               <button

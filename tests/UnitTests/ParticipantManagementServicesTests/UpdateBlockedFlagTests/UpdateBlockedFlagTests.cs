@@ -126,7 +126,7 @@ public class UpdateBlockedFlagTests
             {
                 NhsNumber = "6427635034",
                 FamilyName = "Jones",
-                DateOfBirth = "19231012"
+                DateOfBirth = "1923-10-12"
             });
 
         _mockHttpClient.Setup(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))
@@ -333,7 +333,7 @@ public class UpdateBlockedFlagTests
             {
                 NhsNumber = "6427635034",
                 FamilyName = "Jones",
-                DateOfBirth = "19231012"
+                DateOfBirth = "1923-10-12"
             });
 
         _mockHttpClient.Setup(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))
@@ -371,7 +371,7 @@ public class UpdateBlockedFlagTests
             {
                 NhsNumber = "6427635034",
                 FamilyName = "Jones",
-                DateOfBirth = "19231012"
+                DateOfBirth = "1923-10-12"
             });
 
         _mockHttpClient.Setup(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))

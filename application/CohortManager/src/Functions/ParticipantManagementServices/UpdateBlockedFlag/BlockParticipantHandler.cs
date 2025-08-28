@@ -154,9 +154,13 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     {
         var pdsParticipant = await GetPDSParticipant(blockParticipantRequest.NhsNumber);
 
-        if (pdsParticipant == null || !ValidateRecordsMatch(pdsParticipant, blockParticipantRequest))
+        if (pdsParticipant == null )
         {
             return new BlockParticipantResult(false, "Participant details do not match a records in Cohort Manager or PDS");
+        }
+        if (!ValidateRecordsMatch(pdsParticipant, blockParticipantRequest))
+        {
+            return new BlockParticipantResult(false, "Participant record exists with Nhs number but did not match the request");
         }
 
         var participantManagementRecord = new ParticipantManagement
@@ -164,6 +168,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             NHSNumber = long.Parse(pdsParticipant.NhsNumber),
             BlockedFlag = 1,
             EligibilityFlag = 0,
+            RecordType = "ADD"
         };
 
         var participantManagementAdded = await _participantManagementDataService.Add(participantManagementRecord);
@@ -236,15 +241,16 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     private static bool ValidateRecordsMatch(ParticipantDemographic participant, BlockParticipantDto dto)
     {
 
-        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd",new CultureInfo("en-GB"),DateTimeStyles.None, out var dtoDateOfBirth ))
+        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd", new CultureInfo("en-GB"), DateTimeStyles.None, out var dtoDateOfBirth))
         {
             throw new FormatException("Date of Birth not in the correct format");
         }
 
-        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd",new CultureInfo("en-GB"),DateTimeStyles.None, out var parsedDob))
+        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd", new CultureInfo("en-GB"), DateTimeStyles.None, out var parsedDob))
         {
             return false;
         }
+
         return string.Equals(participant.FamilyName, dto.FamilyName, StringComparison.InvariantCultureIgnoreCase)
             && participant.NhsNumber == dto.NhsNumber
             && parsedDob == dtoDateOfBirth;
@@ -253,12 +259,12 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     private static bool ValidateRecordsMatch(PdsDemographic participant, BlockParticipantDto dto)
     {
 
-        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd",new CultureInfo("en-GB"),DateTimeStyles.None, out var dtoDateOfBirth ))
+        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd", new CultureInfo("en-GB"), DateTimeStyles.None, out var dtoDateOfBirth))
         {
             throw new FormatException("Date of Birth not in the correct format");
         }
 
-        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd",new CultureInfo("en-GB"),DateTimeStyles.None, out var parsedDob))
+        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyy-MM-dd", new CultureInfo("en-GB"), DateTimeStyles.None, out var parsedDob))
         {
             return false;
         }

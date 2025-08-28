@@ -4,6 +4,7 @@ import { auth } from "@/app/lib/auth";
 import { fetchExceptions } from "@/app/lib/fetchExceptions";
 import { canAccessCohortManager } from "@/app/lib/access";
 import { formatDate } from "@/app/lib/utils";
+import { getRuleMapping } from "@/app/lib/ruleMapping";
 import Breadcrumb from "@/app/components/breadcrumb";
 import ParticipantInformationPanel from "@/app/components/participantInformationPanel";
 import Unauthorised from "@/app/components/unauthorised";
@@ -17,6 +18,10 @@ export default async function Page(props: {
   readonly params: Promise<{
     readonly exceptionId: string;
   }>;
+  readonly searchParams?: Promise<{
+    readonly edit?: string;
+    readonly error?: string;
+  }>;
 }) {
   const session = await auth();
   const isCohortManager = await canAccessCohortManager(session);
@@ -27,9 +32,17 @@ export default async function Page(props: {
 
   const params = await props.params;
   const exceptionId = Number(params.exceptionId);
+  const resolvedSearchParams = props.searchParams
+    ? await props.searchParams
+    : {};
+  const isEditMode = resolvedSearchParams.edit === "true";
 
   try {
     const exception = await fetchExceptions(exceptionId);
+    const ruleMapping = getRuleMapping(
+      exception.RuleId,
+      exception.RuleDescription
+    );
 
     const exceptionDetails: ExceptionDetails = {
       exceptionId: exceptionId,
@@ -38,7 +51,10 @@ export default async function Page(props: {
       surname: exception.ExceptionDetails.FamilyName,
       forename: exception.ExceptionDetails.GivenName,
       dateCreated: exception.DateCreated,
-      shortDescription: exception.RuleDescription,
+      shortDescription: ruleMapping.ruleDescription,
+      moreDetails: ruleMapping.moreDetails,
+      reportingId: ruleMapping.reportingId,
+      portalFormTitle: ruleMapping.portalFormTitle,
       dateOfBirth: exception.ExceptionDetails.DateOfBirth,
       gender: exception.ExceptionDetails.Gender,
       address: `${exception.ExceptionDetails.ParticipantAddressLine1}${
@@ -58,10 +74,6 @@ export default async function Page(props: {
           ? `, ${exception.ExceptionDetails.ParticipantAddressLine5}`
           : ""
       }, ${exception.ExceptionDetails.ParticipantPostCode}`,
-      contactDetails: {
-        phoneNumber: exception.ExceptionDetails.TelephoneNumberHome,
-        email: exception.ExceptionDetails.EmailAddressHome,
-      },
       primaryCareProvider: exception.ExceptionDetails.PrimaryCareProvider,
       serviceNowId: exception.ServiceNowId ?? "",
       serviceNowCreatedDate: exception.ServiceNowCreatedDate,
@@ -94,7 +106,7 @@ export default async function Page(props: {
                   Local reference (exception ID): {exceptionDetails.exceptionId}
                 </span>
               </h1>
-              {exceptionDetails.serviceNowId && (
+              {exceptionDetails.serviceNowId && !isEditMode && (
                 <dl
                   className="nhsuk-summary-list"
                   data-testid="exception-details-labels"
@@ -107,7 +119,8 @@ export default async function Page(props: {
                       Portal form used
                     </dt>
                     <dd className="nhsuk-summary-list__value">
-                      Request to amend incorrect patient PDS record data
+                      {exceptionDetails.portalFormTitle ||
+                        "Request to amend incorrect patient PDS record data"}
                     </dd>
                     <dd className="nhsuk-summary-list__actions"></dd>
                   </div>
@@ -148,10 +161,11 @@ export default async function Page(props: {
                       className="nhsuk-summary-list__actions"
                       data-testid="change-link"
                     >
-                      <a href="#">
+                      <a href="?edit=true#exception-status">
                         Change{" "}
                         <span className="nhsuk-u-visually-hidden">
                           ServiceNow Case ID
+                          {isEditMode}
                         </span>
                       </a>
                     </dd>
@@ -160,6 +174,8 @@ export default async function Page(props: {
               )}
               <ParticipantInformationPanel
                 exceptionDetails={exceptionDetails}
+                isEditMode={isEditMode}
+                searchParams={resolvedSearchParams}
               />
             </div>
           </div>

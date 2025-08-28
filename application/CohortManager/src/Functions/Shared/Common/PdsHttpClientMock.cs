@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Text.Json;
 using Model;
 using Common.Interfaces;
+using Microsoft.Extensions.Logging;
 
 /// <summary>
 /// Mock implementation of IHttpClientFunction specifically designed for PDS (Personal Demographics Service) calls.
@@ -16,116 +17,51 @@ using Common.Interfaces;
 /// WARNING: This is NOT a general-purpose HTTP client mock. It is designed specifically for PDS service testing.
 /// Other services (NEMS, ServiceNow, etc.) should not use this mock as it returns PDS-specific data structures.
 /// </summary>
-public class PdsHttpClientMock : IHttpClientFunction
+public class PdsHttpClientMock : HttpClientFunction
 {
 
-    private readonly IFhirPatientDemographicMapper _fhirPatientDemographicMapper;
+    private readonly ILogger<PdsHttpClientMock> _logger;
 
-    public PdsHttpClientMock(IFhirPatientDemographicMapper fhirPatientDemographicMapper)
+    public PdsHttpClientMock(ILogger<HttpClientFunction> httpLogger, IHttpClientFactory factory, ILogger<PdsHttpClientMock> logger)
+        : base(httpLogger, factory)
     {
-        _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
+        _logger = logger;
     }
 
-    public async Task<HttpResponseMessage> SendPost(string url, string data)
+    public override async Task<HttpResponseMessage> SendPdsGet(string url, string bearerToken)
     {
-        await Task.CompletedTask;
-        return HttpStubUtilities.CreateFakeHttpResponse(url,"");
-    }
-    public Task<HttpResponseMessage> SendPost(string url, Dictionary<string, string> parameters)
-    {
-        throw new NotImplementedException();
-    }
+        var address = new Uri(url);
 
-    public async Task<string> SendGet(string url, Dictionary<string, string> parameters)
-    {
-        await Task.CompletedTask;
-        var patient = GetPatientMockObject("complete-patient.json");
-        var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(patient);
-        var participantDemographic = pdsDemographic.ToParticipantDemographic();
+        if (address.Host != "sandbox.api.service.nhs.uk")
+        {
+            return await base.SendPdsGet(url, bearerToken);
+        }
 
-        return JsonSerializer.Serialize(participantDemographic);
-    }
+        var nhsNumber = address.Segments.Last().TrimEnd('/');
+        var patient = await GetPatientMockObject(nhsNumber);
 
-    public async Task<string> SendGet(string url)
-    {
-        await Task.CompletedTask;
-        throw new NotImplementedException();
-    }
-
-    public async Task<string> SendGetOrThrowAsync(string url)
-    {
-        await Task.CompletedTask;
-        return "";
-    }
-
-    public async Task<HttpResponseMessage> SendPdsGet(string url, string bearerToken)
-    {
-        var patient = GetPatientMockObject("complete-patient.json");
-        await Task.CompletedTask;
+        if (patient == null)
+        {
+            var notFoundResponseBody = await File.ReadAllTextAsync("MockedPDSData/patient-not-found.json");
+            return HttpStubUtilities.CreateFakeHttpResponse(url, notFoundResponseBody, HttpStatusCode.NotFound);
+        }
         return HttpStubUtilities.CreateFakeHttpResponse(url, patient);
+
+
+
     }
 
-    private static string GetPatientMockObject(string filename)
+    private async Task<string?> GetPatientMockObject(string? nhsNumber = null)
     {
-        var currentDirectory = Directory.GetCurrentDirectory();
 
-        var filePath = Path.Combine(currentDirectory, filename);
-
-        if (!File.Exists(filePath))
+        string path = nhsNumber is null ? "MockedPDSData/complete-patient.json" : $"MockedPDSData/complete-patient-{nhsNumber}.json";
+        if (!File.Exists(path))
         {
-            return string.Empty;
+            _logger.LogWarning("Mocked PDS Data file couldn't be found");
+            return null;
         }
+        return await File.ReadAllTextAsync(path);
 
-        string keyContent = File.ReadAllText(filePath);
-        return keyContent;
     }
 
-    public async Task<HttpResponseMessage> SendPut(string url, string data)
-    {
-        await Task.CompletedTask;
-        return HttpStubUtilities.CreateFakeHttpResponse(url,"");
-    }
-
-    public async Task<bool> SendDelete(string url)
-    {
-        await Task.CompletedTask;
-        throw new NotImplementedException();
-    }
-
-    public async Task<string> GetResponseText(HttpResponseMessage response)
-    {
-        return await response.Content.ReadAsStringAsync();
-    }
-
-    public async Task<HttpResponseMessage> SendGetResponse(string url)
-    {
-        await Task.CompletedTask;
-        throw new NotImplementedException();
-    }
-
-    public async Task<HttpResponseMessage> SendGetResponse(string url, Dictionary<string, string> parameters)
-    {
-        await Task.CompletedTask;
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// takes in a fake string content and returns 200 OK response
-    /// </summary>
-    /// <param name="url"></param>
-    /// <param name="content"></param>
-    /// <returns></returns>
-    private static HttpResponseMessage CreateFakeHttpResponse(string url, string content = "")
-    {
-        var httpResponseData = new HttpResponseMessage();
-        if (string.IsNullOrEmpty(url))
-        {
-            httpResponseData.StatusCode = HttpStatusCode.InternalServerError;
-            return httpResponseData;
-        }
-
-        httpResponseData.Content = new StringContent(content);
-        httpResponseData.StatusCode = HttpStatusCode.OK;
-        return httpResponseData;
-    }
 }

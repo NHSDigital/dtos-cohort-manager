@@ -5,13 +5,13 @@ using System.Net;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
-using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using Model;
+using Microsoft.AspNetCore.WebUtilities;
 
 public class RetrievePdsDemographic
 {
@@ -51,6 +51,12 @@ public class RetrievePdsDemographic
         try
         {
             var nhsNumber = req.Query["nhsNumber"];
+            string? sourceFileName = null;
+            var parsed = QueryHelpers.ParseQuery(req.Url.Query);
+            if (parsed.TryGetValue("sourceFileName", out var sv))
+            {
+                sourceFileName = sv.ToString();
+            }
 
             var bearerToken = await _bearerTokenService.GetBearerToken();
             if (bearerToken == null)
@@ -70,11 +76,18 @@ public class RetrievePdsDemographic
             string jsonResponse = "";
 
             jsonResponse = await _httpClientFunction.GetResponseText(response);
+
+            if (response.StatusCode == HttpStatusCode.NotFound)
+            {
+                await _pdsProcessor.ProcessPdsNotFoundResponse(response, nhsNumber, sourceFileName);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404 please database for details");
+            }
+
             var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
 
-            if (response.StatusCode == HttpStatusCode.NotFound || pdsDemographic.ConfidentialityCode == "R")
+            if (pdsDemographic.ConfidentialityCode == "R")
             {
-                await _pdsProcessor.ProcessPdsNotFoundResponse(response, nhsNumber);
+                await _pdsProcessor.ProcessPdsNotFoundResponse(response, nhsNumber, sourceFileName);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404 please database for details");
             }
 

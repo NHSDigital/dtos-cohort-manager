@@ -53,7 +53,7 @@ public class GetValidationExceptions
 
         try
         {
-            if (exceptionId != 0)
+            if (exceptionId > 0)
             {
                 var exceptionById = await _validationData.GetExceptionById(exceptionId);
                 return exceptionById == null
@@ -61,16 +61,22 @@ public class GetValidationExceptions
                     : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById));
             }
 
-            var exceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
+            var allExceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
 
-            if (exceptions == null || exceptions.Count == 0)
+            if (allExceptions == null)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
             }
 
-            var paginatedResults = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId, e => e.ExceptionId);
+            var paginatedResult = _paginationService.GetPaginatedResult(allExceptions.AsQueryable(), lastId == 0 ? null : lastId, e => e.ExceptionId);
+            if (!paginatedResult.Items.Any())
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+            }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResults));
+            var headers = _paginationService.BuildPaginationHeaders(req, paginatedResult);
+
+            return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResult.Items), headers);
         }
         catch (Exception ex)
         {
@@ -102,46 +108,24 @@ public class GetValidationExceptions
             }
 
             var updateRequest = JsonSerializer.Deserialize<UpdateExceptionServiceNowIdRequest>(requestBody);
-            if (updateRequest == null || updateRequest.ExceptionId == 0 || string.IsNullOrWhiteSpace(updateRequest.ServiceNowId))
+            if (updateRequest == null || updateRequest.ExceptionId == 0)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid request. ExceptionId and ServiceNowId are required.");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid request. ExceptionId and ServiceNowId is required.");
             }
 
-            var validationError = ValidateServiceNowId(updateRequest.ServiceNowId);
-            if (validationError != null)
+            var response = await _validationData.UpdateExceptionServiceNowId(updateRequest.ExceptionId, updateRequest.ServiceNowId);
+
+            if (!response.Success)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, validationError);
+                return _createResponse.CreateHttpResponse(response.StatusCode, req, response.Message ?? "Failed to update ServiceNowId");
             }
 
-            var updateResult = await _validationData.UpdateExceptionServiceNowId(updateRequest.ExceptionId, updateRequest.ServiceNowId);
-            if (!updateResult)
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req, $"Failed to update ServiceNow ID or Exception with ID {updateRequest.ExceptionId} not found.");
-            }
-
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, "ServiceNow ID updated successfully.");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response.Message);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error processing: {Function} update ServiceNow ID request", nameof(UpdateExceptionServiceNowId));
+            _logger.LogError(ex, "Error processing: {Function} update ServiceNowId request", nameof(UpdateExceptionServiceNowId));
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-    }
-
-    private static string? ValidateServiceNowId(string serviceNowId)
-    {
-        if (string.IsNullOrWhiteSpace(serviceNowId))
-            return "ServiceNowID is required.";
-
-        if (serviceNowId.Contains(' '))
-            return "ServiceNowID cannot contain spaces.";
-
-        if (serviceNowId.Length < 9)
-            return "ServiceNowID must be at least 9 characters long.";
-
-        if (!serviceNowId.All(char.IsLetterOrDigit))
-            return "ServiceNowID must contain only alphanumeric characters.";
-
-        return null;
     }
 }

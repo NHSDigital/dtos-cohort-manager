@@ -4,37 +4,65 @@ name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
 trigger: none
 pr: none
 
-pool:
-  #vmImage: ubuntu-latest
-  name: private-pool-dev-uks
-
 resources:
   repositories:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: d6d6e3e99459d9d71a83fa5affa900a6c339a3b5
+      ref: 34a7e5c3072bddaa350804905c60b9c8e7ae7191
       endpoint: NHSDigital
 
 parameters:
-  - name: pipelineAction
-    displayName: 'Pipeline Action'
+  - name: dockerImageTag
+    # Used to set the Docker image tag via Terraform in the Continuous Deployment settings of function and container apps
+    displayName: 'Docker Image Tag'
+    type: string
+    default: sbrk
+
+  - name: retagImages
+    # Only required until commit hashes are passed in by calling pipeline, except for the
+    # PreProd pipeline which needs to retag images to move them from the Dev ACR to the Prod ACR
+    displayName: 'Re-tag Images'
+    type: boolean
+    default: false
+
+  - name: dockerImageReTagFrom
+    # Only required until commit hashes are passed in by calling pipeline
+    displayName: 'Docker Image Retag from value'
+    type: string
+    default: development
+
+  - name: dockerImageReTagTo
+    # Only required until commit hashes are passed in by calling pipeline
+    displayName: 'Docker Image Retag to value'
+    type: string
+    default: sbrk
+
+  - name: terraformActions
+    # This parameter allows the user to run only the plan for testing purposes
+    displayName: 'Apply Terraform Plan'
     type: string
     values:
       - 'PlanOnly'
       - 'Apply'
-      - 'Destroy'
     default: 'Apply'
 
-parameters:
-  - name: dockerImageTag
-    displayName: 'Docker Image Tag'
-    type: string
-    default: development
+  - name: testTypes
+    type: object
+    default:
+      - smoke_e2e
+      - regression_api
+      - regression_e2e_epic1
+      - regression_e2e_epic2
+      - regression_e2e_epic3
 
 variables:
-  - group: SBX_core_backend
-  - group: SBX_audit_backend_remote_state
+  - name: hostPoolName
+    value: private-pool-dev-uks
+  - group: SBRK_core_backend
+  - group: SBRK_audit_backend_remote_state
+  - group: SBRK_image_pipelines
+  - group: SBRK_automation_testing_pipeline
   - group: DEV_hub_backend_remote_state
   - name: TF_VERSION
     value: 1.11.4
@@ -46,67 +74,34 @@ variables:
     value: sandbox
 
 stages:
-  - stage: terraform_plan
-    displayName: Terraform Plan
-    condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
-    variables:
-      tfVarsFile: environments/$(ENVIRONMENT).tfvars
-    jobs:
-      - job: init_and_plan
-        displayName: Init, plan, store artifact
-        steps:
-          - checkout: self
-          - checkout: dtos-devops-templates
-          - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
-            parameters:
-              tfCommandOptions: '-var="docker_image_tag=${{ parameters.dockerImageTag }}"'
+- template: ../templates/cd-infrastructure-core-common.yaml
+  parameters:
+    hostPoolName: $(hostPoolName)
+    serviceConnection: $(SERVICE_CONNECTION)
+    targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+    terraformActions: ${{ parameters.terraformActions }}
+    tfVarsFile: environments/$(ENVIRONMENT).tfvars
+    environment: $(ENVIRONMENT)
+    resourceGroupNameSql: $(RESOURCE_GROUP_NAME_SQL)
+    databaseManagementJobName: $(DATABASE_MANAGEMENT_JOB_NAME)
+    dockerImageTag: ${{ parameters.dockerImageTag }}
+    retagImages: ${{ parameters.retagImages }}
+    retagImagesFrom: ${{ parameters.dockerImageReTagFrom }}
+    retagImagesTo: ${{ parameters.dockerImageReTagTo }}
 
-  - stage: terraform_apply
-    displayName: Terraform Apply
-    dependsOn: [terraform_plan]
-    condition: and(eq('${{ parameters.pipelineAction }}', 'Apply'), eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
-    jobs:
-      - deployment: terraform_apply
-        displayName: Init, get plan artifact, apply
-        environment: $(ENVIRONMENT)
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                - checkout: dtos-devops-templates
-                - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
-
-  - stage: terraform_destroy
-    displayName: Terraform Destroy
-    condition: and(eq('${{ parameters.pipelineAction }}', 'Destroy'), eq(variables['Build.Reason'], 'Manual'))
-    variables:
-      tfVarsFile: environments/$(ENVIRONMENT).tfvars
-    jobs:
-      - deployment: terraform_destroy
-        displayName: Terraform Destroy
-        environment: $(ENVIRONMENT)
-        strategy:
-          runOnce:
-            deploy:
-              steps:
-                - checkout: self
-                - checkout: dtos-devops-templates
-                - template: .azuredevops/templates/steps/tf_destroy.yaml@dtos-devops-templates
-
-                # - task: AzureCLI@2
-                #   displayName: Clean-up Backend
-                #   inputs:
-                #     azureSubscription: $(SERVICE_CONNECTION)
-                #     scriptLocation: inlineScript
-                #     scriptType: bash
-                #     workingDirectory: $(tfExecutionDir)
-                #     inlineScript: |
-                #       # Check if the backend configuration file exists and if it does, delete it:
-                #       container_exists=$(az storage container exists --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login --output tsv)
-                #       if [ "$container_exists" == "True" ]; then
-                #         echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) exists, deleting it..."
-                #         az storage container delete --name $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) --account-name $(BACKEND_AZURE_STORAGE_ACCOUNT_NAME) --auth-mode login
-                #       else
-                #         echo "##[debug] Container $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME) does not exist."
-                #       fi
+- ${{ each testType in parameters.testTypes }}:
+    - stage: ${{ testType }}_stage
+      displayName: Run ${{ testType }} Tests
+      condition: always()
+      jobs:
+        - job: ${{ testType }}_job
+          pool:
+            name: $(hostPoolName)
+          steps:
+            - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+              parameters:
+                serviceConnection: $(SERVICE_CONNECTION)
+                testProjectDirectory: "tests/playwright-tests"
+                testfileDirectory: "src/tests/e2e/testFiles"
+                testProjectName: "tests"
+                testType: ${{ testType }}

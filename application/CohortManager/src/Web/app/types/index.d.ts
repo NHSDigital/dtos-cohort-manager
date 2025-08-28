@@ -2,10 +2,13 @@ export interface ExceptionDetails {
   exceptionId: number;
   dateCreated: string;
   shortDescription: string;
+  moreDetails?: string;
+  reportingId?: string;
+  portalFormTitle?: string;
   nhsNumber?: string;
   supersededByNhsNumber?: string;
-  surname: string;
-  forename: string;
+  surname?: string;
+  forename?: string;
   dateOfBirth?: string;
   gender?: number;
   address?: string;
@@ -13,9 +16,16 @@ export interface ExceptionDetails {
     phoneNumber?: string;
     email?: string;
   };
-  primaryCareProvider: string;
+  primaryCareProvider?: string;
   serviceNowId?: string;
   serviceNowCreatedDate?: string;
+}
+
+export interface RuleMapping {
+  ruleDescription: string;
+  moreDetails?: string;
+  reportingId?: string;
+  portalFormTitle?: string;
 }
 
 export interface ReportDetails {

@@ -9,6 +9,7 @@ features = {
   private_endpoints_enabled            = true
   private_service_connection_is_manual = false
   public_network_access_enabled        = false
+  frontdoor_endpoint_enabled           = true
 }
 
 # these will be merged with compliance tags in locals.tf
@@ -53,7 +54,7 @@ regions = {
         cidr_offset                = 6
         delegation_name            = "Microsoft.App/environments"
         service_delegation_name    = "Microsoft.App/environments"
-        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
       }
     }
   }
@@ -209,7 +210,6 @@ container_app_jobs = {
   apps = {
     db-management = {
       container_app_environment_key = "db-management"
-      docker_env_tag                = "preprod"
       docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
     }
@@ -233,7 +233,6 @@ function_apps = {
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "preprod"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage         = "false"
@@ -317,7 +316,8 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName = "MeshCert"
+        MeshCertName                        = "MeshCert"
+        BypassServerCertificateValidation   = "true"
       }
     }
 
@@ -350,6 +350,10 @@ function_apps = {
         {
           env_var_name   = "NemsMessages"
           container_name = "nems-updates"
+        },
+        {
+          env_var_name   = "NemsPoisonContainer"
+          container_name = "nems-poison"
         }
       ]
       env_vars_static = {
@@ -405,6 +409,11 @@ function_apps = {
         {
           env_var_name     = "ParticipantManagementURL"
           function_app_key = "ParticipantManagementDataService"
+        },
+        {
+          env_var_name     = "ManageNemsSubscriptionSubscribeURL"
+          function_app_key = "ManageNemsSubscription"
+          endpoint_name    = "Subscribe"
         }
       ]
       env_vars_static = {
@@ -879,6 +888,7 @@ function_apps = {
         ServiceNowRefreshAccessTokenUrl      = ""                                  # TODO: Get value
         ServiceNowUpdateUrl                  = ""                                  # TODO: Get value
         ServiceNowResolutionUrl              = ""                                  # TODO: Get value
+        ServiceNowGrantType                  = ""                                  # TODO: Get value
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
@@ -1091,7 +1101,6 @@ linux_web_app = {
   cont_registry_use_mi = true
 
   docker_CI_enable  = "true"
-  docker_env_tag    = "preprod"
   docker_img_prefix = "cohort-manager"
 
   enable_appsrv_storage    = "false"
@@ -1266,6 +1275,9 @@ storage_accounts = {
       }
       nems-config = {
         container_name = "nems-config"
+      }
+      nems-poison = {
+        container_name = "nems-poison"
       }
     }
   }
