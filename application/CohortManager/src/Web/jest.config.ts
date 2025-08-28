@@ -10,10 +10,7 @@ const createJestConfig = nextJest({
 const config: Config = {
   coverageProvider: "v8",
   testEnvironment: "jsdom",
-  testPathIgnorePatterns: [
-    "/node_modules/",
-    "/\\.features-gen/tests/", // ignore generated BDD tests
-  ],
+  testPathIgnorePatterns: ["/node_modules/", "/\\.features-gen/"],
   // Add more setup options before each test is run
   // setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
 };
