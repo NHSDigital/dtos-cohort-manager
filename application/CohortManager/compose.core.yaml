@@ -126,6 +126,7 @@ services:
       - SendServiceNowMessageURL=http://servicenow-message-handler:9092/api/servicenow/send
       - ParticipantManagementURL=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
+      # - ManageNemsSubscriptionSubscribeURL=http://manage-caas-subscription:9084/api/Subscribe
       - CohortDistributionTopic=cohort-distribution-topic
 
   update-blocked-flag:
@@ -146,8 +147,8 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ManageNemsSubscriptionUnsubscribeURL=http://manage-nems-subscription:9081/api/Unsubscribe
       - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
-      # - ManageCaasSubscriptionUnsubscribeURL=http://manage-caas-subscription:9084/api/Unsubscribe
-      # - ManageCaasSubscriptionSubscribeURL=http://manage-caas-subscription:9084/api/Subscribe
+      # - ManageNemsSubscriptionUnsubscribeURL=http://manage-caas-subscription:9084/api/Unsubscribe
+      # - ManageNemsSubscriptionSubscribeURL=http://manage-caas-subscription:9084/api/Subscribe
       - RetrievePdsDemographicURL=http://etrieve-pds-demographic:8082/api/RetrievePdsDemographic
 
   delete-participant:
