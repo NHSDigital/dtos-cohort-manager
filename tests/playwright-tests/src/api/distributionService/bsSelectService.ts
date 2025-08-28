@@ -43,6 +43,12 @@ export const getRecordsFromExceptionManagementService = (
   return apiClient.get(request, `${config.endpointExceptionManagementDataService}api/${config.exceptionManagementService}`);
 };
 
+export const getNenmsSubscriberId = (
+  request: APIRequestContext
+): Promise<ApiResponse> => {
+  return apiClient.get(request, `${config.endpointSerNowReceiveParticipant}api/${config.routeNemsGetSubscriber}`);
+};
+
 export const deleteParticipant = (
   request: APIRequestContext,
   payload: {

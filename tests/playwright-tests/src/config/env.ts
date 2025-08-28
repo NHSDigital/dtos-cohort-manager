@@ -19,6 +19,7 @@ const endpointBsSelectDeleteParticipant = process.env.ENDPOINT_BS_SELECT_DELETE_
 const endpointBsSelectUpdateBlockFlag = process.env.ENDPOINT_BS_SELECT_UPDATE_BLOCK_FLAG ?? '';
 const endpointBsSelectGetValidationExceptions = process.env.ENDPOINT_BS_SELECT_GET_VALIDATION_EXCEPTIONS ?? '';
 const endpointSerNowReceiveParticipant = process.env.ENDPOINT_SERVICE_NOW_MESSAGE_HANDLER ?? '';
+const endpointNemsGetSubscriberId = process.env.ENDPOINT_SUB_TO_NEMS ?? '';
 const invalidEndpointSerNow = process.env.INVALID_ENDPOINT_SERVICE_NOW_MESSAGE_HANDLER ?? '';
 const participantPayloadPath = process.env.PARTICIPANT_PAYLOAD_PATH ?? '';
 const createPDSDemographicEnv = process.env.ENDPOINT_PDS_DEMOGRAPHIC ?? '';
@@ -38,6 +39,7 @@ export const config = {
   endpointBsSelectUpdateBlockFlag: endpointBsSelectUpdateBlockFlag,
   endpointBsSelectGetValidationExceptions: endpointBsSelectGetValidationExceptions,
   endpointSerNowReceiveParticipant: endpointSerNowReceiveParticipant,
+  endpointNemsGetSubscriberId: endpointNemsGetSubscriberId,
   createPDSDemographic: createPDSDemographicEnv,
   invalidEndpointSerNow: invalidEndpointSerNow,
   SubToNems: subToNemsEndPoint,
@@ -49,6 +51,7 @@ export const config = {
   routeBsSelectUnblockParticipant: 'api/UnblockParticipant',
   routeGetValidationExceptions: 'api/GetValidationExceptions',
   routeSerNowReceiveParticipant: 'api/servicenow/receive',
+  routeNemsGetSubscriber: 'api/Subscribe',
   invalidRouteSerNowEndpoint: 'api/serviceno/receive',
   cohortDistributionService: 'CohortDistributionDataService',
   participantManagementService: 'ParticipantManagementDataService',
@@ -58,7 +61,7 @@ export const config = {
   participantPayloadPath: 'src/tests/api/testFiles',
   e2eTestFilesPath: 'e2e/testFiles',
   apiTestFilesPath: 'api/testFiles',
-  apiRetry: 8,
+  apiRetry: 4,
   apiWaitTime: 5000,
   nhsNumberKey: 'NHSNumber',
   nhsNumberKeyExceptionDemographic: 'NhsNumber',
