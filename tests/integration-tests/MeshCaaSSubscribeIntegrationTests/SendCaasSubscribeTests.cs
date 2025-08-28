@@ -12,6 +12,7 @@ using Castle.Core.Logging;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
+using NHS.MESH.Client.Helpers.ContentHelpers;
 
 [TestClass]
 public sealed class SendCaasSubscribeTests
@@ -73,6 +74,20 @@ public sealed class SendCaasSubscribeTests
 
         // assert
         Assert.IsNotNull(messageId);
+
+        // act - validate message recieved
+        var getMessagesResult = await _meshInboxService.GetMessagesAsync(toMailbox);
+
+        Assert.IsTrue(getMessagesResult.Response.Messages.Contains(messageId));
+
+        var message = await _meshInboxService.GetMessageByIdAsync(toMailbox, messageId);
+
+        var fileContent = GZIPHelpers.DeCompressBuffer(message.Response.FileAttachment.Content);
+
+
+
+        File.WriteAllBytes("test.parquet",fileContent);
+
 
     }
 }
