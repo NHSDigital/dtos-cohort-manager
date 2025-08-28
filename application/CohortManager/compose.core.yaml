@@ -314,6 +314,7 @@ services:
         - ManageNemsSubscriptionBaseURL=http://manage-nems-subscription:9081
         - CaasToMailbox=${CAAS_SUBSCRIBE_TO_MAILBOX:-CAAS_TO}
         - CaasFromMailbox=${CAAS_SUBSCRIBE_FROM_MAILBOX:-CAAS_FROM}
+        - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       ports:
         - "9084:9084"
 
