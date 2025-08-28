@@ -102,26 +102,6 @@ public class TransformString
         return stringBuilder.ToString();
     }
 
-    private async Task<string?> EmailCharacters(string emailAddress)
-    {
-        HashSet<char> invalidCharacters = ['\\', '*', '£', '`', '~', '|'];
-        bool invalidFlag = false;
-
-        foreach (char character in emailAddress)
-        {
-            if (invalidCharacters.Contains(character))
-            {
-                invalidFlag = true;
-            }
-        }
-        if (invalidFlag)
-        {
-            ParticipantUpdated = true;
-            return null; //Return null if invalid characters exist
-        }
-        return emailAddress; // Return the original email if no invalid characters are found
-    }
-
     private async Task<string?> CheckEmailCharacters(string emailAddress)
     {
         var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.InvalidEmailCharacter", emailAddress);
