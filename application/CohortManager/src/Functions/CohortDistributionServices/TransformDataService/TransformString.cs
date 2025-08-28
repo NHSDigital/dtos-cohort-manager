@@ -79,7 +79,7 @@ public class TransformString
             // Check to see if there are any unhandled invalid chars
             if (!Regex.IsMatch(transformedField, allowedCharacters, RegexOptions.None, matchTimeout))
 
-                throw new ArgumentException(transformedField.ToString());
+                throw new ArgumentException($"Participant contains illegal characters");
 
             return transformedField;
         }
@@ -101,7 +101,7 @@ public class TransformString
         }
         return stringBuilder.ToString();
     }
-    
+
     private async Task<string?> CheckEmailCharacters(string emailAddress)
     {
         string? transformedEmail = emailAddress;
@@ -113,8 +113,6 @@ public class TransformString
         {
             transformedEmail = (string?)successfulResult.ActionResult.Output;
         }
-
-        Console.WriteLine("transformed:" + transformedEmail + " original: " + emailAddress);
 
         if (transformedEmail != emailAddress)
         {
