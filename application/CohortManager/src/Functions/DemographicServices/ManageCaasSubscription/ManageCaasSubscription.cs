@@ -8,29 +8,33 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Common;
 using System.Collections.Specialized;
-using System.Net.Http;
 using System.Text;
+using DataServices.Core;
+using Model;
 
 public class ManageCaasSubscription
 {
     private readonly ILogger<ManageCaasSubscription> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IHttpClientFactory _httpClientFactory;
     private readonly IOptions<ManageCaasSubscriptionConfig> _config;
     private readonly IMeshSendCaasSubscribe _meshSendCaasSubscribe;
+    private readonly IRequestHandler<NemsSubscription> _requestHandler;
+    private readonly IDataServiceAccessor<NemsSubscription> _nemsSubscriptionAccessor;
 
     public ManageCaasSubscription(
         ILogger<ManageCaasSubscription> logger,
         ICreateResponse createResponse,
-        IHttpClientFactory httpClientFactory,
         IOptions<ManageCaasSubscriptionConfig> config,
-        IMeshSendCaasSubscribe meshSendCaasSubscribe)
+        IMeshSendCaasSubscribe meshSendCaasSubscribe,
+        IRequestHandler<NemsSubscription> requestHandler,
+        IDataServiceAccessor<NemsSubscription> nemsSubscriptionAccessor)
     {
         _logger = logger;
         _createResponse = createResponse;
-        _httpClientFactory = httpClientFactory;
         _config = config;
         _meshSendCaasSubscribe = meshSendCaasSubscribe;
+        _requestHandler = requestHandler;
+        _nemsSubscriptionAccessor = nemsSubscriptionAccessor;
     }
 
     [Function("Subscribe")]
@@ -72,126 +76,48 @@ public class ManageCaasSubscription
     [Function("CheckSubscriptionStatus")]
     public async Task<HttpResponseData> CheckSubscriptionStatus([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        var baseUrl = _config.Value.ManageNemsSubscriptionBaseURL;
-        if (!string.IsNullOrWhiteSpace(baseUrl))
+        try
         {
-            try
+            _logger.LogInformation("Received check subscription request");
+
+            string? nhsNumber = req.Query["nhsNumber"];
+
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                var client = _httpClientFactory.CreateClient();
-                var forwardUrl = $"{baseUrl.TrimEnd('/')}/api/CheckSubscriptionStatus{(req.Url?.Query ?? CreateQueryString(req.Query))}";
-
-                using var forwardRequest = new HttpRequestMessage(HttpMethod.Get, forwardUrl);
-                var accept = req.Headers.GetValues("Accept").FirstOrDefault();
-                if (!string.IsNullOrEmpty(accept))
-                {
-                    forwardRequest.Headers.TryAddWithoutValidation("Accept", accept);
-                }
-
-                var forwardResponse = await client.SendAsync(forwardRequest);
-                var responseBody = await forwardResponse.Content.ReadAsStringAsync();
-
-                var resp = _createResponse.CreateHttpResponse(forwardResponse.StatusCode, req, responseBody);
-                var respContentType = forwardResponse.Content.Headers.ContentType?.ToString();
-                if (!string.IsNullOrEmpty(respContentType))
-                {
-                    resp.Headers.Add("Content-Type", respContentType);
-                }
-                return resp;
+                _logger.LogError("NHS number is required and must be valid format");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
-            catch (Exception ex)
+
+            var record = await _nemsSubscriptionAccessor.GetSingle(i => i.NhsNumber == long.Parse(nhsNumber!));
+            string? subscriptionId = record?.SubscriptionId;
+
+            if (string.IsNullOrEmpty(subscriptionId))
             {
-                _logger.LogError(ex, "Error forwarding CheckSubscriptionStatus request");
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Error forwarding request to NEMS subscription service.");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.NotFound, req, "No subscription found for this NHS number.");
             }
+
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Active subscription found. Subscription ID: {subscriptionId}");
         }
-
-        // Fallback stubbed behaviour if no forward URL configured
-        var nhsNumber = req.Query["nhsNumber"];
-        if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+        catch (Exception ex)
         {
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
+            _logger.LogError(ex, "Error checking subscription status");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while checking subscription status.");
         }
-        _logger.LogInformation("[CAAS-Stub] CheckSubscriptionStatus called for NHS: {Nhs}", nhsNumber);
-        return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, "Stub: CAAS subscription status check.");
     }
 
     [Function("NemsSubscriptionDataService")]
     public async Task<HttpResponseData> NemsSubscriptionDataService([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "NemsSubscriptionDataService/{*key}")] HttpRequestData req, string? key)
     {
-        var forwardBase = _config.Value.ManageNemsSubscriptionDataServiceURL;
-        if (string.IsNullOrWhiteSpace(forwardBase))
-        {
-            _logger.LogInformation("[CAAS-Stub] Forward URL not configured; returning stub response. Method: {Method}, Key: {Key}", req.Method, key);
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, "Stub: CAAS data service placeholder.");
-        }
-
         try
         {
-            var client = _httpClientFactory.CreateClient();
-
-            // Build forward URL preserving key and query
-            var pathPart = string.IsNullOrEmpty(key) ? string.Empty : $"/{key}";
-            var query = req.Url?.Query ?? CreateQueryString(req.Query); // includes leading '?', or empty
-            var forwardUrl = $"{forwardBase.TrimEnd('/')}{pathPart}{query}";
-
-            var method = new HttpMethod(req.Method);
-
-            HttpContent? content = null;
-            // Only attach body for methods that typically have one
-            if (string.Equals(req.Method, HttpMethod.Post.Method, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(req.Method, HttpMethod.Put.Method, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(req.Method, "PATCH", StringComparison.OrdinalIgnoreCase))
-            {
-                if (req.Body != null)
-                {
-                    req.Body.Position = 0;
-                    using var reader = new StreamReader(req.Body, Encoding.UTF8, leaveOpen: true);
-                    var body = await reader.ReadToEndAsync();
-                    var contentType = req.Headers.GetValues("Content-Type").FirstOrDefault() ?? "application/json";
-                    content = new StringContent(body, Encoding.UTF8, contentType);
-                }
-            }
-
-            using var forwardRequest = new HttpRequestMessage(method, forwardUrl)
-            {
-                Content = content
-            };
-
-            // Basic header pass-through (Accept)
-            var accept = req.Headers.GetValues("Accept").FirstOrDefault();
-            if (!string.IsNullOrEmpty(accept))
-            {
-                forwardRequest.Headers.TryAddWithoutValidation("Accept", accept);
-            }
-
-            var forwardResponse = await client.SendAsync(forwardRequest);
-            var responseBody = await forwardResponse.Content.ReadAsStringAsync();
-
-            var resp = _createResponse.CreateHttpResponse(forwardResponse.StatusCode, req, responseBody);
-            var respContentType = forwardResponse.Content.Headers.ContentType?.ToString();
-            if (!string.IsNullOrEmpty(respContentType))
-            {
-                resp.Headers.Add("Content-Type", respContentType);
-            }
-            return resp;
+            _logger.LogInformation("DataService Request Received Method: {Method}, DataObject {DataType} ", req.Method, typeof(NemsSubscription));
+            var result = await _requestHandler.HandleRequest(req, key);
+            return result;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error forwarding NemsSubscriptionDataService request");
-            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Error forwarding request to NEMS subscription service.");
+            _logger.LogError(ex, "An error has occurred in data service");
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while processing the data service request.");
         }
-    }
-
-    private static string CreateQueryString(NameValueCollection? query)
-    {
-        if (query == null || query.Count == 0) return string.Empty;
-        var parts = new List<string>();
-        foreach (var key in query.AllKeys)
-        {
-            if (key == null) continue;
-            var value = query[key] ?? string.Empty;
-            parts.Add($"{Uri.EscapeDataString(key)}={Uri.EscapeDataString(value)}");
-        }
-        return parts.Count > 0 ? $"?{string.Join("&", parts)}" : string.Empty;
     }
 }
