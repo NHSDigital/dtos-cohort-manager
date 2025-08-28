@@ -6,7 +6,6 @@ using System.Text.Json;
 using RulesEngine.Models;
 using Model;
 using Common;
-using Azure.Storage.Blobs.Models;
 
 public class TransformString
 {
@@ -17,7 +16,7 @@ public class TransformString
     {
         string json = File.ReadAllText("characterRules.json");
         var rules = JsonSerializer.Deserialize<Workflow[]>(json);
-        var reSettings = new ReSettings {UseFastExpressionCompiler = false};
+        var reSettings = new ReSettings { UseFastExpressionCompiler = false };
         _ruleEngine = new RulesEngine.RulesEngine(rules, reSettings);
         _exceptionHandler = exceptionHandler;
 
@@ -39,13 +38,14 @@ public class TransformString
         participant.AddressLine3 = await CheckParticipantCharactersAsync(participant.AddressLine3);
         participant.AddressLine4 = await CheckParticipantCharactersAsync(participant.AddressLine4);
         participant.AddressLine5 = await CheckParticipantCharactersAsync(participant.AddressLine5);
+        participant.EmailAddress = await CheckEmailCharacters(participant.EmailAddress);
         participant.Postcode = await CheckParticipantCharactersAsync(participant.Postcode);
         participant.TelephoneNumber = await CheckParticipantCharactersAsync(participant.TelephoneNumber);
         participant.MobileNumber = await CheckParticipantCharactersAsync(participant.MobileNumber);
 
-        if(ParticipantUpdated)
+        if (ParticipantUpdated)
         {
-            await _exceptionHandler.CreateTransformExecutedExceptions(participant,"CharacterRules",71);
+            await _exceptionHandler.CreateTransformExecutedExceptions(participant, "CharacterRules", 71);
         }
 
         return participant;
@@ -53,7 +53,7 @@ public class TransformString
 
     private async Task<string> CheckParticipantCharactersAsync(string stringField)
     {
-        string allowedCharacters = @"^[a-zA-Z0-9\d\s.,\-()\/='+:?!""%&;<>*]+$";
+        string allowedCharacters = @"^[a-zA-Z0-9\s.,\-()'+:?!¬*]+$";
         TimeSpan matchTimeout = TimeSpan.FromSeconds(2); // Adjust timeout as needed
 
         // Skip if the field is null or doesn't have any invalid chars
@@ -68,12 +68,19 @@ public class TransformString
             if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
                 throw new ArgumentException($"Participant contains illegal characters");
 
+            // The & character is the only illegal character that is transformed to a string instead of a char
+            if (stringField.Contains('&'))
+            {
+                stringField = stringField.Replace("&", " and ");
+            }
+
             var transformedField = await TransformCharactersAsync(stringField);
 
             // Check to see if there are any unhandled invalid chars
             if (!Regex.IsMatch(transformedField, allowedCharacters, RegexOptions.None, matchTimeout))
-                throw new ArgumentException("Participant contains illegal characters");
                 
+                throw new ArgumentException(transformedField.ToString());
+
             return transformedField;
         }
     }
@@ -94,4 +101,25 @@ public class TransformString
         }
         return stringBuilder.ToString();
     }
+
+    private async Task<string?> CheckEmailCharacters(string emailAddress)
+    {
+        HashSet<char> invalidCharacters = ['\u005c', '*', '\u00a3', '`', '~', '|'];
+        bool invalidFlag = false;
+
+        foreach (char character in emailAddress)
+        {
+            if (invalidCharacters.Contains(character))
+            {
+                invalidFlag = true;
+            }
+        }
+        if (invalidFlag)
+        {
+            ParticipantUpdated = true;
+            return null; //Return null if invalid characters exist
+        }
+        return emailAddress; // Return the original email if no invalid characters are found
+    }
+
 }

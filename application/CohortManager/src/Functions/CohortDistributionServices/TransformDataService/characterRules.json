@@ -253,18 +253,6 @@
             }
           }
         }
-      },
-      {
-        "RuleName": "Ampersand",
-        "Expression": "input1 == 38",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "' and '"
-            }
-          }
-        }
       }
     ]
   }
