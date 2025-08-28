@@ -255,5 +255,82 @@
         }
       }
     ]
+  },
+  {
+    "WorkflowName": "72.InvalidEmailCharacter",
+    "Rules": [
+      {
+        "RuleName": "EmailContainsBackslash",
+        "Expression": "input1.Contains('\\')",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "null"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "EmailContainsAsterisk",
+        "Expression": "input1.Contains('*')",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "null"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "EmailContainsPound",
+        "Expression": "input1.Contains('£')",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "null"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "EmailContainsGrave",
+        "Expression": "input1.Contains('`')",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "null"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "EmailContainsTilde",
+        "Expression": "input1.Contains('~')",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "null"
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "EmailContainsPipe",
+        "Expression": "input1.Contains('|');",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "null"
+            }
+          }
+        }
+      }
+    ]
   }
 ]

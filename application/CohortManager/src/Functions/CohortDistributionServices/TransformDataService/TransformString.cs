@@ -78,7 +78,7 @@ public class TransformString
 
             // Check to see if there are any unhandled invalid chars
             if (!Regex.IsMatch(transformedField, allowedCharacters, RegexOptions.None, matchTimeout))
-                
+
                 throw new ArgumentException(transformedField.ToString());
 
             return transformedField;
@@ -102,7 +102,7 @@ public class TransformString
         return stringBuilder.ToString();
     }
 
-    private async Task<string?> CheckEmailCharacters(string emailAddress)
+    private async Task<string?> EmailCharacters(string emailAddress)
     {
         HashSet<char> invalidCharacters = ['\\', '*', '£', '`', '~', '|'];
         bool invalidFlag = false;
@@ -121,5 +121,14 @@ public class TransformString
         }
         return emailAddress; // Return the original email if no invalid characters are found
     }
+
+    private async Task<string?> CheckEmailCharacters(string emailAddress)
+    {
+        var rulesList = await _ruleEngine.ExecuteAllRulesAsync("72.InvalidEmailCharacter", emailAddress);
+        var transformedEmail = (string?)rulesList.Where(result => result.IsSuccess)
+                                        .Select(result => result.ActionResult.Output)
+                                        .FirstOrDefault() ?? emailAddress;
+        return transformedEmail;
+    }        
 
 }
