@@ -625,7 +625,7 @@
             "Expression": "string.IsNullOrEmpty(existingParticipant.DateOfBirth) ? null : existingParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
           }
         ],
-        "Expression": "participant.RecordType == Actions.Amended && existingParticipant.ParticipantId != null && ((participant.FamilyName != existingParticipant.FamilyName AND participant.Gender != existingParticipant.Gender) OR (participant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
+        "Expression": "participant.RecordType == Actions.Amended && existingParticipant.ParticipantId != 0 && ((participant.FamilyName != existingParticipant.FamilyName AND participant.Gender != existingParticipant.Gender) OR (participant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
       },
       {
         "RuleName": "00.ValidateLanguageCode",
