@@ -92,7 +92,7 @@ stages:
       )
     )
   pool:
-    name: ${{ parameters.hostPoolName }}
+    name: $(hostPoolName)
   jobs:
     - job: db_changes
       displayName: Apply database backup test
