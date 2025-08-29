@@ -87,7 +87,8 @@ public class ManageParticipantTests
                 PreferredLanguage = "English",
                 IsInterpreterRequired = "0",
                 RecordType = Actions.Amended,
-                ScreeningId = "1"
+                ScreeningId = "1",
+                ReferralFlag = "0"
             }
         };
 
@@ -202,5 +203,27 @@ public class ManageParticipantTests
                 It.IsAny<Participant>(),
                 It.IsAny<string>(),
                 ""), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Run_DatabaseAndRequestReferralFlagsDifferent_UseDatabaseFlag()
+    {
+        // Arrange
+        ParticipantManagement dbParticipant = new()
+        {
+            NHSNumber = 9444567877,
+            ReferralFlag = 1
+        };
+
+        _participantManagementClientMock
+            .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync(dbParticipant);
+
+        // Act
+        await _sut.Run(JsonSerializer.Serialize(_request));
+
+        // Assert
+        _participantManagementClientMock
+            .Verify(x => x.Update(It.Is<ParticipantManagement>(x => x.ReferralFlag == 1)), Times.Once);
     }
 }
