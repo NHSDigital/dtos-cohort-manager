@@ -21,7 +21,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @smoke @e2e @epic4c- DTOSS-10060: 1. Verify that when characters are on the accepted list, No Transfromation"
+        "additionalTags": "ADD @e2e @epic4c- DTOSS-10060: 1. Verify that when characters are on the accepted list, No Transfromation"
       }
     },
     {
@@ -45,7 +45,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10061",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @smoke @e2e @epic4c- DTOSS-10061 Verify that when record contains characters not on accepted list, transformed is triggered"
+        "additionalTags": "ADD @e2e @epic4c- DTOSS-10061 Verify that when record contains characters not on accepted list, transformed is triggered"
       }
     },
     {
@@ -69,7 +69,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10062",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @smoke @e2e @epic4c- DTOSS-10062 When a field contains more that one character not on the accepted list, they are transformed"
+        "additionalTags": "ADD @e2e @epic4c- DTOSS-10062 When a field contains more that one character not on the accepted list, they are transformed"
       }
     },
     {
@@ -80,7 +80,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @e2e @epic4c- DTOSS-10063: 2. when record contains characters in exceptions list, exception is raised \\E\\"
+        "additionalTags": "ADD @epic4c- DTOSS-10063: 2. when record contains characters in exceptions list, exception is raised \\E\\"
       }
     },
     {
@@ -91,7 +91,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @e2e @epic4c- DTOSS-10063: 4. Family Name - when record contains characters in exceptions list, exception is raised \\T\\"
+        "additionalTags": "ADD @e2e @epic4c- DTOSS-10063: 4. Family Name - when record contains characters in exceptions list, exception is raised \\T\\"
       }
     },
     {
@@ -102,7 +102,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @e2e @epic4c- DTOSS-10063: 6. Other Given name -  when record contains characters in exceptions list, exception is raised \\T\\"
+        "additionalTags": "ADD @e2e @epic4c- DTOSS-10063: 6. Other Given name -  when record contains characters in exceptions list, exception is raised \\T\\"
       }
     },
     {
@@ -113,7 +113,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @e2e @epic4c- DTOSS-10063: 8. previous family name - when record contains characters in exceptions list, exception is raised \\E\\"
+        "additionalTags": "ADD @e2e @epic4c- DTOSS-10063: 8. previous family name - when record contains characters in exceptions list, exception is raised \\E\\"
       }
     },
     {
@@ -124,7 +124,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @e2e @epic4c- DTOSS-10064: 10. Check email with backslash character is not written to the database"
+        "additionalTags": "ADD @e2e @epic4c- DTOSS-10064: 10. Check email with backslash character is not written to the database"
       }
     },
     {
@@ -135,7 +135,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @e2e @epic4c- DTOSS-10064: 11. Check email with pipe character is not written to the database"
+        "additionalTags": "ADD @e2e @epic4c- DTOSS-10064: 11. Check email with pipe character is not written to the database"
       }
     },
     {
@@ -146,7 +146,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @e2e @epic4c- DTOSS-10064: 12. Check email with Asterisk character is not written to the database"
+        "additionalTags": "ADD @e2e @epic4c- DTOSS-10064: 12. Check email with Asterisk character is not written to the database"
       }
     },
     {
@@ -157,7 +157,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @e2e @epic4c- DTOSS-10064: 13. Check email with Grave / Back tick character is not written to the database"
+        "additionalTags": "ADD @e2e @epic4c- DTOSS-10064: 13. Check email with Grave / Back tick character is not written to the database"
       }
     },
     {
@@ -168,7 +168,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@regression @e2e @epic4c- DTOSS-10064: 14. Check email with Tilde symbol character is not written to the database"
+        "additionalTags": "ADD @e2e @epic4c- DTOSS-10064: 14. Check email with Tilde symbol character is not written to the database"
       }
     }
   ],
