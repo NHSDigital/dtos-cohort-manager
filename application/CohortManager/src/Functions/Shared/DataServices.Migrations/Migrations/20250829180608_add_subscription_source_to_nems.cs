@@ -1,10 +1,13 @@
-using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace DataServices.Database.Migrations
+#nullable disable
+
+namespace DataServices.Migrations.Migrations
 {
+    /// <inheritdoc />
     public partial class add_subscription_source_to_nems : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<int>(
@@ -15,6 +18,7 @@ namespace DataServices.Database.Migrations
                 nullable: true);
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
@@ -24,4 +28,3 @@ namespace DataServices.Database.Migrations
         }
     }
 }
-
