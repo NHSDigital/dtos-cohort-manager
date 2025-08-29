@@ -9,7 +9,6 @@ public class MeshPoller : IMeshPoller
 {
     private readonly ILogger<MeshPoller> _logger;
     private readonly IMeshOperationService _meshOperationService;
-    private readonly IBlobStorageHelper _blobStorageHelper;
 
     public MeshPoller(ILogger<MeshPoller> logger, IMeshOperationService meshOperationService)
     {
