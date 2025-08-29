@@ -17,6 +17,12 @@ locals {
             # Add in the database connection string if the name of the variable is provided:
             config.add_user_assigned_identity != null && length(config.db_connection_string_name) > 0 ? {
               (config.db_connection_string_name) = "Server=tcp:${module.regions_config[region].names.sql-server}.database.windows.net,1433;Initial Catalog=${var.sqlserver.dbs.cohman.db_name_suffix};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication='Active Directory Managed Identity';User ID=${module.user_assigned_managed_identity_sql["${container_app_job}-${region}"].client_id};"
+            } : {},
+
+            # Add in the MANAGED_IDENTITY_CLIENT_ID environment variable if using a user assigned managed identity:
+            config.add_user_assigned_identity != null ? {
+              "MANAGED_IDENTITY_CLIENT_ID" = "${module.user_assigned_managed_identity_sql["${container_app_job}-${region}"].client_id};",
+              "TARGET_SUBSCRIPTION_ID"     = var.TARGET_SUBSCRIPTION_ID
             } : {}
           )
         }
@@ -41,7 +47,6 @@ module "container-app-job" {
 
   container_app_environment_id = module.container-app-environment["${each.value.container_app_environment_key}-${each.value.region}"].id
   user_assigned_identity_ids   = each.value.add_user_assigned_identity ? [module.user_assigned_managed_identity_sql["${each.key}"].id] : []
-
 
   acr_login_server        = data.azurerm_container_registry.acr.login_server
   acr_managed_identity_id = each.value.container_registry_use_mi ? data.azurerm_user_assigned_identity.acr_mi.id : null
