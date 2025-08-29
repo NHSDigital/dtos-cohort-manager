@@ -172,7 +172,7 @@ variable "container_app_environments" {
         name                  = optional(string)
         workload_profile_type = optional(string)
         minimum_count         = optional(number, 0)
-        maximum_count         = optional(string, 1)
+        maximum_count         = optional(string, 0) # Value not used for Consumption type and causes unnecessary plan changes
       }), {})
       zone_redundancy_enabled = optional(bool, false)
     })), {})

@@ -100,7 +100,7 @@ module "user_assigned_managed_identity_sql" {
 # Assign RBAC roles to the User Assigned Managed Identities for Azure SQL access by other resources
 
 module "sql_db_management_rbac_assignment" {
-  for_each = var.sqlserver != {} ? var.regions : {}
+  for_each = contains(var.sqlserver.user_assigned_identities, "db-management") && var.sqlserver != {} ? var.regions : {}
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
@@ -111,7 +111,7 @@ module "sql_db_management_rbac_assignment" {
 }
 
 module "sql_db_backup_rbac_assignment_sql_contributor" {
-  for_each = var.sqlserver != {} ? var.regions : {}
+  for_each = contains(var.sqlserver.user_assigned_identities, "db-backup") && var.sqlserver != {} ? var.regions : {}
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
@@ -121,7 +121,7 @@ module "sql_db_backup_rbac_assignment_sql_contributor" {
 }
 
 module "sql_db_backup_rbac_assignment_storage_contributor" {
-  for_each = var.sqlserver != {} ? var.regions : {}
+  for_each = contains(var.sqlserver.user_assigned_identities, "db-backup") && var.sqlserver != {} ? var.regions : {}
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
