@@ -66,7 +66,7 @@ export async function validateServiceNowRequestWithMockServer(request: APIReques
           throw new Error(`❌ Validation failed, unexpected message type: ${messageType}`);
       }
 
-      console.info(`✅ Validation Complete - ServiceNow Message Type ${messageType} was sent for ${caseNumber}`);
+      console.info(`✅ Validation Complete - ServiceNow Message Type ${messageType} request was sent for ${caseNumber}`);
     });
   });
 }
@@ -151,8 +151,8 @@ export function getConsolidatedAllTestData(
         const srcPath = path.join(testFilesPath, jsonFile);
         try {
           const parsedData: InputData = JSON.parse(fs.readFileSync(srcPath, 'utf-8'));
-          allServiceNowRequestValidations = allServiceNowRequestValidations.concat(parsedData.serviceNowRequestValidations).filter(element => element !== undefined);
           allValidations = allValidations.concat(parsedData.validations).filter(element => element !== undefined);
+          allServiceNowRequestValidations = allServiceNowRequestValidations.concat(parsedData.serviceNowRequestValidations).filter(element => element !== undefined);
           allNhsNumbers = allNhsNumbers.concat(parsedData.nhsNumbers);
           if (Array.isArray(parsedData.inputParticipantRecord)) {
             allInputParticipantRecords = allInputParticipantRecords.concat(parsedData.inputParticipantRecord);
