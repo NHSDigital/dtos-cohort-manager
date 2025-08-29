@@ -3,8 +3,8 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
-        "NHSNumber": 9994045571,
-        "IsHigherRisk": "1"
+        "NHSNumber": 9992886412,
+        "IsHigherRisk": 1
       },
       "meta": {
         "testJiraId": "@DTOSS-9706-01",
@@ -17,7 +17,7 @@
     {
       "number": "CS0573848",
       "u_case_variable_data": {
-        "nhs_number": "9994045571",
+        "nhs_number": "9992886412",
         "forename_": "Jane",
         "surname_family_name": "Smith",
         "date_of_birth": "1980-10-22",
@@ -28,6 +28,6 @@
     }
   ],
   "nhsNumbers": [
-    "9994045571"
+    "9992886412"
   ]
 }

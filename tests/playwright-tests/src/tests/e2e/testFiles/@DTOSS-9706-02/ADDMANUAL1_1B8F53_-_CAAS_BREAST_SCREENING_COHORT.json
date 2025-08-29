@@ -1,0 +1,33 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9990841780,
+        "IsHigherRisk": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-9706-02",
+        "requirementJiraId": "@DTOSS-9706-02",
+        "additionalTags": "@DTOSS-9706-02 @e2e @epic4c- Verify that VHR flag is set to false in the participant management table when reason_for_adding is not eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "number": "CS0573848",
+      "u_case_variable_data": {
+        "nhs_number": "9990841780",
+        "forename_": "Jane",
+        "surname_family_name": "Smith",
+        "date_of_birth": "1980-10-22",
+        "enter_dummy_gp_code": "ZZZDKL",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
+      }
+    }
+  ],
+  "nhsNumbers": [
+    "9990841780"
+  ]
+}

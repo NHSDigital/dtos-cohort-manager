@@ -183,6 +183,32 @@ public class Participant
         return participantManagement;
     }
 
+    public ParticipantManagement ToParticipantManagement(ParticipantManagement existingRecord)
+    {
+        var participantManagement = new ParticipantManagement
+        {
+            ParticipantId = existingRecord.ParticipantId,
+            ScreeningId = long.Parse(ScreeningId),
+            NHSNumber = long.Parse(NhsNumber),
+            RecordType = RecordType,
+            EligibilityFlag = MappingUtilities.ParseStringFlag(EligibilityFlag ?? "1"),
+            ReasonForRemoval = ReasonForRemoval,
+            ReasonForRemovalDate = MappingUtilities.ParseDates(ReasonForRemovalEffectiveFromDate),
+            BusinessRuleVersion = BusinessRuleVersion,
+            ExceptionFlag = MappingUtilities.ParseStringFlag(ExceptionFlag ?? "0"),
+            BlockedFlag = MappingUtilities.ParseStringFlag(BlockedFlag ?? "0"),
+            ReferralFlag = existingRecord.ReferralFlag,
+            RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime),
+            RecordUpdateDateTime = existingRecord.RecordInsertDateTime,
+            IsHigherRisk = existingRecord.IsHigherRisk
+        };
+
+        if (ParticipantId != null)
+            participantManagement.ParticipantId = long.Parse(ParticipantId);
+
+        return participantManagement;
+    }
+
     private int GetInvalidFlag()
     {
         int result = 0;
