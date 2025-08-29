@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.CaasIntegrationService;
+namespace Common;
 
 using System.Security.Cryptography.X509Certificates;
 
@@ -23,9 +23,9 @@ public static class CertificateHelper
                 return new X509Certificate2(Convert.FromBase64String(base64));
             })
             .ToArray();
-        
+
         certs.AddRange(pemCerts);
-        
+
         return certs;
     }
 }
