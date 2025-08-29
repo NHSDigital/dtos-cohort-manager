@@ -1,0 +1,53 @@
+{
+  "serviceNowRequestValidations": [
+    {
+      "validation": {
+        "caseNumber": "CS388402",
+        "messageType": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3884-02",
+        "requirementJiraId": "@DTOSS-3884-02",
+        "additionalTags": "@DTOSS-3884-02 @e2e @epic4c- NHS Number not found in PDS, message type 1 is sent to ServiceNow"
+      }
+    },
+    {
+      "validation": {
+        "caseNumber": "CS388403",
+        "messageType": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3884-03",
+        "requirementJiraId": "@DTOSS-3884-03",
+        "additionalTags": "@DTOSS-3884-03 @e2e @epic4c- NHS Number from PDS does not match, message type 1 is sent to ServiceNow"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "number": "CS388402",
+      "u_case_variable_data": {
+        "nhs_number": "9990048622",
+        "forename_": "Jane",
+        "surname_family_name": "Doe",
+        "date_of_birth": "2010-10-22",
+        "enter_dummy_gp_code": "ZZZDKL",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
+      }
+    },
+    {
+      "number": "CS388403",
+      "u_case_variable_data": {
+        "nhs_number": "9998106524",
+        "forename_": "Jane",
+        "surname_family_name": "Doe",
+        "date_of_birth": "2010-10-22",
+        "enter_dummy_gp_code": "ZZZDKL",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
+      }
+    }
+  ],
+  "nhsNumbers": []
+}

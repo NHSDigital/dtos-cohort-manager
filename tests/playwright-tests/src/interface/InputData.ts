@@ -7,7 +7,6 @@ interface Validation {
   RuleId: number;
   RuleDescription: string;
   ExceptionFlag: number;
-
 }
 
 interface Validations {
@@ -20,8 +19,18 @@ interface QueryParams {
   exceptionCategory: number;
 }
 
+interface ServiceNowRequestValidation {
+  caseNumber: string;
+  messageType: 1|2|3;
+}
+
+export interface ServiceNowRequestValidations {
+  validation: ServiceNowRequestValidation
+}
+
 export interface InputData {
   validations: Validations[];
+  serviceNowRequestValidations: ServiceNowRequestValidations[];
   inputParticipantRecord: Record<string, any>;
   nhsNumbers: string[];
   queryParams: QueryParams;
