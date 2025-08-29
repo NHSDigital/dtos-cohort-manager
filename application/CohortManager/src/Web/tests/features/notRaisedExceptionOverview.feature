@@ -33,3 +33,18 @@ Feature: testing Breast screening - Not raisedexception overview page
   Scenario: verify navigation to cookies screen
     And the user clicks on cookies link
     Then they should navigate to 'Cookies on Cohort Manager - Cohort Manager - NHS'
+
+  @epic_4a @req_6975 @test_9966
+  Scenario: verify sorting by with Date exception created (newest first)
+    When the user sorts the exception summary table by 'Date exception created (newest first)'
+    Then the exception summary table should be sorted by Date exception created in descending order
+
+  @epic_4a @req_6975 @test_9974
+  Scenario: verify sorting by with Date exception created (oldest first)
+    When the user sorts the exception summary table by 'Date exception created (oldest first)'
+    Then the exception summary table should be sorted by Date exception created in ascending order
+
+  @epic_4a @req_6975 @test_9968
+  Scenario: verify sorting by with unsupported sort option
+    When the user sorts with unsupported options by 'exception created (oldest first)'
+    Then the error message should thrown

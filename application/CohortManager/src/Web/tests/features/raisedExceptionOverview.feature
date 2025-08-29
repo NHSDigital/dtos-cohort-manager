@@ -33,3 +33,18 @@ Feature: testing Breast screening - exception overview page
   Scenario: verify navigation to cookies screen
     And the user clicks on cookies link
     Then they should navigate to 'Cookies on Cohort Manager - Cohort Manager - NHS'
+
+  @epic_4a @req_6389 @test_9447
+  Scenario: verify sorting by with Status last updated (most recent first)
+    When the user sorts the exception summary table by 'Status last updated (most recent first)'
+    Then the exceptions should be sorted by exception status last updated in descending order
+
+  @epic_4a @req_6389 @test_9437
+  Scenario: verify sorting by with Status last updated (oldest first)
+    When the user sorts the exception summary table by 'Status last updated (oldest first)'
+    Then the exceptions should be sorted by exception status last updated in ascending order
+
+  @epic_4a @req_6389 @test_9449
+  Scenario: verify sorting by with unsupported sort option
+    When the user sorts with unsupported options by 'exception created (oldest first)'
+    Then the error message should thrown

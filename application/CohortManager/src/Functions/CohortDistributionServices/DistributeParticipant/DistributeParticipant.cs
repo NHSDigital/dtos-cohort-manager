@@ -11,14 +11,12 @@ using Model;
 using System.Text.Json;
 using Common;
 using Activities = DistributeParticipantActivities;
-using Model.Enums;
 
 public class DistributeParticipant
 {
     private readonly ILogger<DistributeParticipant> _logger;
     private readonly DistributeParticipantConfig _config;
     private readonly IExceptionHandler _exceptionHandler;
-
     public DistributeParticipant(ILogger<DistributeParticipant> logger, IOptions<DistributeParticipantConfig> config,
                                 IExceptionHandler exceptionHandler)
     {
@@ -59,7 +57,6 @@ public class DistributeParticipant
         {
             _logger.LogError(ex, "Failed to start distribute participant");
             await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(), "Unknown");
-
         }
     }
 
@@ -91,6 +88,12 @@ public class DistributeParticipant
 
             ValidationRecord validationRecord = new() { FileName = participantRecord.FileName, Participant = participantData };
 
+            var serviceNowParticipant = participantRecord?.Participant.ReferralFlag == "1";
+            if (serviceNowParticipant && !string.IsNullOrEmpty(participantRecord?.Participant.PrimaryCareProvider))
+            {
+                validationRecord.Participant.PrimaryCareProvider = participantRecord.Participant.PrimaryCareProvider;
+            }
+
             // Allocate service provider
             validationRecord.ServiceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
 
@@ -111,7 +114,17 @@ public class DistributeParticipant
                 await HandleExceptionAsync(new InvalidOperationException("Failed to add participant to the table"), participantRecord);
                 return;
             }
-            _logger.LogInformation("Participant has been successfully put on the cohort distribution table");
+
+            _logger.LogInformation(
+                "Participant has been successfully put on the cohort distribution table. Participant Id: {ParticipantId}, Screening Id: {ScreeningId}, Source: {FileName}",
+                participantRecord.Participant.ParticipantId, participantRecord.Participant.ScreeningId, participantRecord.FileName);
+
+            // If the participant came from ServiceNow, a request needs to be sent to update the ServiceNow case
+            if (serviceNowParticipant)
+            {
+                // In this scenario, the FileName property should be holding the ServiceNow Case Number
+                await context.CallActivityAsync(nameof(Activities.SendServiceNowMessage), participantRecord.FileName);
+            }
         }
         catch (Exception ex)
         {
@@ -125,3 +138,4 @@ public class DistributeParticipant
         await _exceptionHandler.CreateSystemExceptionLog(ex, participantRecord.BasicParticipantData, participantRecord.FileName);
     }
 }
+

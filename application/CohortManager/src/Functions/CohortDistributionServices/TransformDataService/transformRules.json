@@ -649,5 +649,38 @@
         }
       }
     ]
+  },
+  {
+    "WorkflowName": "Referred",
+    "Rules": [
+      {
+        "RuleName": "00.UpdateServiceNowData.ReferralWithPrimaryCareProvider",
+        "LocalParams": [
+          {
+            "Name": "IsReferralFlag",
+            "Expression": "participant.ReferralFlag == true"
+          },
+          {
+            "Name": "HasPrimaryCareProvider",
+            "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider)"
+          }
+        ],
+        "Expression": "IsReferralFlag && HasPrimaryCareProvider",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "PrimaryCareProviderEffectiveFromDate",
+                  "value": "DateTime.UtcNow.ToString(\"yyyy-MM-dd\")",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
   }
 ]

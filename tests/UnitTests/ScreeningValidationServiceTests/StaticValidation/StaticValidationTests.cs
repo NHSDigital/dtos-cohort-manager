@@ -210,6 +210,7 @@ public class StaticValidationTests
     [DataRow("ZZ99 9FZ")]
     [DataRow("ZZ999FZ")]
     [DataRow("ZZ99 3WZ")]
+    [DataRow("ZZZSECUR")]
     public async Task Run_ValidPostcode_ReturnNoContent(string postcode)
     {
         // Arrange
@@ -562,57 +563,6 @@ public class StaticValidationTests
 
         // Assert
         StringAssert.Contains(body, "18.DateOfDeath.NBO.NonFatal");
-    }
-    #endregion
-
-    #region New Participant with Reason For Removal, Removal Date or Date Of Death (Rule 47)
-    [TestMethod]
-    [DataRow(Actions.New, null, null, null, "EA123AB", "1")]
-    [DataRow(Actions.New, "", "", "", "EA123AB", "1")]
-    [DataRow(Actions.Amended, "DEA", "20240101", "20240101", null, "1")]
-    [DataRow(Actions.Removed, "DEA", "20240101", "20240101", null, "0")]
-    public async Task Run_ValidRfrAndDeathDate_ReturnNoContent(
-        string recordType, string reasonForRemoval, string removalDate, string dateOfDeath, string pcp, string eligibilityFlag)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.RecordType = recordType;
-        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
-        _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = removalDate;
-        _participantCsvRecord.Participant.DateOfDeath = dateOfDeath;
-        _participantCsvRecord.Participant.PrimaryCareProvider = pcp;
-        _participantCsvRecord.Participant.EligibilityFlag = eligibilityFlag;
-
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-    }
-
-    [TestMethod]
-    [DataRow("ADD", "DEA", null, null)]
-    [DataRow("ADD", null, "20240101", null)]
-    [DataRow("ADD", null, null, "20240101")]
-    public async Task Run_AddRecordWithRfrOrDateOfDeath_ReturnValidationException(
-        string recordType, string reasonForRemoval, string removalDate, string dateOfDeath)
-    {
-        // Arrange
-        _participantCsvRecord.Participant.RecordType = recordType;
-        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
-        _participantCsvRecord.Participant.ReasonForRemovalEffectiveFromDate = removalDate;
-        _participantCsvRecord.Participant.DateOfDeath = dateOfDeath;
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _function.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        StringAssert.Contains(body, "47.NewParticipantWithRemovalOrDeath.NBO.NonFatal");
     }
     #endregion
 

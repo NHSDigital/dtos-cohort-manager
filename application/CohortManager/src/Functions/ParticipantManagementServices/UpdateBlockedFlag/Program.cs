@@ -20,6 +20,7 @@ var host = new HostBuilder()
         services.AddBasicHealthCheck("Update Blocked Flag");
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IExceptionHandler, ExceptionHandler>();
+        services.AddScoped<IBlockParticipantHandler, BlockParticipantHandler>();
     })
     .AddExceptionHandler()
     .AddHttpClient()

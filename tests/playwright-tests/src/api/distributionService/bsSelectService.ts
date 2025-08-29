@@ -31,6 +31,18 @@ export const getRecordsFromParticipantManagementService = (
   return apiClient.get(request, `${config.endpointParticipantManagementDataService}api/${config.participantManagementService}`);
 };
 
+export const getRecordsFromParticipantDemographicService = (
+  request: APIRequestContext
+): Promise<ApiResponse> => {
+  return apiClient.get(request, `${config.endpointParticipantDemographicDataService}api/${config.participantDemographicDataService}`);
+};
+
+export const getRecordsFromExceptionManagementService = (
+  request: APIRequestContext
+): Promise<ApiResponse> => {
+  return apiClient.get(request, `${config.endpointExceptionManagementDataService}api/${config.exceptionManagementService}`);
+};
+
 export const deleteParticipant = (
   request: APIRequestContext,
   payload: {
@@ -54,6 +66,7 @@ export const BlockParticipant = (
   const endpoint = `${config.endpointBsSelectUpdateBlockFlag}${config.routeBsSelectBlockParticipant}`;
   return apiClient.postWithQuery(request, endpoint, payload);
 };
+
 
 export const UnblockParticipant = (
   request: APIRequestContext,

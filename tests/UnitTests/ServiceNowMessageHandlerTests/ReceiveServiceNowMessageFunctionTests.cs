@@ -30,6 +30,7 @@ public class ReceiveServiceNowMessageFunctionTests
             ServiceNowRefreshAccessTokenUrl = "https://www.example.net/refresh",
             ServiceNowUpdateUrl = "https://www.example.net/update",
             ServiceNowResolutionUrl = "https://www.example.net/resolution",
+            ServiceNowGrantType = "refresh_token",
             ServiceNowClientId = "123",
             ServiceNowClientSecret = "ABC",
             ServiceNowRefreshToken = "DEF",

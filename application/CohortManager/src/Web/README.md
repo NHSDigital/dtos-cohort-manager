@@ -17,6 +17,7 @@ Create a `.env` file which should override environment variables required to run
 ```text
 # Default
 SERVICE_NAME="Cohort Manager"
+APP_ENV="development"
 
 # Next Auth
 NEXTAUTH_URL=https://localhost:3000/api/auth

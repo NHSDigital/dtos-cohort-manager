@@ -35,7 +35,11 @@ public class ValidationTests
             ParticipantManagementUrl = "ParticipantManagementUrl",
             CohortDistributionDataServiceUrl = "CohortDistributionDataServiceUrl",
             ParticipantDemographicDataServiceUrl = "ParticipantDemographicDataServiceUrl",
-            IgnoreParticipantExceptions = false
+            IgnoreParticipantExceptions = false,
+            CohortDistributionTopic = "cohort-distribution-topic",
+            DistributeParticipantSubscription = "distribute-participant-sub",
+            RemoveOldValidationRecordUrl = "RemoveOldValidationRecordUrl",
+            SendServiceNowMessageURL = "SendServiceNowMessageURL"
         };
 
         _config.Setup(x => x.Value).Returns(config);
@@ -137,7 +141,11 @@ public class ValidationTests
             ParticipantManagementUrl = "ParticipantManagementUrl",
             CohortDistributionDataServiceUrl = "CohortDistributionDataServiceUrl",
             ParticipantDemographicDataServiceUrl = "ParticipantDemographicDataServiceUrl",
-            IgnoreParticipantExceptions = true
+            IgnoreParticipantExceptions = true,
+            CohortDistributionTopic = "cohort-distribution-topic",
+            DistributeParticipantSubscription = "distribute-participant-sub",
+            RemoveOldValidationRecordUrl = "RemoveOldValidationRecordUrl",
+            SendServiceNowMessageURL = "SendServiceNowMessageURL"
         };
 
         _config.Setup(x => x.Value).Returns(config);

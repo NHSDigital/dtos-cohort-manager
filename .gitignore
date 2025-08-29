@@ -23,6 +23,8 @@
 *.suo
 *.user
 
+*host.json
+
 # Visual Studio 2015/2017 cache/options directory
 .vs/
 
@@ -63,6 +65,7 @@ appsettings.json
 application/CohortManager/SampleData/
 *.csv
 *.parquet
+*.xml
 !tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
 
 # csv to sql statement scripts
@@ -113,4 +116,5 @@ application/CohortManager/src/Functions/*.json
 !**/playwright-tests/src/parquet/*.parquet
 # Explicitly include test JSON files
 !**/playwright-tests/src/tests/e2e/testFiles/**/*.json
+
 
