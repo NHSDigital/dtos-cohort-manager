@@ -16,6 +16,12 @@ var host = new HostBuilder()
         services.AddBasicHealthCheck("ManageCaasSubscription");
         services.AddSingleton<IMeshSendCaasSubscribe, MeshSendCaasSubscribeStub>();
         services.AddScoped<IMeshPoller, MeshPoller>();
+        // Wrap NemsSubscription accessor to enforce SubscriptionSource = MESH when missing
+        services.AddScoped<DataServices.Core.IDataServiceAccessor<Model.NemsSubscription>>(sp =>
+        {
+            var inner = sp.GetRequiredService<DataServices.Core.IDataServiceAccessor<Model.NemsSubscription>>();
+            return new NHS.CohortManager.DemographicServices.CaasNemsSubscriptionAccessor(inner);
+        });
     })
     .AddDataServicesHandler<DataServicesContext>()
     .AddHttpClient()
