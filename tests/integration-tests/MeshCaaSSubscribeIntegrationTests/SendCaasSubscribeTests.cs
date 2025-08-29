@@ -14,6 +14,7 @@ using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 using NHS.MESH.Client.Helpers.ContentHelpers;
 
+[TestCategory("Integration")]
 [TestClass]
 public sealed class SendCaasSubscribeTests
 {
@@ -78,16 +79,15 @@ public sealed class SendCaasSubscribeTests
         // act - validate message recieved
         var getMessagesResult = await _meshInboxService.GetMessagesAsync(toMailbox);
 
+        // assert - File is in mesh
         Assert.IsTrue(getMessagesResult.Response.Messages.Contains(messageId));
 
+        // act - download message and decompress message
         var message = await _meshInboxService.GetMessageByIdAsync(toMailbox, messageId);
-
         var fileContent = GZIPHelpers.DeCompressBuffer(message.Response.FileAttachment.Content);
 
-
-
-        File.WriteAllBytes("test.parquet",fileContent);
-
+        // asset - ensure message contains expected parquet file
+        ParquetAsserts.ContainsExpectedNhsNumber(fileContent, nhsNumber);
 
     }
 }

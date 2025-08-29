@@ -32,6 +32,8 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
             ContentType = "application/octet-stream"
         };
 
+        await File.WriteAllBytesAsync("Testpremesh.parquet", content);
+
         var result = await _meshOutboxService.SendCompressedMessageAsync(fromMailbox, toMailbox, _config.SendCaasWorkflowId, file);
         if (!result.IsSuccessful)
         {
@@ -50,19 +52,18 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
         };
         long[] nhsNumberList = { nhsNumber };
 
-        using (var stream = new MemoryStream())
+        using var stream = new MemoryStream();
+        using var writer = new ManagedOutputStream(stream);
+        using (var file = new ParquetFileWriter(writer, columns))
         {
-
-            using var writer = new ManagedOutputStream(stream);
-            using var file = new ParquetFileWriter(writer, columns);
             using var rowGroup = file.AppendRowGroup();
             using (var nhsNumberColumn = rowGroup.NextColumn().LogicalWriter<long>())
             {
                 nhsNumberColumn.WriteBatch(nhsNumberList);
             }
-            var byteArrayContent = stream.ToArray();
-            return byteArrayContent;
-
         }
+
+        return stream.ToArray();
+
     }
 }
