@@ -1,0 +1,35 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": "9996310999",
+        "expectedCount": 1,
+        "DateResolved": "9999-12-31T00:00:00",
+        "RuleDescriptionContains": "servicenow"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8569-05",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e @incomplete Exception path: system failure (ExceptionManagement)"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "number": "CS0573853",
+      "u_case_variable_data": {
+        "nhs_number": "9996310999",
+        "forename_": "Jane",
+        "surname_family_name": "Smith",
+        "date_of_birth": "2003-03-03",
+        "enter_dummy_gp_code": "ZZZDKL",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
+      }
+    }
+  ],
+  "nhsNumbers": [
+    "9996310999"
+  ]
+}
