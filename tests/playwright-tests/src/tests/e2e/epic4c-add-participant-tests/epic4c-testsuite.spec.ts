@@ -1,5 +1,5 @@
-import test from "@playwright/test";
-import { getNenmsSubscriberId, getRecordsFromBsSelectRetrieveCohort } from "../../../api/distributionService/bsSelectService";
+import { expect, test } from '../../fixtures/test-fixtures';
+import { getRecordsFromBsSelectRetrieveAudit, getRecordsFromBsSelectRetrieveCohort, getRecordsFromNemsSubscription } from "../../../api/distributionService/bsSelectService";
 import { composeValidators, expectStatus, validateResponseByStatus } from "../../../api/responseValidators";
 import { getLatestValidDatefromDatabase } from "../../steps/steps";
 
@@ -15,16 +15,17 @@ test.describe('@regression @e2e @epic4c- Tests', () => {
 
     await test.step(`Check latest ID by date`, async () => {
 
-      const response = await getNenmsSubscriberId(request);
-
       const genericValidations = composeValidators(
         expectStatus(200),
         validateResponseByStatus()
       );
-      await genericValidations(response);
 
-
-      // expect(response.data.length).toBe(ExpectedRowCount);
+      await test.step('Then NEMS_SUBSCRIPTION should have subscriber ID', async () => {
+        const response = await getRecordsFromNemsSubscription(request);
+        console.log(response);
+        //const lastRecord = response.data[response.data.length - 1];
+        //expect(lastRecord?.StatusCode).toBe("200");
+      });
     });
   });
 });

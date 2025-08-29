@@ -13,6 +13,7 @@ const endpointCohortDistributionDataService = process.env.ENDPOINT_COHORT_DISTRI
 const endpointParticipantManagementDataService = process.env.ENDPOINT_PARTICIPANT_MANAGEMENT_DATA_SERVICE ?? '';
 const endpointParticipantDemographicDataService = process.env.ENDPOINT_PARTICIPANT_DEMOGRAPHIC_DATA_SERVICE ?? '';
 const endpointExceptionManagementDataService = process.env.ENDPOINT_EXCEPTION_MANAGEMENT_DATA_SERVICE ?? '';
+const endpointNemsSubscriptionDataDataService = process.env.ENDPOINT_SUBSCRIPTION_NEMS_DATA_SERVICE ?? '';
 const endpointBsSelectRetrieveCohortDistributionData = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '';
 const endpointBsSelectRetrieveCohortRequestAudit = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_REQUEST_AUDIT ?? '';
 const endpointBsSelectDeleteParticipant = process.env.ENDPOINT_BS_SELECT_DELETE_PARTICIPANT ?? '';
@@ -33,6 +34,7 @@ export const config = {
   endpointParticipantManagementDataService,
   endpointExceptionManagementDataService,
   endpointParticipantDemographicDataService,
+  endpointNemsSubscriptionDataDataService,
   endpointBsSelectRetrieveCohortDistributionData: endpointBsSelectRetrieveCohortDistributionData,
   endpointBsSelectRetrieveCohortRequestAudit: endpointBsSelectRetrieveCohortRequestAudit,
   endpointBsSelectDeleteParticipant: endpointBsSelectDeleteParticipant,
@@ -51,7 +53,7 @@ export const config = {
   routeBsSelectUnblockParticipant: 'api/UnblockParticipant',
   routeGetValidationExceptions: 'api/GetValidationExceptions',
   routeSerNowReceiveParticipant: 'api/servicenow/receive',
-  routeNemsGetSubscriber: 'api/Subscribe',
+  nemsSubscriberDataService: 'NemsSubscriptionDataService',
   invalidRouteSerNowEndpoint: 'api/serviceno/receive',
   cohortDistributionService: 'CohortDistributionDataService',
   participantManagementService: 'ParticipantManagementDataService',
