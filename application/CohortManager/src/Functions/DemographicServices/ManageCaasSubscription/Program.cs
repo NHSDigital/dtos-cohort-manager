@@ -15,6 +15,7 @@ var host = new HostBuilder()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddBasicHealthCheck("ManageCaasSubscription");
         services.AddSingleton<IMeshSendCaasSubscribe, MeshSendCaasSubscribeStub>();
+        services.AddScoped<IMeshPoller, MeshPoller>();
     })
     .AddDataServicesHandler<DataServicesContext>()
     .AddHttpClient()

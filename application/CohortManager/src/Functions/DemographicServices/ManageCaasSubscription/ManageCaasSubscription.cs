@@ -20,6 +20,7 @@ public class ManageCaasSubscription
     private readonly IMeshSendCaasSubscribe _meshSendCaasSubscribe;
     private readonly IRequestHandler<NemsSubscription> _requestHandler;
     private readonly IDataServiceAccessor<NemsSubscription> _nemsSubscriptionAccessor;
+    private readonly IMeshPoller _meshPoller;
 
     public ManageCaasSubscription(
         ILogger<ManageCaasSubscription> logger,
@@ -27,7 +28,8 @@ public class ManageCaasSubscription
         IOptions<ManageCaasSubscriptionConfig> config,
         IMeshSendCaasSubscribe meshSendCaasSubscribe,
         IRequestHandler<NemsSubscription> requestHandler,
-        IDataServiceAccessor<NemsSubscription> nemsSubscriptionAccessor)
+        IDataServiceAccessor<NemsSubscription> nemsSubscriptionAccessor,
+        IMeshPoller meshPoller)
     {
         _logger = logger;
         _createResponse = createResponse;
@@ -35,6 +37,7 @@ public class ManageCaasSubscription
         _meshSendCaasSubscribe = meshSendCaasSubscribe;
         _requestHandler = requestHandler;
         _nemsSubscriptionAccessor = nemsSubscriptionAccessor;
+        _meshPoller = meshPoller;
     }
 
     [Function("Subscribe")]
@@ -128,4 +131,12 @@ public class ManageCaasSubscription
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while processing the data service request.");
         }
     }
+
+    [Function("PollMeshMailbox")]
+    public async Task RunAsync([TimerTrigger("59 23 * * *")] TimerInfo myTimer)
+    {
+        await _meshPoller.ExecuteHandshake(_config.Value.CaasFromMailbox);
+    }
+
+
 }
