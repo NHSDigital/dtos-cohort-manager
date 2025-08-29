@@ -1,7 +1,8 @@
 namespace NHS.CohortManager.DemographicServices;
 
+using System.ComponentModel.DataAnnotations;
+
 // Minimal config object for ManageCaasSubscription.
-// Intentionally no [Required] attributes so binding does not fail if unset.
 public class ManageCaasSubscriptionConfig
 {
     // Optional URL for pass-through to the existing NEMS data service
@@ -12,8 +13,10 @@ public class ManageCaasSubscriptionConfig
     // Example: http://manage-nems-subscription:9081
     public string? ManageNemsSubscriptionBaseURL { get; set; }
 
-    // Optional CAAS mailboxes for the subscribe stub
+    // Required CAAS mailboxes for the subscribe flow
+    [Required]
     public string? CaasToMailbox { get; set; }
+    [Required]
     public string? CaasFromMailbox { get; set; }
 
     // Controls whether shared implementations should use stubbed behavior

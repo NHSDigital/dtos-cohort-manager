@@ -13,6 +13,8 @@ using NHS.CohortManager.Tests.TestUtils;
 using System.Net.Http;
 using DataServices.Core;
 using Model;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 [TestClass]
 public class ManageCaasSubscriptionTests
@@ -25,6 +27,7 @@ public class ManageCaasSubscriptionTests
     private readonly Mock<IMeshSendCaasSubscribe> _mesh = new();
     private readonly Mock<IRequestHandler<NemsSubscription>> _requestHandler = new();
     private readonly Mock<IDataServiceAccessor<NemsSubscription>> _nemsAccessor = new();
+    private readonly Mock<IMeshPoller> _meshPoller = new();
 
     public ManageCaasSubscriptionTests()
     {
@@ -55,7 +58,8 @@ public class ManageCaasSubscriptionTests
             _config.Object,
             _mesh.Object,
             _requestHandler.Object,
-            _nemsAccessor.Object
+            _nemsAccessor.Object,
+            _meshPoller.Object
         );
     }
 
@@ -73,35 +77,6 @@ public class ManageCaasSubscriptionTests
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "abc" } }, HttpMethod.Post);
         var res = await _sut.Subscribe(req.Object);
         Assert.AreEqual(HttpStatusCode.BadRequest, res.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task Subscribe_MissingMailboxes_ReturnsInternalServerError()
-    {
-        // Arrange: missing config values
-        _config.Setup(x => x.Value).Returns(new ManageCaasSubscriptionConfig
-        {
-            ManageNemsSubscriptionDataServiceURL = null,
-            CaasToMailbox = null,
-            CaasFromMailbox = null
-        });
-
-        var sutMissing = new ManageCaasSubscription(
-            _logger.Object,
-            _createResponse,
-            _config.Object,
-            _mesh.Object,
-            _requestHandler.Object,
-            _nemsAccessor.Object
-        );
-
-        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
-
-        // Act
-        var res = await sutMissing.Subscribe(req.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
     }
 
     [TestMethod]
@@ -234,5 +209,41 @@ public class ManageCaasSubscriptionTests
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
         var res = await _sut.Subscribe(req.Object);
         Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task PollMeshMailbox_UsesConfigFromMailbox()
+    {
+        // Ensure config has expected mailbox
+        _config.Setup(x => x.Value).Returns(new ManageCaasSubscriptionConfig
+        {
+            CaasFromMailbox = "TEST_FROM",
+            CaasToMailbox = "TEST_TO"
+        });
+
+        var sut = new ManageCaasSubscription(
+            _logger.Object,
+            _createResponse,
+            _config.Object,
+            _mesh.Object,
+            _requestHandler.Object,
+            _nemsAccessor.Object,
+            _meshPoller.Object
+        );
+
+        await sut.RunAsync(null);
+        _meshPoller.Verify(p => p.ExecuteHandshake("TEST_FROM"), Times.Once);
+    }
+
+    [TestMethod]
+    public void Config_MissingMailboxes_FailsValidation()
+    {
+        var cfg = new ManageCaasSubscriptionConfig();
+        var context = new ValidationContext(cfg);
+        var results = new System.Collections.Generic.List<ValidationResult>();
+        var isValid = Validator.TryValidateObject(cfg, context, results, validateAllProperties: true);
+        Assert.IsFalse(isValid);
+        Assert.IsTrue(results.Any(r => r.MemberNames.Contains("CaasToMailbox")));
+        Assert.IsTrue(results.Any(r => r.MemberNames.Contains("CaasFromMailbox")));
     }
 }

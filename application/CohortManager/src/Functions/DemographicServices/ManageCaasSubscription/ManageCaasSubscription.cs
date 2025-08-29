@@ -11,12 +11,13 @@ using System.Collections.Specialized;
 using System.Text;
 using DataServices.Core;
 using Model;
+using NHS.CohortManager.DemographicServices;
 
 public class ManageCaasSubscription
 {
     private readonly ILogger<ManageCaasSubscription> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IOptions<ManageCaasSubscriptionConfig> _config;
+    private readonly ManageCaasSubscriptionConfig _config;
     private readonly IMeshSendCaasSubscribe _meshSendCaasSubscribe;
     private readonly IRequestHandler<NemsSubscription> _requestHandler;
     private readonly IDataServiceAccessor<NemsSubscription> _nemsSubscriptionAccessor;
@@ -33,7 +34,7 @@ public class ManageCaasSubscription
     {
         _logger = logger;
         _createResponse = createResponse;
-        _config = config;
+        _config = config.Value;
         _meshSendCaasSubscribe = meshSendCaasSubscribe;
         _requestHandler = requestHandler;
         _nemsSubscriptionAccessor = nemsSubscriptionAccessor;
@@ -46,22 +47,17 @@ public class ManageCaasSubscription
         try
         {
             var nhsNumber = req.Query["nhsNumber"];
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
             {
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
             // Forward to MeshSendCaasSubscribeStub (Shared)
-            long.TryParse(nhsNumber, out var nhsNo);
-            var toMailbox = _config.Value.CaasToMailbox;
-            var fromMailbox = _config.Value.CaasFromMailbox;
-            if (string.IsNullOrWhiteSpace(toMailbox) || string.IsNullOrWhiteSpace(fromMailbox))
-            {
-                _logger.LogError("CAAS mailbox configuration missing. CaasToMailbox or CaasFromMailbox not set.");
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "CAAS mailbox configuration missing.");
-            }
+            var nhsNo = long.Parse(nhsNumber!);
+            var toMailbox = _config.CaasToMailbox!;
+            var fromMailbox = _config.CaasFromMailbox!;
             var messageId = await _meshSendCaasSubscribe.SendSubscriptionRequest(nhsNo, toMailbox, fromMailbox);
-            _logger.LogInformation("CAAS Subscribe forwarded to Mesh stub. NHS: {Nhs}, MessageId: {Msg}", nhsNo, messageId);
+            _logger.LogInformation("CAAS Subscribe forwarded to Mesh stub. MessageId: {Msg}", messageId);
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Subscription request accepted. MessageId: {messageId}");
         }
         catch (Exception ex)
@@ -75,12 +71,12 @@ public class ManageCaasSubscription
     public async Task<HttpResponseData> Unsubscribe([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
         var nhsNumber = req.Query["nhsNumber"];
-        if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+        if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
         {
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
         }
 
-        _logger.LogInformation("[CAAS-Stub] Unsubscribe called for NHS: {Nhs}", nhsNumber);
+        _logger.LogInformation("[CAAS-Stub] Unsubscribe called");
         return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, "Stub: CAAS subscription would be removed.");
     }
 
@@ -93,7 +89,7 @@ public class ManageCaasSubscription
 
             string? nhsNumber = req.Query["nhsNumber"];
 
-            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
             {
                 _logger.LogError("NHS number is required and must be valid format");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
@@ -135,7 +131,7 @@ public class ManageCaasSubscription
     [Function("PollMeshMailbox")]
     public async Task RunAsync([TimerTrigger("59 23 * * *")] TimerInfo myTimer)
     {
-        await _meshPoller.ExecuteHandshake(_config.Value.CaasFromMailbox);
+        await _meshPoller.ExecuteHandshake(_config.CaasFromMailbox!);
     }
 
 
