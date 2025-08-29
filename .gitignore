@@ -117,4 +117,6 @@ application/CohortManager/src/Functions/*.json
 # Explicitly include test JSON files
 !**/playwright-tests/src/tests/e2e/testFiles/**/*.json
 
-
+# Act
+.act.secrets
+.act.vars

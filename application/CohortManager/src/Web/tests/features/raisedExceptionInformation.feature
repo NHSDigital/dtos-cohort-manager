@@ -9,12 +9,12 @@ Feature: testing Breast screening - Raised exception information page
     Then they should navigate to 'Exception information - Cohort Manager - NHS'
     And the participant details section should have the following fields:
       | NHS number               |
+      | Superseded by NHS number |
       | Surname                  |
       | Forename                 |
       | Date of birth            |
       | Gender                   |
       | Current address          |
-      | Contact details          |
       | Registered practice code |
     And the Exception details section should have the following fields:
       | Date exception created |

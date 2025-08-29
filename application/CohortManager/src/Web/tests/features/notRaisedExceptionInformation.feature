@@ -15,7 +15,6 @@ Feature: testing Breast screening - Not raised exception information page
       | Date of birth            |
       | Gender                   |
       | Current address          |
-      | Contact details          |
       | Registered practice code |
     And the Exception details section should have the following fields:
       | Date exception created |
