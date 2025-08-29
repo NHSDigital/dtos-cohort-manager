@@ -13,17 +13,9 @@ using Model;
 using Model.Enums;
 
 /// <summary>
-/// Azure Function for retrieving cohort distribution data based on ScreeningServiceId.
+/// Azure Function for retrieving and managing validation exceptions.
+/// Provides endpoints for exception queries, reports, and ServiceNowId updates.
 /// </summary>
-/// <param name="req">The HTTP request data containing query parameters and request details.</param>
-/// <param name="exceptionId">query parameter used to search for an exception by Id..</param>
-/// if not exceptionId is passed in the full list of exceptions will be returned
-/// <returns>
-/// HTTP response with:
-/// - 204 No Content if no data is found.
-/// - 200 OK - List<GetValidationExceptions> or single GetValidationExcept in JSON format .
-/// - 500 Internal Server Error if an exception occurs.
-/// </returns>
 public class GetValidationExceptions
 {
     private readonly ILogger<GetValidationExceptions> _logger;
@@ -31,7 +23,6 @@ public class GetValidationExceptions
     private readonly IValidationExceptionData _validationData;
     private readonly IHttpParserHelper _httpParserHelper;
     private readonly IPaginationService<ValidationException> _paginationService;
-
 
     public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationExceptionData validationData, IHttpParserHelper httpParserHelper, IPaginationService<ValidationException> paginationService)
     {
@@ -42,6 +33,15 @@ public class GetValidationExceptions
         _paginationService = paginationService;
     }
 
+    /// <summary>
+    /// Retrieves validation exceptions based on query parameters.
+    /// Supports single exception lookup, filtered lists, and report-based queries.
+    /// </summary>
+    /// <param name="req">The HTTP request data containing query parameters.</param>
+    /// <returns>
+    /// HTTP response containing validation exceptions in JSON format.
+    /// Returns 200 OK with data, 204 No Content if empty, 400 Bad Request for validation errors, or 500 Internal Server Error.
+    /// </returns>
     [Function(nameof(GetValidationExceptions))]
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
@@ -50,6 +50,8 @@ public class GetValidationExceptions
         var exceptionStatus = HttpParserHelper.GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
         var sortOrder = HttpParserHelper.GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
         var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
+        var reportDate = _httpParserHelper.GetQueryParameterAsDateTime(req, "reportDate");
+        var isReport = _httpParserHelper.GetQueryParameterAsBool(req, "isReport");
 
         try
         {
@@ -57,26 +59,15 @@ public class GetValidationExceptions
             {
                 var exceptionById = await _validationData.GetExceptionById(exceptionId);
                 return exceptionById == null
-                    ? _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req)
-                    : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById));
+                ? _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req)
+                : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById));
             }
 
-            var allExceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
+            var isReportCategory = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
 
-            if (allExceptions == null)
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-            }
-
-            var paginatedResult = _paginationService.GetPaginatedResult(allExceptions.AsQueryable(), lastId == 0 ? null : lastId, e => e.ExceptionId);
-            if (!paginatedResult.Items.Any())
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-            }
-
-            var headers = _paginationService.BuildPaginationHeaders(req, paginatedResult);
-
-            return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResult.Items), headers);
+            return isReport
+            ? await HandleReportRequest(req, reportDate, exceptionCategory, isReportCategory, lastId)
+            : await HandleStandardRequestWithHeaders(req, exceptionStatus, sortOrder, exceptionCategory, lastId);
         }
         catch (Exception ex)
         {
@@ -85,10 +76,52 @@ public class GetValidationExceptions
         }
     }
 
+    private async Task<HttpResponseData> HandleReportRequest(HttpRequestData req, DateTime? reportDate, ExceptionCategory exceptionCategory, bool hasSpecificCategory, int lastId)
+    {
+        if (reportDate.HasValue && reportDate.Value > DateTime.Now.Date)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date cannot be in the future.");
+        }
+
+        var reportExceptions = await _validationData.GetReportExceptions(reportDate, exceptionCategory);
+        return CreatePaginatedResponse(req, reportExceptions, lastId);
+    }
+
+    private HttpResponseData CreatePaginatedResponse(HttpRequestData req, List<ValidationException>? exceptions, int lastId)
+    {
+        if (exceptions?.Count == 0 || exceptions == null)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+        }
+
+        var result = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId, e => e.ExceptionId);
+        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(result));
+    }
+
+    private async Task<HttpResponseData> HandleStandardRequestWithHeaders(HttpRequestData req, ExceptionStatus exceptionStatus, SortOrder sortOrder, ExceptionCategory exceptionCategory, int lastId)
+    {
+        var allExceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
+
+        if (allExceptions == null)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+        }
+
+        var paginatedResult = _paginationService.GetPaginatedResult(allExceptions.AsQueryable(), lastId == 0 ? null : lastId, e => e.ExceptionId);
+
+        if (!paginatedResult.Items.Any())
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+        }
+
+        var headers = _paginationService.BuildPaginationHeaders(req, paginatedResult);
+        return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResult.Items), headers);
+    }
+
     /// <summary>
-    /// Updates the ServiceNow ID for a specific validation exception.
+    /// Updates the ServiceNowId for a specific validation exception.
     /// </summary>
-    /// <param name="req">The HTTP request data containing the exception ID and ServiceNow ID.</param>
+    /// <param name="req">The HTTP request data containing the exceptionId and ServiceNowId.</param>
     /// <returns>
     /// HTTP response with:
     /// - 200 OK if the update is successful
