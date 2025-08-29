@@ -42,3 +42,10 @@ export function formatGenderValue(gender?: number | string | null): string {
   if (genderNum === 9) return "Unspecified";
   return "Unknown";
 }
+
+export const formatIsoDate = (date: Date): string => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};

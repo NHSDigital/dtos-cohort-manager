@@ -27,7 +27,7 @@ export default async function Overview() {
 
     const reportItems = [
       {
-        value: 0,
+        value: 28, // Showing reports for last 2 weeks
         label: "Reports",
         description: "To manage investigations into demographic changes",
         url: "/reports",

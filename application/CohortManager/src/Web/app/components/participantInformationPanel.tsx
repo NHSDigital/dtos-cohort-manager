@@ -1,4 +1,4 @@
-import { ExceptionDetails } from "@/app//types";
+import { ExceptionDetails } from "@/app/types";
 import {
   formatDate,
   formatCompactDate,
