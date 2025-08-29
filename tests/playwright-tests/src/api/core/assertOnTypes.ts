@@ -36,7 +36,7 @@ export function assertOnNhsNumber(expectedValue: unknown , nhsNumber: string)
 }
 
 export function assertOnRecordDateTimes(fieldName: string, expectedValue: unknown, nhsNumber: string,  matchingObject: any ) {    
-           console.info(`🚧 Validating timestamp field ${fieldName} for NHS Number ${nhsNumber}`);
+        console.info(`🚧 Validating timestamp field ${fieldName} for NHS Number ${nhsNumber}`);
 
         if (!matchingObject && expectedValue !== null && expectedValue !== undefined) {
             throw new Error(`❌ No matching object found for NHS Number ${nhsNumber} but expected to validate field ${fieldName}`);
