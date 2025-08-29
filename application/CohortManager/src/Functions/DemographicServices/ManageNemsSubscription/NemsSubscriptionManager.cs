@@ -234,7 +234,8 @@ public class NemsSubscriptionManager
             {
                 SubscriptionId = subscriptionId,
                 NhsNumber = Convert.ToInt64(nhsNumber),
-                RecordInsertDateTime = DateTime.UtcNow
+                RecordInsertDateTime = DateTime.UtcNow,
+                SubscriptionSource = SubscriptionSource.NEMS
             };
             bool subscriptionCreated = await _nemsSubscriptionAccessor.InsertSingle(subscription);
 

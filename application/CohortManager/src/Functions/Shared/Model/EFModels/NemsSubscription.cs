@@ -18,4 +18,7 @@ public class NemsSubscription
 
     [Column("RECORD_UPDATE_DATETIME", TypeName = "datetime")]
     public DateTime? RecordUpdateDateTime { get; set; }
+
+    [Column("SUBSCRIPTION_SOURCE", TypeName = "int")]
+    public SubscriptionSource? SubscriptionSource { get; set; }
 }

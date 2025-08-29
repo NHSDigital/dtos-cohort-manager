@@ -193,10 +193,12 @@ public class ManageCaasSubscriptionTests
     [TestMethod]
     public async Task Subscribe_MeshCalled_WithConfigMailboxes()
     {
+        _nemsAccessor.Setup(a => a.InsertSingle(It.IsAny<NemsSubscription>())).ReturnsAsync(true);
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
         var res = await _sut.Subscribe(req.Object);
         Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
         _mesh.Verify(m => m.SendSubscriptionRequest(9000000009L, "TEST_TO", "TEST_FROM"), Times.Once);
+        _nemsAccessor.Verify(a => a.InsertSingle(It.Is<NemsSubscription>(n => n.NhsNumber == 9000000009L && n.SubscriptionSource == SubscriptionSource.MESH && !string.IsNullOrEmpty(n.SubscriptionId))), Times.Once);
     }
 
     [TestMethod]
@@ -206,6 +208,15 @@ public class ManageCaasSubscriptionTests
             .Setup(m => m.SendSubscriptionRequest(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new Exception("mesh-down"));
 
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+        var res = await _sut.Subscribe(req.Object);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Subscribe_DBInsertFails_ReturnsInternalServerError()
+    {
+        _nemsAccessor.Setup(a => a.InsertSingle(It.IsAny<NemsSubscription>())).ReturnsAsync(false);
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
         var res = await _sut.Subscribe(req.Object);
         Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
