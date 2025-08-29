@@ -11,10 +11,17 @@ public class ManageCaasSubscriptionConfig
     // Optional base URL to forward selected endpoints (e.g., CheckSubscriptionStatus)
     // Example: http://manage-nems-subscription:9081
     public string? ManageNemsSubscriptionBaseURL { get; set; }
+    public required string MeshApiBaseUrl { get; set; }
+    public string? KeyVaultConnectionString { get; set; }
+    public bool BypassServerCertificateValidation { get; set; } = false;
+    public string? MeshCACertName { get; set; }
+    public string? MeshCaasKeyName { get; set; }
+    public string? MeshCaasKeyPassword { get; set; }
+    public string? MeshCaasPassword { get; set; }
+    public required string MeshCaasSharedKey { get; set; }
+    public required string CaasToMailbox { get; set; }
+    public required string CaasFromMailbox { get; set; }
 
-    // Optional CAAS mailboxes for the subscribe stub
-    public string? CaasToMailbox { get; set; }
-    public string? CaasFromMailbox { get; set; }
 
     // Controls whether shared implementations should use stubbed behavior
     public bool IsStubbed { get; set; } = true;

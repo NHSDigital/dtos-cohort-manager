@@ -14,7 +14,7 @@ public class MailboxConfig
     public required string MailboxId { get; set; }
     public string? MeshKeyName { get; set; }
     public string? MeshKeyPassword { get; set; }
-    public required string MeshPassword { get; set; }
+    public string? MeshPassword { get; set; }
     public required string SharedKey { get; set; }
 
 }
