@@ -208,13 +208,6 @@ variable "container_app_jobs" {
   })
 }
 
-variable "diagnostic_settings" {
-  description = "Configuration for the diagnostic settings"
-  type = object({
-    metric_enabled = optional(bool, false)
-  })
-}
-
 variable "function_apps" {
   description = "Configuration for function apps"
   type = object({
