@@ -32,7 +32,7 @@ const NHS_CIS2: OAuthConfig<Profile> = {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     NHS_CIS2,
-    ...(process.env.NODE_ENV === "development"
+    ...(process.env.APP_ENV === "development"
       ? [
           Credentials({
             credentials: {
@@ -64,7 +64,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signIn({ account }) {
       // Handle test accounts in development
       if (
-        process.env.NODE_ENV === "development" &&
+        process.env.APP_ENV === "development" &&
         account?.provider === "credentials"
       ) {
         return true;
