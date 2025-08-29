@@ -1,5 +1,5 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
-import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, sendParticipantViaSnowAPI, validateSqlDatabaseFromAPI } from '../steps/steps';
+import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, sendParticipantViaSnowAPI, validateServiceNowRequestWithMockServer, validateSqlDatabaseFromAPI } from '../steps/steps';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { receiveParticipantViaServiceNow, invalidServiceNowEndpoint } from '../../api/distributionService/bsSelectService';
@@ -27,7 +27,6 @@ test.beforeAll(async () => {
   console.log(`Running ${TEST_TYPE} tests with scenario tags: ${scopedTestScenario}`);
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
 
-
   const dateMap = generateDynamicDateMap();
   const updatedParticipantRecords = replaceDynamicDatesInJson(addData.inputParticipantRecords, dateMap);
   await Promise.all(
@@ -51,5 +50,18 @@ addData.validations.forEach((validations) => {
     ],
   }, async ({ request }) => {
     await validateSqlDatabaseFromAPI(request, [validations]);
+  });
+});
+
+console.log('Number of ServiceNow request validations:', addData.serviceNowRequestValidations?.length)
+
+addData.serviceNowRequestValidations.forEach((validations) => {
+  test(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
+    annotation: [
+      { type: 'TestId', description: validations.meta?.testJiraId ?? '' },
+      { type: 'RequirementId', description: validations.meta?.requirementJiraId ?? '' }
+    ],
+  }, async ({ request }) => {
+    await validateServiceNowRequestWithMockServer(request, [validations]);
   });
 });
