@@ -43,7 +43,7 @@ public class ManageParticipant
         Participant participant = participantRecord.Participant;
         try
         {
-            _logger.LogInformation("Recieved manage participant request");
+            _logger.LogInformation("Received manage participant request");
             bool nhsNumberValid = ValidationHelper.ValidateNHSNumber(participant.NhsNumber);
             if (!nhsNumberValid)
             {
@@ -72,11 +72,12 @@ public class ManageParticipant
             }
             else
             {
-                _logger.LogInformation("Existing participant managment record found, updating record {ParticipantId}", databaseParticipant.ParticipantId);
+                _logger.LogInformation("Existing participant management record found, updating record {ParticipantId}", databaseParticipant.ParticipantId);
                 var participantManagement = participant.ToParticipantManagement();
                 participantManagement.ParticipantId = databaseParticipant.ParticipantId;
                 participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
                 participantManagement.RecordInsertDateTime = databaseParticipant.RecordInsertDateTime;
+                participantManagement.ReferralFlag = databaseParticipant.ReferralFlag;
 
                 dataServiceResponse = await _participantManagementClient.Update(participantManagement);
             }
