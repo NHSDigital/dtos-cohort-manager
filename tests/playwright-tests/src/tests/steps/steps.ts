@@ -4,10 +4,12 @@ import { InputData, ParticipantRecord } from "../../interface/InputData";
 import { config } from "../../config/env";
 import * as fs from 'fs';
 import path from "path";
-import { validateApiResponse } from "../../api/apiHelper";
+//import { validateApiResponse } from "../../api/apiHelper";
+
 import { cleanDataBaseUsingServices } from "../../api/dataService/dataServiceCleaner";
 import { ensureNhsNumbersStartWith999 } from "../fixtures/testDataHelper";
 import { receiveParticipantViaServiceNow } from "../../api/distributionService/bsSelectService";
+import { validateApiResponse } from "../../api/RetryCore/Retry";
 
 
 export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers: string[]) {

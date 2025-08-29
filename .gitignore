@@ -118,3 +118,4 @@ application/CohortManager/src/Functions/*.json
 !**/playwright-tests/src/tests/e2e/testFiles/**/*.json
 
 
+tests/.vscode/settings.json
