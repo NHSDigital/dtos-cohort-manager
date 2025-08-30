@@ -547,7 +547,7 @@
       "home_telephone_effective_from_date": "20240501",
       "mobile_telephone_number": "07888888888",
       "mobile_telephone_effective_from_date": "20010101",
-      "email_address": "bturneux/@soup.io",
+      "email_address": "bturneux\\@soup.io",
       "email_address_effective_from_date": "20240101",
       "preferred_language": "en",
       "is_interpreter_required": false,

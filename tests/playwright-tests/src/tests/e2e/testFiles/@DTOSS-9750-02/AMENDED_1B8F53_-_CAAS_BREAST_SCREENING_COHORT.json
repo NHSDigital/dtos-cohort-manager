@@ -5,15 +5,15 @@
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9991186212,
         "NamePrefix": "MRS",
-        "GivenName": "G¬.,-()'+:?!    '' '(space)*",
-        "OtherGivenName": "O¬.,-()'+:?!    '' '(space)*",
-        "FamilyName": "F¬.,-()'+:?!    '' '(space)*",
-        "PreviousFamilyName": "P¬.,-()'+:?!    '' '(space)*",
-        "AddressLine1": "A¬.,-()'+:?!    '' '(space)*",
-        "AddressLine2": "A¬.,-()'+:?!    '' '(space)*",
-        "AddressLine3": "A¬.,-()'+:?!    '' '(space)*",
-        "AddressLine4": "A¬.,-()'+:?!    '' '(space)*",
-        "AddressLine5": "A¬.,-()'+:?!    '' '(space)*",
+        "GivenName": "¬.,-()'+:?!    '' '(space)*",
+        "OtherGivenName": "¬.,-()'+:?!    '' '(space)*",
+        "FamilyName": "¬.,-()'+:?!    '' '(space)*",
+        "PreviousFamilyName": "¬.,-()'+:?!    '' '(space)*",
+        "AddressLine1": "¬.,-()'+:?!    '' '(space)*",
+        "AddressLine2": "¬.,-()'+:?!    '' '(space)*",
+        "AddressLine3": "¬.,-()'+:?!    '' '(space)*",
+        "AddressLine4": "¬.,-()'+:?!    '' '(space)*",
+        "AddressLine5": "¬.,-()'+:?!    '' '(space)*",
         "PostCode": "AB43 8FJ",
         "TelephoneNumberHome": "01619999999.,-()'+:?!    '' '()*",
         "TelephoneNumberMob": "07888888888.,-()'+:?!    '' '()*"
@@ -45,7 +45,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10061",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "@epic4c- @e2e - AMEND DTOSS-10061 Verify that when record contains characters not on accepted list, transformed is triggered"
+        "additionalTags": "@epic4c- @e2e - AMEND DTOSS-10061 Verify that when characters are not on accepted list, transformed is triggered"
       }
     },
     {
@@ -74,18 +74,6 @@
     },
     {
       "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": 9995160773,
-        "expectedCount": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-10060-03",
-        "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10063: 2. when record contains characters in exceptions list, exception is raised \\E\\"
-      }
-    },
-    {
-      "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9995160773",
         "RuleDescription": "Object reference not set to an instance of an object.",
@@ -95,18 +83,6 @@
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
         "additionalTags": "AMEND @e2e @epic4c- DTOSS-10063: 3. when record contains characters in exceptions list, exception is raised \\E\\"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": 9998767202,
-        "expectedCount": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-10060-03",
-        "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10063: 4. Family Name - when record contains characters in exceptions list, exception is raised \\T\\"
       }
     },
     {
@@ -124,18 +100,6 @@
     },
     {
       "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": 9997610164,
-        "expectedCount": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-10060-03",
-        "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10063: 6. Other Given name -  when record contains characters in exceptions list, exception is raised \\T\\"
-      }
-    },
-    {
-      "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997610164",
         "RuleDescription": "Object reference not set to an instance of an object.",
@@ -145,18 +109,6 @@
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
         "additionalTags": "AMEND @e2e @epic4c- DTOSS-10063: 7. Other Given name - when record contains characters in exceptions list, exception is raised \\T\\"
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NhsNumber": 9990679576,
-        "expectedCount": 0
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-10060-03",
-        "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10063: 8. previous family name - when record contains characters in exceptions list, exception is raised \\E\\"
       }
     },
     {
@@ -181,7 +133,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10064: 10. Check email with backslash character is not written to the database"
+        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10064: 10. Check email with backslash character is not written into cohort distribution table"
       }
     },
     {
@@ -193,7 +145,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10064: 11. Check email with pipe character is not written to the database"
+        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10064: 11. Check email with pipe character is not written into cohort distribution table"
       }
     },
     {
@@ -205,7 +157,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10064: 12. Check email with Asterisk character is not written to the database"
+        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10064: 12. Check email with Asterisk character is not written into cohort distribution table"
       }
     },
     {
@@ -217,7 +169,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10064: 13. Check email with Grave / Back tick character is not written to the database"
+        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10064: 13. Check email with Grave / Back tick character is not written into cohort distribution table"
       }
     },
     {
@@ -229,7 +181,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10060-03",
         "requirementJiraId": "DTOSS-9750",
-        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10064: 14. Check email with Tilde symbol character is not written to the database"
+        "additionalTags": "AMEND @e2e @epic4c- DTOSS-10064: 14. Check email with Tilde symbol character is not written into cohort distribution table"
       }
     }
   ],
@@ -547,7 +499,7 @@
       "home_telephone_effective_from_date": "20240501",
       "mobile_telephone_number": "07888888888",
       "mobile_telephone_effective_from_date": "20010101",
-      "email_address": "bturneux/@soup.io",
+      "email_address": "bturneux\\@soup.io",
       "email_address_effective_from_date": "20240101",
       "preferred_language": "en",
       "is_interpreter_required": false,
