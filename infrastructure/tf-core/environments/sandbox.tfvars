@@ -299,6 +299,8 @@ container_app_jobs = {
       container_app_environment_key = "db-management"
       docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
+      db_connection_string_name     = "DtOsDatabaseConnectionString"
+      add_user_assigned_identity    = true
     }
   }
 }
@@ -1294,7 +1296,9 @@ sqlserver = {
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
-  db_management_mi_name_prefix         = "mi-cohort-manager-db-management"
+  user_assigned_identities = [
+    "db-management"
+  ]
 
   server = {
     sqlversion                    = "12.0"
