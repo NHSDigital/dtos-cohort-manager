@@ -5,7 +5,7 @@ import { getLatestValidDatefromDatabase } from "../../steps/steps";
 
 test.describe('@regression @e2e @epic4c- Tests', () => {
 
-  test.only('DTOSS-10011 @not-runner-based - Verify subscribtion IDs on Nems table', {
+  test('DTOSS-10011 @not-runner-based - Verify subscribtion IDs on Nems table', {
     annotation: [{
       type: 'Requirement - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3881',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-10011',
