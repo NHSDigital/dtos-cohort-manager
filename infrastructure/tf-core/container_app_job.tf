@@ -21,7 +21,7 @@ locals {
 
             # Add in the MANAGED_IDENTITY_CLIENT_ID environment variable if using a user assigned managed identity:
             config.add_user_assigned_identity != null ? {
-              "MANAGED_IDENTITY_CLIENT_ID" = "${module.user_assigned_managed_identity_sql["${container_app_job}-${region}"].client_id};",
+              "MANAGED_IDENTITY_CLIENT_ID" = "${module.user_assigned_managed_identity_sql["${container_app_job}-${region}"].client_id}",
               "TARGET_SUBSCRIPTION_ID"     = var.TARGET_SUBSCRIPTION_ID
             } : {}
           )
