@@ -19,7 +19,7 @@
         "TelephoneNumberMob": "07888888888.,-()'+:?!    '' '()*"
       },
       "meta": {
-        "testJiraId": "DTOSS-10060",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10060: AMEND 1.Verify that when characters are on the accepted list, No Transfromation"
       }
@@ -43,7 +43,7 @@
         "TelephoneNumberMob": "07888888888 '  -   :--  :  ()()"
       },
       "meta": {
-        "testJiraId": "DTOSS-10061",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e AMEND DTOSS-10061 2.Verify that when characters are not on accepted list, transformed is triggered"
       }
@@ -67,7 +67,7 @@
         "TelephoneNumberMob": "07888888888 :"
       },
       "meta": {
-        "testJiraId": "DTOSS-10062",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e AMEND DTOSS-10062 3.Verify when field contains more that one character not on the accepted list, they are transformed"
       }
@@ -80,7 +80,7 @@
         "RuleId": -2147467261
       },
       "meta": {
-        "testJiraId": "DTOSS-10063",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e AMEND DTOSS-10063: 4.When record contains characters in exceptions list, exception is raised \\E\\"
       }
@@ -93,8 +93,8 @@
         "RuleId": -2147467261
       },
       "meta": {
-        "testJiraId": "DTOSS-10063",
-        "requirementJiraId": "@DTOSS-9750-01",
+        "testJiraId": "@DTOSS-9750-02",
+        "requirementJiraId": "@DTOSS-9750-02",
         "additionalTags": "@epic4c- @e2e AMEND DTOSS-10063: 5.When hen record contains characters in exceptions list, exception is raised \\T\\"
       }
     },
@@ -106,7 +106,7 @@
         "RuleId": -2147467261
       },
       "meta": {
-        "testJiraId": "DTOSS-10063",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e AMEND DTOSS-10063: 6.When record contains characters in exceptions list, exception is raised \\T\\"
       }
@@ -119,7 +119,7 @@
         "RuleId": -2147467261
       },
       "meta": {
-        "testJiraId": "DTOSS-10063",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e AMEND DTOSS-10063: 7.When record contains characters in exceptions list, exception is raised \\E\\"
       }
@@ -131,7 +131,7 @@
         "EmailAddressHome": null
       },
       "meta": {
-        "testJiraId": "DTOSS-10064",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e AMEND DTOSS-10064: 8.Verify email with backslash character is not written into cohort distribution table"
       }
@@ -143,7 +143,7 @@
         "EmailAddressHome": null
       },
       "meta": {
-        "testJiraId": "DTOSS-10064",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e AMEND DTOSS-10064: 9.Verify email with pipe character is not written into cohort distribution table"
       }
@@ -155,7 +155,7 @@
         "EmailAddressHome": null
       },
       "meta": {
-        "testJiraId": "DTOSS-10064",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e AMEND DTOSS-10064: 10.Verify email with Asterisk character is not written into cohort distribution table"
       }
@@ -167,7 +167,7 @@
         "EmailAddressHome": null
       },
       "meta": {
-        "testJiraId": "DTOSS-10064",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e AMEND DTOSS-10064: 11.Verify email with Grave Back tick ` character is not written into cohort distribution table"
       }
@@ -179,7 +179,7 @@
         "EmailAddressHome": null
       },
       "meta": {
-        "testJiraId": "DTOSS-10064",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e AMEND DTOSS-10064: 12.Verify email with Tilde symbol character is not written into cohort distribution table"
       }

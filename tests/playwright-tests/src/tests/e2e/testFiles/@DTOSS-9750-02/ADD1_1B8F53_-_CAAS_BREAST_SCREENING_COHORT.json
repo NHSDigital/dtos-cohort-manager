@@ -19,7 +19,7 @@
         "TelephoneNumberMob": "07888888888"
       },
       "meta": {
-        "testJiraId": "DTOSS-10060",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e  DTOSS-10060: 1.Verify that when characters are on the accepted list, No Transfromation"
       }
@@ -43,7 +43,7 @@
         "TelephoneNumberMob": "07888888888"
       },
       "meta": {
-        "testJiraId": "DTOSS-10061",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10061 2.Verify that when record contains characters not on accepted list, transformed is triggered"
       }
@@ -67,7 +67,7 @@
         "TelephoneNumberMob": "07888888888"
       },
       "meta": {
-        "testJiraId": "DTOSS-10062",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10062 3.Verify When a field contains more than one character not on the accepted list, they are transformed"
       }
@@ -78,7 +78,7 @@
         "NHSNumber": 9995160773
       },
       "meta": {
-        "testJiraId": "DTOSS-10063",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10063: 4.Verify when record contains characters in exceptions list, exception is raised \\E\\"
       }
@@ -89,7 +89,7 @@
         "NHSNumber": 9998767202
       },
       "meta": {
-        "testJiraId": "DTOSS-10063",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10063: 5.Verify when record contains characters in exceptions list, exception is raised \\T\\"
       }
@@ -100,7 +100,7 @@
         "NHSNumber": 9997610164
       },
       "meta": {
-        "testJiraId": "DTOSS-10063",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10063: 6.Verify when record contains characters in exceptions list, exception is raised \\T\\"
       }
@@ -111,7 +111,7 @@
         "NHSNumber": 9990679576
       },
       "meta": {
-        "testJiraId": "DTOSS-10063",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10063: 7.Verify when record contains characters in exceptions list, exception is raised \\E\\"
       }
@@ -122,7 +122,7 @@
         "NHSNumber": 9991345981
       },
       "meta": {
-        "testJiraId": "DTOSS-10064",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10064: 8.Verify when email with backslash character is not written to the database"
       }
@@ -133,7 +133,7 @@
         "NHSNumber": 9992112263
       },
       "meta": {
-        "testJiraId": "DTOSS-10064",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10064: 9.Verify email with pipe character is not written to the database"
       }
@@ -144,7 +144,7 @@
         "NHSNumber": 9991823824
       },
       "meta": {
-        "testJiraId": "DTOSS-10064",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10064: 10.Verify email with Asterisk character is not written to the database"
       }
@@ -155,7 +155,7 @@
         "NHSNumber": 9991602488
       },
       "meta": {
-        "testJiraId": "DTOSS-10064",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10064: 11.Verify email with Grave Back tick ` character is not written to the database"
       }
@@ -166,7 +166,7 @@
         "NHSNumber": 9997307194
       },
       "meta": {
-        "testJiraId": "DTOSS-10064",
+        "testJiraId": "@DTOSS-9750-02",
         "requirementJiraId": "@DTOSS-9750-01",
         "additionalTags": "@epic4c- @e2e DTOSS-10064: 12.Verify email with Tilde symbol character is not written to the database"
       }
