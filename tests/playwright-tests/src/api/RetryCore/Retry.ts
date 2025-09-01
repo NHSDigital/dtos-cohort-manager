@@ -27,11 +27,11 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
 }
 
 async function handleOKResponse(apiValidation: any, endpoint: string, response: any ) : Promise<boolean>{
+    expect(response.ok()).toBeTruthy();
     const responseBody = await response.json();
     expect(Array.isArray(responseBody)).toBeTruthy();
-
     const { matchingObject, nhsNumber, matchingObjects } = await findMatchingObject(endpoint, responseBody, apiValidation);
-
+    
     console.info(`Validating fields using 🅰️\t🅿️\tℹ️\t ${endpoint}`);
     console.info(`From Response ${JSON.stringify(matchingObject, null, 2)}`);
     return await validateFields(apiValidation, matchingObject, nhsNumber, matchingObjects);
