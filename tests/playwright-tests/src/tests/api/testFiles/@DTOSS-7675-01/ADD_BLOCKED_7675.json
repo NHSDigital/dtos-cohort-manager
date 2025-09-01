@@ -3,14 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9996554716,
-        "IsExtracted": 0
-      }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "expectedCount" : 10
+        "NHSNumber": 9990000026
       }
     }
   ],
@@ -57,15 +50,6 @@
     }
   ],
   "nhsNumbers": [
-    "9995518112",
-    "9995639327",
-    "9995767732",
-    "9995803437",
-    "9995929465",
-    "9995950278",
-    "9996059294",
-    "9996361918",
-    "9996420515",
-    "9996554716"
+    "9990000026"
   ]
 }
