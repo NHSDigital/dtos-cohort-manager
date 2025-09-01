@@ -17,7 +17,7 @@ annotation: [{
 test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
   TestHooks.setupAllTestHooks();
 
-  test('@DTOSS-7728 -01 - AC1 - Verify participant is deleted from CohortDistributionDataService', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
+  test('@DTOSS-7728-01 - AC1 - Verify participant is deleted from CohortDistributionDataService', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
     // Arrange: Get test data
     const [addValidations, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title, 'ADD_BLOCKED');
     const nhsNumber = nhsNumbers[0];
@@ -81,13 +81,26 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
         let getUrl = `${config.endpointParticipantManagementDataService}api/${config.participantManagementService}`;
         var response = await sendHttpGet(getUrl);
 
-        let jsonBody = JSON.parse(await response.json());
+         const responseFromExceptions = await getRecordsFromExceptionService(request);
+        
+        
+        let responseBodyJson = await response.json();
     
-        for(let i=1; i < json.length; i++ ) {
-            expect(jsonBody[i].BlockedFlag).toBe(0);
+        for(let i=0; i < json.length; i++ ) {
+          let currentBlockedFlag = responseBodyJson[i].BlockedFlag;
+          let currentNhsNumber = responseBodyJson[i].NHSNumber.toString();
+
+          if(currentNhsNumber === nhsNumber) {
+            expect(currentBlockedFlag).toBe(1);  
+            console.info(`record with NHS number: ${nhsNumber} was blocked flag ${currentBlockedFlag}`);
+          }
+          else {
+            console.info(`record with NHS number: ${nhsNumber} was blocked flag ${currentBlockedFlag}`);
+            expect(currentBlockedFlag).toBe(0);
+          }
+
         }
-        expect(jsonBody[0].BlockedFlag).toBe(1);
-        expect(jsonBody[0].NhsNumber).toBe(nhsNumber);  
+        expect(responseFromExceptions.data).toBe(null)
     });
 
   });
