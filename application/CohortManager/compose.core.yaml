@@ -32,7 +32,7 @@ services:
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - nemsmeshfolder_STORAGE=${AZURITE_CONNECTION_STRING}
-      - NemsMeshApiBaseUrl=http://mesh_sandbox/messageexchange
+      - NemsMeshApiBaseUrl=https://localhost:8700/messageexchange
       - NemsMeshMailBox=${NEMS_MESH_MAILBOX}
       - NemsMeshPassword=${NEMS_MESH_PASSWORD}
       - NemsMeshSharedKey=${NEMS_MESH_SHARED_KEY}
