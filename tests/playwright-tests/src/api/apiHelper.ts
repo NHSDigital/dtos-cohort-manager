@@ -51,17 +51,17 @@ export async function findMatchingObject(endpoint: string, responseBody: any[], 
   }
 
   matchingObjects = responseBody.filter((item: Record<string, any>) =>
-    item[nhsNumberKey] === nhsNumber ||
-    item.NhsNumber === nhsNumber ||
-    item.NHSNumber === nhsNumber
+    item[nhsNumberKey] == nhsNumber ||
+    item.NhsNumber  == nhsNumber ||
+    item.NHSNumber == nhsNumber
   );
 
   matchingObject = matchingObjects[matchingObjects.length - 1];
 
   if (endpoint.includes(config.exceptionManagementService) &&
     (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
-    let ruleIdToFind = apiValidation.validations.RuleId;
-    let ruleDescToFind = apiValidation.validations.RuleDescription;
+    const ruleIdToFind = apiValidation.validations.RuleId;
+    const ruleDescToFind = apiValidation.validations.RuleDescription;
 
     let betterMatches = matchingObjects.filter(record =>
       (ruleIdToFind === undefined || record.RuleId === ruleIdToFind) &&

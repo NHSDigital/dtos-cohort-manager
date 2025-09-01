@@ -80,7 +80,7 @@ async function pollAPI(endpoint: string, apiValidation: any, request: any): Prom
     let maxTimeBetweenRequests = config.maxTimeBetweenRequests;
 
     console.info(`now trying request for ${maxNumberOfRetries} retries`);
-       while (i < maxNumberOfRetries) {
+       while (i < Number(maxNumberOfRetries)) {
             try {
                 apiResponse =  await fetchApiResponse(endpoint, request);
                 if (apiResponse.status() == 200) {
@@ -93,7 +93,7 @@ async function pollAPI(endpoint: string, apiValidation: any, request: any): Prom
             }
             i++;
 
-            console.info(`http response  completed ${i}/${maxNumberOfRetries} of number of reties`);
+            console.info(`http response completed ${i}/${maxNumberOfRetries} of number of retries`);
             await new Promise(res => setTimeout(res, maxTimeBetweenRequests));
         }
 
@@ -112,7 +112,7 @@ export async function pollApiForOKResponse(httpRequest: () => Promise<ApiRespons
     let maxTimeBetweenRequests = config.maxTimeBetweenRequests;
 
     console.info(`now trying request for ${maxNumberOfRetries} retries`);
-    while (i < maxNumberOfRetries) {
+    while (i < Number(maxNumberOfRetries)) {
         try {
             apiResponse =  await httpRequest();
             if (apiResponse.status == 200) {
@@ -125,7 +125,7 @@ export async function pollApiForOKResponse(httpRequest: () => Promise<ApiRespons
         }
         i++;
 
-        console.info(`http response  completed ${i}/${maxNumberOfRetries} of number of reties`);
+        console.info(`http response completed ${i}/${maxNumberOfRetries} of number of retries`);
         await new Promise(res => setTimeout(res, maxTimeBetweenRequests));
     }
 
