@@ -17,6 +17,25 @@ export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers
   });
 }
 
+function getWireMockUrl(): string {
+  const wireMockUrl = process.env.WIREMOCK_URL;
+
+  if (!wireMockUrl)
+  {
+    throw new Error(`❌ Validation failed, missing environment variable for WIREMOCK_URL`);
+  }
+
+  return wireMockUrl;
+}
+
+export async function cleanupWireMock(request: APIRequestContext) {
+  const wireMockUrl = getWireMockUrl();
+
+  return test.step(`Cleanup WireMock`, async () => {
+    await request.delete(wireMockUrl);
+  });
+}
+
 export async function validateSqlDatabaseFromAPI(request: APIRequestContext, validations: any) {
   return test.step(`Validate database for assertions`, async () => {
     const { status, errorTrace } = await validateApiResponse(validations, request);
@@ -27,12 +46,7 @@ export async function validateSqlDatabaseFromAPI(request: APIRequestContext, val
 }
 
 export async function validateServiceNowRequestWithMockServer(request: APIRequestContext, validations: ServiceNowRequestValidations[]) {
-  var wireMockUrl = process.env.WIREMOCK_URL;
-
-  if (!wireMockUrl)
-  {
-    throw new Error(`❌ Validation failed, missing environment variable for WIREMOCK_URL`);
-  }
+  const wireMockUrl = getWireMockUrl();
 
   var response = await request.get(wireMockUrl);
   var body = await response.json() as WireMockResponse;

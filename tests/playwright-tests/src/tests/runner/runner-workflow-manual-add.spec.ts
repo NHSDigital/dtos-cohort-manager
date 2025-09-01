@@ -1,5 +1,5 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
-import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, sendParticipantViaSnowAPI, validateServiceNowRequestWithMockServer, validateSqlDatabaseFromAPI } from '../steps/steps';
+import { cleanupDatabaseFromAPI, cleanupWireMock, getConsolidatedAllTestData, processFileViaStorage, sendParticipantViaSnowAPI, validateServiceNowRequestWithMockServer, validateSqlDatabaseFromAPI } from '../steps/steps';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { receiveParticipantViaServiceNow, invalidServiceNowEndpoint } from '../../api/distributionService/bsSelectService';
@@ -37,6 +37,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
+  await cleanupWireMock(apiContext);
   await apiContext.dispose();
 });
 
