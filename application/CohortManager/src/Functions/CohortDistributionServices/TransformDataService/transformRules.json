@@ -11,24 +11,24 @@
           },
           {
             "Name": "WelshCurrentPosting",
-            "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\" || participant.CurrentPosting == \"CYM\""
+            "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\""
           }
         ],
-        "Expression": "(participant.RecordType == Actions.Amended) && (DMSInSMU || WelshCurrentPosting)",
+        "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting)",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
             "Context": {
               "transformFields": [
                 {
-                  "isExpression": true,
+                  "isExpression": false,
                   "field": "PrimaryCareProvider",
                   "value": null
                 },
                 {
                   "field": "ReasonForRemoval",
                   "value": "ORR",
-                  "isExpression": true
+                  "isExpression": false
                 },
                 {
                   "field": "ReasonForRemovalEffectiveFromDate",
