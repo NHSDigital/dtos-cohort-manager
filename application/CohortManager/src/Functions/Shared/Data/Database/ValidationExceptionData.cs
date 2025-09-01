@@ -122,25 +122,38 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public async Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory)
     {
-        var isSpecificReportCategory = exceptionCategory == ExceptionCategory.Confusion ||
-                                      exceptionCategory == ExceptionCategory.Superseded;
-
-        DateTime? startDate = null;
-        DateTime? endDate = null;
-        if (reportDate.HasValue)
+        if (exceptionCategory is not (ExceptionCategory.Confusion or ExceptionCategory.Superseded or ExceptionCategory.NBO))
         {
-            startDate = reportDate.Value.Date;
-            endDate = startDate.Value.AddDays(1);
+            return [];
         }
 
         var filteredExceptions = (await _validationExceptionDataServiceClient.GetByFilter(x =>
-            x.Category.HasValue &&
-            (x.Category.Value == (int)ExceptionCategory.Confusion || x.Category.Value == (int)ExceptionCategory.Superseded) &&
-            (!isSpecificReportCategory || x.Category.Value == (int)exceptionCategory) &&
-            (!startDate.HasValue || (x.DateCreated >= startDate.Value && x.DateCreated < endDate.Value))
-        ))?.AsEnumerable();
+            x.Category.HasValue && (x.Category.Value == (int)ExceptionCategory.Confusion || x.Category.Value == (int)ExceptionCategory.Superseded)))?.AsEnumerable();
 
-        return filteredExceptions?.Select(s => s.ToValidationException()).ToList();
+        if (exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded)
+        {
+            filteredExceptions = filteredExceptions?.Where(x => x.Category.HasValue && x.Category.Value == (int)exceptionCategory);
+        }
+
+        if (reportDate.HasValue)
+        {
+            var startDate = reportDate.Value.Date;
+            var endDate = startDate.AddDays(1);
+            filteredExceptions = filteredExceptions?.Where(x => x.DateCreated >= startDate && x.DateCreated < endDate);
+        }
+
+        if (filteredExceptions?.Any() != true)
+            return [];
+
+        var tasks = filteredExceptions.Select(async exception =>
+        {
+            var validationException = exception.ToValidationException();
+            var participantDemographic = long.TryParse(exception.NhsNumber, out long nhsNumber) ? await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber) : null;
+            return GetExceptionDetails(validationException, participantDemographic);
+        });
+
+        var results = await Task.WhenAll(tasks);
+        return results.Where(x => x != null).ToList()!;
     }
 
     private ServiceResponseModel CreateResponse(bool success, HttpStatusCode statusCode, string message)

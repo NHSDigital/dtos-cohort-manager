@@ -63,9 +63,19 @@ public class GetValidationExceptions
                 : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById));
             }
 
-            return isReport
-            ? await HandleReportRequest(req, reportDate, exceptionCategory, lastId)
-            : await HandleStandardRequestWithHeaders(req, exceptionStatus, sortOrder, exceptionCategory, lastId);
+            if (isReport)
+            {
+                if (reportDate.HasValue && reportDate.Value > DateTime.Now.Date)
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date cannot be in the future.");
+                }
+
+                var reportExceptions = await _validationData.GetReportExceptions(reportDate, exceptionCategory);
+                return CreatePaginatedResponse(req, reportExceptions, lastId);
+            }
+
+            var allExceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
+            return CreatePaginatedResponse(req, allExceptions, lastId);
         }
         catch (Exception ex)
         {
@@ -74,58 +84,28 @@ public class GetValidationExceptions
         }
     }
 
-    private async Task<HttpResponseData> HandleReportRequest(HttpRequestData req, DateTime? reportDate, ExceptionCategory exceptionCategory, int lastId)
-    {
-        if (reportDate.HasValue && reportDate.Value > DateTime.Now.Date)
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Report date cannot be in the future.");
-        }
-
-        var reportExceptions = await _validationData.GetReportExceptions(reportDate, exceptionCategory);
-        return CreatePaginatedResponse(req, reportExceptions, lastId);
-    }
 
     private HttpResponseData CreatePaginatedResponse(HttpRequestData req, List<ValidationException>? exceptions, int lastId)
     {
-        if (exceptions?.Count == 0 || exceptions == null)
+        if (exceptions == null || exceptions.Count == 0)
         {
             return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
         }
 
-        var result = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId, e => e.ExceptionId);
-        return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(result));
-    }
-
-    private async Task<HttpResponseData> HandleStandardRequestWithHeaders(HttpRequestData req, ExceptionStatus exceptionStatus, SortOrder sortOrder, ExceptionCategory exceptionCategory, int lastId)
-    {
-        var allExceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
-
-        if (allExceptions == null)
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-        }
-
-        var paginatedResult = _paginationService.GetPaginatedResult(allExceptions.AsQueryable(), lastId == 0 ? null : lastId, e => e.ExceptionId);
+        var paginatedResult = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId == 0 ? null : lastId, e => e.ExceptionId);
 
         if (!paginatedResult.Items.Any())
         {
             return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
         }
 
-        var headers = _paginationService.BuildPaginationHeaders(req, paginatedResult);
-        return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResult.Items), headers);
+        var headers = _paginationService.AddNavigationHeaders(req, paginatedResult);
+        return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResult), headers);
     }
 
     /// <summary>
     /// Updates the ServiceNowId for a specific validation exception.
     /// </summary>
-    /// <param name="req">The HTTP request data containing the exceptionId and ServiceNowId.</param>
-    /// <returns>
-    /// HTTP response with:
-    /// - 200 OK if the update is successful
-    /// - 400 Bad Request if required parameters are missing
-    /// - 500 Internal Server Error if an exception occurs
-    /// </returns>
     [Function(nameof(UpdateExceptionServiceNowId))]
     public async Task<HttpResponseData> UpdateExceptionServiceNowId([HttpTrigger(AuthorizationLevel.Anonymous, "put")] HttpRequestData req)
     {

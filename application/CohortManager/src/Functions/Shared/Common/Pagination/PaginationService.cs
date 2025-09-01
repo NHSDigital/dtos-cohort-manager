@@ -29,7 +29,7 @@ public class PaginationService<T> : IPaginationService<T>
         }
 
         var items = source.Take(pageSize).ToList();
-        int? lastResultId = items.Count > 0 ? idSelector(items[items.Count - 1]) : null;
+        int? lastResultId = items.Count > 0 ? idSelector(items[^1]) : null;
 
         return new PaginationResult<T>
         {
@@ -39,11 +39,14 @@ public class PaginationService<T> : IPaginationService<T>
             LastResultId = lastResultId,
             TotalItems = totalItems,
             TotalPages = totalPages,
-            CurrentPage = currentPage
+            CurrentPage = currentPage,
         };
     }
 
-    public Dictionary<string, string> BuildPaginationHeaders<TEntity>(HttpRequestData request, PaginationResult<TEntity> paginationResult)
+    /// <summary>
+    /// Adds pagination navigation headers to the response.
+    /// </summary>
+    public Dictionary<string, string> AddNavigationHeaders<TEntity>(HttpRequestData request, PaginationResult<TEntity> paginationResult)
     {
         var headers = new Dictionary<string, string>
         {
