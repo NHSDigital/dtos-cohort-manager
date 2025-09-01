@@ -66,7 +66,7 @@ public class GetValidationExceptions
             var isReportCategory = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
 
             return isReport
-            ? await HandleReportRequest(req, reportDate, exceptionCategory, isReportCategory, lastId)
+            ? await HandleReportRequest(req, reportDate, exceptionCategory, lastId)
             : await HandleStandardRequestWithHeaders(req, exceptionStatus, sortOrder, exceptionCategory, lastId);
         }
         catch (Exception ex)
@@ -76,7 +76,7 @@ public class GetValidationExceptions
         }
     }
 
-    private async Task<HttpResponseData> HandleReportRequest(HttpRequestData req, DateTime? reportDate, ExceptionCategory exceptionCategory, bool hasSpecificCategory, int lastId)
+    private async Task<HttpResponseData> HandleReportRequest(HttpRequestData req, DateTime? reportDate, ExceptionCategory exceptionCategory, int lastId)
     {
         if (reportDate.HasValue && reportDate.Value > DateTime.Now.Date)
         {
