@@ -3,7 +3,6 @@ import { cleanupDatabaseFromAPI, cleanupWireMock, getConsolidatedAllTestData, pr
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { receiveParticipantViaServiceNow, invalidServiceNowEndpoint } from '../../api/distributionService/bsSelectService';
-
 import { runnerBasedEpic4cTestScenariosManualAdd } from '../e2e/epic4c-add-participant-tests/epic4c-testsuite-migrated';
 import { ParticipantRecord } from '../../interface/InputData';
 

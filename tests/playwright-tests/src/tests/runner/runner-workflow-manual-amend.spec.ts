@@ -1,5 +1,5 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
-import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, sendParticipantViaSnowAPI, validateSqlDatabaseFromAPI } from '../steps/steps';
+import { cleanupDatabaseFromAPI, cleanupWireMock, getConsolidatedAllTestData, processFileViaStorage, sendParticipantViaSnowAPI, validateServiceNowRequestWithMockServer, validateSqlDatabaseFromAPI } from '../steps/steps';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../json/json-updater';
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { runnerBasedEpic4cTestScenariosManualAmend } from '../e2e/epic4c-add-participant-tests/epic4c-testsuite-migrated';
@@ -46,6 +46,7 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
+  await cleanupWireMock(apiContext);
   await apiContext.dispose();
 });
 
@@ -59,5 +60,18 @@ amendData.validations.forEach((validations) => {
     ],
   }, async ({ request }) => {
     await validateSqlDatabaseFromAPI(request, [validations]);
+  });
+});
+
+console.log('Number of ServiceNow request validations:', amendData.serviceNowRequestValidations?.length)
+
+amendData.serviceNowRequestValidations.forEach((validations) => {
+  test(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
+    annotation: [
+      { type: 'TestId', description: validations.meta?.testJiraId ?? '' },
+      { type: 'RequirementId', description: validations.meta?.requirementJiraId ?? '' }
+    ],
+  }, async ({ request }) => {
+    await validateServiceNowRequestWithMockServer(request, [validations]);
   });
 });
