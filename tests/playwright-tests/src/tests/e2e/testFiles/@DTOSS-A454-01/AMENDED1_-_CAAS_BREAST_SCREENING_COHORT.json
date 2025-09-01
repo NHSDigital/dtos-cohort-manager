@@ -10,7 +10,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10454-01",
         "requirementJiraId": "@DTOSS-9935",
-        "additionalTags": "@regression @e2e Validate exception raised for participant CurrentPosting is CYM and PrimaryCareProvider is on excluded list with nhs number 9997111834"
+        "additionalTags": "@regression @e2e @epic4d-rule8 Validate exception raised for participant CurrentPosting is CYM and PrimaryCareProvider is not on excluded list with nhs number 9997111834"
       }
     }
   ],

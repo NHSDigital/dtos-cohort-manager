@@ -12,9 +12,13 @@
           {
             "Name": "WelshCurrentPosting",
             "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\""
+          },
+          {
+            "Name": "NoTransformationRequired",
+            "Expression": "participant.PrimaryCareProvider == null && participant.ReasonForRemoval == \"ORR\""
           }
         ],
-        "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting)",
+        "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting) && !NoTransformationRequired",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -34,6 +38,30 @@
                   "field": "ReasonForRemovalEffectiveFromDate",
                   "value": "DateTime.Today.ToString(\"yyyyMMdd\")",
                   "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "8a.Transform.NoTransformButError",
+        "LocalParams": [
+          {
+            "Name": "participant.RecordType == Actions.Amended && NoTransformationRequired",
+            "Expression": "participant.PrimaryCareProvider == null && participant.ReasonForRemoval == \"ORR\""
+          }
+        ],
+        "Expression": "NoTransformationRequired",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "PrimaryCareProvider",
+                  "value": null
                 }
               ]
             }

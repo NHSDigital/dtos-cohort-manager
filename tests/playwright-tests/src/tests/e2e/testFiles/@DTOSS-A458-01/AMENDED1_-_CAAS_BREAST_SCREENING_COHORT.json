@@ -2,15 +2,15 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997111834",
-        "RuleId": 0,
-        "RuleDescription": "Participant was transformed as transform rule: UpdatedRecordExcludedAndDMS was executed"
+    
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9998136431,
+        "expectedCount": 0
       },
       "meta": {
-        "testJiraId": "@DTOSS-10458-01",
-        "requirementJiraId": "@DTOSS-9935",
-        "additionalTags": "@regression @e2e Validate exception raised for participant CurrentPosting is DMS and PrimaryCareProvider is on excluded list with nhs number 9997111834"
+        "testJiraId": "@DTOSS-10452-01",
+        "requirementJiraId": "DTOSS-9935",
+        "additionalTags": "@regression @e2e @epic4d-rule8 Verify participant is not stored on Cohort_Distribution table for NHS Number 9998136431"
       }
     }
   ],
@@ -21,7 +21,7 @@
       "serial_change_number": 1,
       "nhs_number": 9997111834,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": null,
+      "primary_care_provider": "A91151",
       "primary_care_effective_from_date": "20130319",
       "current_posting": "CYM",
       "current_posting_effective_from_date": "20130319",

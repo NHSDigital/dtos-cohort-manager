@@ -9,7 +9,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10455-01",
         "requirementJiraId": "DTOSS-9935",
-        "additionalTags": "@regression @e2e Verify ADD records is processed without any Exception and participant is stored on Cohort_Distribution table for NHS Number 9998136431"
+        "additionalTags": "@regression @e2e @epic4d-rule8 Verify ADD records is processed without any Exception and participant is stored on Cohort_Distribution table for NHS Number 9998136431"
       }
     },
     {
@@ -22,7 +22,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10455-01",
         "requirementJiraId": "DTOSS-9935",
-        "additionalTags": "@regression @e2e Verify ADD records is processed without any Exception and participant is stored on Participant_Management table for NHS Number 9998136431"
+        "additionalTags": "@regression @e2e @epic4d-rule8 Verify ADD records is processed without any Exception and participant is stored on Participant_Management table for NHS Number 9998136431"
       }
     },
     {
@@ -34,7 +34,7 @@
       "meta": {
         "testJiraId": "@DTOSS-10455-01",
         "requirementJiraId": "DTOSS-9935",
-        "additionalTags": "@regression @e2e@ epic4d-validation-tests Verify ADD records is processed without any Exception and participant is stored on Participant_Demographic table for NHS Number 9998136431"
+        "additionalTags": "@regression @e2e @epic4d-rule8 Verify ADD records is processed without any Exception and participant is stored on Participant_Demographic table for NHS Number 9998136431"
       }
     }
   ],
@@ -45,9 +45,9 @@
       "serial_change_number": 1,
       "nhs_number": 9998136431,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": null,
+      "primary_care_provider": "A81001",
       "primary_care_effective_from_date": null,
-      "current_posting": null,
+      "current_posting": "ENG",
       "current_posting_effective_from_date": "20130319",
       "name_prefix": "Mrs",
       "given_name": "Dalby",
