@@ -7,28 +7,14 @@ const NHS_NUMBER_KEY = config.nhsNumberKey;
 const NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC = config.nhsNumberKeyExceptionDemographic;
 
 export async function validateApiResponse(validationJson: any, request: any): Promise<{ status: boolean; errorTrace?: any }> {
-    let status = false;
     let endpoint = "";
     let errorTrace: any = undefined;
-  
+    let status = false;
     try {
         for (const apiValidation of validationJson) {
             endpoint = apiValidation.validations.apiEndpoint;
-            var response = await pollAPI(endpoint, apiValidation, request);
-                console.info(response);
-                switch(response.status()) {
-                    case 204:
-                        console.info("now handling no content response");
-                        const expectedCount = apiValidation.validations.expectedCount;
-                        status = await HandleNoContentResponse(expectedCount, apiValidation, endpoint);
-                        break;
-                    case 200: 
-                        console.info("now handling OK response");
-                        status = await handleOKResponse(apiValidation, endpoint, response);
-                    default: 
-                        console.error("there was an error when handling response from ");
-                        break;
-                }
+            var res = await pollAPI(endpoint, apiValidation, request);
+            return res;
             
         }
     } 
@@ -37,7 +23,7 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
         errorTrace = errorMsg;
         console.error(errorMsg);
     }
-    return { status, errorTrace };
+    return {status, errorTrace };
 }
 
 async function handleOKResponse(apiValidation: any, endpoint: string, response: any ) : Promise<boolean>{
@@ -66,42 +52,52 @@ async function HandleNoContentResponse(expectedCount: number, apiValidation: any
         console.info(`From Response: null (204 No Content - 0 records as expected)`);
         return await validateFields(apiValidation, null, nhsNumber, []);
     } else {
-        // 204 is unexpected, throw error to trigger retry
-        throw new Error(`Status 204: No data found in the table using endpoint ${endpoint}`);
+        // 204 is unexpected, log error and return false to trigger retry
+        console.warn(`Status 204: No data found in the table using endpoint ${endpoint}`);
+        return false;
     }
 }
 
 
-async function pollAPI(endpoint: string, apiValidation: any, request: any): Promise<APIResponse> {
+async function pollAPI(endpoint: string, apiValidation: any, request: any): Promise<{  apiResponse: APIResponse, status: boolean}> {
     let apiResponse: APIResponse | null = null;
     let i = 0;
 
     let maxNumberOfRetries = config.maxNumberOfRetries;
     let maxTimeBetweenRequests = config.maxTimeBetweenRequests;
-
+    let status = false;
     console.info(`now trying request for ${maxNumberOfRetries} retries`);
        while (i < Number(maxNumberOfRetries)) {
-            try {
-                apiResponse =  await fetchApiResponse(endpoint, request);
-                if (apiResponse.status() == 200) {
-                    console.info("200 response found") 
-                    break;
+              apiResponse =  await fetchApiResponse(endpoint, request);
+               switch(apiResponse.status()) {
+                    case 204:
+                        console.info("now handling no content response");
+                        const expectedCount = apiValidation.validations.expectedCount;
+                        status = await HandleNoContentResponse(expectedCount, apiValidation, endpoint);
+                        break;
+                    case 200: 
+                        console.info("now handling OK response");
+                        status = await handleOKResponse(apiValidation, endpoint, apiResponse);
+                        break;
+                    default: 
+                        console.error("there was an error when handling response from ");
+                        break;
                 }
-            }
-            catch(exception) {
-                console.error("Error reading request body:", exception);
+            if(status) {
+                break;
             }
             i++;
 
             console.info(`http response completed ${i}/${maxNumberOfRetries} of number of retries`);
             await new Promise(res => setTimeout(res, maxTimeBetweenRequests));
-        }
+       }
+       
 
     if (!apiResponse) {
         throw new Error("apiResponse was never assigned");
     }
 
-    return apiResponse;
+    return {apiResponse, status};
 }
 
 
