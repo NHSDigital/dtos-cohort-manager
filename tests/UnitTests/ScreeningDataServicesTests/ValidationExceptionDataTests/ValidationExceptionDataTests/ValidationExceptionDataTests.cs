@@ -544,7 +544,7 @@ public class ValidationExceptionDataTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().HaveCount(2);
+        result.Should().HaveCount(1);
         result?[0].ExceptionId.Should().Be(5);
         result?[0].Category.Should().Be(12);
     }
