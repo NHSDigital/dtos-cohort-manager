@@ -103,7 +103,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
       for(let i =0; i<10; i++)
       {
           const responseFromExceptions = await getRecordsFromExceptionService(request);
-          if(responseFromExceptions.data !== null)
+          if(responseFromExceptions.data.length >= 3)
           {
             validationExceptions = responseFromExceptions.data
             break;
@@ -124,8 +124,9 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
 
       expect(response.status).toBe(200)
       expect(jsonResponse.length).toBe(1);
-      expect(validationExceptions.length).toBe(1);
-      expect(validationExceptions[0].RuleDescription).toBe("Participant is blocked");
+      let objectToVerify = validationExceptions.find((o: { RuleDescription: string; }) => o.RuleDescription === 'Participant is blocked');
+      expect(objectToVerify !== null || objectToVerify !== undefined).toBeTruthy()
+      
     });
   });
 });

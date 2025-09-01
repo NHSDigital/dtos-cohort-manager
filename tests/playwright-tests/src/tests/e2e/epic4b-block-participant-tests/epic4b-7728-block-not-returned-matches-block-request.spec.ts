@@ -7,6 +7,7 @@ import { APIRequestContext, TestInfo } from '@playwright/test';
 import { config } from '../../../config/env';
 import { getRecordsFromExceptionService } from '../../../api/dataService/exceptionService';
 import { sendHttpGet, sendHttpPOSTCall } from '../../../api/core/sendHTTPRequest';
+import { json } from 'stream/consumers';
 
 annotation: [{
   type: 'Requirement',
@@ -16,7 +17,7 @@ annotation: [{
 test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
   TestHooks.setupAllTestHooks();
 
-  test('@DTOSS-7675-01 - AC1 - Verify participant is deleted from CohortDistributionDataService', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
+  test('@DTOSS-7728-01 - AC1 - Verify participant is deleted from CohortDistributionDataService', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
     // Arrange: Get test data
     const [addValidations, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title, 'ADD_BLOCKED');
     const nhsNumber = nhsNumbers[0];
@@ -76,18 +77,31 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     });
 
 
-     await test.step(`Verify that the participant is being able to mark the record as blocked from breast screening`, async () => {
-      let blocked = false;
-      for(let i =0; i<10; i++) {
-          const resp = await getRecordsFromParticipantManagementService(request);
-          if (resp?.data?.[0]?.BlockedFlag === 1) {
-            blocked = true;
-            break;
+     await test.step(`verify that the person blocked was the correct NHS id and no other Ids`, async () => {
+        let getUrl = `${config.endpointParticipantManagementDataService}api/${config.participantManagementService}`;
+        var response = await sendHttpGet(getUrl);
+
+         const responseFromExceptions = await getRecordsFromExceptionService(request);
+        
+        
+        let responseBodyJson = await response.json();
+    
+        for(let i=0; i < json.length; i++ ) {
+          let currentBlockedFlag = responseBodyJson[i].BlockedFlag;
+          let currentNhsNumber = responseBodyJson[i].NHSNumber.toString();
+
+          if(currentNhsNumber === nhsNumber) {
+            expect(currentBlockedFlag).toBe(1);  
+            console.info(`record with NHS number: ${nhsNumber} was blocked flag ${currentBlockedFlag}`);
           }
-          console.log(`Waiting for participant to be blocked...(${i}/10)`);
-          await new Promise(res => setTimeout(res, 2000));
+          else {
+            console.info(`record with NHS number: ${nhsNumber} was blocked flag ${currentBlockedFlag}`);
+            expect(currentBlockedFlag).toBe(0);
+          }
+
         }
-        expect(blocked).toBe(true);
+        expect(responseFromExceptions.data).toBe(null)
     });
+
   });
 });
