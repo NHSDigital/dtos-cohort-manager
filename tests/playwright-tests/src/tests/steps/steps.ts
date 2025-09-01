@@ -18,11 +18,11 @@ export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers
 }
 
 function getWireMockUrl(): string {
-  const wireMockUrl = process.env.WIREMOCK_URL;
+  const wireMockUrl = config.wireMockUrl;
 
-  if (!wireMockUrl)
+  if (wireMockUrl.length === 0)
   {
-    throw new Error(`❌ Validation failed, missing environment variable for WIREMOCK_URL`);
+    throw new Error(`❌ WIREMOCK_URL environment variable is empty`);
   }
 
   return wireMockUrl;
