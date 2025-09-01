@@ -4,13 +4,13 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997111834",
-        "RuleId": 0,
+        "RuleId": 8,
         "RuleDescription": "Participant was transformed as transform rule: UpdatedRecordExcludedAndDMS was executed"
       },
       "meta": {
-        "testJiraId": "@DTOSS-9720-01",
-        "requirementJiraId": "@DTOSS-8983",
-        "additionalTags": "@regression @e2e @epic4d-validation-tests Validate exception raised for participant CurrentPosting is DMS and PrimaryCareProvider is on excluded list with nhs number 9997111834"
+        "testJiraId": "@DTOSS-10456-01",
+        "requirementJiraId": "@DTOSS-9935",
+        "additionalTags": "@regression @e2e Validate exception raised for participant CurrentPosting is CYM and PrimaryCareProvider is on excluded list with nhs number 9997111834"
       }
     }
   ],
@@ -21,8 +21,8 @@
       "serial_change_number": 1,
       "nhs_number": 9997111834,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": "A91203",
-      "primary_care_effective_from_date": "20130319",
+      "primary_care_provider": null,
+      "primary_care_effective_from_date": null,
       "current_posting": "CYM",
       "current_posting_effective_from_date": "20130319",
       "name_prefix": "A.ML",

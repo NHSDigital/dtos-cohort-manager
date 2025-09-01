@@ -2,15 +2,39 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9997111834",
-        "RuleId": 0,
-        "RuleDescription": "Participant was transformed as transform rule: UpdatedRecordExcludedAndDMS was executed"
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9998136431,
+        "expectedCount": 1
       },
       "meta": {
-        "testJiraId": "@DTOSS-9720-01",
-        "requirementJiraId": "@DTOSS-8983",
-        "additionalTags": "@regression @e2e @epic4d-validation-tests Validate exception raised for participant CurrentPosting is DMS and PrimaryCareProvider is on excluded list with nhs number 9997111834"
+        "testJiraId": "@DTOSS-10455-01",
+        "requirementJiraId": "DTOSS-9935",
+        "additionalTags": "@regression @e2e Verify ADD records is processed without any Exception and participant is stored on Cohort_Distribution table for NHS Number 9998136431"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "ADD",
+        "NHSNumber": 9998136431,
+        "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10455-01",
+        "requirementJiraId": "DTOSS-9935",
+        "additionalTags": "@regression @e2e Verify ADD records is processed without any Exception and participant is stored on Participant_Management table for NHS Number 9998136431"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9998136431,
+        "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10455-01",
+        "requirementJiraId": "DTOSS-9935",
+        "additionalTags": "@regression @e2e@ epic4d-validation-tests Verify ADD records is processed without any Exception and participant is stored on Participant_Demographic table for NHS Number 9998136431"
       }
     }
   ],
@@ -23,7 +47,7 @@
       "superseded_by_nhs_number": null,
       "primary_care_provider": "A91203",
       "primary_care_effective_from_date": "20130319",
-      "current_posting": "DMS",
+      "current_posting": "ENG",
       "current_posting_effective_from_date": "20130319",
       "name_prefix": "A.ML",
       "given_name": "NewTest1",

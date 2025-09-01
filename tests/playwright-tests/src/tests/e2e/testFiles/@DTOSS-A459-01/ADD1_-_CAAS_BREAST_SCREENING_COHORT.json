@@ -7,9 +7,9 @@
         "expectedCount": 1
       },
       "meta": {
-        "testJiraId": "@DTOSS-10542-01",
+        "testJiraId": "@DTOSS-10459-01",
         "requirementJiraId": "DTOSS-9935",
-        "additionalTags": "@regression @e2e @epic4d-validation-tests Verify ADD records is processed without any Exception and participant is stored on Cohort_Distribution table for NHS Number 9998136431"
+        "additionalTags": "@regression @e2e Verify ADD records is processed without any Exception and participant is stored on Cohort_Distribution table for NHS Number 9998136431"
       }
     },
     {
@@ -20,9 +20,9 @@
         "expectedCount": 1
       },
       "meta": {
-        "testJiraId": "@DTOSS-10542-01",
+        "testJiraId": "@DTOSS-10459-01",
         "requirementJiraId": "DTOSS-9935",
-        "additionalTags": "@regression @e2e @epic4d-validation-tests Verify ADD records is processed without any Exception and participant is stored on Participant_Management table for NHS Number 9998136431"
+        "additionalTags": "@regression @e2e Verify ADD records is processed without any Exception and participant is stored on Participant_Management table for NHS Number 9998136431"
       }
     },
     {
@@ -32,9 +32,9 @@
         "expectedCount": 1
       },
       "meta": {
-        "testJiraId": "@DTOSS-10542-01",
+        "testJiraId": "@DTOSS-10459-01",
         "requirementJiraId": "DTOSS-9935",
-        "additionalTags": "@regression @e2e@ epic4d-validation-tests Verify ADD records is processed without any Exception and participant is stored on Participant_Demographic table for NHS Number 9998136431"
+        "additionalTags": "@regression @e2e Verify ADD records is processed without any Exception and participant is stored on Participant_Demographic table for NHS Number 9998136431"
       }
     }
   ],
