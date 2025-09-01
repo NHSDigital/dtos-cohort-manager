@@ -122,22 +122,23 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public async Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory)
     {
-        var isSpecificReportCategory = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
+        var isSpecificReportCategory = exceptionCategory == ExceptionCategory.Confusion ||
+                                      exceptionCategory == ExceptionCategory.Superseded;
 
-        var filteredExceptions = (await _validationExceptionDataServiceClient.GetByFilter(x =>
-            x.Category.HasValue && (x.Category.Value == (int)ExceptionCategory.Confusion || x.Category.Value == (int)ExceptionCategory.Superseded)))?.AsEnumerable();
-
-        if (isSpecificReportCategory)
-        {
-            filteredExceptions = filteredExceptions?.Where(x => x.Category.HasValue && x.Category.Value == (int)exceptionCategory);
-        }
-
+        DateTime? startDate = null;
+        DateTime? endDate = null;
         if (reportDate.HasValue)
         {
-            var startDate = reportDate.Value.Date;
-            var endDate = startDate.AddDays(1);
-            filteredExceptions = filteredExceptions?.Where(x => x.DateCreated >= startDate && x.DateCreated < endDate);
+            startDate = reportDate.Value.Date;
+            endDate = startDate.Value.AddDays(1);
         }
+
+        var filteredExceptions = (await _validationExceptionDataServiceClient.GetByFilter(x =>
+            x.Category.HasValue &&
+            (x.Category.Value == (int)ExceptionCategory.Confusion || x.Category.Value == (int)ExceptionCategory.Superseded) &&
+            (!isSpecificReportCategory || x.Category.Value == (int)exceptionCategory) &&
+            (!startDate.HasValue || (x.DateCreated >= startDate.Value && x.DateCreated < endDate.Value))
+        ))?.AsEnumerable();
 
         return filteredExceptions?.Select(s => s.ToValidationException()).ToList();
     }

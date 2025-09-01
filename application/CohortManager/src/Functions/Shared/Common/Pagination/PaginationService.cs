@@ -101,8 +101,15 @@ public class PaginationService<T> : IPaginationService<T>
     private static Func<T, int> GetDefaultIdSelector()
     {
         var idProperty = (typeof(T).GetProperty("Id") ??
-            typeof(T).GetProperty($"{typeof(T).Name}Id")) ?? throw new InvalidOperationException(
+            typeof(T).GetProperty($"{typeof(T).Name}Id")) ??
+            throw new InvalidOperationException(
                 "Could not find a default ID property. Provide a custom ID selector.");
-        return x => (int)(idProperty.GetValue(x) ?? 0);
+
+        return x =>
+        {
+            var value = idProperty.GetValue(x) ?? throw new InvalidOperationException(
+                    $"Entity of type {typeof(T).Name} has a null ID property ('{idProperty.Name}').");
+            return (int)value;
+        };
     }
 }
