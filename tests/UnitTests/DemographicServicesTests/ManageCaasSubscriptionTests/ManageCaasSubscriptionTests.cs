@@ -35,7 +35,9 @@ public class ManageCaasSubscriptionTests
         {
             ManageNemsSubscriptionDataServiceURL = null, // keep stub mode during unit tests
             CaasToMailbox = "TEST_TO",
-            CaasFromMailbox = "TEST_FROM"
+            CaasFromMailbox = "TEST_FROM",
+            MeshApiBaseUrl = "http://localhost",
+            MeshCaasSharedKey = "dummy"
         });
 
         _mesh
@@ -51,6 +53,11 @@ public class ManageCaasSubscriptionTests
         _requestHandler
             .Setup(r => r.HandleRequest(It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .ReturnsAsync((HttpRequestData r, string k) => _createResponse.CreateHttpResponse(HttpStatusCode.OK, r, "OK"));
+
+        // Default: DB insert succeeds for subscribe happy path
+        _nemsAccessor
+            .Setup(a => a.InsertSingle(It.IsAny<NemsSubscription>()))
+            .ReturnsAsync(true);
 
         _sut = new ManageCaasSubscription(
             _logger.Object,
@@ -229,7 +236,9 @@ public class ManageCaasSubscriptionTests
         _config.Setup(x => x.Value).Returns(new ManageCaasSubscriptionConfig
         {
             CaasFromMailbox = "TEST_FROM",
-            CaasToMailbox = "TEST_TO"
+            CaasToMailbox = "TEST_TO",
+            MeshApiBaseUrl = "http://localhost",
+            MeshCaasSharedKey = "dummy"
         });
 
         var sut = new ManageCaasSubscription(
@@ -249,7 +258,11 @@ public class ManageCaasSubscriptionTests
     [TestMethod]
     public void Config_MissingMailboxes_FailsValidation()
     {
-        var cfg = new ManageCaasSubscriptionConfig();
+        var cfg = new ManageCaasSubscriptionConfig
+        {
+            MeshApiBaseUrl = "http://localhost",
+            MeshCaasSharedKey = "dummy"
+        };
         var context = new ValidationContext(cfg);
         var results = new System.Collections.Generic.List<ValidationResult>();
         var isValid = Validator.TryValidateObject(cfg, context, results, validateAllProperties: true);
