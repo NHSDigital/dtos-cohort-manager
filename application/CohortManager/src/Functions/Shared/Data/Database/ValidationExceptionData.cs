@@ -210,7 +210,7 @@ public class ValidationExceptionData : IValidationExceptionData
     {
 
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber && x.ScreeningName == screeningName);
-        return exceptions != null ? exceptions.ToList() : null;
+        return exceptions?.ToList();
 
     }
 
