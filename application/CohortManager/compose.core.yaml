@@ -13,7 +13,7 @@ services:
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
-      - MeshApiBaseUrl=https://localhost:8700/messageexchange
+      - MeshApiBaseUrl=http://mesh_sandbox/messageexchange
       - BSSMailBox=X26ABC1
       - MeshPassword=${MESHPASSWORD}
       - MeshSharedKey=${MESHSHAREDKEY}
@@ -32,7 +32,7 @@ services:
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - nemsmeshfolder_STORAGE=${AZURITE_CONNECTION_STRING}
-      - NemsMeshApiBaseUrl=https://localhost:8700/messageexchange
+      - NemsMeshApiBaseUrl=http://mesh_sandbox/messageexchange
       - NemsMeshMailBox=${NEMS_MESH_MAILBOX}
       - NemsMeshPassword=${NEMS_MESH_PASSWORD}
       - NemsMeshSharedKey=${NEMS_MESH_SHARED_KEY}
@@ -309,9 +309,19 @@ services:
       environment:
         - ASPNETCORE_URLS=http://*:9084
         - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+        - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
         - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
         - ManageNemsSubscriptionDataServiceURL=http://manage-nems-subscription:9081/api/NemsSubscriptionDataService
         - ManageNemsSubscriptionBaseURL=http://manage-nems-subscription:9081
+        # MESH configuration (required for startup)
+        - MeshApiBaseUrl=http://mesh_sandbox/messageexchange
+        - MeshCaasPassword=password
+        - MeshCaasSharedKey=TestKey
+        # Optional: provide key file if available; empty keeps it disabled locally
+        - MeshCaasKeyName=
+        - MeshCaasKeyPassword=
+        # Set to true to avoid real MESH calls during local dev
+        - IsStubbed=false
         - CaasToMailbox=${CAAS_SUBSCRIBE_TO_MAILBOX:-CAAS_TO}
         - CaasFromMailbox=${CAAS_SUBSCRIBE_FROM_MAILBOX:-CAAS_FROM}
         - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
