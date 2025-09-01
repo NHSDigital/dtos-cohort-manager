@@ -48,7 +48,7 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
     {
         var columns = new Column[]
         {
-            new Column<long>("NhsNumber"),
+            new Column<long>("nhs_number"),
         };
         long[] nhsNumberList = { nhsNumber };
 
