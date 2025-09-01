@@ -4,7 +4,7 @@ import { createParquetFromJson } from '../../../parquet/parquet-multiplier';
 import { config } from "../../../config/env";
 import { composeValidators, expectStatus, validateResponseByStatus } from '../../../api/responseValidators';
 import { getRecordsFromExceptionService } from '../../../api/dataService/exceptionService';
-import { getRecordsFromBsSelectRetrieveCohort } from '../../../api/distributionService/bsSelectService';
+import { getRecordsFromCohortDistributionService } from '../../../api/dataService/cohortDistributionService';
 
 test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async () => {
     test('@DTOSS-A355-01 @TC1_SIT Verify that record with an ENG current posting and an invalid GP Practice code triggers rule 45', {
@@ -144,7 +144,7 @@ test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async ()
         await test.step(`And participants received from api should be 1 with status code of 200`, async () => {
             const ExpectedRowCount = 1;
         
-            const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 1 });
+            const response = await getRecordsFromCohortDistributionService(request);
         
             const genericValidations = composeValidators(
                 expectStatus(200),
@@ -181,14 +181,12 @@ test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async ()
             const response = await getRecordsFromExceptionService(request);
         
             const genericValidations = composeValidators(
-                expectStatus(200),
+                expectStatus(204),
                 validateResponseByStatus()
             );
             await genericValidations(response);
             //Extend custom assertions
-            expect(Array.isArray(response.data)).toBeTruthy();
-            const rule45Found = response.data.includes('Rule 45.');
-            expect(rule45Found).toBe(false);
+            expect(Array.isArray(response.data)).toBeFalsy();
         }); 
     });
 
@@ -215,7 +213,7 @@ test.describe.serial(' @e2e @epic4d-validation-tests validate rule 45', async ()
         await test.step(`And participants received from api should be 1 with status code of 200`, async () => {
             const ExpectedRowCount = 1;
         
-            const response = await getRecordsFromBsSelectRetrieveCohort(request, { rowCount: 1 });
+            const response = await getRecordsFromCohortDistributionService(request);
         
             const genericValidations = composeValidators(
                 expectStatus(200),
