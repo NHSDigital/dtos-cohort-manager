@@ -5,17 +5,13 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model;
-using Model.Enums;
 using Moq;
 using NHS.CohortManager.ScreeningValidationService;
-using RulesEngine.Models;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Abstractions;
 using NHS.CohortManager.Tests.TestUtils;
 
@@ -271,9 +267,10 @@ public class LookupValidationTests
     #endregion
 
     [TestMethod]
-    [DataRow("DMS", "ABC")]
-    [DataRow("ENG", "ABC")]
-    [DataRow("IM", "ABC")]
+    [DataRow("DMS", "Z00000")]
+    [DataRow("ENG", "Z00000")] 
+    [DataRow("IM", "Z00000")]
+
     public async Task Run_ParticipantLocationRemainingOutsideOfCohortAndNotInExcludedSMU_ReturnValidationException(string newCurrentPosting, string newPrimaryCareProvider)
     {
         // Arrange
@@ -283,7 +280,8 @@ public class LookupValidationTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(newCurrentPosting)).Returns(newCurrentPosting);
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(newCurrentPosting)).Returns(true);
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(false);
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(newPrimaryCareProvider)).Returns(false);
 
