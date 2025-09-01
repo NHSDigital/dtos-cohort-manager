@@ -63,8 +63,6 @@ public class GetValidationExceptions
                 : _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(exceptionById));
             }
 
-            var isReportCategory = exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded;
-
             return isReport
             ? await HandleReportRequest(req, reportDate, exceptionCategory, lastId)
             : await HandleStandardRequestWithHeaders(req, exceptionStatus, sortOrder, exceptionCategory, lastId);
