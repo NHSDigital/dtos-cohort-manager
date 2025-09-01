@@ -13,7 +13,7 @@ services:
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
-      - MeshApiBaseUrl=http://mesh_sandbox/messageexchange
+      - MeshApiBaseUrl=https://localhost:8700/messageexchange
       - BSSMailBox=X26ABC1
       - MeshPassword=${MESHPASSWORD}
       - MeshSharedKey=${MESHSHAREDKEY}
@@ -313,7 +313,7 @@ services:
         - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
         - ManageNemsSubscriptionDataServiceURL=http://manage-nems-subscription:9081/api/NemsSubscriptionDataService
         - ManageNemsSubscriptionBaseURL=http://manage-nems-subscription:9081
-        - MeshApiBaseUrl=http://mesh_sandbox/messageexchange
+        - MeshApiBaseUrl=https://localhost:8700/messageexchange
         - MeshCaasPassword=password
         - MeshCaasSharedKey=TestKey
         - MeshCaasKeyName=
