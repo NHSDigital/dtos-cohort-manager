@@ -5,6 +5,7 @@ using System.Security.Cryptography;
 using System.IO;
 using System;
 using Common;
+using Microsoft.Extensions.Logging.Abstractions;
 
 [TestClass]
 public class MeshMailboxExtensionTests
@@ -28,7 +29,7 @@ public class MeshMailboxExtensionTests
         try
         {
             // Act
-            var certs = await MeshMailboxExtension.GetCACertificates(tempPath, null);
+            var certs = await MeshMailboxExtension.GetCACertificates(NullLogger.Instance, tempPath, null);
 
             // Assert
             Assert.IsNotNull(certs);
@@ -47,7 +48,7 @@ public class MeshMailboxExtensionTests
         // Arrange: no inputs
 
         // Act
-        var certs = await MeshMailboxExtension.GetCACertificates(null, null);
+        var certs = await MeshMailboxExtension.GetCACertificates(NullLogger.Instance, null, null);
 
         // Assert
         Assert.IsNull(certs);
