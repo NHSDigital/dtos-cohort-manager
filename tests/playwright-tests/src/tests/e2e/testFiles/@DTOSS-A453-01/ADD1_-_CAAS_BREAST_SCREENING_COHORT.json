@@ -1,0 +1,86 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9998136431,
+        "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10453-01",
+        "requirementJiraId": "DTOSS-9935",
+        "additionalTags": "@regression @e2e @epic4d-rule8 Verify ADD records is processed without any Exception and participant is stored on Cohort_Distribution table for NHS Number 9998136431"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "ADD",
+        "NHSNumber": 9998136431,
+        "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10453-01",
+        "requirementJiraId": "DTOSS-9935",
+        "additionalTags": "@regression @e2e @epic4d-rule8 Verify ADD records is processed without any Exception and participant is stored on Participant_Management table for NHS Number 9998136431"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9998136431,
+        "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10453-01",
+        "requirementJiraId": "DTOSS-9935",
+        "additionalTags": "@regression @e2e@ @epic4d-rule8 Verify ADD records is processed without any Exception and participant is stored on Participant_Demographic table for NHS Number 9998136431"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "ADD",
+      "change_time_stamp": null,
+      "serial_change_number": 1,
+      "nhs_number": 9998136431,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": null,
+      "primary_care_effective_from_date": null,
+      "current_posting": null,
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "Mrs",
+      "given_name": "Dalby",
+      "other_given_name": "Conners",
+      "family_name": "Reg",
+      "previous_family_name": "gibbins",
+      "date_of_birth": "19720112",
+      "gender": 1,
+      "address_line_1": "AddressLine1",
+      "address_line_2": "AddressLine2",
+      "address_line_3": "AddressLine3",
+      "address_line_4": "AddressLine4",
+      "address_line_5": "AddressLine5",
+      "postcode": "AB23 1AF",
+      "paf_key": "Z3S4Q5X8",
+      "address_effective_from_date": "20250101",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "161999999",
+      "home_telephone_effective_from_date": "20240908",
+      "mobile_telephone_number": "788888888",
+      "mobile_telephone_effective_from_date": "20010101",
+      "email_address": "abc123@soup.io",
+      "email_address_effective_from_date": "20240101",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9998136431"
+  ]
+}
