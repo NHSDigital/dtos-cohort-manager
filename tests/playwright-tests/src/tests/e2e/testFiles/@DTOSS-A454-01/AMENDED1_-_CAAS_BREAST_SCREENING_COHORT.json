@@ -5,7 +5,7 @@
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9998136431",
         "RuleId": 8,
-        "RuleDescription": "Participant was transformed as transform rule: UpdatedRecordExcludedAndDMS was executed"
+        "RuleDescription": "Participant was transformed as transform rule: TransformUpdatedRecordExcludedAndDMS was executed"
       },
       "meta": {
         "testJiraId": "@DTOSS-10454-01",
