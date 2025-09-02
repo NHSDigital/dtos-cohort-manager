@@ -92,7 +92,7 @@ stages:
       eq(variables['Build.Reason'], 'Manual'),
       or(
         in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
-        eq(dependencies.terraform_deploy.result, 'Succeeded'),
+        eq(dependencies.terraform_deploy.result, 'Succeeded')
       )
     )
   pool:
