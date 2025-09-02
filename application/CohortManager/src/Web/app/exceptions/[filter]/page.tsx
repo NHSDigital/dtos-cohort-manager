@@ -94,7 +94,7 @@ export default async function Page({
                   results
                 </p>
               </div>
-              <div className="nhsuk-card">
+              <div className="nhsuk-card nhsuk-u-margin-bottom-5">
                 <div className="nhsuk-card__content">
                   <ExceptionsTable
                     exceptions={exceptionDetails}

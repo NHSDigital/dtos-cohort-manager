@@ -4,11 +4,13 @@ import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
 import { fetchExceptionsNotRaisedSorted } from "@/app/lib/fetchExceptions";
 import { getRuleMapping } from "@/app/lib/ruleMapping";
+import { createPageUrl } from "@/app/lib/pagination";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import SortExceptionsForm from "@/app/components/sortExceptionsForm";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
+import Pagination from "@/app/components/pagination";
 
 export const metadata: Metadata = {
   title: `Not raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
@@ -17,7 +19,10 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  readonly searchParams?: Promise<{ readonly sortBy?: string }>;
+  readonly searchParams?: Promise<{
+    readonly sortBy?: string;
+    readonly page?: string;
+  }>;
 }) {
   const session = await auth();
   const isCohortManager = await canAccessCohortManager(session);
@@ -29,6 +34,7 @@ export default async function Page({
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
+  const currentPage = parseInt(resolvedSearchParams.page || "1", 10);
 
   const sortOptions = [
     {
@@ -43,6 +49,14 @@ export default async function Page({
 
   try {
     const exceptions = await fetchExceptionsNotRaisedSorted(sortBy);
+
+    // Generate pagination items based on the fetched data
+    const totalPages = 8;
+    const paginationItems = Array.from({ length: totalPages }, (_, i) => ({
+      number: i + 1,
+      href: createPageUrl(i + 1, sortBy),
+      current: i + 1 === currentPage,
+    }));
 
     const exceptionDetails: ExceptionDetails[] = exceptions.Items.map(
       (exception: {
@@ -94,11 +108,24 @@ export default async function Page({
                   results
                 </p>
               </div>
-              <div className="nhsuk-card">
+              <div className="nhsuk-card nhsuk-u-margin-bottom-5">
                 <div className="nhsuk-card__content">
                   <ExceptionsTable exceptions={exceptionDetails} />
                 </div>
               </div>
+              <Pagination
+                items={paginationItems}
+                previous={
+                  currentPage > 1
+                    ? { href: createPageUrl(currentPage - 1, sortBy) }
+                    : undefined
+                }
+                next={
+                  currentPage < totalPages
+                    ? { href: createPageUrl(currentPage + 1, sortBy) }
+                    : undefined
+                }
+              />
             </div>
           </div>
         </main>
