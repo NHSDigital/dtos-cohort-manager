@@ -4,7 +4,7 @@
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9990841780,
-        "IsHigherRisk": 0
+        "IsHigherRisk": null
       },
       "meta": {
         "testJiraId": "@DTOSS-9706-02",
