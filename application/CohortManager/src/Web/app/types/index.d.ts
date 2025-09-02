@@ -31,5 +31,5 @@ export interface RuleMapping {
 export interface ReportDetails {
   reportId: string;
   dateCreated: string;
-  description: string;
+  category: number;
 }
