@@ -9,10 +9,8 @@ public class ManageCaasSubscriptionConfig
     // Example: http://manage-nems-subscription:9081/api/NemsSubscriptionDataService
     public string? ManageNemsSubscriptionDataServiceURL { get; set; }
 
-    // Optional base URL to forward selected endpoints (e.g., CheckSubscriptionStatus)
-    // Example: http://manage-nems-subscription:9081
-    public string? ManageNemsSubscriptionBaseURL { get; set; }
-    public required string MeshApiBaseUrl { get; set; }
+    [Required]
+    public string? MeshApiBaseUrl { get; set; }
     public string? KeyVaultConnectionString { get; set; }
     public bool BypassServerCertificateValidation { get; set; } = false;
     public string? MeshCACertName { get; set; }

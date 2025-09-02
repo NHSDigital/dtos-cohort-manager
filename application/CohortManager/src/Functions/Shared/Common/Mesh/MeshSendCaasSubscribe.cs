@@ -31,9 +31,7 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
             Content = content,
             ContentType = "application/octet-stream"
         };
-
-        await File.WriteAllBytesAsync("Testpremesh.parquet", content);
-
+        
         var result = await _meshOutboxService.SendCompressedMessageAsync(fromMailbox, toMailbox, _config.SendCaasWorkflowId, file);
         if (!result.IsSuccessful)
         {

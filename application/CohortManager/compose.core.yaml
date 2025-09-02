@@ -312,7 +312,6 @@ services:
         - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
         - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
         - ManageNemsSubscriptionDataServiceURL=http://manage-nems-subscription:9081/api/NemsSubscriptionDataService
-        - ManageNemsSubscriptionBaseURL=http://manage-nems-subscription:9081
         - MeshApiBaseUrl=https://localhost:8700/messageexchange
         - MeshCaasPassword=password
         - MeshCaasSharedKey=TestKey

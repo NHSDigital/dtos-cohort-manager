@@ -16,7 +16,7 @@ public static class MeshMailboxExtension
     {
         ILoggerFactory factory = LoggerFactory.Create(builder =>
         {
-            builder.AddConsole(); // or AddDebug(), AddEventSourceLogger(), etc.
+            builder.AddConsole();
             builder.AddApplicationInsights();
         });
         _logger = factory.CreateLogger("MeshMailboxExtension");
