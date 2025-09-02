@@ -29,7 +29,7 @@ public class PaginationService<T> : IPaginationService<T>
         }
 
         var items = source.Take(pageSize).ToList();
-        int? lastResultId = items.Count > 0 ? idSelector(items[items.Count - 1]) : null;
+        int? lastResultId = items.Count > 0 ? idSelector(items[^1]) : null;
 
         return new PaginationResult<T>
         {
@@ -39,11 +39,14 @@ public class PaginationService<T> : IPaginationService<T>
             LastResultId = lastResultId,
             TotalItems = totalItems,
             TotalPages = totalPages,
-            CurrentPage = currentPage
+            CurrentPage = currentPage,
         };
     }
 
-    public Dictionary<string, string> BuildPaginationHeaders<TEntity>(HttpRequestData request, PaginationResult<TEntity> paginationResult)
+    /// <summary>
+    /// Adds pagination navigation headers to the response.
+    /// </summary>
+    public Dictionary<string, string> AddNavigationHeaders<TEntity>(HttpRequestData request, PaginationResult<TEntity> paginationResult)
     {
         var headers = new Dictionary<string, string>
         {
@@ -100,15 +103,16 @@ public class PaginationService<T> : IPaginationService<T>
 
     private static Func<T, int> GetDefaultIdSelector()
     {
-        var idProperty = typeof(T).GetProperty("Id") ??
-            typeof(T).GetProperty($"{typeof(T).Name}Id");
-
-        if (idProperty == null)
-        {
+        var idProperty = (typeof(T).GetProperty("Id") ??
+            typeof(T).GetProperty($"{typeof(T).Name}Id")) ??
             throw new InvalidOperationException(
                 "Could not find a default ID property. Provide a custom ID selector.");
-        }
 
-        return x => (int)idProperty.GetValue(x);
+        return x =>
+        {
+            var value = idProperty.GetValue(x) ?? throw new InvalidOperationException(
+                    $"Entity of type {typeof(T).Name} has a null ID property ('{idProperty.Name}').");
+            return (int)value;
+        };
     }
 }

@@ -261,7 +261,7 @@
     "Rules": [
       {
         "RuleName": "EmailContainsBackslash",
-        "Expression": "input1.Contains('\u005c')",
+        "Expression": "input1.Contains('\\\\')",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
@@ -321,7 +321,7 @@
       },
       {
         "RuleName": "EmailContainsPipe",
-        "Expression": "input1.Contains('|');",
+        "Expression": "input1.Contains('|')",
         "Actions": {
           "OnSuccess": {
             "Name": "OutputExpression",
