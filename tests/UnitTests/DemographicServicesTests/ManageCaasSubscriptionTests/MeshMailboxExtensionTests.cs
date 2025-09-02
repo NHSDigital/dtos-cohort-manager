@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.Tests.UnitTests.DemographicServicesTests;
 
 using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography;
 using System.IO;
 using System;
 using Common;
@@ -13,7 +14,8 @@ public class MeshMailboxExtensionTests
     {
         // Create a temporary self-signed certificate and write as PEM to a temp file
         using var rsa = RSA.Create(2048);
-        var req = new CertificateRequest("CN=Test", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        var subject = new X500DistinguishedName("CN=Test");
+        var req = new CertificateRequest(subject, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
         using var cert = req.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1));
         var der = cert.Export(X509ContentType.Cert);
         var pem = "-----BEGIN CERTIFICATE-----\n"
