@@ -44,9 +44,10 @@ export const getRecordsFromExceptionManagementService = (
 };
 
 export const getRecordsFromNemsSubscription = (
-  request: APIRequestContext
+  request: APIRequestContext,
+  id: string
 ): Promise<ApiResponse> => {
-  return apiClient.get(request, `${config.endpointNemsSubscriptionDataDataService}api/${config.nemsSubscriberDataService}`);
+  return apiClient.get(request, `${config.endpointNemsSubscriptionDataDataService}api/${config.nemsSubscriberDataService}${id}`);
 };
 
 export const deleteParticipant = (
@@ -101,3 +102,19 @@ export const invalidServiceNowEndpoint = (
   const endpoint = `${config.invalidEndpointSerNow}${config.invalidRouteSerNowEndpoint}`;
   return apiClient.post(request, endpoint, payload);
 };
+
+export const extractNemsSubscriptionId = (response: ApiResponse): string => {
+  const message = response?.data ?? response.text;
+  const match = message.match(/Subscription ID:\s*([a-zA-Z0-9]+)/);
+  if (!match) {
+    throw new Error('Subscription ID not found in API response');
+  }
+  return match[1];
+};
+export const assertSubscriptionIdValid = (response: ApiResponse<any>, subscriptionId: string, nhsNumber: string) => {
+  console.log(`Subscription ID for user ${nhsNumber}:`, subscriptionId);
+  if (subscriptionId.length < 10) {
+    throw new Error(`Subscription ID is too short: ${subscriptionId}`);
+  }
+};
+
