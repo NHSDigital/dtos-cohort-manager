@@ -23,6 +23,7 @@ public class ManageCaasSubscriptionConfig
     /// <summary>MESH mailbox password for client authentication.</summary>
     public string? MeshCaasPassword { get; set; }
     /// <summary>MESH shared key for HMAC authentication.</summary>
+    [Required]
     public required string MeshCaasSharedKey { get; set; }
     /// <summary>Destination mailbox for sending CAAS subscription messages.</summary>
     [Required]

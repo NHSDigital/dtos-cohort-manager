@@ -13,9 +13,9 @@ using ParquetSharp.IO;
 /// </summary>
 public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
 {
-    private ILogger<MeshSendCaasSubscribe> _logger;
-    private IMeshOutboxService _meshOutboxService;
-    private MeshSendCaasSubscribeConfig _config;
+    private readonly ILogger<MeshSendCaasSubscribe> _logger;
+    private readonly IMeshOutboxService _meshOutboxService;
+    private readonly MeshSendCaasSubscribeConfig _config;
     public MeshSendCaasSubscribe(ILogger<MeshSendCaasSubscribe> logger, IMeshOutboxService meshOutboxService, IOptions<MeshSendCaasSubscribeConfig> config)
     {
         _logger = logger;
@@ -45,7 +45,10 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
         var result = await _meshOutboxService.SendCompressedMessageAsync(fromMailbox, toMailbox, _config.SendCaasWorkflowId, file);
         if (!result.IsSuccessful)
         {
-            _logger.LogError("Could't send mesh message Error Code: {ErrorCode}, Error Description: {ErrorDescription}, ", result.Error.ErrorCode, result.Error.ErrorDescription);
+            _logger.LogError(
+                "Could not send MESH message. Error Code: {ErrorCode}, Error Description: {ErrorDescription}",
+                result.Error?.ErrorCode,
+                result.Error?.ErrorDescription);
             return null;
         }
 

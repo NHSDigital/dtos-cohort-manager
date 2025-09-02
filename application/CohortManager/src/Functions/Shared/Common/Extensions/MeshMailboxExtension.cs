@@ -14,7 +14,6 @@ using NHS.MESH.Client.Configuration;
 /// </summary>
 public static class MeshMailboxExtension
 {
-    private static ILogger _logger;
     /// <summary>
     /// Registers the MESH client and configured mailboxes for dependency injection.
     /// </summary>
@@ -28,7 +27,7 @@ public static class MeshMailboxExtension
             builder.AddConsole();
             builder.AddApplicationInsights();
         });
-        _logger = factory.CreateLogger("MeshMailboxExtension");
+        var logger = factory.CreateLogger("MeshMailboxExtension");
 
         hostBuilder.ConfigureServices(async services =>
         {
@@ -40,8 +39,8 @@ public static class MeshMailboxExtension
 
             foreach (var mailbox in config.MailboxConfigs)
             {
-                var cert = await GetCertificate(mailbox.MeshKeyName, mailbox.MeshKeyPassword, config.KeyVaultConnectionString);
-                var serverSideCerts = await GetCACertificates(config.MeshCACertName, config.KeyVaultConnectionString);
+                var cert = await GetCertificate(logger, mailbox.MeshKeyName, mailbox.MeshKeyPassword, config.KeyVaultConnectionString);
+                var serverSideCerts = await GetCACertificates(logger, config.MeshCACertName, config.KeyVaultConnectionString);
                 meshClientBuilder.AddMailbox(mailbox.MailboxId, new MailboxConfiguration
                 {
                     Password = mailbox.MeshPassword,
@@ -51,26 +50,27 @@ public static class MeshMailboxExtension
                 });
             }
 
-            services = meshClientBuilder.Build();
+            meshClientBuilder.Build();
 
         });
 
         return hostBuilder;
     }
 
-    private static async Task<X509Certificate2?> GetCertificate(string meshKeyName, string? meshKeyPassphrase, string? keyVaultConnectionString)
+    private static async Task<X509Certificate2?> GetCertificate(ILogger logger, string? meshKeyName, string? meshKeyPassphrase, string? keyVaultConnectionString)
     {
         if (!string.IsNullOrEmpty(keyVaultConnectionString))
         {
-            _logger.LogInformation("Pulling Mesh Certificate from KeyVault");
+            logger.LogInformation("Pulling Mesh Certificate from KeyVault");
             var certClient = new CertificateClient(vaultUri: new Uri(keyVaultConnectionString), credential: new DefaultAzureCredential());
+            if (string.IsNullOrWhiteSpace(meshKeyName)) return null;
             var certificate = await certClient.DownloadCertificateAsync(meshKeyName);
             return certificate.Value;
         }
 
-        if (!string.IsNullOrEmpty(meshKeyName) || Path.Exists(meshKeyName))
+        if (!string.IsNullOrWhiteSpace(meshKeyName) && Path.Exists(meshKeyName))
         {
-            _logger.LogInformation("Pulling Mesh Certificate from local File");
+            logger.LogInformation("Pulling Mesh Certificate from local File");
             return new X509Certificate2(meshKeyName!, meshKeyPassphrase);
         }
         return null;
@@ -83,17 +83,18 @@ public static class MeshMailboxExtension
     /// <param name="meshCertName">Key Vault secret name or file path containing PEM certificates.</param>
     /// <param name="keyVaultConnectionString">Optional Key Vault URI.</param>
     /// <returns>A certificate collection when available; otherwise null.</returns>
-    public static async Task<X509Certificate2Collection?> GetCACertificates(string meshCertName, string? keyVaultConnectionString)
+    public static async Task<X509Certificate2Collection?> GetCACertificates(ILogger logger, string? meshCertName, string? keyVaultConnectionString)
     {
         if (!string.IsNullOrEmpty(keyVaultConnectionString))
         {
             var secretClient = new SecretClient(vaultUri: new Uri(keyVaultConnectionString), credential: new DefaultAzureCredential());
-            string base64Cert = secretClient.GetSecret(meshCertName).Value.Value;
+            if (string.IsNullOrWhiteSpace(meshCertName)) return null;
+            var secret = await secretClient.GetSecretAsync(meshCertName);
+            string base64Cert = secret.Value.Value;
             return CertificateHelper.GetCertificatesFromString(base64Cert);
         }
-        if (!string.IsNullOrEmpty(meshCertName) || Path.Exists(meshCertName))
+        if (!string.IsNullOrWhiteSpace(meshCertName) && Path.Exists(meshCertName))
         {
-
             string certsString = await File.ReadAllTextAsync(meshCertName);
             return CertificateHelper.GetCertificatesFromString(certsString);
         }

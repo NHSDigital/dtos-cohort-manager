@@ -7,23 +7,23 @@ using NHS.CohortManager.DemographicServices;
 using DataServices.Database;
 using DataServices.Core;
 
-var host = new HostBuilder()
+var hostBuilder = new HostBuilder()
     .ConfigureFunctionsWebApplication()
-    .AddConfiguration<ManageCaasSubscriptionConfig>(out ManageCaasSubscriptionConfig config)
+    .AddConfiguration<ManageCaasSubscriptionConfig>(out ManageCaasSubscriptionConfig? config)
     .AddMeshMailboxes(new MeshConfig
     {
-        MeshApiBaseUrl = config.MeshApiBaseUrl,
+        MeshApiBaseUrl = config.MeshApiBaseUrl!,
         KeyVaultConnectionString = config.KeyVaultConnectionString,
         BypassServerCertificateValidation = config.BypassServerCertificateValidation,
         MailboxConfigs = new List<MailboxConfig>
         {
             new MailboxConfig
             {
-                MailboxId = config.CaasFromMailbox,
-                MeshKeyName = config.MeshCaasKeyName,
+                MailboxId = config.CaasFromMailbox!,
+                MeshKeyName = config.MeshCaasKeyName!,
                 MeshKeyPassword = config.MeshCaasKeyPassword,
                 MeshPassword = config.MeshCaasPassword,
-                SharedKey = config.MeshCaasSharedKey
+                SharedKey = config.MeshCaasSharedKey!
 
             }
         }
@@ -45,7 +45,7 @@ var host = new HostBuilder()
     .AddDataServicesHandler<DataServicesContext>()
     .AddHttpClient()
     .AddTelemetry()
-    .AddExceptionHandler()
-    .Build();
+    .AddExceptionHandler();
 
+var host = hostBuilder.Build();
 await host.RunAsync();
