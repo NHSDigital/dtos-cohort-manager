@@ -1,5 +1,6 @@
 import { ExceptionAPIDetails } from "@/app/types/exceptionsApi";
 import mockDataJson from "@/app/data/mockExceptions.json";
+import { getCurrentDate } from "@/app/lib/utils";
 
 type ExceptionListItem = {
   ExceptionId: number;
@@ -32,6 +33,48 @@ const initializeDataStore = () => {
     notRaisedExceptions: [...mockDataJson.notRaisedExceptions],
     raisedExceptions: [...mockDataJson.raisedExceptions],
   };
+
+  // Ensure certain mock exceptions always use today's date for reports
+  // This keeps the sample data relevant without manual JSON edits.
+  const store = mockDataStore;
+  const today = getCurrentDate(); // YYYY-MM-DD
+
+  const applyTodayDates = (
+    exceptionId: number,
+    createdTime: string,
+    serviceNowTime: string
+  ) => {
+    const ex = store.exceptions[exceptionId];
+    if (ex) {
+      ex.DateCreated = `${today}T${createdTime}`;
+      // Only set ServiceNowCreatedDate if it's a raised exception
+      if (ex.ServiceNowId) {
+        ex.ServiceNowCreatedDate = `${today}T${serviceNowTime}`;
+      }
+      ex.RecordUpdatedDate = ex.ServiceNowCreatedDate || ex.DateCreated;
+    }
+
+    // Update list mirrors
+    const updateListItem = (item: typeof store.raisedExceptions[number]) => {
+      if (item.ExceptionId === exceptionId) {
+        item.DateCreated = `${today}T${createdTime}`;
+        if (item.ServiceNowId) {
+          item.ServiceNowCreatedDate = `${today}T${serviceNowTime}`;
+        }
+        item.RecordUpdatedDate =
+          item.ServiceNowCreatedDate || item.DateCreated;
+      }
+    };
+
+    store.raisedExceptions.forEach(updateListItem);
+    store.notRaisedExceptions.forEach(updateListItem);
+  };
+
+  // 3001: category 12 (raised) – keep original times but set to today
+  applyTodayDates(3001, "09:00:00", "10:00:00");
+  // 4001: category 13 (raised) – keep original times but set to today
+  applyTodayDates(4001, "09:15:00", "12:00:00");
+
   return mockDataStore;
 };
 
