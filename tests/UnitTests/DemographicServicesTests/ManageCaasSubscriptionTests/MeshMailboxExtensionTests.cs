@@ -12,7 +12,7 @@ public class MeshMailboxExtensionTests
     [TestMethod]
     public async Task GetCACertificates_FromFilePath_ReturnsCollection()
     {
-        // Create a temporary self-signed certificate and write as PEM to a temp file
+        // Arrange: create a temporary self-signed certificate and write as PEM to a temp file
         using var rsa = RSA.Create(2048);
         var subject = new X500DistinguishedName("CN=Test");
         var req = new CertificateRequest(subject, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
@@ -27,7 +27,10 @@ public class MeshMailboxExtensionTests
 
         try
         {
+            // Act
             var certs = await MeshMailboxExtension.GetCACertificates(tempPath, null);
+
+            // Assert
             Assert.IsNotNull(certs);
             Assert.IsInstanceOfType(certs, typeof(X509Certificate2Collection));
             Assert.IsTrue(certs!.Count > 0);
@@ -41,7 +44,12 @@ public class MeshMailboxExtensionTests
     [TestMethod]
     public async Task GetCACertificates_NoInputs_ReturnsNull()
     {
+        // Arrange: no inputs
+
+        // Act
         var certs = await MeshMailboxExtension.GetCACertificates(null, null);
+
+        // Assert
         Assert.IsNull(certs);
     }
     // kept for potential future use; not used after temp-cert approach

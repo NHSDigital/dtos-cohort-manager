@@ -273,6 +273,7 @@ public class ManageCaasSubscriptionTests
     [TestMethod]
     public void Config_MissingMeshApiBaseUrl_FailsValidation()
     {
+        // Arrange
         var cfg = new ManageCaasSubscriptionConfig
         {
             CaasToMailbox = "TEST_TO",
@@ -282,8 +283,11 @@ public class ManageCaasSubscriptionTests
 
         var context = new ValidationContext(cfg);
         var results = new System.Collections.Generic.List<ValidationResult>();
+
+        // Act
         var isValid = Validator.TryValidateObject(cfg, context, results, validateAllProperties: true);
 
+        // Assert
         Assert.IsFalse(isValid);
         Assert.IsTrue(results.Any(r => r.MemberNames.Contains("MeshApiBaseUrl")));
     }
