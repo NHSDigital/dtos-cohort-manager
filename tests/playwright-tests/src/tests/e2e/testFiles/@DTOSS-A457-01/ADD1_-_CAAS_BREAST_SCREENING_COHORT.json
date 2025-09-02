@@ -8,7 +8,7 @@
         "RuleDescription": "GP practice code and Reason for Removal fields contain incompatible values"
       },
       "meta": {
-        "testJiraId": "@DTOSS-10456-01",
+        "testJiraId": "@DTOSS-10457-01",
         "requirementJiraId": "@DTOSS-9935",
         "additionalTags": "@regression @e2e @epic4d-rule8  Validate exception raised for participant CurrentPosting is DMS and PrimaryCareProvider is null and ReasonForRemoval is null with nhs number 9997111834"
       }
