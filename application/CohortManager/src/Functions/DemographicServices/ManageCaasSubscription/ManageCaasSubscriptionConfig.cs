@@ -5,10 +5,6 @@ using System.ComponentModel.DataAnnotations;
 // Minimal config object for ManageCaasSubscription.
 public class ManageCaasSubscriptionConfig
 {
-    // Optional URL for pass-through to the existing NEMS data service
-    // Example: http://manage-nems-subscription:9081/api/NemsSubscriptionDataService
-    public string? ManageNemsSubscriptionDataServiceURL { get; set; }
-
     [Required]
     public string? MeshApiBaseUrl { get; set; }
     public string? KeyVaultConnectionString { get; set; }

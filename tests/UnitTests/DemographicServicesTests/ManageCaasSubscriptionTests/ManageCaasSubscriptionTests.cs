@@ -33,7 +33,6 @@ public class ManageCaasSubscriptionTests
     {
         _config.Setup(x => x.Value).Returns(new ManageCaasSubscriptionConfig
         {
-            ManageNemsSubscriptionDataServiceURL = null, // keep stub mode during unit tests
             CaasToMailbox = "TEST_TO",
             CaasFromMailbox = "TEST_FROM",
             MeshApiBaseUrl = "http://localhost",
