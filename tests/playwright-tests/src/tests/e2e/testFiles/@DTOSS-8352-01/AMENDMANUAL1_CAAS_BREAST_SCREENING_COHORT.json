@@ -3,10 +3,10 @@
       {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9995557773,
+        "NHSNumber": 9990000034,
         "PrimaryCareProvider": "",
         "ReasonForRemoval": "ORR",
-        "SupersededNHSNumber": 9990001116,
+        "SupersededNHSNumber": 9990000034,
         "expectedCount": 2
       },
       "meta": {
@@ -18,7 +18,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9995557773",
+        "NhsNumber": "9990000034",
         "RuleId": 60,
         "RuleDescription": "Participant was transformed as transform rule: OtherSupersededNhsNumber was executed"
       },
@@ -34,10 +34,10 @@
       "record_type": "AMENDED",
       "change_time_stamp": null,
       "serial_change_number": 2,
-      "nhs_number": 9995557773,
-      "superseded_by_nhs_number": "9990001116",
-      "primary_care_provider": null,
-      "primary_care_effective_from_date": null,
+      "nhs_number": 9990000034,
+      "superseded_by_nhs_number": "9999999999",
+      "primary_care_provider": "A81001",
+      "primary_care_effective_from_date": "20170517",
       "current_posting": null,
       "current_posting_effective_from_date": null,
       "name_prefix": "Mrs",
@@ -72,6 +72,6 @@
     }
   ],
   "nhsNumbers": [
-    "9995557773"
+    "9990000034"
   ]
 }
