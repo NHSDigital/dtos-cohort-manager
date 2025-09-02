@@ -17,6 +17,7 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
         .AddDataServiceStaticCachedClient<BsSelectGpPractice>(config.BsSelectGpPracticeUrl)
         .AddDataServiceStaticCachedClient<LanguageCode>(config.LanguageCodeUrl)
         .AddDataServiceStaticCachedClient<ExcludedSMULookup>(config.ExcludedSMULookupUrl)
+        .AddDataServiceStaticCachedClient<CurrentPosting>(config.CurrentPostingUrl)
         .Build()
     .ConfigureServices(services =>
     {
