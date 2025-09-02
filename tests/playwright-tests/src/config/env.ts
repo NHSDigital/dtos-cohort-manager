@@ -42,6 +42,7 @@ export const config = {
   invalidEndpointSerNow: invalidEndpointSerNow,
   SubToNems: subToNemsEndPoint,
   SubToNemsPath: 'api/Subscribe',
+  CheckNemsSubPath:'api/CheckSubscriptionStatus',
   routeBsSelectRetrieveCohortDistributionData: 'api/RetrieveCohortDistributionData',
   routeBsSelectRetrieveCohortRequestAudit: 'api/RetrieveCohortRequestAudit',
   routeBsSelectDeleteParticipant: 'api/DeleteParticipant',
