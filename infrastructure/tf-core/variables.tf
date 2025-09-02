@@ -207,6 +207,7 @@ variable "container_app_jobs" {
       db_connection_string_name     = optional(string, "")
       env_vars_static               = optional(map(string), {})
       add_user_assigned_identity    = optional(bool, false)
+      replica_retry_limit           = optional(number, 3)
     })), {})
   })
 }
