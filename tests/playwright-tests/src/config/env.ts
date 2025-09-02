@@ -44,6 +44,7 @@ export const config = {
   SubToNems: subToNemsEndPoint,
   wireMockUrl: wireMockUrl,
   SubToNemsPath: 'api/Subscribe',
+  CheckNemsSubPath: 'api/CheckSubscriptionStatus',
   routeBsSelectRetrieveCohortDistributionData: 'api/RetrieveCohortDistributionData',
   routeBsSelectRetrieveCohortRequestAudit: 'api/RetrieveCohortRequestAudit',
   routeBsSelectDeleteParticipant: 'api/DeleteParticipant',
