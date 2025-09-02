@@ -24,7 +24,7 @@ public class TransformDataLookupFacadeTests
     private Mock<IDataServiceClient<BsSelectOutCode>> _outcodeClientMock = new();
     private readonly Mock<IDataServiceClient<LanguageCode>> _languageCodeClientMock = new();
     private Mock<IDataServiceClient<BsSelectGpPractice>> _gpPracticeClientMock = new();
-
+    private Mock<IDataServiceClient<CurrentPosting>> _currentPostingClientMock = new();
     private Mock<IDataServiceClient<ExcludedSMULookup>> _excludedSMUClient = new();
 
     private Mock<ILogger<TransformDataLookupFacade>> _logger = new();
@@ -55,7 +55,7 @@ public class TransformDataLookupFacadeTests
         };
 
         _memoryCache.Setup(m => m.TryGetValue(It.IsAny<object>(), out dummy)).Returns(true);
-        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object, _excludedSMUClient.Object, _logger.Object, _memoryCache.Object, _config.Object);
+        _sut = new(_outcodeClientMock.Object, _gpPracticeClientMock.Object, _languageCodeClientMock.Object, _excludedSMUClient.Object, _currentPostingClientMock.Object, _logger.Object, _memoryCache.Object, _config.Object);
     }
 
     [TestMethod]
