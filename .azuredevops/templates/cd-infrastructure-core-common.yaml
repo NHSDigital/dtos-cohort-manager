@@ -49,7 +49,7 @@ stages:
 
 - stage: terraform_deploy
   displayName: Terraform Deploy
-  condition: | 
+  condition: |
     and(
       eq(variables['Build.Reason'], 'Manual'),
       in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped')
@@ -92,7 +92,7 @@ stages:
       eq(variables['Build.Reason'], 'Manual'),
       or(
         in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
-        in(dependencies.terraform_deploy.result, 'Succeeded', 'Skipped')
+        eq(dependencies.terraform_deploy.result, 'Succeeded')
       )
     )
   pool:
@@ -117,7 +117,7 @@ stages:
       eq(variables['Build.Reason'], 'Manual'),
       or(
         in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
-        in(dependencies.terraform_deploy.result, 'Succeeded', 'Skipped'),
+        eq(dependencies.terraform_deploy.result, 'Succeeded'),
         in(dependencies.db_changes_stage.result, 'Succeeded', 'Skipped')
       )
     )
