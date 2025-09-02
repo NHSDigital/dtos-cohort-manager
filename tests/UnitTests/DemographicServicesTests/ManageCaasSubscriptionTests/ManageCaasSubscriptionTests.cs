@@ -269,4 +269,22 @@ public class ManageCaasSubscriptionTests
         Assert.IsTrue(results.Any(r => r.MemberNames.Contains("CaasToMailbox")));
         Assert.IsTrue(results.Any(r => r.MemberNames.Contains("CaasFromMailbox")));
     }
+
+    [TestMethod]
+    public void Config_MissingMeshApiBaseUrl_FailsValidation()
+    {
+        var cfg = new ManageCaasSubscriptionConfig
+        {
+            CaasToMailbox = "TEST_TO",
+            CaasFromMailbox = "TEST_FROM",
+            MeshCaasSharedKey = "dummy"
+        };
+
+        var context = new ValidationContext(cfg);
+        var results = new System.Collections.Generic.List<ValidationResult>();
+        var isValid = Validator.TryValidateObject(cfg, context, results, validateAllProperties: true);
+
+        Assert.IsFalse(isValid);
+        Assert.IsTrue(results.Any(r => r.MemberNames.Contains("MeshApiBaseUrl")));
+    }
 }

@@ -21,6 +21,6 @@
     <ProjectReference Include="..\..\..\TestUtils\TestUtils.csproj" />
     <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
     <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\DemographicServices\ManageCaasSubscription\ManageCaasSubscription.csproj" />
+    <ProjectReference Include="..\..\..\..\application\CohortManager\src\Functions\Shared\dotnet-mesh-client\application\DotNetMeshClient\NHS.Mesh.Client\NHS.Mesh.Client.csproj" />
   </ItemGroup>
 </Project>
-
