@@ -320,13 +320,13 @@ services:
     profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:9092
-      - ServiceNowRefreshAccessTokenUrl=https://nhsdigitaldev.service-now.com/oauth_token.do
-      - ServiceNowUpdateUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate
-      - ServiceNowResolutionUrl=https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution
+      - ServiceNowRefreshAccessTokenUrl=http://wiremock:8080/oauth_token.do
+      - ServiceNowUpdateUrl=http://wiremock:8080/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate
+      - ServiceNowResolutionUrl=http://wiremock:8080/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution
       - ServiceNowGrantType=refresh_token
-      - ServiceNowClientId=${SERVICENOW_CLIENT_ID}
-      - ServiceNowClientSecret=${SERVICENOW_CLIENT_SECRET}
-      - ServiceNowRefreshToken=${SERVICENOW_REFRESH_TOKEN}
+      - ServiceNowClientId=MockClientId-123
+      - ServiceNowClientSecret=MockClientSecret-123
+      - ServiceNowRefreshToken=MockRefreshToken-123
       - ServiceNowParticipantManagementTopic=servicenow-participant-management-topic
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
     ports:
