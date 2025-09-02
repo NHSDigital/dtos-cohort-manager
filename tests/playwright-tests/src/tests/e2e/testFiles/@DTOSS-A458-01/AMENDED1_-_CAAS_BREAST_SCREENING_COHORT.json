@@ -5,12 +5,12 @@
     
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9263186138,
-        "expectedCount": 0
+        "expectedCount": 1
       },
       "meta": {
         "testJiraId": "@DTOSS-10458-01",
         "requirementJiraId": "DTOSS-9935",
-        "additionalTags": "@regression @e2e @epic4d-rule8 Verify participant is not stored on Cohort_Distribution table for NHS Number 9998136431"
+        "additionalTags": "@regression @e2e @epic4d-rule8 Verify participant is stored on Cohort_Distribution table for NHS Number 9998136431"
       }
     }
   ],
