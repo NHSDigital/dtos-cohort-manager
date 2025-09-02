@@ -8,6 +8,9 @@ using NHS.MESH.Client.Models;
 using ParquetSharp;
 using ParquetSharp.IO;
 
+/// <summary>
+/// Sends CAAS subscription requests via the MESH outbox service.
+/// </summary>
 public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
 {
     private ILogger<MeshSendCaasSubscribe> _logger;
@@ -20,6 +23,13 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
         _config = config.Value;
     }
 
+    /// <summary>
+    /// Sends a CAAS subscription request for a given NHS number.
+    /// </summary>
+    /// <param name="nhsNumber">The patient NHS number.</param>
+    /// <param name="toMailbox">Destination MESH mailbox ID.</param>
+    /// <param name="fromMailbox">Source MESH mailbox ID.</param>
+    /// <returns>The MESH message ID on success; otherwise null.</returns>
     public async Task<string> SendSubscriptionRequest(long nhsNumber, string toMailbox, string fromMailbox)
     {
 

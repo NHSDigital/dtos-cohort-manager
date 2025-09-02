@@ -2,8 +2,16 @@ namespace Common;
 
 using System.Security.Cryptography.X509Certificates;
 
+/// <summary>
+/// Helpers for parsing certificates from PEM content.
+/// </summary>
 public static class CertificateHelper
 {
+    /// <summary>
+    /// Parses one or more PEM-encoded certificates from a string into a collection.
+    /// </summary>
+    /// <param name="certificatesString">A string containing one or more concatenated PEM certificates.</param>
+    /// <returns>An <see cref="X509Certificate2Collection"/> containing parsed certificates.</returns>
     public static X509Certificate2Collection GetCertificatesFromString(string certificatesString)
     {
         X509Certificate2Collection certs = [];

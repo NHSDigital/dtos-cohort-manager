@@ -9,9 +9,18 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NHS.MESH.Client;
 using NHS.MESH.Client.Configuration;
+/// <summary>
+/// Service registration helpers for configuring MESH clients and mailboxes.
+/// </summary>
 public static class MeshMailboxExtension
 {
     private static ILogger _logger;
+    /// <summary>
+    /// Registers the MESH client and configured mailboxes for dependency injection.
+    /// </summary>
+    /// <param name="hostBuilder">The host builder to extend.</param>
+    /// <param name="config">Configuration for MESH and mailboxes.</param>
+    /// <returns>The original host builder.</returns>
     public static IHostBuilder AddMeshMailboxes(this IHostBuilder hostBuilder, MeshConfig config)
     {
         ILoggerFactory factory = LoggerFactory.Create(builder =>
@@ -68,6 +77,12 @@ public static class MeshMailboxExtension
     }
 
 
+    /// <summary>
+    /// Retrieves server-side CA certificates from Key Vault or a local file path.
+    /// </summary>
+    /// <param name="meshCertName">Key Vault secret name or file path containing PEM certificates.</param>
+    /// <param name="keyVaultConnectionString">Optional Key Vault URI.</param>
+    /// <returns>A certificate collection when available; otherwise null.</returns>
     public static async Task<X509Certificate2Collection?> GetCACertificates(string meshCertName, string? keyVaultConnectionString)
     {
         if (!string.IsNullOrEmpty(keyVaultConnectionString))

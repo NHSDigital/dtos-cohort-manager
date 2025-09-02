@@ -13,6 +13,9 @@ using DataServices.Core;
 using Model;
 using NHS.CohortManager.DemographicServices;
 
+/// <summary>
+/// Azure Functions endpoints for managing CaaS subscriptions via MESH and data services.
+/// </summary>
 public class ManageCaasSubscription
 {
     private readonly ILogger<ManageCaasSubscription> _logger;
@@ -41,6 +44,11 @@ public class ManageCaasSubscription
         _meshPoller = meshPoller;
     }
 
+    /// <summary>
+    /// Creates a new CaaS subscription for the given NHS number and persists a record.
+    /// </summary>
+    /// <param name="req">HTTP request containing an <c>nhsNumber</c> query parameter.</param>
+    /// <returns>HTTP 200 on success, 400 for invalid input, or 500 on error.</returns>
     [Function("Subscribe")]
     public async Task<HttpResponseData> Subscribe([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
@@ -83,6 +91,11 @@ public class ManageCaasSubscription
         }
     }
 
+    /// <summary>
+    /// Stub endpoint to remove a CaaS subscription for the given NHS number.
+    /// </summary>
+    /// <param name="req">HTTP request containing an <c>nhsNumber</c> query parameter.</param>
+    /// <returns>HTTP 200 for the stub, or 400 for invalid input.</returns>
     [Function("Unsubscribe")]
     public async Task<HttpResponseData> Unsubscribe([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
@@ -96,6 +109,11 @@ public class ManageCaasSubscription
         return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, "Stub: CAAS subscription would be removed.");
     }
 
+    /// <summary>
+    /// Checks subscription status for a given NHS number.
+    /// </summary>
+    /// <param name="req">HTTP request containing an <c>nhsNumber</c> query parameter.</param>
+    /// <returns>HTTP 200 when an active subscription is found, 404 if not, or 400/500 on error.</returns>
     [Function("CheckSubscriptionStatus")]
     public async Task<HttpResponseData> CheckSubscriptionStatus([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
@@ -128,6 +146,12 @@ public class ManageCaasSubscription
         }
     }
 
+    /// <summary>
+    /// Pass-through data service endpoint for CRUD operations on the NEMS subscription data object.
+    /// </summary>
+    /// <param name="req">HTTP request containing payload and route parameters.</param>
+    /// <param name="key">Optional key or route tail for the data service.</param>
+    /// <returns>HTTP response from the underlying data service handler.</returns>
     [Function("NemsSubscriptionDataService")]
     public async Task<HttpResponseData> NemsSubscriptionDataService([HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", "put", "delete", Route = "NemsSubscriptionDataService/{*key}")] HttpRequestData req, string? key)
     {
@@ -144,6 +168,10 @@ public class ManageCaasSubscription
         }
     }
 
+    /// <summary>
+    /// Nightly timer trigger to validate the configured MESH mailbox via handshake.
+    /// </summary>
+    /// <param name="myTimer">Timer trigger context.</param>
     [Function("PollMeshMailbox")]
     public async Task RunAsync([TimerTrigger("59 23 * * *")] TimerInfo myTimer)
     {
