@@ -11,12 +11,29 @@ public class MeshMailboxExtensionTests
     [TestMethod]
     public async Task GetCACertificates_FromFilePath_ReturnsCollection()
     {
-        var path = FindInParents("nems_certificate.pem");
-        Assert.IsTrue(File.Exists(path), $"Test certificate not found at {path}");
-        var certs = await MeshMailboxExtension.GetCACertificates(path, null);
-        Assert.IsNotNull(certs);
-        Assert.IsInstanceOfType(certs, typeof(X509Certificate2Collection));
-        Assert.IsTrue(certs!.Count > 0);
+        // Create a temporary self-signed certificate and write as PEM to a temp file
+        using var rsa = RSA.Create(2048);
+        var req = new CertificateRequest("CN=Test", rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+        using var cert = req.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(1));
+        var der = cert.Export(X509ContentType.Cert);
+        var pem = "-----BEGIN CERTIFICATE-----\n"
+                + Convert.ToBase64String(der, Base64FormattingOptions.InsertLineBreaks)
+                + "\n-----END CERTIFICATE-----\n";
+
+        var tempPath = Path.Combine(Path.GetTempPath(), $"test-cert-{Guid.NewGuid():N}.pem");
+        await File.WriteAllTextAsync(tempPath, pem);
+
+        try
+        {
+            var certs = await MeshMailboxExtension.GetCACertificates(tempPath, null);
+            Assert.IsNotNull(certs);
+            Assert.IsInstanceOfType(certs, typeof(X509Certificate2Collection));
+            Assert.IsTrue(certs!.Count > 0);
+        }
+        finally
+        {
+            if (File.Exists(tempPath)) File.Delete(tempPath);
+        }
     }
 
     [TestMethod]
@@ -25,15 +42,6 @@ public class MeshMailboxExtensionTests
         var certs = await MeshMailboxExtension.GetCACertificates(null, null);
         Assert.IsNull(certs);
     }
-    private static string FindInParents(string fileName)
-    {
-        var dir = new DirectoryInfo(AppContext.BaseDirectory);
-        while (dir != null)
-        {
-            var candidate = Path.Combine(dir.FullName, fileName);
-            if (File.Exists(candidate)) return candidate;
-            dir = dir.Parent;
-        }
-        return fileName; // will fail later if not found
-    }
+    // kept for potential future use; not used after temp-cert approach
+    private static string FindInParents(string fileName) => fileName;
 }
