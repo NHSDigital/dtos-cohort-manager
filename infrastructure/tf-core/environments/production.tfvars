@@ -700,6 +700,11 @@ function_apps = {
           endpoint_name    = "LanguageCode"
         },
         {
+          env_var_name     = "CurrentPostingUrl"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "CurrentPosting"
+        },
+        {
           env_var_name     = "ExcludedSMULookupUrl"
           function_app_key = "ReferenceDataService"
           endpoint_name    = "ExcludedSMU"
@@ -1050,8 +1055,8 @@ function_apps = {
         Audience                   = ""
         AuthTokenURL               = ""
         KeyNamePrivateKey          = ""
-        UseFakePDSServices         = "false"
         ParticipantManagementTopic = "participant-management"
+        UseFakePDSServices         = "false"
       }
     }
 

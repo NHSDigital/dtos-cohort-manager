@@ -1,13 +1,12 @@
 namespace Common;
 
+using Microsoft.Azure.Functions.Worker.Http;
+
 public class PaginationService<T> : IPaginationService<T>
 {
     private const int pageSize = 10;
 
-    public PaginationResult<T> GetPaginatedResult(
-        IQueryable<T> source,
-        int? lastId,
-        Func<T, int> idSelector = null)
+    public PaginationResult<T> GetPaginatedResult(IQueryable<T> source, int? lastId, Func<T, int>? idSelector = null)
     {
         // If no idSelector is provided, try to use a default 'Id' property
         if (idSelector == null)
@@ -30,7 +29,7 @@ public class PaginationService<T> : IPaginationService<T>
         }
 
         var items = source.Take(pageSize).ToList();
-        int? lastResultId = items.Count > 0 ? idSelector(items[items.Count - 1]) : null;
+        int? lastResultId = items.Count > 0 ? idSelector(items[^1]) : null;
 
         return new PaginationResult<T>
         {
@@ -40,21 +39,80 @@ public class PaginationService<T> : IPaginationService<T>
             LastResultId = lastResultId,
             TotalItems = totalItems,
             TotalPages = totalPages,
-            CurrentPage = currentPage
+            CurrentPage = currentPage,
         };
+    }
+
+    /// <summary>
+    /// Adds pagination navigation headers to the response.
+    /// </summary>
+    public Dictionary<string, string> AddNavigationHeaders<TEntity>(HttpRequestData request, PaginationResult<TEntity> paginationResult)
+    {
+        var headers = new Dictionary<string, string>
+        {
+            ["X-Total-Count"] = paginationResult.TotalItems.ToString(),
+            ["X-Has-Next-Page"] = paginationResult.HasNextPage.ToString().ToLower(),
+            ["X-Is-First-Page"] = paginationResult.IsFirstPage.ToString().ToLower()
+        };
+
+        if (paginationResult.LastResultId.HasValue)
+        {
+            headers["X-Last-Id"] = paginationResult.LastResultId.Value.ToString();
+        }
+
+        var linkHeaders = BuildLinkHeaders(request, paginationResult);
+        if (linkHeaders.Count > 0)
+        {
+            headers["Link"] = string.Join(", ", linkHeaders);
+        }
+
+        return headers;
+    }
+
+    private static List<string> BuildLinkHeaders<TEntity>(HttpRequestData request, PaginationResult<TEntity> paginationResult)
+    {
+        var linkHeaders = new List<string>();
+        var baseUrl = request.Url.GetLeftPart(UriPartial.Path);
+        var queryString = request.Url.Query;
+        var baseQuery = RemoveLastIdParam(queryString);
+        var separator = string.IsNullOrEmpty(baseQuery) ? "?" : "&";
+
+        // First page link (no lastId)
+        linkHeaders.Add($"<{baseUrl}{baseQuery}>; rel=\"first\"");
+
+        // Next page link (only if has next page)
+        if (paginationResult.HasNextPage && paginationResult.LastResultId.HasValue)
+        {
+            linkHeaders.Add($"<{baseUrl}{baseQuery}{separator}lastId={paginationResult.LastResultId.Value}>; rel=\"next\"");
+        }
+
+        return linkHeaders;
+    }
+
+    private static string RemoveLastIdParam(string queryString)
+    {
+        if (string.IsNullOrEmpty(queryString)) return "";
+
+        var pairs = queryString.TrimStart('?').Split('&')
+            .Where(p => !p.StartsWith("lastId="))
+            .Where(p => !string.IsNullOrWhiteSpace(p))
+            .ToArray();
+
+        return pairs.Length > 0 ? "?" + string.Join("&", pairs) : "";
     }
 
     private static Func<T, int> GetDefaultIdSelector()
     {
-        var idProperty = typeof(T).GetProperty("Id") ??
-            typeof(T).GetProperty($"{typeof(T).Name}Id");
-
-        if (idProperty == null)
-        {
+        var idProperty = (typeof(T).GetProperty("Id") ??
+            typeof(T).GetProperty($"{typeof(T).Name}Id")) ??
             throw new InvalidOperationException(
                 "Could not find a default ID property. Provide a custom ID selector.");
-        }
-        return x => (int)idProperty.GetValue(x);
+
+        return x =>
+        {
+            var value = idProperty.GetValue(x) ?? throw new InvalidOperationException(
+                    $"Entity of type {typeof(T).Name} has a null ID property ('{idProperty.Name}').");
+            return (int)value;
+        };
     }
 }
-
