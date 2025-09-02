@@ -15,7 +15,7 @@
           },
           {
             "Name": "NoTransformationRequired",
-            "Expression": "participant.PrimaryCareProvider == null && participant.ReasonForRemoval == \"ORR\""
+            "Expression": "existingParticipant.PrimaryCareProvider == null && existingParticipant.ReasonForRemoval == \"ORR\""
           }
         ],
         "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting) && !NoTransformationRequired",
@@ -48,11 +48,18 @@
         "RuleName": "8a.Transform.NoTransformButError",
         "LocalParams": [
           {
-            "Name": "participant.RecordType == Actions.Amended && NoTransformationRequired",
-            "Expression": "participant.PrimaryCareProvider == null && participant.ReasonForRemoval == \"ORR\""
+            "Name": "DMSInSMU",
+            "Expression": "participant.CurrentPosting == \"DMS\" && dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(participant.PrimaryCareProvider)"
+          },
+          {
+            "Name": "WelshCurrentPosting",
+            "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\""
+          },{ 
+            "Name": "NoTransformationRequired",
+            "Expression": "existingParticipant.PrimaryCareProvider == null && existingParticipant.ReasonForRemoval == \"ORR\""
           }
         ],
-        "Expression": "NoTransformationRequired",
+        "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting) && NoTransformationRequired",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",

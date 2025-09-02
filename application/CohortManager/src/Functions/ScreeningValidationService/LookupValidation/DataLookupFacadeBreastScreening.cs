@@ -98,6 +98,7 @@ public class DataLookupFacadeBreastScreening : IDataLookupFacadeBreastScreening
     public bool CheckIfPrimaryCareProviderInExcludedSmuList(string primaryCareProvider)
     {
         var result = _excludedSMUClient.GetSingle(primaryCareProvider).Result;
+        _logger.LogInformation("ExcludedCalled for " + primaryCareProvider + ": " + result);
         return result != null;
     }
     public string RetrievePostingCategory(string currentPosting)
