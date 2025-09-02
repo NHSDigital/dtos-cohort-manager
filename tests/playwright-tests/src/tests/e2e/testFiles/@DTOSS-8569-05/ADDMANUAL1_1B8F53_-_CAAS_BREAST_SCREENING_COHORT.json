@@ -11,7 +11,20 @@
       "meta": {
         "testJiraId": "@DTOSS-8569-05",
         "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e @incomplete Exception path: system failure (ExceptionManagement)"
+        "additionalTags": "@epic4c- @e2e Exception path: system failure (ExceptionManagement)"
+      }
+    }
+  ],
+  "serviceNowRequestValidations": [
+    {
+      "validation": {
+        "caseNumber": "CS0573853",
+        "messageType": 2
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8569-05",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e ServiceNow message type 2 sent"
       }
     }
   ],

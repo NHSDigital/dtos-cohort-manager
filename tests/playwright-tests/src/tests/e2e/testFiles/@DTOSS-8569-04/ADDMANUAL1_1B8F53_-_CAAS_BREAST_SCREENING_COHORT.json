@@ -22,13 +22,26 @@
       "meta": {
         "testJiraId": "@DTOSS-8569-04",
         "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e @incomplete Exception path: exception raised (ExceptionManagement)"
+        "additionalTags": "@epic4c- @e2e Exception path: exception raised (ExceptionManagement)"
+      }
+    }
+  ],
+  "serviceNowRequestValidations": [
+    {
+      "validation": {
+        "caseNumber": "CS0573854",
+        "messageType": 2
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8569-04",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e ServiceNow message type 2 sent"
       }
     }
   ],
   "inputParticipantRecord": [
     {
-      "number": "CS0573853",
+      "number": "CS0573854",
       "u_case_variable_data": {
         "nhs_number": "9996310003",
         "forename_": "Jane",
