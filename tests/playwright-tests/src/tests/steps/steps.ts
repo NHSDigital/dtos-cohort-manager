@@ -31,8 +31,13 @@ function getWireMockUrl(): string {
 export async function cleanupWireMock(request: APIRequestContext) {
   const wireMockUrl = getWireMockUrl();
 
-  return test.step(`Cleanup WireMock`, async () => {
-    await request.delete(wireMockUrl);
+  return test.step(`Cleaning up WireMock`, async () => {
+    try {
+      await request.delete(wireMockUrl);
+    }
+    catch {
+      console.warn(`Failed to clean up WireMock requests. Is the WireMock server running? URL: ${wireMockUrl}`);
+    }
   });
 }
 
