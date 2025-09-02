@@ -309,9 +309,16 @@ services:
       environment:
         - ASPNETCORE_URLS=http://*:9084
         - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
+        - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
         - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
         - ManageNemsSubscriptionDataServiceURL=http://manage-nems-subscription:9081/api/NemsSubscriptionDataService
         - ManageNemsSubscriptionBaseURL=http://manage-nems-subscription:9081
+        - MeshApiBaseUrl=https://localhost:8700/messageexchange
+        - MeshCaasPassword=password
+        - MeshCaasSharedKey=TestKey
+        - MeshCaasKeyName=
+        - MeshCaasKeyPassword=
+        - IsStubbed=false
         - CaasToMailbox=${CAAS_SUBSCRIBE_TO_MAILBOX:-CAAS_TO}
         - CaasFromMailbox=${CAAS_SUBSCRIBE_FROM_MAILBOX:-CAAS_FROM}
         - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True

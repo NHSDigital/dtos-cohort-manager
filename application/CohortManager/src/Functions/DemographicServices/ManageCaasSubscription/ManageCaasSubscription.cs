@@ -57,6 +57,22 @@ public class ManageCaasSubscription
             var toMailbox = _config.CaasToMailbox!;
             var fromMailbox = _config.CaasFromMailbox!;
             var messageId = await _meshSendCaasSubscribe.SendSubscriptionRequest(nhsNo, toMailbox, fromMailbox);
+
+            // Save a record to NEMS_SUBSCRIPTION table with source = MESH
+            var record = new NemsSubscription
+            {
+                SubscriptionId = messageId,
+                NhsNumber = nhsNo,
+                RecordInsertDateTime = DateTime.UtcNow,
+                SubscriptionSource = SubscriptionSource.MESH
+            };
+            var saved = await _nemsSubscriptionAccessor.InsertSingle(record);
+            if (!saved)
+            {
+                _logger.LogError("Failed to write CAAS subscription record to database");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to save subscription record.");
+            }
+
             _logger.LogInformation("CAAS Subscribe forwarded to Mesh stub. MessageId: {Msg}", messageId);
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Subscription request accepted. MessageId: {messageId}");
         }

@@ -35,7 +35,9 @@ public class ManageCaasSubscriptionTests
         {
             ManageNemsSubscriptionDataServiceURL = null, // keep stub mode during unit tests
             CaasToMailbox = "TEST_TO",
-            CaasFromMailbox = "TEST_FROM"
+            CaasFromMailbox = "TEST_FROM",
+            MeshApiBaseUrl = "http://localhost",
+            MeshCaasSharedKey = "dummy"
         });
 
         _mesh
@@ -51,6 +53,11 @@ public class ManageCaasSubscriptionTests
         _requestHandler
             .Setup(r => r.HandleRequest(It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .ReturnsAsync((HttpRequestData r, string k) => _createResponse.CreateHttpResponse(HttpStatusCode.OK, r, "OK"));
+
+        // Default: DB insert succeeds for subscribe happy path
+        _nemsAccessor
+            .Setup(a => a.InsertSingle(It.IsAny<NemsSubscription>()))
+            .ReturnsAsync(true);
 
         _sut = new ManageCaasSubscription(
             _logger.Object,
@@ -193,10 +200,12 @@ public class ManageCaasSubscriptionTests
     [TestMethod]
     public async Task Subscribe_MeshCalled_WithConfigMailboxes()
     {
+        _nemsAccessor.Setup(a => a.InsertSingle(It.IsAny<NemsSubscription>())).ReturnsAsync(true);
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
         var res = await _sut.Subscribe(req.Object);
         Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
         _mesh.Verify(m => m.SendSubscriptionRequest(9000000009L, "TEST_TO", "TEST_FROM"), Times.Once);
+        _nemsAccessor.Verify(a => a.InsertSingle(It.Is<NemsSubscription>(n => n.NhsNumber == 9000000009L && n.SubscriptionSource == SubscriptionSource.MESH && !string.IsNullOrEmpty(n.SubscriptionId))), Times.Once);
     }
 
     [TestMethod]
@@ -212,13 +221,24 @@ public class ManageCaasSubscriptionTests
     }
 
     [TestMethod]
+    public async Task Subscribe_DBInsertFails_ReturnsInternalServerError()
+    {
+        _nemsAccessor.Setup(a => a.InsertSingle(It.IsAny<NemsSubscription>())).ReturnsAsync(false);
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+        var res = await _sut.Subscribe(req.Object);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
+    }
+
+    [TestMethod]
     public async Task PollMeshMailbox_UsesConfigFromMailbox()
     {
         // Ensure config has expected mailbox
         _config.Setup(x => x.Value).Returns(new ManageCaasSubscriptionConfig
         {
             CaasFromMailbox = "TEST_FROM",
-            CaasToMailbox = "TEST_TO"
+            CaasToMailbox = "TEST_TO",
+            MeshApiBaseUrl = "http://localhost",
+            MeshCaasSharedKey = "dummy"
         });
 
         var sut = new ManageCaasSubscription(
@@ -238,7 +258,11 @@ public class ManageCaasSubscriptionTests
     [TestMethod]
     public void Config_MissingMailboxes_FailsValidation()
     {
-        var cfg = new ManageCaasSubscriptionConfig();
+        var cfg = new ManageCaasSubscriptionConfig
+        {
+            MeshApiBaseUrl = "http://localhost",
+            MeshCaasSharedKey = "dummy"
+        };
         var context = new ValidationContext(cfg);
         var results = new System.Collections.Generic.List<ValidationResult>();
         var isValid = Validator.TryValidateObject(cfg, context, results, validateAllProperties: true);
