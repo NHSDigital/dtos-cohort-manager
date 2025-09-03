@@ -13,7 +13,7 @@ export async function fetchExceptions(exceptionId?: number) {
 }
 
 export async function fetchExceptionsNotRaised() {
-  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?notRaisedOnly=true`;
+  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?exceptionStatus=2`;
 
   const response = await fetch(apiUrl);
   if (!response.ok) {
@@ -23,7 +23,7 @@ export async function fetchExceptionsNotRaised() {
 }
 
 export async function fetchExceptionsRaised() {
-  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?raisedOnly=true`;
+  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?exceptionStatus=1`;
 
   const response = await fetch(apiUrl);
   if (!response.ok) {
@@ -33,7 +33,7 @@ export async function fetchExceptionsRaised() {
 }
 
 export async function fetchExceptionsNotRaisedSorted(sortBy: 0 | 1) {
-  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?notRaisedOnly=true&sortBy=${sortBy}`;
+  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?exceptionStatus=2&sortBy=${sortBy}`;
 
   const response = await fetch(apiUrl);
   if (!response.ok) {
@@ -43,7 +43,7 @@ export async function fetchExceptionsNotRaisedSorted(sortBy: 0 | 1) {
 }
 
 export async function fetchExceptionsRaisedSorted(sortBy: 0 | 1) {
-  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?raisedOnly=true&sortBy=${sortBy}`;
+  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?exceptionStatus=1&sortBy=${sortBy}`;
 
   const response = await fetch(apiUrl);
   if (!response.ok) {
