@@ -4,7 +4,7 @@ describe("formValidationSchemas", () => {
   describe("updateExceptionsSchema", () => {
     describe("serviceNowID validation", () => {
       describe("valid ServiceNow case IDs", () => {
-        it("should accept valid ServiceNow case ID with 9 characters", () => {
+        it("should accept valid ServiceNow case ID with 2 letters and 7 digits", () => {
           const validData = { serviceNowID: "CS1234567" };
           const result = updateExceptionsSchema().safeParse(validData);
 
@@ -14,7 +14,7 @@ describe("formValidationSchemas", () => {
           }
         });
 
-        it("should accept valid ServiceNow case ID with more than 9 characters", () => {
+        it("should accept valid ServiceNow case ID with more than 7 digits after the two letters", () => {
           const validData = { serviceNowID: "CS123456789" };
           const result = updateExceptionsSchema().safeParse(validData);
 
@@ -24,36 +24,8 @@ describe("formValidationSchemas", () => {
           }
         });
 
-        it("should accept all uppercase letters", () => {
-          const validData = { serviceNowID: "ABCD12345" };
-          const result = updateExceptionsSchema().safeParse(validData);
-
-          expect(result.success).toBe(true);
-        });
-
-        it("should accept all lowercase letters", () => {
-          const validData = { serviceNowID: "abcd12345" };
-          const result = updateExceptionsSchema().safeParse(validData);
-
-          expect(result.success).toBe(true);
-        });
-
-        it("should accept mixed case letters", () => {
-          const validData = { serviceNowID: "AbCd12345" };
-          const result = updateExceptionsSchema().safeParse(validData);
-
-          expect(result.success).toBe(true);
-        });
-
-        it("should accept all numbers", () => {
-          const validData = { serviceNowID: "123456789" };
-          const result = updateExceptionsSchema().safeParse(validData);
-
-          expect(result.success).toBe(true);
-        });
-
-        it("should accept all letters", () => {
-          const validData = { serviceNowID: "ABCDEFGHI" };
+        it("should accept case-insensitive letters prefix", () => {
+          const validData = { serviceNowID: "cS1234567" };
           const result = updateExceptionsSchema().safeParse(validData);
 
           expect(result.success).toBe(true);
@@ -84,8 +56,8 @@ describe("formValidationSchemas", () => {
         });
       });
 
-      describe("invalid ServiceNow case IDs - minimum length", () => {
-        it("should reject case ID with less than 9 characters", () => {
+      describe("invalid ServiceNow case IDs - format and length", () => {
+        it("should reject case ID with fewer than 7 digits after two letters (length error first)", () => {
           const invalidData = { serviceNowID: "CS12345" };
           const result = updateExceptionsSchema().safeParse(invalidData);
 
@@ -247,19 +219,19 @@ describe("formValidationSchemas", () => {
           }
         });
 
-        it("should show length error before regex error for short invalid strings", () => {
-          const invalidData = { serviceNowID: "CS!" };
+        it("should show space error when spaces present (before other validations)", () => {
+          const invalidData = { serviceNowID: "CS123 4567" };
           const result = updateExceptionsSchema().safeParse(invalidData);
 
           expect(result.success).toBe(false);
           if (!result.success) {
             expect(result.error.issues[0].message).toBe(
-              "ServiceNow case ID must be nine characters or more"
+              "ServiceNow case ID must not contain spaces"
             );
           }
         });
 
-        it("should show refine error before regex error", () => {
+        it("should show space refine error before regex error", () => {
           const invalidData = { serviceNowID: "CS1234567 !" };
           const result = updateExceptionsSchema().safeParse(invalidData);
 
@@ -311,6 +283,36 @@ describe("formValidationSchemas", () => {
                   message: "ServiceNow case ID must be nine characters or more",
                 }),
               ])
+            );
+          }
+        });
+
+        it("should fail the final pattern when letters count is not two", () => {
+          // Pass earlier checks: length>=9, no spaces, alphanumeric only
+          const invalidData = { serviceNowID: "ABCD12345" }; // 4 letters, 5 digits
+          const result = updateExceptionsSchema(true).safeParse(invalidData);
+
+          expect(result.success).toBe(false);
+          if (!result.success) {
+            expect(result.error.issues).toEqual(
+              expect.arrayContaining([
+                expect.objectContaining({
+                  message:
+                    "ServiceNow case ID must start with two letters followed by at least seven digits (e.g. CS0619153)",
+                }),
+              ])
+            );
+          }
+        });
+
+        it("should fail the final pattern when digits come first", () => {
+          const invalidData = { serviceNowID: "123456789" }; // 9 digits, no letters
+          const result = updateExceptionsSchema(true).safeParse(invalidData);
+
+          expect(result.success).toBe(false);
+          if (!result.success) {
+            expect(result.error.issues[0].message).toBe(
+              "ServiceNow case ID must start with two letters followed by at least seven digits (e.g. CS0619153)"
             );
           }
         });

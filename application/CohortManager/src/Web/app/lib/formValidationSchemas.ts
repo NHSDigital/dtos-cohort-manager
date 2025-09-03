@@ -2,8 +2,7 @@ import { z } from "zod";
 
 // This schema validates the ServiceNow case ID for updating exceptions status.
 // In edit mode, empty input is allowed to clear the ServiceNow ID (convert raised to non-raised).
-// In non-edit mode, the ID is required and must be at least 9 characters long,
-// contain only alphanumeric characters, and not include spaces.
+// In non-edit mode, the ID is required and must start with two letters followed by at least seven digits (e.g. CS0619153).
 export const updateExceptionsSchema = (isEditMode: boolean = false) =>
   z.object({
     serviceNowID: z
@@ -36,5 +35,12 @@ export const updateExceptionsSchema = (isEditMode: boolean = false) =>
         }
         // Otherwise, check alphanumeric pattern
         return /^[a-zA-Z0-9]+$/.test(val);
-      }, "ServiceNow case ID must only contain letters and numbers"),
+      }, "ServiceNow case ID must only contain letters and numbers")
+      .refine((val) => {
+        if (isEditMode && val === "") {
+          return true;
+        }
+        // Finally, enforce two letters followed by at least seven digits (e.g. CS0619153)
+        return /^[A-Za-z]{2}\d{7,}$/.test(val);
+      }, "ServiceNow case ID must start with two letters followed by at least seven digits (e.g. CS0619153)"),
   });
