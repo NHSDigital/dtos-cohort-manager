@@ -61,12 +61,6 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
       "Verify that the changes are correct, and that the NHS number is not involved in a confusion case.",
     reportingId: "CMR38",
   },
-  36: {
-    ruleDescription: "GP practice code does not exist.",
-    moreDetails: "Raise with Breast Screening Select (BSS).",
-    reportingId: "CMR45",
-    portalFormTitle: "Raise with Breast Screening Select (BSS)",
-  },
   39: {
     ruleDescription: "Missing surname.",
     moreDetails: "Enter the patient's surname.",
@@ -76,6 +70,24 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
     ruleDescription: "Missing forename.",
     moreDetails: "Enter the patient's forename.",
     reportingId: "CMR16",
+  },
+  45: {
+    ruleDescription: "GP practice code does not exist",
+    moreDetails: "Raise with Breast Screening Select (BSS)",
+    reportingId: "CMR45",
+    portalFormTitle: "Raise with Breast Screening Select (BSS)",
+  },
+  49: {
+    ruleDescription: "Interpreter required information is not valid",
+    moreDetails:
+      "The interpreter required details must be entered as numbers 0 or 1. Check if an interpreter is needed for the participant: enter 0 if an interpreter is not required. Enter 1 if an interpreter is required",
+    reportingId: "CMR49",
+  },
+  53: {
+    ruleDescription: "Current posting awaiting update",
+    moreDetails:
+      "The patient’s GP practice code has been updated, but the current posting is yet to be updated",
+    reportingId: "CMR53",
   },
   54: {
     ruleDescription:
