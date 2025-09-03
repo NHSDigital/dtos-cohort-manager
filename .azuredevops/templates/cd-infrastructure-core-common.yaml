@@ -115,6 +115,6 @@ stages:
     - job: restart_functions
       displayName: Restart Function Apps to load new images
       steps:
-        - template: .azuredevops/templates/steps/function-apps-restart.yaml@dtos-devops-templates
+        - template: .azuredevops/templates/steps/app-services-restart.yaml@dtos-devops-templates
           parameters:
             serviceConnection: ${{ parameters.serviceConnection }}
