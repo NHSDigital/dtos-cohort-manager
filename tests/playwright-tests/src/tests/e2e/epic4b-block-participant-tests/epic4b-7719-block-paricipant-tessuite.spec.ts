@@ -68,7 +68,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     });
 
     await test.step(`When the participant is not blocked list they are subscribed to nems for PDS updates`, async () => {
-        var checkNemsSubscriptionStatusURL = `${config.SubToNems}${config.CheckNemsSubPath}?nhsNumber=${nhsNumbers[0]}` ;
+        let checkNemsSubscriptionStatusURL = `${config.SubToNems}${config.CheckNemsSubPath}?nhsNumber=${nhsNumbers[0]}` ;
         let nemsResponse = await sendHttpGet(checkNemsSubscriptionStatusURL);
 
         expect(nemsResponse.status).toBe(200);
@@ -98,7 +98,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
     });
 
     await test.step(`When the participant is in the blocked list they are not subscribed to nems for PDS updates`, async () => {
-        var checkNemsSubscriptionStatusURL = `${config.SubToNems}${config.CheckNemsSubPath}?nhsNumber=${nhsNumbers[0]}` ;
+        let checkNemsSubscriptionStatusURL = `${config.SubToNems}${config.CheckNemsSubPath}?nhsNumber=${nhsNumbers[0]}` ;
         let nemsResponse = await sendHttpGet(checkNemsSubscriptionStatusURL);
 
         expect(nemsResponse.status).toBe(404);
