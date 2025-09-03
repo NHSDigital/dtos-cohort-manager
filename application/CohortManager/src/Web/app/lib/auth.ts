@@ -114,7 +114,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       // Handle test accounts in development
       if (
-        process.env.NODE_ENV === "development" &&
+        process.env.APP_ENV === "development" &&
         account?.provider === "credentials"
       ) {
         Object.assign(token, {
