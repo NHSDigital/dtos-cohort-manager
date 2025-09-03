@@ -163,18 +163,18 @@ public class Participant
     {
         var participantManagement = new ParticipantManagement
         {
-            ScreeningId = long.Parse(ScreeningId),
-            NHSNumber = long.Parse(NhsNumber),
-            RecordType = RecordType,
+            ScreeningId = long.Parse(ScreeningId!),
+            NHSNumber = long.Parse(NhsNumber!),
+            RecordType = RecordType!,
             EligibilityFlag = MappingUtilities.ParseStringFlag(EligibilityFlag ?? "1"),
             ReasonForRemoval = ReasonForRemoval,
-            ReasonForRemovalDate = MappingUtilities.ParseDates(ReasonForRemovalEffectiveFromDate),
+            ReasonForRemovalDate = MappingUtilities.ParseDates(ReasonForRemovalEffectiveFromDate!),
             BusinessRuleVersion = BusinessRuleVersion,
             ExceptionFlag = MappingUtilities.ParseStringFlag(ExceptionFlag ?? "0"),
             BlockedFlag = MappingUtilities.ParseStringFlag(BlockedFlag ?? "0"),
             ReferralFlag = MappingUtilities.ParseStringFlag(ReferralFlag ?? "0"),
-            RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime),
-            RecordUpdateDateTime = MappingUtilities.ParseDates(RecordUpdateDateTime),
+            RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime!),
+            RecordUpdateDateTime = MappingUtilities.ParseDates(RecordUpdateDateTime!),
         };
 
         if (ParticipantId != null)
