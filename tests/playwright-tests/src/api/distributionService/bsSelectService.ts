@@ -47,7 +47,7 @@ export const getRecordsFromNemsSubscription = (
   request: APIRequestContext,
   nhsNumbers: string
 ): Promise<ApiResponse> => {
-  return apiClient.get(request, `${config.endpointNemsSubscriptionDataDataService}api/${config.nemsSubscriberDataService}?nhsNumber=${nhsNumbers[0]}`);
+  return apiClient.get(request, `${config.endpointNemsSubscriptionDataDataService}api/${config.nemsSubscriberDataService}?nhsNumber=${nhsNumbers}`);
 };
 
 export function extractSubscriptionID(response: ApiResponse): string | null {
@@ -114,4 +114,35 @@ export const invalidServiceNowEndpoint = (
   const endpoint = `${config.invalidEndpointSerNow}${config.invalidRouteSerNowEndpoint}`;
   return apiClient.post(request, endpoint, payload);
 };
+
+export async function retry<T>(
+  fn: () => Promise<T>,
+  validate: (result: T) => boolean,
+  options?: {
+    retries?: number;
+    delayMs?: number;
+    throwLastError?: boolean;
+  }
+): Promise<T> {
+  const { retries = 5, delayMs = 2000, throwLastError = true } = options || {};
+  let lastError: any;
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      const result = await fn();
+      if (validate(result)) {
+        return result;
+      }
+    } catch (err) {
+      lastError = err;
+    }
+    if (attempt < retries) {
+      await new Promise(res => setTimeout(res, delayMs));
+    }
+  }
+  if (throwLastError && lastError) {
+    throw lastError;
+  }
+  throw new Error(`Retry validation failed after ${retries} attempts`);
+}
+
 
