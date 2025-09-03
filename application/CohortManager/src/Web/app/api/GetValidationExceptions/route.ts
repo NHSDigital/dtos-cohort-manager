@@ -45,8 +45,6 @@ function addExceptionDetails<T extends { ExceptionId: number }>(items: T[]) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const exceptionId = searchParams.get("exceptionId");
-  const raisedOnly = searchParams.get("raisedOnly");
-  const notRaisedOnly = searchParams.get("notRaisedOnly");
   const sortBy = searchParams.get("sortBy");
   const sortOrder = searchParams.get("sortOrder");
   const exceptionStatus = searchParams.get("exceptionStatus");
@@ -107,28 +105,6 @@ export async function GET(request: Request) {
       isRaised ? "ServiceNowCreatedDate" : "DateCreated"
     );
 
-    const response = createExceptionListResponse(
-      addExceptionDetails(sortedItems)
-    );
-    return NextResponse.json(response, { status: 200 });
-  }
-
-  if (notRaisedOnly) {
-    const notRaisedExceptions = mockDataStore.getNotRaisedExceptions();
-    const sortedItems = sortExceptions([...notRaisedExceptions], sortBy);
-    const response = createExceptionListResponse(
-      addExceptionDetails(sortedItems)
-    );
-    return NextResponse.json(response, { status: 200 });
-  }
-
-  if (raisedOnly) {
-    const raisedExceptions = mockDataStore.getRaisedExceptions();
-    const sortedItems = sortExceptions(
-      [...raisedExceptions],
-      sortBy,
-      "ServiceNowCreatedDate"
-    );
     const response = createExceptionListResponse(
       addExceptionDetails(sortedItems)
     );
