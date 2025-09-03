@@ -66,12 +66,12 @@ jobs:
 
           # Define which tests to run based on the environment
           declare -A test_types=(
-            ["dev"]="smoke_e2e,regression_api,regression_e2e_epic1,regression_e2e_epic2,regression_e2e_epic3"
-            ["nft"]="smoke_e2e,regression_api,regression_e2e_epic1,regression_e2e_epic2,regression_e2e_epic3"
-            ["int"]=""
+            ["development"]="smoke_e2e"
+            ["nft"]=""
+            ["integration"]=""
             ["sandbox"]="smoke_e2e,regression_api"
-            ["pre"]=""
-            ["prod"]=""
+            ["preprod"]=""
+            ["production"]=""
           )
 
           git_short_sha=$(git rev-parse --short ${{inputs.commit_sha}})
