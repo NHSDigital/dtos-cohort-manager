@@ -273,6 +273,7 @@ function_apps = {
   enable_appsrv_storage         = "false"
   ftps_state                    = "Disabled"
   https_only                    = true
+  http2_enabled                 = false
   remote_debugging_enabled      = false
   storage_uses_managed_identity = null
   worker_32bit                  = false
