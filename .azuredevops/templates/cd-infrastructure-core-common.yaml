@@ -48,7 +48,8 @@ stages:
             serviceConnection: ${{ parameters.serviceConnection }}
 
 - stage: terraform_deploy
-  displayName: Terraform Deploy
+  displayName: ${{ if eq(parameters.terraformActions, 'Apply') }}: Terraform Deploy
+               ${{ if ne(parameters.terraformActions, 'Apply') }}: Terraform Plan
   condition: |
     and(
       eq(variables['Build.Reason'], 'Manual'),
