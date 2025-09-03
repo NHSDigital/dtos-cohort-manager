@@ -588,3 +588,16 @@ variable "function_app_slots" {
     function_app_slot_enabled = optional(bool, false)
   }))
 }
+
+variable "policy_assignments" {
+  description = "A map of policy assignments to create for network monitoring. The key is a unique name for the assignment."
+  type = map(object({
+    name                     = string
+    display_name             = string
+    description              = string
+    policy_definition_id     = string
+    remediation_name         = string
+    remediation_display_name = string
+  }))
+  default = null
+}

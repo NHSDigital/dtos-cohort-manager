@@ -1322,3 +1322,12 @@ storage_accounts = {
     }
   }
 }
+
+policy_assignments = {
+  "assign_network_diagnostics" = {
+    name                 = "Enable-Azure-Monitor-for-Networks"
+    display_name         = "Assign Enable Azure Monitor for Networks Initiative"
+    description          = "Assigns the built-in initiative to ensure all network resources have diagnostics enabled."
+    policy_definition_id = "/providers/Microsoft.Authorization/policySetDefinitions/0884adba-2312-4468-abeb-5422caed1038"
+  }
+}
