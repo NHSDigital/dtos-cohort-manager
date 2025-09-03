@@ -56,7 +56,7 @@ export const config = {
   routeBsSelectUnblockParticipant: 'api/UnblockParticipant',
   routeGetValidationExceptions: 'api/GetValidationExceptions',
   routeSerNowReceiveParticipant: 'api/servicenow/receive',
-  nemsSubscriberDataService: 'CheckSubscriptionStatus?nhsNumber=',
+  nemsSubscriberDataService: 'CheckSubscriptionStatus',
   invalidRouteSerNowEndpoint: 'api/serviceno/receive',
   cohortDistributionService: 'CohortDistributionDataService',
   participantManagementService: 'ParticipantManagementDataService',

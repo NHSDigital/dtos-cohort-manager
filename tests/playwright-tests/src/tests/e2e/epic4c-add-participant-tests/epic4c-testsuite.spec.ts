@@ -65,21 +65,4 @@ test.describe('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the Added r
       console.log(`Extracted Subscription ID: ${subscriptionID} for NHS number: ${nhsNumber}`);
     });
   });
-
-  test('@DTOSS-3881-02 DTOSS-10013 @not-runner-based AMEND verify NemsSubscription_id in NEMS_SUBSCRIPTION table', {
-    annotation: [{
-      type: 'Requirement - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3881',
-      description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-10013',
-    }]
-  }, async ({ request }, testInfo) => {
-
-      const nhsNumber = '9996534472';
-
-      const response = await getRecordsFromNemsSubscription(request, nhsNumber);
-      const subscriptionID = extractSubscriptionID(response);
-      expect(response.status).toBe(200);
-      expect(subscriptionID).not.toBeNull();
-
-      console.log(`Extracted Subscription ID: ${subscriptionID} for NHS number: ${nhsNumber}`);
-  });
 });

@@ -45,9 +45,9 @@ export const getRecordsFromExceptionManagementService = (
 
 export const getRecordsFromNemsSubscription = (
   request: APIRequestContext,
-  id: string
+  nhsNumbers: string
 ): Promise<ApiResponse> => {
-  return apiClient.get(request, `${config.endpointNemsSubscriptionDataDataService}api/${config.nemsSubscriberDataService}${id}`);
+  return apiClient.get(request, `${config.endpointNemsSubscriptionDataDataService}api/${config.nemsSubscriberDataService}?nhsNumber=${nhsNumbers[0]}`);
 };
 
 export function extractSubscriptionID(response: ApiResponse): string | null {
