@@ -44,7 +44,10 @@ stages:
             serviceConnection: ${{ parameters.serviceConnection }}
 
 - stage: terraform_deploy
-  displayName: ${{ if eq(parameters.terraformActions, 'Apply') }} Terraform Deploy ${{ else }} Terraform Plan
+  ${{ if eq(parameters.terraformActions, 'Apply') }}:
+    displayName: Terraform Deploy
+  ${{ else }}:
+    displayName: Terraform Plan
   condition: in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped')
   variables:
     tfVarsFile: ${{ parameters.tfVarsFile }}
