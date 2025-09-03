@@ -9,4 +9,5 @@ public interface ITransformDataLookupFacade
     public string GetBsoCodeUsingPCP(string primaryCareProvider);
     public bool ValidateLanguageCode(string languageCode);
     public Task<HashSet<string>> GetCachedExcludedSMUValues();
+    string RetrievePostingCategory(string currentPosting);
 }

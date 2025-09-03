@@ -1,6 +1,6 @@
 import { test, APIRequestContext, expect } from "@playwright/test";
 import { checkBlobExists, uploadToLocalStorage } from "../../storage/azureStorage";
-import { InputData, ParticipantRecord } from "../../interface/InputData";
+import { InputData, ParticipantRecord, ServiceNowRequestValidations } from "../../interface/InputData";
 import { config } from "../../config/env";
 import * as fs from 'fs';
 import path from "path";
@@ -9,11 +9,36 @@ import { cleanDataBaseUsingServices } from "../../api/dataService/dataServiceCle
 import { ensureNhsNumbersStartWith999 } from "../fixtures/testDataHelper";
 import { receiveParticipantViaServiceNow } from "../../api/distributionService/bsSelectService";
 import { validateApiResponse } from "../../api/RetryCore/Retry";
+import { WireMockResponse } from "../../interface/wiremock";
 
 
 export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers: string[]) {
   return test.step(`Cleanup database using data services`, async () => {
     await cleanDataBaseUsingServices(numbers, request);
+  });
+}
+
+function getWireMockUrl(): string {
+  const wireMockUrl = config.wireMockUrl;
+
+  if (wireMockUrl.length === 0)
+  {
+    throw new Error(`❌ WIREMOCK_URL environment variable is empty`);
+  }
+
+  return wireMockUrl;
+}
+
+export async function cleanupWireMock(request: APIRequestContext) {
+  const wireMockUrl = getWireMockUrl();
+
+  return test.step(`Cleaning up WireMock`, async () => {
+    try {
+      await request.delete(wireMockUrl);
+    }
+    catch {
+      console.warn(`Failed to clean up WireMock requests. Is the WireMock server running? URL: ${wireMockUrl}`);
+    }
   });
 }
 
@@ -23,6 +48,46 @@ export async function validateSqlDatabaseFromAPI(request: APIRequestContext, val
     if (!status) {
       throw new Error(`❌ Validation failed after ${config.apiRetry} attempts, please checks logs for more details: ${errorTrace}`);
     }
+  });
+}
+
+export async function validateServiceNowRequestWithMockServer(request: APIRequestContext, validations: ServiceNowRequestValidations[]) {
+  const wireMockUrl = getWireMockUrl();
+
+  var response = await request.get(wireMockUrl);
+  var body = await response.json() as WireMockResponse;
+
+  return test.step(`Validate ServiceNow Requests with WireMock`, async () => {
+    validations.forEach(validation => {
+      const { caseNumber, messageType } = validation.validation;
+
+      var request = body.requests.find(request => request.request.url.endsWith(caseNumber));
+
+      if (!request)
+      {
+        throw new Error(`❌ Validation failed, request not found for: ${caseNumber}`);
+      }
+
+      console.info(`🚧 Validating ServiceNow Message Type ${messageType} was sent for ${caseNumber}`);
+
+      switch (messageType) {
+        case 1:
+          expect(request.request.url == `/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate/${caseNumber}`).toBeTruthy();
+          expect(JSON.parse(request.request.body)['needs_attention'] == true).toBeTruthy();
+          break;
+        case 2:
+          expect(request.request.url == `/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate/${caseNumber}`).toBeTruthy();
+          expect(JSON.parse(request.request.body)['needs_attention'] == false).toBeTruthy();
+          break;
+        case 3:
+          expect(request.request.url == `/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution/${caseNumber}`).toBeTruthy();
+          break;
+        default:
+          throw new Error(`❌ Validation failed, unexpected message type: ${messageType}`);
+      }
+
+      console.info(`✅ Validation Complete - ServiceNow Message Type ${messageType} request was sent for ${caseNumber}`);
+    });
   });
 }
 
@@ -38,8 +103,6 @@ export async function sendParticipantViaSnowAPI(request: APIRequestContext,
   return test.step(`Process file via SnowAPI`, async () => {
     await receiveParticipantViaServiceNow(request,payload);
   });
-
-
 }
 
 export async function getTestData(scenarioFolderName: string
@@ -98,6 +161,7 @@ export function getConsolidatedAllTestData(
   let allValidations: any[] = [];
   let allInputParticipantRecords: any[] = [];
   let allNhsNumbers: any[] = [];
+  let allServiceNowRequestValidations: any[] = [];
 
   scenarioFolders.forEach(folder => {
     try {
@@ -107,7 +171,8 @@ export function getConsolidatedAllTestData(
         const srcPath = path.join(testFilesPath, jsonFile);
         try {
           const parsedData: InputData = JSON.parse(fs.readFileSync(srcPath, 'utf-8'));
-          allValidations = allValidations.concat(parsedData.validations);
+          allValidations = allValidations.concat(parsedData.validations).filter(element => element !== undefined);
+          allServiceNowRequestValidations = allServiceNowRequestValidations.concat(parsedData.serviceNowRequestValidations).filter(element => element !== undefined);
           allNhsNumbers = allNhsNumbers.concat(parsedData.nhsNumbers);
           if (Array.isArray(parsedData.inputParticipantRecord)) {
             allInputParticipantRecords = allInputParticipantRecords.concat(parsedData.inputParticipantRecord);
@@ -127,6 +192,7 @@ export function getConsolidatedAllTestData(
     validations: allValidations,
     inputParticipantRecords: allInputParticipantRecords,
     nhsNumbers: allNhsNumbers,
+    serviceNowRequestValidations: allServiceNowRequestValidations,
     testFilesPath
   };
 }

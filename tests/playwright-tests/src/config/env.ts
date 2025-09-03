@@ -22,7 +22,8 @@ const endpointSerNowReceiveParticipant = process.env.ENDPOINT_SERVICE_NOW_MESSAG
 const invalidEndpointSerNow = process.env.INVALID_ENDPOINT_SERVICE_NOW_MESSAGE_HANDLER ?? '';
 const participantPayloadPath = process.env.PARTICIPANT_PAYLOAD_PATH ?? '';
 const createPDSDemographicEnv = process.env.ENDPOINT_PDS_DEMOGRAPHIC ?? '';
-const subToNemsEndPoint = process.env.ENDPOINT_SUB_TO_NEMS ?? ''
+const subToNemsEndPoint = process.env.ENDPOINT_SUB_TO_NEMS ?? '';
+const wireMockUrl = process.env.WIREMOCK_URL ?? '';
 
 export const config = {
   baseURL,
@@ -41,7 +42,9 @@ export const config = {
   createPDSDemographic: createPDSDemographicEnv,
   invalidEndpointSerNow: invalidEndpointSerNow,
   SubToNems: subToNemsEndPoint,
+  wireMockUrl: wireMockUrl,
   SubToNemsPath: 'api/Subscribe',
+  CheckNemsSubPath:'api/CheckSubscriptionStatus',
   routeBsSelectRetrieveCohortDistributionData: 'api/RetrieveCohortDistributionData',
   routeBsSelectRetrieveCohortRequestAudit: 'api/RetrieveCohortRequestAudit',
   routeBsSelectDeleteParticipant: 'api/DeleteParticipant',

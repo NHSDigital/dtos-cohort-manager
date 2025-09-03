@@ -30,6 +30,6 @@ export const runnerBasedEpic4cTestScenariosAdd = "@DTOSS-9337-01|@DTOSS-9750-01|
 export const runnerBasedEpic4cTestScenariosAmend = "@DTOSS-9337-01|@DTOSS-9750-02";
 
 // export const runnerBasedEpic4cTestScenariosManualAdd = "";
-export const runnerBasedEpic4cTestScenariosManualAdd = "@DTOSS-3883-01|@DTOSS-8484-01|@DTOSS-9614-01|@DTOSS-8375-01";
-export const runnerBasedEpic4cTestScenariosManualAmend = "@DTOSS-8483-01|@DTOSS-9614-01";
+export const runnerBasedEpic4cTestScenariosManualAdd = "@DTOSS-3883-01|@DTOSS-8484-01|@DTOSS-9614-01|@DTOSS-8375-01|@DTOSS-3884-01|@DTOSS-9706-01|@DTOSS-9706-02";
+export const runnerBasedEpic4cTestScenariosManualAmend = "@DTOSS-8483-01|@DTOSS-9614-01|@DTOSS-9706-01";
 //export const runnerBasedEpic4cTestScenariosManualAmend = "";

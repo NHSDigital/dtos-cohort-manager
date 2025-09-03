@@ -148,11 +148,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-      capacity_max = "1"
-      capacity_def = "1"
+          capacity_max = "1"
+          capacity_def = "1"
 
-      inc_scale_value     = 1
-      dec_scale_value     = 1
+          inc_scale_value = 1
+          dec_scale_value = 1
 
         }
       }
@@ -163,7 +163,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_max = "5"
+          capacity_max    = "5"
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -177,11 +177,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-      capacity_max = "1"
-      capacity_def = "1"
+          capacity_max = "1"
+          capacity_def = "1"
 
-      inc_scale_value     = 1
-      dec_scale_value     = 1
+          inc_scale_value = 1
+          dec_scale_value = 1
 
         }
       }
@@ -192,7 +192,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_max = "5"
+          capacity_max    = "5"
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -206,7 +206,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_max = "3"
+          capacity_max    = "3"
           inc_scale_value = 3
 
           dec_scale_type  = "ChangeCount"
@@ -672,6 +672,11 @@ function_apps = {
           endpoint_name    = "LanguageCode"
         },
         {
+          env_var_name     = "CurrentPostingUrl"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "CurrentPosting"
+        },
+        {
           env_var_name     = "ExcludedSMULookupUrl"
           function_app_key = "ReferenceDataService"
           endpoint_name    = "ExcludedSMU"
@@ -997,10 +1002,10 @@ function_apps = {
     }
 
     RetrievePDSDemographic = {
-      name_suffix             = "retrieve-pds-demographic"
-      function_endpoint_name  = "RetrievePDSDemographic"
-      app_service_plan_key    = "NonScaling"
-      key_vault_url           = "KeyVaultConnectionString"
+      name_suffix            = "retrieve-pds-demographic"
+      function_endpoint_name = "RetrievePDSDemographic"
+      app_service_plan_key   = "NonScaling"
+      key_vault_url          = "KeyVaultConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1016,13 +1021,13 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL = ""
-        Kid                       = ""
-        Audience                  = ""
-        AuthTokenURL              = ""
-        KeyNamePrivateKey         = ""
+        RetrievePdsParticipantURL  = ""
+        Kid                        = ""
+        Audience                   = ""
+        AuthTokenURL               = ""
+        KeyNamePrivateKey          = ""
         ParticipantManagementTopic = "participant-management"
-        UseFakePDSServices        = "false"
+        UseFakePDSServices         = "false"
       }
     }
 

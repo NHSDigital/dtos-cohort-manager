@@ -133,7 +133,7 @@ variable "app_service_plan" {
     })
 
     instances = map(object({
-      sku_name           = optional(string, "P2v3")
+      sku_name = optional(string, "P2v3")
       autoscale_override = optional(object({
         scaling_rule = object({
           metric              = optional(string)
