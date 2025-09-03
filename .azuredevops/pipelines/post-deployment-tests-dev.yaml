@@ -4,7 +4,7 @@ trigger: none
 pr: none
 
 schedules:
-  - cron: "15 7 * * 1-5" # Every weekday (Mon-Fri) at 07:15 UTC i.e 8:15 BST
+  - cron: "00 5 * * 1-5" # Every weekday (Mon-Fri) at 05:00 UTC i.e 06:00 BST
     displayName: Weekdays run
     branches:
       include:
@@ -16,7 +16,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: d6d6e3e99459d9d71a83fa5affa900a6c339a3b5
+      ref: 143bb43a2f95dd23e3c579a3bf87b29a63ee4003
       endpoint: NHSDigital
 
 variables:

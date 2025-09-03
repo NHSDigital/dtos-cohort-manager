@@ -66,8 +66,8 @@ jobs:
 
           # Define which tests to run based on the environment
           declare -A test_types=(
-            ["development"]="smoke_e2e,regression_api,regression_e2e_epic1"
-            ["nft"]="smoke_e2e,regression_api,regression_e2e_epic1,regression_e2e_epic2,regression_e2e_epic3"
+            ["development"]="smoke_e2e"
+            ["nft"]=""
             ["integration"]=""
             ["sandbox"]="smoke_e2e,regression_api"
             ["preprod"]=""
