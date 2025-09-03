@@ -147,11 +147,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-      capacity_max = "1"
-      capacity_def = "1"
+          capacity_max = "1"
+          capacity_def = "1"
 
-      inc_scale_value     = 1
-      dec_scale_value     = 1
+          inc_scale_value = 1
+          dec_scale_value = 1
 
         }
       }
@@ -162,7 +162,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_max = "5"
+          capacity_max    = "5"
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -176,11 +176,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-      capacity_max = "1"
-      capacity_def = "1"
+          capacity_max = "1"
+          capacity_def = "1"
 
-      inc_scale_value     = 1
-      dec_scale_value     = 1
+          inc_scale_value = 1
+          dec_scale_value = 1
 
         }
       }
@@ -191,7 +191,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_max = "5"
+          capacity_max    = "5"
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -205,7 +205,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_max = "3"
+          capacity_max    = "3"
           inc_scale_value = 3
 
           dec_scale_type  = "ChangeCount"
@@ -669,6 +669,11 @@ function_apps = {
           env_var_name     = "LanguageCodeUrl"
           function_app_key = "ReferenceDataService"
           endpoint_name    = "LanguageCode"
+        },
+        {
+          env_var_name     = "CurrentPostingUrl"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "CurrentPosting"
         },
         {
           env_var_name     = "ExcludedSMULookupUrl"
@@ -1160,7 +1165,7 @@ linux_web_app = {
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort-dev.non-live.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
-          APP_ENV             = "development"
+          APP_ENV              = "development"
         }
         from_key_vault = {
           # env_var_name           = "key_vault_secret_name"

@@ -20,7 +20,12 @@ export const sendHttpGet =
     url: string
 ): Promise<Response> => 
 {
-  const response = await fetch(url);
+    const response = await fetch(url, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
   return response;
 }
 
