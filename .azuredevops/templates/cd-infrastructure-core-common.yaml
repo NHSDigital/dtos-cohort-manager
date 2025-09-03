@@ -29,11 +29,7 @@ stages:
   # Only required until commit hashes are passed in by calling pipeline, except for the
   # PreProd pipeline which needs to retag images to move them from the Dev ACR to the Prod ACR
   displayName: ACR re-tag
-  condition: |
-    and(
-      eq(variables['Build.Reason'], 'Manual'), 
-      in('${{ parameters.retagImages }}', 'true')
-    )
+  condition: in('${{ parameters.retagImages }}', 'true')
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
@@ -48,13 +44,8 @@ stages:
             serviceConnection: ${{ parameters.serviceConnection }}
 
 - stage: terraform_deploy
-  displayName: ${{ if eq(parameters.terraformActions, 'Apply') }}: Terraform Deploy
-               ${{ if ne(parameters.terraformActions, 'Apply') }}: Terraform Plan
-  condition: |
-    and(
-      eq(variables['Build.Reason'], 'Manual'),
-      in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped')
-    )
+  displayName: ${{ if eq(parameters.terraformActions, 'Apply') }} Terraform Deploy ${{ else }} Terraform Plan
+  condition: in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped')
   variables:
     tfVarsFile: ${{ parameters.tfVarsFile }}
   pool:
@@ -76,7 +67,7 @@ stages:
       condition: |
         and(
           eq(dependencies.init_and_plan.outputs['TerraformPlan.changesPresent'], 'true'), 
-          in('${{ parameters.terraformActions }}', 'Apply')
+          eq('${{ parameters.terraformActions }}', 'Apply')
         )
       strategy:
         runOnce:
@@ -89,12 +80,9 @@ stages:
 - stage: db_changes_stage
   displayName: Database changes
   condition: |
-    and(
-      eq(variables['Build.Reason'], 'Manual'),
-      or(
-        eq(dependencies.re_tag_stage.result, 'Succeeded'),
-        eq(dependencies.terraform_deploy.jobs.terraform_apply.result, 'Succeeded')
-      )
+    or(
+      eq(dependencies.re_tag_stage.result, 'Succeeded'),
+      eq(dependencies.terraform_deploy.jobs.terraform_apply.result, 'Succeeded')
     )
   pool:
     name: ${{ parameters.hostPoolName }}
@@ -114,12 +102,9 @@ stages:
 - stage: restart_functions_stage
   displayName: Restart Function Apps
   condition: |
-    and(
-      eq(variables['Build.Reason'], 'Manual'),
-      or(
-        eq(dependencies.re_tag_stage.result, 'Succeeded'),
-        eq(dependencies.terraform_deploy.jobs.terraform_apply.result, 'Succeeded')
-      )
+    or(
+      eq(dependencies.re_tag_stage.result, 'Succeeded'),
+      eq(dependencies.terraform_deploy.jobs.terraform_apply.result, 'Succeeded')
     )
   pool:
     name: ${{ parameters.hostPoolName }}
