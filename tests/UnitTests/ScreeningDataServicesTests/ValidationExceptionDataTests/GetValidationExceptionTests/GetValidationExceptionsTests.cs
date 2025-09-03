@@ -147,7 +147,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "lastId", 0)).Returns(0);
         _validationDataMock.Setup(s => s.GetAllFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), null, It.IsAny<Func<ValidationException, int>>())).Returns(paginatedResult);
-        _paginationServiceMock.Setup(p => p.BuildPaginationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
         // Act
         var result = await _service.Run(_requestMock.Object);
@@ -160,7 +160,7 @@ public class GetValidationExceptionsTests
             _requestMock.Object,
             It.IsAny<string>(),
             expectedHeaders), Times.Once);
-        _paginationServiceMock.Verify(p => p.BuildPaginationHeaders(_requestMock.Object, paginatedResult), Times.Once);
+        _paginationServiceMock.Verify(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult), Times.Once);
     }
 
     [TestMethod]
@@ -279,7 +279,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "lastId", 0)).Returns(0);
         _validationDataMock.Setup(s => s.GetAllFilteredExceptions(exceptionStatus, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), null, It.IsAny<Func<ValidationException, int>>())).Returns(paginatedResult);
-        _paginationServiceMock.Setup(p => p.BuildPaginationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
         // Act
         var result = await _service.Run(_requestMock.Object);
@@ -313,7 +313,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "lastId", 0)).Returns(0);
         _validationDataMock.Setup(s => s.GetAllFilteredExceptions(ExceptionStatus.All, sortOrder, _exceptionCategory)).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), null, It.IsAny<Func<ValidationException, int>>())).Returns(paginatedResult);
-        _paginationServiceMock.Setup(p => p.BuildPaginationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
         // Act
         var result = await _service.Run(_requestMock.Object);
@@ -348,7 +348,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "lastId", 0)).Returns(lastId);
         _validationDataMock.Setup(s => s.GetAllFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), lastId, It.IsAny<Func<ValidationException, int>>())).Returns(paginatedResult);
-        _paginationServiceMock.Setup(p => p.BuildPaginationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
         // Act
         var result = await _service.Run(_requestMock.Object);
@@ -420,7 +420,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "lastId", 0)).Returns(0);
         _validationDataMock.Setup(s => s.GetAllFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), null, It.IsAny<Func<ValidationException, int>>())).Returns(paginatedResult);
-        _paginationServiceMock.Setup(p => p.BuildPaginationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
         // Act
         var result = await _service.Run(_requestMock.Object);
@@ -455,7 +455,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "lastId", 0)).Returns(0);
         _validationDataMock.Setup(s => s.GetAllFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), null, It.IsAny<Func<ValidationException, int>>())).Returns(paginatedResult);
-        _paginationServiceMock.Setup(p => p.BuildPaginationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
         // Act
         var result = await _service.Run(_requestMock.Object);
@@ -490,7 +490,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "lastId", 0)).Returns(lastId);
         _validationDataMock.Setup(s => s.GetAllFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), lastId, It.IsAny<Func<ValidationException, int>>())).Returns(paginatedResult);
-        _paginationServiceMock.Setup(p => p.BuildPaginationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
         // Act
         var result = await _service.Run(_requestMock.Object);
@@ -524,7 +524,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "lastId", 0)).Returns(0);
         _validationDataMock.Setup(s => s.GetAllFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), null, It.IsAny<Func<ValidationException, int>>())).Returns(paginatedResult);
-        _paginationServiceMock.Setup(p => p.BuildPaginationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
         // Act
         var result = await _service.Run(_requestMock.Object);
@@ -564,7 +564,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "lastId", 0)).Returns(0);
         _validationDataMock.Setup(s => s.GetAllFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), null, It.IsAny<Func<ValidationException, int>>())).Returns(paginatedResult);
-        _paginationServiceMock.Setup(p => p.BuildPaginationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
         // Act
         var result = await _service.Run(_requestMock.Object);
@@ -577,6 +577,6 @@ public class GetValidationExceptionsTests
             _requestMock.Object,
             It.IsAny<string>(),
             expectedHeaders), Times.Once);
-        _paginationServiceMock.Verify(p => p.BuildPaginationHeaders(_requestMock.Object, paginatedResult), Times.Once);
+        _paginationServiceMock.Verify(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult), Times.Once);
     }
 }
