@@ -62,11 +62,11 @@ test.describe('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the Added r
       expect(response.status).toBe(200);
       expect(subscriptionID).not.toBeNull();
 
-      console.log(`Extracted Subscription ID: ${subscriptionID}`);
+      console.log(`Extracted Subscription ID: ${subscriptionID} for NHS number: ${nhsNumber}`);
     });
   });
 
-  test('DTOSS-10013 AMEND verify NemsSubscription_id in NEMS_SUBSCRIPTION table', {
+  test('@DTOSS-3881-02 DTOSS-10013 @not-runner-based AMEND verify NemsSubscription_id in NEMS_SUBSCRIPTION table', {
     annotation: [{
       type: 'Requirement - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3881',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-10013',
@@ -80,6 +80,6 @@ test.describe('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the Added r
       expect(response.status).toBe(200);
       expect(subscriptionID).not.toBeNull();
 
-      console.log(`Extracted Subscription ID: ${subscriptionID}`);
+      console.log(`Extracted Subscription ID: ${subscriptionID} for NHS number: ${nhsNumber}`);
   });
 });
