@@ -1,0 +1,61 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 6816376358,
+        "GivenName": "Jane",
+        "FamilyName": "Doe"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3881-02",
+        "requirementJiraId": "@DTOSS-3881-02",
+        "additionalTags": "@DTOSS-3881-02 @e2e @epic4c- DTOSS-10013 1.verify valid record between PDS and SNOW in cohort distribution table"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "ADD",
+        "NHSNumber": 6816376358,
+        "ReferralFlag": 1,
+        "ScreeningId": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3881-02",
+        "requirementJiraId": "@DTOSS-3881-02",
+        "additionalTags": "@DTOSS-3881-02 @e2e @epic4c- DTOSS-10013 2.verify valid record between PDS and SNOW in participant management table"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 6816376358,
+        "GivenName": "Jane",
+        "FamilyName": "Doe"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3881-02",
+        "requirementJiraId": "@DTOSS-3881-02",
+        "additionalTags": "@DTOSS-3881-02 @e2e @epic4c- DTOSS-10013 3.verify valid record between PDS and SNOW in participant demographic table"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "number": "CS0573846",
+      "u_case_variable_data": {
+        "nhs_number": "6816376358",
+        "forename_": "Jane",
+        "surname_family_name": "Doe",
+        "date_of_birth": "2010-10-22",
+        "enter_dummy_gp_code": "",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
+      }
+    }
+  ],
+  "nhsNumbers": [
+    "6816376358"
+  ]
+}

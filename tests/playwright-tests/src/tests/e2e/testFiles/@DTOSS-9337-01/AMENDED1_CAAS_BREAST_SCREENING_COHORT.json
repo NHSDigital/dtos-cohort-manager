@@ -36,7 +36,7 @@
       "serial_change_number": 2,
       "nhs_number": 9997311760,
       "superseded_by_nhs_number": "9992808403",
-      "primary_care_provider": null,
+      "primary_care_provider": "A81001",
       "primary_care_effective_from_date": "20030318",
       "current_posting": "CH",
       "current_posting_effective_from_date": "20130319",

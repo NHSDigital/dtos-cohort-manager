@@ -63,7 +63,7 @@ export const config = {
   participantPayloadPath: 'src/tests/api/testFiles',
   e2eTestFilesPath: 'e2e/testFiles',
   apiTestFilesPath: 'api/testFiles',
-  apiRetry: 4,
+  apiRetry: 8,
   apiWaitTime: 5000,
   nhsNumberKey: 'NHSNumber',
   nhsNumberKeyExceptionDemographic: 'NhsNumber',

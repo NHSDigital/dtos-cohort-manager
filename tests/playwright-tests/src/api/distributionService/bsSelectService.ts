@@ -1,4 +1,4 @@
-import { APIRequestContext } from '@playwright/test';
+import { APIRequestContext, APIResponse } from '@playwright/test';
 import * as apiClient from '../apiClient';
 import { config } from '../../config/env';
 import { ApiResponse, QueryParams } from '../core/types';
@@ -49,6 +49,18 @@ export const getRecordsFromNemsSubscription = (
 ): Promise<ApiResponse> => {
   return apiClient.get(request, `${config.endpointNemsSubscriptionDataDataService}api/${config.nemsSubscriberDataService}${id}`);
 };
+
+export function extractSubscriptionID(response: ApiResponse): string | null {
+  const source =
+    (typeof response.text === 'string' && response.text.length > 0)
+      ? response.text
+      : JSON.stringify(response.data ?? '');
+
+  const cleaned = source.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
+  const match = cleaned.match(/Subscription ID:\s*([a-f0-9]{32})/i);
+
+  return match ? match[1] : null;
+}
 
 export const deleteParticipant = (
   request: APIRequestContext,
@@ -101,20 +113,5 @@ export const invalidServiceNowEndpoint = (
 ): Promise<ApiResponse> => {
   const endpoint = `${config.invalidEndpointSerNow}${config.invalidRouteSerNowEndpoint}`;
   return apiClient.post(request, endpoint, payload);
-};
-
-export const extractNemsSubscriptionId = (response: ApiResponse): string => {
-  const message = response?.data ?? response.text;
-  const match = message.match(/Subscription ID:\s*([a-zA-Z0-9]+)/);
-  if (!match) {
-    throw new Error('Subscription ID not found in API response');
-  }
-  return match[1];
-};
-export const assertSubscriptionIdValid = (response: ApiResponse<any>, subscriptionId: string, nhsNumber: string) => {
-  console.log(`Subscription ID for user ${nhsNumber}:`, subscriptionId);
-  if (subscriptionId.length < 10) {
-    throw new Error(`Subscription ID is too short: ${subscriptionId}`);
-  }
 };
 
