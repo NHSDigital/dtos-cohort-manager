@@ -3,7 +3,7 @@
     {
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 6816376358,
+        "NHSNumber": 9996534472,
         "GivenName": "Jane",
         "FamilyName": "Doe"
       },
@@ -17,7 +17,7 @@
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "RecordType": "ADD",
-        "NHSNumber": 6816376358,
+        "NHSNumber": 9996534472,
         "ReferralFlag": 1,
         "ScreeningId": 1
       },
@@ -30,7 +30,7 @@
     {
       "validations": {
         "apiEndpoint": "api/ParticipantDemographicDataService",
-        "NhsNumber": 6816376358,
+        "NhsNumber": 9996534472,
         "GivenName": "Jane",
         "FamilyName": "Doe"
       },
@@ -45,7 +45,7 @@
     {
       "number": "CS0573846",
       "u_case_variable_data": {
-        "nhs_number": "6816376358",
+        "nhs_number": "9996534472",
         "forename_": "Jane",
         "surname_family_name": "Doe",
         "date_of_birth": "2010-10-22",
@@ -56,6 +56,6 @@
     }
   ],
   "nhsNumbers": [
-    "6816376358"
+    "9996534472"
   ]
 }

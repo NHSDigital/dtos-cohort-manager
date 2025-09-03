@@ -73,7 +73,7 @@ test.describe('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the Added r
     }]
   }, async ({ request }, testInfo) => {
 
-      const nhsNumber = '6816376358';
+      const nhsNumber = '9996534472';
 
       const response = await getRecordsFromNemsSubscription(request, nhsNumber);
       const subscriptionID = extractSubscriptionID(response);
