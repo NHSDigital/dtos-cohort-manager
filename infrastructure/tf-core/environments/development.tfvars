@@ -1060,16 +1060,17 @@ function_apps = {
       name_suffix            = "manage-caas-subscription"
       function_endpoint_name = "ManageCaasSubscription"
       app_service_plan_key   = "NonScaling"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      key_vault_url          = "KeyVaultConnectionString"
+      env_vars_static = {
+        IsStubbed = "true"
+      }
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
         }
       ]
-      env_vars_static = {
-        # Minimal stubbed config; expand later if needed
-        IsStubbed = "true"
-      }
     }
 
     ReferenceDataService = {
