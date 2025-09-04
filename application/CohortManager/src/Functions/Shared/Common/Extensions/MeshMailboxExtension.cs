@@ -62,7 +62,7 @@ public static class MeshMailboxExtension
         if (!string.IsNullOrEmpty(keyVaultConnectionString))
         {
             logger.LogInformation("Pulling Mesh Certificate from KeyVault");
-            var certClient = new CertificateClient(vaultUri: new Uri(keyVaultConnectionString), credential: new DefaultAzureCredential());
+            var certClient = new CertificateClient(vaultUri: new Uri(keyVaultConnectionString), credential: new ManagedIdentityCredential());
             if (string.IsNullOrWhiteSpace(meshKeyName)) return null;
             var certificate = await certClient.DownloadCertificateAsync(meshKeyName);
             return certificate.Value;
@@ -87,7 +87,7 @@ public static class MeshMailboxExtension
     {
         if (!string.IsNullOrEmpty(keyVaultConnectionString))
         {
-            var secretClient = new SecretClient(vaultUri: new Uri(keyVaultConnectionString), credential: new DefaultAzureCredential());
+            var secretClient = new SecretClient(vaultUri: new Uri(keyVaultConnectionString), credential: new ManagedIdentityCredential());
             if (string.IsNullOrWhiteSpace(meshCertName)) return null;
             var secret = await secretClient.GetSecretAsync(meshCertName);
             string base64Cert = secret.Value.Value;
