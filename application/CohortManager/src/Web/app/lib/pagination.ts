@@ -23,84 +23,90 @@ const SORT_PARAM = "sortBy" as const;
 const ELLIPSIS_NUMBER = -1 as const;
 const DEFAULT_SORT = 0 as const;
 
-export function parseLinkHeader(linkHeader: string): PaginationLinks {
-  const links: PaginationLinks = {};
+// Helper: cap the size of the header to avoid excessive processing
+function capHeaderSize(value: string, max = 16_384): string {
+  return value.length > max ? value.slice(0, max) : value;
+}
 
-  if (!linkHeader) return links;
+// Helper: extract a single link segment starting at or after 'start'
+// Returns the URL inside <> , the parameters segment after it, and the next index to continue from
+function extractLinkSegment(
+  header: string,
+  start: number
+): { url: string; paramsSegment: string; nextIndex: number } | null {
+  const open = header.indexOf("<", start);
+  if (open === -1) return null;
+  const close = header.indexOf(">", open + 1);
+  if (close === -1) return null; // malformed segment
 
-  // Defensive cap to avoid processing extremely large headers
-  const MAX_LINK_HEADER_LENGTH = 16_384; // 16KB
-  const header =
-    linkHeader.length > MAX_LINK_HEADER_LENGTH
-      ? linkHeader.slice(0, MAX_LINK_HEADER_LENGTH)
-      : linkHeader;
+  const url = header.slice(open + 1, close);
+  const comma = header.indexOf(",", close + 1);
+  const segmentEnd = comma === -1 ? header.length : comma;
+  const paramsSegment = header.slice(close + 1, segmentEnd);
 
-  // Linear-time parsing without regex backtracking
-  let i = 0;
-  while (i < header.length) {
-    // Find opening '<'
-    const open = header.indexOf("<", i);
-    if (open === -1) break;
-    const close = header.indexOf(">", open + 1);
-    if (close === -1) break; // malformed, stop parsing
+  return {
+    url,
+    paramsSegment,
+    nextIndex: comma === -1 ? header.length : comma + 1,
+  };
+}
 
-    const url = header.slice(open + 1, close);
+// Helper: parse the rel value from a params segment (supports quoted and token forms)
+function parseRel(paramsSegment: string): string | null {
+  const idx = paramsSegment.toLowerCase().indexOf("rel=");
+  if (idx === -1) return null;
 
-    // Determine the bounds of this link-value (until next comma or end)
-    const comma = header.indexOf(",", close + 1);
-    const segmentEnd = comma === -1 ? header.length : comma;
-    const paramsSegment = header.slice(close + 1, segmentEnd);
+  let p = idx + 4; // after 'rel='
+  while (p < paramsSegment.length && /\s/.test(paramsSegment[p])) p++;
 
-    // Look for rel parameter in the params segment in a safe, non-regex way
-    // Pattern of interest: rel="..." (case-insensitive for rel name)
-    const relKeyIndex = paramsSegment.toLowerCase().indexOf("rel=");
-    if (relKeyIndex !== -1) {
-      const afterRel = relKeyIndex + 4; // position after 'rel='
-      // Skip optional whitespace
-      let p = afterRel;
-      while (p < paramsSegment.length && /\s/.test(paramsSegment[p])) p++;
-
-      let relation: string | null = null;
-      if (p < paramsSegment.length && paramsSegment[p] === '"') {
-        // Quoted form: rel="value"
-        const start = p + 1;
-        const end = paramsSegment.indexOf('"', start);
-        relation = end !== -1 ? paramsSegment.slice(start, end) : null;
-      } else {
-        // Token form: rel=value; stop at ; or whitespace
-        const semi = paramsSegment.indexOf(";", p);
-        const space = paramsSegment.indexOf(" ", p);
-        const stopCandidates = [
-          semi === -1 ? paramsSegment.length : semi,
-          space === -1 ? paramsSegment.length : space,
-        ];
-        const stop = Math.min(...stopCandidates);
-        relation = paramsSegment.slice(p, stop).trim() || null;
-      }
-
-      if (relation) {
-        switch (relation.toLowerCase()) {
-          case "first":
-            links.first = url;
-            break;
-          case "prev":
-          case "previous":
-            links.previous = url;
-            break;
-          case "next":
-            links.next = url;
-            break;
-          case "last":
-            links.last = url;
-            break;
-        }
-      }
-    }
-
-    // Move to next segment (after comma if present)
-    i = comma === -1 ? header.length : comma + 1;
+  if (p < paramsSegment.length && paramsSegment[p] === '"') {
+    const start = p + 1;
+    const end = paramsSegment.indexOf('"', start);
+    return end !== -1 ? paramsSegment.slice(start, end) : null;
   }
 
+  const semi = paramsSegment.indexOf(";", p);
+  const space = paramsSegment.indexOf(" ", p);
+  const stop = Math.min(
+    semi === -1 ? paramsSegment.length : semi,
+    space === -1 ? paramsSegment.length : space
+  );
+  const token = paramsSegment.slice(p, stop).trim();
+  return token || null;
+}
+
+// Helper: assign URL into correct slot based on rel
+function assignLinkByRel(target: PaginationLinks, rel: string, url: string) {
+  switch (rel.toLowerCase()) {
+    case "first":
+      target.first = url;
+      break;
+    case "prev":
+    case "previous":
+      target.previous = url;
+      break;
+    case "next":
+      target.next = url;
+      break;
+    case "last":
+      target.last = url;
+      break;
+  }
+}
+
+export function parseLinkHeader(linkHeader: string): PaginationLinks {
+  const links: PaginationLinks = {};
+  if (!linkHeader) return links;
+
+  const header = capHeaderSize(linkHeader);
+  let i = 0;
+  while (i < header.length) {
+    const seg = extractLinkSegment(header, i);
+    if (!seg) break;
+    const rel = parseRel(seg.paramsSegment);
+    if (rel) assignLinkByRel(links, rel, seg.url);
+    i = seg.nextIndex;
+  }
   return links;
 }
 
@@ -280,5 +286,5 @@ export function createPageUrl(
   }
 
   const query = params.toString();
-  return `${basePath}${query ? `?${query}` : ""}`;
+  return query ? basePath + "?" + query : basePath;
 }

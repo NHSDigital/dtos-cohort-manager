@@ -16,7 +16,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 143bb43a2f95dd23e3c579a3bf87b29a63ee4003
+      ref: 5603d4113500a7df3d7320e675fef9598c3aac65
       endpoint: NHSDigital
 
 variables:
@@ -42,7 +42,7 @@ parameters:
       - regression_e2e_epic2Med
       - regression_e2e_epic3Med
       - regression_e2e_epic4c
-      - regression_e2e_epic4d      
+      - regression_e2e_epic4d
 
 stages:
   - ${{ each testType in parameters.testTypes }}:
