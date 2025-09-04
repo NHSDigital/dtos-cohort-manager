@@ -492,7 +492,6 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Verify(h => h.GetQueryParameterAsInt(_requestMock.Object, "page", 0), Times.Once);
         _httpParserHelperMock.Verify(h => h.GetQueryParameterAsDateTime(_requestMock.Object, "reportDate"), Times.Once);
         _httpParserHelperMock.Verify(h => h.GetQueryParameterAsBool(_requestMock.Object, "isReport", false), Times.Once);
-
         _validationDataMock.Verify(v => v.GetAllFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory), Times.Once);
         _paginationServiceMock.Verify(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.Is<int>(page => page == 1)), Times.Once);
         _paginationServiceMock.Verify(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult), Times.Once);
@@ -535,11 +534,7 @@ public class GetValidationExceptionsTests
         // Assert
         Assert.IsNotNull(result);
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _createResponseMock.Verify(c => c.CreateHttpResponseWithHeaders(
-            HttpStatusCode.OK,
-            _requestMock.Object,
-            It.IsAny<string>(),
-            expectedHeaders), Times.Once);
+        _createResponseMock.Verify(c => c.CreateHttpResponseWithHeaders(HttpStatusCode.OK, _requestMock.Object, It.IsAny<string>(), expectedHeaders), Times.Once);
         _paginationServiceMock.Verify(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult), Times.Once);
     }
 }
