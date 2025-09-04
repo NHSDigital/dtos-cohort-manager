@@ -46,7 +46,8 @@ export default function ReportsInformationTable({
       <tbody className="nhsuk-table__body">
         {items.map((item) => {
           const d = item.ExceptionDetails;
-          const name = `${d.GivenName} ${d.FamilyName}`.trim();
+          const name =
+            `${d?.GivenName || ""} ${d?.FamilyName || ""}`.trim() || "";
           return (
             <tr role="row" className="nhsuk-table__row" key={item.ExceptionId}>
               <td className="nhsuk-table__cell">
@@ -75,7 +76,7 @@ export default function ReportsInformationTable({
                   >
                     NHS number{" "}
                   </span>
-                  {formatNhsNumber(item.NhsNumber)}
+                  {formatNhsNumber(item.NhsNumber ?? "")}
                 </td>
               ) : (
                 <>
@@ -86,7 +87,7 @@ export default function ReportsInformationTable({
                     >
                       NHS number{" "}
                     </span>
-                    {formatNhsNumber(item.NhsNumber)}
+                    {formatNhsNumber(item.NhsNumber ?? "")}
                   </td>
                   <td className="nhsuk-table__cell app-u-no-wrap">
                     <span

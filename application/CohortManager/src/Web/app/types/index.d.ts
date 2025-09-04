@@ -12,6 +12,7 @@ export interface ExceptionDetails {
   dateOfBirth?: string;
   gender?: number;
   address?: string;
+  addressParts?: string[];
   contactDetails?: {
     phoneNumber?: string;
     email?: string;

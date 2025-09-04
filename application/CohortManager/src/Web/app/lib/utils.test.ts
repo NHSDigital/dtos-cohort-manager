@@ -72,23 +72,23 @@ describe("formatGenderValue", () => {
     expect(formatGenderValue(9)).toBe("Unspecified");
   });
 
-  it("should return 'Unknown' for input '3' (string)", () => {
-    expect(formatGenderValue("3")).toBe("Unknown");
+  it("should return empty string for input '3' (string)", () => {
+    expect(formatGenderValue("3")).toBe("");
   });
 
-  it("should return 'Unknown' for input 3 (number)", () => {
-    expect(formatGenderValue(3)).toBe("Unknown");
+  it("should return empty string for input 3 (number)", () => {
+    expect(formatGenderValue(3)).toBe("");
   });
 
-  it("should return 'Unknown' for undefined input", () => {
-    expect(formatGenderValue(undefined)).toBe("Unknown");
+  it("should return empty string for undefined input", () => {
+    expect(formatGenderValue(undefined)).toBe("");
   });
 
-  it("should return 'Unknown' for null input", () => {
-    expect(formatGenderValue(null)).toBe("Unknown");
+  it("should return empty string for null input", () => {
+    expect(formatGenderValue(null)).toBe("");
   });
 
-  it("should return 'Unknown' for empty string input", () => {
-    expect(formatGenderValue("")).toBe("Unknown");
+  it("should return empty string for empty string input", () => {
+    expect(formatGenderValue("")).toBe("");
   });
 });

@@ -14,6 +14,15 @@ export const metadata: Metadata = {
   title: `Exception information - ${process.env.SERVICE_NAME} - NHS`,
 };
 
+// Upstream can return the literal string "null" for absent values.
+const NULL_STRING_LITERAL = "null";
+
+function isMeaningfulAddressPart(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const t = value.trim();
+  return t.length > 0 && t.toLowerCase() !== NULL_STRING_LITERAL;
+}
+
 export default async function Page(props: {
   readonly params: Promise<{
     readonly exceptionId: string;
@@ -57,6 +66,14 @@ export default async function Page(props: {
       portalFormTitle: ruleMapping.portalFormTitle,
       dateOfBirth: exception.ExceptionDetails.DateOfBirth,
       gender: exception.ExceptionDetails.Gender,
+      addressParts: [
+        exception.ExceptionDetails.ParticipantAddressLine1,
+        exception.ExceptionDetails.ParticipantAddressLine2,
+        exception.ExceptionDetails.ParticipantAddressLine3,
+        exception.ExceptionDetails.ParticipantAddressLine4,
+        exception.ExceptionDetails.ParticipantAddressLine5,
+        exception.ExceptionDetails.ParticipantPostCode,
+      ].filter(isMeaningfulAddressPart),
       address: `${exception.ExceptionDetails.ParticipantAddressLine1}${
         exception.ExceptionDetails.ParticipantAddressLine2
           ? `, ${exception.ExceptionDetails.ParticipantAddressLine2}`
