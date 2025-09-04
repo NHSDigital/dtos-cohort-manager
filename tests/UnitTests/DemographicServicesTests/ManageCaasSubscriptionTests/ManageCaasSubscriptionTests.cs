@@ -15,6 +15,7 @@ using DataServices.Core;
 using Model;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Common.Interfaces;
 
 [TestClass]
 public class ManageCaasSubscriptionTests
@@ -28,6 +29,7 @@ public class ManageCaasSubscriptionTests
     private readonly Mock<IRequestHandler<NemsSubscription>> _requestHandler = new();
     private readonly Mock<IDataServiceAccessor<NemsSubscription>> _nemsAccessor = new();
     private readonly Mock<IMeshPoller> _meshPoller = new();
+    private readonly Mock<IExceptionHandler> _exceptionHandler = new();
 
     public ManageCaasSubscriptionTests()
     {
@@ -43,20 +45,21 @@ public class ManageCaasSubscriptionTests
             .Setup(m => m.SendSubscriptionRequest(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync("STUB_MSG_ID");
 
-        // Default: pretend a subscription exists so generic tests expect OK
         _nemsAccessor
             .Setup(a => a.GetSingle(It.IsAny<System.Linq.Expressions.Expression<Func<NemsSubscription, bool>>>() ))
             .ReturnsAsync(new NemsSubscription { NhsNumber = 9000000009, SubscriptionId = "SUB123" });
 
-        // Default: request handler returns OK for data-service calls
         _requestHandler
             .Setup(r => r.HandleRequest(It.IsAny<HttpRequestData>(), It.IsAny<string>()))
             .ReturnsAsync((HttpRequestData r, string k) => _createResponse.CreateHttpResponse(HttpStatusCode.OK, r, "OK"));
 
-        // Default: DB insert succeeds for subscribe happy path
         _nemsAccessor
             .Setup(a => a.InsertSingle(It.IsAny<NemsSubscription>()))
             .ReturnsAsync(true);
+
+        _exceptionHandler
+            .Setup(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns(Task.CompletedTask);
 
         _sut = new ManageCaasSubscription(
             _logger.Object,
@@ -65,7 +68,8 @@ public class ManageCaasSubscriptionTests
             _mesh.Object,
             _requestHandler.Object,
             _nemsAccessor.Object,
-            _meshPoller.Object
+            _meshPoller.Object,
+            _exceptionHandler.Object
         );
     }
 
@@ -231,7 +235,6 @@ public class ManageCaasSubscriptionTests
     [TestMethod]
     public async Task PollMeshMailbox_UsesConfigFromMailbox()
     {
-        // Ensure config has expected mailbox
         _config.Setup(x => x.Value).Returns(new ManageCaasSubscriptionConfig
         {
             CaasFromMailbox = "TEST_FROM",
@@ -247,7 +250,8 @@ public class ManageCaasSubscriptionTests
             _mesh.Object,
             _requestHandler.Object,
             _nemsAccessor.Object,
-            _meshPoller.Object
+            _meshPoller.Object,
+            _exceptionHandler.Object
         );
 
         await sut.RunAsync(null);
