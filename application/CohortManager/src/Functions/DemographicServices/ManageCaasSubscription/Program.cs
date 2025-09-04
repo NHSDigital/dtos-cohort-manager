@@ -47,5 +47,17 @@ var hostBuilder = new HostBuilder()
     .AddTelemetry()
     .AddExceptionHandler();
 
+// Log startup mode for visibility
+var startupLoggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
+var startupLogger = startupLoggerFactory.CreateLogger("ManageCaasSubscription.Program");
+if (config!.IsStubbed)
+{
+    startupLogger.LogWarning("ManageCaasSubscription starting in STUBBED mode: using MeshSendCaasSubscribeStub and MeshPollerStub.");
+}
+else
+{
+    startupLogger.LogInformation("ManageCaasSubscription starting in LIVE mode: using real MESH services.");
+}
+
 var host = hostBuilder.Build();
 await host.RunAsync();
