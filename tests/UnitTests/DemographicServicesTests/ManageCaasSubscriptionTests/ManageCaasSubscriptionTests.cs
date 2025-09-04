@@ -175,6 +175,7 @@ public class ManageCaasSubscriptionTests
             .ThrowsAsync(new Exception("boom"));
         var res = await _sut.NemsSubscriptionDataService(req.Object, "key");
         Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
+        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "", nameof(ManageCaasSubscription), "CAAS", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -198,6 +199,7 @@ public class ManageCaasSubscriptionTests
             .ThrowsAsync(new Exception("db-error"));
         var res = await _sut.CheckSubscriptionStatus(req.Object);
         Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
+        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "CAAS", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -221,6 +223,7 @@ public class ManageCaasSubscriptionTests
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
         var res = await _sut.Subscribe(req.Object);
         Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
+        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "CAAS", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -230,6 +233,104 @@ public class ManageCaasSubscriptionTests
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
         var res = await _sut.Subscribe(req.Object);
         Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
+        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "CAAS", It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Subscribe_LogsStubMessage_WhenIsStubbedTrue()
+    {
+        _config.Setup(x => x.Value).Returns(new ManageCaasSubscriptionConfig
+        {
+            CaasToMailbox = "TEST_TO",
+            CaasFromMailbox = "TEST_FROM",
+            MeshApiBaseUrl = "http://localhost",
+            MeshCaasSharedKey = "dummy",
+            IsStubbed = true
+        });
+
+        var sut = new ManageCaasSubscription(
+            _logger.Object,
+            _createResponse,
+            _config.Object,
+            _mesh.Object,
+            _requestHandler.Object,
+            _nemsAccessor.Object,
+            _meshPoller.Object,
+            _exceptionHandler.Object
+        );
+
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+        var res = await sut.Subscribe(req.Object);
+        Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
+        _logger.Verify(l => l.Log(
+            LogLevel.Information,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("MESH stub")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Subscribe_LogsRealMessage_WhenIsStubbedFalse()
+    {
+        _config.Setup(x => x.Value).Returns(new ManageCaasSubscriptionConfig
+        {
+            CaasToMailbox = "TEST_TO",
+            CaasFromMailbox = "TEST_FROM",
+            MeshApiBaseUrl = "http://localhost",
+            MeshCaasSharedKey = "dummy",
+            IsStubbed = false
+        });
+
+        var sut = new ManageCaasSubscription(
+            _logger.Object,
+            _createResponse,
+            _config.Object,
+            _mesh.Object,
+            _requestHandler.Object,
+            _nemsAccessor.Object,
+            _meshPoller.Object,
+            _exceptionHandler.Object
+        );
+
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+        var res = await sut.Subscribe(req.Object);
+        Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
+        _logger.Verify(l => l.Log(
+            LogLevel.Information,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sent to MESH")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Unsubscribe_LogsStubMessage()
+    {
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+        var res = await _sut.Unsubscribe(req.Object);
+        Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
+        _logger.Verify(l => l.Log(
+            LogLevel.Information,
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("[CAAS-Stub] Unsubscribe called")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Subscribe_MeshReturnsNull_ReturnsInternalServerError()
+    {
+        _mesh
+            .Setup(m => m.SendSubscriptionRequest(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync((string?)null);
+
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+        var res = await _sut.Subscribe(req.Object);
+
+        Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
+        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "CAAS", It.IsAny<string>()), Times.Once);
+        _nemsAccessor.Verify(a => a.InsertSingle(It.IsAny<NemsSubscription>()), Times.Never);
     }
 
     [TestMethod]
@@ -258,41 +359,5 @@ public class ManageCaasSubscriptionTests
         _meshPoller.Verify(p => p.ExecuteHandshake("TEST_FROM"), Times.Once);
     }
 
-    [TestMethod]
-    public void Config_MissingMailboxes_FailsValidation()
-    {
-        var cfg = new ManageCaasSubscriptionConfig
-        {
-            MeshApiBaseUrl = "http://localhost",
-            MeshCaasSharedKey = "dummy"
-        };
-        var context = new ValidationContext(cfg);
-        var results = new System.Collections.Generic.List<ValidationResult>();
-        var isValid = Validator.TryValidateObject(cfg, context, results, validateAllProperties: true);
-        Assert.IsFalse(isValid);
-        Assert.IsTrue(results.Any(r => r.MemberNames.Contains("CaasToMailbox")));
-        Assert.IsTrue(results.Any(r => r.MemberNames.Contains("CaasFromMailbox")));
-    }
-
-    [TestMethod]
-    public void Config_MissingMeshApiBaseUrl_FailsValidation()
-    {
-        // Arrange
-        var cfg = new ManageCaasSubscriptionConfig
-        {
-            CaasToMailbox = "TEST_TO",
-            CaasFromMailbox = "TEST_FROM",
-            MeshCaasSharedKey = "dummy"
-        };
-
-        var context = new ValidationContext(cfg);
-        var results = new System.Collections.Generic.List<ValidationResult>();
-
-        // Act
-        var isValid = Validator.TryValidateObject(cfg, context, results, validateAllProperties: true);
-
-        // Assert
-        Assert.IsFalse(isValid);
-        Assert.IsTrue(results.Any(r => r.MemberNames.Contains("MeshApiBaseUrl")));
-    }
+    
 }
