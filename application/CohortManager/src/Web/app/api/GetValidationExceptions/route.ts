@@ -75,35 +75,39 @@ function buildLinkHeader(
   const params = new URLSearchParams(url.search);
   params.delete("page");
   const baseQuery = params.toString();
-  const sep = baseQuery ? "&" : "?";
-  const first = `<${baseUrl}${baseQuery ? `?${baseQuery}` : ""}>; rel="first"`;
 
-  const links: string[] = [first];
+  const buildBaseHref = (b: string, q: string) => `${b}${q ? `?${q}` : ""}`;
 
-  if (pagination.HasPreviousPage) {
-    const prevPage = pagination.CurrentPage - 1;
-    const prevUrl =
-      prevPage === 1
-        ? `${baseUrl}${baseQuery ? `?${baseQuery}` : ""}`
-        : `${baseUrl}${baseQuery ? `?${baseQuery}` : ""}${sep}page=${prevPage}`;
-    links.push(`<${prevUrl}>; rel="prev"`);
-  }
+  const buildPageHref = (page: number) => {
+    if (page <= 1) return buildBaseHref(baseUrl, baseQuery);
+    const sep = baseQuery ? "&" : "?";
+    return `${buildBaseHref(baseUrl, baseQuery)}${sep}page=${page}`;
+  };
 
-  if (pagination.HasNextPage) {
-    const nextPage = pagination.CurrentPage + 1;
-    links.push(
-      `<${baseUrl}${
-        baseQuery ? `?${baseQuery}` : ""
-      }${sep}page=${nextPage}>; rel="next"`
-    );
-  }
+  const links: string[] = [
+    `<${buildBaseHref(baseUrl, baseQuery)}>; rel="first"`,
+  ];
 
-  if (pagination.TotalPages > 1) {
-    links.push(
-      `<${baseUrl}${baseQuery ? `?${baseQuery}` : ""}${sep}page=${
-        pagination.TotalPages
-      }>; rel="last"`
-    );
+  const candidates = [
+    pagination.HasPreviousPage
+      ? {
+          href: buildPageHref(pagination.CurrentPage - 1),
+          rel: "prev" as const,
+        }
+      : null,
+    pagination.HasNextPage
+      ? {
+          href: buildPageHref(pagination.CurrentPage + 1),
+          rel: "next" as const,
+        }
+      : null,
+    pagination.TotalPages > 1
+      ? { href: buildPageHref(pagination.TotalPages), rel: "last" as const }
+      : null,
+  ].filter(Boolean) as Array<{ href: string; rel: "prev" | "next" | "last" }>;
+
+  for (const { href, rel } of candidates) {
+    links.push(`<${href}>; rel="${rel}"`);
   }
 
   return links.length ? links.join(", ") : undefined;
