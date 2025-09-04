@@ -26,7 +26,7 @@ export async function fetchExceptions(params: FetchExceptionsParams = {}) {
   const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?${query.toString()}`;
 
   const response = await fetch(apiUrl);
-   if (!response.ok) {
+  if (!response.ok) {
     throw new Error(`Error fetching data: ${response.statusText}`);
   }
 
