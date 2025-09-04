@@ -172,7 +172,7 @@ variable "container_app_environments" {
         name                  = optional(string)
         workload_profile_type = optional(string)
         minimum_count         = optional(number, 0)
-        maximum_count         = optional(string, 1)
+        maximum_count         = optional(string, 0) # Value not used for Consumption type and causes unnecessary plan changes
       }), {})
       zone_redundancy_enabled = optional(bool, false)
     })), {})
@@ -204,6 +204,10 @@ variable "container_app_jobs" {
       docker_env_tag                = optional(string, "")
       docker_image                  = optional(string)
       container_registry_use_mi     = optional(bool, false)
+      db_connection_string_name     = optional(string, "")
+      env_vars_static               = optional(map(string), {})
+      add_user_assigned_identity    = optional(bool, false)
+      replica_retry_limit           = optional(number, 3)
     })), {})
   })
 }
@@ -498,7 +502,7 @@ variable "sqlserver" {
     ad_auth_only                         = optional(bool)
     auditing_policy_retention_in_days    = optional(number)
     security_alert_policy_retention_days = optional(number)
-    db_management_mi_name_prefix         = optional(string)
+    user_assigned_identities             = optional(list(string), [])
 
     # Server Instance
     server = optional(object({
