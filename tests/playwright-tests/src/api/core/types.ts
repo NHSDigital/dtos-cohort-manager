@@ -8,4 +8,5 @@ export interface ApiResponse<T = any> {
   status: number;
   data: T | null;
   headers: Record<string, string>;
+  text: string;
 }
