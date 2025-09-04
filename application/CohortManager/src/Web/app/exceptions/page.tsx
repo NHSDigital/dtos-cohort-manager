@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  readonly searchParams?: Promise<{ readonly sortBy?: string }>;
+  readonly searchParams?: Promise<{ readonly sortOrder?: string }>;
 }) {
   const session = await auth();
   const isCohortManager = await canAccessCohortManager(session);
@@ -28,7 +28,7 @@ export default async function Page({
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
+  const sortOrder = resolvedSearchParams.sortOrder === "1" ? 1 : 0;
 
   const sortOptions = [
     {
@@ -42,7 +42,7 @@ export default async function Page({
   ];
 
   try {
-    const exceptions = await fetchExceptionsNotRaisedSorted(sortBy);
+    const exceptions = await fetchExceptionsNotRaisedSorted(sortOrder);
 
     const exceptionDetails: ExceptionDetails[] = exceptions.Items.map(
       (exception: {
@@ -81,7 +81,7 @@ export default async function Page({
 
               <div className="app-form-results-container">
                 <SortExceptionsForm
-                  sortBy={sortBy}
+                  sortOrder={sortOrder}
                   options={sortOptions}
                   hiddenText="not raised exceptions"
                   testId="sort-not-raised-exceptions"

@@ -1,5 +1,5 @@
 interface SortExceptionsFormProps {
-  readonly sortBy: number;
+  readonly sortOrder: number;
   readonly options: readonly {
     readonly value: string;
     readonly label: string;
@@ -9,7 +9,7 @@ interface SortExceptionsFormProps {
 }
 
 export default function SortExceptionsForm({
-  sortBy,
+  sortOrder,
   options,
   hiddenText = "exceptions",
   testId,
@@ -24,8 +24,8 @@ export default function SortExceptionsForm({
           <select
             className="nhsuk-select"
             id="sort-exceptions"
-            name="sortBy"
-            defaultValue={String(sortBy)}
+            name="sortOrder"
+            defaultValue={String(sortOrder)}
             data-testid={testId}
           >
             {options.map((option) => (

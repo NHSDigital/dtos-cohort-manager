@@ -3,14 +3,18 @@ import mockDataStore from "@/app/data/mockDataStore";
 
 function sortExceptions<
   T extends { DateCreated: string; ServiceNowCreatedDate?: string }
->(items: T[], sortBy: string | null, dateField: keyof T = "DateCreated"): T[] {
-  if (sortBy === "1") {
+>(
+  items: T[],
+  sortOrder: string | null,
+  dateField: keyof T = "DateCreated"
+): T[] {
+  if (sortOrder === "1") {
     return items.sort(
       (a, b) =>
         new Date(a[dateField] as string).getTime() -
         new Date(b[dateField] as string).getTime()
     );
-  } else if (sortBy === "0") {
+  } else if (sortOrder === "0") {
     return items.sort(
       (a, b) =>
         new Date(b[dateField] as string).getTime() -
@@ -45,7 +49,6 @@ function addExceptionDetails<T extends { ExceptionId: number }>(items: T[]) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const exceptionId = searchParams.get("exceptionId");
-  const sortBy = searchParams.get("sortBy");
   const sortOrder = searchParams.get("sortOrder");
   const exceptionStatus = searchParams.get("exceptionStatus");
   const isReport = searchParams.get("isReport");
@@ -69,7 +72,7 @@ export async function GET(request: Request) {
 
   // Handle list requests - get fresh data from store
   if (exceptionStatus !== null) {
-    const usingSort = sortBy ?? sortOrder; // accept either param name
+    const usingSort = sortOrder ?? sortOrder; // accept either param name
     const isRaised = exceptionStatus === "1";
     const allItems = isRaised
       ? mockDataStore.getRaisedExceptions()
