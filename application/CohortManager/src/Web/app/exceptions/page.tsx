@@ -38,6 +38,12 @@ interface LinkBasedPagination {
   totalPages: number;
 }
 
+interface PaginationItem {
+  number: number;
+  href: string;
+  current: boolean;
+}
+
 function parseLinkHeader(linkHeader: string): PaginationLinks {
   const links: PaginationLinks = {};
 
@@ -70,98 +76,134 @@ function parseLinkHeader(linkHeader: string): PaginationLinks {
   return links;
 }
 
-const PAGE_REGEX = /[?&]page=(\d+)/;
-
-// Extract page number from URL
 function extractPageFromUrl(url: string): number {
-  const match = PAGE_REGEX.exec(url);
+  const pageRegex = /[?&]page=(\d+)/;
+  const match = pageRegex.exec(url);
   return match ? parseInt(match[1], 10) : 1;
 }
 
 function convertToLocalUrl(url: string | undefined, sortBy: number): string | undefined {
   if (!url) return undefined;
 
-  const pageMatch = PAGE_REGEX.exec(url);
+  const pageRegex = /[?&]page=(\d+)/;
+  const pageMatch = pageRegex.exec(url);
   const page = pageMatch ? pageMatch[1] : "1";
 
   return `?sortBy=${sortBy}&page=${page}`;
 }
 
-// Generate pagination items from Link header info
+function createPaginationItem(
+  pageNumber: number,
+  sortBy: number,
+  currentPage: number,
+  isEllipsis = false
+): PaginationItem {
+  return {
+    number: isEllipsis ? -1 : pageNumber,
+    href: isEllipsis ? '#' : `?sortBy=${sortBy}&page=${pageNumber}`,
+    current: pageNumber === currentPage,
+  };
+}
+
+function generateAllPages(
+  totalPages: number,
+  sortBy: number,
+  currentPage: number
+): PaginationItem[] {
+  const items: PaginationItem[] = [];
+  for (let i = 1; i <= totalPages; i++) {
+    items.push(createPaginationItem(i, sortBy, currentPage));
+  }
+  return items;
+}
+
+function calculatePageRange(
+  currentPage: number,
+  totalPages: number,
+  maxVisiblePages: number
+): { startPage: number; endPage: number } {
+  let startPage = Math.max(1, currentPage - 3);
+  let endPage = Math.min(totalPages, currentPage + 3);
+
+  if (currentPage <= 4) {
+    endPage = Math.min(maxVisiblePages, totalPages);
+  } else if (currentPage >= totalPages - 3) {
+    startPage = Math.max(1, totalPages - maxVisiblePages + 1);
+  }
+
+  return { startPage, endPage };
+}
+
+function addFirstPageSection(
+  items: PaginationItem[],
+  startPage: number,
+  sortBy: number,
+  currentPage: number
+): void {
+  if (startPage > 1) {
+    items.push(createPaginationItem(1, sortBy, currentPage));
+
+    if (startPage > 2) {
+      items.push(createPaginationItem(-1, sortBy, currentPage, true));
+    }
+  }
+}
+
+function addVisiblePages(
+  items: PaginationItem[],
+  startPage: number,
+  endPage: number,
+  sortBy: number,
+  currentPage: number
+): void {
+  for (let i = startPage; i <= endPage; i++) {
+    items.push(createPaginationItem(i, sortBy, currentPage));
+  }
+}
+
+function addLastPageSection(
+  items: PaginationItem[],
+  endPage: number,
+  totalPages: number,
+  sortBy: number,
+  currentPage: number
+): void {
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      items.push(createPaginationItem(-1, sortBy, currentPage, true));
+    }
+    items.push(createPaginationItem(totalPages, sortBy, currentPage));
+  }
+}
+
+function generateTruncatedPages(
+  currentPage: number,
+  totalPages: number,
+  sortBy: number,
+  maxVisiblePages: number
+): PaginationItem[] {
+  const items: PaginationItem[] = [];
+  const { startPage, endPage } = calculatePageRange(currentPage, totalPages, maxVisiblePages);
+
+  addFirstPageSection(items, startPage, sortBy, currentPage);
+  addVisiblePages(items, startPage, endPage, sortBy, currentPage);
+  addLastPageSection(items, endPage, totalPages, sortBy, currentPage);
+
+  return items;
+}
+
 function generatePaginationItems(
   linkPagination: LinkBasedPagination,
   sortBy: number
-): Array<{ number: number; href: string; current: boolean }> {
+): PaginationItem[] {
   const { currentPage, totalPages } = linkPagination;
-  const items = [];
   const maxVisiblePages = 10;
 
   if (totalPages <= maxVisiblePages) {
-    // Show all pages if total is small
-    for (let i = 1; i <= totalPages; i++) {
-      items.push({
-        number: i,
-        href: `?sortBy=${sortBy}&page=${i}`,
-        current: i === currentPage,
-      });
-    }
-  } else {
-    // Smart truncation for many pages
-    let startPage = Math.max(1, currentPage - 3);
-    let endPage = Math.min(totalPages, currentPage + 3);
-
-    if (currentPage <= 4) {
-      endPage = Math.min(maxVisiblePages, totalPages);
-    } else if (currentPage >= totalPages - 3) {
-      startPage = Math.max(1, totalPages - maxVisiblePages + 1);
-    }
-
-    // Always show first page
-    if (startPage > 1) {
-      items.push({
-        number: 1,
-        href: `?sortBy=${sortBy}&page=1`,
-        current: false,
-      });
-
-      if (startPage > 2) {
-
-        items.push({
-          number: -1,
-          href: '#',
-          current: false,
-        });
-      }
-    }
-
-    // Add visible pages
-    for (let i = startPage; i <= endPage; i++) {
-      items.push({
-        number: i,
-        href: `?sortBy=${sortBy}&page=${i}`,
-        current: i === currentPage,
-      });
-    }
-
-    // Always show last page
-    if (endPage < totalPages) {
-      if (endPage < totalPages - 1) {
-        items.push({
-          number: -1,
-          href: '#',
-          current: false,
-        });
-      }
-
-      items.push({
-        number: totalPages,
-        href: `?sortBy=${sortBy}&page=${totalPages}`,
-        current: false,
-      });
-    }
+    return generateAllPages(totalPages, sortBy, currentPage);
   }
 
-  return items;
+  return generateTruncatedPages(currentPage, totalPages, sortBy, maxVisiblePages);
 }
 
 export default async function Page({
@@ -182,7 +224,7 @@ export default async function Page({
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
-  const currentPage = parseInt(resolvedSearchParams.page || "1", 10);
+  const currentPage = Math.max(1, parseInt(resolvedSearchParams.page || "1", 10));
 
   const sortOptions = [
     {
@@ -243,7 +285,6 @@ export default async function Page({
 
     const paginationItems = generatePaginationItems(linkBasedPagination, sortBy);
 
-    // Calculate the range of items being shown using PageSize from API response
     const startItem = (currentPage - 1) * response.data.PageSize + 1;
     const endItem = Math.min(startItem + response.data.Items.length - 1, response.data.TotalItems);
 
