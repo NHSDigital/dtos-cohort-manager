@@ -15,7 +15,6 @@ export const metadata: Metadata = {
   title: `Not raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
 };
 
-// Define the API exception type based on your response
 interface ApiException {
   ExceptionId: number;
   NhsNumber: string;
@@ -39,7 +38,6 @@ interface LinkBasedPagination {
   totalPages: number;
 }
 
-// Utility to parse Link headers
 function parseLinkHeader(linkHeader: string): PaginationLinks {
   const links: PaginationLinks = {};
 
@@ -72,17 +70,18 @@ function parseLinkHeader(linkHeader: string): PaginationLinks {
   return links;
 }
 
+const PAGE_REGEX = /[?&]page=(\d+)/;
+
 // Extract page number from URL
 function extractPageFromUrl(url: string): number {
-  const match = url.match(/[?&]page=(\d+)/);
+  const match = PAGE_REGEX.exec(url);
   return match ? parseInt(match[1], 10) : 1;
 }
 
-// Convert Link header URLs to local page URLs with current sortBy
 function convertToLocalUrl(url: string | undefined, sortBy: number): string | undefined {
   if (!url) return undefined;
 
-  const pageMatch = url.match(/[?&]page=(\d+)/);
+  const pageMatch = PAGE_REGEX.exec(url);
   const page = pageMatch ? pageMatch[1] : "1";
 
   return `?sortBy=${sortBy}&page=${page}`;
