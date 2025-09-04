@@ -22,9 +22,10 @@ const PAGE_PARAM = "page" as const;
 const SORT_PARAM = "sortBy" as const;
 const ELLIPSIS_NUMBER = -1 as const;
 const DEFAULT_SORT = 0 as const;
+const MAX_HEADER_SIZE = 16_384;
 
 // Helper: cap the size of the header to avoid excessive processing
-function capHeaderSize(value: string, max = 16_384): string {
+function capHeaderSize(value: string, max = MAX_HEADER_SIZE): string {
   return value.length > max ? value.slice(0, max) : value;
 }
 
