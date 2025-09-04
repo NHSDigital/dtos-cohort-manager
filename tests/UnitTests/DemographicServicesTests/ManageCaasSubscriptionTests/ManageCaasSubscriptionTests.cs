@@ -175,7 +175,7 @@ public class ManageCaasSubscriptionTests
             .ThrowsAsync(new Exception("boom"));
         var res = await _sut.NemsSubscriptionDataService(req.Object, "key");
         Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
-        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "", nameof(ManageCaasSubscription), "CAAS", It.IsAny<string>()), Times.Once);
+        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "", nameof(ManageCaasSubscription), "", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -199,7 +199,7 @@ public class ManageCaasSubscriptionTests
             .ThrowsAsync(new Exception("db-error"));
         var res = await _sut.CheckSubscriptionStatus(req.Object);
         Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
-        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "CAAS", It.IsAny<string>()), Times.Once);
+        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -223,7 +223,7 @@ public class ManageCaasSubscriptionTests
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
         var res = await _sut.Subscribe(req.Object);
         Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
-        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "CAAS", It.IsAny<string>()), Times.Once);
+        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -233,7 +233,7 @@ public class ManageCaasSubscriptionTests
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
         var res = await _sut.Subscribe(req.Object);
         Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
-        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "CAAS", It.IsAny<string>()), Times.Once);
+        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -329,7 +329,7 @@ public class ManageCaasSubscriptionTests
         var res = await _sut.Subscribe(req.Object);
 
         Assert.AreEqual(HttpStatusCode.InternalServerError, res.StatusCode);
-        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "CAAS", It.IsAny<string>()), Times.Once);
+        _exceptionHandler.Verify(e => e.CreateSystemExceptionLogFromNhsNumber(It.IsAny<Exception>(), "9000000009", nameof(ManageCaasSubscription), "", It.IsAny<string>()), Times.Once);
         _nemsAccessor.Verify(a => a.InsertSingle(It.IsAny<NemsSubscription>()), Times.Never);
     }
 

@@ -177,7 +177,7 @@ public class ManageCaasSubscription
             {
                 string? rawNhs = req.Query["nhsNumber"];
                 var nhsForLog = ValidationHelper.ValidateNHSNumber(rawNhs!) ? rawNhs! : string.Empty;
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsForLog, nameof(ManageCaasSubscription), "CAAS", string.Empty);
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsForLog, nameof(ManageCaasSubscription), "", string.Empty);
             }
             catch
             {
@@ -207,7 +207,7 @@ public class ManageCaasSubscription
             _logger.LogError(ex, "An error has occurred in data service");
             try
             {
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, string.Empty, nameof(ManageCaasSubscription), "CAAS", string.Empty);
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, string.Empty, nameof(ManageCaasSubscription), "", string.Empty);
             }
             catch
             {
