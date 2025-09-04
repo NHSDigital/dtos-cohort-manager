@@ -73,11 +73,8 @@ public class ManageParticipant
             else
             {
                 _logger.LogInformation("Existing participant management record found, updating record {ParticipantId}", databaseParticipant.ParticipantId);
-                var participantManagement = participant.ToParticipantManagement();
-                participantManagement.ParticipantId = databaseParticipant.ParticipantId;
+                var participantManagement = participant.ToParticipantManagement(databaseParticipant);
                 participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
-                participantManagement.RecordInsertDateTime = databaseParticipant.RecordInsertDateTime;
-                participantManagement.ReferralFlag = databaseParticipant.ReferralFlag;
 
                 dataServiceResponse = await _participantManagementClient.Update(participantManagement);
             }

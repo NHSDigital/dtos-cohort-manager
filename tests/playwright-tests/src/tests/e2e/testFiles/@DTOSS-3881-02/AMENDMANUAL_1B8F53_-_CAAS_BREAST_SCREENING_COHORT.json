@@ -1,0 +1,86 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9996534472,
+        "PrimaryCareProvider": "B86019",
+        "TelephoneNumberHome": "01632960999"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3881-02",
+        "requirementJiraId": "@DTOSS-3881-02",
+        "additionalTags": "@epic4c- @e2e DTOSS-10013 1.Check updated telephone number record in cohort distribution"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantDemographicDataService",
+        "NhsNumber": 9996534472,
+        "PrimaryCareProvider": "B86019"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3881-02",
+        "requirementJiraId": "@DTOSS-3881-02",
+        "additionalTags": "@epic4c- @e2e DTOSS-10013 2.verify data in record is available in participant demographic table"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9996534472,
+        "RecordType": "AMENDED"
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-3881-02",
+        "requirementJiraId": "@DTOSS-3881-02",
+        "additionalTags": "@epic4c- @e2e  DTOSS-10013 3.check record in available in participant management table"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "AMENDED",
+      "change_time_stamp": null,
+      "serial_change_number": null,
+      "nhs_number": 9996534472,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "B86019",
+      "primary_care_effective_from_date": "20030318",
+      "current_posting": "WGA",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "Mrs",
+      "given_name": "Jane",
+      "other_given_name": "",
+      "family_name": "Doe",
+      "previous_family_name": "",
+      "date_of_birth": "20101022",
+      "gender": 2,
+      "address_line_1": "1 Trevelyan Square",
+      "address_line_2": "Boar Lane",
+      "address_line_3": "City Centre",
+      "address_line_4": "Leeds",
+      "address_line_5": "West Yorkshire",
+      "postcode": "LS1 6AE",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20130319",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "01632960999",
+      "home_telephone_effective_from_date": "20200818",
+      "mobile_telephone_number": "",
+      "mobile_telephone_effective_from_date": "20200818",
+      "email_address": "jane.smith@example.com",
+      "email_address_effective_from_date": "20200818",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9996534472"
+  ]
+}

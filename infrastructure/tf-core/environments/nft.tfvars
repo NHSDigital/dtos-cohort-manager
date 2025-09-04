@@ -1163,6 +1163,7 @@ linux_web_app = {
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort-nft.non-live.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
+          APP_ENV              = "development"
         }
         from_key_vault = {
           # env_var_name           = "key_vault_secret_name"
