@@ -7,6 +7,10 @@ import { APIRequestContext, TestInfo } from '@playwright/test';
 import { config } from '../../../config/env';
 import { getRecordsFromExceptionService } from '../../../api/dataService/exceptionService';
 import { sendHttpGet, sendHttpPOSTCall } from '../../../api/core/sendHTTPRequest';
+import { pollApiForOKResponse } from '../../../api/RetryCore/Retry';
+import { ApiResponse } from '../../../api/core/types';
+import { fail } from 'assert';
+import { assert } from 'console';
 
 annotation: [{
   type: 'Requirement',
@@ -38,7 +42,6 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
         await validateSqlDatabaseFromAPI(request, addValidations);
     });
     
-
     // Call the block participant function
     await test.step(`Go to PDS and get the participant data for the blocking of a participant that already exists in the database`, async () => {
         // Call the block participant function
@@ -77,17 +80,26 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
 
 
      await test.step(`the participant has been blocked`, async () => {
-      let blocked = false;
-      for(let i =0; i<10; i++) {
-          const resp = await getRecordsFromParticipantManagementService(request);
-          if (resp?.data?.[0]?.BlockedFlag === 1) {
-            blocked = true;
-            break;
-          }
-          console.log(`Waiting for participant to be blocked...(${i}/10)`);
-          await new Promise(res => setTimeout(res, 2000));
-        }
-        expect(blocked).toBe(true);
+      
+      let response: ApiResponse | null = null;
+      let RetryLimit = 2
+      let retryCount = 0
+      
+      while(retryCount < RetryLimit) 
+      {
+        response = await pollApiForOKResponse(() => getRecordsFromParticipantManagementService(request));
+        if (response?.data?.[0]?.BlockedFlag === 1) {
+          break;
+        } 
+      }
+
+      if(response !== null) {
+        expect(response.status).toBe(200);
+        expect(response?.data?.[0]?.BlockedFlag).toBe(1);
+      }
+      else {
+        fail;
+      }
     });
 
    
@@ -100,26 +112,26 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
       await processFileViaStorage(parquetFile);
 
       let validationExceptions;
-      for(let i =0; i<10; i++)
+      let RetryLimit = 2
+      let retryCount = 0
+      
+      while(retryCount < RetryLimit) 
       {
-          const responseFromExceptions = await getRecordsFromExceptionService(request);
+          var responseFromExceptions = await pollApiForOKResponse(() => getRecordsFromExceptionService(request));
           if(responseFromExceptions.data.length >= 3)
           {
             validationExceptions = responseFromExceptions.data
             break;
           }
-          console.log(`waiting for exception for participant blocked to be added to exception table...({${i}/10)`);
-          await new Promise(res => setTimeout(res, 2000));
+          console.log(`waiting for exception for participant blocked to be added to exception table...`);
       }
 
       let getUrl = `${config.endpointParticipantManagementDataService}api/${config.participantManagementService}`;
       var response = await sendHttpGet(getUrl);
 
-      
-
       let cohortDistributionServiceUrl = `${config.endpointCohortDistributionDataService}api/${config.cohortDistributionService}`
-
       var response = await sendHttpGet(cohortDistributionServiceUrl);
+
       var jsonResponse = await response.json();
 
       expect(response.status).toBe(200)
