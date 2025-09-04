@@ -12,5 +12,5 @@ public interface IMeshSendCaasSubscribe
     /// <param name="toMailbox">Destination MESH mailbox ID.</param>
     /// <param name="fromMailbox">Source MESH mailbox ID.</param>
     /// <returns>The MESH message ID on success; otherwise null.</returns>
-    Task<string> SendSubscriptionRequest(long nhsNumber, string toMailbox, string fromMailbox);
+    Task<string?> SendSubscriptionRequest(long nhsNumber, string toMailbox, string fromMailbox);
 }

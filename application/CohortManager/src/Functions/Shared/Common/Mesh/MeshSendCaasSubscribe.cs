@@ -30,7 +30,7 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
     /// <param name="toMailbox">Destination MESH mailbox ID.</param>
     /// <param name="fromMailbox">Source MESH mailbox ID.</param>
     /// <returns>The MESH message ID on success; otherwise null.</returns>
-    public async Task<string> SendSubscriptionRequest(long nhsNumber, string toMailbox, string fromMailbox)
+    public async Task<string?> SendSubscriptionRequest(long nhsNumber, string toMailbox, string fromMailbox)
     {
 
         var content = CreateParquetFile(nhsNumber);
