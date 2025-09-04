@@ -47,7 +47,7 @@ export const getRecordsFromNemsSubscription = (
   request: APIRequestContext,
   nhsNumbers: string
 ): Promise<ApiResponse> => {
-  return apiClient.get(request, `${config.endpointNemsSubscriptionDataDataService}api/${config.nemsSubscriberDataService}?nhsNumber=${nhsNumbers}`);
+  return apiClient.get(request, `${config.SubToNems}${config.CheckNemsSubPath}?nhsNumber=${nhsNumbers}`);
 };
 
 export function extractSubscriptionID(response: ApiResponse): string | null {
