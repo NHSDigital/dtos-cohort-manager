@@ -9,13 +9,13 @@ export default async function Overview() {
 
     const exceptionItems = [
       {
-        value: exceptions.TotalItems,
+        value: exceptions.data.TotalItems,
         label: "Not raised",
         description: "Exceptions to be raised with teams",
         url: "/exceptions",
       },
       {
-        value: exceptionsToday.TotalItems,
+        value: exceptionsToday.data.TotalItems,
         label: "Raised",
         description: "Access and amend previously raised exceptions",
         url: `/exceptions/raised`,

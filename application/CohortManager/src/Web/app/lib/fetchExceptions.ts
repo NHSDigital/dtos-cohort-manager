@@ -25,9 +25,17 @@ export async function fetchExceptions(params: FetchExceptionsParams = {}) {
 
   const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?${query.toString()}`;
 
-  const response = await fetch(apiUrl);
+   const response = await fetch(apiUrl);
   if (!response.ok) {
     throw new Error(`Error fetching data: ${response.statusText}`);
   }
-  return response.json();
+
+  const data = await response.json();
+  const linkHeader = response.headers.get('Link');
+
+  return {
+    data,
+    linkHeader,
+    headers: response.headers,
+  }
 }

@@ -41,27 +41,31 @@ export default function Pagination({ items, previous, next }: PaginationProps) {
           </a>
         </div>
       )}
-
       <ul className="app-pagination__list">
-        {items.map((item) => (
+        {items.map((item, index) => (
           <li
-            key={item.number}
+            key={item.number !== -1 ? item.number : `ellipsis-${index}`}
             className={`app-pagination__item${
               item.current ? " app-pagination__item--current" : ""
             }`}
           >
-            <a
-              className="app-link app-pagination__link"
-              href={item.href}
-              aria-label={`Page ${item.number}`}
-              {...(item.current && { "aria-current": "page" })}
-            >
-              {item.number}
-            </a>
+            {item.number === -1 ? (
+              <span className="app-pagination__ellipsis" aria-hidden="true">
+                ...
+              </span>
+            ) : (
+              <a
+                className="app-link app-pagination__link"
+                href={item.href}
+                aria-label={`Page ${item.number}`}
+                {...(item.current && { "aria-current": "page" })}
+              >
+                {item.number}
+              </a>
+            )}
           </li>
         ))}
       </ul>
-
       {next && (
         <div className="app-pagination__next">
           <a

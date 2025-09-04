@@ -44,7 +44,7 @@ export default async function Page({
   try {
     const exceptions = await fetchExceptions({sortOrder: sortBy});
 
-    const exceptionDetails: ExceptionDetails[] = exceptions.Items.map(
+    const exceptionDetails: ExceptionDetails[] = exceptions.data.Items.map(
       (exception: {
         ExceptionId: string;
         DateCreated: Date;
@@ -90,7 +90,7 @@ export default async function Page({
                   className="app-results-text"
                   data-testid="raised-exception-count"
                 >
-                  Showing {exceptionDetails.length} of {exceptions.TotalItems}{" "}
+                  Showing {exceptionDetails.length} of {exceptions.data.TotalItems}{" "}
                   results
                 </p>
               </div>

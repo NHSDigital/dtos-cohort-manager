@@ -26,6 +26,145 @@ interface ApiException {
   ServiceNowCreatedDate: string | null;
 }
 
+interface PaginationLinks {
+  first?: string;
+  previous?: string;
+  next?: string;
+  last?: string;
+}
+
+interface LinkBasedPagination {
+  links: PaginationLinks;
+  currentPage: number;
+  totalPages: number;
+}
+
+// Utility to parse Link headers
+function parseLinkHeader(linkHeader: string): PaginationLinks {
+  const links: PaginationLinks = {};
+
+  if (!linkHeader) return links;
+
+  const linkPattern = /<([^>]+)>;\s*rel="([^"]+)"/g;
+  let match;
+
+  while ((match = linkPattern.exec(linkHeader)) !== null) {
+    const url = match[1];
+    const relation = match[2];
+
+    switch (relation.toLowerCase()) {
+      case "first":
+        links.first = url;
+        break;
+      case "prev":
+      case "previous":
+        links.previous = url;
+        break;
+      case "next":
+        links.next = url;
+        break;
+      case "last":
+        links.last = url;
+        break;
+    }
+  }
+
+  return links;
+}
+
+// Extract page number from URL
+function extractPageFromUrl(url: string): number {
+  const match = url.match(/[?&]page=(\d+)/);
+  return match ? parseInt(match[1], 10) : 1;
+}
+
+// Convert Link header URLs to local page URLs with current sortBy
+function convertToLocalUrl(url: string | undefined, sortBy: number): string | undefined {
+  if (!url) return undefined;
+
+  const pageMatch = url.match(/[?&]page=(\d+)/);
+  const page = pageMatch ? pageMatch[1] : "1";
+
+  return `?sortBy=${sortBy}&page=${page}`;
+}
+
+// Generate pagination items from Link header info
+function generatePaginationItems(
+  linkPagination: LinkBasedPagination,
+  sortBy: number
+): Array<{ number: number; href: string; current: boolean }> {
+  const { currentPage, totalPages } = linkPagination;
+  const items = [];
+  const maxVisiblePages = 10;
+
+  if (totalPages <= maxVisiblePages) {
+    // Show all pages if total is small
+    for (let i = 1; i <= totalPages; i++) {
+      items.push({
+        number: i,
+        href: `?sortBy=${sortBy}&page=${i}`,
+        current: i === currentPage,
+      });
+    }
+  } else {
+    // Smart truncation for many pages
+    let startPage = Math.max(1, currentPage - 3);
+    let endPage = Math.min(totalPages, currentPage + 3);
+
+    if (currentPage <= 4) {
+      endPage = Math.min(maxVisiblePages, totalPages);
+    } else if (currentPage >= totalPages - 3) {
+      startPage = Math.max(1, totalPages - maxVisiblePages + 1);
+    }
+
+    // Always show first page
+    if (startPage > 1) {
+      items.push({
+        number: 1,
+        href: `?sortBy=${sortBy}&page=1`,
+        current: false,
+      });
+
+      if (startPage > 2) {
+
+        items.push({
+          number: -1,
+          href: '#',
+          current: false,
+        });
+      }
+    }
+
+    // Add visible pages
+    for (let i = startPage; i <= endPage; i++) {
+      items.push({
+        number: i,
+        href: `?sortBy=${sortBy}&page=${i}`,
+        current: i === currentPage,
+      });
+    }
+
+    // Always show last page
+    if (endPage < totalPages) {
+      if (endPage < totalPages - 1) {
+        items.push({
+          number: -1,
+          href: '#',
+          current: false,
+        });
+      }
+
+      items.push({
+        number: totalPages,
+        href: `?sortBy=${sortBy}&page=${totalPages}`,
+        current: false,
+      });
+    }
+  }
+
+  return items;
+}
+
 export default async function Page({
   searchParams,
 }: {
@@ -58,10 +197,9 @@ export default async function Page({
   ];
 
   try {
-    // Updated API call for page-based pagination
-    const response = await fetchExceptions({sortOrder:sortBy, page: currentPage, isReport:true});
+    const response = await fetchExceptions({sortOrder: sortBy,page: currentPage,isReport: true});
 
-    const exceptionDetails: ExceptionDetails[] = response.Items.map(
+    const exceptionDetails: ExceptionDetails[] = response.data.Items.map(
       (exception: ApiException) => {
         const ruleMapping = getRuleMapping(
           exception.RuleId,
@@ -80,86 +218,35 @@ export default async function Page({
       }
     );
 
-    // Generate all clickable page numbers
-    const generatePaginationItems = (currentPage: number, totalPages: number) => {
-      const items = [];
-      const maxVisiblePages = 7;
+    const linkHeader = response.headers?.get('Link') || response.linkHeader;
+    const paginationLinks = parseLinkHeader(linkHeader || '');
 
-      if (totalPages <= maxVisiblePages) {
-        // Show all pages if total is small
-        for (let i = 1; i <= totalPages; i++) {
-          items.push({
-            number: i,
-            href: `?sortBy=${sortBy}&page=${i}`,
-            current: i === currentPage,
-          });
-        }
-      } else {
-        // Smart truncation for many pages
-        let startPage = Math.max(1, currentPage - 3);
-        let endPage = Math.min(totalPages, currentPage + 3);
+    let totalPages = response.data.TotalPages;
+    let detectedCurrentPage = currentPage;
 
-        // Adjust if we're near the beginning or end
-        if (currentPage <= 4) {
-          endPage = Math.min(maxVisiblePages, totalPages);
-        } else if (currentPage >= totalPages - 3) {
-          startPage = Math.max(1, totalPages - maxVisiblePages + 1);
-        }
+    if (paginationLinks.last) {
+      totalPages = extractPageFromUrl(paginationLinks.last);
+    }
 
-        // Always show first page
-        if (startPage > 1) {
-          items.push({
-            number: 1,
-            href: `?sortBy=${sortBy}&page=1`,
-            current: false,
-          });
+    if (paginationLinks.next && !paginationLinks.previous) {
+      detectedCurrentPage = 1;
+    } else if (paginationLinks.previous && !paginationLinks.next) {
+      detectedCurrentPage = totalPages;
+    } else if (paginationLinks.next) {
+      detectedCurrentPage = extractPageFromUrl(paginationLinks.next) - 1;
+    }
 
-          if (startPage > 2) {
-            // Add ellipsis indicator
-            items.push({
-              number: -1, // Use -1 to indicate ellipsis
-              href: '#',
-              current: false,
-            });
-          }
-        }
-
-        // Add visible pages
-        for (let i = startPage; i <= endPage; i++) {
-          items.push({
-            number: i,
-            href: `?sortBy=${sortBy}&page=${i}`,
-            current: i === currentPage,
-          });
-        }
-
-        // Always show last page
-        if (endPage < totalPages) {
-          if (endPage < totalPages - 1) {
-            // Add ellipsis indicator
-            items.push({
-              number: -1, // Use -1 to indicate ellipsis
-              href: '#',
-              current: false,
-            });
-          }
-
-          items.push({
-            number: totalPages,
-            href: `?sortBy=${sortBy}&page=${totalPages}`,
-            current: false,
-          });
-        }
-      }
-
-      return items;
+    const linkBasedPagination: LinkBasedPagination = {
+      links: paginationLinks,
+      currentPage: detectedCurrentPage,
+      totalPages: totalPages,
     };
 
-    const paginationItems = generatePaginationItems(currentPage, response.TotalPages);
+    const paginationItems = generatePaginationItems(linkBasedPagination, sortBy);
 
     // Calculate the range of items being shown using PageSize from API response
-    const startItem = (currentPage - 1) * response.PageSize + 1;
-    const endItem = Math.min(startItem + response.Items.length - 1, response.TotalItems);
+    const startItem = (currentPage - 1) * response.data.PageSize + 1;
+    const endItem = Math.min(startItem + response.data.Items.length - 1, response.data.TotalItems);
 
     return (
       <>
@@ -182,7 +269,7 @@ export default async function Page({
                   className="app-results-text"
                   data-testid="not-raised-exception-count"
                 >
-                  Showing {startItem} to {endItem} of {response.TotalItems} results
+                  Showing {startItem} to {endItem} of {response.data.TotalItems} results
                 </p>
               </div>
 
@@ -192,18 +279,17 @@ export default async function Page({
                 </div>
               </div>
 
-              {/* Show full pagination with clickable page numbers */}
-              {response.TotalPages > 1 && (
+              {totalPages > 1 && (
                 <Pagination
                   items={paginationItems}
                   previous={
-                    response.HasPreviousPage
-                      ? { href: `?sortBy=${sortBy}&page=${currentPage - 1}` }
+                    paginationLinks.previous
+                      ? { href: convertToLocalUrl(paginationLinks.previous, sortBy)! }
                       : undefined
                   }
                   next={
-                    response.HasNextPage
-                      ? { href: `?sortBy=${sortBy}&page=${currentPage + 1}` }
+                    paginationLinks.next
+                      ? { href: convertToLocalUrl(paginationLinks.next, sortBy)! }
                       : undefined
                   }
                 />
