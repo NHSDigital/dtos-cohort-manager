@@ -1,6 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "SBX"
+environment           = "SBRK"
 
 tags = {
   Environment = "sandbox"
@@ -17,7 +17,7 @@ features = {
 regions = {
   uksouth = {
     is_primary_region = true
-    address_space     = "10.127.0.0/16"
+    address_space     = "10.129.0.0/16"
     connect_peering   = true
     subnets = {
       pep = {
@@ -52,7 +52,16 @@ storage_accounts = {
         container_name        = "vulnerability-assessment"
         container_access_type = "private"
       }
+      sql-backups-immutable = {
+        container_name        = "sql-backups-immutable"
+        container_access_type = "private"
+        immutability_policy = {
+          is_locked                           = false
+          immutability_period_in_days         = 1
+          protected_append_writes_all_enabled = false
+          protected_append_writes_enabled     = false
+        }
+      }
     }
-
   }
 }
