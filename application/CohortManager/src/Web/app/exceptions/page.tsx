@@ -82,7 +82,10 @@ function extractPageFromUrl(url: string): number {
   return match ? parseInt(match[1], 10) : 1;
 }
 
-function convertToLocalUrl(url: string | undefined, sortBy: number): string | undefined {
+function convertToLocalUrl(
+  url: string | undefined,
+  sortBy: number
+): string | undefined {
   if (!url) return undefined;
 
   const pageRegex = /[?&]page=(\d+)/;
@@ -100,7 +103,7 @@ function createPaginationItem(
 ): PaginationItem {
   return {
     number: isEllipsis ? -1 : pageNumber,
-    href: isEllipsis ? '#' : `?sortBy=${sortBy}&page=${pageNumber}`,
+    href: isEllipsis ? "#" : `?sortBy=${sortBy}&page=${pageNumber}`,
     current: pageNumber === currentPage,
   };
 }
@@ -183,7 +186,11 @@ function generateTruncatedPages(
   maxVisiblePages: number
 ): PaginationItem[] {
   const items: PaginationItem[] = [];
-  const { startPage, endPage } = calculatePageRange(currentPage, totalPages, maxVisiblePages);
+  const { startPage, endPage } = calculatePageRange(
+    currentPage,
+    totalPages,
+    maxVisiblePages
+  );
 
   addFirstPageSection(items, startPage, sortBy, currentPage);
   addVisiblePages(items, startPage, endPage, sortBy, currentPage);
@@ -203,7 +210,12 @@ function generatePaginationItems(
     return generateAllPages(totalPages, sortBy, currentPage);
   }
 
-  return generateTruncatedPages(currentPage, totalPages, sortBy, maxVisiblePages);
+  return generateTruncatedPages(
+    currentPage,
+    totalPages,
+    sortBy,
+    maxVisiblePages
+  );
 }
 
 export default async function Page({
@@ -224,7 +236,10 @@ export default async function Page({
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
-  const currentPage = Math.max(1, parseInt(resolvedSearchParams.page || "1", 10));
+  const currentPage = Math.max(
+    1,
+    parseInt(resolvedSearchParams.page || "1", 10)
+  );
 
   const sortOptions = [
     {
@@ -238,7 +253,11 @@ export default async function Page({
   ];
 
   try {
-    const response = await fetchExceptions({sortOrder: sortBy,page: currentPage,isReport: true});
+    const response = await fetchExceptions({
+      exceptionStatus: 2,
+      sortOrder: sortBy,
+      page: currentPage,
+    });
 
     const exceptionDetails: ExceptionDetails[] = response.data.Items.map(
       (exception: ApiException) => {
@@ -259,8 +278,8 @@ export default async function Page({
       }
     );
 
-    const linkHeader = response.headers?.get('Link') || response.linkHeader;
-    const paginationLinks = parseLinkHeader(linkHeader || '');
+    const linkHeader = response.headers?.get("Link") || response.linkHeader;
+    const paginationLinks = parseLinkHeader(linkHeader || "");
 
     let totalPages = response.data.TotalPages;
     let detectedCurrentPage = currentPage;
@@ -283,10 +302,16 @@ export default async function Page({
       totalPages: totalPages,
     };
 
-    const paginationItems = generatePaginationItems(linkBasedPagination, sortBy);
+    const paginationItems = generatePaginationItems(
+      linkBasedPagination,
+      sortBy
+    );
 
     const startItem = (currentPage - 1) * response.data.PageSize + 1;
-    const endItem = Math.min(startItem + response.data.Items.length - 1, response.data.TotalItems);
+    const endItem = Math.min(
+      startItem + response.data.Items.length - 1,
+      response.data.TotalItems
+    );
 
     return (
       <>
@@ -309,7 +334,8 @@ export default async function Page({
                   className="app-results-text"
                   data-testid="not-raised-exception-count"
                 >
-                  Showing {startItem} to {endItem} of {response.data.TotalItems} results
+                  Showing {startItem} to {endItem} of {response.data.TotalItems}{" "}
+                  results
                 </p>
               </div>
 
@@ -324,12 +350,22 @@ export default async function Page({
                   items={paginationItems}
                   previous={
                     paginationLinks.previous
-                      ? { href: convertToLocalUrl(paginationLinks.previous, sortBy)! }
+                      ? {
+                          href: convertToLocalUrl(
+                            paginationLinks.previous,
+                            sortBy
+                          )!,
+                        }
                       : undefined
                   }
                   next={
                     paginationLinks.next
-                      ? { href: convertToLocalUrl(paginationLinks.next, sortBy)! }
+                      ? {
+                          href: convertToLocalUrl(
+                            paginationLinks.next,
+                            sortBy
+                          )!,
+                        }
                       : undefined
                   }
                 />

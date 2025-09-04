@@ -17,7 +17,10 @@ export const metadata: Metadata = {
 export default async function Page({
   searchParams,
 }: {
-  readonly searchParams?: Promise<{ readonly sortBy?: string }>;
+  readonly searchParams?: Promise<{
+    readonly sortBy?: string;
+    readonly page?: string;
+  }>;
 }) {
   const session = await auth();
   const isCohortManager = await canAccessCohortManager(session);
@@ -29,6 +32,10 @@ export default async function Page({
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
+  const currentPage = Math.max(
+    1,
+    parseInt(resolvedSearchParams.page || "1", 10)
+  );
 
   const sortOptions = [
     {
@@ -42,7 +49,11 @@ export default async function Page({
   ];
 
   try {
-    const exceptions = await fetchExceptions({sortOrder: sortBy});
+    const exceptions = await fetchExceptions({
+      exceptionStatus: 1,
+      sortOrder: sortBy,
+      page: currentPage,
+    });
 
     const exceptionDetails: ExceptionDetails[] = exceptions.data.Items.map(
       (exception: {
@@ -90,8 +101,8 @@ export default async function Page({
                   className="app-results-text"
                   data-testid="raised-exception-count"
                 >
-                  Showing {exceptionDetails.length} of {exceptions.data.TotalItems}{" "}
-                  results
+                  Showing {exceptions.data.Items?.length ?? 0} of{" "}
+                  {exceptions.data.TotalItems} results
                 </p>
               </div>
               <div className="nhsuk-card nhsuk-u-margin-bottom-5">
