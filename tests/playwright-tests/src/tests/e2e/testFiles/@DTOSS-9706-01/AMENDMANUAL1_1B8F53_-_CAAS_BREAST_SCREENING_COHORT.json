@@ -2,29 +2,30 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/CohortDistributionDataService",
-        "NHSNumber": 9999111149
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9992886412,
+        "IsHigherRisk": 1
       },
-        "meta": {
-        "testJiraId": "@DTOSS-9493-01",
-        "requirementJiraId": "DTOSS-6045",
-        "additionalTags": "@regression @e2e @epic4d-validation-tests -  Verify participant data meets the 3 conditions to trigger Rule 3602 - AC01- AMENDED for Rule 3602"
+      "meta": {
+        "testJiraId": "@DTOSS-9706-01",
+        "requirementJiraId": "@DTOSS-9706-01",
+        "additionalTags": "@DTOSS-9706-01 @e2e @epic4c- Verify that the VHR flag is not overwritten when a participant is amended"
       }
     }
   ],
   "inputParticipantRecord": [
     {
-      "record_type": "ADD",
+      "record_type": "AMENDED",
       "change_time_stamp": null,
-      "serial_change_number": 98,
-      "nhs_number": 9999111149,
+      "serial_change_number": null,
+      "nhs_number": 9992886412,
       "superseded_by_nhs_number": null,
-      "primary_care_provider": "A81623",
+      "primary_care_provider": "B86019",
       "primary_care_effective_from_date": "20030318",
-      "current_posting": "LA",
+      "current_posting": "WGA",
       "current_posting_effective_from_date": "20130319",
-      "name_prefix": "BRO",
-      "given_name": "Name",
+      "name_prefix": "Mrs",
+      "given_name": "9497 update",
       "other_given_name": "OtherGivenName",
       "family_name": "FamiliyName",
       "previous_family_name": "PreviousFamilyName",
@@ -55,6 +56,6 @@
     }
   ],
   "nhsNumbers": [
-    "9999111149"
+    "9992886412"
   ]
 }

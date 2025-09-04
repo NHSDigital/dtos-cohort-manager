@@ -147,11 +147,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-      capacity_max = "1"
-      capacity_def = "1"
+          capacity_max = "1"
+          capacity_def = "1"
 
-      inc_scale_value     = 1
-      dec_scale_value     = 1
+          inc_scale_value = 1
+          dec_scale_value = 1
 
         }
       }
@@ -162,7 +162,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_max = "5"
+          capacity_max    = "5"
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -176,11 +176,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-      capacity_max = "1"
-      capacity_def = "1"
+          capacity_max = "1"
+          capacity_def = "1"
 
-      inc_scale_value     = 1
-      dec_scale_value     = 1
+          inc_scale_value = 1
+          dec_scale_value = 1
 
         }
       }
@@ -191,7 +191,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_max = "5"
+          capacity_max    = "5"
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -205,7 +205,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_max = "3"
+          capacity_max    = "3"
           inc_scale_value = 3
 
           dec_scale_type  = "ChangeCount"
@@ -272,6 +272,7 @@ function_apps = {
   enable_appsrv_storage         = "false"
   ftps_state                    = "Disabled"
   https_only                    = true
+  http2_enabled                 = false
   remote_debugging_enabled      = false
   storage_uses_managed_identity = null
   worker_32bit                  = false
@@ -351,8 +352,8 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        MeshCertName                        = "MeshCert"
-        BypassServerCertificateValidation   = "true"
+        MeshCertName                      = "MeshCert"
+        BypassServerCertificateValidation = "true"
       }
     }
 
@@ -670,6 +671,11 @@ function_apps = {
           env_var_name     = "LanguageCodeUrl"
           function_app_key = "ReferenceDataService"
           endpoint_name    = "LanguageCode"
+        },
+        {
+          env_var_name     = "CurrentPostingUrl"
+          function_app_key = "ReferenceDataService"
+          endpoint_name    = "CurrentPosting"
         },
         {
           env_var_name     = "ExcludedSMULookupUrl"

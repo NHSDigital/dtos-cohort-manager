@@ -48,7 +48,7 @@ public class StaticValidation
             var ruleFileName = $"{participantCsvRecord.Participant.ScreeningName}_staticRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName: {RuleFileName}", ruleFileName);
 
-            bool routineParticipant = participantCsvRecord.Participant.ReferralFlag == "false";
+            bool routineParticipant = (participantCsvRecord.Participant.ReferralFlag ?? "").ToLower() == "false";
 
             var json = await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
