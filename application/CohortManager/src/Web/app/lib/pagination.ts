@@ -286,5 +286,5 @@ export function createPageUrl(
   }
 
   const query = params.toString();
-  return `${basePath}${query ? `?${query}` : ""}`;
+  return query ? basePath + "?" + query : basePath;
 }

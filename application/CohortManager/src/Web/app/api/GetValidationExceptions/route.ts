@@ -76,7 +76,7 @@ function buildLinkHeader(
   params.delete("page");
   const baseQuery = params.toString();
 
-  const buildBaseHref = (b: string, q: string) => `${b}${q ? `?${q}` : ""}`;
+  const buildBaseHref = (b: string, q: string) => (q ? b + "?" + q : b);
 
   const buildPageHref = (page: number) => {
     if (page <= 1) return buildBaseHref(baseUrl, baseQuery);
