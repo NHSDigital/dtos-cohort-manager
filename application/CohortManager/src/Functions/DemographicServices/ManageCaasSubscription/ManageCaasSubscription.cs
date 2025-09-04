@@ -173,6 +173,16 @@ public class ManageCaasSubscription
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error checking subscription status");
+            try
+            {
+                string? rawNhs = req.Query["nhsNumber"];
+                var nhsForLog = ValidationHelper.ValidateNHSNumber(rawNhs!) ? rawNhs! : string.Empty;
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsForLog, nameof(ManageCaasSubscription), "CAAS", string.Empty);
+            }
+            catch
+            {
+                // Swallow secondary errors to preserve primary failure path
+            }
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while checking subscription status.");
         }
     }
@@ -195,6 +205,14 @@ public class ManageCaasSubscription
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error has occurred in data service");
+            try
+            {
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, string.Empty, nameof(ManageCaasSubscription), "CAAS", string.Empty);
+            }
+            catch
+            {
+                // Swallow secondary errors to preserve primary failure path
+            }
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while processing the data service request.");
         }
     }
