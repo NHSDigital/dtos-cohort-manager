@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
-import { fetchExceptionsRaisedSorted } from "@/app/lib/fetchExceptions";
+import { fetchExceptions } from "@/app/lib/fetchExceptions";
 import { getRuleMapping } from "@/app/lib/ruleMapping";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import SortExceptionsForm from "@/app/components/sortExceptionsForm";
@@ -42,7 +42,7 @@ export default async function Page({
   ];
 
   try {
-    const exceptions = await fetchExceptionsRaisedSorted(sortBy);
+    const exceptions = await fetchExceptions({sortOrder: sortBy});
 
     const exceptionDetails: ExceptionDetails[] = exceptions.Items.map(
       (exception: {
