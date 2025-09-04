@@ -12,19 +12,18 @@ var hostBuilder = new HostBuilder()
     .AddConfiguration<ManageCaasSubscriptionConfig>(out ManageCaasSubscriptionConfig? config)
     .AddMeshMailboxes(new MeshConfig
     {
-        MeshApiBaseUrl = config.MeshApiBaseUrl!,
+        MeshApiBaseUrl = config!.MeshApiBaseUrl,
         KeyVaultConnectionString = config.KeyVaultConnectionString,
         BypassServerCertificateValidation = config.BypassServerCertificateValidation,
         MailboxConfigs = new List<MailboxConfig>
         {
             new MailboxConfig
             {
-                MailboxId = config.CaasFromMailbox!,
+                MailboxId = config.CaasFromMailbox,
                 MeshKeyName = config.MeshCaasKeyName!,
                 MeshKeyPassword = config.MeshCaasKeyPassword,
                 MeshPassword = config.MeshCaasPassword,
-                SharedKey = config.MeshCaasSharedKey!
-
+                SharedKey = config.MeshCaasSharedKey
             }
         }
     })
@@ -35,12 +34,13 @@ var hostBuilder = new HostBuilder()
         if (config.IsStubbed)
         {
             services.AddSingleton<IMeshSendCaasSubscribe, MeshSendCaasSubscribeStub>();
+            services.AddSingleton<IMeshPoller, MeshPollerStub>();
         }
         else
         {
             services.AddScoped<IMeshSendCaasSubscribe, MeshSendCaasSubscribe>();
+            services.AddScoped<IMeshPoller, MeshPoller>();
         }
-        services.AddScoped<IMeshPoller, MeshPoller>();
     })
     .AddDataServicesHandler<DataServicesContext>()
     .AddHttpClient()
