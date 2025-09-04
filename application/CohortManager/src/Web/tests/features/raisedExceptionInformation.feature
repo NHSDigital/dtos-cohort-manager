@@ -1,50 +1,59 @@
-Feature: testing Breast screening - Raised exception information page
+Feature: Raised exceptions page
 
-  Background:
-    Given the user navigate to raised exception overview page
-    When the user clicks on exception ID link
+    Scenario: Check for page heading
+        When I go to the page "/participant-information/2028"
+        Then I see the heading "Exception information"
+        And I see the text "Local reference (exception ID): 2028"
 
-  @epic_4a @req_6328 @test_10066
-  Scenario: verify exception information
-    Then they should navigate to 'Exception information - Cohort Manager - NHS'
-    And the participant details section should have the following fields:
-      | NHS number               |
-      | Superseded by NHS number |
-      | Surname                  |
-      | Forename                 |
-      | Date of birth            |
-      | Gender                   |
-      | Current address          |
-      | Registered practice code |
-    And the Exception details section should have the following fields:
-      | Date exception created |
-      | More detail            |
-    And the following labels should be present on top of the page:
-      | Portal form used   |
-      | Exception status   |
-      | ServiceNow Case ID |
+    Scenario: Check for accessibility issues as a signed in user
+      Given I should see the heading "Exception information"
+      Then I should expect "0" accessibility issues
 
-  @epic_4a @req_6328 @test_10072
-  Scenario: navigation to exception overview page
-    When the user clicks on raised breast screening exceptions link
-    Then they should navigate to 'Raised breast screening exceptions - Cohort Manager - NHS'
+    Scenario: Check for the raised exception information
+        Given I should see the text "Raised breast screening exceptions"
+        Then I should see the text "Portal form used" with the text "Request to amend incorrect patient PDS record data"
+        And I should see the text "Exception status" with the tag "Raised"
+        And I should see the text "ServiceNow Case ID"
+        And I should see the link "Change" with the URL "/participant-information/4001?edit=true#exception-status"
 
-  @epic_4a @req_6328 @test_10073
-  Scenario: verify navigation to Home screen from Raised exception information page
-    When the user clicks on Home link
-    Then they should navigate to 'Breast screening - Cohort Manager - NHS'
+    Scenario: Check for not raised exception participant details
+        Given I should see the text "Not raised breast screening exceptions"
+        Then I should see the heading "Participant details"
+        And I should see the values in the "participant-details-section" list:
+          | NHS Number       |
+          | Surname   |
+          | Forename  |
+          | Date of birth      |
+          | Gender            |
+          | Registered practice code       |
 
-  @epic_4a @req_6328 @test_10075
-  Scenario: verify navigation to Contact us screen from raised exception information page
-    And the user clicks on contact us link
-    Then they should navigate to 'Get help with Cohort Manager - Cohort Manager - NHS'
+    Scenario: Check for not raised exception details
+        Given I should see the text "Not raised breast screening exceptions"
+        Then I should see the heading "Exception details"
+        And I should see the values in the "exception-details-section" list:
+          | Date exception created |
+          | More detail	       |
+          | ServiceNowId  |
+        And the ServiceNow ID should have the text "Not raised"
 
-  @epic_4a @req_6328 @test_10074
-  Scenario: verify navigation to Terms and conditions screen from raised exception information page
-    And the user clicks on Terms and conditions link
-    Then they should navigate to 'Terms and conditions - Cohort Manager - NHS'
+    Scenario: Check to make sure the exception status section is not present
+        Given I should see the text "Not raised breast screening exceptions"
+        Then I should not see the heading "Exception status"
+        And I should not see the text input with label "Enter ServiceNow Case ID"
+        And the button "Save and continue" should not be present
 
-  @epic_4a @req_6328 @test_10076
-  Scenario: verify navigation to cookies screen from raised exception information page
-    And the user clicks on cookies link
-    Then they should navigate to 'Cookies on Cohort Manager - Cohort Manager - NHS'
+    Scenario: Check for the change link functionality
+        Given I should see the link "Change" with the URL "/participant-information/4001?edit=true#exception-status"
+        When I go to the page "/participant-information/4001?edit=true#exception-status"
+        Then I should see the heading "Exception information"
+        And I should see the text "Local reference (exception ID): 4001"
+        And I should see the heading "Exception status"
+        And I should see the text input with label "Enter ServiceNow Case ID"
+        And I should see the button "Save and continue"
+
+    Scenario: Check for breadcrumb navigation back to Raised breast screening exceptions page
+      When I go to the page "/participant-information/3001"
+      Then I see the link "Home" in the breadcrumb navigation
+      Then I see the link "Raised breast screening exceptions" in the breadcrumb navigation
+      When I click the link "Raised breast screening exceptions" in the breadcrumb navigation
+      Then I see the heading "Raised breast screening exceptions"

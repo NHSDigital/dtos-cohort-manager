@@ -1,49 +1,57 @@
-Feature: testing Breast screening - Not raised exception information page
+Feature: Not raised exceptions page
 
-  Background:
-    Given the user navigate to not raised exception overview page
-    When the user clicks on exception ID link
-    And they should navigate to 'Exception information - Cohort Manager - NHS'
+    Scenario: Check for page heading
+        When I go to the page "/participant-information/2028"
+        Then I see the heading "Exception information"
+        And I see the text "Local reference (exception ID): 2028"
 
-  @regression @req_3913 @test_10077
-  Scenario: verify exception information
-    Then they should navigate to 'Exception information - Cohort Manager - NHS'
-    And the participant details section should have the following fields:
-      | NHS number               |
-      | Surname                  |
-      | Forename                 |
-      | Date of birth            |
-      | Gender                   |
-      | Current address          |
-      | Registered practice code |
-    And the Exception details section should have the following fields:
-      | Date exception created |
-      | More detail            |
-      | ServiceNow ID          |
-    And the Exception status have 'Enter ServiceNow Case ID'
-    And the Exception status have 'save and continue' button
+    Scenario: Check for accessibility issues as a signed in user
+      Given I should see the heading "Exception information"
+      Then I should expect "0" accessibility issues
 
-  @req_3913 @test_10083
-  Scenario: navigation to exception information page
-    When the user clicks on Not raised breast screening exceptions link
-    Then they should navigate to 'Not raised breast screening exceptions - Cohort Manager - NHS'
+    Scenario: Check for the portal form used
+        Given I should see the text "Raised breast screening exceptions"
+        Then I should see the text "Portal form: Request to amend incorrect patient PDS record data"
 
-  @req_3913 @test_10084
-  Scenario: verify navigation to Home screen from Raised exception overview page
-    When the user clicks on Home link
-    Then they should navigate to 'Breast screening - Cohort Manager - NHS'
+    Scenario: Check for not raised exception participant details
+        Given I should see the text "Not raised breast screening exceptions"
+        Then I should see the heading "Participant details"
+        And I should see the values in the "participant-details-section" list:
+          | NHS Number       |
+          | Surname   |
+          | Forename  |
+          | Date of birth      |
+          | Gender            |
+          | Registered practice code       |
 
-  @req_3913 @test_10087
-  Scenario: verify navigation to Contact us screen
-    And the user clicks on contact us link
-    Then they should navigate to 'Get help with Cohort Manager - Cohort Manager - NHS'
+    Scenario: Check for not raised exception details
+        Given I should see the text "Not raised breast screening exceptions"
+        Then I should see the heading "Exception details"
+        And I should see the values in the "exception-details-section" list:
+          | Date exception created |
+          | More detail	       |
+          | ServiceNowId  |
+        And the ServiceNow ID should have the text "Not raised"
 
-  @req_3913 @test_10085
-  Scenario: verify navigation to Terms and conditions screen
-    And the user clicks on Terms and conditions link
-    Then they should navigate to 'Terms and conditions - Cohort Manager - NHS'
+    Scenario: Check for exception status section
+        Given I should see the text "Not raised breast screening exceptions"
+        Then I should see the heading "Exception status"
+        And I should see the text input with label "Enter ServiceNow Case ID"
+        And the button "Save and continue" should be present
 
-  @req_3913 @test_10086
-  Scenario: verify navigation to cookies screen
-    And the user clicks on cookies link
-    Then they should navigate to 'Cookies on Cohort Manager - Cohort Manager - NHS'
+    Scenario: Check for the portal form used for a CaaS exception
+        When I go to the page "/participant-information/2020"
+        Given I should see the text "Raised breast screening exceptions"
+        Then I should see the text "Portal form: Raise with Cohorting as a Service (CaaS)"
+
+    Scenario: Check for the portal form used for a BSS exception
+        When I go to the page "/participant-information/2034"
+        Given I should see the text "Raised breast screening exceptions"
+        Then I should see the text "Portal form: Raise with Breast Screening Select (BSS)"
+
+    Scenario: Check for breadcrumb navigation back to Not raised breast screening exceptions page
+      When I go to the page "/participant-information/2032"
+      Then I see the link "Home" in the breadcrumb navigation
+      Then I see the link "Not raised breast screening exceptions" in the breadcrumb navigation
+      When I click the link "Not raised breast screening exceptions" in the breadcrumb navigation
+      Then I see the heading "Not raised breast screening exceptions"
