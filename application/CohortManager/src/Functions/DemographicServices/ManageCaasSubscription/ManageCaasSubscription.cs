@@ -12,6 +12,7 @@ using System.Text;
 using DataServices.Core;
 using Model;
 using NHS.CohortManager.DemographicServices;
+using Common.Interfaces;
 
 /// <summary>
 /// Azure Functions endpoints for managing CaaS subscriptions via MESH and data services.
@@ -25,6 +26,7 @@ public class ManageCaasSubscription
     private readonly IRequestHandler<NemsSubscription> _requestHandler;
     private readonly IDataServiceAccessor<NemsSubscription> _nemsSubscriptionAccessor;
     private readonly IMeshPoller _meshPoller;
+    private readonly IExceptionHandler _exceptionHandler;
 
     public ManageCaasSubscription(
         ILogger<ManageCaasSubscription> logger,
@@ -33,7 +35,8 @@ public class ManageCaasSubscription
         IMeshSendCaasSubscribe meshSendCaasSubscribe,
         IRequestHandler<NemsSubscription> requestHandler,
         IDataServiceAccessor<NemsSubscription> nemsSubscriptionAccessor,
-        IMeshPoller meshPoller)
+        IMeshPoller meshPoller,
+        IExceptionHandler exceptionHandler)
     {
         _logger = logger;
         _createResponse = createResponse;
@@ -42,7 +45,9 @@ public class ManageCaasSubscription
         _requestHandler = requestHandler;
         _nemsSubscriptionAccessor = nemsSubscriptionAccessor;
         _meshPoller = meshPoller;
+        _exceptionHandler = exceptionHandler;
     }
+
 
     /// <summary>
     /// Creates a new CaaS subscription for the given NHS number and persists a record.
@@ -60,11 +65,18 @@ public class ManageCaasSubscription
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
-            // Forward to MeshSendCaasSubscribeStub (Shared)
             var nhsNo = long.Parse(nhsNumber!);
             var toMailbox = _config.CaasToMailbox!;
             var fromMailbox = _config.CaasFromMailbox!;
             var messageId = await _meshSendCaasSubscribe.SendSubscriptionRequest(nhsNo, toMailbox, fromMailbox);
+
+            if (string.IsNullOrEmpty(messageId))
+            {
+                var ex = new InvalidOperationException("Failed to send CAAS subscription via MESH");
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNo.ToString(), nameof(ManageCaasSubscription), "CAAS", $"to={toMailbox}");
+                _logger.LogError("Failed to send CAAS subscription via MESH");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to send CAAS subscription via MESH.");
+            }
 
             // Save a record to NEMS_SUBSCRIPTION table with source = MESH
             var record = new NemsSubscription
@@ -77,11 +89,20 @@ public class ManageCaasSubscription
             var saved = await _nemsSubscriptionAccessor.InsertSingle(record);
             if (!saved)
             {
+                var ex = new InvalidOperationException("Failed to save CAAS subscription record to database");
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNo.ToString(), nameof(ManageCaasSubscription), "CAAS", System.Text.Json.JsonSerializer.Serialize(record));
                 _logger.LogError("Failed to write CAAS subscription record to database");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to save subscription record.");
             }
 
-            _logger.LogInformation("CAAS Subscribe forwarded to Mesh stub. MessageId: {Msg}", messageId);
+            if (_config.IsStubbed)
+            {
+                _logger.LogInformation("CAAS Subscribe forwarded to MESH stub. MessageId: {Msg}", messageId);
+            }
+            else
+            {
+                _logger.LogInformation("CAAS Subscribe sent to MESH. MessageId: {Msg}", messageId);
+            }
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Subscription request accepted. MessageId: {messageId}");
         }
         catch (Exception ex)
