@@ -30,7 +30,7 @@ test.describe('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the Added r
       await validators(response);
     });
 
-    await test.step('Then NHSNumber, GivenName, FamilyName is written to Participant Demographic table', async () => {
+    await test.step('Then NHSNumber, GivenName, FamilyName is written into Participant Demographic table', async () => {
       const response = await retry(
         () => getRecordsFromParticipantDemographicService(request),
         (res) =>
@@ -44,7 +44,7 @@ test.describe('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the Added r
       expect(response?.data?.[0]?.FamilyName).toBe("Doe");
     });
 
-    await test.step('And NHSNumber, ScreeningId, ReferralFlag is written to Participant Management table', async () => {
+    await test.step('And NHSNumber, ScreeningId, ReferralFlag is written into Participant Management table', async () => {
       const response = await retry(
         () => getRecordsFromParticipantManagementService(request),
         (res) =>
