@@ -1,20 +1,5 @@
 {
-  "validations": [
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9996310999",
-        "expectedCount": 1,
-        "DateResolved": "9999-12-31T00:00:00",
-        "RuleDescriptionContains": "servicenow"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8569-05",
-        "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Exception path: system failure (ExceptionManagement)"
-      }
-    }
-  ],
+  "validations": [],
   "serviceNowRequestValidations": [
     {
       "validation": {

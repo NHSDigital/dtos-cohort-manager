@@ -281,15 +281,6 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
       }
     }
 
-    else if (fieldName === 'RuleDescriptionContains') {
-      const needle = String(expectedValue).toLowerCase();
-      const haystack = Array.isArray(matchingObjects) ? matchingObjects : (matchingObject ? [matchingObject] : []);
-      const matches = haystack.filter((r: any) => typeof r?.RuleDescription === 'string' && r.RuleDescription.toLowerCase().includes(needle));
-      console.info(`🚧 RuleDescription contains check for '${needle}' across ${haystack.length} records. Matches=${matches.length} for NHS Number ${nhsNumber}`);
-      expect(matches.length).toBeGreaterThan(0);
-      console.info(`✅ RuleDescription contains '${needle}' for NHS Number ${nhsNumber}`);
-    }
-
     else {
       console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
 

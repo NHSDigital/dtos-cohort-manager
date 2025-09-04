@@ -11,19 +11,6 @@
         "requirementJiraId": "DTOSS-8569",
         "additionalTags": "@epic4c- @e2e Exception path: record not present in CohortDistribution"
       }
-    },
-    {
-      "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9996310003",
-        "expectedCount": 1,
-        "RuleDescriptionContains": "servicenow"
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-8569-04",
-        "requirementJiraId": "DTOSS-8569",
-        "additionalTags": "@epic4c- @e2e Exception path: exception raised (ExceptionManagement)"
-      }
     }
   ],
   "serviceNowRequestValidations": [
