@@ -109,7 +109,6 @@ routes = {
 app_service_plan = {
   os_type                  = "Linux"
   vnet_integration_enabled = true
-  zone_balancing_enabled   = true
 
   autoscale = {
     scaling_rule = {
@@ -247,6 +246,38 @@ container_app_jobs = {
       container_app_environment_key = "db-management"
       docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
+      db_connection_string_name     = "DtOsDatabaseConnectionString"
+      add_user_assigned_identity    = true
+      replica_retry_limit           = 1
+    }
+    db-backup = {
+      container_app_environment_key = "db-management"
+      docker_image                  = "db-immutable-backup"
+      docker_env_tag                = "latest"
+      container_registry_use_mi     = true
+      add_user_assigned_identity    = true
+      replica_retry_limit           = 1
+      env_vars_static = {
+        SQL_SERVER_NAME        = "sqlsvr-cohman-prod-uks"
+        SQL_DATABASE_NAME      = "DToSDB"
+        STORAGE_ACCOUNT_NAME   = "stcohmanprodukssqlbackup"
+        STORAGE_CONTAINER_NAME = "sql-backups-immutable"
+      }
+    }
+    db-restore = {
+      container_app_environment_key = "db-management"
+      docker_image                  = "db-immutable-backup-restore"
+      docker_env_tag                = "latest"
+      container_registry_use_mi     = true
+      add_user_assigned_identity    = true
+      replica_retry_limit           = 1
+      env_vars_static = {
+        SQL_SERVER_NAME        = "sqlsvr-cohman-prod-uks"
+        SQL_DATABASE_NAME      = "DToSDB_RESTORE"
+        STORAGE_ACCOUNT_NAME   = "stcohmanprodukssqlbackup"
+        STORAGE_CONTAINER_NAME = "sql-backups-immutable"
+        BACKUP_FILE_NAME       = "filename.bacpac"
+      }
     }
   }
 }
@@ -1003,10 +1034,11 @@ function_apps = {
     }
 
     RetrievePDSDemographic = {
-      name_suffix            = "retrieve-pds-demographic"
-      function_endpoint_name = "RetrievePDSDemographic"
-      app_service_plan_key   = "NonScaling"
-      key_vault_url          = "KeyVaultConnectionString"
+      name_suffix             = "retrieve-pds-demographic"
+      function_endpoint_name  = "RetrievePDSDemographic"
+      app_service_plan_key    = "NonScaling"
+      service_bus_connections = ["internal"]
+      key_vault_url           = "KeyVaultConnectionString"
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
@@ -1246,7 +1278,11 @@ sqlserver = {
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
-  db_management_mi_name_prefix         = "mi-cohort-manager-db-management"
+  user_assigned_identities = [
+    "db-management",
+    "db-backup",
+    "db-restore"
+  ]
 
   server = {
     sqlversion                    = "12.0"
@@ -1262,7 +1298,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 100
       read_scale           = false
-      sku                  = "S12"
+      sku                  = "S2"
       storage_account_type = "GeoZone"
       zone_redundant       = false
 

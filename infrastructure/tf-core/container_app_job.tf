@@ -8,7 +8,24 @@ locals {
           region            = region            # 1st iterator
           container_app_job = container_app_job # 2nd iterator
         },
-        config # the rest of the key/value pairs for a specific container_app_job
+        config, # the rest of the key/value pairs for a specific container_app_job
+        {
+          env_vars = merge(
+            # Add environment variables defined specifically for this container app job:
+            config.env_vars_static,
+
+            # Add in the database connection string if the name of the variable is provided:
+            config.add_user_assigned_identity != null && length(config.db_connection_string_name) > 0 ? {
+              (config.db_connection_string_name) = "Server=tcp:${module.regions_config[region].names.sql-server}.database.windows.net,1433;Initial Catalog=${var.sqlserver.dbs.cohman.db_name_suffix};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication='Active Directory Managed Identity';User ID=${module.user_assigned_managed_identity_sql["${container_app_job}-${region}"].client_id};"
+            } : {},
+
+            # Add in the MANAGED_IDENTITY_CLIENT_ID environment variable if using a user assigned managed identity:
+            config.add_user_assigned_identity != null ? {
+              "MANAGED_IDENTITY_CLIENT_ID" = "${module.user_assigned_managed_identity_sql["${container_app_job}-${region}"].client_id}",
+              "TARGET_SUBSCRIPTION_ID"     = var.TARGET_SUBSCRIPTION_ID
+            } : {}
+          )
+        }
       )
     ]
   ])
@@ -29,17 +46,16 @@ module "container-app-job" {
   location            = each.value.region
 
   container_app_environment_id = module.container-app-environment["${each.value.container_app_environment_key}-${each.value.region}"].id
-  user_assigned_identity_ids   = [module.managed_identity_sql_db_management[each.value.region].id]
+  user_assigned_identity_ids   = each.value.add_user_assigned_identity ? [module.user_assigned_managed_identity_sql["${each.key}"].id] : []
 
   acr_login_server        = data.azurerm_container_registry.acr.login_server
   acr_managed_identity_id = each.value.container_registry_use_mi ? data.azurerm_user_assigned_identity.acr_mi.id : null
   docker_image            = "${data.azurerm_container_registry.acr.login_server}/${each.value.docker_image}:${each.value.docker_env_tag != "" ? each.value.docker_env_tag : var.docker_image_tag}"
+  replica_retry_limit     = each.value.replica_retry_limit != null ? each.value.replica_retry_limit : 1
 
-  environment_variables = {
-    "DtOsDatabaseConnectionString" = "Server=tcp:${module.regions_config[each.value.region].names.sql-server}.database.windows.net,1433;Initial Catalog=${var.sqlserver.dbs.cohman.db_name_suffix};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication='Active Directory Managed Identity';User ID=${module.managed_identity_sql_db_management[each.value.region].client_id};"
-  }
+  environment_variables = each.value.env_vars != null ? each.value.env_vars : {}
 
   depends_on = [
-    module.managed_identity_sql_db_management
+    module.azure_sql_server
   ]
 }
