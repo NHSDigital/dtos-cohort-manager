@@ -10,7 +10,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3881-02",
         "requirementJiraId": "@DTOSS-3881-02",
-        "additionalTags": "@epic4c- @e2e DTOSS-10013 1.Check updated telephone number record in (cohort distribution)"
+        "additionalTags": "@epic4c- @e2e DTOSS-10013 1.Check updated telephone number record in cohort distribution"
       }
     },
     {
@@ -22,7 +22,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3881-02",
         "requirementJiraId": "@DTOSS-3881-02",
-        "additionalTags": "@epic4c- @e2e DTOSS-10013 2.verify data in record (participant demographic)"
+        "additionalTags": "@epic4c- @e2e DTOSS-10013 2.verify data in record is available in participant demographic table"
       }
     },
     {
@@ -34,7 +34,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3881-02",
         "requirementJiraId": "@DTOSS-3881-02",
-        "additionalTags": "@epic4c- @e2e  DTOSS-10013 3.check record (participant management)"
+        "additionalTags": "@epic4c- @e2e  DTOSS-10013 3.check record in available in participant management table"
       }
     }
   ],

@@ -58,17 +58,26 @@ test.describe('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the Added r
       expect(response?.data?.[0]?.ReferralFlag).toBe(1);
     });
 
-    await test.step('DTOSS-10012 ADD verify NemsSubscription in NEMS_SUBSCRIPTION table', async () => {
+    await test.step('DTOSS-10012 DTOSS-10012 verify NemsSubscription_Id in NEMS_SUBSCRIPTION table', async () => {
       const nhsNumber = participantData['inputParticipantRecord'].u_case_variable_data.nhs_number;
-      const response = await getRecordsFromNemsSubscription(request, nhsNumber);
-      const validators = composeValidators(
-        expectStatus(200)
+
+      const response = await retry(
+        async () => {
+          const res = await getRecordsFromNemsSubscription(request, nhsNumber);
+          const validators = composeValidators(expectStatus(200));
+          await validators(res);
+
+          return res;
+        },
+        (res) => {
+          const subscriptionID = extractSubscriptionID(res);
+          return subscriptionID !== null;
+        },
+        { retries: 5, delayMs: 2000 }
       );
-      await validators(response);
       const subscriptionID = extractSubscriptionID(response);
       expect(subscriptionID).not.toBeNull();
-
-      console.log(`Extracted Subscription ID: ${subscriptionID} for NHS number: ${nhsNumber}`);
+      console.log(`Extracted Subscription ID: ${subscriptionID} for number: ${nhsNumber}`);
     });
   });
 });
