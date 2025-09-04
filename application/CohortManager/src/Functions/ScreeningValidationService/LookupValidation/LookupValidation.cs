@@ -80,7 +80,7 @@ public class LookupValidation
                 new RuleParameter("dbLookup", _dataLookup)
             };
 
-            bool routineParticipant = requestBody.NewParticipant.ReferralFlag == "false";
+            bool routineParticipant = (requestBody.NewParticipant.ReferralFlag ?? "").ToLower() == "false";
 
             var resultList = new List<RuleResultTree>();
 

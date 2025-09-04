@@ -733,6 +733,57 @@ public class TransformDataServiceTests
         Assert.IsNotNull(actualResponse?.PrimaryCareProviderEffectiveFromDate);
     }
 
+    [TestMethod]
+    [DataRow("test\\@test.com")]
+    [DataRow("test*@test.com")]
+    [DataRow("test£@test.com")]
+    [DataRow("test~@test.com")]
+    [DataRow("test`@test.com")]
+    [DataRow("test|@test.com")]
+    public async Task Run_TransformString_InvalidEmailCharacter(string emailAddress)
+    {
+        // Arrange
+        _requestBody.Participant.EmailAddress = emailAddress;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        Assert.IsNull(actualResponse?.EmailAddress);
+    }
+
+    [TestMethod]
+    [DataRow("test@test.com")]
+    [DataRow("123@'#:.com")]
+    [DataRow("negation@¬.com")]
+    public async Task Run_TransformString_ValidEmailCharacter(string emailAddress)
+    {
+        // Arrange
+        _requestBody.Participant.EmailAddress = emailAddress;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        Assert.AreEqual(emailAddress, actualResponse?.EmailAddress);
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);

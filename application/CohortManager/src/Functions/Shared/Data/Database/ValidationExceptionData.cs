@@ -120,6 +120,42 @@ public class ValidationExceptionData : IValidationExceptionData
         }
     }
 
+    public async Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory)
+    {
+        if (exceptionCategory is not (ExceptionCategory.Confusion or ExceptionCategory.Superseded or ExceptionCategory.NBO))
+        {
+            return [];
+        }
+
+        var filteredExceptions = (await _validationExceptionDataServiceClient.GetByFilter(x =>
+            x.Category.HasValue && (x.Category.Value == (int)ExceptionCategory.Confusion || x.Category.Value == (int)ExceptionCategory.Superseded)))?.AsEnumerable();
+
+        if (exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded)
+        {
+            filteredExceptions = filteredExceptions?.Where(x => x.Category.HasValue && x.Category.Value == (int)exceptionCategory);
+        }
+
+        if (reportDate.HasValue)
+        {
+            var startDate = reportDate.Value.Date;
+            var endDate = startDate.AddDays(1);
+            filteredExceptions = filteredExceptions?.Where(x => x.DateCreated >= startDate && x.DateCreated < endDate);
+        }
+
+        if (filteredExceptions?.Any() != true)
+            return [];
+
+        var tasks = filteredExceptions.Select(async exception =>
+        {
+            var validationException = exception.ToValidationException();
+            var participantDemographic = long.TryParse(exception.NhsNumber, out long nhsNumber) ? await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber) : null;
+            return GetExceptionDetails(validationException, participantDemographic);
+        });
+
+        var results = await Task.WhenAll(tasks);
+        return results.Where(x => x != null).ToList()!;
+    }
+
     private ServiceResponseModel CreateResponse(bool success, HttpStatusCode statusCode, string message)
     {
         if (!success)
@@ -187,7 +223,7 @@ public class ValidationExceptionData : IValidationExceptionData
     {
 
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber && x.ScreeningName == screeningName);
-        return exceptions != null ? exceptions.ToList() : null;
+        return exceptions?.ToList();
 
     }
 

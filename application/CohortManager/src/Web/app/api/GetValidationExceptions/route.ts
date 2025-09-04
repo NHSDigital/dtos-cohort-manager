@@ -34,12 +34,23 @@ function createExceptionListResponse<T extends { ExceptionId: number }>(
   };
 }
 
+function addExceptionDetails<T extends { ExceptionId: number }>(items: T[]) {
+  const exceptions = mockDataStore.getExceptions();
+  return items.map((item) => ({
+    ...item,
+    ExceptionDetails: exceptions[item.ExceptionId]?.ExceptionDetails ?? null,
+  }));
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const exceptionId = searchParams.get("exceptionId");
-  const raisedOnly = searchParams.get("raisedOnly");
-  const notRaisedOnly = searchParams.get("notRaisedOnly");
   const sortBy = searchParams.get("sortBy");
+  const sortOrder = searchParams.get("sortOrder");
+  const exceptionStatus = searchParams.get("exceptionStatus");
+  const isReport = searchParams.get("isReport");
+  const exceptionCategory = searchParams.get("exceptionCategory");
+  const reportDate = searchParams.get("reportDate");
 
   // Handle single exception requests - get fresh data from store
   if (exceptionId !== null) {
@@ -57,21 +68,46 @@ export async function GET(request: Request) {
   }
 
   // Handle list requests - get fresh data from store
-  if (notRaisedOnly) {
-    const notRaisedExceptions = mockDataStore.getNotRaisedExceptions();
-    const sortedItems = sortExceptions([...notRaisedExceptions], sortBy);
-    const response = createExceptionListResponse(sortedItems);
-    return NextResponse.json(response, { status: 200 });
-  }
+  if (exceptionStatus !== null) {
+    const usingSort = sortBy ?? sortOrder; // accept either param name
+    const isRaised = exceptionStatus === "1";
+    const allItems = isRaised
+      ? mockDataStore.getRaisedExceptions()
+      : mockDataStore.getNotRaisedExceptions();
 
-  if (raisedOnly) {
-    const raisedExceptions = mockDataStore.getRaisedExceptions();
+    // Optional category filter (e.g., 12 or 13)
+    const categoryFiltered = exceptionCategory
+      ? allItems.filter((i) => i.Category === Number(exceptionCategory))
+      : allItems;
+
+    // Optional date filter for report mode
+    // If isReport = 1 and a reportDate (YYYY-MM-DD) is provided, try to match on
+    // ServiceNowCreatedDate for raised items, otherwise DateCreated for not raised.
+    let dateFiltered = categoryFiltered;
+    if (isReport === "1" && reportDate) {
+      const datePrefix = `${reportDate}`; // already YYYY-MM-DD
+      type DateField = "ServiceNowCreatedDate" | "DateCreated";
+      const dateField: DateField = isRaised
+        ? "ServiceNowCreatedDate"
+        : "DateCreated";
+      dateFiltered = categoryFiltered.filter((i) => {
+        const value = i[dateField as keyof typeof i] as unknown as
+          | string
+          | undefined;
+        return value ? value.startsWith(datePrefix) : false;
+      });
+    }
+
+    // Sort: for raised items prefer ServiceNowCreatedDate, otherwise DateCreated
     const sortedItems = sortExceptions(
-      [...raisedExceptions],
-      sortBy,
-      "ServiceNowCreatedDate"
+      [...dateFiltered],
+      usingSort,
+      isRaised ? "ServiceNowCreatedDate" : "DateCreated"
     );
-    const response = createExceptionListResponse(sortedItems);
+
+    const response = createExceptionListResponse(
+      addExceptionDetails(sortedItems)
+    );
     return NextResponse.json(response, { status: 200 });
   }
 
