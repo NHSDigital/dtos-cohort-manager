@@ -73,7 +73,7 @@ public class ManageCaasSubscription
             if (string.IsNullOrEmpty(messageId))
             {
                 var ex = new InvalidOperationException("Failed to send CAAS subscription via MESH");
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNo.ToString(), nameof(ManageCaasSubscription), "CAAS", $"to={toMailbox}");
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNo.ToString(), nameof(ManageCaasSubscription), "", $"to={toMailbox}");
                 _logger.LogError("Failed to send CAAS subscription via MESH");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to send CAAS subscription via MESH.");
             }
@@ -90,7 +90,7 @@ public class ManageCaasSubscription
             if (!saved)
             {
                 var ex = new InvalidOperationException("Failed to save CAAS subscription record to database");
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNo.ToString(), nameof(ManageCaasSubscription), "CAAS", System.Text.Json.JsonSerializer.Serialize(record));
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNo.ToString(), nameof(ManageCaasSubscription), "", System.Text.Json.JsonSerializer.Serialize(record));
                 _logger.LogError("Failed to write CAAS subscription record to database");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to save subscription record.");
             }
@@ -108,6 +108,16 @@ public class ManageCaasSubscription
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error sending CAAS subscribe request");
+            try
+            {
+                string? rawNhs = req.Query["nhsNumber"];
+                var nhsForLog = ValidationHelper.ValidateNHSNumber(rawNhs!) ? rawNhs! : string.Empty;
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsForLog, nameof(ManageCaasSubscription), "", string.Empty);
+            }
+            catch
+            {
+                // Swallow secondary errors to preserve primary failure path
+            }
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while sending the CAAS subscription request.");
         }
     }
