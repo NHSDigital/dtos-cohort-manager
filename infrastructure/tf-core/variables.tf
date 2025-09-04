@@ -232,6 +232,7 @@ variable "function_apps" {
     ftps_state                             = string
     health_check_path                      = optional(string, "")
     https_only                             = bool
+    http2_enabled                          = optional(bool, false)
     pull_image_over_vnet                   = optional(bool, true)
     remote_debugging_enabled               = bool
     storage_uses_managed_identity          = bool
