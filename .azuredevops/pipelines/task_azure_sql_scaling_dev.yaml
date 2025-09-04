@@ -8,7 +8,7 @@ pool:
   name: private-pool-dev-uks
 
 schedules:
-  - cron: "0 7 * * *" # Run at 7:00 AM UTC
+  - cron: "45 4 * * *" # Run at 04:45 AM UTC
     displayName: 'Scale_Peak'
     branches:
       include:
@@ -27,7 +27,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: d6d6e3e99459d9d71a83fa5affa900a6c339a3b5
+      ref: 143bb43a2f95dd23e3c579a3bf87b29a63ee4003
       endpoint: NHSDigital
 
 parameters:
