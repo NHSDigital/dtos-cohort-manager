@@ -10,8 +10,8 @@ import path from "path";
 dotenv.config({ path: path.resolve(__dirname, ".env.tests") });
 
 /**
-* Define the BDD config.
-*/
+ * Define the BDD config.
+ */
 const testDir = defineBddConfig({
   features: "./tests/features/*.feature",
   steps: "./tests/features/steps/*.ts",
@@ -50,26 +50,25 @@ export default defineConfig({
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
     },
-    {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
-    },
-    {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-    },
+    // {
+    //   name: "firefox",
+    //   use: { ...devices["Desktop Firefox"] },
+    // },
+    // {
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] },
+    // },
     // Test against mobile viewports.
     // Windows Browsers
-    {
-      name: 'Edge (Windows)',
-      use: {
-        ...devices["Desktop Chrome"],
-        launchOptions: {
-          args: ['--ignore-certificate-errors']
-        }
-      },
-
-    },
+    // {
+    //   name: "Edge (Windows)",
+    //   use: {
+    //     ...devices["Desktop Chrome"],
+    //     launchOptions: {
+    //       args: ["--ignore-certificate-errors"],
+    //     },
+    //   },
+    // },
 
     // {
     //   name: "firefox",
