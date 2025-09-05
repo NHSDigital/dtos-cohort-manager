@@ -93,6 +93,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageNemsSubscription\ManageNemsSubscription.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageCaasSubscription\ManageCaasSubscription.csproj" />
   </ItemGroup>
 
   <!-- Cohort Distribution Services -->
