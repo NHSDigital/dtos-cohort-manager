@@ -10,5 +10,17 @@
       "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
       "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
     }
+  },
+  "inputParticipantRecord10013": {
+    "number": "CS0573846",
+    "u_case_variable_data": {
+      "nhs_number": "9996534472",
+      "forename_": "Jane",
+      "surname_family_name": "Doe",
+      "date_of_birth": "2010-10-22",
+      "enter_dummy_gp_code": "",
+      "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+      "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
+    }
   }
 }
