@@ -404,8 +404,7 @@ public class TransformDataServiceTests
         SetUpRequestBody(json);
 
         // Act
-        var sut = new GetMissingAddress(participant, mockConnection.Object);
-        var result = sut.GetAddress();
+        var result = await _function.RunAsync(_request.Object);
 
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
@@ -422,7 +421,7 @@ public class TransformDataServiceTests
     public async Task AddressLinesBlankAndPostcodeMatchesExistingRecord_AddressFieldsNotTransformed(string newAddressLine1, string newAddressLine2, string newAddressLine3, string newAddressLine4, string newAddressLine5, string newPostcode, string existingAddressLine1, string existingAddressLine2, string existingAddressLine3, string existingAddressLine4, string existingAddressLine5, string existingPostcode)
     {
         // Arrange
-        _requestBody.Participant.RecordType = Actions.Amended;
+
         _requestBody.ExistingParticipant.AddressLine1 = existingAddressLine1;
         _requestBody.ExistingParticipant.AddressLine2 = existingAddressLine2;
         _requestBody.ExistingParticipant.AddressLine3 = existingAddressLine3;
@@ -430,6 +429,7 @@ public class TransformDataServiceTests
         _requestBody.ExistingParticipant.AddressLine5 = existingAddressLine5;
         _requestBody.ExistingParticipant.PostCode = existingPostcode;
 
+        _requestBody.Participant.RecordType = Actions.Amended;
         _requestBody.Participant.AddressLine1 = newAddressLine1;
         _requestBody.Participant.AddressLine2 = newAddressLine2;
         _requestBody.Participant.AddressLine3 = newAddressLine3;
