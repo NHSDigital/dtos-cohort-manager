@@ -137,12 +137,14 @@ jobs:
             --collect:"XPlat Code Coverage;Format=opencover;Include=**/*.cs;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*.cs,**/scripts/**/*.cs,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*.cs,**/obj/**/*.cs,**/Properties/**/*.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
             --verbosity quiet
       - name: Upload test results as artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-consolidated
           path: |
             TestResults/**/*.${{ inputs.unit_test_logger_format }}
             TestResults/**/coverage.opencover.xml
+          if-no-files-found: ignore
 
   test-unit:
     name: Unit tests
@@ -189,12 +191,14 @@ jobs:
               --verbosity quiet
           done
       - name: Upload test results as artifact
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: test-results-${{ matrix.scope }}
           path: |
             TestResults/**/*.${{ inputs.unit_test_logger_format }}
             TestResults/**/coverage.opencover.xml
+          if-no-files-found: ignore
 
   aggregate-test-results:
     name: Aggregate results and report
