@@ -25,6 +25,7 @@ test.beforeAll(async () => {
   apiContext = await playwrightRequest.newContext();
   console.log(`Running ${TEST_TYPE} tests with scenario tags: ${scopedTestScenario}`);
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
+  await cleanupWireMock(apiContext);
 
   const dateMap = generateDynamicDateMap();
   const updatedParticipantRecords = replaceDynamicDatesInJson(addData.inputParticipantRecords, dateMap);
@@ -36,7 +37,6 @@ test.beforeAll(async () => {
 });
 
 test.afterAll(async () => {
-  await cleanupWireMock(apiContext);
   await apiContext.dispose();
 });
 
