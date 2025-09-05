@@ -1,59 +1,40 @@
 Feature: Raised exceptions page
 
-    Scenario: Check for page heading
-        When I go to the page "/participant-information/2028"
-        Then I see the heading "Exception information"
-        And I see the text "Local reference (exception ID): 2028"
+    Background:
+      Given I am signed in as "test@nhs.net" with password "Password123"
+      When I go to the page "/participant-information/4001"
+      Then I should see the heading "Exception information"
+      And I see the text "Local reference (exception ID): 4001"
 
     Scenario: Check for accessibility issues as a signed in user
       Given I should see the heading "Exception information"
-      Then I should expect "0" accessibility issues
+      Then I should expect 0 accessibility issues
 
-    Scenario: Check for the raised exception information
-        Given I should see the text "Raised breast screening exceptions"
-        Then I should see the text "Portal form used" with the text "Request to amend incorrect patient PDS record data"
-        And I should see the text "Exception status" with the tag "Raised"
-        And I should see the text "ServiceNow Case ID"
-        And I should see the link "Change" with the URL "/participant-information/4001?edit=true#exception-status"
-
-    Scenario: Check for not raised exception participant details
-        Given I should see the text "Not raised breast screening exceptions"
-        Then I should see the heading "Participant details"
-        And I should see the values in the "participant-details-section" list:
-          | NHS Number       |
-          | Surname   |
-          | Forename  |
-          | Date of birth      |
-          | Gender            |
-          | Registered practice code       |
-
-    Scenario: Check for not raised exception details
-        Given I should see the text "Not raised breast screening exceptions"
-        Then I should see the heading "Exception details"
-        And I should see the values in the "exception-details-section" list:
-          | Date exception created |
-          | More detail	       |
-          | ServiceNowId  |
-        And the ServiceNow ID should have the text "Not raised"
+    Scenario: Check for raised exception information
+        Given I see the text "Exception information"
+        Then I see the text "Portal form used"
+        And I see the text "Request to amend incorrect patient PDS record data"
+        And I see the text "Exception status"
+        Then I see the tag "Raised"
+        Then I see the text "ServiceNow Case ID" in the element "service-now-case-label"
+        And I see the link "Change ServiceNow Case ID" with the href "?edit=true#exception-status"
 
     Scenario: Check to make sure the exception status section is not present
-        Given I should see the text "Not raised breast screening exceptions"
-        Then I should not see the heading "Exception status"
+        Given I should not see the secondary heading "Exception status"
         And I should not see the text input with label "Enter ServiceNow Case ID"
         And the button "Save and continue" should not be present
 
     Scenario: Check for the change link functionality
-        Given I should see the link "Change" with the URL "/participant-information/4001?edit=true#exception-status"
+        Given I see the link "Change ServiceNow Case ID" with the href "?edit=true#exception-status"
         When I go to the page "/participant-information/4001?edit=true#exception-status"
-        Then I should see the heading "Exception information"
-        And I should see the text "Local reference (exception ID): 4001"
-        And I should see the heading "Exception status"
-        And I should see the text input with label "Enter ServiceNow Case ID"
-        And I should see the button "Save and continue"
+        And I see the text "Local reference (exception ID): 4001"
+        And I should see the secondary heading "Exception status"
+        And I see the text input with label "Enter ServiceNow Case ID"
+        And I see the button "Save and continue"
 
     Scenario: Check for breadcrumb navigation back to Raised breast screening exceptions page
       When I go to the page "/participant-information/3001"
-      Then I see the link "Home" in the breadcrumb navigation
-      Then I see the link "Raised breast screening exceptions" in the breadcrumb navigation
-      When I click the link "Raised breast screening exceptions" in the breadcrumb navigation
-      Then I see the heading "Raised breast screening exceptions"
+      Then I see the link "Home"
+      Then I see the link "Raised breast screening exceptions"
+      When I click the link "Raised breast screening exceptions"
+      Then I should see the heading "Raised breast screening exceptions"

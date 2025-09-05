@@ -16,7 +16,11 @@ interface PaginationProps {
 
 export default function Pagination({ items, previous, next }: PaginationProps) {
   return (
-    <nav className="app-pagination" aria-label="Pagination">
+    <nav
+      className="app-pagination"
+      aria-label="Pagination"
+      data-testid="pagination"
+    >
       {previous && (
         <div className="app-pagination__prev">
           <a

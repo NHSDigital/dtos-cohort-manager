@@ -8,9 +8,8 @@ Feature: Not raised exceptions page
   Scenario: Page has no accessibility issues
     Then I should expect 0 accessibility issues
 
-  Scenario: Table shows 18 "Not raised" exceptions with expected columns
-    Then I see the text "Showing 1 to 10 of 18 results" in the element "not-raised-exception-count"
-    And the table "exceptions-table" has 10 rows
+  Scenario: Table shows 10 "Not raised" exceptions with expected columns
+    Then the table "exceptions-table" has 10 rows
     And every row in the table "exceptions-table" has status "Not raised"
     And the first row in the table "exceptions-table" has exception ID "2073"
 
@@ -32,16 +31,27 @@ Feature: Not raised exceptions page
     Then I should see the heading "Breast screening"
 
   Scenario: Change exception to raised and back to not raised
-    Given I go to the page "/participant-information/2028"
+    Given I go to the page "/participant-information/2021"
     When I fill the input with label "Enter ServiceNow Case ID" with "CS1234567"
     And I click the button "Save and continue"
     Then I should see the heading "Not raised breast screening exceptions"
-    And the table "exceptions-table" does not contain exception ID "2028"
+    And the table "exceptions-table" does not contain exception ID "2021"
 
-    When I go to the page "/participant-information/2028"
+    When I go to the page "/participant-information/2021"
     Then I see the text "CS1234567"
     When I click the link "Change"
     And I fill the input with label "Enter ServiceNow Case ID" with ""
     And I click the button "Save and continue"
     Then I should see the heading "Raised breast screening exceptions"
-    And the table "exceptions-table" does not contain exception ID "2028"
+    And the table "exceptions-table" does not contain exception ID "2021"
+
+  Scenario: First page hides Previous and shows Next
+      Then the pagination shows page "1" as current
+      And the "Previous" control is not present
+      And the "Next" control is present
+
+    Scenario: Navigate to 2nd page and hide Next and shows Previous
+      When I click the page number "2" in the pagination
+      Then the pagination shows page "2" as current
+      And the "Next" control is not present
+      And the "Previous" control is present

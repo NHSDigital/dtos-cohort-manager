@@ -1,4 +1,5 @@
 import { createBdd, test } from "playwright-bdd";
+import type { Page } from "@playwright/test";
 import { injectAxe, getViolations } from "axe-playwright";
 
 const { Given, When, Then } = createBdd(test);
@@ -48,6 +49,42 @@ When(
   }
 );
 
+// Aliases required by notRaisedExceptions.feature
+Then(
+  "the pagination shows page {string} as current",
+  async ({ page }, current: string) => {
+    const currentLink = paginationLocator(page).locator(
+      'a[aria-current="page"]'
+    );
+    await test.expect(currentLink).toBeVisible();
+    await test.expect(currentLink).toHaveText(current);
+  }
+);
+
+Then(
+  "the {string} control is not present",
+  async ({ page }, control: string) => {
+    const sel =
+      control.toLowerCase() === "previous" ? 'a[rel="prev"]' : 'a[rel="next"]';
+    await test.expect(paginationLocator(page).locator(sel)).toHaveCount(0);
+  }
+);
+
+Then("the {string} control is present", async ({ page }, control: string) => {
+  const sel =
+    control.toLowerCase() === "previous" ? 'a[rel="prev"]' : 'a[rel="next"]';
+  await test.expect(paginationLocator(page).locator(sel)).toBeVisible();
+});
+
+When(
+  "I click the page number {string} in the pagination",
+  async ({ page }, num: string) => {
+    await paginationLocator(page)
+      .getByRole("link", { name: new RegExp(`^\\s*Page\\s+${num}\\s*$`, "i") })
+      .click();
+  }
+);
+
 // ---- Assertions ----
 Then(
   "I should see the heading {string}",
@@ -68,12 +105,60 @@ Then(
 );
 
 Then(
+  "I should not see the secondary heading {string}",
+  async ({ page }, headingText: string) => {
+    await test
+      .expect(page.getByRole("heading", { level: 2, name: headingText }))
+      .toHaveCount(0);
+  }
+);
+
+Then("I see the tag {string}", async ({ page }, text: string) => {
+  const exact = new RegExp(`^\\s*${escapeRegExp(text)}\\s*$`, "i");
+  // Scope to either the tag class or a container test id if you have one
+  const tag = page
+    .locator('[data-testid="exception-details-labels"] .nhsuk-tag, .nhsuk-tag')
+    .filter({ hasText: exact })
+    .first();
+
+  await test.expect(tag).toBeVisible();
+});
+
+Then(
   "I see the text {string} in the element {string}",
   async ({ page }, text: string, el: string) => {
     const locator = page.locator(
       `[data-testid="${el}"], #${el}, [id="${el}"], [name="${el}"]`
     );
     await test.expect(locator).toContainText(text);
+  }
+);
+
+// Flexible substring check (alias wording)
+Then(
+  "I see text containing {string} in the element {string}",
+  async ({ page }, text: string, el: string) => {
+    const locator = page.locator(
+      `[data-testid="${el}"], #${el}, [id="${el}"], [name="${el}"]`
+    );
+    await test.expect(locator).toContainText(text);
+  }
+);
+
+// Regex-compatible check – if the pattern is not a valid regex, fall back to literal match
+Then(
+  "I see text matching {string} in the element {string}",
+  async ({ page }, pattern: string, el: string) => {
+    const locator = page.locator(
+      `[data-testid="${el}"], #${el}, [id="${el}"], [name="${el}"]`
+    );
+    let regex: RegExp;
+    try {
+      regex = new RegExp(pattern, "i");
+    } catch {
+      regex = new RegExp(escapeRegExp(pattern), "i");
+    }
+    await test.expect(locator).toContainText(regex);
   }
 );
 
@@ -161,7 +246,7 @@ When("I click the button {string}", async ({ page }, buttonText: string) => {
 });
 
 // --- Tables ---
-function tableLocator(page: any, idOrTestId: string) {
+function tableLocator(page: Page, idOrTestId: string) {
   return page
     .locator(
       `[data-testid="${idOrTestId}"], #${idOrTestId}, [id="${idOrTestId}"]`
@@ -334,3 +419,109 @@ Then(
     await test.expect(button).toHaveCount(0);
   }
 );
+
+// -------------------- Pagination --------------------
+function paginationLocator(page: Page) {
+  return page.getByTestId("pagination").first();
+}
+
+Then("I see the pagination", async ({ page }) => {
+  await test.expect(paginationLocator(page)).toBeVisible();
+});
+
+Then("I do not see the pagination", async ({ page }) => {
+  await test.expect(page.getByTestId("pagination")).toHaveCount(0);
+});
+
+Then(
+  "I see the previous pagination link with href {string}",
+  async ({ page }, href: string) => {
+    const prev = paginationLocator(page).locator('a[rel="prev"]');
+    await test.expect(prev).toBeVisible();
+    await test.expect(prev).toHaveAttribute("href", href);
+  }
+);
+
+Then("I do not see the previous pagination link", async ({ page }) => {
+  await test
+    .expect(paginationLocator(page).locator('a[rel="prev"]'))
+    .toHaveCount(0);
+});
+
+Then(
+  "I see the next pagination link with href {string}",
+  async ({ page }, href: string) => {
+    const next = paginationLocator(page).locator('a[rel="next"]');
+    await test.expect(next).toBeVisible();
+    await test.expect(next).toHaveAttribute("href", href);
+  }
+);
+
+Then("I do not see the next pagination link", async ({ page }) => {
+  await test
+    .expect(paginationLocator(page).locator('a[rel="next"]'))
+    .toHaveCount(0);
+});
+
+Then(
+  "the pagination has current page {int}",
+  async ({ page }, current: number) => {
+    const currentLink = paginationLocator(page).locator(
+      'a[aria-current="page"]'
+    );
+    await test.expect(currentLink).toBeVisible();
+    await test.expect(currentLink).toHaveText(String(current));
+    // also assert proper aria-label
+    await test
+      .expect(currentLink)
+      .toHaveAttribute("aria-label", `Page ${current}`);
+  }
+);
+
+Then(
+  "I see the page {int} link in the pagination with href {string}",
+  async ({ page }, num: number, href: string) => {
+    const link = paginationLocator(page).getByRole("link", {
+      name: new RegExp(`^\\s*Page\\s+${num}\\s*$`, "i"),
+    });
+    await test.expect(link).toBeVisible();
+    await test.expect(link).toHaveAttribute("href", href);
+  }
+);
+
+When(
+  "I click the page {int} link in the pagination",
+  async ({ page }, num: number) => {
+    await paginationLocator(page)
+      .getByRole("link", { name: new RegExp(`^\\s*Page\\s+${num}\\s*$`, "i") })
+      .click();
+  }
+);
+
+When("I click the next pagination link", async ({ page }) => {
+  await paginationLocator(page).locator('a[rel="next"]').click();
+});
+
+When("I click the previous pagination link", async ({ page }) => {
+  await paginationLocator(page).locator('a[rel="prev"]').click();
+});
+
+Then("the pagination shows an ellipsis", async ({ page }) => {
+  await test
+    .expect(paginationLocator(page).locator(".app-pagination__ellipsis"))
+    .toBeVisible();
+});
+
+Then("the pagination has pages:", async ({ page }, dataTable) => {
+  const expected = dataTable
+    .raw()
+    .flat()
+    .map((s: string) => s.trim());
+  const labels = await paginationLocator(page)
+    .locator('a[aria-label^="Page "]')
+    .allTextContents();
+  const nums = labels.map((t) => t.trim());
+  for (const n of expected) {
+    await test.expect(nums).toContain(n);
+  }
+});
