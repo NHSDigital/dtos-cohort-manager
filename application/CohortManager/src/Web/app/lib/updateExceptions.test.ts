@@ -135,7 +135,7 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.example.com/api/UpdateException",
+        "https://api.example.com/api/UpdateExceptionServiceNowId",
         {
           method: "PUT",
           headers: {
@@ -177,7 +177,7 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.example.com/api/UpdateException",
+        "https://api.example.com/api/UpdateExceptionServiceNowId",
         {
           method: "PUT",
           headers: {
@@ -219,7 +219,7 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.example.com/api/UpdateException",
+        "https://api.example.com/api/UpdateExceptionServiceNowId",
         {
           method: "PUT",
           headers: {
@@ -413,7 +413,7 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.example.com/api/UpdateException",
+        "https://api.example.com/api/UpdateExceptionServiceNowId",
         expect.objectContaining({
           body: JSON.stringify({
             ExceptionId: "2075",
@@ -449,7 +449,7 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.example.com/api/UpdateException",
+        "https://api.example.com/api/UpdateExceptionServiceNowId",
         expect.objectContaining({
           body: JSON.stringify({
             ExceptionId: "2073",
@@ -485,7 +485,7 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://custom-api.example.com/api/UpdateException",
+        "https://custom-api.example.com/api/UpdateExceptionServiceNowId",
         expect.any(Object)
       );
     });

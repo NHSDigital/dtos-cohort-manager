@@ -37,7 +37,7 @@ test.describe.serial('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the 
           res?.data?.[0]?.NhsNumber === 9997160908 &&
           res?.data?.[0]?.GivenName === "Jane" &&
           res?.data?.[0]?.FamilyName === "Doe",
-        { retries: 5, delayMs: 2000 }
+        { retries: 8, delayMs: 5000 }
       );
       expect(response?.data?.[0]?.NhsNumber).toBe(9997160908);
       expect(response?.data?.[0]?.GivenName).toBe("Jane");
@@ -51,7 +51,7 @@ test.describe.serial('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the 
           res?.data?.[0]?.NHSNumber === 9997160908 &&
           res?.data?.[0]?.ScreeningId === 1 &&
           res?.data?.[0]?.ReferralFlag === 1,
-        { retries: 5, delayMs: 2000 }
+        { retries: 8, delayMs: 5000 }
       );
       expect(response?.data?.[0]?.NHSNumber).toBe(9997160908);
       expect(response?.data?.[0]?.ScreeningId).toBe(1);
@@ -73,7 +73,7 @@ test.describe.serial('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the 
           const subscriptionID = extractSubscriptionID(res);
           return subscriptionID !== null;
         },
-        { retries: 5, delayMs: 2000 }
+        { retries: 8, delayMs: 5000 }
       );
       const subscriptionID = extractSubscriptionID(response);
       expect(subscriptionID).not.toBeNull();

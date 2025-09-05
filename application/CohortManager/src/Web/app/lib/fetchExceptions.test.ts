@@ -63,11 +63,11 @@ describe("fetchExceptions", () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue(mockResponse),
+      headers: { get: jest.fn().mockReturnValue(null) },
     });
 
     const result = await fetchExceptions();
-
-    expect(result).toEqual(mockResponse);
+    expect(result.data).toEqual(mockResponse);
   });
 
   it("fetches individual exception details from the API", async () => {
@@ -96,11 +96,11 @@ describe("fetchExceptions", () => {
     global.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue(mockResponse),
+      headers: { get: jest.fn().mockReturnValue(null) },
     });
 
-    const result = await fetchExceptions(3670);
-
-    expect(result).toEqual(mockResponse);
+    const result = await fetchExceptions({ exceptionId: 3670 });
+    expect(result.data).toEqual(mockResponse);
   });
 
   it("throws an error if the response is not ok", async () => {
