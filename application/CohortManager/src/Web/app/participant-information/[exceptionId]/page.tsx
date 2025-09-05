@@ -47,7 +47,7 @@ export default async function Page(props: {
   const isEditMode = resolvedSearchParams.edit === "true";
 
   try {
-    const exception = await fetchExceptions(exceptionId);
+    const { data: exception } = await fetchExceptions({ exceptionId });
     const ruleMapping = getRuleMapping(
       exception.RuleId,
       exception.RuleDescription
