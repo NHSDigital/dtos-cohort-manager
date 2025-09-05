@@ -4,7 +4,7 @@ import { composeValidators, expectStatus } from "../../../api/responseValidators
 import { ParticipantRecord } from '../../../interface/InputData';
 import { loadParticipantPayloads } from '../../fixtures/jsonDataReader';
 
-test.describe('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the Added record with PDS', () => {
+test.describe.serial('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the Added record with PDS', () => {
 
   let participantData: Record<string, ParticipantRecord>;
 
