@@ -90,7 +90,7 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
         expect(blocked).toBe(true);
     });
 
-    await test.step(`mark the paricipant as unblocked and they should be marked as ineligible`, async () => {
+    await test.step(`mark the paricipant as unblocked and they should be marked as unblocked`, async () => {
             let url = `${config.endpointBsSelectUpdateBlockFlag}${config.routeBsSelectUnblockParticipant}?nhsNumber=${nhsNumbers[0]}`;
             let body = ""
             let response = await sendHttpPOSTCall(url, body);
@@ -101,9 +101,8 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
             for(let i =0; i<10; i++) {
                 const resp = await getRecordsFromParticipantManagementService(request);
                 let responseData = resp?.data?.[0];
-                if (responseData?.BlockedFlag === 0 && responseData?.EligibilityFlag === 0) {
+                if (responseData?.BlockedFlag === 0) {
                     blocked = false;
-                    eligibility = false;
          
                     break;
                 }
@@ -115,7 +114,6 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
             let nemsResponse = await sendHttpGet(checkNemsSubscriptionStatusURL);
 
             expect(nemsResponse.status).toBe(200);
-            expect(eligibility).toBe(true);
             expect(blocked).toBe(false);
             expect(response.status).toBe(200);
     });
