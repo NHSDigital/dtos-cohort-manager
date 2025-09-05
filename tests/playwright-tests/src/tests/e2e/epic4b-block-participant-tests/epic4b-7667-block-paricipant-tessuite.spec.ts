@@ -20,7 +20,7 @@ annotation: [{
 test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
   TestHooks.setupAllTestHooks();
 
-  test('@DTOSS-7667-01 - AC1 - Verify participant is deleted from CohortDistributionDataService', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
+  test ('@DTOSS-7667-01 - AC1 - Verify participant is deleted from CohortDistributionDataService', async ({ request }: { request: APIRequestContext }, testInfo: TestInfo) => {
     // Arrange: Get test data
     const [addValidations, inputParticipantRecord, nhsNumbers, testFilesPath] = await getApiTestData(testInfo.title, 'ADD_BLOCKED');
     const nhsNumber = nhsNumbers[0];
@@ -82,15 +82,16 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
      await test.step(`the participant has been blocked`, async () => {
       
       let response: ApiResponse | null = null;
-      let RetryLimit = 2
-      let retryCount = 0
+      let RetryLimit = 2;
+      let retryCount = 0;
       
       while(retryCount < RetryLimit) 
       {
         response = await pollApiForOKResponse(() => getRecordsFromParticipantManagementService(request));
         if (response?.data?.[0]?.BlockedFlag === 1) {
           break;
-        } 
+        }
+        retryCount++;
       }
 
       if(response !== null) {
@@ -112,17 +113,18 @@ test.describe('@regression @e2e @epic4b-block-tests @smoke Tests', async () => {
       await processFileViaStorage(parquetFile);
 
       let validationExceptions;
-      let RetryLimit = 2
-      let retryCount = 0
+      let RetryLimit = 2;
+      let retryCount = 0;
       
       while(retryCount < RetryLimit) 
       {
           var responseFromExceptions = await pollApiForOKResponse(() => getRecordsFromExceptionService(request));
-          if(responseFromExceptions.data.length >= 3)
+          if(responseFromExceptions.data.length == 3)
           {
             validationExceptions = responseFromExceptions.data
             break;
           }
+          retryCount++;
           console.log(`waiting for exception for participant blocked to be added to exception table...`);
       }
 
