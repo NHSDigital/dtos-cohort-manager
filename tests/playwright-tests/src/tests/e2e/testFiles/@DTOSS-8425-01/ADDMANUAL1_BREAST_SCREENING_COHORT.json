@@ -1,0 +1,103 @@
+{
+  "serviceNowRequestValidations": [
+    {
+      "validation": {
+        "caseNumber": "CS842501",
+        "messageType": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8425-01",
+        "requirementJiraId": "@DTOSS-8425-01",
+        "additionalTags": "@DTOSS-8425-01 @e2e @epic4c- Manual add failed (patient not found in PDS), message type 1 is sent to ServiceNow"
+      }
+    },
+    {
+      "validation": {
+        "caseNumber": "CS842503",
+        "messageType": 3
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8425-03",
+        "requirementJiraId": "@DTOSS-8425-03",
+        "additionalTags": "@DTOSS-8425-03 @e2e @epic4c- Manual add succeeded, message type 3 is sent to ServiceNow"
+      }
+    }
+  ],
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9993047856,
+        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8425-01",
+        "requirementJiraId": "@DTOSS-8425-01",
+        "additionalTags": "@DTOSS-8425-01 @e2e @epic4c- Manual add failed (patient not found in PDS), Participant is not added to CM (Participant Management table)"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9993047856,
+        "expectedCount": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8425-01",
+        "requirementJiraId": "@DTOSS-8425-01",
+        "additionalTags": "@DTOSS-8425-01 @e2e @epic4c- Manual add failed (patient not found in PDS), Participant is not added to CM (Cohort Distribution table)"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9994276816,
+        "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8425-03",
+        "requirementJiraId": "@DTOSS-8425-03",
+        "additionalTags": "@DTOSS-8425-03 @e2e @epic4c- Manual add succeeded, Participant is added to CM (Participant Management table)"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9994276816,
+        "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8425-03",
+        "requirementJiraId": "@DTOSS-8425-03",
+        "additionalTags": "@DTOSS-8425-03 @e2e @epic4c- Manual add succeeded, Participant is added to CM (Cohort Distribution table)"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "number": "CS842501",
+      "u_case_variable_data": {
+        "nhs_number": "9993047856",
+        "forename_": "Jan",
+        "surname_family_name": "Doe",
+        "date_of_birth": "2010-10-22",
+        "enter_dummy_gp_code": "ZZZDKL",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
+      }
+    },
+    {
+      "number": "CS842503",
+      "u_case_variable_data": {
+        "nhs_number": "9994276816",
+        "forename_": "Jan",
+        "surname_family_name": "Doe",
+        "date_of_birth": "2010-10-22",
+        "enter_dummy_gp_code": "ZZZDKL",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
+      }
+    }
+  ],
+  "nhsNumbers": []
+}
