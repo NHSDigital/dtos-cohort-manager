@@ -98,9 +98,11 @@ public class ValidationExceptionData : IValidationExceptionData
                 return CreateErrorResponse($"Exception with ID {exceptionId} not found", HttpStatusCode.NotFound);
             }
 
-            bool serviceNowIdChanged = serviceNowId != exception.ServiceNowId;
+            var serviceNowIdChanged = serviceNowId != exception.ServiceNowId;
+            var isNullServiceNowId = string.IsNullOrWhiteSpace(serviceNowId);
 
-            exception.ServiceNowId = serviceNowId;
+            exception.ServiceNowId = isNullServiceNowId ? null : serviceNowId;
+            exception.ServiceNowCreatedDate = isNullServiceNowId ? null : DateTime.UtcNow;
             exception.RecordUpdatedDate = DateTime.UtcNow;
 
             var updateResult = await _validationExceptionDataServiceClient.Update(exception);
@@ -176,12 +178,22 @@ public class ValidationExceptionData : IValidationExceptionData
 
     private static string? ValidateServiceNowId(string serviceNowId)
     {
+        if (string.IsNullOrWhiteSpace(serviceNowId))
+        {
+            return null;
+        }
         if (serviceNowId.Contains(' '))
+        {
             return "ServiceNowId cannot contain spaces.";
+        }
         if (serviceNowId.Length < 9)
+        {
             return "ServiceNowId must be at least 9 characters long.";
+        }
         if (!serviceNowId.All(char.IsLetterOrDigit))
+        {
             return "ServiceNowId must contain only alphanumeric characters.";
+        }
         return null;
     }
 
