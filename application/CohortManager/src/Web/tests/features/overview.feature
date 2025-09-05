@@ -17,7 +17,7 @@ Feature: Overview page
   Scenario: Page has no accessibility issues when signed in
     Given I am signed in as "test@nhs.net" with password "Password123"
     When I go to the page "/"
-    Then I should see the heading "Cohort Manager"
+    Then I should see the heading "Breast screening"
     And I should expect 0 accessibility issues
 
   Scenario Outline: Overview tiles are visible with correct links, text and counts
