@@ -6,40 +6,36 @@ public class PaginationService<T> : IPaginationService<T>
 {
     private const int pageSize = 10;
 
-    public PaginationResult<T> GetPaginatedResult(IQueryable<T> source, int? lastId, Func<T, int>? idSelector = null)
+    /// <summary>
+    /// Gets paginated results using page-based pagination
+    /// </summary>
+    /// <param name="source">The queryable source</param>
+    /// <param name="page">The page number (1-based)</param>
+    /// <returns>Paginated result</returns>
+    public PaginationResult<T> GetPaginatedResult(IQueryable<T> source, int page = 1)
     {
-        // If no idSelector is provided, try to use a default 'Id' property
-        if (idSelector == null)
-        {
-            idSelector = GetDefaultIdSelector();
-        }
-
-        // Convert source to a list of IDs to calculate index-based pagination
-        var idList = source.Select(idSelector).OrderBy(id => id).ToList();
-
-        // Get the index of the lastId
-        int lastIdIndex = lastId.HasValue ? idList.IndexOf(lastId.Value) : -1;
-        int currentPage = lastIdIndex >= 0 ? (lastIdIndex / pageSize) + 2 : 1;
         var totalItems = source.Count();
         var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
-        if (lastIdIndex >= 0)
-        {
-            source = source.Skip(lastIdIndex + 1);
-        }
+        // Ensure page is within valid range
+        page = Math.Max(1, Math.Min(page, Math.Max(1, totalPages)));
 
-        var items = source.Take(pageSize).ToList();
-        int? lastResultId = items.Count > 0 ? idSelector(items[^1]) : null;
+        var items = source
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
 
         return new PaginationResult<T>
         {
             Items = items,
-            IsFirstPage = currentPage == 1,
-            HasNextPage = lastResultId.HasValue && (lastIdIndex + pageSize < totalItems),
-            LastResultId = lastResultId,
+            IsFirstPage = page == 1,
+            HasNextPage = page < totalPages,
+            HasPreviousPage = page > 1,
+            LastResultId = null, // Not used in page-based pagination
             TotalItems = totalItems,
             TotalPages = totalPages,
-            CurrentPage = currentPage,
+            CurrentPage = page,
+            PageSize = pageSize
         };
     }
 
@@ -52,13 +48,11 @@ public class PaginationService<T> : IPaginationService<T>
         {
             ["X-Total-Count"] = paginationResult.TotalItems.ToString(),
             ["X-Has-Next-Page"] = paginationResult.HasNextPage.ToString().ToLower(),
-            ["X-Is-First-Page"] = paginationResult.IsFirstPage.ToString().ToLower()
+            ["X-Has-Previous-Page"] = paginationResult.HasPreviousPage.ToString().ToLower(),
+            ["X-Is-First-Page"] = paginationResult.IsFirstPage.ToString().ToLower(),
+            ["X-Current-Page"] = paginationResult.CurrentPage.ToString(),
+            ["X-Total-Pages"] = paginationResult.TotalPages.ToString()
         };
-
-        if (paginationResult.LastResultId.HasValue)
-        {
-            headers["X-Last-Id"] = paginationResult.LastResultId.Value.ToString();
-        }
 
         var linkHeaders = BuildLinkHeaders(request, paginationResult);
         if (linkHeaders.Count > 0)
@@ -74,45 +68,47 @@ public class PaginationService<T> : IPaginationService<T>
         var linkHeaders = new List<string>();
         var baseUrl = request.Url.GetLeftPart(UriPartial.Path);
         var queryString = request.Url.Query;
-        var baseQuery = RemoveLastIdParam(queryString);
+        var baseQuery = RemovePageParam(queryString);
         var separator = string.IsNullOrEmpty(baseQuery) ? "?" : "&";
 
-        // First page link (no lastId)
+        // First page link
         linkHeaders.Add($"<{baseUrl}{baseQuery}>; rel=\"first\"");
 
-        // Next page link (only if has next page)
-        if (paginationResult.HasNextPage && paginationResult.LastResultId.HasValue)
+        // Previous page link
+        if (paginationResult.HasPreviousPage)
         {
-            linkHeaders.Add($"<{baseUrl}{baseQuery}{separator}lastId={paginationResult.LastResultId.Value}>; rel=\"next\"");
+            var prevPage = paginationResult.CurrentPage - 1;
+            var prevUrl = prevPage == 1
+                ? $"{baseUrl}{baseQuery}"
+                : $"{baseUrl}{baseQuery}{separator}page={prevPage}";
+            linkHeaders.Add($"<{prevUrl}>; rel=\"prev\"");
+        }
+
+        // Next page link
+        if (paginationResult.HasNextPage)
+        {
+            var nextPage = paginationResult.CurrentPage + 1;
+            linkHeaders.Add($"<{baseUrl}{baseQuery}{separator}page={nextPage}>; rel=\"next\"");
+        }
+
+        // Last page link
+        if (paginationResult.TotalPages > 1)
+        {
+            linkHeaders.Add($"<{baseUrl}{baseQuery}{separator}page={paginationResult.TotalPages}>; rel=\"last\"");
         }
 
         return linkHeaders;
     }
 
-    private static string RemoveLastIdParam(string queryString)
+    private static string RemovePageParam(string queryString)
     {
         if (string.IsNullOrEmpty(queryString)) return "";
 
         var pairs = queryString.TrimStart('?').Split('&')
-            .Where(p => !p.StartsWith("lastId="))
+            .Where(p => !p.StartsWith("page="))
             .Where(p => !string.IsNullOrWhiteSpace(p))
             .ToArray();
 
         return pairs.Length > 0 ? "?" + string.Join("&", pairs) : "";
-    }
-
-    private static Func<T, int> GetDefaultIdSelector()
-    {
-        var idProperty = (typeof(T).GetProperty("Id") ??
-            typeof(T).GetProperty($"{typeof(T).Name}Id")) ??
-            throw new InvalidOperationException(
-                "Could not find a default ID property. Provide a custom ID selector.");
-
-        return x =>
-        {
-            var value = idProperty.GetValue(x) ?? throw new InvalidOperationException(
-                    $"Entity of type {typeof(T).Name} has a null ID property ('{idProperty.Name}').");
-            return (int)value;
-        };
     }
 }
