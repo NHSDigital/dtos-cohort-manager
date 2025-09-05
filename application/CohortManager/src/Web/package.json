@@ -12,10 +12,10 @@
     "test:unit:watch": "jest --watch",
     "test:unit:coverage": "jest --coverage",
     "test:e2e": "npx bddgen && npx playwright test",
-    "test:e2e:epic_4a": "npx bddgen && npx playwright test --grep=\" @epic_4a\"",
     "lint": "next lint"
   },
   "dependencies": {
+    "axe-playwright": "^2.1.0",
     "jwt-decode": "^4.0.0",
     "next": "15.5.2",
     "next-auth": "5.0.0-beta.25",

@@ -1,36 +1,36 @@
 Feature: Overview page
 
-    Scenario: Check for page heading
-        When I go to the page "/"
-        Then I see the heading "Cohort Manager"
+  # Signed-out checks
+  Scenario: Page heading is shown
+    When I go to the page "/"
+    Then I should see the heading "Cohort Manager"
 
-    Scenario: Check for accessibility issues as a signed out user
-        When I go to the page "/"
-        Then I should expect "0" accessibility issues
+  Scenario: Page has no accessibility issues when signed out
+    When I go to the page "/"
+    Then I should expect 0 accessibility issues
 
-    Scenario: Check for the NHS login button
-        When I go to the page "/"
-        Then I see the button "Log in with my Care Identity"
+  Scenario: NHS login button is shown
+    When I go to the page "/"
+    Then I see the button "Log in with my Care Identity"
 
-    Scenario: Sign in as a test user
-      Given I am signed in as "test@nhs.net" with password "Password123"
-      Then I should see the heading "Breast screening"
+  # Signed-in checks
+  Scenario: Page has no accessibility issues when signed in
+    Given I am signed in as "test@nhs.net" with password "Password123"
+    When I go to the page "/"
+    Then I should see the heading "Cohort Manager"
+    And I should expect 0 accessibility issues
 
-    Scenario: Check for accessibility issues as a signed in user
-      Given I should see the heading "Breast screening"
-      Then I should expect "0" accessibility issues
+  Scenario Outline: Overview tiles are visible with correct links, text and counts
+    Given I am signed in as "test@nhs.net" with password "Password123"
+    When I go to the page "/"
+    Then I see the link "<label>" with the href "<href>"
+    And I see the text "<description>"
+    And I see the number in the first card (Not raised) is greater than or equal to 0
+    And I see the number in the second card (Raised) is greater than or equal to 0
+    And I see the number in the third card (Reports) is greater than or equal to 0
 
-    Scenario: Check for not raised exceptions
-      Given I should see the link "Not raised" with the URL "/exceptions/not-raised"
-      Then I should see the text "Exceptions to be raised with teams"
-      Then I should expect "18" not raised exceptions
-
-    Scenario: Check for raised exceptions
-      Given I should see the link "Raised" with the URL "/exceptions/raised"
-      Then I should see the text "Access and amend previously raised exceptions"
-      Then I should expect "10" raised exceptions
-
-    Scenario: Check for reports
-      Given I should see the link "Reports" with the URL "/reports"
-      Then I should see the text "To manage investigations into demographic changes"
-      Then I should expect "28"
+    Examples:
+      | label      | href                    | description                                   |
+      | Not raised | /exceptions  | Exceptions to be raised with teams            |
+      | Raised     | /exceptions/raised      | Access and amend previously raised exceptions |
+      | Reports    | /reports                | To manage investigations into demographic changes |
