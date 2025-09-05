@@ -230,28 +230,19 @@ Then(
   }
 );
 
-When(
-  "I sort the table {string} by {string}",
-  async ({ page }, tableId: string, sortLabel: string) => {
-    const table = tableLocator(page, tableId);
+When("I sort the table by {string}", async ({ page }, sortOption: string) => {
+  // Open/select in the dropdown
+  const form = page.getByTestId("sort-exceptions-form");
+  const select = form.locator("select");
+  await test.expect(select).toBeVisible();
 
-    const headerButton = table.getByRole("button", { name: sortLabel }).first();
-    if (await headerButton.count()) return headerButton.click();
+  await select.selectOption({ label: sortOption });
 
-    const headerLink = table.getByRole("link", { name: sortLabel }).first();
-    if (await headerLink.count()) return headerLink.click();
-
-    const headerCell = table
-      .locator("thead th, thead [role='columnheader']")
-      .filter({ hasText: sortLabel })
-      .first();
-    if (await headerCell.count()) return headerCell.click();
-
-    throw new Error(
-      `Could not find sort control "${sortLabel}" in table "${tableId}"`
-    );
-  }
-);
+  // Click the apply button
+  const applyButton = page.getByTestId("apply-button");
+  await test.expect(applyButton).toBeVisible();
+  await applyButton.click();
+});
 
 // ---- Accessibility ----
 Then(
