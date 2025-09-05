@@ -46,7 +46,8 @@ public class GetValidationExceptions
     public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
-        var lastId = _httpParserHelper.GetQueryParameterAsInt(req, "lastId");
+        var page = _httpParserHelper.GetQueryParameterAsInt(req, "page");
+        if (page <= 0) page = 1;
         var exceptionStatus = HttpParserHelper.GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
         var sortOrder = HttpParserHelper.GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
         var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
@@ -71,11 +72,11 @@ public class GetValidationExceptions
                 }
 
                 var reportExceptions = await _validationData.GetReportExceptions(reportDate, exceptionCategory);
-                return CreatePaginatedResponse(req, reportExceptions, lastId);
+                return CreatePaginatedResponse(req, reportExceptions!.AsQueryable(), page);
             }
 
             var allExceptions = await _validationData.GetAllFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
-            return CreatePaginatedResponse(req, allExceptions, lastId);
+            return CreatePaginatedResponse(req, allExceptions!.AsQueryable(), page);
         }
         catch (Exception ex)
         {
@@ -84,23 +85,12 @@ public class GetValidationExceptions
         }
     }
 
-
-    private HttpResponseData CreatePaginatedResponse(HttpRequestData req, List<ValidationException>? exceptions, int lastId)
+    private HttpResponseData CreatePaginatedResponse(HttpRequestData request, IQueryable<ValidationException> source, int page)
     {
-        if (exceptions == null || exceptions.Count == 0)
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-        }
+        var paginatedResult = _paginationService.GetPaginatedResult(source, page);
+        var headers = _paginationService.AddNavigationHeaders(request, paginatedResult);
 
-        var paginatedResult = _paginationService.GetPaginatedResult(exceptions.AsQueryable(), lastId == 0 ? null : lastId, e => e.ExceptionId);
-
-        if (!paginatedResult.Items.Any())
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
-        }
-
-        var headers = _paginationService.AddNavigationHeaders(req, paginatedResult);
-        return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(paginatedResult), headers);
+        return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, request, JsonSerializer.Serialize(paginatedResult), headers);
     }
 
     /// <summary>
