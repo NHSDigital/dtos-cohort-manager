@@ -1,0 +1,54 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "ADD",
+        "NHSNumber": 9995219204,
+        "ReferralFlag": 1,
+        "IsHigherRisk": 1,
+        "ScreeningId": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8569-02",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e Verify participant record with Screening ID = 1 and the Referral_flag = true and the IsHigherRisk flag = true passed Transformation rule 2 (VHR) [ParticipantManagement]"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9995219204
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8569-02",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e Verify participant record with Screening ID = 1 and the Referral_flag = true and the IsHigherRisk flag = true passed Transformation rule 2 (VHR) [CohortDistribution]"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "number": "CS0573851",
+      "u_case_variable_data": {
+        "nhs_number": "9995219204",
+        "forename_": "Anne",
+        "surname_family_name": "Smith",
+        "date_of_birth": "2001-01-01",
+        "enter_dummy_gp_code": "ZZZGBR",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached",
+        "address_line_1": "2 Test Street",
+        "address_line_2": "Testville",
+        "address_line_3": "Leeds",
+        "address_line_4": "West Yorkshire",
+        "address_line_5": "",
+        "postcode": "LS1 1AB"
+      }
+    }
+  ],
+  "nhsNumbers": [
+    "9995219204"
+  ]
+}
+
