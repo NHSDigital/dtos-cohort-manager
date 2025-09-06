@@ -84,7 +84,7 @@ stages:
   displayName: Database changes
   condition: |
     or(
-      eq(dependencies.re_tag_stage.result, 'Succeeded'),
+      in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
       eq(dependencies.terraform_deploy.jobs.terraform_apply.result, 'Succeeded')
     )
   pool:
@@ -106,7 +106,7 @@ stages:
   displayName: Restart Function Apps
   condition: |
     or(
-      eq(dependencies.re_tag_stage.result, 'Succeeded'),
+      in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
       eq(dependencies.terraform_deploy.jobs.terraform_apply.result, 'Succeeded')
     )
   pool:
