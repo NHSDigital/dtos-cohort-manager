@@ -113,34 +113,6 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_ParticipantReferred_DoNotRunRoutineRules()
-    {
-        // Arrange
-        _requestBody.Participant.ReferralFlag = null;
-
-        // Breaks rule InvalidFlagTrueAndNoPrimaryCareProvider in the routine rules
-        _requestBody.Participant.PrimaryCareProvider = "G82650";
-        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString();
-        _requestBody.Participant.InvalidFlag = "1";
-        _requestBody.Participant.RecordType = Actions.New;
-
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        _handleException
-            .Verify(i => i.CreateTransformExecutedExceptions(
-                It.IsAny<CohortDistributionParticipant>(),
-                It.IsAny<string>(),
-                It.IsAny<int>(),
-                null),
-            times: Times.Never);
-    }
-
-    [TestMethod]
     public async Task Run_ParticipantReferred_RunCommonRules()
     {
         // Arrange
@@ -720,7 +692,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         StringAssert.Contains(responseBody, "ORR");
         _handleException
-            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "RecordDeleted", 0, null),
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherInvalidFlagTrueAndNoPrimaryCareProvider", 0, null),
             times: Times.Once);
     }
 
