@@ -30,7 +30,9 @@ public class ValidationExceptionDataTests
             new() { ExceptionId = 1, CohortName = "Cohort1", DateCreated = DateTime.UtcNow.Date, NhsNumber = "1111111111", RuleDescription = "RuleA", Category = 3, ServiceNowId = "ServiceNow1", ServiceNowCreatedDate = DateTime.UtcNow.Date },
             new() { ExceptionId = 2, CohortName = "Cohort2", DateCreated = DateTime.UtcNow.Date.AddDays(-1), NhsNumber = "2222222222", RuleDescription = "RuleB", Category = 3, ServiceNowId = "ServiceNow2", ServiceNowCreatedDate = DateTime.UtcNow.Date.AddDays(-1) },
             new() { ExceptionId = 3, CohortName = "Cohort3", DateCreated = DateTime.UtcNow.Date.AddDays(-2), NhsNumber = "3333333333", RuleDescription = "RuleC", Category = 3, ServiceNowId = null },
-            new() { ExceptionId = 4, CohortName = "Cohort4", DateCreated = DateTime.Today.AddDays(-3), NhsNumber = "4444444444", RuleDescription = "RuleD", Category = 3, ServiceNowId = null }
+            new() { ExceptionId = 4, CohortName = "Cohort4", DateCreated = DateTime.Today.AddDays(-3), NhsNumber = "4444444444", RuleDescription = "RuleD", Category = 3, ServiceNowId = null },
+            new() { ExceptionId = 5, CohortName = "Cohort5", DateCreated = DateTime.UtcNow.Date, NhsNumber = "5555555555", RuleDescription = "Confusion Rule", Category = 12, ServiceNowId = null },
+            new() { ExceptionId = 6, CohortName = "Cohort6", DateCreated = DateTime.UtcNow.Date.AddDays(-1), NhsNumber = "6666666666", RuleDescription = "Superseded Rule", Category = 13, ServiceNowId = null }
         };
         _exceptionCategory = ExceptionCategory.NBO;
     }
@@ -50,8 +52,8 @@ public class ValidationExceptionDataTests
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(4);
         result.Should().BeInAscendingOrder(o => o.DateCreated);
-        result!.First().ExceptionId.Should().Be(4);
-        result!.Last().ExceptionId.Should().Be(1);
+        result?[0].ExceptionId.Should().Be(4);
+        result?[^1].ExceptionId.Should().Be(1);
     }
 
     [TestMethod]
@@ -69,8 +71,8 @@ public class ValidationExceptionDataTests
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(4);
         result.Should().BeInDescendingOrder(o => o.DateCreated);
-        result!.First().ExceptionId.Should().Be(1);
-        result!.Last().ExceptionId.Should().Be(4);
+        result?[0].ExceptionId.Should().Be(1);
+        result?[^1].ExceptionId.Should().Be(4);
     }
 
     [TestMethod]
@@ -89,10 +91,10 @@ public class ValidationExceptionDataTests
         result.Should().HaveCount(2);
         result.Should().BeInAscendingOrder(o => o.ServiceNowCreatedDate);
         result.Should().OnlyContain(e => !string.IsNullOrEmpty(e.ServiceNowId));
-        result!.First().ExceptionId.Should().Be(2);
-        result!.First().ServiceNowId.Should().Be("ServiceNow2");
-        result!.Last().ExceptionId.Should().Be(1);
-        result!.Last().ServiceNowId.Should().Be("ServiceNow1");
+        result?[0].ExceptionId.Should().Be(2);
+        result?[0].ServiceNowId.Should().Be("ServiceNow2");
+        result?[^1].ExceptionId.Should().Be(1);
+        result?[^1].ServiceNowId.Should().Be("ServiceNow1");
     }
 
     [TestMethod]
@@ -111,10 +113,10 @@ public class ValidationExceptionDataTests
         result.Should().HaveCount(2);
         result.Should().BeInDescendingOrder(o => o.ServiceNowCreatedDate);
         result.Should().OnlyContain(e => !string.IsNullOrEmpty(e.ServiceNowId));
-        result!.First().ExceptionId.Should().Be(1);
-        result!.First().ServiceNowId.Should().Be("ServiceNow1");
-        result!.Last().ExceptionId.Should().Be(2);
-        result!.Last().ServiceNowId.Should().Be("ServiceNow2");
+        result?[0].ExceptionId.Should().Be(1);
+        result?[0].ServiceNowId.Should().Be("ServiceNow1");
+        result?[^1].ExceptionId.Should().Be(2);
+        result?[^1].ServiceNowId.Should().Be("ServiceNow2");
     }
 
     [TestMethod]
@@ -133,8 +135,8 @@ public class ValidationExceptionDataTests
         result.Should().HaveCount(2);
         result.Should().BeInAscendingOrder(o => o.DateCreated);
         result.Should().OnlyContain(e => string.IsNullOrEmpty(e.ServiceNowId));
-        result!.First().ExceptionId.Should().Be(4);
-        result!.Last().ExceptionId.Should().Be(3);
+        result?[0].ExceptionId.Should().Be(4);
+        result?[^1].ExceptionId.Should().Be(3);
     }
 
     [TestMethod]
@@ -153,8 +155,8 @@ public class ValidationExceptionDataTests
         result.Should().HaveCount(2);
         result.Should().BeInDescendingOrder(o => o.DateCreated);
         result.Should().OnlyContain(e => string.IsNullOrEmpty(e.ServiceNowId));
-        result!.First().ExceptionId.Should().Be(3);
-        result!.Last().ExceptionId.Should().Be(4);
+        result?[0].ExceptionId.Should().Be(3);
+        result?[^1].ExceptionId.Should().Be(4);
     }
 
     [TestMethod]
@@ -172,8 +174,8 @@ public class ValidationExceptionDataTests
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(4);
         result.Should().BeInDescendingOrder(o => o.DateCreated);
-        result!.First().ExceptionId.Should().Be(1);
-        result!.Last().ExceptionId.Should().Be(4);
+        result?[0].ExceptionId.Should().Be(1);
+        result?[^1].ExceptionId.Should().Be(4);
     }
 
     [DataRow(1)]
@@ -192,7 +194,7 @@ public class ValidationExceptionDataTests
         // Assert
         result.Should().NotBeNull();
         result.Should().BeOfType<ValidationException>();
-        result!.ExceptionId.Should().Be(exceptionId);
+        result?.ExceptionId.Should().Be(exceptionId);
     }
 
     [DataRow(999)]
@@ -202,7 +204,7 @@ public class ValidationExceptionDataTests
     public async Task GetExceptionById_InvalidId_ReturnsNull(int exceptionId)
     {
         // Arrange
-        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).Returns(Task.FromResult<ExceptionManagement>(null));
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).Returns(Task.FromResult<ExceptionManagement>(null!));
 
         // Act
         var result = await validationExceptionData.GetExceptionById(exceptionId);
@@ -272,9 +274,7 @@ public class ValidationExceptionDataTests
         result.Message.Should().Be("ServiceNowId unchanged, but record updated date has been updated");
 
         _validationExceptionDataServiceClient.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
-        _validationExceptionDataServiceClient.Verify(x => x.Update(It.Is<ExceptionManagement>(e =>
-            e.ServiceNowId == serviceNowId &&
-            e.RecordUpdatedDate > DateTime.UtcNow.AddMinutes(-1))), Times.Once);
+        _validationExceptionDataServiceClient.Verify(x => x.Update(It.Is<ExceptionManagement>(e => e.ServiceNowId == serviceNowId && e.RecordUpdatedDate > DateTime.UtcNow.AddMinutes(-1))), Times.Once);
     }
 
     [TestMethod]
@@ -284,7 +284,7 @@ public class ValidationExceptionDataTests
         var exceptionId = 999;
         var serviceNowId = "SNOW123456789";
 
-        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync((ExceptionManagement?)null);
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(It.IsAny<string>())).Returns(Task.FromResult((ExceptionManagement)null!));
 
         // Act
         var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
@@ -425,13 +425,8 @@ public class ValidationExceptionDataTests
             RecordUpdatedDate = DateTime.UtcNow.AddDays(-1)
         };
 
-        _validationExceptionDataServiceClient
-            .Setup(x => x.GetSingle(exceptionId.ToString()))
-            .ReturnsAsync(exception);
-
-        _validationExceptionDataServiceClient
-            .Setup(x => x.Update(It.IsAny<ExceptionManagement>()))
-            .ReturnsAsync(true);
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync(exception);
+        _validationExceptionDataServiceClient.Setup(x => x.Update(It.IsAny<ExceptionManagement>())).ReturnsAsync(true);
 
         // Act
         var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
@@ -441,7 +436,182 @@ public class ValidationExceptionDataTests
         result.StatusCode.Should().Be(HttpStatusCode.OK);
         result.Message.Should().Be("ServiceNowId updated successfully");
 
+        _validationExceptionDataServiceClient.Verify(x => x.Update(It.Is<ExceptionManagement>(e => e.ServiceNowId == trimmedServiceNowId)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_ConfusionCategoryWithDate_ReturnsFilteredExceptions()
+    {
+        // Arrange
+        var reportDate = DateTime.UtcNow.Date;
+        var exceptionCategory = ExceptionCategory.Confusion;
+
+        var expectedResult = new List<ExceptionManagement>
+        {
+            new() { ExceptionId = 5, CohortName = "Cohort5", DateCreated = reportDate, NhsNumber = "5555555555", RuleDescription = "Confusion Rule", Category = 12, ServiceNowId = null }
+        };
+
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
+        result![0].ExceptionId.Should().Be(5);
+        result[0].Category.Should().Be(12);
+        result[0].DateCreated.Should().Be(reportDate);
+    }
+
+
+    [TestMethod]
+    public async Task GetReportExceptions_SupersededCategoryWithDate_ReturnsFilteredExceptions()
+    {
+        // Arrange
+        var reportDate = DateTime.UtcNow.Date.AddDays(-1);
+        var exceptionCategory = ExceptionCategory.Superseded;
+
+        var expectedResult = new List<ExceptionManagement>
+        {
+            new() { ExceptionId = 6, CohortName = "Cohort6", DateCreated = reportDate, NhsNumber = "6666666666", RuleDescription = "Superseded Rule", Category = 13, ServiceNowId = null }
+        };
+
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
+        result![0].ExceptionId.Should().Be(6);
+        result[0].Category.Should().Be(13);
+        result[0].DateCreated.Should().Be(reportDate);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_NoDateNoSpecificCategory_ReturnsAllConfusionAndSuperseded()
+    {
+        // Arrange
+        var exceptionCategory = ExceptionCategory.NBO;
+        var confusionAndSupersededExceptions = _exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(confusionAndSupersededExceptions);
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(null, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(2);
+        result.Should().Contain(e => e.ExceptionId == 5 && e.Category == 12);
+        result.Should().Contain(e => e.ExceptionId == 6 && e.Category == 13);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_SpecificCategoryWithoutDate_ReturnsOnlySpecificCategory()
+    {
+        // Arrange
+        var exceptionCategory = ExceptionCategory.Confusion;
+        var expectedResult = new List<ExceptionManagement>
+        {
+            new() { ExceptionId = 5, CohortName = "Cohort5", DateCreated = DateTime.UtcNow.Date, NhsNumber = "5555555555", RuleDescription = "Confusion Rule", Category = 12, ServiceNowId = null }
+        };
+
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(null, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
+        result![0].ExceptionId.Should().Be(5);
+        result[0].Category.Should().Be(12);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_DateWithoutSpecificCategory_ReturnsAllConfusionAndSupersededForDate()
+    {
+        // Arrange
+        var reportDate = DateTime.UtcNow.Date;
+        var exceptionCategory = ExceptionCategory.NBO;
+        var confusionAndSupersededExceptions = _exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(confusionAndSupersededExceptions);
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
+        result?[0].ExceptionId.Should().Be(5);
+        result?[0].Category.Should().Be(12);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_SupersededCategoryWithoutDate_ReturnsOnlySupersededCategory()
+    {
+        // Arrange
+        var exceptionCategory = ExceptionCategory.Superseded;
+
+        var expectedResult = new List<ExceptionManagement>
+        {
+            new() { ExceptionId = 6, CohortName = "Cohort6", DateCreated = DateTime.UtcNow.Date.AddDays(-1), NhsNumber = "6666666666", RuleDescription = "Superseded Rule", Category = 13, ServiceNowId = null }
+        };
+
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(null, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(1);
+        result?[0].ExceptionId.Should().Be(6);
+        result?[0].Category.Should().Be(13);
+    }
+
+    [TestMethod]
+    public async Task GetReportExceptions_NoMatchingExceptions_ReturnsEmptyList()
+    {
+        // Arrange
+        var reportDate = DateTime.UtcNow.Date.AddDays(-10);
+        var exceptionCategory = ExceptionCategory.Confusion;
+        var expectedResult = new List<ExceptionManagement>();
+
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(expectedResult);
+
+        // Act
+        var result = await validationExceptionData.GetReportExceptions(reportDate, exceptionCategory);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeEmpty();
+    }
+
+    [TestMethod]
+    public async Task UpdateExceptionServiceNowId_NullServiceNowId_ServiceNowIdAndServiceNowCreatedDateShouldBeNull()
+    {
+        // Arrange
+        var exceptionId = 1;
+        string serviceNowId = string.Empty;
+
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync(_exceptionList[0]);
+        _validationExceptionDataServiceClient.Setup(x => x.Update(It.IsAny<ExceptionManagement>())).ReturnsAsync(true);
+
+        // Act
+        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
+
+        // Assert
+        result.Success.Should().BeTrue();
+        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.Message.Should().Be("ServiceNowId updated successfully");
+
+        _validationExceptionDataServiceClient.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
         _validationExceptionDataServiceClient.Verify(x => x.Update(It.Is<ExceptionManagement>(e =>
-            e.ServiceNowId == trimmedServiceNowId)), Times.Once);
+            e.ServiceNowId == null && e.ServiceNowCreatedDate == null && e.RecordUpdatedDate > DateTime.UtcNow.AddMinutes(-1))), Times.Once);
+        _exceptionList[0].ServiceNowId.Should().BeNull();
+        _exceptionList[0].ServiceNowCreatedDate.Should().BeNull();
     }
 }

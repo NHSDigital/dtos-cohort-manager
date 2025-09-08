@@ -721,6 +721,10 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("RECORD_UPDATE_DATETIME");
 
+                    b.Property<int?>("SubscriptionSource")
+                        .HasColumnType("int")
+                        .HasColumnName("SUBSCRIPTION_SOURCE");
+
                     b.HasKey("SubscriptionId");
 
                     b.ToTable("NEMS_SUBSCRIPTION", "dbo");

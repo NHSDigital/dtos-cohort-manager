@@ -6,23 +6,19 @@
         "RuleName": "8.Transform.UpdatedRecordExcludedAndDMS",
         "LocalParams": [
           {
-            "Name": "IsPrimaryCareProviderNullOnUpdatedParticipant",
-            "Expression": "participant.PrimaryCareProvider == null"
+            "Name": "DMSInSMU",
+            "Expression": "participant.CurrentPosting == \"DMS\" && excludedSMUList.Contains(participant.PrimaryCareProvider)"
           },
           {
-            "Name": "IsPrimaryCareProviderNullDatabaseParticipant",
-            "Expression": "databaseParticipant.PrimaryCareProvider == null"
+            "Name": "WelshCurrentPosting",
+            "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\""
           },
           {
-            "Name": "IsNewRecordInSMU",
-            "Expression": "participant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullOnUpdatedParticipant ? false : !excludedSMUList.Contains(participant.PrimaryCareProvider)) || new string[] { \"English\", \"NHAIS\", \"Cipher\", \"ENG\", \"IM\" }.Contains(participant.CurrentPosting)"
-          },
-          {
-            "Name": "IsOldRecordInSMU",
-            "Expression": "databaseParticipant.CurrentPosting == \"DMS\" && (IsPrimaryCareProviderNullDatabaseParticipant ? false : excludedSMUList.Contains(databaseParticipant.PrimaryCareProvider)) || new string[] { \"Welsh\", \"NHAIS\", \"Cipher\", \"CYM\" }.Contains(databaseParticipant.CurrentPosting)"
+            "Name": "NoTransformationRequired",
+            "Expression": "existingParticipant.PrimaryCareProvider == null && existingParticipant.ReasonForRemoval == \"ORR\""
           }
         ],
-        "Expression": "participant.RecordType == Actions.Amended && IsNewRecordInSMU && IsOldRecordInSMU",
+        "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting) && !NoTransformationRequired",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -42,6 +38,37 @@
                   "field": "ReasonForRemovalEffectiveFromDate",
                   "value": "DateTime.Today.ToString(\"yyyyMMdd\")",
                   "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "8a.Transform.NoTransformButError",
+        "LocalParams": [
+          {
+            "Name": "DMSInSMU",
+            "Expression": "participant.CurrentPosting == \"DMS\" && excludedSMUList.Contains(participant.PrimaryCareProvider)"
+          },
+          {
+            "Name": "WelshCurrentPosting",
+            "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\""
+          },{
+            "Name": "NoTransformationRequired",
+            "Expression": "existingParticipant.PrimaryCareProvider == null && existingParticipant.ReasonForRemoval == \"ORR\""
+          }
+        ],
+        "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting) && NoTransformationRequired",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "PrimaryCareProvider",
+                  "value": null
                 }
               ]
             }
@@ -626,6 +653,54 @@
           }
         ],
         "Expression": "participant.RecordType == Actions.Amended && (existingParticipant.ParticipantId != null || existingParticipant.ParticipantId != \"0\") && ((participant.FamilyName != existingParticipant.FamilyName AND participant.Gender != existingParticipant.Gender) OR (participant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
+      },
+      {
+        "RuleName": "17.Other.AddressLinesBlankAndPostcodeMatchesExistingRecord",
+        "LocalParams": [
+          {
+            "Name": "PostcodeMatches",
+            "Expression": "!string.IsNullOrEmpty(participant.Postcode) && (participant.Postcode == existingParticipant.Postcode)"
+          },
+          {
+            "Name": "AddressLinesBlank",
+            "Expression": "string.IsNullOrEmpty(participant.AddressLine1) && string.IsNullOrEmpty(participant.AddressLine2) && string.IsNullOrEmpty(participant.AddressLine3) && string.IsNullOrEmpty(participant.AddressLine4) && string.IsNullOrEmpty(participant.AddressLine5)"
+          }
+        ],
+        "Expression": "participant.RecordType == Actions.Amended && PostcodeMatches && AddressLinesBlank",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "AddressLine1",
+                  "value": "databaseParticipant.AddressLine1"
+                },
+                {
+                  "isExpression": true,
+                  "field": "AddressLine2",
+                  "value": "databaseParticipant.AddressLine2"
+                },
+                {
+                  "isExpression": true,
+                  "field": "AddressLine3",
+                  "value": "databaseParticipant.AddressLine3"
+                },
+                {
+                  "isExpression": true,
+                  "field": "AddressLine4",
+                  "value": "databaseParticipant.AddressLine4"
+                },
+                {
+                  "isExpression": true,
+                  "field": "AddressLine5",
+                  "value": "databaseParticipant.AddressLine5"
+                }
+              ]
+            }
+          }
+        }
       },
       {
         "RuleName": "00.ValidateLanguageCode",

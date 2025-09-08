@@ -98,9 +98,11 @@ public class ValidationExceptionData : IValidationExceptionData
                 return CreateErrorResponse($"Exception with ID {exceptionId} not found", HttpStatusCode.NotFound);
             }
 
-            bool serviceNowIdChanged = serviceNowId != exception.ServiceNowId;
+            var serviceNowIdChanged = serviceNowId != exception.ServiceNowId;
+            var isNullServiceNowId = string.IsNullOrWhiteSpace(serviceNowId);
 
-            exception.ServiceNowId = serviceNowId;
+            exception.ServiceNowId = isNullServiceNowId ? null : serviceNowId;
+            exception.ServiceNowCreatedDate = isNullServiceNowId ? null : DateTime.UtcNow;
             exception.RecordUpdatedDate = DateTime.UtcNow;
 
             var updateResult = await _validationExceptionDataServiceClient.Update(exception);
@@ -118,6 +120,42 @@ public class ValidationExceptionData : IValidationExceptionData
             _logger.LogError(ex, "Error updating ServiceNowId for exception {ExceptionId}", exceptionId);
             return CreateErrorResponse($"Error updating ServiceNowId for exception {exceptionId}", HttpStatusCode.InternalServerError);
         }
+    }
+
+    public async Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory)
+    {
+        if (exceptionCategory is not (ExceptionCategory.Confusion or ExceptionCategory.Superseded or ExceptionCategory.NBO))
+        {
+            return [];
+        }
+
+        var filteredExceptions = (await _validationExceptionDataServiceClient.GetByFilter(x =>
+            x.Category.HasValue && (x.Category.Value == (int)ExceptionCategory.Confusion || x.Category.Value == (int)ExceptionCategory.Superseded)))?.AsEnumerable();
+
+        if (exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded)
+        {
+            filteredExceptions = filteredExceptions?.Where(x => x.Category.HasValue && x.Category.Value == (int)exceptionCategory);
+        }
+
+        if (reportDate.HasValue)
+        {
+            var startDate = reportDate.Value.Date;
+            var endDate = startDate.AddDays(1);
+            filteredExceptions = filteredExceptions?.Where(x => x.DateCreated >= startDate && x.DateCreated < endDate);
+        }
+
+        if (filteredExceptions?.Any() != true)
+            return [];
+
+        var tasks = filteredExceptions.Select(async exception =>
+        {
+            var validationException = exception.ToValidationException();
+            var participantDemographic = long.TryParse(exception.NhsNumber, out long nhsNumber) ? await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber) : null;
+            return GetExceptionDetails(validationException, participantDemographic);
+        });
+
+        var results = await Task.WhenAll(tasks);
+        return results.Where(x => x != null).ToList()!;
     }
 
     private ServiceResponseModel CreateResponse(bool success, HttpStatusCode statusCode, string message)
@@ -140,12 +178,22 @@ public class ValidationExceptionData : IValidationExceptionData
 
     private static string? ValidateServiceNowId(string serviceNowId)
     {
+        if (string.IsNullOrWhiteSpace(serviceNowId))
+        {
+            return null;
+        }
         if (serviceNowId.Contains(' '))
+        {
             return "ServiceNowId cannot contain spaces.";
+        }
         if (serviceNowId.Length < 9)
+        {
             return "ServiceNowId must be at least 9 characters long.";
+        }
         if (!serviceNowId.All(char.IsLetterOrDigit))
+        {
             return "ServiceNowId must contain only alphanumeric characters.";
+        }
         return null;
     }
 
@@ -187,7 +235,7 @@ public class ValidationExceptionData : IValidationExceptionData
     {
 
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber && x.ScreeningName == screeningName);
-        return exceptions != null ? exceptions.ToList() : null;
+        return exceptions?.ToList();
 
     }
 

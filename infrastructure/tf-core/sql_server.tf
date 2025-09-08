@@ -68,25 +68,87 @@ module "azure_sql_server" {
   tags = var.tags
 }
 
-module "managed_identity_sql_db_management" {
-  for_each = var.sqlserver != {} ? var.regions : {}
+# Create User Assigned Managed Identities for Azure SQL access by other resources
+
+locals {
+  managed_identities = flatten([
+    for region, _ in var.regions : [
+      for mi_name in var.sqlserver.user_assigned_identities : {
+        region  = region
+        mi_name = mi_name
+      }
+    ]
+  ])
+
+  managed_identities_map = {
+    for object in local.managed_identities : "${object.mi_name}-${object.region}" => object
+  }
+}
+
+module "user_assigned_managed_identity_sql" {
+  for_each = local.managed_identities_map
 
   source = "../../../dtos-devops-templates/infrastructure/modules/managed-identity"
 
-  uai_name            = "${var.sqlserver.db_management_mi_name_prefix}-${lower(var.environment)}-${lower(each.key)}"
-  resource_group_name = azurerm_resource_group.core[each.key].name
-  location            = each.key
+  uai_name            = "${module.regions_config[each.value.region].names.managed-identity}-${lower(each.value.mi_name)}"
+  resource_group_name = azurerm_resource_group.core[each.value.region].name
+  location            = each.value.region
 
   tags = var.tags
 }
 
+# Assign RBAC roles to the User Assigned Managed Identities for Azure SQL access by other resources
+# DB-MANAGEMENT needs Contributor on the SQL Server to be able to run migrations
 module "sql_db_management_rbac_assignment" {
-  for_each = var.sqlserver != {} ? var.regions : {}
+  for_each = contains(var.sqlserver.user_assigned_identities, "db-management") && var.sqlserver != {} ? var.regions : {}
 
   source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
 
-  principal_id         = module.managed_identity_sql_db_management[each.key].principal_id
+  principal_id         = module.user_assigned_managed_identity_sql["db-management-${each.key}"].principal_id
   role_definition_name = "Contributor"
   scope                = module.azure_sql_server[each.key].sql_server_id
 
+}
+
+# DB-BACKUP needs SQL DB Contributor on the SQL Server to be able to read the database, and Storage Blob Data Contributor on the Storage Account to write the backups
+module "sql_db_backup_rbac_assignment_sql_contributor" {
+  for_each = contains(var.sqlserver.user_assigned_identities, "db-backup") && var.sqlserver != {} ? var.regions : {}
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
+
+  principal_id         = module.user_assigned_managed_identity_sql["db-backup-${each.key}"].principal_id
+  role_definition_name = "SQL DB Contributor"
+  scope                = module.azure_sql_server[each.key].sql_server_id
+}
+
+module "sql_db_backup_rbac_assignment_storage_contributor" {
+  for_each = contains(var.sqlserver.user_assigned_identities, "db-backup") && var.sqlserver != {} ? var.regions : {}
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
+
+  principal_id         = module.user_assigned_managed_identity_sql["db-backup-${each.key}"].principal_id
+  role_definition_name = "Storage Blob Data Contributor"
+  scope                = data.terraform_remote_state.audit.outputs.storage_account_audit["sqlbackups-${local.primary_region}"].id
+}
+
+
+# DB-RESTORE needs SQL DB Contributor on the SQL Server to be able to write to the database, and Storage Blob Data Reader on the Storage Account to read the backups
+module "sql_db_restore_rbac_assignment_sql_contributor" {
+  for_each = contains(var.sqlserver.user_assigned_identities, "db-restore") && var.sqlserver != {} ? var.regions : {}
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
+
+  principal_id         = module.user_assigned_managed_identity_sql["db-restore-${each.key}"].principal_id
+  role_definition_name = "SQL DB Contributor"
+  scope                = module.azure_sql_server[each.key].sql_server_id
+}
+
+module "sql_db_restore_rbac_assignment_storage_reader" {
+  for_each = contains(var.sqlserver.user_assigned_identities, "db-restore") && var.sqlserver != {} ? var.regions : {}
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/rbac-assignment"
+
+  principal_id         = module.user_assigned_managed_identity_sql["db-restore-${each.key}"].principal_id
+  role_definition_name = "Storage Blob Data Reader"
+  scope                = data.terraform_remote_state.audit.outputs.storage_account_audit["sqlbackups-${local.primary_region}"].id
 }

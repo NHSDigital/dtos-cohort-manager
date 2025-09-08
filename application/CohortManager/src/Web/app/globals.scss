@@ -49,14 +49,96 @@
   margin-left: 8px;
 }
 
-// Sortable table layout
+// Form and results layout
 
 .app-form-results-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 24px;
 }
 
 .app-results-text {
   margin: 0;
+}
+
+// Pagination
+
+.app-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.app-pagination__prev,
+.app-pagination__next {
+  display: flex;
+  align-items: center;
+}
+
+.app-pagination__list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.app-pagination__item {
+  margin: 0;
+}
+
+.app-pagination__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  height: 44px;
+  padding: 8px 12px;
+  text-decoration: underline;
+  color: #005ea5;
+  border: 2px solid transparent;
+  font-weight: 400;
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+  }
+}
+
+.app-pagination__item--current .app-pagination__link {
+  background-color: #005ea5;
+  color: white;
+  border-color: #005ea5;
+
+  &:hover {
+    color: white;
+  }
+
+  &:active {
+    color: black;
+  }
+}
+
+.app-pagination__link-title {
+  font-weight: 400;
+  font-size: 18px;
+  text-decoration: underline;
+
+  &:hover,
+  &:focus {
+    text-decoration: none;
+  }
+}
+
+.app-pagination__icon {
+  margin-right: 8px;
+  fill: currentColor;
+}
+
+.app-pagination__icon--next {
+  margin-right: 0;
+  margin-left: 8px;
 }

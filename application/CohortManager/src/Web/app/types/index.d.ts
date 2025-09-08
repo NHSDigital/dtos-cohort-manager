@@ -12,6 +12,7 @@ export interface ExceptionDetails {
   dateOfBirth?: string;
   gender?: number;
   address?: string;
+  addressParts?: string[];
   contactDetails?: {
     phoneNumber?: string;
     email?: string;
@@ -31,5 +32,5 @@ export interface RuleMapping {
 export interface ReportDetails {
   reportId: string;
   dateCreated: string;
-  description: string;
+  category: number;
 }

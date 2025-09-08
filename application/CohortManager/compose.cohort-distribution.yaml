@@ -76,6 +76,7 @@ services:
       - BsSelectGpPracticeUrl=http://reference-data-service:7988/api/BsSelectGpPractice
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - LanguageCodeUrl=http://reference-data-service:7988/api/LanguageCode
+      - CurrentPostingUrl=http://reference-data-service:7988/api/CurrentPosting
       - ExcludedSMULookupUrl=http://reference-data-service:7988/api/ExcludedSMU
       - AcceptableLatencyThresholdMs=500
 

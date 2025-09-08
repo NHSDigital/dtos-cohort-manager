@@ -4,7 +4,7 @@ describe("ruleMapping", () => {
   describe("ruleIdMappings", () => {
     it("should contain all expected rule IDs", () => {
       const expectedRuleIds = [
-        3, 8, 10, 17, 18, 21, 22, 30, 35, 36, 39, 40, 54, 66, 69, 71,
+        3, 8, 10, 17, 18, 21, 22, 30, 35, 39, 40, 54, 66, 69, 71,
       ];
       const actualRuleIds = Object.keys(ruleIdMappings).map(Number);
 

@@ -1,9 +1,8 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
-import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, sendParticipantViaSnowAPI, validateSqlDatabaseFromAPI } from '../steps/steps';
+import { cleanupDatabaseFromAPI, cleanupWireMock, getConsolidatedAllTestData, processFileViaStorage, sendParticipantViaSnowAPI, validateServiceNowRequestWithMockServer, validateSqlDatabaseFromAPI } from '../steps/steps';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { receiveParticipantViaServiceNow, invalidServiceNowEndpoint } from '../../api/distributionService/bsSelectService';
-
 import { runnerBasedEpic4cTestScenariosManualAdd } from '../e2e/epic4c-add-participant-tests/epic4c-testsuite-migrated';
 import { ParticipantRecord } from '../../interface/InputData';
 
@@ -26,7 +25,7 @@ test.beforeAll(async () => {
   apiContext = await playwrightRequest.newContext();
   console.log(`Running ${TEST_TYPE} tests with scenario tags: ${scopedTestScenario}`);
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
-
+  await cleanupWireMock(apiContext);
 
   const dateMap = generateDynamicDateMap();
   const updatedParticipantRecords = replaceDynamicDatesInJson(addData.inputParticipantRecords, dateMap);
@@ -51,5 +50,18 @@ addData.validations.forEach((validations) => {
     ],
   }, async ({ request }) => {
     await validateSqlDatabaseFromAPI(request, [validations]);
+  });
+});
+
+console.log('Number of ServiceNow request validations:', addData.serviceNowRequestValidations?.length)
+
+addData.serviceNowRequestValidations.forEach((validations) => {
+  test(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
+    annotation: [
+      { type: 'TestId', description: validations.meta?.testJiraId ?? '' },
+      { type: 'RequirementId', description: validations.meta?.requirementJiraId ?? '' }
+    ],
+  }, async ({ request }) => {
+    await validateServiceNowRequestWithMockServer(request, [validations]);
   });
 });
