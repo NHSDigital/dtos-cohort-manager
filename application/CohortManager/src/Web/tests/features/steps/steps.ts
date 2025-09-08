@@ -15,7 +15,9 @@ Given("I am not authenticated", async ({ page }) => {
     try {
       window.localStorage.clear();
       window.sessionStorage.clear();
-    } catch {}
+    } catch (e) {
+      console.error("Error clearing localStorage/sessionStorage:", e);
+    }
   });
 });
 
