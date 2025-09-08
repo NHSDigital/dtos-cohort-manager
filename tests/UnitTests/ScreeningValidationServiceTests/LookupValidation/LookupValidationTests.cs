@@ -306,7 +306,7 @@ public class LookupValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        StringAssert.Contains(body, "12.BlockedParticipant.BSSelect.Fatal");
+        StringAssert.Contains(body, "12.BlockedParticipant.Non.Fatal");
     }
 
     [TestMethod]
