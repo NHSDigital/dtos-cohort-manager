@@ -264,7 +264,6 @@ container_app_jobs = {
       container_app_environment_key = "wiremock"
       docker_image                  = "cohort-manager-wiremock"
       container_registry_use_mi     = true
-      db_connection_string_name     = "DtOsDatabaseConnectionString"
       add_user_assigned_identity    = true
       replica_retry_limit           = 1
     }
