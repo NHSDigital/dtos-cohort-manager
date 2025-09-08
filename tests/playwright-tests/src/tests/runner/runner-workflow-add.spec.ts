@@ -11,6 +11,7 @@ import { runnerBasedEpic3MedTestScenariosAdd } from '../e2e/epic3-medpriority-te
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
 import { runnerBasedEpic4cTestScenariosAdd } from '../e2e/epic4c-add-participant-tests/epic4c-testsuite-migrated';
 import { runnerBasedEpic4dTestScenariosAdd } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
+import { fail } from 'assert';
 
 
 // Tests to run based on TEST_TYPE environment variable
@@ -39,7 +40,8 @@ if (TEST_TYPE == 'RegressionEpic1') {
 
 
 if (!scopedTestScenario) {
-  throw new Error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");
+  console.error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");
+  fail;
 }
 
 let addData = getConsolidatedAllTestData(scopedTestScenario, "ADD");

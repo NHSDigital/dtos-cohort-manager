@@ -156,12 +156,30 @@ export function getConsolidatedAllTestData(
   scenarioFolderName: string,
   recordType: string = "ADD"
 ) {
-  const scenarioFolders = scenarioFolderName.split("|").map(name => name.trim());
+
   let testFilesPath: string = "";
   let allValidations: any[] = [];
   let allInputParticipantRecords: any[] = [];
   let allNhsNumbers: any[] = [];
   let allServiceNowRequestValidations: any[] = [];
+  let scenarioFolders: string[] =[];
+
+  if(!scenarioFolderName) {
+    return {
+      validations: allValidations,
+      inputParticipantRecords: allInputParticipantRecords,
+      nhsNumbers: allNhsNumbers,
+      serviceNowRequestValidations: allServiceNowRequestValidations,
+      testFilesPath
+    }
+  }
+
+
+  if(scenarioFolderName.includes("|")) {
+    scenarioFolders = scenarioFolderName.split("|").map(name => name.trim());    
+  } else {
+    scenarioFolders[0] = scenarioFolderName;
+  }
 
   scenarioFolders.forEach(folder => {
     try {

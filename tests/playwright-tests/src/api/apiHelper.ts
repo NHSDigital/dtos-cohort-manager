@@ -4,6 +4,10 @@ import { config } from "../config/env";
 import { assertOnCounts, assertOnRecordDateTimes, assertOnNhsNumber, MatchDynamicType, MatchOnRuleDescriptionDynamic } from "./core/assertOnTypes";
 
 
+const EXCEPTION_MANAGEMENT_SERVICE = config.exceptionManagementService;
+const PARTICIPANT_DEMOGRAPHIC_SERVICE = config.participantDemographicDataService;
+const NHS_NUMBER_KEY = config.nhsNumberKey;
+const NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC = config.nhsNumberKeyExceptionDemographic;
 const IGNORE_VALIDATION_KEY = config.ignoreValidationKey;
 
 export async function fetchApiResponse(endpoint: string, request: any): Promise<APIResponse> {
@@ -32,13 +36,14 @@ export async function findMatchingObject(endpoint: string, responseBody: any[], 
   let matchingObjects: any[] = [];
   let matchingObject: any;
 
+
   let nhsNumberKey;
-  if (endpoint.includes(config.exceptionManagementService) || endpoint.includes(config.participantDemographicDataService)) {
-    nhsNumberKey =  config.nhsNumberKeyExceptionDemographic;
+  if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) || endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
+    nhsNumberKey = NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC;
   } else if (endpoint.includes("participantmanagementdataservice") || endpoint.includes("CohortDistributionDataService")) {
     nhsNumberKey = "NHSNumber";
   } else {
-    nhsNumberKey = config.nhsNumberKey;
+    nhsNumberKey = NHS_NUMBER_KEY;
   }
 
   nhsNumber = apiValidation.validations[nhsNumberKey];
@@ -53,13 +58,13 @@ export async function findMatchingObject(endpoint: string, responseBody: any[], 
 
   matchingObjects = responseBody.filter((item: Record<string, any>) =>
     item[nhsNumberKey] == nhsNumber ||
-    item.NhsNumber  == nhsNumber ||
+    item.NhsNumber == nhsNumber ||
     item.NHSNumber == nhsNumber
   );
 
   matchingObject = matchingObjects[matchingObjects.length - 1];
 
-  if (endpoint.includes(config.exceptionManagementService) &&
+  if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) &&
     (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
     const ruleIdToFind = apiValidation.validations.RuleId;
     const ruleDescToFind = apiValidation.validations.RuleDescription;
@@ -84,35 +89,7 @@ export async function validateFields(apiValidation: any, matchingObject: any, nh
 
   for (const [fieldName, expectedValue] of fieldsToValidate) {
     if (fieldName === "expectedCount") {
-      console.info(`🚧 Count check with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
-
-      let actualCount = 0;
-      if (matchingObjects && Array.isArray(matchingObjects)) {
-        actualCount = matchingObjects.length;
-      } else if (matchingObjects === null || matchingObjects === undefined) {
-        actualCount = 0;
-        console.warn(`⚠️ matchingObjects is ${matchingObjects === null ? 'null' : 'undefined'} for NHS Number ${nhsNumber}`);
-      } else {
-        actualCount = 1;
-        console.warn(`⚠️ matchingObjects is not an array for NHS Number ${nhsNumber}, treating as single object`);
-      }
-
-      console.info(`📊 Actual count: ${actualCount}, Expected count: ${expectedValue} for NHS Number ${nhsNumber}`);
-
-      const expectedCount = Number(expectedValue);
-
-      if (isNaN(expectedCount)) {
-        throw new Error(`❌ expectedCount value '${expectedValue}' is not a valid number for NHS Number ${nhsNumber}`);
-      }
-
-      // Perform the assertion
-      try {
-        expect(actualCount).toBe(expectedCount);
-        console.info(`✅ Count check completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
-      } catch (error) {
-        console.error(`❌ Count check failed for NHS Number ${nhsNumber}: Expected ${expectedCount}, but got ${actualCount}`);
-        throw error;
-      }
+      assertOnCounts(matchingObject, nhsNumber, matchingObjects, fieldName, expectedValue);
     }
 
     // Handle NHS Number validation specially for 204 responses

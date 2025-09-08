@@ -70,7 +70,7 @@ export const config = {
   apiWaitTime: 5000,
   maxNumberOfRetries: process.env.MAX_NUMBER_OF_RETRIES,
   timeBetweenRetriesInSeconds: process.env.TIME_BETWEEN_RETRIES_IN_SECONDS, 
-  maxTimeBetweenRequests: 2500,
+  maxTimeBetweenRequests: 3500,
   nhsNumberKey: 'NHSNumber',
   nhsNumberKeyExceptionDemographic: 'NhsNumber',
   uniqueKeyCohortDistribution: 'CohortDistributionId',

@@ -1,7 +1,7 @@
 import { expect } from "@playwright/test";
 
 export function  assertOnCounts(matchingObject: any, nhsNumber: any, matchingObjects: any, fieldName: string, expectedValue: unknown) {
-  console.info(`🚧 Count check with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
+ console.info(`🚧 Count check with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
 
     let actualCount = 0;
     if (matchingObjects && Array.isArray(matchingObjects)) {

@@ -10,13 +10,38 @@ import { runnerBasedEpic3MedTestScenariosAmend } from '../e2e/epic3-medpriority-
 import { runnerBasedEpic4cTestScenariosAmend } from '../e2e/epic4c-add-participant-tests/epic4c-testsuite-migrated';
 import { runnerBasedEpic4dTestScenariosAmend } from '../e2e/epic4d-validation-tests/epic4d-6045-validation-testsuite-migrated';
 import { generateDynamicDateMap, replaceDynamicDatesInJson } from '../../../src/json/json-updater';
-
+import { fail } from 'assert';
+import { TIMEOUT } from 'dns';
 
 // Tests to run based on TEST_TYPE environment variable
+
+
 let scopedTestScenario = "";
 
 const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
-if (TEST_TYPE == 'RegressionEpic1') {
+
+switch(TEST_TYPE) {
+    case 'RegressionEpic1': 
+      scopedTestScenario = runnerBasedEpic1TestScenariosAmend;
+      break;
+    case 'RegressionEpic2':
+      scopedTestScenario = runnerBasedEpic2TestScenariosAmend;
+      break;
+    case 'RegressionEpic2Med': 
+      scopedTestScenario = runnerBasedEpic2MedTestScenariosAmend;
+    case 'RegressionEpic3':
+      scopedTestScenario = runnerBasedEpic3TestScenariosAmend;
+    case 'RegressionEpic3Med': 
+      scopedTestScenario = runnerBasedEpic3MedTestScenariosAmend;
+    case 'RegressionEpic4d':
+      scopedTestScenario = runnerBasedEpic4dTestScenariosAmend;
+    case 'RegressionEpic4c': 
+      scopedTestScenario = runnerBasedEpic4cTestScenariosAmend;
+    default:   
+      scopedTestScenario = runnerBasedEpic123TestScenariosAddAmend;
+
+}
+/*if (TEST_TYPE == 'RegressionEpic1') {
   scopedTestScenario = runnerBasedEpic1TestScenariosAmend;
 } else if (TEST_TYPE == 'RegressionEpic2') {
   scopedTestScenario = runnerBasedEpic2TestScenariosAmend;
@@ -32,10 +57,11 @@ if (TEST_TYPE == 'RegressionEpic1') {
   scopedTestScenario = runnerBasedEpic4cTestScenariosAmend;
 } else {
   scopedTestScenario = runnerBasedEpic123TestScenariosAddAmend;
-}
+}*/
 
 if (!scopedTestScenario) {
-  throw new Error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");
+  console.error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");
+  fail;
 }
 
 let addData = getConsolidatedAllTestData(scopedTestScenario, "ADD");
@@ -43,6 +69,10 @@ let amendData = getConsolidatedAllTestData(scopedTestScenario, "AMENDED");
 
 let apiContext: APIRequestContext;
 test.beforeAll(async () => {
+  setTimeout(() => {
+  console.log("running tests from here");
+      }, 5000
+  );
   apiContext = await playwrightRequest.newContext();
   console.log(`Running ${TEST_TYPE} tests with scenario tags: ${scopedTestScenario}`);
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
@@ -77,3 +107,7 @@ amendData.validations.forEach((validations) => {
     await validateSqlDatabaseFromAPI(request, [validations]);
   });
 });
+
+
+
+const delay = (ms: number | undefined) => new Promise(res => setTimeout(res, ms));

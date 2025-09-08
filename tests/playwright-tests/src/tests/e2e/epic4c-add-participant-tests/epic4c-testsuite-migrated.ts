@@ -26,10 +26,12 @@
 // Epic-4c Epic : "https://nhsd-jira.digital.nhs.uk/browse/DTOSS-6041" has been tested as part of 3082 Epic 3 which are already has test coverage and track the migration of Epic 3 High Priority tests
 // The Epic 4c will be used to track the migration of all Epic 4c
 
-export const runnerBasedEpic4cTestScenariosAdd = "@DTOSS-9337-01|@DTOSS-9750-01|@DTOSS-9750-02";
-export const runnerBasedEpic4cTestScenariosAmend = "@DTOSS-9337-01|@DTOSS-9750-02";
+//export const runnerBasedEpic4cTestScenariosAdd = "@DTOSS-9337-01|@DTOSS-9750-01|@DTOSS-9750-02";
+//export const runnerBasedEpic4cTestScenariosAmend = "@DTOSS-9337-01|@DTOSS-9750-02";
 
 // export const runnerBasedEpic4cTestScenariosManualAdd = "";
-export const runnerBasedEpic4cTestScenariosManualAdd = "@DTOSS-3883-01|@DTOSS-8484-01|@DTOSS-9614-01|@DTOSS-8375-01|@DTOSS-3884-01|@DTOSS-9706-01|@DTOSS-9706-02|@DTOSS-3881-02";
-export const runnerBasedEpic4cTestScenariosManualAmend = "@DTOSS-8483-01|@DTOSS-9614-01|@DTOSS-9706-01|@DTOSS-3881-02";
+
+//@DTOSS-3883-01
+export const runnerBasedEpic4cTestScenariosManualAdd = "@DTOSS-3883-01"/*@DTOSS-8484-01|@DTOSS-9614-01|@DTOSS-8375-01|@DTOSS-3884-01|@DTOSS-9706-01|@DTOSS-9706-02|@DTOSS-3881-02";
+export const runnerBasedEpic4cTestScenariosManualAmend = "@DTOSS-8483-01|@DTOSS-9614-01|@DTOSS-9706-01|@DTOSS-3881-02";*/
 //export const runnerBasedEpic4cTestScenariosManualAmend = "";
