@@ -36,8 +36,8 @@ export async function updateExceptions(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      ExceptionId: exceptionId.toString(),
-      ServiceNowNumber: parsedData.data.serviceNowID,
+      ExceptionId: exceptionId,
+      ServiceNowId: parsedData.data.serviceNowID,
     }),
   });
 
