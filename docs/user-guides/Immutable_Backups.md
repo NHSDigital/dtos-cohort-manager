@@ -1,6 +1,6 @@
 # Immutable Backups in Cohort Manager
 
-This document provides an overview of the immutable backup strategy implemented in the Cohort Manager application. Immutable backups are crucial for ensuring data integrity and security, especially in environments where data is sensitive and must be protected against accidental or malicious alterations. 
+This document provides an overview of the immutable backup strategy implemented in the Cohort Manager application. Immutable backups are crucial for ensuring data integrity and security, especially in environments where data is sensitive and must be protected against accidental or malicious alterations.
 
 They are designed to be unchangeable and tamper-proof, providing a reliable way to restore data to a previous state if necessary, and take the place of the "One Off-Site" backup in the 3-2-1 backup strategy (Three copies of the data; Two separate media/types; One Off-Site).
 
@@ -17,6 +17,7 @@ Once created, this backup file is pushed to a Storage Account in the Audit subsc
 An Azure Devops pipeline ([Immutable Backup Task - Prod](https://dev.azure.com/nhse-dtos/dtos-cohort-manager/_build?definitionId=106)) has been created to run the container job at 02:00 UTC daily. This pipeline can be manually run on an ad-hoc basis to create additional backups if required.
 
 ## Restore Process
+
 A Container App Job (`ca-db-restore-uksouth`) has been deployed alongside the backup job described above that runs a similar PowerShell script to download a specified backup copy and restore it as a new copy of the Cohort Manager database.
 
 This can simply be run when required via the Azure Portal:
@@ -31,13 +32,13 @@ Run the job:
 
     ![Run container app job](./images/immutable_backups_image-1.png)
 
-2. Check progress:
+1. Check progress:
 
     ![alt text](./images/immutable_backups_image-2.png)
 
 * Use the Console Logs link to view the job output logs, which will help confirm the successes of the job (though there is a large amount of error handling within the script so any failures should cause the whole job to fail), and to help identify the cause of any failures.
 
-3. Once the backup has been restored as a copy of the original database, the steps described in the Confluence documentation to [Rename, Reset Retention Policies and Scale Down](https://nhsd-confluence.digital.nhs.uk/spaces/DTS/pages/1018845935/Azure+SQL+Database+Restore+Process) the Replaced Database must be followed to complete the full restore process.
+1. Once the backup has been restored as a copy of the original database, the steps described in the Confluence documentation to [Rename, Reset Retention Policies and Scale Down](https://nhsd-confluence.digital.nhs.uk/spaces/DTS/pages/1018845935/Azure+SQL+Database+Restore+Process) the Replaced Database must be followed to complete the full restore process.
 
 ## Managed Identities and Permissions
 
@@ -53,6 +54,7 @@ The identities must then also be added to the `sqlsvr_cohman_prod_uks_admin` Ent
 ## Container Images
 
 The Docker images for the Container App Jobs that carry out the Backup and the Restore are built and pushed to the Azure Container Registry via a pair of bash scripts located in the scripts directory:
+
 * [../../scripts/backups/db-backup-container/build.sh](../../scripts/backups/db-backup-container/build.sh)
 * [../../scripts/backups/db-restore-container/build.sh](../../scripts/backups/db-restore-container/build.sh)
 
