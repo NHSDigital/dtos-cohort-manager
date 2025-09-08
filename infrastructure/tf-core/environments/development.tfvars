@@ -237,6 +237,9 @@ container_app_environments = {
     db-management = {
       zone_redundancy_enabled = false
     }
+    wiremock = {
+      zone_redundancy_enabled = false
+    }
   }
 }
 
@@ -245,6 +248,14 @@ container_app_jobs = {
     db-management = {
       container_app_environment_key = "db-management"
       docker_image                  = "cohort-manager-db-migration"
+      container_registry_use_mi     = true
+      db_connection_string_name     = "DtOsDatabaseConnectionString"
+      add_user_assigned_identity    = true
+      replica_retry_limit           = 1
+    }
+    wiremock = {
+      container_app_environment_key = "wiremock"
+      docker_image                  = "cohort-manager-wiremock"
       container_registry_use_mi     = true
       db_connection_string_name     = "DtOsDatabaseConnectionString"
       add_user_assigned_identity    = true
