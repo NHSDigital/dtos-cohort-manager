@@ -34,7 +34,7 @@ export default defineConfig({
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: "https://localhost:3000",
+    baseURL: "http://localhost:3000",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on",
@@ -44,11 +44,21 @@ export default defineConfig({
     ignoreHTTPSErrors: true,
   },
 
+  // Auto-start the Next.js dev server for tests
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
+  },
+
   /* Configure projects for major browsers */
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+      },
     },
     // {
     //   name: "firefox",
