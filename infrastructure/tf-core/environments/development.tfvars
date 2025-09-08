@@ -56,6 +56,13 @@ regions = {
         service_delegation_name    = "Microsoft.App/environments"
         service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
       }
+      cohort-manager-wiremock = {
+        cidr_newbits               = 7
+        cidr_offset                = 7
+        delegation_name            = "Microsoft.App/environments"
+        service_delegation_name    = "Microsoft.App/environments"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+      }
     }
   }
 }
