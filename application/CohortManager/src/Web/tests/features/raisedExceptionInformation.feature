@@ -24,6 +24,10 @@ Feature: Raised exceptions page
         And I should not see the text input with label "Enter ServiceNow Case ID"
         And the button "Save and continue" should not be present
 
+    Scenario: Check for the presence of superseded by row when applicable
+        Given I see the row "superseded-by-row" in the summary list
+        And I see the text "444 444 4444" in the "superseded-by-value" row
+
     Scenario: Check for the change link functionality
         Given I see the link "Change ServiceNow Case ID" with the href "?edit=true#exception-status"
         When I go to the page "/participant-information/4001?edit=true#exception-status"

@@ -422,6 +422,23 @@ Then(
   }
 );
 
+// ---- Summary lists ----
+Then(
+  "I see the row {string} in the summary list",
+  async ({ page }, rowId: string) => {
+    const row = page.locator(`[data-testid="${rowId}"]`).first();
+    await test.expect(row).toBeVisible();
+  }
+);
+
+Then(
+  "I see the text {string} in the {string} row",
+  async ({ page }, text: string, rowId: string) => {
+    const row = page.locator(`[data-testid="${rowId}"]`).first();
+    await test.expect(row).toContainText(text);
+  }
+);
+
 // -------------------- Pagination --------------------
 function paginationLocator(page: Page) {
   return page.getByTestId("pagination").first();

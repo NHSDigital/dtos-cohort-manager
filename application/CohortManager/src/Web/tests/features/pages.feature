@@ -11,3 +11,8 @@ Feature: Legal and contact pages are reachable and accessible
       | /contact-us              | Get help with Cohort Manager  |
       | /cookies-policy          | Cookies on Cohort Manager     |
       | /terms-and-conditions    | Terms and conditions          |
+
+  Scenario: Check for 404 page
+    When I go to the page "/thispagedoesnotexist"
+    Then I should see the heading "Page not found"
+    And I see the link "Return to the homepage" with the href "/"
