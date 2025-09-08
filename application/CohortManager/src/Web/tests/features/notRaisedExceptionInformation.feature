@@ -1,7 +1,7 @@
 Feature: Not raised exceptions page
 
     Background:
-      Given I am signed in as "test@nhs.net" with password "Password123"
+        Given I sign in with a test account
       When I go to the page "/participant-information/2028"
       Then I should see the heading "Exception information"
       And I see the text "Local reference (exception ID): 2028"

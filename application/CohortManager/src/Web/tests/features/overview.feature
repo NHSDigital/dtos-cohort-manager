@@ -15,12 +15,12 @@ Feature: Overview page
 
   # Signed-in checks
   Scenario: Page has no accessibility issues when signed in
-    Given I am signed in as "test@nhs.net" with password "Password123"
+    Given I sign in with a test account
     When I go to the page "/"
     Then I should expect 0 accessibility issues
 
   Scenario Outline: Overview tiles are visible with correct links, text and counts
-    Given I am signed in as "test@nhs.net" with password "Password123"
+    Given I sign in with a test account
     When I go to the page "/"
     Then I see the link "<label>" with the href "<href>"
     And I see the text "<description>"
@@ -29,7 +29,7 @@ Feature: Overview page
     And I see the number in the third card (Reports) is greater than or equal to 0
 
     Examples:
-      | label      | href                    | description                                   |
-      | Not raised | /exceptions  | Exceptions to be raised with teams            |
-      | Raised     | /exceptions/raised      | Access and amend previously raised exceptions |
-      | Reports    | /reports                | To manage investigations into demographic changes |
+      | label      | href               | description                                   |
+      | Not raised | /exceptions        | Exceptions to be raised with teams            |
+      | Raised     | /exceptions/raised | Access and amend previously raised exceptions |
+      | Reports    | /reports           | To manage investigations into demographic changes |

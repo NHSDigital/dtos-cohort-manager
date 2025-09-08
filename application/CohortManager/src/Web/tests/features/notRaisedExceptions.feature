@@ -1,7 +1,7 @@
 Feature: Not raised exceptions page
 
   Background:
-    Given I am signed in as "test@nhs.net" with password "Password123"
+    Given I sign in with a test account
     When I go to the page "/exceptions"
     Then I should see the heading "Not raised breast screening exceptions"
 

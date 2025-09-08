@@ -1,7 +1,7 @@
 Feature: Raised exceptions page
 
     Background:
-      Given I am signed in as "test@nhs.net" with password "Password123"
+      Given I sign in with a test account
       When I go to the page "/exceptions/raised"
       Then I should see the heading "Raised breast screening exceptions"
 
