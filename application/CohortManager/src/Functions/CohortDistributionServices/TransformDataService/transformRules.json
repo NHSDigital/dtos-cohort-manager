@@ -54,7 +54,8 @@
           {
             "Name": "WelshCurrentPosting",
             "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\""
-          },{
+          },
+          {
             "Name": "NoTransformationRequired",
             "Expression": "existingParticipant.PrimaryCareProvider == null && existingParticipant.ReasonForRemoval == \"ORR\""
           }
@@ -69,34 +70,6 @@
                   "isExpression": false,
                   "field": "PrimaryCareProvider",
                   "value": null
-                }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider",
-        "Expression": "(!string.IsNullOrEmpty(participant.PrimaryCareProvider) && participant.InvalidFlag  == \"1\") OR participant.RecordType == Actions.Removed",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "TransformAction",
-            "Context": {
-              "transformFields": [
-                {
-                  "field": "PrimaryCareProvider",
-                  "value": "",
-                  "isExpression": false
-                },
-                {
-                  "field": "ReasonForRemoval",
-                  "value": "ORR",
-                  "isExpression": false
-                },
-                {
-                  "field": "ReasonForRemovalEffectiveFromDate",
-                  "value": "DateTime.UtcNow.Date.ToString(\"yyyyMMdd\")",
-                  "isExpression": true
                 }
               ]
             }
@@ -130,30 +103,40 @@
             }
           }
         }
-      },
-      {
-        "RuleName": "00.RecordDeleted",
-        "Expression": "participant.RecordType == Actions.Removed",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "TransformAction",
-            "Context": {
-              "transformFields": [
-                {
-                  "isExpression": false,
-                  "field": "ReasonForRemoval",
-                  "value": "ORR"
-                }
-              ]
-            }
-          }
-        }
       }
     ]
   },
   {
     "WorkflowName": "Common",
     "Rules": [
+      {
+        "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider",
+        "Expression": "(!string.IsNullOrEmpty(participant.PrimaryCareProvider) && participant.InvalidFlag  == \"1\") OR participant.RecordType == Actions.Removed",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "PrimaryCareProvider",
+                  "value": "",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemoval",
+                  "value": "ORR",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": "DateTime.UtcNow.Date.ToString(\"yyyyMMdd\")",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      },
       {
         "RuleName": "1.Truncate.NamePrefix.ExceedsMaximumLength",
         "Expression": "!string.IsNullOrEmpty(participant.NamePrefix) && participant.NamePrefix.Length > 35",
@@ -652,7 +635,7 @@
             "Expression": "string.IsNullOrEmpty(existingParticipant.DateOfBirth) ? null : existingParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
           }
         ],
-        "Expression": "participant.RecordType == Actions.Amended && existingParticipant.ParticipantId != null && ((participant.FamilyName != existingParticipant.FamilyName AND participant.Gender != existingParticipant.Gender) OR (participant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
+        "Expression": "participant.RecordType == Actions.Amended && (existingParticipant.ParticipantId != null || existingParticipant.ParticipantId != \"0\") && ((participant.FamilyName != existingParticipant.FamilyName AND participant.Gender != existingParticipant.Gender) OR (participant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
       },
       {
         "RuleName": "17.Other.AddressLinesBlankAndPostcodeMatchesExistingRecord",
