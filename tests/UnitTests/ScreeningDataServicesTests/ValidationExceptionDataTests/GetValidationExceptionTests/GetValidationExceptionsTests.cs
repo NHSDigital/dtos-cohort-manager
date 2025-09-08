@@ -137,7 +137,6 @@ public class GetValidationExceptionsTests
             CurrentPage = 1,
             TotalItems = 3,
             TotalPages = 1,
-            PageSize = 10
         };
 
         var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", "3" } };
@@ -175,7 +174,6 @@ public class GetValidationExceptionsTests
             CurrentPage = 1,
             TotalItems = reportExceptions.Count,
             TotalPages = 1,
-            PageSize = 10
         };
 
         var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", "2" } };
@@ -237,7 +235,6 @@ public class GetValidationExceptionsTests
             CurrentPage = 1,
             TotalItems = allReportExceptions.Count,
             TotalPages = 1,
-            PageSize = 10
         };
 
         var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", allReportExceptions.Count.ToString() } };
@@ -280,7 +277,6 @@ public class GetValidationExceptionsTests
             CurrentPage = 1,
             TotalItems = todaysReportExceptions.Count,
             TotalPages = 1,
-            PageSize = 10
         };
 
         var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", todaysReportExceptions.Count.ToString() } };
@@ -343,7 +339,6 @@ public class GetValidationExceptionsTests
             CurrentPage = 1,
             TotalItems = boExceptions.Count,
             TotalPages = 1,
-            PageSize = 10
         };
 
         var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", boExceptions.Count.ToString() } };
@@ -394,7 +389,6 @@ public class GetValidationExceptionsTests
             CurrentPage = pageNumber,
             TotalItems = filteredAndSortedExceptions.Count,
             TotalPages = 2,
-            PageSize = 1
         };
 
         var expectedHeaders = new Dictionary<string, string>
@@ -487,7 +481,6 @@ public class GetValidationExceptionsTests
             CurrentPage = 1,
             TotalItems = 0,
             TotalPages = 0,
-            PageSize = 10
         };
 
         var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", "0" } };
@@ -553,7 +546,6 @@ public class GetValidationExceptionsTests
             CurrentPage = 1,
             TotalItems = 2,
             TotalPages = 1,
-            PageSize = 10
         };
 
         var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", "2" } };
@@ -594,7 +586,6 @@ public class GetValidationExceptionsTests
             CurrentPage = 1,
             TotalItems = sortedExceptions.Count,
             TotalPages = 1,
-            PageSize = 10
         };
 
         var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", sortedExceptions.Count.ToString() } };
@@ -635,7 +626,6 @@ public class GetValidationExceptionsTests
             CurrentPage = pageNumber,
             TotalItems = _exceptionList.Count,
             TotalPages = 3,
-            PageSize = 2
         };
 
         var expectedHeaders = new Dictionary<string, string> {
@@ -681,7 +671,7 @@ public class GetValidationExceptionsTests
             CurrentPage = 1,
             TotalItems = _exceptionList.Count,
             TotalPages = 1,
-            PageSize = 10
+
         };
 
         var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", _exceptionList.Count.ToString() } };
@@ -720,7 +710,7 @@ public class GetValidationExceptionsTests
             CurrentPage = 1,
             TotalItems = _exceptionList.Count,
             TotalPages = 1,
-            PageSize = 10
+
         };
 
         var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", _exceptionList.Count.ToString() } };
@@ -780,7 +770,7 @@ public class GetValidationExceptionsTests
             CurrentPage = 1,
             TotalItems = reportExceptions.Count,
             TotalPages = 1,
-            PageSize = 10
+
         };
 
         var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", reportExceptions.Count.ToString() } };
