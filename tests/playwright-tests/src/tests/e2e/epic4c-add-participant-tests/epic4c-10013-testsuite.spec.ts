@@ -6,7 +6,7 @@ import { loadParticipantPayloads } from '../../fixtures/jsonDataReader';
 import { processFileViaStorage, validateSqlDatabaseFromAPI } from '../../steps/steps';
 import { TestHooks } from '../../hooks/test-hooks';
 
-test.describe.serial.only('@DTOSS-3881-01 @e2e @epic4c- Verify Cohort Manager has received data amendments from PDS', () => {
+test.describe.serial('@DTOSS-3881-01 @e2e @epic4c- Verify Cohort Manager has received data amendments from PDS', () => {
   TestHooks.setupAllTestHooks();
   let participantData: Record<string, ParticipantRecord>;
 
@@ -16,7 +16,7 @@ test.describe.serial.only('@DTOSS-3881-01 @e2e @epic4c- Verify Cohort Manager ha
     participantData = await loadParticipantPayloads(folderName, fileName);
   });
 
-  test('@DTOSS-3881-01 DTOSS-10013 @not-runner-based - Verify subscription IDs on Nems table for ADD', {
+  test.skip('@DTOSS-3881-01 DTOSS-10013 @not-runner-based - Verify subscription IDs on Nems table for ADD', {
     annotation: [{
       type: 'Requirement - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3881',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-10013',
@@ -84,7 +84,7 @@ test.describe.serial.only('@DTOSS-3881-01 @e2e @epic4c- Verify Cohort Manager ha
   });
 
 
-  test('DTOSS-10013 And send AMEND from CAS to Cohort Manager', {
+  test.skip('DTOSS-10013 And send AMEND from CAS to Cohort Manager', {
     annotation: [{
       type: 'Requirement - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-3881',
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-10013',

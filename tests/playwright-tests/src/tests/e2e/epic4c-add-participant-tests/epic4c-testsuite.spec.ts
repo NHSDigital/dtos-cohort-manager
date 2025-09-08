@@ -1,11 +1,11 @@
-import { test, expect, APIRequestContext } from '@playwright/test';
+import { test} from '@playwright/test';
 import { composeValidators, expectStatus } from '../../../api/responseValidators';
 import { receiveParticipantViaServiceNow, invalidServiceNowEndpoint } from '../../../api/distributionService/bsSelectService';
-import { loadParticipantPayloads, omitField } from '../../fixtures/jsonDataReader';
+import { loadParticipantPayloads } from '../../fixtures/jsonDataReader';
 import { ParticipantRecord } from '../../../interface/InputData';
 
 
-test.describe.serial.only('@DTOSS-3880 @service_now @api @not-runner-based receive valid participant from serviceNow api', () => {
+test.describe.serial('@DTOSS-3880 @epic4c- @api @not-runner-based receive valid participant from serviceNow api', () => {
   let participantData: Record<string, ParticipantRecord>;
 
   test.beforeAll(async () => {
@@ -55,8 +55,9 @@ test.describe.serial.only('@DTOSS-3880 @service_now @api @not-runner-based recei
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-8424',
     });
 
+    const payload = participantData['validParticipantRecord-routine'];
+
     await test.step('Given a valid ROUTINE participant is received, then response code is 202', async () => {
-      const payload = participantData['validParticipantRecord-routine'];
       const response = await receiveParticipantViaServiceNow(request, payload);
 
       const validators = composeValidators(
@@ -158,12 +159,10 @@ test.describe.serial.only('@DTOSS-3880 @service_now @api @not-runner-based recei
       description: 'Tests - https://nhsd-jira.digital.nhs.uk/browse/DTOSS-8424',
     });
 
-    const originalPayload = participantData['validParticipantRecord-vhr'];
+    const invalidDateofBirth = participantData['inValidParticipantRecordDateofBirth'];
 
     await test.step('Given a participant with missing mandatory field is received, then response code is 400', async () => {
-      const deleteAField = omitField(originalPayload, 'u_case_variable_data.date_of_birth');
-      const response = await receiveParticipantViaServiceNow(request, originalPayload);
-      expect((await deleteAField).u_case_variable_data?.date_of_birth).toBeUndefined();
+      const response = await receiveParticipantViaServiceNow(request, invalidDateofBirth);
       const validators = composeValidators(
         expectStatus(400)
       );
