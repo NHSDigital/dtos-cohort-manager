@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using NHS.Screening.NemsMeshRetrieval;
 using HealthChecks.Extensions;
 using Azure.Security.KeyVault.Secrets;
-using NHS.CohortManager.CaasIntegrationService;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -20,7 +19,7 @@ try
 {
     var host = new HostBuilder();
 
-    X509Certificate2 cohortManagerPrivateKey = null;
+    X509Certificate2 cohortManagerPrivateKey = null!;
     X509Certificate2Collection meshCerts = [];
 
     host.AddConfiguration<NemsMeshRetrievalConfig>(out NemsMeshRetrievalConfig config);
@@ -82,5 +81,4 @@ catch (Exception ex)
 {
     logger.LogCritical(ex, "Failed to start up Function");
 }
-
 

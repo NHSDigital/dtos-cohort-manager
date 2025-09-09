@@ -29,7 +29,10 @@
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9996534472,
-        "RecordType": "AMENDED"
+        "RecordType": "AMENDED",
+        "EligibilityFlag": 1,
+        "ScreeningId": 1,
+        "ReferralFlag": 1
       },
       "meta": {
         "testJiraId": "@DTOSS-3881-02",
