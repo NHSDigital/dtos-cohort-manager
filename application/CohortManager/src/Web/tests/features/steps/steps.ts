@@ -158,8 +158,6 @@ Then(
   }
 );
 
-// Removed unused variants and overly generic element checks
-
 // Generic visibility for ONLY link or text
 Then(
   /^I see the (link|text) "([^"]+)"$/,
@@ -192,8 +190,6 @@ Then(
     await test.expect(link).toHaveAttribute("href", expectedHref);
   }
 );
-
-// Removed unused numeric-in-element assertion
 
 Then(
   /^I see the number in the (first|second|third) card(?: \(([^)]+)\))? is greater than or equal to (\d+)$/,
@@ -314,8 +310,6 @@ Then("I see the table heading {string}", async ({ page }, heading: string) => {
   await test.expect(page.getByRole("columnheader", { name })).toBeVisible();
 });
 
-// Removed unused ServiceNow ID text check
-
 // Text input presence
 Then(
   "I see the text input with label {string}",
@@ -324,10 +318,6 @@ Then(
     await test.expect(input).toBeVisible();
   }
 );
-
-// Removed unused list values assertion
-
-// Removed unused negative H1 assertion (secondary heading version is kept and used)
 
 // Negative text input presence
 Then(
@@ -368,5 +358,3 @@ Then(
 function paginationLocator(page: Page) {
   return page.getByTestId("pagination").first();
 }
-
-// Removed unused pagination variants; keeping the alias steps used by features above
