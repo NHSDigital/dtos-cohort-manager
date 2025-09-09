@@ -208,6 +208,7 @@ variable "container_app_jobs" {
       env_vars_static               = optional(map(string), {})
       add_user_assigned_identity    = optional(bool, false)
       replica_retry_limit           = optional(number, 3)
+      replica_timeout_in_seconds    = optional(number, 300)
     })), {})
   })
 }
