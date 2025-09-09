@@ -56,13 +56,6 @@ regions = {
         service_delegation_name    = "Microsoft.App/environments"
         service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
       }
-      cohort-manager-wiremock = {
-        cidr_newbits               = 7
-        cidr_offset                = 7
-        delegation_name            = "Microsoft.App/environments"
-        service_delegation_name    = "Microsoft.App/environments"
-        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
-      }
     }
   }
 }
@@ -244,9 +237,6 @@ container_app_environments = {
     db-management = {
       zone_redundancy_enabled = false
     }
-    wiremock = {
-      zone_redundancy_enabled = false
-    }
   }
 }
 
@@ -257,13 +247,6 @@ container_app_jobs = {
       docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
       db_connection_string_name     = "DtOsDatabaseConnectionString"
-      add_user_assigned_identity    = true
-      replica_retry_limit           = 1
-    }
-    wiremock = {
-      container_app_environment_key = "wiremock"
-      docker_image                  = "cohort-manager-wiremock"
-      container_registry_use_mi     = true
       add_user_assigned_identity    = true
       replica_retry_limit           = 1
     }
@@ -1171,6 +1154,14 @@ function_apps = {
         }
       ]
     }
+
+    WireMock = {
+      name_suffix                  = "wiremock"
+      function_endpoint_name       = "Wiremock"
+      app_service_plan_key         = "NonScaling"
+      db_connection_string         = "DtOsDatabaseConnectionString"
+      storage_account_env_var_name = "wiremockfolder_STORAGE"
+    }
   }
 }
 
@@ -1358,6 +1349,9 @@ storage_accounts = {
       }
       nems-poison = {
         container_name = "nems-poison"
+      }
+      wiremock = {
+        container_name = "wiremock"
       }
     }
   }
