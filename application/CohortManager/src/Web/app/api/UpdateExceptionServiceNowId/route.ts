@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import mockDataStore from "@/app/data/mockDataStore";
 
 interface UpdateExceptionRequest {
-  ExceptionId: string;
-  ServiceNowNumber?: string;
+  ExceptionId: number | string;
+  ServiceNowId?: string;
 }
 export async function PUT(request: NextRequest) {
   try {
@@ -22,8 +22,8 @@ export async function PUT(request: NextRequest) {
     if (!requestBody || requestBody.trim() === "") {
       console.warn("Request body is empty.");
       return NextResponse.json(
-        { message: "Request body is empty" },
-        { status: 204 }
+        { error: "Request body cannot be empty." },
+        { status: 400 }
       );
     }
 
@@ -40,17 +40,20 @@ export async function PUT(request: NextRequest) {
     }
 
     // 3. Validate ExceptionId
-    if (!updateRequest.ExceptionId) {
+    if (updateRequest?.ExceptionId == null) {
       console.warn("ExceptionId is missing.");
       return NextResponse.json(
         { error: "ExceptionId is required" },
         { status: 400 }
       );
     }
-
-    const exceptionId = parseInt(updateRequest.ExceptionId, 10);
-    if (isNaN(exceptionId) || exceptionId === 0) {
-      console.warn("Invalid ExceptionId provided:", updateRequest.ExceptionId);
+    const rawExceptionId = updateRequest.ExceptionId;
+    const exceptionId =
+      typeof rawExceptionId === "number"
+        ? rawExceptionId
+        : parseInt(rawExceptionId, 10);
+    if (!Number.isFinite(exceptionId) || exceptionId <= 0) {
+      console.warn("Invalid ExceptionId provided:", rawExceptionId);
       return NextResponse.json(
         { error: "Invalid ExceptionId provided" },
         { status: 400 }
@@ -60,16 +63,16 @@ export async function PUT(request: NextRequest) {
     // 4. Check & Fetch Exception Record from shared data store
     const exceptionData = mockDataStore.getException(exceptionId);
     if (!exceptionData) {
-      console.warn(`No exception found with ID: ${exceptionId}`);
+      console.warn(`Exception with ID ${exceptionId} not found`);
       return NextResponse.json(
-        { message: `No exception found with ID: ${exceptionId}` },
-        { status: 204 }
+        { error: `Exception with ID ${exceptionId} not found` },
+        { status: 404 }
       );
     }
 
     // 5. Update Exception Record with ServiceNow number using the data store
     const originalServiceNowId = exceptionData.ServiceNowId;
-    const newServiceNowId = updateRequest.ServiceNowNumber || "";
+    const newServiceNowId = (updateRequest.ServiceNowId ?? "").trim();
 
     // Use the data store's update method to ensure consistency across both APIs
     const updateSuccess = mockDataStore.updateExceptionServiceNow(
@@ -89,9 +92,14 @@ export async function PUT(request: NextRequest) {
     // Get the updated exception to return current values
     const updatedException = mockDataStore.getException(exceptionId);
 
+    const changed = originalServiceNowId !== newServiceNowId;
+    const message = changed
+      ? "ServiceNowId updated successfully"
+      : "ServiceNowId unchanged, but record timestamp updated";
+
     return NextResponse.json(
       {
-        message: "Exception record updated with ServiceNow number successfully",
+        message,
         exceptionId: exceptionId,
         previousServiceNowId: originalServiceNowId,
         newServiceNowId: newServiceNowId,
