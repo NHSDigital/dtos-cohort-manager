@@ -1,7 +1,10 @@
 namespace Common;
 
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Hl7.Fhir.Validation;
+using Model;
 
 public static class ValidationHelper
 {
@@ -88,14 +91,12 @@ public static class ValidationHelper
     public static bool ValidatePostcode(string postcode)
     {
         string validPostcodePattern = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$";
-        string dummyPostcodePattern1 = "^ZZ99 ?[0-9][A-Z]{2}$";
-        string dummyPostcodePattern2 = "^ZZZSECUR$";
+        string dummyPostcodePattern = "^ZZ99 ?[0-9][A-Z]{2}$";
 
         Match validPostcodeMatch = Regex.Match(postcode, validPostcodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
-        Match dummyPostcodeMatch1 = Regex.Match(postcode, dummyPostcodePattern1, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
-        Match dummyPostcodeMatch2 = Regex.Match(postcode, dummyPostcodePattern2, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+        Match dummyPostcodeMatch = Regex.Match(postcode, dummyPostcodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
 
-        if (validPostcodeMatch.Success || dummyPostcodeMatch1.Success || dummyPostcodeMatch2.Success)
+        if (validPostcodeMatch.Success || dummyPostcodeMatch.Success)
             return true;
 
         return false;
@@ -114,13 +115,13 @@ public static class ValidationHelper
         string pattern = @"^([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
 
         Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+
         if (!match.Success)
         {
             return null;
         }
 
         string outcode = match.Groups[1].Value;
-
         return outcode;
     }
 

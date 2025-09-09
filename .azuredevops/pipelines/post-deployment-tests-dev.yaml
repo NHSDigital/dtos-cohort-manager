@@ -4,7 +4,7 @@ trigger: none
 pr: none
 
 schedules:
-  - cron: "15 7 * * 1-5" # Every weekday (Mon-Fri) at 07:15 UTC i.e 8:15 BST
+  - cron: "00 5 * * 1-5" # Every weekday (Mon-Fri) at 05:00 UTC i.e 06:00 BST
     displayName: Weekdays run
     branches:
       include:
@@ -16,7 +16,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: d6d6e3e99459d9d71a83fa5affa900a6c339a3b5
+      ref: 5603d4113500a7df3d7320e675fef9598c3aac65
       endpoint: NHSDigital
 
 variables:
@@ -41,6 +41,8 @@ parameters:
       - regression_e2e_epic1Med
       - regression_e2e_epic2Med
       - regression_e2e_epic3Med
+      - regression_e2e_epic4c
+      - regression_e2e_epic4d
 
 stages:
   - ${{ each testType in parameters.testTypes }}:
@@ -60,6 +62,10 @@ stages:
           dependsOn: regression_e2e_epic1Med_stage
         ${{ if eq(testType, 'regression_e2e_epic3Med') }}:
           dependsOn: regression_e2e_epic2Med_stage
+        ${{ if eq(testType, 'regression_e2e_epic4c') }}:
+          dependsOn: regression_e2e_epic3Med_stage
+        ${{ if eq(testType, 'regression_e2e_epic4d') }}:
+          dependsOn: regression_e2e_epic4c_stage
         condition: succeededOrFailed()
         variables:
           TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}

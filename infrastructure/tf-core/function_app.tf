@@ -39,8 +39,9 @@ module "functionapp" {
   cont_registry_use_mi = var.function_apps.cont_registry_use_mi
 
   # Other Function App configuration settings:
-  always_on    = var.function_apps.always_on
-  worker_32bit = var.function_apps.worker_32bit
+  always_on     = var.function_apps.always_on
+  worker_32bit  = var.function_apps.worker_32bit
+  http2_enabled = var.function_apps.http2_enabled
 
   acr_mi_client_id = data.azurerm_user_assigned_identity.acr_mi.client_id
   acr_login_server = data.azurerm_container_registry.acr.login_server
@@ -110,6 +111,7 @@ locals {
   app_settings_common = {
     DOCKER_ENABLE_CI                    = var.function_apps.docker_CI_enable
     FUNCTION_WORKER_RUNTIME             = "dotnet-isolated"
+
     REMOTE_DEBUGGING_ENABLED            = var.function_apps.remote_debugging_enabled
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.function_apps.enable_appsrv_storage
     WEBSITE_PULL_IMAGE_OVER_VNET        = var.function_apps.pull_image_over_vnet
@@ -163,7 +165,7 @@ locals {
 
             # Database connection string
             length(config.db_connection_string) > 0 ? {
-              (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=300;"
+              (config.db_connection_string) = "Server=${module.regions_config[region].names.sql-server}.database.windows.net; Authentication=Active Directory Managed Identity; Database=${var.sqlserver.dbs.cohman.db_name_suffix}; ApplicationIntent=ReadWrite; Pooling=true; Connection Timeout=30; Max Pool Size=100;"
             } : {},
 
             # Service Bus connections are stored in the config as a list of strings, so we need to iterate over them

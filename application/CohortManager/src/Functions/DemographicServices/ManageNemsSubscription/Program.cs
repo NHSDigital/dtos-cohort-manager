@@ -6,27 +6,41 @@ using Common;
 using NHS.CohortManager.DemographicServices;
 using DataServices.Database;
 using Microsoft.Extensions.Logging;
+using System.Security.Cryptography.X509Certificates;
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var logger = loggerFactory.CreateLogger("Program");
 
 var host = new HostBuilder();
 
+
+logger.LogInformation("Application Has Started");
 // Load configuration
 host.AddConfiguration<ManageNemsSubscriptionConfig>(out ManageNemsSubscriptionConfig config);
 
 var nemsConfig = config;
 
-// Load NEMS certificate up-front and inject into DI
-var nemsCertificate = await nemsConfig.LoadNemsCertificateAsync(logger);
+X509Certificate2 nemsCertificate;
+
+if (nemsConfig.IsStubbed)
+{
+    logger.LogInformation("ManageNemsSubscription is running in stubbed mode; skipping certificate load.");
+    nemsCertificate = new X509Certificate2();
+}
+else
+{
+    nemsCertificate = await nemsConfig.LoadNemsCertificateAsync(logger);
+}
+
 
 host.ConfigureFunctionsWebApplication();
 host.AddHttpClient()
-    .AddNemsHttpClient()
+    .AddNemsHttpClient(nemsConfig.IsStubbed)
     .ConfigureServices(services =>
     {
         // Register NEMS certificate
         services.AddSingleton(nemsCertificate);
+
 
         // Register NEMS subscription manager
         services.AddScoped<NemsSubscriptionManager>();

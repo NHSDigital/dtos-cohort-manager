@@ -93,6 +93,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageNemsSubscription\ManageNemsSubscription.csproj" />
+    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageCaasSubscription\ManageCaasSubscription.csproj" />
   </ItemGroup>
 
   <!-- Cohort Distribution Services -->
@@ -119,9 +120,8 @@
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\ProcessNemsUpdate\ProcessNemsUpdate.csproj" />
   </ItemGroup>
 
-    <!-- Service Now Integration Services -->
+  <!-- ServiceNow Integration Services -->
   <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegrationService\SendServiceNowMessage\SendServiceNowMessage.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegration\ServiceNowMessageHandler\ServiceNowMessageHandler.csproj" />
     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegration\ServiceNowCohortLookup\ServiceNowCohortLookup.csproj" />
   </ItemGroup>
@@ -139,7 +139,7 @@
     <ProjectReference Include="JWTTokenServiceTests\JWTTokenServiceTests.csproj" />
   </ItemGroup>
 
-  
+
   <!-- Content files to be copied to output directory -->
   <ItemGroup>
     <None Update="**\*.json;**\*.parquet" CopyToOutputDirectory="PreserveNewest" />

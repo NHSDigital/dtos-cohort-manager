@@ -1,4 +1,5 @@
 namespace NHS.CohortManager.Tests.UnitTests.ScreeningValidationServiceTests;
+
 using System.Net;
 using System.Text;
 using System.Text.Json;
@@ -207,6 +208,7 @@ public class StaticValidationTests
     [DataRow("ZZ99 9FZ")]
     [DataRow("ZZ999FZ")]
     [DataRow("ZZ99 3WZ")]
+    [DataRow("ZZZSECUR")]
     public async Task Run_ValidPostcode_ReturnNoContent(string postcode)
     {
         // Arrange
@@ -599,47 +601,6 @@ public class StaticValidationTests
     }
     #endregion
 
-    #region Validate Reason For Removal (Rule 62)
-    [TestMethod]
-    [DataRow("123456", "LDN", null)]
-    [DataRow(null, "ABC", null)]
-    [DataRow(null, null, "EC12AB")]
-    public async Task Run_ValidRfr_ReturnNoContent(string? supersededByNhsNumber, string? ReasonForRemoval, string? pcp)
-    {
-        // Arrange
-        _participant.SupersededByNhsNumber = supersededByNhsNumber;
-        _participant.ReasonForRemoval = ReasonForRemoval;
-        _participant.PrimaryCareProvider = pcp;
-        _participant.RecordType = Actions.Amended;
-
-        var json = JsonSerializer.Serialize(_participant);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-    }
-
-    [TestMethod]
-    [DataRow(null, "LDN")]
-    public async Task Run_InvalidRfr_ReturnValidationException(string? supersededByNhsNumber, string ReasonForRemoval)
-    {
-        // Arrange
-        _participant.SupersededByNhsNumber = supersededByNhsNumber;
-        _participant.ReasonForRemoval = ReasonForRemoval;
-        var json = JsonSerializer.Serialize(_participant);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _function.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        StringAssert.Contains(body, "62.ValidateReasonForRemoval.NBO.NonFatal");
-    }
-    #endregion
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
@@ -678,46 +639,6 @@ public class StaticValidationTests
         _participant.PrimaryCareProvider = primaryCareProvider;
         _participant.ReasonForRemoval = rfr;
         _participant.RecordType = Actions.Amended;
-        var json = JsonSerializer.Serialize(_participant);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-    }
-    #endregion
-
-    #region Validate Eligibility Flag as per Record Type (Rule 94)
-    [TestMethod]
-    [DataRow(Actions.New, "0")]
-    [DataRow(Actions.Removed, "1")]
-    public async Task Run_InvalidEligibilityFlag_ReturnValidationException(string recordType, string eligibilityFlag)
-    {
-        // Arrange
-        _participant.RecordType = recordType;
-        _participant.EligibilityFlag = eligibilityFlag;
-        var json = JsonSerializer.Serialize(_participant);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _function.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        StringAssert.Contains(body, "94.EligibilityFlag.CaaS.NonFatal");
-    }
-
-    [TestMethod]
-    [DataRow(Actions.New, "1")]
-    [DataRow(Actions.Removed, "0")]
-    [DataRow(Actions.Amended, "1")]
-    public async Task Run_ValidEligibilityFlag_ReturnNoContent(string recordType, string eligibilityFlag)
-    {
-        // Arrange
-        _participant.RecordType = recordType;
-        _participant.EligibilityFlag = eligibilityFlag;
         var json = JsonSerializer.Serialize(_participant);
         SetUpRequestBody(json);
 

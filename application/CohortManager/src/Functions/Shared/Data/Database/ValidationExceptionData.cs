@@ -2,7 +2,9 @@ namespace Data.Database;
 
 using System;
 using System.Data;
+using System.Net;
 using System.Threading.Tasks;
+using Common;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
@@ -79,28 +81,120 @@ public class ValidationExceptionData : IValidationExceptionData
         return false;
     }
 
-    public async Task<bool> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId)
+    public async Task<ServiceResponseModel> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId)
     {
         try
         {
-            var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
-
-            if (exception == null)
+            serviceNowId = serviceNowId?.Trim() ?? string.Empty;
+            var validationError = ValidateServiceNowId(serviceNowId);
+            if (validationError != null)
             {
-                _logger.LogWarning("Exception with ID {ExceptionId} not found", exceptionId);
-                return false;
+                return CreateErrorResponse(validationError, HttpStatusCode.BadRequest);
             }
 
-            exception.ServiceNowId = serviceNowId;
+            var exception = await _validationExceptionDataServiceClient.GetSingle(exceptionId.ToString());
+            if (exception == null)
+            {
+                return CreateErrorResponse($"Exception with ID {exceptionId} not found", HttpStatusCode.NotFound);
+            }
+
+            var serviceNowIdChanged = serviceNowId != exception.ServiceNowId;
+            var isNullServiceNowId = string.IsNullOrWhiteSpace(serviceNowId);
+
+            exception.ServiceNowId = isNullServiceNowId ? null : serviceNowId;
+            exception.ServiceNowCreatedDate = isNullServiceNowId ? null : DateTime.UtcNow;
             exception.RecordUpdatedDate = DateTime.UtcNow;
 
-            return await _validationExceptionDataServiceClient.Update(exception);
+            var updateResult = await _validationExceptionDataServiceClient.Update(exception);
+            if (!updateResult)
+            {
+                return CreateErrorResponse($"Failed to update exception {exceptionId} in data service", HttpStatusCode.InternalServerError);
+            }
+
+            string successMessage = serviceNowIdChanged ? "ServiceNowId updated successfully" : "ServiceNowId unchanged, but record updated date has been updated";
+
+            return CreateSuccessResponse(successMessage);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating ServiceNowID for exception {ExceptionId}", exceptionId);
-            return false;
+            _logger.LogError(ex, "Error updating ServiceNowId for exception {ExceptionId}", exceptionId);
+            return CreateErrorResponse($"Error updating ServiceNowId for exception {exceptionId}", HttpStatusCode.InternalServerError);
         }
+    }
+
+    public async Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory)
+    {
+        if (exceptionCategory is not (ExceptionCategory.Confusion or ExceptionCategory.Superseded or ExceptionCategory.NBO))
+        {
+            return [];
+        }
+
+        var filteredExceptions = (await _validationExceptionDataServiceClient.GetByFilter(x =>
+            x.Category.HasValue && (x.Category.Value == (int)ExceptionCategory.Confusion || x.Category.Value == (int)ExceptionCategory.Superseded)))?.AsEnumerable();
+
+        if (exceptionCategory == ExceptionCategory.Confusion || exceptionCategory == ExceptionCategory.Superseded)
+        {
+            filteredExceptions = filteredExceptions?.Where(x => x.Category.HasValue && x.Category.Value == (int)exceptionCategory);
+        }
+
+        if (reportDate.HasValue)
+        {
+            var startDate = reportDate.Value.Date;
+            var endDate = startDate.AddDays(1);
+            filteredExceptions = filteredExceptions?.Where(x => x.DateCreated >= startDate && x.DateCreated < endDate);
+        }
+
+        if (filteredExceptions?.Any() != true)
+            return [];
+
+        var tasks = filteredExceptions.Select(async exception =>
+        {
+            var validationException = exception.ToValidationException();
+            var participantDemographic = long.TryParse(exception.NhsNumber, out long nhsNumber) ? await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber) : null;
+            return GetExceptionDetails(validationException, participantDemographic);
+        });
+
+        var results = await Task.WhenAll(tasks);
+        return results.Where(x => x != null).ToList()!;
+    }
+
+    private ServiceResponseModel CreateResponse(bool success, HttpStatusCode statusCode, string message)
+    {
+        if (!success)
+        {
+            _logger.LogWarning("Service error occurred: {ErrorMessage}", message);
+        }
+
+        return new ServiceResponseModel
+        {
+            Success = success,
+            StatusCode = statusCode,
+            Message = message,
+        };
+    }
+
+    private ServiceResponseModel CreateSuccessResponse(string message) => CreateResponse(true, HttpStatusCode.OK, message);
+    private ServiceResponseModel CreateErrorResponse(string message, HttpStatusCode statusCode) => CreateResponse(false, statusCode, message);
+
+    private static string? ValidateServiceNowId(string serviceNowId)
+    {
+        if (string.IsNullOrWhiteSpace(serviceNowId))
+        {
+            return null;
+        }
+        if (serviceNowId.Contains(' '))
+        {
+            return "ServiceNowId cannot contain spaces.";
+        }
+        if (serviceNowId.Length < 9)
+        {
+            return "ServiceNowId must be at least 9 characters long.";
+        }
+        if (!serviceNowId.All(char.IsLetterOrDigit))
+        {
+            return "ServiceNowId must contain only alphanumeric characters.";
+        }
+        return null;
     }
 
     private ValidationException? GetExceptionDetails(ValidationException? exception, ParticipantDemographic? participantDemographic)
@@ -125,7 +219,8 @@ public class ValidationExceptionData : IValidationExceptionData
             ParticipantPostCode = participantDemographic?.PostCode,
             TelephoneNumberHome = participantDemographic?.TelephoneNumberHome,
             EmailAddressHome = participantDemographic?.EmailAddressHome,
-            PrimaryCareProvider = participantDemographic?.PrimaryCareProvider
+            PrimaryCareProvider = participantDemographic?.PrimaryCareProvider,
+            SupersededByNhsNumber = participantDemographic?.SupersededByNhsNumber,
         };
 
         if (participantDemographic == null)
@@ -140,7 +235,7 @@ public class ValidationExceptionData : IValidationExceptionData
     {
 
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber && x.ScreeningName == screeningName);
-        return exceptions != null ? exceptions.ToList() : null;
+        return exceptions?.ToList();
 
     }
 

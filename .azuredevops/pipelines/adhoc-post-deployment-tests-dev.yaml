@@ -1,0 +1,46 @@
+---
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 5603d4113500a7df3d7320e675fef9598c3aac65
+      endpoint: NHSDigital
+
+variables:
+  - group: DEV_automation_testing_pipeline
+
+parameters:
+  - name: destEnvironmentShortName
+    displayName: Destination Environment Short Name
+    type: string
+    values:
+      - dev
+    default: dev
+
+  - name: testType
+    type: string
+    default: smoke_e2e
+
+stages:
+  - stage: adhoc_tests_stage
+    displayName: Run adhoc Tests
+    condition: succeededOrFailed()
+    variables:
+      TARGET_ENVIRONMENT: ${{ parameters.destEnvironmentShortName }}
+    jobs:
+      - job: ${{ parameters.testType }}_job
+        pool:
+          name: private-pool-dev-uks
+        steps:
+          - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+            parameters:
+              serviceConnection: NHSDigital
+              testProjectDirectory: "tests/playwright-tests"
+              testfileDirectory: "src/tests/e2e/testFiles"
+              testProjectName: "tests"
+              testType: ${{ parameters.testType }}

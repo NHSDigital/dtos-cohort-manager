@@ -14,6 +14,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     private readonly IDataServiceClient<BsSelectGpPractice> _bsSelectGPPracticeClient;
     private readonly IDataServiceClient<LanguageCode> _languageCodeClient;
     private readonly IDataServiceClient<ExcludedSMULookup> _excludedSMUClient;
+    private readonly IDataServiceClient<CurrentPosting> _currentPostingClient;
     private readonly IMemoryCache _memoryCache;
     private readonly TransformDataServiceConfig _transformDataServiceConfig;
 
@@ -22,6 +23,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
                                     IDataServiceClient<BsSelectGpPractice> bsSelectGPPracticeClient,
                                     IDataServiceClient<LanguageCode> languageCodeClient,
                                     IDataServiceClient<ExcludedSMULookup> excludedSMUClient,
+                                    IDataServiceClient<CurrentPosting> currentPostingClient,
                                     ILogger<TransformDataLookupFacade> logger,
                                     IMemoryCache memoryCache,
                                     IOptions<TransformDataServiceConfig> transformDataServiceConfig)
@@ -30,6 +32,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
         _bsSelectGPPracticeClient = bsSelectGPPracticeClient;
         _languageCodeClient = languageCodeClient;
         _excludedSMUClient = excludedSMUClient;
+        _currentPostingClient = currentPostingClient;
         _memoryCache = memoryCache;
         _logger = logger;
         _transformDataServiceConfig = transformDataServiceConfig.Value;
@@ -60,14 +63,21 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 
         return excludedSMUData!;
     }
+
     public bool ValidateOutcode(string postcode)
     {
-        string outcode = ValidationHelper.ParseOutcode(postcode)
+        //if a postcode is a dummy postcode then we want to allow the rules to know that we have a dummy postcode
+        if (postcode.StartsWith("ZZ"))
+        {
+            return false;
+        }
+
+        string parsedOutCode = ValidationHelper.ParseOutcode(postcode)
             ?? throw new TransformationException("Postcode format invalid");
 
-        var result = _outcodeClient.GetSingle(outcode).Result;
-
+        var result = _outcodeClient.GetSingle(parsedOutCode).Result;
         return result != null;
+
     }
 
     /// <summary>
@@ -105,5 +115,15 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
         if (gpPractice == null) return string.Empty;
 
         return gpPractice.BsoCode;
+    }
+
+    public string RetrievePostingCategory(string currentPosting)
+    {
+        if (string.IsNullOrEmpty(currentPosting))
+        {
+            return null;
+        }
+        var result = _currentPostingClient.GetSingle(currentPosting).Result;
+        return result.PostingCategory;
     }
 }

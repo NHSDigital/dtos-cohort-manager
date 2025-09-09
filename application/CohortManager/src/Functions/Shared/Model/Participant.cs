@@ -163,6 +163,31 @@ public class Participant : IParticipant, IDemographic
     {
         var participantManagement = new ParticipantManagement
         {
+            ScreeningId = long.Parse(ScreeningId!),
+            NHSNumber = long.Parse(NhsNumber!),
+            RecordType = RecordType!,
+            EligibilityFlag = MappingUtilities.ParseStringFlag(EligibilityFlag ?? "1"),
+            ReasonForRemoval = ReasonForRemoval,
+            ReasonForRemovalDate = MappingUtilities.ParseDates(ReasonForRemovalEffectiveFromDate!),
+            BusinessRuleVersion = BusinessRuleVersion,
+            ExceptionFlag = MappingUtilities.ParseStringFlag(ExceptionFlag ?? "0"),
+            BlockedFlag = MappingUtilities.ParseStringFlag(BlockedFlag ?? "0"),
+            ReferralFlag = MappingUtilities.ParseStringFlag(ReferralFlag ?? "0"),
+            RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime!),
+            RecordUpdateDateTime = MappingUtilities.ParseDates(RecordUpdateDateTime!),
+        };
+
+        if (ParticipantId != null)
+            participantManagement.ParticipantId = long.Parse(ParticipantId);
+
+        return participantManagement;
+    }
+
+    public ParticipantManagement ToParticipantManagement(ParticipantManagement existingRecord)
+    {
+        var participantManagement = new ParticipantManagement
+        {
+            ParticipantId = existingRecord.ParticipantId,
             ScreeningId = long.Parse(ScreeningId),
             NHSNumber = long.Parse(NhsNumber),
             RecordType = RecordType,
@@ -174,7 +199,8 @@ public class Participant : IParticipant, IDemographic
             BlockedFlag = MappingUtilities.ParseStringFlag(BlockedFlag ?? "0"),
             ReferralFlag = Convert.ToInt16(ReferralFlag),
             RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime),
-            RecordUpdateDateTime = MappingUtilities.ParseDates(RecordUpdateDateTime),
+            RecordUpdateDateTime = existingRecord.RecordInsertDateTime,
+            IsHigherRisk = existingRecord.IsHigherRisk
         };
 
         if (ParticipantId != null)

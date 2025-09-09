@@ -1,5 +1,6 @@
 namespace Data.Database;
 
+using Common;
 using Model;
 using Model.Enums;
 
@@ -9,5 +10,6 @@ public interface IValidationExceptionData
     Task<List<ValidationException>?> GetAllFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory);
     Task<ValidationException?> GetExceptionById(int exceptionId);
     Task<bool> RemoveOldException(string nhsNumber, string screeningName);
-    Task<bool> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId);
+    Task<ServiceResponseModel> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId);
+    Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory);
 }

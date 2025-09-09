@@ -38,7 +38,6 @@ public enum ExceptionCategory
     /// Used for raising an exception when a record is deleted
     /// </summary>
     DeleteRecord = 8,
-    ParticipantLocationRemainingOutsideOfCohort = 9,
     /// <summary>
     /// Used for exceptions where the file doesn't match the
     /// schema

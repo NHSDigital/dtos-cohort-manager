@@ -5,17 +5,13 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model;
-using Model.Enums;
 using Moq;
 using NHS.CohortManager.ScreeningValidationService;
-using RulesEngine.Models;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Abstractions;
 using NHS.CohortManager.Tests.TestUtils;
 
@@ -92,7 +88,7 @@ public class LookupValidationTests
         SetUpRequestBody("Invalid request body");
 
         // Act
-         var response = await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
@@ -149,7 +145,7 @@ public class LookupValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        StringAssert.Contains(body, "54.ValidateBsoCode.NBO.NonFatal");
+        StringAssert.Contains(body, "54.ValidateBsoCode.Non.NonFatal");
     }
 
     [TestMethod]
@@ -217,45 +213,6 @@ public class LookupValidationTests
         Assert.IsFalse(body.Contains("45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal"));
     }
 
-    [TestMethod]
-    [DataRow("InvalidPCP")]
-    public async Task Run_ValidatePrimaryCareProvider_ReturnValidationException(string primaryCareProvider)
-    {
-        // Arrange
-        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
-
-        // Act
-        var response = await _sut.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        StringAssert.Contains(body, "3601.ValidatePrimaryCareProvider.BSSelect.NonFatal");
-    }
-
-    [TestMethod]
-    [DataRow("ValidPCP")]
-    [DataRow(null)]
-    public async Task Run_ValidatePrimaryCareProvider_ReturnNoContent(string primaryCareProvider)
-    {
-        // Arrange
-        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
-
-        // Act
-        var response = await _sut.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-    }
-
     #region Validate BSO Code (Rule 54)
     [TestMethod]
     [DataRow("RPR", "", "", Actions.Amended)]
@@ -275,7 +232,7 @@ public class LookupValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        StringAssert.Contains(body, "54.ValidateBsoCode.NBO.NonFatal");
+        StringAssert.Contains(body, "54.ValidateBsoCode.Non.NonFatal");
     }
 
     [TestMethod]
@@ -310,86 +267,21 @@ public class LookupValidationTests
     #endregion
 
     [TestMethod]
-    [DataRow("DMS", "ValidPCP", "", "ABC", "ExcludedPCP", "")] //Valid -> Valid
-    [DataRow("ABC", null, "ABC", "ABC", null, "ENGLAND")]//  Valid -> Valid
-    [DataRow("ABC", "ExcludedPCP", "ABC", "ABC", "ExcludedPCP", "ENGLAND")] //Valid -> Valid
-    [DataRow("DMS", "ExcludedPCP", "", "ABC", "ValidPCP", "ENGLAND")] // DMS Invalid -> Valid
-    [DataRow("ABC", "ValidPCP", "", "DMS", "ExcludedPCP", "ENGLAND")] // Valid -> DMS Invalid
-    [DataRow("DMS", "ValidPCP", "", "ABC", "ExcludedPCP", "WALES")] // Valid -> Wales Invalid
-    [DataRow("CYM", "ValidPCP", "WALES", "ABC", "ExcludedPCP", "ENGLAND")] // Wales Invalid -> Valid
-    [DataRow("DMS", "ValidPCP", "", null, "ExcludedPCP", "WALES")] // Valid -> Wales Invalid (Null current posting)
-    [DataRow(null, "ValidPCP", "WALES", "ABC", "ExcludedPCP", "ENGLAND")] // Wales Invalid -> Valid (Null current posting)
-    public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ReturnNoContent(string existingCurrentPosting, string existingPrimaryCareProvider, string existingPostingCategory, string newCurrentPosting, string newPrimaryCareProvider, string newPostingCategory)
-    {
-        // Arrange
-        _requestBody.NewParticipant.RecordType = Actions.Amended;
-        _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
-        _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
-        _requestBody.ExistingParticipant.CurrentPosting = existingCurrentPosting;
-        _requestBody.ExistingParticipant.PrimaryCareProvider = existingPrimaryCareProvider;
+    [DataRow("DMS", "Z00000")]
+    [DataRow("ENG", "Z00000")]
+    [DataRow("IM", "Z00000")]
 
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(newPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(existingPrimaryCareProvider)).Returns(existingPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(newCurrentPosting)).Returns(newPostingCategory);
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(existingCurrentPosting)).Returns(existingPostingCategory);
-
-        // Act
-        var response = await _sut.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-    }
-
-    [TestMethod]
-    [DataRow("DMS", "ExcludedPCP", "ENGLAND", "DMS", "ExcludedPCP", "ENGLAND")] //DMS Invalid -> DMS Invalid
-    [DataRow("DMS", "ExcludedPCP", "WALES", "DMS", "ExcludedPCP", "WALES")] //DMS + Wales Invalid -> DMS Wales Invalid
-    [DataRow("CYM", "ValidPCP", "WALES", "CYM", "ValidPCP", "WALES")] //Wales Invalid -> Wales Invalid
-    [DataRow("CYM", "ExcludedPCP", "WALES", "CYM", "ExcludedPCP", "WALES")] //Wales Invalid -> Wales Invalid
-    [DataRow("DMS", "ExcludedPCP", "ENGLAND", "ABC", "ValidPCP", "WALES")] //DMS Invalid -> Wales Invalid
-    public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ReturnValidationException(string existingCurrentPosting, string existingPrimaryCareProvider, string existingPostingCategory, string newCurrentPosting, string newPrimaryCareProvider, string newPostingCategory)
-    {
-        // Arrange
-        _requestBody.NewParticipant.RecordType = Actions.Amended;
-        _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
-        _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
-        _requestBody.ExistingParticipant.CurrentPosting = existingCurrentPosting;
-        _requestBody.ExistingParticipant.PrimaryCareProvider = existingPrimaryCareProvider;
-
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(newPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(existingPrimaryCareProvider)).Returns(existingPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(newCurrentPosting)).Returns(newPostingCategory);
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(existingCurrentPosting)).Returns(existingPostingCategory);
-
-        // Act
-        var response = await _sut.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        StringAssert.Contains(body, "51.ParticipantLocationRemainingOutsideOfCohort.ParticipantLocationRemainingOutsideOfCohort.NonFatal");
-    }
-
-    [TestMethod]
-    [DataRow("DMS", "ABC")]
-    [DataRow("ENG", "ABC")] 
-    [DataRow("IM", "ABC")] 
     public async Task Run_ParticipantLocationRemainingOutsideOfCohortAndNotInExcludedSMU_ReturnValidationException(string newCurrentPosting, string newPrimaryCareProvider)
     {
         // Arrange
         _requestBody.NewParticipant.RecordType = Actions.New;
         _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
         _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
-        
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(newCurrentPosting)).Returns(newCurrentPosting);
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(newCurrentPosting)).Returns(true);
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(false);
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(newPrimaryCareProvider)).Returns(false);
 
@@ -414,7 +306,82 @@ public class LookupValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        StringAssert.Contains(body, "12.BlockedParticipant.BSSelect.Fatal");
+        StringAssert.Contains(body, "12.BlockedParticipant.Non.Fatal");
+    }
+
+    [TestMethod]
+
+    [DataRow(null, null, null, null, null, null, "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields null, New Postcode null, Existing Address fields full.
+    [DataRow("", "", "", "", "", "", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields empty, New Postcode empty, Existing Address fields full.
+    [DataRow(null, null, null, null, null, "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // All New Address Fields null, All existing address field full, Postcode does not match.
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // All New Address Fields null, All existing address field full, Postcode does not match.
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "")] // All New Address Fields null, All existing address field full, Postcode does not exist.
+    public async Task Run_AddressLinesNullAndPostcodeDoesNotMatchExisting_ReturnValidationException(string newAddressLine1, string newAddressLine2, string newAddressLine3, string newAddressLine4, string newAddressLine5, string newPostcode, string existingAddressLine1, string existingAddressLine2, string existingAddressLine3, string existingAddressLine4, string existingAddressLine5, string existingPostcode)
+    {
+        // Arrange
+        _requestBody.ExistingParticipant.AddressLine1 = existingAddressLine1;
+        _requestBody.ExistingParticipant.AddressLine2 = existingAddressLine2;
+        _requestBody.ExistingParticipant.AddressLine3 = existingAddressLine3;
+        _requestBody.ExistingParticipant.AddressLine4 = existingAddressLine4;
+        _requestBody.ExistingParticipant.AddressLine5 = existingAddressLine5;
+        _requestBody.ExistingParticipant.Postcode = existingPostcode;
+
+        _requestBody.NewParticipant.RecordType = Actions.Amended;
+        _requestBody.NewParticipant.AddressLine1 = newAddressLine1;
+        _requestBody.NewParticipant.AddressLine2 = newAddressLine2;
+        _requestBody.NewParticipant.AddressLine3 = newAddressLine3;
+        _requestBody.NewParticipant.AddressLine4 = newAddressLine4;
+        _requestBody.NewParticipant.AddressLine5 = newAddressLine5;
+        _requestBody.NewParticipant.Postcode = newPostcode;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+
+        // Assert
+        StringAssert.Contains(body, "17.AddressLinesNullAndPostcodeDoesNotMatchExisting.NBO.NonFatal");
+    }
+
+    [DataRow(null, null, null, null, null, "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields Blank, Postcode exists, Existing Address fields full
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")] // All New Address Fields Empty, All existing address fields full, Postcode exists
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "", "", "", "", "RG2 5TX")] // All New Address Fields Empty, 1 existing address field full, Postcode exists
+
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "", "", "", "", "RG2 5TX")] // 1 New Address Field full, 1 existing address field empty, Postcode exists
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "", "", "", "", "", "")] // 1 New Address Field full, All existing address field empty, Postcode does not exist
+    [DataRow("", "New Address 2", "", "", "New Address 5", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // 2 New Address Field full, All existing address field full, Postcode does not exist
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // 1 New Address Field full, All existing address field full, Postcode does not exist
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")] // 1 New Address Field full, All existing address field full, Postcode does exist
+
+    public async Task Run_AddressLinesNullAndPostcodeDoesNotMatchExisting_ReturnNoValidationException(string newAddressLine1, string newAddressLine2, string newAddressLine3, string newAddressLine4, string newAddressLine5, string newPostcode, string existingAddressLine1, string existingAddressLine2, string existingAddressLine3, string existingAddressLine4, string existingAddressLine5, string existingPostcode)
+    {
+        // Arrange
+        _requestBody.ExistingParticipant.AddressLine1 = existingAddressLine1;
+        _requestBody.ExistingParticipant.AddressLine2 = existingAddressLine2;
+        _requestBody.ExistingParticipant.AddressLine3 = existingAddressLine3;
+        _requestBody.ExistingParticipant.AddressLine4 = existingAddressLine4;
+        _requestBody.ExistingParticipant.AddressLine5 = existingAddressLine5;
+        _requestBody.ExistingParticipant.Postcode = existingPostcode;
+
+        _requestBody.NewParticipant.RecordType = Actions.Amended;
+        _requestBody.NewParticipant.AddressLine1 = newAddressLine1;
+        _requestBody.NewParticipant.AddressLine2 = newAddressLine2;
+        _requestBody.NewParticipant.AddressLine3 = newAddressLine3;
+        _requestBody.NewParticipant.AddressLine4 = newAddressLine4;
+        _requestBody.NewParticipant.AddressLine5 = newAddressLine5;
+        _requestBody.NewParticipant.Postcode = newPostcode;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+
+        // Assert
+        Assert.IsFalse(body.Contains("17.AddressLinesNullAndPostcodeDoesNotMatchExisting.NBO.NonFatal"));
     }
 
     private void SetUpRequestBody(string json)

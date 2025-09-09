@@ -2,7 +2,6 @@ import {
   formatNhsNumber,
   formatDate,
   formatCompactDate,
-  formatPhoneNumber,
   getCurrentDate,
   formatGenderValue,
 } from "@/app/lib/utils";
@@ -34,20 +33,6 @@ describe("formatCompactDate", () => {
     const input = "19930226";
     const expectedOutput = "26 February 1993";
     expect(formatCompactDate(input)).toBe(expectedOutput);
-  });
-});
-
-describe("formatPhoneNumber", () => {
-  it("should format the phone number as XXXXX XXX XXX", () => {
-    const input = "01619999999";
-    const expectedOutput = "01619 999 999";
-    expect(formatPhoneNumber(input)).toBe(expectedOutput);
-  });
-
-  it("should return the input if it is not a valid phone number", () => {
-    const input = "12345";
-    const expectedOutput = "12345";
-    expect(formatPhoneNumber(input)).toBe(expectedOutput);
   });
 });
 
@@ -87,23 +72,23 @@ describe("formatGenderValue", () => {
     expect(formatGenderValue(9)).toBe("Unspecified");
   });
 
-  it("should return 'Unknown' for input '3' (string)", () => {
-    expect(formatGenderValue("3")).toBe("Unknown");
+  it("should return empty string for input '3' (string)", () => {
+    expect(formatGenderValue("3")).toBe("");
   });
 
-  it("should return 'Unknown' for input 3 (number)", () => {
-    expect(formatGenderValue(3)).toBe("Unknown");
+  it("should return empty string for input 3 (number)", () => {
+    expect(formatGenderValue(3)).toBe("");
   });
 
-  it("should return 'Unknown' for undefined input", () => {
-    expect(formatGenderValue(undefined)).toBe("Unknown");
+  it("should return empty string for undefined input", () => {
+    expect(formatGenderValue(undefined)).toBe("");
   });
 
-  it("should return 'Unknown' for null input", () => {
-    expect(formatGenderValue(null)).toBe("Unknown");
+  it("should return empty string for null input", () => {
+    expect(formatGenderValue(null)).toBe("");
   });
 
-  it("should return 'Unknown' for empty string input", () => {
-    expect(formatGenderValue("")).toBe("Unknown");
+  it("should return empty string for empty string input", () => {
+    expect(formatGenderValue("")).toBe("");
   });
 });

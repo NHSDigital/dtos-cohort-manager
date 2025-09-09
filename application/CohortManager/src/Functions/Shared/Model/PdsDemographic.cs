@@ -1,7 +1,9 @@
 namespace Model;
 
+using System.Data;
 using System.Text.Json.Serialization;
 using Model.Enums;
+using NHS.CohortManager.Shared.Utilities;
 
 public class PdsDemographic : IDemographic
 {
@@ -68,7 +70,7 @@ public class PdsDemographic : IDemographic
             OtherGivenName = OtherGivenNames,
             FamilyName = FamilyName,
             PreviousFamilyName = PreviousFamilyName,
-            DateOfBirth = DateOfBirth,
+            DateOfBirth = MappingUtilities.ParseDates(DateOfBirth!)?.ToString("yyyyMMdd"),
             Gender = (short?)(Gender.HasValue ? (Gender?)Gender.Value : null),
             AddressLine1 = AddressLine1,
             AddressLine2 = AddressLine2,
@@ -77,15 +79,15 @@ public class PdsDemographic : IDemographic
             AddressLine5 = AddressLine5,
             PostCode = Postcode,
             PafKey = PafKey,
-            UsualAddressFromDate = UsualAddressEffectiveFromDate,
+            UsualAddressFromDate = MappingUtilities.ParseDates(UsualAddressEffectiveFromDate!)?.ToString("yyyyMMdd"),
             DateOfDeath = DateOfDeath,
             DeathStatus = (short?)(DeathStatus.HasValue ? (Status?)DeathStatus.Value : null),
             TelephoneNumberHome = TelephoneNumber,
-            TelephoneNumberHomeFromDate = TelephoneNumberEffectiveFromDate,
+            TelephoneNumberHomeFromDate = MappingUtilities.ParseDates(TelephoneNumberEffectiveFromDate!)?.ToString("yyyy-MM-dd"),
             TelephoneNumberMob = MobileNumber,
-            TelephoneNumberMobFromDate = MobileNumberEffectiveFromDate,
+            TelephoneNumberMobFromDate = MappingUtilities.ParseDates(MobileNumberEffectiveFromDate!)?.ToString("yyyyMMdd"),
             EmailAddressHome = EmailAddress,
-            EmailAddressHomeFromDate = EmailAddressEffectiveFromDate,
+            EmailAddressHomeFromDate = MappingUtilities.ParseDates(EmailAddressEffectiveFromDate!)?.ToString("yyyyMMdd"),
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = IsInterpreterRequired?.ToLower() switch
             {

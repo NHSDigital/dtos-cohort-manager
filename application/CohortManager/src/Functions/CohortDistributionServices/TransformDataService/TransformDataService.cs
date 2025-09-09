@@ -76,9 +76,6 @@ public class TransformDataService
             var transformString = new TransformString(_exceptionHandler);
             participant = await transformString.TransformStringFields(participant);
 
-            // Address transformation
-            participant = TransformAddress(requestBody.ExistingParticipant, participant);
-
             // Other transformation rules
             participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant);
 
@@ -141,9 +138,16 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-        if (!participant.ReferralFlag)
+        var additionalWorkflow = participant.ReferralFlag switch
         {
-            resultList.AddRange(await re.ExecuteAllRulesAsync("Routine", ruleParameters));
+            null => null,
+            true => "Referred",
+            false => "Routine"
+        };
+
+        if (additionalWorkflow != null)
+        {
+            resultList.AddRange(await re.ExecuteAllRulesAsync(additionalWorkflow, ruleParameters));
         }
 
         await HandleExceptions(resultList, participant);
@@ -196,36 +200,6 @@ public class TransformDataService
         return null;
     }
 
-    /// <summary>
-    /// If the request participant's address is missing, this method updates it with the address from
-    /// the existing record in the database.
-    /// </summary>
-    /// <exception cref="ArgumentException">Throws an error if the record's postcodes do not match</exception>
-    private static CohortDistributionParticipant TransformAddress(CohortDistribution databaseParticipant,
-                                                        CohortDistributionParticipant requestParticipant)
-    {
-        if (requestParticipant.RecordType != Actions.Amended)
-            return requestParticipant;
-
-        if (!string.IsNullOrEmpty(requestParticipant.Postcode) &&
-            string.IsNullOrEmpty(requestParticipant.AddressLine1) &&
-            string.IsNullOrEmpty(requestParticipant.AddressLine2) &&
-            string.IsNullOrEmpty(requestParticipant.AddressLine3) &&
-            string.IsNullOrEmpty(requestParticipant.AddressLine4) &&
-            string.IsNullOrEmpty(requestParticipant.AddressLine5))
-        {
-            if (requestParticipant.Postcode != databaseParticipant.PostCode)
-                throw new TransformationException("Participant has an empty address and postcode does not match existing record");
-
-            requestParticipant.AddressLine1 = databaseParticipant.AddressLine1;
-            requestParticipant.AddressLine2 = databaseParticipant.AddressLine2;
-            requestParticipant.AddressLine3 = databaseParticipant.AddressLine3;
-            requestParticipant.AddressLine4 = databaseParticipant.AddressLine4;
-            requestParticipant.AddressLine5 = databaseParticipant.AddressLine5;
-        }
-
-        return requestParticipant;
-    }
 
     private async Task HandleExceptions(List<RuleResultTree> exceptions, CohortDistributionParticipant participant)
     {

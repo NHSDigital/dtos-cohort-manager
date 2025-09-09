@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.ParticipantManagementServices;
 
 using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
@@ -41,8 +42,8 @@ public class ManageServiceNowParticipantFunction
     {
         try
         {
-            var participantDemographic = await ValidateAndRetrieveParticipantFromPds(serviceNowParticipant);
-            if (participantDemographic is null)
+            var pdsDemographic = await ValidateAndRetrieveParticipantFromPds(serviceNowParticipant);
+            if (pdsDemographic is null)
             {
                 return;
             }
@@ -56,9 +57,14 @@ public class ManageServiceNowParticipantFunction
                 return;
             }
 
-            // TODO: Add call to subscribe to NEMS (DTOSS-3881)
+            var subscribeToNemsSuccess = await SubscribeParticipantToNEMS(serviceNowParticipant.NhsNumber);
 
-            var participantForDistribution = new BasicParticipantData(serviceNowParticipant, participantManagement);
+            if (!subscribeToNemsSuccess)
+            {
+                _logger.LogError("Failed to subscribe participant with Id {ParticipantId} to NEMS", participantManagement.ParticipantId);
+            }
+
+            var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantManagement);
 
             var sendToQueueSuccess = await _queueClient.AddAsync(participantForDistribution, _config.CohortDistributionTopic);
 
@@ -73,54 +79,52 @@ public class ManageServiceNowParticipantFunction
         }
     }
 
-    private async Task<ParticipantDemographic?> ValidateAndRetrieveParticipantFromPds(ServiceNowParticipant serviceNowParticipant)
+    private async Task<PdsDemographic?> ValidateAndRetrieveParticipantFromPds(ServiceNowParticipant serviceNowParticipant)
     {
         var pdsResponse = await _httpClientFunction.SendGetResponse($"{_config.RetrievePdsDemographicURL}?nhsNumber={serviceNowParticipant.NhsNumber}");
-        string responseMessage = await _httpClientFunction.GetResponseText(pdsResponse);
 
         if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
         {
-            await HandleException(new Exception(responseMessage), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
+            await HandleException(new Exception("Request to PDS for ServiceNow Participant returned a NotFound response."), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
             return null;
         }
-        
+
         if (pdsResponse.StatusCode != HttpStatusCode.OK)
         {
             await HandleException(new Exception($"Request to PDS for ServiceNow Participant returned an unexpected response. Status code: {pdsResponse.StatusCode}"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
             return null;
         }
 
-        var participantDemographic = await DeserializeParticipantDemographic(pdsResponse, serviceNowParticipant);
-        if (participantDemographic is null) return null;
+        var pdsDemographic = await DeserializePdsDemographic(pdsResponse, serviceNowParticipant);
+        if (pdsDemographic is null) return null;
 
-        return await ValidateParticipantData(serviceNowParticipant, participantDemographic)
-            ? participantDemographic
+        return await ValidateParticipantData(serviceNowParticipant, pdsDemographic)
+            ? pdsDemographic
             : null;
     }
 
-    private async Task<ParticipantDemographic?> DeserializeParticipantDemographic(HttpResponseMessage pdsResponse, ServiceNowParticipant serviceNowParticipant)
+    private async Task<PdsDemographic?> DeserializePdsDemographic(HttpResponseMessage pdsResponse, ServiceNowParticipant serviceNowParticipant)
     {
-        var jsonString = await pdsResponse.Content.ReadAsStringAsync();
-        var participantDemographic = JsonSerializer.Deserialize<ParticipantDemographic>(jsonString);
+        var pdsDemographic = await pdsResponse.Content.ReadFromJsonAsync<PdsDemographic>();
 
-        if (participantDemographic is null)
+        if (pdsDemographic is null)
         {
-            await HandleException(new Exception($"Deserialisation of PDS for ServiceNow Participant response to {typeof(ParticipantDemographic)} returned null"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
+            await HandleException(new Exception($"Deserialisation of PDS for ServiceNow Participant response to {typeof(PdsDemographic)} returned null"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
             return null;
         }
 
-        return participantDemographic;
+        return pdsDemographic;
     }
 
-    private async Task<bool> ValidateParticipantData(ServiceNowParticipant serviceNowParticipant, ParticipantDemographic participantDemographic)
+    private async Task<bool> ValidateParticipantData(ServiceNowParticipant serviceNowParticipant, PdsDemographic pdsDemographic)
     {
-        if (participantDemographic.NhsNumber != serviceNowParticipant.NhsNumber)
+        if (pdsDemographic.NhsNumber != serviceNowParticipant.NhsNumber.ToString())
         {
             await HandleException(new Exception("NHS Numbers don't match for ServiceNow Participant and PDS, NHS Number must have been superseded"), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
             return false;
         }
 
-        if (!CheckParticipantDataMatches(serviceNowParticipant, participantDemographic))
+        if (!CheckParticipantDataMatches(serviceNowParticipant, pdsDemographic))
         {
             await HandleException(new Exception("Participant data from ServiceNow does not match participant data from PDS"), serviceNowParticipant, ServiceNowMessageType.UnableToAddParticipant);
             return false;
@@ -219,11 +223,11 @@ public class ManageServiceNowParticipantFunction
         await SendServiceNowMessage(serviceNowParticipant.ServiceNowCaseNumber, serviceNowMessageType);
     }
 
-    private static bool CheckParticipantDataMatches(ServiceNowParticipant serviceNowParticipant, ParticipantDemographic participantDemographic)
+    private static bool CheckParticipantDataMatches(ServiceNowParticipant serviceNowParticipant, PdsDemographic pdsDemographic)
     {
-        return serviceNowParticipant.FirstName == participantDemographic.GivenName &&
-               serviceNowParticipant.FamilyName == participantDemographic.FamilyName &&
-               serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd") == participantDemographic.DateOfBirth;
+        return serviceNowParticipant.FirstName == pdsDemographic.FirstName &&
+               serviceNowParticipant.FamilyName == pdsDemographic.FamilyName &&
+               serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd") == pdsDemographic.DateOfBirth;
     }
 
     private async Task SendServiceNowMessage(string serviceNowCaseNumber, ServiceNowMessageType servicenowMessageType)
@@ -243,5 +247,17 @@ public class ManageServiceNowParticipantFunction
     private static bool CheckIfVhrParticipant(ServiceNowParticipant serviceNowParticipant)
     {
         return serviceNowParticipant.ReasonForAdding == ServiceNowReasonsForAdding.VeryHighRisk;
+    }
+
+    private async Task<bool> SubscribeParticipantToNEMS(long nhsNumber)
+    {
+        var queryParams = new Dictionary<string, string>
+        {
+            {"nhsNumber", nhsNumber.ToString()}
+        };
+
+        var nemsSubscribeResponse = await _httpClientFunction.SendPost(_config.ManageNemsSubscriptionSubscribeURL, queryParams);
+
+        return nemsSubscribeResponse.IsSuccessStatusCode;
     }
 }

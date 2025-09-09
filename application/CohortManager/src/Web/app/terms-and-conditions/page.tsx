@@ -45,9 +45,10 @@ export default async function Page() {
             <p>
               Your access to participant and exception data will be used solely
               to support the use case of raising exceptions to National Back
-              Office (NBO). Data viewed in the UI will not be further forwarded
+              Office (NBO), Cohorting as a Service (CaaS) and Breast Screening
+              Select (BSS). Data viewed in the UI will not be further forwarded
               to users or systems outside of the cohort manager platform, and
-              NBO.
+              NBO, CaaS and BSS.
             </p>
             <p>
               Data displayed in the UI is only retained for the duration of an
@@ -55,8 +56,8 @@ export default async function Page() {
               there is no need to retain it in cohort manager.
             </p>
             <p>
-              You acknowledge that your access may also be audited to ensure you
-              adhere to these conditions.
+              You acknowledge that your access may also be audited, by CIS2, to
+              ensure you adhere to these conditions.
             </p>
           </div>
         </div>

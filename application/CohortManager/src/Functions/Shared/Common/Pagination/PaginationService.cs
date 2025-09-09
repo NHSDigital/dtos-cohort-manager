@@ -1,60 +1,112 @@
 namespace Common;
 
+using Microsoft.Azure.Functions.Worker.Http;
+
 public class PaginationService<T> : IPaginationService<T>
 {
-        private const int pageSize = 20;
+    private const int pageSize = 10;
 
-    public PaginationResult<T> GetPaginatedResult(
-        IQueryable<T> source,
-        int? lastId,
-        Func<T, int> idSelector = null)
+    /// <summary>
+    /// Gets paginated results using page-based pagination
+    /// </summary>
+    /// <param name="source">The queryable source</param>
+    /// <param name="page">The page number (1-based)</param>
+    /// <returns>Paginated result</returns>
+    public PaginationResult<T> GetPaginatedResult(IQueryable<T> source, int page = 1)
     {
-        // If no idSelector is provided, try to use a default 'Id' property
-        if (idSelector == null)
-        {
-            idSelector = GetDefaultIdSelector();
-        }
-
-        // Convert source to a list of IDs to calculate index-based pagination
-        var idList = source.Select(idSelector).OrderBy(id => id).ToList();
-
-        // Get the index of the lastId
-        int lastIdIndex = lastId.HasValue? idList.IndexOf(lastId.Value) : -1;
-        int currentPage = lastIdIndex >= 0 ? (lastIdIndex / pageSize) + 2 : 1;
         var totalItems = source.Count();
         var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
-        if (lastIdIndex >= 0)
-        {
-            source = source.Skip(lastIdIndex + 1);
-        }
+        // Ensure page is within valid range
+        page = Math.Max(1, Math.Min(page, Math.Max(1, totalPages)));
 
-        var items = source.Take(pageSize).ToList();
-        int? lastResultId = items.Count > 0 ? idSelector(items[items.Count - 1]) : null;
+        var items = source
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
 
         return new PaginationResult<T>
         {
             Items = items,
-            IsFirstPage = currentPage == 1,
-            HasNextPage = lastResultId.HasValue && (lastIdIndex + pageSize < totalItems),
-            LastResultId = lastResultId,
+            IsFirstPage = page == 1,
+            HasNextPage = page < totalPages,
+            HasPreviousPage = page > 1,
             TotalItems = totalItems,
             TotalPages = totalPages,
-            CurrentPage = currentPage
+            CurrentPage = page,
         };
     }
 
-    private static Func<T, int> GetDefaultIdSelector()
+    /// <summary>
+    /// Adds pagination navigation headers to the response.
+    /// </summary>
+    public Dictionary<string, string> AddNavigationHeaders<TEntity>(HttpRequestData request, PaginationResult<TEntity> paginationResult)
     {
-        var idProperty = typeof(T).GetProperty("Id") ??
-            typeof(T).GetProperty($"{typeof(T).Name}Id");
-
-        if (idProperty == null)
+        var headers = new Dictionary<string, string>
         {
-            throw new InvalidOperationException(
-                "Could not find a default ID property. Provide a custom ID selector.");
+            ["X-Total-Count"] = paginationResult.TotalItems.ToString(),
+            ["X-Has-Next-Page"] = paginationResult.HasNextPage.ToString().ToLower(),
+            ["X-Has-Previous-Page"] = paginationResult.HasPreviousPage.ToString().ToLower(),
+            ["X-Is-First-Page"] = paginationResult.IsFirstPage.ToString().ToLower(),
+            ["X-Current-Page"] = paginationResult.CurrentPage.ToString(),
+            ["X-Total-Pages"] = paginationResult.TotalPages.ToString()
+        };
+
+        var linkHeaders = BuildLinkHeaders(request, paginationResult);
+        if (linkHeaders.Count > 0)
+        {
+            headers["Link"] = string.Join(", ", linkHeaders);
         }
-        return x => (int)idProperty.GetValue(x);
+
+        return headers;
+    }
+
+    private static List<string> BuildLinkHeaders<TEntity>(HttpRequestData request, PaginationResult<TEntity> paginationResult)
+    {
+        var linkHeaders = new List<string>();
+        var baseUrl = request.Url.GetLeftPart(UriPartial.Path);
+        var queryString = request.Url.Query;
+        var baseQuery = RemovePageParam(queryString);
+        var separator = string.IsNullOrEmpty(baseQuery) ? "?" : "&";
+
+        // First page link
+        linkHeaders.Add($"<{baseUrl}{baseQuery}>; rel=\"first\"");
+
+        // Previous page link
+        if (paginationResult.HasPreviousPage)
+        {
+            var prevPage = paginationResult.CurrentPage - 1;
+            var prevUrl = prevPage == 1
+                ? $"{baseUrl}{baseQuery}"
+                : $"{baseUrl}{baseQuery}{separator}page={prevPage}";
+            linkHeaders.Add($"<{prevUrl}>; rel=\"prev\"");
+        }
+
+        // Next page link
+        if (paginationResult.HasNextPage)
+        {
+            var nextPage = paginationResult.CurrentPage + 1;
+            linkHeaders.Add($"<{baseUrl}{baseQuery}{separator}page={nextPage}>; rel=\"next\"");
+        }
+
+        // Last page link
+        if (paginationResult.TotalPages > 1)
+        {
+            linkHeaders.Add($"<{baseUrl}{baseQuery}{separator}page={paginationResult.TotalPages}>; rel=\"last\"");
+        }
+
+        return linkHeaders;
+    }
+
+    private static string RemovePageParam(string queryString)
+    {
+        if (string.IsNullOrEmpty(queryString)) return "";
+
+        var pairs = queryString.TrimStart('?').Split('&')
+            .Where(p => !p.StartsWith("page="))
+            .Where(p => !string.IsNullOrWhiteSpace(p))
+            .ToArray();
+
+        return pairs.Length > 0 ? "?" + string.Join("&", pairs) : "";
     }
 }
-
