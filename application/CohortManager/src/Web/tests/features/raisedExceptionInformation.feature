@@ -56,3 +56,9 @@ Feature: Raised exceptions page
             | CS0619153A   | ServiceNow case ID must start with two letters followed by at least seven digits (e.g. CS0619153) |
             | CS 0619153   | ServiceNow case ID must not contain spaces                            |
             | C$0619153    | ServiceNow case ID must only contain letters and numbers              |
+
+    Scenario: Empty ServiceNow Case ID input is allowed in edit mode
+      Given I go to the page "/participant-information/3003?edit=true#exception-status"
+      And I fill the input with label "Enter ServiceNow Case ID" with ""
+      And I click the button "Save and continue"
+      And I should see the heading "Raised breast screening exceptions"
