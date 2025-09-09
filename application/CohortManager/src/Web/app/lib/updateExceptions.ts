@@ -28,7 +28,7 @@ export async function updateExceptions(
     redirect(errorUrl);
   }
 
-  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/UpdateException`;
+  const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/UpdateExceptionServiceNowId`;
 
   const response = await fetch(apiUrl, {
     method: "PUT",
@@ -36,8 +36,8 @@ export async function updateExceptions(
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      ExceptionId: exceptionId.toString(),
-      ServiceNowNumber: parsedData.data.serviceNowID,
+      ExceptionId: exceptionId,
+      ServiceNowId: parsedData.data.serviceNowID,
     }),
   });
 

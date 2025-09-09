@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using NHS.Screening.RetrieveMeshFile;
 using HealthChecks.Extensions;
 using Azure.Security.KeyVault.Secrets;
-using NHS.CohortManager.CaasIntegrationService;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());

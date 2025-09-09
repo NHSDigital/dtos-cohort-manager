@@ -88,7 +88,7 @@ public class LookupValidationTests
         SetUpRequestBody("Invalid request body");
 
         // Act
-         var response = await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
 
         // Assert
         Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
@@ -145,7 +145,7 @@ public class LookupValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        StringAssert.Contains(body, "54.ValidateBsoCode.NBO.NonFatal");
+        StringAssert.Contains(body, "54.ValidateBsoCode.Non.NonFatal");
     }
 
     [TestMethod]
@@ -232,7 +232,7 @@ public class LookupValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        StringAssert.Contains(body, "54.ValidateBsoCode.NBO.NonFatal");
+        StringAssert.Contains(body, "54.ValidateBsoCode.Non.NonFatal");
     }
 
     [TestMethod]
@@ -268,7 +268,7 @@ public class LookupValidationTests
 
     [TestMethod]
     [DataRow("DMS", "Z00000")]
-    [DataRow("ENG", "Z00000")] 
+    [DataRow("ENG", "Z00000")]
     [DataRow("IM", "Z00000")]
 
     public async Task Run_ParticipantLocationRemainingOutsideOfCohortAndNotInExcludedSMU_ReturnValidationException(string newCurrentPosting, string newPrimaryCareProvider)
@@ -306,7 +306,82 @@ public class LookupValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        StringAssert.Contains(body, "12.BlockedParticipant.BSSelect.Fatal");
+        StringAssert.Contains(body, "12.BlockedParticipant.Non.Fatal");
+    }
+
+    [TestMethod]
+
+    [DataRow(null, null, null, null, null, null, "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields null, New Postcode null, Existing Address fields full.
+    [DataRow("", "", "", "", "", "", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields empty, New Postcode empty, Existing Address fields full.
+    [DataRow(null, null, null, null, null, "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // All New Address Fields null, All existing address field full, Postcode does not match.
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // All New Address Fields null, All existing address field full, Postcode does not match.
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "")] // All New Address Fields null, All existing address field full, Postcode does not exist.
+    public async Task Run_AddressLinesNullAndPostcodeDoesNotMatchExisting_ReturnValidationException(string newAddressLine1, string newAddressLine2, string newAddressLine3, string newAddressLine4, string newAddressLine5, string newPostcode, string existingAddressLine1, string existingAddressLine2, string existingAddressLine3, string existingAddressLine4, string existingAddressLine5, string existingPostcode)
+    {
+        // Arrange
+        _requestBody.ExistingParticipant.AddressLine1 = existingAddressLine1;
+        _requestBody.ExistingParticipant.AddressLine2 = existingAddressLine2;
+        _requestBody.ExistingParticipant.AddressLine3 = existingAddressLine3;
+        _requestBody.ExistingParticipant.AddressLine4 = existingAddressLine4;
+        _requestBody.ExistingParticipant.AddressLine5 = existingAddressLine5;
+        _requestBody.ExistingParticipant.Postcode = existingPostcode;
+
+        _requestBody.NewParticipant.RecordType = Actions.Amended;
+        _requestBody.NewParticipant.AddressLine1 = newAddressLine1;
+        _requestBody.NewParticipant.AddressLine2 = newAddressLine2;
+        _requestBody.NewParticipant.AddressLine3 = newAddressLine3;
+        _requestBody.NewParticipant.AddressLine4 = newAddressLine4;
+        _requestBody.NewParticipant.AddressLine5 = newAddressLine5;
+        _requestBody.NewParticipant.Postcode = newPostcode;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+
+        // Assert
+        StringAssert.Contains(body, "17.AddressLinesNullAndPostcodeDoesNotMatchExisting.NBO.NonFatal");
+    }
+
+    [DataRow(null, null, null, null, null, "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields Blank, Postcode exists, Existing Address fields full
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")] // All New Address Fields Empty, All existing address fields full, Postcode exists
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "", "", "", "", "RG2 5TX")] // All New Address Fields Empty, 1 existing address field full, Postcode exists
+
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "", "", "", "", "RG2 5TX")] // 1 New Address Field full, 1 existing address field empty, Postcode exists
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "", "", "", "", "", "")] // 1 New Address Field full, All existing address field empty, Postcode does not exist
+    [DataRow("", "New Address 2", "", "", "New Address 5", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // 2 New Address Field full, All existing address field full, Postcode does not exist
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // 1 New Address Field full, All existing address field full, Postcode does not exist
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")] // 1 New Address Field full, All existing address field full, Postcode does exist
+
+    public async Task Run_AddressLinesNullAndPostcodeDoesNotMatchExisting_ReturnNoValidationException(string newAddressLine1, string newAddressLine2, string newAddressLine3, string newAddressLine4, string newAddressLine5, string newPostcode, string existingAddressLine1, string existingAddressLine2, string existingAddressLine3, string existingAddressLine4, string existingAddressLine5, string existingPostcode)
+    {
+        // Arrange
+        _requestBody.ExistingParticipant.AddressLine1 = existingAddressLine1;
+        _requestBody.ExistingParticipant.AddressLine2 = existingAddressLine2;
+        _requestBody.ExistingParticipant.AddressLine3 = existingAddressLine3;
+        _requestBody.ExistingParticipant.AddressLine4 = existingAddressLine4;
+        _requestBody.ExistingParticipant.AddressLine5 = existingAddressLine5;
+        _requestBody.ExistingParticipant.Postcode = existingPostcode;
+
+        _requestBody.NewParticipant.RecordType = Actions.Amended;
+        _requestBody.NewParticipant.AddressLine1 = newAddressLine1;
+        _requestBody.NewParticipant.AddressLine2 = newAddressLine2;
+        _requestBody.NewParticipant.AddressLine3 = newAddressLine3;
+        _requestBody.NewParticipant.AddressLine4 = newAddressLine4;
+        _requestBody.NewParticipant.AddressLine5 = newAddressLine5;
+        _requestBody.NewParticipant.Postcode = newPostcode;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+
+        // Assert
+        Assert.IsFalse(body.Contains("17.AddressLinesNullAndPostcodeDoesNotMatchExisting.NBO.NonFatal"));
     }
 
     private void SetUpRequestBody(string json)

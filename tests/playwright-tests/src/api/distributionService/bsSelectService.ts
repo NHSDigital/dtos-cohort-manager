@@ -31,10 +31,10 @@ export const getRecordsFromParticipantManagementService = (
   return apiClient.get(request, `${config.endpointParticipantManagementDataService}api/${config.participantManagementService}`);
 };
 
-export const getRecordsFromParticipantDemographicService = (
+export const getRecordsFromParticipantDemographicService = async (
   request: APIRequestContext
 ): Promise<ApiResponse> => {
-  return apiClient.get(request, `${config.endpointParticipantDemographicDataService}api/${config.participantDemographicDataService}`);
+  return await apiClient.get(request, `${config.endpointParticipantDemographicDataService}api/${config.participantDemographicDataService}`);
 };
 
 export const getRecordsFromExceptionManagementService = (
@@ -47,7 +47,7 @@ export const getRecordsFromNemsSubscription = (
   request: APIRequestContext,
   nhsNumbers: string
 ): Promise<ApiResponse> => {
-  return apiClient.get(request, `${config.endpointNemsSubscriptionDataDataService}api/${config.nemsSubscriberDataService}?nhsNumber=${nhsNumbers}`);
+  return apiClient.get(request, `${config.SubToNems}${config.CheckNemsSubPath}?nhsNumber=${nhsNumbers}`);
 };
 
 export function extractSubscriptionID(response: ApiResponse): string | null {
@@ -99,12 +99,12 @@ export const UnblockParticipant = (
   return apiClient.postWithQuery(request, endpoint, payload);
 };
 
-export const receiveParticipantViaServiceNow = (
+export const receiveParticipantViaServiceNow = async(
   request: APIRequestContext,
   payload: ParticipantRecord
 ): Promise<ApiResponse> => {
   const endpoint = `${config.endpointSerNowReceiveParticipant}${config.routeSerNowReceiveParticipant}`;
-  return apiClient.post(request, endpoint, payload);
+  return await apiClient.post(request, endpoint, payload);
 };
 
 export const invalidServiceNowEndpoint = (
@@ -145,4 +145,22 @@ export async function retry<T>(
   throw new Error(`Retry validation failed after ${retries} attempts`);
 }
 
+export const getRecordsFromParticipantDemographicDataService = async (
+  request: APIRequestContext
+): Promise<ApiResponse> => {
+  const response = await apiClient.get(
+    request,
+    `${config.endpointParticipantDemographicDataService}api/${config.participantDemographicDataService}`
+  );
+  return response;
+};
 
+export const getRecordsFromParticipantManagementDataService = async (
+  request: APIRequestContext
+): Promise<ApiResponse> => {
+  const response = await apiClient.get(
+    request,
+    `${config.endpointParticipantManagementDataService}api/${config.participantManagementService}`
+  );
+  return response;
+};

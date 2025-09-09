@@ -26,6 +26,17 @@ export default function ParticipantInformationPanel({
   const validationError = searchParams?.error as string;
   const hasError = !!validationError;
 
+  // Generate stable keys for address lines without using the array index.
+  // Ensures uniqueness even if the same line text appears more than once.
+  const makeAddressKey = (() => {
+    const seen = new Map<string, number>();
+    return (line: string) => {
+      const count = (seen.get(line) ?? 0) + 1;
+      seen.set(line, count);
+      return `addr-${exceptionDetails.exceptionId}-${line}-${count}`;
+    };
+  })();
+
   return (
     <>
       {hasError && (
@@ -80,7 +91,7 @@ export default function ParticipantInformationPanel({
                 Superseded by NHS number
               </dt>
               <dd className="nhsuk-summary-list__value">
-                {formatNhsNumber(exceptionDetails.supersededByNhsNumber)}
+                {formatNhsNumber(exceptionDetails.supersededByNhsNumber ?? "")}
               </dd>
             </div>
           )}
@@ -111,7 +122,20 @@ export default function ParticipantInformationPanel({
           <div className="nhsuk-summary-list__row">
             <dt className="nhsuk-summary-list__key">Current address</dt>
             <dd className="nhsuk-summary-list__value">
-              {exceptionDetails.address}
+              {Array.isArray(exceptionDetails.addressParts) &&
+              exceptionDetails.addressParts.length > 0
+                ? exceptionDetails.addressParts.map((line, idx, arr) => (
+                    <span key={makeAddressKey(line)}>
+                      {line}
+                      {idx < (arr.length ?? 0) - 1 && (
+                        <>
+                          ,
+                          <br />
+                        </>
+                      )}
+                    </span>
+                  ))
+                : exceptionDetails.address}
             </dd>
           </div>
           <div className="nhsuk-summary-list__row">

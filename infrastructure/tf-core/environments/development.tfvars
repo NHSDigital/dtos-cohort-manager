@@ -246,6 +246,9 @@ container_app_jobs = {
       container_app_environment_key = "db-management"
       docker_image                  = "cohort-manager-db-migration"
       container_registry_use_mi     = true
+      db_connection_string_name     = "DtOsDatabaseConnectionString"
+      add_user_assigned_identity    = true
+      replica_retry_limit           = 1
     }
   }
 }
@@ -272,6 +275,7 @@ function_apps = {
   enable_appsrv_storage         = "false"
   ftps_state                    = "Disabled"
   https_only                    = true
+  http2_enabled                 = true
   remote_debugging_enabled      = false
   storage_uses_managed_identity = null
   worker_32bit                  = false
@@ -1056,6 +1060,23 @@ function_apps = {
       }
     }
 
+    ManageCaasSubscription = {
+      name_suffix            = "manage-caas-subscription"
+      function_endpoint_name = "ManageCaasSubscription"
+      app_service_plan_key   = "NonScaling"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      key_vault_url          = "KeyVaultConnectionString"
+      env_vars_static = {
+        IsStubbed = "true"
+      }
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
     ReferenceDataService = {
       name_suffix            = "reference-data-service"
       function_endpoint_name = "ReferenceDataService"
@@ -1248,7 +1269,9 @@ sqlserver = {
   ad_auth_only                         = true
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
-  db_management_mi_name_prefix         = "mi-cohort-manager-db-management"
+  user_assigned_identities = [
+    "db-management"
+  ]
 
   server = {
     sqlversion                    = "12.0"

@@ -54,6 +54,9 @@ export async function validateSqlDatabaseFromAPI(request: APIRequestContext, val
 export async function validateServiceNowRequestWithMockServer(request: APIRequestContext, validations: ServiceNowRequestValidations[]) {
   const wireMockUrl = getWireMockUrl();
 
+  // Wait for 5 seconds
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
   var response = await request.get(wireMockUrl);
   var body = await response.json() as WireMockResponse;
 

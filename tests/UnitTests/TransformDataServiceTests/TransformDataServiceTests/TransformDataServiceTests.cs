@@ -113,34 +113,6 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_ParticipantReferred_DoNotRunRoutineRules()
-    {
-        // Arrange
-        _requestBody.Participant.ReferralFlag = null;
-
-        // Breaks rule InvalidFlagTrueAndNoPrimaryCareProvider in the routine rules
-        _requestBody.Participant.PrimaryCareProvider = "G82650";
-        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString();
-        _requestBody.Participant.InvalidFlag = "1";
-        _requestBody.Participant.RecordType = Actions.New;
-
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        _handleException
-            .Verify(i => i.CreateTransformExecutedExceptions(
-                It.IsAny<CohortDistributionParticipant>(),
-                It.IsAny<string>(),
-                It.IsAny<int>(),
-                null),
-            times: Times.Never);
-    }
-
-    [TestMethod]
     public async Task Run_ParticipantReferred_RunCommonRules()
     {
         // Arrange
@@ -360,39 +332,110 @@ public class TransformDataServiceTests
         _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>(), null), times: Times.Exactly(13));
     }
 
-    //TODO: This test needs fixing as it doesnt test anything.
-    public void GetAddress_AddressFieldsBlankPostcodeNotNull_ReturnAddress()
+    [TestMethod]
+    [DataRow(null, null, null, null, null, "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields Blank, Postcode exists, Existing Address fields full
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")] // All New Address Fields Empty, All existing address fields full, Postcode exists
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "", "", "", "", "RG2 5TX")] // All New Address Fields Empty, 1 existing address field full, Postcode exists
+
+    public async Task Run_AddressLinesBlankAndPostcodeMatchesExistingRecord_ReturnExistingAddress(string newAddressLine1, string newAddressLine2, string newAddressLine3, string newAddressLine4, string newAddressLine5, string newPostcode, string existingAddressLine1, string existingAddressLine2, string existingAddressLine3, string existingAddressLine4, string existingAddressLine5, string existingPostcode)
     {
         // Arrange
-        var participant = new CohortDistributionParticipant()
-        {
-            Postcode = "RG2 5TX"
-        };
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.ExistingParticipant.AddressLine1 = existingAddressLine1;
+        _requestBody.ExistingParticipant.AddressLine2 = existingAddressLine2;
+        _requestBody.ExistingParticipant.AddressLine3 = existingAddressLine3;
+        _requestBody.ExistingParticipant.AddressLine4 = existingAddressLine4;
+        _requestBody.ExistingParticipant.AddressLine5 = existingAddressLine5;
+        _requestBody.ExistingParticipant.PostCode = existingPostcode;
 
-        var mockConnection = new Mock<SqlConnection>();
-        var mockCommand = new Mock<SqlCommand>();
-        var mockReader = new Mock<SqlDataReader>();
+        _requestBody.Participant.AddressLine1 = existingAddressLine1;
+        _requestBody.Participant.AddressLine2 = existingAddressLine2;
+        _requestBody.Participant.AddressLine3 = existingAddressLine3;
+        _requestBody.Participant.AddressLine4 = existingAddressLine4;
+        _requestBody.Participant.AddressLine5 = existingAddressLine5;
+        _requestBody.Participant.Postcode = existingPostcode;
 
-        mockReader.Setup(r => r.Read()).Returns(true);
-        mockReader.Setup(r => r.GetString(0)).Returns("RG2 5TX");
-        mockReader.Setup(r => r.GetString(1)).Returns("51 something av");
-
-        mockCommand.Setup(c => c.ExecuteReader()).Returns(mockReader.Object);
-        mockConnection.Setup(c => c.Open()).Verifiable();
-
-        // Act
-        var sut = new GetMissingAddress(participant, mockConnection.Object);
-        var result = sut.GetAddress();
-
-        // Assert
         var expectedResponse = new CohortDistributionParticipant
         {
-            Postcode = "RG2 5TX",
-            AddressLine1 = "51 something av"
+            RecordType = Actions.Amended,
+            NhsNumber = "1",
+            NamePrefix = "MR",
+            FirstName = "John",
+            FamilyName = "Smith",
+            Gender = Gender.Male,
+            ReferralFlag = false,
+            AddressLine1 = existingAddressLine1,
+            AddressLine2 = existingAddressLine2,
+            AddressLine3 = existingAddressLine3,
+            AddressLine4 = existingAddressLine4,
+            AddressLine5 = existingAddressLine5,
+            Postcode = existingPostcode
         };
 
-        Assert.AreEqual("51 something av", expectedResponse.AddressLine1);
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
 
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+    }
+
+    [TestMethod]
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "", "", "", "", "RG2 5TX")] // 1 New Address Field full, 1 existing address field empty, Postcode exists
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "", "", "", "", "", "")] // 1 New Address Field full, All existing address field empty, Postcode does not exist
+    [DataRow("", "New Address 2", "", "", "New Address 5", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // 2 New Address Field full, All existing address field full, Postcode does not exist
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // 1 New Address Field full, All existing address field full, Postcode does not exist
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")] // 1 New Address Field full, All existing address field full, Postcode does exist
+    public async Task AddressLinesBlankAndPostcodeMatchesExistingRecord_AddressFieldsNotTransformed(string newAddressLine1, string newAddressLine2, string newAddressLine3, string newAddressLine4, string newAddressLine5, string newPostcode, string existingAddressLine1, string existingAddressLine2, string existingAddressLine3, string existingAddressLine4, string existingAddressLine5, string existingPostcode)
+    {
+        // Arrange
+
+        _requestBody.ExistingParticipant.AddressLine1 = existingAddressLine1;
+        _requestBody.ExistingParticipant.AddressLine2 = existingAddressLine2;
+        _requestBody.ExistingParticipant.AddressLine3 = existingAddressLine3;
+        _requestBody.ExistingParticipant.AddressLine4 = existingAddressLine4;
+        _requestBody.ExistingParticipant.AddressLine5 = existingAddressLine5;
+        _requestBody.ExistingParticipant.PostCode = existingPostcode;
+
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.Participant.AddressLine1 = newAddressLine1;
+        _requestBody.Participant.AddressLine2 = newAddressLine2;
+        _requestBody.Participant.AddressLine3 = newAddressLine3;
+        _requestBody.Participant.AddressLine4 = newAddressLine4;
+        _requestBody.Participant.AddressLine5 = newAddressLine5;
+        _requestBody.Participant.Postcode = newPostcode;
+
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            RecordType = "AMENDED",
+            NhsNumber = "1",
+            NamePrefix = "MR",
+            FirstName = "John",
+            FamilyName = "Smith",
+            Gender = Gender.Male,
+            ReferralFlag = false,
+            AddressLine1 = newAddressLine1,
+            AddressLine2 = newAddressLine2,
+            AddressLine3 = newAddressLine3,
+            AddressLine4 = newAddressLine4,
+            AddressLine5 = newAddressLine5,
+            Postcode = newPostcode
+        };
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
     }
 
     [TestMethod]
@@ -649,7 +692,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         StringAssert.Contains(responseBody, "ORR");
         _handleException
-            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "RecordDeleted", 0, null),
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherInvalidFlagTrueAndNoPrimaryCareProvider", 0, null),
             times: Times.Once);
     }
 

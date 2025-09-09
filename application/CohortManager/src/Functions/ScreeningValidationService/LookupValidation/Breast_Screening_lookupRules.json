@@ -13,13 +13,13 @@
     ],
     "Rules": [
       {
-        "RuleName": "12.BlockedParticipant.BSSelect.Fatal",
+        "RuleName": "12.BlockedParticipant.Non.Fatal",
         "Expression": "existingParticipant.BlockedFlag != \"1\"",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression":"\"Participant is blocked\""
+              "Expression": "\"Participant is blocked\""
             }
           }
         }
@@ -56,7 +56,7 @@
     "WorkflowName": "AMENDED",
     "Rules": [
       {
-        "RuleName": "54.ValidateBsoCode.NBO.NonFatal",
+        "RuleName": "54.ValidateBsoCode.Non.NonFatal",
         "LocalParams": [
           {
             "Name": "reasonForRemoval",
@@ -72,6 +72,24 @@
           }
         ],
         "Expression": "!(reasonForRemoval AND postcode AND primaryCareProvider)"
+      },
+      {
+        "RuleName": "17.AddressLinesNullAndPostcodeDoesNotMatchExisting.NBO.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "addressLines",
+            "Expression": "string.IsNullOrEmpty(newParticipant.AddressLine1) && string.IsNullOrEmpty(newParticipant.AddressLine1) && string.IsNullOrEmpty(newParticipant.AddressLine3) && string.IsNullOrEmpty(newParticipant.AddressLine4) && string.IsNullOrEmpty(newParticipant.AddressLine5)"
+          },
+          {
+            "Name": "emptyPostcode",
+            "Expression": "string.IsNullOrEmpty(newParticipant.Postcode)"
+          },
+          {
+            "Name": "PostcodeDoesNotMatch",
+            "Expression": "string.Equals(newParticipant.Postcode, existingParticipant.Postcode, StringComparison.OrdinalIgnoreCase) == false"
+          }
+        ],
+        "Expression": "!((emptyPostcode OR PostcodeDoesNotMatch) AND addressLines)"
       }
     ]
   }

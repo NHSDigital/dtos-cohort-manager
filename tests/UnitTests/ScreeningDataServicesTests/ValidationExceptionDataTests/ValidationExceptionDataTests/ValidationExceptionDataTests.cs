@@ -589,4 +589,29 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeEmpty();
     }
+
+    [TestMethod]
+    public async Task UpdateExceptionServiceNowId_NullServiceNowId_ServiceNowIdAndServiceNowCreatedDateShouldBeNull()
+    {
+        // Arrange
+        var exceptionId = 1;
+        string serviceNowId = string.Empty;
+
+        _validationExceptionDataServiceClient.Setup(x => x.GetSingle(exceptionId.ToString())).ReturnsAsync(_exceptionList[0]);
+        _validationExceptionDataServiceClient.Setup(x => x.Update(It.IsAny<ExceptionManagement>())).ReturnsAsync(true);
+
+        // Act
+        var result = await validationExceptionData.UpdateExceptionServiceNowId(exceptionId, serviceNowId);
+
+        // Assert
+        result.Success.Should().BeTrue();
+        result.StatusCode.Should().Be(HttpStatusCode.OK);
+        result.Message.Should().Be("ServiceNowId updated successfully");
+
+        _validationExceptionDataServiceClient.Verify(x => x.GetSingle(exceptionId.ToString()), Times.Once);
+        _validationExceptionDataServiceClient.Verify(x => x.Update(It.Is<ExceptionManagement>(e =>
+            e.ServiceNowId == null && e.ServiceNowCreatedDate == null && e.RecordUpdatedDate > DateTime.UtcNow.AddMinutes(-1))), Times.Once);
+        _exceptionList[0].ServiceNowId.Should().BeNull();
+        _exceptionList[0].ServiceNowCreatedDate.Should().BeNull();
+    }
 }

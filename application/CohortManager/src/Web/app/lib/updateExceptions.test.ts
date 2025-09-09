@@ -135,15 +135,15 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.example.com/api/UpdateException",
+        "https://api.example.com/api/UpdateExceptionServiceNowId",
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            ExceptionId: "2073",
-            ServiceNowNumber: "INC1234567890",
+            ExceptionId: 2073,
+            ServiceNowId: "INC1234567890",
           }),
         }
       );
@@ -177,15 +177,15 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.example.com/api/UpdateException",
+        "https://api.example.com/api/UpdateExceptionServiceNowId",
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            ExceptionId: "2073",
-            ServiceNowNumber: "",
+            ExceptionId: 2073,
+            ServiceNowId: "",
           }),
         }
       );
@@ -219,15 +219,15 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.example.com/api/UpdateException",
+        "https://api.example.com/api/UpdateExceptionServiceNowId",
         {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            ExceptionId: "2073",
-            ServiceNowNumber: "INC1234567890",
+            ExceptionId: 2073,
+            ServiceNowId: "INC1234567890",
           }),
         }
       );
@@ -413,11 +413,11 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.example.com/api/UpdateException",
+        "https://api.example.com/api/UpdateExceptionServiceNowId",
         expect.objectContaining({
           body: JSON.stringify({
-            ExceptionId: "2075",
-            ServiceNowNumber: "INC9999999999",
+            ExceptionId: 2075,
+            ServiceNowId: "INC9999999999",
           }),
         })
       );
@@ -449,11 +449,11 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://api.example.com/api/UpdateException",
+        "https://api.example.com/api/UpdateExceptionServiceNowId",
         expect.objectContaining({
           body: JSON.stringify({
-            ExceptionId: "2073",
-            ServiceNowNumber: longServiceNowId,
+            ExceptionId: 2073,
+            ServiceNowId: longServiceNowId,
           }),
         })
       );
@@ -485,7 +485,7 @@ describe("updateExceptions", () => {
       );
 
       expect(fetch).toHaveBeenCalledWith(
-        "https://custom-api.example.com/api/UpdateException",
+        "https://custom-api.example.com/api/UpdateExceptionServiceNowId",
         expect.any(Object)
       );
     });

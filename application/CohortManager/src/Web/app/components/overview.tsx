@@ -1,24 +1,21 @@
 import CardGroup from "@/app/components/cardGroup";
 import DataError from "@/app/components/dataError";
-import {
-  fetchExceptionsNotRaised,
-  fetchExceptionsRaised,
-} from "@/app/lib/fetchExceptions";
+import { fetchExceptions } from "@/app/lib/fetchExceptions";
 
 export default async function Overview() {
   try {
-    const exceptions = await fetchExceptionsNotRaised();
-    const exceptionsToday = await fetchExceptionsRaised();
+    const notRaisedExceptions = await fetchExceptions({ exceptionStatus: 2 });
+    const raisedExceptions = await fetchExceptions({ exceptionStatus: 1 });
 
     const exceptionItems = [
       {
-        value: exceptions.TotalItems,
+        value: notRaisedExceptions.data.TotalItems,
         label: "Not raised",
         description: "Exceptions to be raised with teams",
         url: "/exceptions",
       },
       {
-        value: exceptionsToday.TotalItems,
+        value: raisedExceptions.data.TotalItems,
         label: "Raised",
         description: "Access and amend previously raised exceptions",
         url: `/exceptions/raised`,
