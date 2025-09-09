@@ -31,7 +31,6 @@ Given("I am signed in as {string} with password {string}", async ({ page }) => {
     .toBeVisible();
 });
 
-// Alias without parameters for clarity in future scenarios
 Given("I sign in with a test account", async ({ page }) => {
   await page.goto("/");
   await page
@@ -62,7 +61,6 @@ When(
   }
 );
 
-// Aliases required by notRaisedExceptions.feature
 Then(
   "the pagination shows page {string} as current",
   async ({ page }, current: string) => {
@@ -128,7 +126,6 @@ Then(
 
 Then("I see the tag {string}", async ({ page }, text: string) => {
   const exact = new RegExp(`^\\s*${escapeRegExp(text)}\\s*$`, "i");
-  // Scope to either the tag class or a container test id if you have one
   const tag = page
     .locator('[data-testid="exception-details-labels"] .nhsuk-tag, .nhsuk-tag')
     .filter({ hasText: exact })
@@ -147,7 +144,6 @@ Then(
   }
 );
 
-// Flexible substring check (alias wording)
 Then(
   "I see text containing {string} in the element {string}",
   async ({ page }, text: string, el: string) => {
@@ -158,7 +154,6 @@ Then(
   }
 );
 
-// Generic visibility for ONLY link or text
 Then(
   /^I see the (link|text) "([^"]+)"$/,
   async ({ page }, type: string, value: string) => {
@@ -173,14 +168,12 @@ Then(
   }
 );
 
-// Button visibility
 Then("I see the button {string}", async ({ page }, buttonText: string) => {
   await test
     .expect(page.getByRole("button", { name: buttonText }))
     .toBeVisible();
 });
 
-// Link with href check
 Then(
   "I see the link {string} with the href {string}",
   async ({ page }, linkText: string, expectedHref: string) => {
@@ -264,14 +257,12 @@ Then(
 );
 
 When("I sort the table by {string}", async ({ page }, sortOption: string) => {
-  // Open/select in the dropdown
   const form = page.getByTestId("sort-exceptions-form");
   const select = form.locator("select");
   await test.expect(select).toBeVisible();
 
   await select.selectOption({ label: sortOption });
 
-  // Click the apply button
   const applyButton = page.getByTestId("apply-button");
   await test.expect(applyButton).toBeVisible();
   await applyButton.click();
@@ -304,13 +295,11 @@ Then(
   }
 );
 
-// Table heading check
 Then("I see the table heading {string}", async ({ page }, heading: string) => {
   const name = new RegExp(`^\\s*${escapeRegExp(heading)}\\s*$`, "i");
   await test.expect(page.getByRole("columnheader", { name })).toBeVisible();
 });
 
-// Text input presence
 Then(
   "I see the text input with label {string}",
   async ({ page }, label: string) => {
@@ -319,7 +308,6 @@ Then(
   }
 );
 
-// Negative text input presence
 Then(
   "I should not see the text input with label {string}",
   async ({ page }, label: string) => {
@@ -328,7 +316,6 @@ Then(
   }
 );
 
-// Negative button presence
 Then(
   "the button {string} should not be present",
   async ({ page }, buttonText: string) => {
