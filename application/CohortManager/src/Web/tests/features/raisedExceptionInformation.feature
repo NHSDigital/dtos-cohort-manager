@@ -42,3 +42,17 @@ Feature: Raised exceptions page
       Then I see the link "Raised breast screening exceptions"
       When I click the link "Raised breast screening exceptions"
       Then I should see the heading "Raised breast screening exceptions"
+
+    Scenario: Invalid ServiceNow Case ID input shows error message
+        Given I go to the page "/participant-information/3003?edit=true#exception-status"
+        And I fill the input with label "Enter ServiceNow Case ID" with "<input>"
+        And I click the button "Save and continue"
+        Then I should see the error summary with message "<error>"
+        And I should see the inline error message "<error>"
+
+        Examples:
+            | input         | error                                                                 |
+            | CS06191      | ServiceNow case ID must be nine characters or more                    |
+            | CS0619153A   | ServiceNow case ID must start with two letters followed by at least seven digits (e.g. CS0619153) |
+            | CS 0619153   | ServiceNow case ID must not contain spaces                            |
+            | C$0619153    | ServiceNow case ID must only contain letters and numbers              |
