@@ -23,6 +23,9 @@ parameters:
     type: string
   - name: retagImagesTo
     type: string
+  - name: slackWebHook
+    type: string
+    default: ''
 
 stages:
 - stage: re_tag_stage
@@ -47,7 +50,7 @@ stages:
   ${{ if eq(parameters.terraformActions, 'Apply') }}:
     displayName: Terraform Deploy
   ${{ else }}:
-    displayName: Terraform Plan
+    displayName: Terraform Plan Only
   condition: in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped')
   variables:
     tfVarsFile: ${{ parameters.tfVarsFile }}
@@ -118,3 +121,112 @@ stages:
         - template: .azuredevops/templates/steps/app-services-restart.yaml@dtos-devops-templates
           parameters:
             serviceConnection: ${{ parameters.serviceConnection }}
+
+- stage: notify_stage
+  displayName: Send Slack Notification
+  dependsOn:
+  - re_tag_stage
+  - terraform_deploy
+  - db_changes_stage
+  - restart_functions_stage
+  condition: |
+    and(
+      always(),
+      eq(variables['Build.SourceBranch'], 'refs/feat/dtoss-10921-slack-generic-messaging'),
+      ne('${{ parameters.slackWebHook }}', '')
+    )
+  pool:
+    name: ${{ parameters.hostPoolName }}
+  jobs:
+    - job: notify
+      displayName: Send Slack Notification
+      steps:
+        - checkout: dtos-devops-templates
+          sparseCheckoutDirectories: scripts
+          path: templates
+          displayName: 'Checkout Templates Repo'
+
+        - task: PowerShell@2
+          displayName: 'Build Slack Message'
+          name: BuildSlackMessage
+          inputs:
+            targetType: 'inline'
+            script: |
+              # Check if the overall pipeline has succeeded or failed
+              $isSucceeded = $Host.Variables.['pipeline.status'] -eq 'Succeeded'
+
+              # Build the list of stages and their results
+              $allStages = @(
+                  @{ name = "ACR re-tag"; result = "$(dependencies.re_tag_stage.result)" },
+                  @{ name = "Terraform Deploy"; result = "$(dependencies.terraform_deploy.result)" },
+                  @{ name = "Database Changes"; result = "$(dependencies.db_changes_stage.result)" },
+                  @{ name = "Restart Functions"; result = "$(dependencies.restart_functions_stage.result)" }
+              )
+
+              # Build the success message
+              if ($isSucceeded) {
+                  $message = "✅ The infrastructure deployment for the ${{ parameters.environment }} environment has completed.`n`n"
+                  $message += "Here are the results of the stages:`n"
+                  foreach ($stage in $allStages) {
+                      $message += "• $($stage.name): $($stage.result)`n"
+                  }
+                  $message += "`n⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)`n"
+                  $message += "📊 NOTE: End to End tests may still be running: please check #cohort-manager-tests for completed test results.`n"
+                  
+                  # --- Begin dynamic approval message logic ---
+                  # Hard-coded environment lifecycle mappings
+                  $envLifecycle = @{
+                      "development" = "nft"
+                      "nft" = "integration"
+                      "integration" = "preprod"
+                      "preprod" = "production"
+                  }
+
+                  $currentEnv = "${{ parameters.environment }}"
+                  
+                  # Check if the current environment has a next stage
+                  if ($envLifecycle.ContainsKey($currentEnv)) {
+                      $nextEnv = $envLifecycle[$currentEnv]
+                      $approvalMessage = "`n`nTo approve the push of this code from <$currentEnv> to <$nextEnv> click here: https://github.com/NHSDigital/dtos-cohort-manager/actions?query=branch%3Amain`n"
+                      $message += $approvalMessage
+                  }
+                  # --- End dynamic approval message logic ---
+
+                  Write-Host "##vso[task.setvariable variable=slackSuccessMessage]$message"
+              }
+              # Build the failure message
+              else {
+                  $message = "❌ The infrastructure deployment for the ${{ parameters.environment }} environment has failed.`n`n"
+                  $message += "The following stages encountered an issue:`n"
+                  foreach ($stage in $allStages) {
+                      if ($stage.result -ne "Succeeded" -and $stage.result -ne "Skipped") {
+                          $message += "• $($stage.name): $($stage.result)`n"
+                      }
+                  }
+                  $message += "`n⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
+                  
+                  Write-Host "##vso[task.setvariable variable=slackFailureMessage]$message"
+              }
+          condition: always()
+
+        - task: PythonScript@0
+          name: slack_success
+          displayName: Send Slack Notification (Success)
+          condition: succeeded()
+          inputs:
+            scriptSource: 'filePath'
+            scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
+            arguments: >
+              --webhook "${{ parameters.slackWebHook }}"
+              --message "$(slackSuccessMessage)"
+
+        - task: PythonScript@0
+          name: slack_failure
+          displayName: Send Slack Notification (Failure)
+          condition: failed()
+          inputs:
+            scriptSource: 'filePath'
+            scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
+            arguments: >
+              --webhook "${{ parameters.slackWebHook }}"
+              --message "$(slackFailureMessage)"
