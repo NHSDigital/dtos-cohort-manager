@@ -40,7 +40,11 @@ export default async function Header({
         </div>
 
         {session?.user && (
-          <nav className="nhsuk-header__account" aria-label="Account">
+          <nav
+            className="nhsuk-header__account"
+            aria-label="Account"
+            data-testid="header-account-navigation"
+          >
             <ul className="nhsuk-header__account-list">
               <li className="nhsuk-header__account-item">
                 <svg

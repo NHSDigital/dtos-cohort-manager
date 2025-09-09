@@ -1,0 +1,53 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9998524334
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8569-01",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e Verify participant record with Screening ID = 1 and the Referral_flag = true passed Transformation rule 2 (Self Referral) [CohortDistribution]"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "RecordType": "ADD",
+        "NHSNumber": 9998524334,
+        "ReferralFlag": 1,
+        "ScreeningId": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-8569-01",
+        "requirementJiraId": "DTOSS-8569",
+        "additionalTags": "@epic4c- @e2e Verify participant record with Screening ID = 1 and the Referral_flag = true passed Transformation rule 2 (Self Referral) [ParticipantManagement]"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "number": "CS0573850",
+      "u_case_variable_data": {
+        "nhs_number": "9998524334",
+        "forename_": "Jane",
+        "surname_family_name": "Doe",
+        "date_of_birth": "2010-10-22",
+        "enter_dummy_gp_code": "ZZZDKL",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy",
+        "address_line_1": "1 Test Street",
+        "address_line_2": "Testville",
+        "address_line_3": "Leeds",
+        "address_line_4": "West Yorkshire",
+        "address_line_5": "",
+        "postcode": "LS1 1AA"
+      }
+    }
+  ],
+  "nhsNumbers": [
+    "9998524334"
+  ]
+}
+

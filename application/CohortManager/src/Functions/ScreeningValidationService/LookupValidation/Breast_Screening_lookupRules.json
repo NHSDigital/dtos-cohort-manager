@@ -13,7 +13,7 @@
     ],
     "Rules": [
       {
-        "RuleName": "12.BlockedParticipant.BSSelect.Fatal",
+        "RuleName": "12.BlockedParticipant.Non.Fatal",
         "Expression": "existingParticipant.BlockedFlag != \"1\"",
         "Actions": {
           "OnFailure": {
@@ -56,7 +56,7 @@
     "WorkflowName": "AMENDED",
     "Rules": [
       {
-        "RuleName": "54.ValidateBsoCode.NBO.NonFatal",
+        "RuleName": "54.ValidateBsoCode.Non.NonFatal",
         "LocalParams": [
           {
             "Name": "reasonForRemoval",
