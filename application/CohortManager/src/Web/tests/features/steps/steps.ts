@@ -206,10 +206,24 @@ When(
 );
 
 When("I click the button {string}", async ({ page }, buttonText: string) => {
-  await page
-    .getByRole("button", { name: new RegExp(`^\\s*${buttonText}\\s*$`, "i") })
-    .click();
+  await page.getByRole("button", { name: buttonText }).click();
 });
+
+Then(
+  "I should see the error summary with message {string}",
+  async ({ page }, errorMessage: string) => {
+    const errorSummary = page.locator(".nhsuk-error-summary__list");
+    await test.expect(errorSummary).toContainText(errorMessage);
+  }
+);
+
+Then(
+  "I should see the inline error message {string}",
+  async ({ page }, errorMessage: string) => {
+    const inlineError = page.locator(".nhsuk-error-message");
+    await test.expect(inlineError).toContainText(errorMessage);
+  }
+);
 
 // --- Tables ---
 function tableLocator(page: Page, idOrTestId: string) {
