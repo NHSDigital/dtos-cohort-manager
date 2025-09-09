@@ -21,48 +21,29 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "lts/*"
+          check-latest: true
           cache: "npm"
           cache-dependency-path: application/CohortManager/src/Web/package-lock.json
 
       - name: Install dependencies
         run: npm ci
 
+      - name: Run Unit tests
+        run: npm run test:unit
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      - name: Start application and run tests
+      - name: Run E2E tests
         env:
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
           SERVICE_NAME: ${{ vars.SERVICE_NAME }}
+          APP_ENV: ${{ vars.APP_ENV }}
           NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
           EXCEPTIONS_API_URL: ${{ vars.EXCEPTIONS_API_URL }}
-          COHORT_MANAGER_RBAC_CODE: ${{ vars.COHORT_MANAGER_USERS }}
-        run: |
-          # Start the app in background
-          npm run dev:secure &
-
-          # Wait for the app to be ready
-          while ! curl -s https://localhost:3000 > /dev/null; do
-            echo "Waiting for app to start..."
-            sleep 5
-          done
-
-          # Run the tests
-          npm run test:e2e
-
-      - name: run epic 4a tests
-        env:
-          AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-          SERVICE_NAME: ${{ vars.SERVICE_NAME }}
-          NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
-          EXCEPTIONS_API_URL: ${{ vars.EXCEPTIONS_API_URL }}
-          COHORT_MANAGER_RBAC_CODE: ${{ vars.COHORT_MANAGER_USERS }}
-        run: |
-
-
-          # Run the tests
-          npm run test:e2e:epic_4a
+          COHORT_MANAGER_RBAC_CODE: ${{ vars.COHORT_MANAGER_RBAC_CODE }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+        run: npm run test:e2e
 
       - name: Upload test results
         if: always()

@@ -66,7 +66,7 @@ export default function ReportsInformationTable({
                 >
                   Date of Birth{" "}
                 </span>
-                {formatCompactDate(d.DateOfBirth)}
+                {formatCompactDate(d?.DateOfBirth ?? "")}
               </td>
               {isConfusion ? (
                 <td className="nhsuk-table__cell app-u-no-wrap">
@@ -96,7 +96,7 @@ export default function ReportsInformationTable({
                     >
                       Superseded by NHS number{" "}
                     </span>
-                    {formatNhsNumber(d.SupersededByNhsNumber ?? "")}
+                    {formatNhsNumber(d?.SupersededByNhsNumber ?? "")}
                   </td>
                 </>
               )}
