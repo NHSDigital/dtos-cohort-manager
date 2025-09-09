@@ -121,7 +121,8 @@ export default async function Page({
       sortBy
     );
 
-    const startItem = (currentPage - 1) * response.data.PageSize + 1;
+    const pageSize = 10;
+    const startItem = (currentPage - 1) * pageSize + 1;
     const endItem = Math.min(
       startItem + response.data.Items.length - 1,
       response.data.TotalItems
