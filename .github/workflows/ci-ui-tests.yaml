@@ -42,6 +42,7 @@ jobs:
           NEXTAUTH_URL: ${{ vars.NEXTAUTH_URL }}
           EXCEPTIONS_API_URL: ${{ vars.EXCEPTIONS_API_URL }}
           COHORT_MANAGER_RBAC_CODE: ${{ vars.COHORT_MANAGER_USERS }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
         run: npm run test:e2e
 
       - name: Upload test results
