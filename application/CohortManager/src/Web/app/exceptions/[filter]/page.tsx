@@ -122,11 +122,13 @@ export default async function Page({
       sortBy
     );
 
-    const startItem = (currentPage - 1) * response.data.PageSize + 1;
-    const endItem = Math.min(
-      startItem + response.data.Items.length - 1,
-      response.data.TotalItems
-    );
+    const pageSize = 10;
+    const totalItems = Number(response.data.TotalItems) || 0;
+    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+    const endItem =
+      totalItems > 0
+        ? Math.min(startItem + response.data.Items.length - 1, totalItems)
+        : 0;
 
     return (
       <>
@@ -138,53 +140,60 @@ export default async function Page({
                 Raised breast screening exceptions
               </h1>
 
-              <div className="app-form-results-container">
-                <SortExceptionsForm
-                  sortBy={sortBy}
-                  options={sortOptions}
-                  hiddenText="raised exceptions"
-                  testId="sort-raised-exceptions"
-                />
-                <p
-                  className="app-results-text"
-                  data-testid="raised-exception-count"
-                >
-                  Showing {startItem} to {endItem} of {response.data.TotalItems}{" "}
-                  results
+              {totalItems === 0 ? (
+                <p className="nhsuk-body" data-testid="no-raised-exceptions">
+                  There are currently no raised breast screening exceptions.
                 </p>
-              </div>
-              <div className="nhsuk-card nhsuk-u-margin-bottom-5">
-                <div className="nhsuk-card__content">
-                  <ExceptionsTable
-                    exceptions={exceptionDetails}
-                    caption="Breast screening exceptions which have been created today"
-                  />
-                </div>
-              </div>
-              {totalPages > 1 && (
-                <Pagination
-                  items={paginationItems}
-                  previous={
-                    paginationLinks.previous
-                      ? {
-                          href: convertToLocalUrl(
-                            paginationLinks.previous,
-                            sortBy
-                          )!,
-                        }
-                      : undefined
-                  }
-                  next={
-                    paginationLinks.next
-                      ? {
-                          href: convertToLocalUrl(
-                            paginationLinks.next,
-                            sortBy
-                          )!,
-                        }
-                      : undefined
-                  }
-                />
+              ) : (
+                <>
+                  <div className="app-form-results-container">
+                    <SortExceptionsForm
+                      sortBy={sortBy}
+                      options={sortOptions}
+                      hiddenText="raised exceptions"
+                      testId="sort-raised-exceptions"
+                    />
+                    <p
+                      className="app-results-text"
+                      data-testid="raised-exception-count"
+                    >
+                      Showing {startItem} to {endItem} of {totalItems} results
+                    </p>
+                  </div>
+                  <div className="nhsuk-card nhsuk-u-margin-bottom-5">
+                    <div className="nhsuk-card__content">
+                      <ExceptionsTable
+                        exceptions={exceptionDetails}
+                        caption="Breast screening exceptions which have been created today"
+                      />
+                    </div>
+                  </div>
+                  {totalPages > 1 && (
+                    <Pagination
+                      items={paginationItems}
+                      previous={
+                        paginationLinks.previous
+                          ? {
+                              href: convertToLocalUrl(
+                                paginationLinks.previous,
+                                sortBy
+                              )!,
+                            }
+                          : undefined
+                      }
+                      next={
+                        paginationLinks.next
+                          ? {
+                              href: convertToLocalUrl(
+                                paginationLinks.next,
+                                sortBy
+                              )!,
+                            }
+                          : undefined
+                      }
+                    />
+                  )}
+                </>
               )}
             </div>
           </div>

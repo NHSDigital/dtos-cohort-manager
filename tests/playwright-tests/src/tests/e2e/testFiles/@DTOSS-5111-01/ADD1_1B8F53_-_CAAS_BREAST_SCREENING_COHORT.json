@@ -2,15 +2,28 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9990185433",
-        "RuleId": 94,
-        "RuleDescription": "Invalid eligibility flag."
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9990185433,
+        "GivenName": "Darrel",
+        "FamilyName": "Regans"
       },
       "meta": {
         "testJiraId": "@DTOSS-5111-01",
         "requirementJiraId": "DTOSS-4909",
-        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify that an exception raised  when adding participant with eligibility is false"
+        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify that No exception is raised when adding participant with eligibility is false"
+      }
+    },
+   {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9990185433,
+        "RecordType": "ADD",
+        "EligibilityFlag": 0
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-5111-01",
+        "requirementJiraId": "DTOSS-4909",
+        "additionalTags": "@regression @e2e @epic2-med-priority Tests Verify eligibility is 0"
       }
     }
   ],
