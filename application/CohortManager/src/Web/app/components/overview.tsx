@@ -1,11 +1,11 @@
 import CardGroup from "@/app/components/cardGroup";
 import DataError from "@/app/components/dataError";
-import {fetchExceptions} from "@/app/lib/fetchExceptions";
+import { fetchExceptions } from "@/app/lib/fetchExceptions";
 
 export default async function Overview() {
   try {
-    const exceptions = await fetchExceptions();
-    const exceptionsToday = await fetchExceptions({exceptionStatus: 1});
+    const exceptions = await fetchExceptions({ exceptionStatus: 0 });
+    const exceptionsToday = await fetchExceptions({ exceptionStatus: 1 });
 
     const exceptionItems = [
       {
