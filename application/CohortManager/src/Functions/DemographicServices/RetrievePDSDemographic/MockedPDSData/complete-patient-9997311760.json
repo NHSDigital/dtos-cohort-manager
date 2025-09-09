@@ -1,0 +1,38 @@
+{
+  "resourceType": "Patient",
+  "id": "9997311760",
+  "identifier": [
+    {
+      "system": "https://fhir.nhs.uk/Id/nhs-number",
+      "value": "9997311760",
+      "extension": [
+        {
+          "url": "https://fhir.hl7.org.uk/StructureDefinition/Extension-UKCore-NHSNumberVerificationStatus",
+          "valueCodeableConcept": {
+            "coding": [
+              {
+                "system": "https://fhir.hl7.org.uk/CodeSystem/UKCore-NHSNumberVerificationStatus",
+                "version": "1.0.0",
+                "code": "01",
+                "display": "Number present and verified"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "versionId": "1"
+  },
+  "name": [
+    {
+      "use": "usual",
+      "given": ["Test"],
+      "family": "Person",
+      "prefix": ["Mr"]
+    }
+  ],
+  "gender": "male",
+  "birthDate": "1970-01-01"
+}
