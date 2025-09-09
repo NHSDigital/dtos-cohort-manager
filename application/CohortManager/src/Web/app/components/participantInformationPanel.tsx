@@ -86,11 +86,17 @@ export default function ParticipantInformationPanel({
             </dd>
           </div>
           {exceptionDetails.supersededByNhsNumber && (
-            <div className="nhsuk-summary-list__row">
+            <div
+              className="nhsuk-summary-list__row"
+              data-testid="superseded-by-row"
+            >
               <dt className="nhsuk-summary-list__key">
                 Superseded by NHS number
               </dt>
-              <dd className="nhsuk-summary-list__value">
+              <dd
+                className="nhsuk-summary-list__value"
+                data-testid="superseded-by-value"
+              >
                 {formatNhsNumber(exceptionDetails.supersededByNhsNumber ?? "")}
               </dd>
             </div>
