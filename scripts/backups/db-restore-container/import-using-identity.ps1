@@ -93,7 +93,7 @@ try {
     # If the status code is 200, parse the content to get the token.
     $responseContent = $tokenResponse.Content | ConvertFrom-Json
     $accessToken = $responseContent.access_token
-    Write-Error "Successfully retrieved storage account access token."
+    Write-Output "Successfully retrieved storage account access token."
 
     # Prepare the blob download
     $blobUrl = "https://$StorageAccountName.blob.core.windows.net/$ContainerName/$BackupFileName"
@@ -124,6 +124,15 @@ try {
     exit 1
 }
 
+# Check that he file was downloaded successfully
+if (-not (Test-Path $localFilePath) -or ((Get-Item $localFilePath).Length -eq 0)) {
+    Write-Error "Error: Downloaded file does not exist or is empty: $localFilePath"
+    exit 1
+}
+else {
+    Write-Output "Verified that the backup file was downloaded successfully. File size: $((Get-Item $localFilePath).Length) bytes."
+}
+
 # Do the restore using sqlpackage:
 # Define SQL Package path here:
 $SqlPackagePath = "/opt/sqlpackage/sqlpackage"
@@ -149,7 +158,7 @@ try {
     Write-Output "Starting database restore to $DatabaseName [sku: $ServiceObjective, size: $MaxSizeGB] using file: $localFilePath..."
 
     $sqlpackageOutput = & $SqlPackagePath $Arguments *>&1
-    # Write-Output "sqlpackage output: $sqlpackageOutput"
+    Write-Output "sqlpackage output: $sqlpackageOutput"
 
     # If output contains error string, throw an error
     if ($sqlpackageOutput -match "Error:") {
