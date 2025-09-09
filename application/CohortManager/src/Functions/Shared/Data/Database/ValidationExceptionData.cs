@@ -3,11 +3,13 @@ namespace Data.Database;
 using System;
 using System.Data;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Common;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.DTO;
 using Model.Enums;
 
 public class ValidationExceptionData : IValidationExceptionData
@@ -144,18 +146,45 @@ public class ValidationExceptionData : IValidationExceptionData
             filteredExceptions = filteredExceptions?.Where(x => x.DateCreated >= startDate && x.DateCreated < endDate);
         }
 
-        if (filteredExceptions?.Any() != true)
-            return [];
-
-        var tasks = filteredExceptions.Select(async exception =>
+        if (filteredExceptions == null || !filteredExceptions.Any()) return [];
+        var results = filteredExceptions.Select(exception =>
         {
             var validationException = exception.ToValidationException();
-            var participantDemographic = long.TryParse(exception.NhsNumber, out long nhsNumber) ? await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber) : null;
+            var participantDemographic = ExtractParticipantDemographicFromErrorRecord(exception.ErrorRecord);
             return GetExceptionDetails(validationException, participantDemographic);
         });
-
-        var results = await Task.WhenAll(tasks);
         return results.Where(x => x != null).ToList()!;
+    }
+
+    private ParticipantDemographic? ExtractParticipantDemographicFromErrorRecord(string? errorRecord)
+    {
+        if (string.IsNullOrWhiteSpace(errorRecord))
+        {
+            return null;
+        }
+
+        try
+        {
+            var errorRecordData = JsonSerializer.Deserialize<ErrorRecordDto>(errorRecord);
+            if (errorRecordData == null)
+            {
+                return null;
+            }
+
+            return new ParticipantDemographic
+            {
+                NhsNumber = long.TryParse(errorRecordData.NhsNumber, out long nhsNumber) ? nhsNumber : 0,
+                GivenName = errorRecordData.FirstName,
+                FamilyName = errorRecordData.FamilyName,
+                DateOfBirth = errorRecordData.DateOfBirth,
+                SupersededByNhsNumber = string.IsNullOrWhiteSpace(errorRecordData.SupersededByNhsNumber) ? null : long.TryParse(errorRecordData.SupersededByNhsNumber, out long superseded) ? superseded : null
+            };
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning("Failed to deserialize ErrorRecord JSON: {ErrorRecord}. Error: {Error}", errorRecord, ex.Message);
+            return null;
+        }
     }
 
     private ServiceResponseModel CreateResponse(bool success, HttpStatusCode statusCode, string message)
