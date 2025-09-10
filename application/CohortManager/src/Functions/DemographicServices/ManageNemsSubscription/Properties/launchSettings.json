@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "ParticipantManagement": {
+    "ManageNemsSubscription": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7994",
+      "commandLineArgs": "--port 9081",
       "launchBrowser": false
     }
   }

@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.4.2" />
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>1c322584-4422-4990-9268-37b5be6fa29d</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.4.2" />
+    <PackageReference Include="Aspire.Hosting.Azure.ServiceBus" Version="9.4.2" />
+    <PackageReference Include="Aspire.Hosting.Azure.Sql" Version="9.4.2" />
+    <PackageReference Include="Aspire.Hosting.Azure.Storage" Version="9.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../CaasIntegration/receiveCaasFile/receiveCaasFile.csproj" />
+    <ProjectReference Include="../CaasIntegration/RetrieveMeshFile/RetrieveMeshFile.csproj" />
+    <ProjectReference Include="../CohortDistributionServices/DistributeParticipant/DistributeParticipant.csproj" />
+    <ProjectReference Include="../CohortDistributionServices/RetrieveCohortDistribution/RetrieveCohortDistribution.csproj" />
+    <ProjectReference Include="../CohortDistributionServices/RetrieveCohortRequestAudit/RetrieveCohortRequestAudit.csproj" />
+    <ProjectReference Include="../CohortDistributionServices/TransformDataService/TransformDataService.csproj" />
+    <ProjectReference Include="../DemographicServices/DemographicDurableFunction/DemographicDurableFunction.csproj" />
+    <ProjectReference Include="../DemographicServices/ManageNemsSubscription/ManageNemsSubscription.csproj" />
+    <ProjectReference Include="../DemographicServices/RetrievePDSDemographic/RetrievePDSDemographic.csproj" />
+    <ProjectReference Include="../ExceptionHandling/CreateException/CreateException.csproj" />
+    <ProjectReference Include="../ExceptionHandling/UpdateException/UpdateException.csproj" />
+    <ProjectReference Include="../NemsSubscriptionService/NemsMeshRetrieval/NemsMeshRetrieval.csproj" />
+    <ProjectReference Include="../NemsSubscriptionService/ProcessNemsUpdate/ProcessNemsUpdate.csproj" />
+    <ProjectReference Include="../ParticipantManagementServices/DeleteParticipant/DeleteParticipant.csproj" />
+    <ProjectReference Include="../ParticipantManagementServices/ManageParticipant/ManageParticipant.csproj" />
+    <ProjectReference Include="../ParticipantManagementServices/ManageServiceNowParticipant/ManageServiceNowParticipant.csproj" />
+    <ProjectReference Include="../ParticipantManagementServices/UpdateBlockedFlag/UpdateBlockedFlag.csproj" />
+    <ProjectReference Include="../screeningDataServices/BsSelectRequestAudit/BsSelectRequestAuditDataService.csproj" />
+    <ProjectReference Include="../screeningDataServices/CohortDistributionDataService/CohortDistributionDataService.csproj" />
+    <ProjectReference Include="../screeningDataServices/ExceptionManagementDataService/ExceptionManagementDataService.csproj" />
+    <ProjectReference Include="../screeningDataServices/GeneCodeLkpDataService/GeneCodeLkpDataService.csproj" />
+    <ProjectReference Include="../screeningDataServices/GetValidationExceptions/GetValidationExceptions.csproj" />
+    <ProjectReference Include="../screeningDataServices/HigherRiskReferralReasonLkpDataService/HigherRiskReferralReasonLkpDataService.csproj" />
+    <ProjectReference Include="../screeningDataServices/NemsSubscriptionDataService/NemsSubscriptionDataService.csproj" />
+    <ProjectReference Include="../screeningDataServices/ParticipantDemographicDataService/ParticipantDemographicDataService.csproj" />
+    <ProjectReference Include="../screeningDataServices/ParticipantManagementDataService/ParticipantManagement.csproj" />
+    <ProjectReference Include="../screeningDataServices/ReferenceDataService/ReferenceDataService.csproj" />
+    <ProjectReference Include="../screeningDataServices/ScreeningLkpDataService/ScreeningLkpDataService.csproj" />
+    <ProjectReference Include="../screeningDataServices/ServiceNowCasesDataService/ServiceNowCasesDataService.csproj" />
+    <ProjectReference Include="../ScreeningValidationService/LookupValidation/LookupValidation.csproj" />
+    <ProjectReference Include="../ScreeningValidationService/RemoveValidationException/RemoveValidationException.csproj" />
+    <ProjectReference Include="../ScreeningValidationService/StaticValidation/StaticValidation.csproj" />
+    <ProjectReference Include="../ServiceNowIntegration/ServiceNowCohortLookup/ServiceNowCohortLookup.csproj" />
+    <ProjectReference Include="../ServiceNowIntegration/ServiceNowMessageHandler/ServiceNowMessageHandler.csproj" />
+    <ProjectReference Include="../Shared/DataServices.Migrations/DataServices.Migrations.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "BsSelectGpPractice": {
+    "ExceptionManagementDataService": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7084",
+      "commandLineArgs": "--port 7911",
       "launchBrowser": false
     }
   }
