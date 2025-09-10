@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "ScreeningValidationService": {
+    "StaticValidation": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7116",
+      "commandLineArgs": "--port 7074",
       "launchBrowser": false
     }
   }

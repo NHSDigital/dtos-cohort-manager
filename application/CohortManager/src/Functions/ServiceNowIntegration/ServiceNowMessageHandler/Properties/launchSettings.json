@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "ParticipantManagement": {
+    "ServiceNowMessageHandler": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7994",
+      "commandLineArgs": "--port 9092",
       "launchBrowser": false
     }
   }
