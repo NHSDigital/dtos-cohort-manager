@@ -182,7 +182,7 @@ public class ValidationExceptionData : IValidationExceptionData
         }
         catch (JsonException ex)
         {
-            _logger.LogWarning("Failed to deserialize ErrorRecord JSON: {ErrorRecord}. Error: {Error}", errorRecord, ex.Message);
+            _logger.LogWarning(ex, "Failed to deserialize ErrorRecord JSON: {ErrorRecord}. Error: {Error}", errorRecord, ex.Message);
             return null;
         }
     }
