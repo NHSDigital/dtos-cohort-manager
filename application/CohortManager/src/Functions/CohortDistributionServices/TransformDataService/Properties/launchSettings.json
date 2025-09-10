@@ -2,7 +2,7 @@
   "profiles": {
     "TransformDataService": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7106",
+      "commandLineArgs": "--port 7080",
       "launchBrowser": false
     }
   }

@@ -2,7 +2,7 @@
   "profiles": {
     "RetrievePdsDemographic": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7243",
+      "commandLineArgs": "--port 8082",
       "launchBrowser": false
     }
   }
