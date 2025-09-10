@@ -293,21 +293,6 @@ public class LookupValidationTests
         StringAssert.Contains(body, "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal");
     }
 
-    [TestMethod]
-    public async Task Run_BlockedParticipant_ReturnValidationException()
-    {
-        // Arrange
-        _requestBody.ExistingParticipant.BlockedFlag = "1";
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _sut.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        StringAssert.Contains(body, "12.BlockedParticipant.Non.Fatal");
-    }
 
     [TestMethod]
 

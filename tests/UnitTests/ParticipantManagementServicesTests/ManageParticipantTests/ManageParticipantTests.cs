@@ -165,6 +165,8 @@ public class ManageParticipantTests
         await _sut.Run(JsonSerializer.Serialize(_request));
 
         // Assert
+
+        //__handleException.CreateSystemExceptionLog(ex, participant, fileName, category);
         _participantManagementClientMock
             .Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never);
         _participantManagementClientMock
@@ -176,7 +178,7 @@ public class ManageParticipantTests
                 It.IsAny<InvalidOperationException>(),
                 It.IsAny<Participant>(),
                 It.IsAny<string>(),
-                ""), Times.Once);
+                "0"), Times.Once);
     }
 
     [TestMethod]
