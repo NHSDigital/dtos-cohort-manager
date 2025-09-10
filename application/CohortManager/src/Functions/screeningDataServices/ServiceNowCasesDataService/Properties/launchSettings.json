@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "RetrieveCohortDistribution": {
+    "ServiceNowCasesDataService": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7078",
+      "commandLineArgs": "--port 9996",
       "launchBrowser": false
     }
   }

@@ -2,7 +2,7 @@
   "profiles": {
     "DemograpghicDurableFunction": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7297",
+      "commandLineArgs": "--port 7079",
       "launchBrowser": false
     }
   }

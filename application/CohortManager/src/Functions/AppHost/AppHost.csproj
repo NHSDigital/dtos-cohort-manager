@@ -25,6 +25,7 @@
     <ProjectReference Include="../CohortDistributionServices/RetrieveCohortRequestAudit/RetrieveCohortRequestAudit.csproj" />
     <ProjectReference Include="../CohortDistributionServices/TransformDataService/TransformDataService.csproj" />
     <ProjectReference Include="../DemographicServices/DemographicDurableFunction/DemographicDurableFunction.csproj" />
+    <ProjectReference Include="../DemographicServices/ManageCaasSubscription/ManageCaasSubscription.csproj" />
     <ProjectReference Include="../DemographicServices/ManageNemsSubscription/ManageNemsSubscription.csproj" />
     <ProjectReference Include="../DemographicServices/RetrievePDSDemographic/RetrievePDSDemographic.csproj" />
     <ProjectReference Include="../ExceptionHandling/CreateException/CreateException.csproj" />

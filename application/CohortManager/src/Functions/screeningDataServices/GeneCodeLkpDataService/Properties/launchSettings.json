@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "BsSelectGpPractice": {
+    "GeneCodeLkpDataService": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7084",
+      "commandLineArgs": "--port 7991",
       "launchBrowser": false
     }
   }

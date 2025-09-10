@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "RetrieveCohortDistribution": {
+    "DistributeParticipant": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7078",
+      "commandLineArgs": "--port 7077",
       "launchBrowser": false
     }
   }
