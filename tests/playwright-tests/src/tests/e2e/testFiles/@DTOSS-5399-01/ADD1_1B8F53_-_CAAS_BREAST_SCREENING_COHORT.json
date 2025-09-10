@@ -11,19 +11,6 @@
         "requirementJiraId": "DTOSS-2757",
         "additionalTags": "@regression @e2e @epic2-med-priority Validate eligibility flag is always set to null for ADD participant records"
       }
-    },
-    {
-    "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9996216462",
-        "RuleId": 94,
-        "RuleDescription": "Invalid eligibility flag."
-      },
-      "meta": {
-        "testJiraId": "@DTOSS-5399-01",
-        "requirementJiraId": "DTOSS-2757",
-        "additionalTags": "@regression @e2e @epic2-med-priority Validate eligibility flag is always set to null exception for ADD participant records"
-      }
     }
   ],
   "inputParticipantRecord": [

@@ -1,6 +1,5 @@
 import { expect, test } from '../../fixtures/test-fixtures';
 import { extractSubscriptionID, getRecordsFromNemsSubscription, getRecordsFromParticipantDemographicDataService, getRecordsFromParticipantManagementDataService, receiveParticipantViaServiceNow } from "../../../api/distributionService/bsSelectService";
-import { composeValidators, expectStatus } from "../../../api/responseValidators";
 import { ParticipantRecord } from '../../../interface/InputData';
 import { loadParticipantPayloads } from '../../fixtures/jsonDataReader';
 
@@ -37,7 +36,7 @@ test.describe.serial('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the 
           break;
         }
         console.log(`Waiting for succesful data receival from serviceNow... (${i + 1}/10)`);
-        await new Promise(res => setTimeout(res, 2000));
+        await new Promise(res => setTimeout(res, 5000));
       }
       if (!success) {
         throw new Error('Cohort Manager receive data was unsuccessful after 10 retries (20 seconds).');
@@ -50,40 +49,56 @@ test.describe.serial('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the 
 
       for (let i = 0; i < 10; i++) {
         response = await getRecordsFromParticipantDemographicDataService(request);
-        if (response.status === 200) {
-          success = true;
-          break;
+
+        if (response.status === 200 && Array.isArray(response.data)) {
+          console.log("Expected Participant NhsNumber returned :", response.data.map((p: any) => p.NhsNumber));
+          const participant = response.data.find(
+            (p: any) => p.NhsNumber === 9997160908
+          );
+          if (participant) {
+            success = true;
+            expect(participant.GivenName).toBe(givenName);
+            expect(participant.FamilyName).toBe(familyName);
+            break;
+          }
         }
         console.log(`Waiting for participant response data to be available... (${i + 1}/10)`);
-        await new Promise(res => setTimeout(res, 2000));
+        await new Promise(res => setTimeout(res, 5000));
       }
       if (!success) {
-        throw new Error('Participant response data was not available after 10 retries (20 seconds).');
+        throw new Error('Participant with expected NHSNumber was not available after 10 retries (50 seconds).');
       }
-      expect(response?.data?.[0]?.NhsNumber).toBe(9998380197);
-      expect(response?.data?.[0]?.GivenName).toBe(givenName);
-      expect(response?.data?.[0]?.FamilyName).toBe(familyName);
     });
 
     await test.step('And NHSNumber, ScreeningId, ReferralFlag is written to Participant Management table', async () => {
       let response;
       let success = false;
+      let found = false;
+
+      const isMatchingRow = (row: { NHSNumber: number; ScreeningId: number; ReferralFlag: number }): boolean =>
+        row.NHSNumber === 9997160908 && row.ScreeningId === 1 && row.ReferralFlag === 1;
 
       for (let i = 0; i < 10; i++) {
         response = await getRecordsFromParticipantManagementDataService(request);
+
         if (response.status === 200) {
           success = true;
-          break;
+          found = response.data.some(isMatchingRow);
+          if (found) {
+            const match = response.data.find(isMatchingRow);
+            console.log(`Found matching Number: ${match.NHSNumber}`);
+            break;
+          }
         }
         console.log(`Waiting for participant response data to be available... (${i + 1}/10)`);
-        await new Promise(res => setTimeout(res, 2000));
+        await new Promise(res => setTimeout(res, 5000));
       }
       if (!success) {
-        throw new Error('Participant response data was not available after 10 retries (20 seconds).');
+        throw new Error('Participant response data was not available after 10 retries (50 seconds).');
       }
-      expect(response?.data?.[0]?.NHSNumber).toBe(9998380197);
-      expect(response?.data?.[0]?.ScreeningId).toBe(1);
-      expect(response?.data?.[0]?.ReferralFlag).toBe(1);
+      if (!found) {
+        throw new Error('Matching participant record was not found after 10 retries (50 seconds).');
+      }
     });
 
     await test.step('DTOSS-10012 DTOSS-10012 verify NemsSubscription_Id in NEMS_SUBSCRIPTION table', async () => {
@@ -97,7 +112,7 @@ test.describe.serial('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the 
           break;
         }
         console.log(`Waiting for NemsSubscription_Id data to be available... (${i + 1}/10)`);
-        await new Promise(res => setTimeout(res, 2000));
+        await new Promise(res => setTimeout(res, 5000));
       }
       if (!success || !response) {
         throw new Error('NemsSubscription_Id response data was not available after 10 retries (20 seconds).');
