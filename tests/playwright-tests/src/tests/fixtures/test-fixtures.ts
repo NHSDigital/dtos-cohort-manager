@@ -14,6 +14,15 @@ interface TestData {
   testFilesPath?: string;
 }
 
+interface TestDataForRoutineAmended {
+  checkInDatabaseAmend: any[];
+  nhsNumberAmend: string[];
+  parquetFileAmend: string | undefined;
+  inputParticipantRecordAmend?: Record<string, any>;
+  testFilesPathAmend?: string;
+  runTimeParquetFileRoutineAmend: string;
+}
+
 
 interface TestDataWithAmended {
   checkInDatabaseAdd: any[];
@@ -98,7 +107,38 @@ export const test = base.extend<{
     await use(testData);
   },
 });
+////
+export const testWithRoutineAmended = base.extend<{
+  testData: TestDataForRoutineAmended;
+}>({
+  testData: async ({ request: _ }, use, testInfo) => {
+    const [checkInDatabaseAmend, nhsNumberAmend, parquetFileAmend, inputParticipantRecordAmend, testFilesPathAmend] =
+      await getTestData(testInfo.title, "AMENDED", true);
 
+    let runTimeParquetFileAmend: string = "";
+    if (!parquetFileAmend) {
+      runTimeParquetFileAmend = await createParquetFromJson(
+        nhsNumberAmend,
+        inputParticipantRecordAmend!,
+        testFilesPathAmend!,
+        "AMENDED",
+        false
+      );
+    }
+
+    const testDataWithRoutineAmended: TestDataForRoutineAmended = {
+      checkInDatabaseAmend,
+      nhsNumberAmend,
+      parquetFileAmend,
+      inputParticipantRecordAmend,
+      testFilesPathAmend,
+      runTimeParquetFileAmend
+    };
+
+    await use(testDataWithRoutineAmended);
+  },
+});
+////
 
 export const testWithAmended = base.extend<{
   testData: TestDataWithAmended;

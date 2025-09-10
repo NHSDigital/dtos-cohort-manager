@@ -1,50 +1,61 @@
-Feature: testing Breast screening - Not raised exception information page
+Feature: Not raised exceptions page
 
-  Background:
-    Given the user navigate to not raised exception overview page
-    When the user clicks on exception ID link
-    And they should navigate to 'Exception information - Cohort Manager - NHS'
+    Background:
+        Given I sign in with a test account
+      When I go to the page "/participant-information/2028"
+      Then I should see the heading "Exception information"
+      And I see the text "Local reference (exception ID): 2028"
 
-  @regression @req_3913 @test_10077
-  Scenario: verify exception information
-    Then they should navigate to 'Exception information - Cohort Manager - NHS'
-    And the participant details section should have the following fields:
-      | NHS number               |
-      | Surname                  |
-      | Forename                 |
-      | Date of birth            |
-      | Gender                   |
-      | Current address          |
-      | Contact details          |
-      | Registered practice code |
-    And the Exception details section should have the following fields:
-      | Date exception created |
-      | More detail            |
-      | ServiceNow ID          |
-    And the Exception status have 'Enter ServiceNow Case ID'
-    And the Exception status have 'save and continue' button
+    Scenario: Check for accessibility issues as a signed in user
+      Given I should see the heading "Exception information"
+      Then I should expect 0 accessibility issues
 
-  @req_3913 @test_10083
-  Scenario: navigation to exception information page
-    When the user clicks on Not raised breast screening exceptions link
-    Then they should navigate to 'Not raised breast screening exceptions - Cohort Manager - NHS'
+    Scenario: Check for the portal form used
+        Given I should see the heading "Exception information"
+        Then I see the text "Portal form: Request to amend incorrect patient PDS record data"
 
-  @req_3913 @test_10084
-  Scenario: verify navigation to Home screen from Raised exception overview page
-    When the user clicks on Home link
-    Then they should navigate to 'Breast screening - Cohort Manager - NHS'
+    Scenario: Check for not raised exception participant details
+        Given I see the text "Not raised breast screening exceptions"
+        Then I should see the secondary heading "Participant details"
 
-  @req_3913 @test_10087
-  Scenario: verify navigation to Contact us screen
-    And the user clicks on contact us link
-    Then they should navigate to 'Get help with Cohort Manager - Cohort Manager - NHS'
+    Scenario: Check for not raised exception details
+        Given I see the text "Not raised breast screening exceptions"
+        Then I should see the secondary heading "Exception details"
 
-  @req_3913 @test_10085
-  Scenario: verify navigation to Terms and conditions screen
-    And the user clicks on Terms and conditions link
-    Then they should navigate to 'Terms and conditions - Cohort Manager - NHS'
+    Scenario: Check for exception status section
+        Given I see the text "Exception information"
+        Then I should see the secondary heading "Exception status"
+        And I see the text input with label "Enter ServiceNow Case ID"
+        And I see the button "Save and continue"
 
-  @req_3913 @test_10086
-  Scenario: verify navigation to cookies screen
-    And the user clicks on cookies link
-    Then they should navigate to 'Cookies on Cohort Manager - Cohort Manager - NHS'
+    Scenario: Check for the portal form used for a CaaS exception
+        When I go to the page "/participant-information/2020"
+        Given I see the text "Exception information"
+        Then I see the text "Portal form: Raise with Cohorting as a Service (CaaS)"
+
+    Scenario: Check for the portal form used for a BSS exception
+        When I go to the page "/participant-information/2034"
+        Given I see the text "Exception information"
+        Then I see the text "Portal form: Raise with Breast Screening Select (BSS)"
+
+    Scenario: Check for breadcrumb navigation back to Not raised breast screening exceptions page
+      When I go to the page "/participant-information/2032"
+      Then I see the link "Home"
+      Then I see the link "Not raised breast screening exceptions"
+      When I click the link "Not raised breast screening exceptions"
+      Then I should see the heading "Not raised breast screening exceptions"
+
+    Scenario: Invalid ServiceNow Case ID input shows error message
+        Given I go to the page "/participant-information/2028"
+        And I fill the input with label "Enter ServiceNow Case ID" with "<input>"
+        And I click the button "Save and continue"
+        Then I should see the error summary with message "<error>"
+        And I should see the inline error message "<error>"
+
+        Examples:
+            | input         | error                                                                 |
+            |              | ServiceNow case ID is required                                        |
+            | CS06191      | ServiceNow case ID must be nine characters or more                    |
+            | CS0619153A   | ServiceNow case ID must start with two letters followed by at least seven digits (e.g. CS0619153) |
+            | CS 0619153   | ServiceNow case ID must not contain spaces                            |
+            | C$0619153    | ServiceNow case ID must only contain letters and numbers              |
