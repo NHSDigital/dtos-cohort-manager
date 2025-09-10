@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.DTO;
 using Model.Enums;
+using NHS.CohortManager.Shared.Utilities;
 
 public class ValidationExceptionData : IValidationExceptionData
 {
@@ -182,7 +183,7 @@ public class ValidationExceptionData : IValidationExceptionData
                 NhsNumber = long.TryParse(errorRecordData.NhsNumber, out long nhsNumber) ? nhsNumber : 0,
                 GivenName = errorRecordData.FirstName,
                 FamilyName = errorRecordData.FamilyName,
-                DateOfBirth = errorRecordData.DateOfBirth,
+                DateOfBirth = MappingUtilities.FormatDateTime(MappingUtilities.ParseDates(errorRecordData.DateOfBirth)),
                 SupersededByNhsNumber = long.TryParse(errorRecordData.SupersededByNhsNumber, out long superseded) ? superseded : null,
                 Gender = errorRecordData.Gender,
                 AddressLine1 = errorRecordData.AddressLine1,
