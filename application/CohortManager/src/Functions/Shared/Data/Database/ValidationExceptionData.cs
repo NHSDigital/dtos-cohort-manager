@@ -134,7 +134,7 @@ public class ValidationExceptionData : IValidationExceptionData
 
     private ServiceResponseModel CreateSuccessResponse(string message) => CreateResponse(true, HttpStatusCode.OK, message);
     private ServiceResponseModel CreateErrorResponse(string message, HttpStatusCode statusCode) => CreateResponse(false, statusCode, message);
-    
+
     private ValidationException? GetValidationExceptionWithDetails(ExceptionManagement exception)
     {
         var validationException = exception.ToValidationException();
@@ -191,8 +191,8 @@ public class ValidationExceptionData : IValidationExceptionData
                 AddressLine4 = errorRecordData.AddressLine4,
                 AddressLine5 = errorRecordData.AddressLine5,
                 PostCode = errorRecordData.PostCode,
-                TelephoneNumberHome = errorRecordData.TelephoneNumberHome,
-                EmailAddressHome = errorRecordData.EmailAddressHome,
+                TelephoneNumberHome = errorRecordData.TelephoneNumber,
+                EmailAddressHome = errorRecordData.EmailAddress,
                 PrimaryCareProvider = errorRecordData.PrimaryCareProvider,
             };
         }
