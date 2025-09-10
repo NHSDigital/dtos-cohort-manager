@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "RetrieveCohortDistribution": {
+    "BsSelectRequestAudit": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7078",
+      "commandLineArgs": "--port 7989",
       "launchBrowser": false
     }
   }
