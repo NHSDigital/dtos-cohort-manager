@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "BsSelectGpPractice": {
+    "NemsSubscriptionDataService": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7087",
+      "commandLineArgs": "--port 7990",
       "launchBrowser": false
     }
   }

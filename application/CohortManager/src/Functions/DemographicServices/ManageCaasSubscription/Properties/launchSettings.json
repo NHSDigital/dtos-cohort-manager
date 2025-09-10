@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "RetrieveCohortDistribution": {
+    "ManageCaasSubscription": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7078",
+      "commandLineArgs": "--port 9084",
       "launchBrowser": false
     }
   }
