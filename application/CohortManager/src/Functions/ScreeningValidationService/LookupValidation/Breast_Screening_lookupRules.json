@@ -13,18 +13,6 @@
     ],
     "Rules": [
       {
-        "RuleName": "12.BlockedParticipant.Non.Fatal",
-        "Expression": "existingParticipant.BlockedFlag != \"1\"",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Participant is blocked\""
-            }
-          }
-        }
-      },
-      {
         "RuleName": "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal",
         "LocalParams": [
           {
