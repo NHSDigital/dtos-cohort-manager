@@ -3,14 +3,9 @@ import { config } from "../../config/env";
 import { ApiResponse } from "../core/types";
 import { fetchApiResponse, findMatchingObject, validateFields } from "../apiHelper";
 
-
-
-
-
-const PARTICIPANT_DEMOGRAPHIC_SERVICE = config.participantDemographicDataService;
 const NHS_NUMBER_KEY = config.nhsNumberKey;
 const NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC = config.nhsNumberKeyExceptionDemographic;
-const IGNORE_VALIDATION_KEY = config.ignoreValidationKey;
+
 
 export async function validateApiResponse(validationJson: any, request: any): Promise<{ status: boolean; errorTrace?: any }> {
     let endpoint = "";
@@ -117,10 +112,6 @@ async function handleOKResponse(apiValidation: any, endpoint: string, response: 
 
     return status;
 }
-
-
-
-
 
 export async function pollApiForOKResponse(httpRequest: () => Promise<ApiResponse>): Promise<ApiResponse>{
     let apiResponse: ApiResponse | null = null;

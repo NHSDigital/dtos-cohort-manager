@@ -60,7 +60,7 @@ test.describe.serial('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the 
       if (!success) {
         throw new Error('Participant response data was not available after 10 retries (20 seconds).');
       }
-      expect(response?.data?.[0]?.NhsNumber).toBe(9997160908);
+      expect(response?.data?.[0]?.NhsNumber).toBe(9998380197);
       expect(response?.data?.[0]?.GivenName).toBe(givenName);
       expect(response?.data?.[0]?.FamilyName).toBe(familyName);
     });
@@ -81,7 +81,7 @@ test.describe.serial('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the 
       if (!success) {
         throw new Error('Participant response data was not available after 10 retries (20 seconds).');
       }
-      expect(response?.data?.[0]?.NHSNumber).toBe(9997160908);
+      expect(response?.data?.[0]?.NHSNumber).toBe(9998380197);
       expect(response?.data?.[0]?.ScreeningId).toBe(1);
       expect(response?.data?.[0]?.ReferralFlag).toBe(1);
     });

@@ -1,14 +1,9 @@
-import { APIResponse, expect } from "@playwright/test";
+import { APIResponse } from "@playwright/test";
 
 import { config } from "../config/env";
 import { assertOnCounts, assertOnRecordDateTimes, assertOnNhsNumber, MatchDynamicType, MatchOnRuleDescriptionDynamic } from "./core/assertOnTypes";
 
 
-const EXCEPTION_MANAGEMENT_SERVICE = config.exceptionManagementService;
-const PARTICIPANT_DEMOGRAPHIC_SERVICE = config.participantDemographicDataService;
-const NHS_NUMBER_KEY = config.nhsNumberKey;
-const NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC = config.nhsNumberKeyExceptionDemographic;
-const IGNORE_VALIDATION_KEY = config.ignoreValidationKey;
 
 export async function fetchApiResponse(endpoint: string, request: any): Promise<APIResponse> {
   let currentEndPoint = endpoint.toLowerCase()
@@ -36,14 +31,13 @@ export async function findMatchingObject(endpoint: string, responseBody: any[], 
   let matchingObjects: any[] = [];
   let matchingObject: any;
 
-
   let nhsNumberKey;
-  if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) || endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
-    nhsNumberKey = NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC;
+  if (endpoint.includes(config.exceptionManagementService) || endpoint.includes(config.participantDemographicDataService)) {
+    nhsNumberKey =  config.nhsNumberKeyExceptionDemographic;
   } else if (endpoint.includes("participantmanagementdataservice") || endpoint.includes("CohortDistributionDataService")) {
     nhsNumberKey = "NHSNumber";
   } else {
-    nhsNumberKey = NHS_NUMBER_KEY;
+    nhsNumberKey = config.nhsNumberKey;
   }
 
   nhsNumber = apiValidation.validations[nhsNumberKey];
@@ -58,25 +52,25 @@ export async function findMatchingObject(endpoint: string, responseBody: any[], 
 
   matchingObjects = responseBody.filter((item: Record<string, any>) =>
     item[nhsNumberKey] == nhsNumber ||
-    item.NhsNumber == nhsNumber ||
+    item.NhsNumber  == nhsNumber ||
     item.NHSNumber == nhsNumber
   );
 
   matchingObject = matchingObjects[matchingObjects.length - 1];
 
-  if (endpoint.includes(EXCEPTION_MANAGEMENT_SERVICE) &&
+  if (endpoint.includes(config.exceptionManagementService) &&
     (apiValidation.validations.RuleId !== undefined || apiValidation.validations.RuleDescription)) {
     const ruleIdToFind = apiValidation.validations.RuleId;
     const ruleDescToFind = apiValidation.validations.RuleDescription;
 
-    const betterMatches = matchingObjects.filter(record =>
+    let betterMatches = matchingObjects.filter(record =>
       (ruleIdToFind === undefined || record.RuleId === ruleIdToFind) &&
       (ruleDescToFind === undefined || record.RuleDescription === ruleDescToFind)
     );
 
     if (betterMatches.length > 0) {
       matchingObject = betterMatches[0];
-      console.log(`Found better matching record with NHS Number ${nhsNumber} and RuleId ${ruleIdToFind || 'any'}`);
+      console.info(`Found better matching record with NHS Number ${nhsNumber} and RuleId ${ruleIdToFind || 'any'}`);
     }
   }
 
@@ -85,150 +79,34 @@ export async function findMatchingObject(endpoint: string, responseBody: any[], 
 
 
 export async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any, matchingObjects: any): Promise<boolean> {
-  const fieldsToValidate = Object.entries(apiValidation.validations).filter(([key]) => key !== IGNORE_VALIDATION_KEY);
+  const fieldsToValidate = Object.entries(apiValidation.validations).filter(([key]) => key !== config.ignoreValidationKey);
 
   for (const [fieldName, expectedValue] of fieldsToValidate) {
-    if (fieldName === "expectedCount") {
-      assertOnCounts(matchingObject, nhsNumber, matchingObjects, fieldName, expectedValue);
-    }
-
-    // Handle NHS Number validation specially for 204 responses
-    else if ((fieldName === "NHSNumber" || fieldName === "NhsNumber") && !matchingObject) {
-      console.info(`🚧 Validating NHS Number field ${fieldName} for 204 response`);
-
-      // For 204 responses, validate that we searched for the correct NHS number
-      const expectedNhsNumber = Number(expectedValue);
-      const actualNhsNumber = Number(nhsNumber);
-
-      try {
-        expect(actualNhsNumber).toBe(expectedNhsNumber);
-        console.info(`✅ NHS Number validation completed: searched for ${actualNhsNumber}, expected ${expectedNhsNumber}`);
-      } catch (error) {
-        console.error(`❌ NHS Number validation failed: searched for ${actualNhsNumber}, expected ${expectedNhsNumber}`);
-        throw error;
-      }
-    }
-
-    else if (fieldName === 'RecordInsertDateTime' || fieldName === 'RecordUpdateDateTime') {
-      console.info(`🚧 Validating timestamp field ${fieldName} for NHS Number ${nhsNumber}`);
-
-      if (!matchingObject && expectedValue !== null && expectedValue !== undefined) {
-        throw new Error(`❌ No matching object found for NHS Number ${nhsNumber} but expected to validate field ${fieldName}`);
-      }
-
-      if (!matchingObject && (expectedValue === null || expectedValue === undefined)) {
-        console.info(`ℹ️ Skipping validation for ${fieldName} as no matching object found and no expected value for NHS Number ${nhsNumber}`);
-        continue;
-      }
-
-      expect(matchingObject).toHaveProperty(fieldName);
-      const actualValue = matchingObject[fieldName];
-
-      if (typeof expectedValue === 'string' && expectedValue.startsWith('PATTERN:')) {
-        const pattern = expectedValue.substring('PATTERN:'.length);
-        console.info(`Validating timestamp against pattern: ${pattern}`);
-
-        const formatMatch = validateTimestampFormat(actualValue, pattern);
-
-        if (formatMatch) {
-          console.info(`✅ Timestamp matches pattern for ${fieldName}`);
-        } else {
-          console.error(`❌ Timestamp doesn't match pattern for ${fieldName}`);
-          expect(formatMatch).toBe(true);
+    switch(fieldName.toLowerCase()){
+      case "expectedcount": 
+        assertOnCounts(matchingObject, nhsNumber, matchingObjects, fieldName, expectedValue);
+        break;
+      case "nhsnumber":
+        if(!matchingObject) {
+          assertOnNhsNumber(expectedValue, nhsNumber);
         }
-      } else {
-        if (expectedValue === actualValue) {
-          console.info(`✅ Timestamp exact match for ${fieldName}`);
-        } else {
-          try {
-            const expectedDate = new Date(expectedValue as string);
-            const actualDate = new Date(actualValue);
-
-            const expectedTimeWithoutMs = new Date(expectedDate);
-            expectedTimeWithoutMs.setMilliseconds(0);
-            const actualTimeWithoutMs = new Date(actualDate);
-            actualTimeWithoutMs.setMilliseconds(0);
-
-            if (expectedTimeWithoutMs.getTime() === actualTimeWithoutMs.getTime()) {
-              console.info(`✅ Timestamp matches (ignoring milliseconds) for ${fieldName}`);
-            } else {
-              const timeDiff = Math.abs(expectedDate.getTime() - actualDate.getTime());
-              const oneMinute = 60 * 1000;
-
-              if (timeDiff <= oneMinute) {
-                console.info(`✅ Timestamp within acceptable range (±1 minute) for ${fieldName}`);
-              } else {
-                expect(actualValue).toBe(expectedValue);
-              }
-            }
-          } catch (e) {
-            console.error(`Error validating timestamp: ${e}`);
-            expect(actualValue).toBe(expectedValue);
-          }
-        }
-      }
-
-      console.info(`✅ Validation completed for timestamp field ${fieldName} for NHS Number ${nhsNumber}`);
-    }
-
-    // ✅ Custom dynamic rule description handling
-    else if (fieldName === 'RuleDescriptionDynamic') {
-      const actualValue = matchingObject['RuleDescription'];
-      console.info(`Actual RuleDescription: "${actualValue}"`);
-
-      // Regex based on message requirement
-      const dynamicPattern = /Unable to add to cohort distribution\. As participant \d+ has triggered a validation exception/;
-
-      try {
-        expect(actualValue).toMatch(dynamicPattern);
-        console.info(`✅ Dynamic message validation passed for NHS Number ${nhsNumber}`);
-      } catch (error) {
-        console.info(`❌ Dynamic message validation failed!`);
-        throw error;
-      }
-    }
-
-    else {
-      console.info(`🚧 Validating field ${fieldName} with expected value ${expectedValue} for NHS Number ${nhsNumber}`);
-
-      if (!matchingObject && expectedValue !== null && expectedValue !== undefined) {
-        throw new Error(`❌ No matching object found for NHS Number ${nhsNumber} but expected to validate field ${fieldName}`);
-      }
-
-      if (!matchingObject && (expectedValue === null || expectedValue === undefined)) {
-        console.info(`ℹ️ Skipping validation for ${fieldName} as no matching object found and no expected value for NHS Number ${nhsNumber}`);
-        continue;
-      }
-
-      expect(matchingObject).toHaveProperty(fieldName);
-      expect(matchingObject[fieldName]).toBe(expectedValue);
-      console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
+        break;
+      case "recordinsertdatetime":
+        assertOnRecordDateTimes(fieldName, expectedValue, nhsNumber, matchingObject);
+        break;
+      case "recordUpdatedatetime":
+        assertOnRecordDateTimes(fieldName, expectedValue, nhsNumber, matchingObject);
+        break;
+      case "ruledescriptiondynamic":
+        MatchOnRuleDescriptionDynamic(matchingObject, nhsNumber);
+        break;
+      default: 
+        MatchDynamicType(matchingObject, nhsNumber, expectedValue, fieldName);
+        break;
     }
   }
   return true;
 }
-
-
-function validateTimestampFormat(timestamp: string, pattern: string): boolean {
-  if (!timestamp) return false;
-
-  console.info(`Actual timestamp: ${timestamp}`);
-
-
-  if (pattern === 'yyyy-MM-ddTHH:mm:ss' || pattern === 'yyyy-MM-ddTHH:mm:ss.SSS') {
-
-    return /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?$/.test(timestamp);
-  }
-  else if (pattern === 'yyyy-MM-dd') {
-
-    return /^\d{4}-\d{2}-\d{2}$/.test(timestamp);
-  }
-  else {
-
-    return !isNaN(new Date(timestamp).getTime());
-  }
-}
-
 
 
 export async function checkMappingsByIndex(
