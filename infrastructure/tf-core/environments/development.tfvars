@@ -1160,7 +1160,7 @@ function_apps = {
       function_endpoint_name       = "Wiremock"
       app_service_plan_key         = "NonScaling"
       db_connection_string         = "DtOsDatabaseConnectionString"
-      storage_account_env_var_name = "wiremockfolder_STORAGE"
+      storage_account_env_var_name = "wiremock_STORAGE"
     }
   }
 }
