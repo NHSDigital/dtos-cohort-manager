@@ -190,7 +190,7 @@ public class ValidationExceptionData : IValidationExceptionData
                 AddressLine3 = errorRecordData.AddressLine3,
                 AddressLine4 = errorRecordData.AddressLine4,
                 AddressLine5 = errorRecordData.AddressLine5,
-                PostCode = errorRecordData.PostCode,
+                PostCode = errorRecordData.Postcode,
                 TelephoneNumberHome = errorRecordData.TelephoneNumber,
                 EmailAddressHome = errorRecordData.EmailAddress,
                 PrimaryCareProvider = errorRecordData.PrimaryCareProvider,
