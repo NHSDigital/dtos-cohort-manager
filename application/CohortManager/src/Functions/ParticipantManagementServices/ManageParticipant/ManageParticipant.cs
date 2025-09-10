@@ -8,7 +8,6 @@ using Common;
 using System.Text.Json;
 using Model;
 using DataServices.Client;
-using Microsoft.AspNetCore.Components.Web;
 
 public class ManageParticipant
 {
@@ -67,7 +66,7 @@ public class ManageParticipant
             }
             else if (databaseParticipant.BlockedFlag == 1)
             {
-                await HandleException(new InvalidOperationException("Participant is blocked"), participant, participantRecord.FileName);
+                await HandleException(new InvalidOperationException("Participant is blocked"), participant, participantRecord.FileName, "0");
                 return;
             }
             else
@@ -93,9 +92,9 @@ public class ManageParticipant
         }
     }
 
-    private async Task HandleException(Exception ex, Participant participant, string fileName)
+    private async Task HandleException(Exception ex, Participant participant, string fileName, string category = "")
     {
         _logger.LogError(ex, "Manage Exception failed");
-        await _handleException.CreateSystemExceptionLog(ex, participant, fileName);
+        await _handleException.CreateSystemExceptionLog(ex, participant, fileName, category);
     }
 }
