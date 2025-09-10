@@ -8,6 +8,7 @@ module "storage" {
   location            = each.value.region_key
 
   containers = each.value.containers
+  shares     = each.value.shares
 
   log_analytics_workspace_id                              = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_storage_account_enabled_logs = local.monitor_diagnostic_setting_storage_account_enabled_logs
@@ -55,6 +56,7 @@ locals {
         blob_properties_delete_retention_policy = storage_val.blob_properties_delete_retention_policy
         blob_properties_versioning_enabled      = storage_val.blob_properties_versioning_enabled
         containers                              = storage_val.containers
+        shares                                  = storage_val.shares
       }
     ]
   ])
