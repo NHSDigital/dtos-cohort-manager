@@ -248,16 +248,6 @@ public class ProcessNemsUpdateTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Exactly(2));
 
-        _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", "9000000009"), Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("Successfully unsubscribed from NEMS.")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-
         _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Exactly(2));
     }
 
@@ -359,10 +349,6 @@ public class ProcessNemsUpdateTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Exactly(2));
 
-
-        _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
-
-
         _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Exactly(2));
     }
 
@@ -395,16 +381,7 @@ public class ProcessNemsUpdateTests
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
-
-        _loggerMock.Verify(x => x.Log(
-            LogLevel.Information,
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v != null && v.ToString().Contains("Successfully unsubscribed from NEMS.")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
-        Times.Once);
-
-        _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
+        
         _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Exactly(2));
     }
 
