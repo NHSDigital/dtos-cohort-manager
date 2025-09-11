@@ -36,6 +36,14 @@ locals {
   }
 }
 
+# Even though we are not enabling public ingress, the structure of the template module requires the provider for the private DNS zone subscription to be supplied.
+provider "azurerm" {
+  alias           = "dns"
+  subscription_id = var.HUB_SUBSCRIPTION_ID
+
+  features {}
+}
+
 module "container-app" {
   for_each = local.container_apps_map
 
