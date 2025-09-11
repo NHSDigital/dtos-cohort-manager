@@ -218,7 +218,9 @@ stages:
             scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
             arguments: >
               --webhook "${{ parameters.slackWebHook }}"
-              --message "$(jobs.notify.outputs['BuildSlackMessage.slackFailureMessage'])"
+              --message "$(SLACK_SUCCESS_MESSAGE)"
+          env:
+            SLACK_SUCCESS_MESSAGE: "$(jobs.notify.outputs['BuildSlackMessage.slackSuccessMessage'])"
 
         - task: PythonScript@0
           name: slack_failure
@@ -229,4 +231,6 @@ stages:
             scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
             arguments: >
               --webhook "${{ parameters.slackWebHook }}"
-              --message "$(jobs.notify.outputs['BuildSlackMessage.slackFailureMessage'])"
+              --message "$(SLACK_FAILURE_MESSAGE)"
+          env:
+            SLACK_FAILURE_MESSAGE: "$(jobs.notify.outputs['BuildSlackMessage.slackFailureMessage'])"
