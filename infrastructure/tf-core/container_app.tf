@@ -30,7 +30,6 @@ module "container-app" {
   ]
 }
 
-
 locals {
   # There are multiple App Service Plans and possibly multiple regions.
   # We cannot nest for loops inside a map, so first iterate all permutations of both as a list of objects...
