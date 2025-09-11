@@ -3,18 +3,20 @@ namespace Data.Database;
 using System;
 using System.Data;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Common;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.DTO;
 using Model.Enums;
+using NHS.CohortManager.Shared.Utilities;
 
 public class ValidationExceptionData : IValidationExceptionData
 {
     private readonly ILogger<ValidationExceptionData> _logger;
     private readonly IDataServiceClient<ExceptionManagement> _validationExceptionDataServiceClient;
-    private readonly IDataServiceClient<ParticipantDemographic> _demographicDataServiceClient;
     public ValidationExceptionData(
         ILogger<ValidationExceptionData> logger,
         IDataServiceClient<ExceptionManagement> validationExceptionDataServiceClient,
@@ -23,10 +25,9 @@ public class ValidationExceptionData : IValidationExceptionData
     {
         _logger = logger;
         _validationExceptionDataServiceClient = validationExceptionDataServiceClient;
-        _demographicDataServiceClient = demographicDataServiceClient;
     }
 
-    public async Task<List<ValidationException>?> GetAllFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory)
+    public async Task<List<ValidationException>?> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory)
     {
         var category = (int)exceptionCategory;
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.Category != null && x.Category.Value == category);
@@ -45,15 +46,9 @@ public class ValidationExceptionData : IValidationExceptionData
             return null;
         }
 
-        if (!long.TryParse(exception.NhsNumber, out long nhsNumber))
-        {
-            throw new FormatException("Unable to parse NHS Number");
-        }
-
-        var participantDemographic = await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
-
-        return GetExceptionDetails(exception.ToValidationException(), participantDemographic);
+        return GetValidationExceptionWithDetails(exception);
     }
+
 
     public async Task<bool> Create(ValidationException exception)
     {
@@ -129,6 +124,27 @@ public class ValidationExceptionData : IValidationExceptionData
             return [];
         }
 
+        var filteredExceptions = await GetFilteredReportExceptions(reportDate, exceptionCategory);
+
+        if (filteredExceptions == null || !filteredExceptions.Any())
+            return [];
+
+        var results = filteredExceptions.Select(GetValidationExceptionWithDetails);
+        return results.Where(x => x != null).ToList()!;
+    }
+
+    private ServiceResponseModel CreateSuccessResponse(string message) => CreateResponse(true, HttpStatusCode.OK, message);
+    private ServiceResponseModel CreateErrorResponse(string message, HttpStatusCode statusCode) => CreateResponse(false, statusCode, message);
+
+    private ValidationException? GetValidationExceptionWithDetails(ExceptionManagement exception)
+    {
+        var validationException = exception.ToValidationException();
+        var participantDemographic = ExtractParticipantDemographicFromErrorRecord(exception.ErrorRecord);
+        return GetExceptionDetails(validationException, participantDemographic);
+    }
+
+    private async Task<IEnumerable<ExceptionManagement>?> GetFilteredReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory)
+    {
         var filteredExceptions = (await _validationExceptionDataServiceClient.GetByFilter(x =>
             x.Category.HasValue && (x.Category.Value == (int)ExceptionCategory.Confusion || x.Category.Value == (int)ExceptionCategory.Superseded)))?.AsEnumerable();
 
@@ -144,18 +160,48 @@ public class ValidationExceptionData : IValidationExceptionData
             filteredExceptions = filteredExceptions?.Where(x => x.DateCreated >= startDate && x.DateCreated < endDate);
         }
 
-        if (filteredExceptions?.Any() != true)
-            return [];
+        return filteredExceptions;
+    }
 
-        var tasks = filteredExceptions.Select(async exception =>
+    private ParticipantDemographic? ExtractParticipantDemographicFromErrorRecord(string? errorRecord)
+    {
+        if (string.IsNullOrWhiteSpace(errorRecord))
         {
-            var validationException = exception.ToValidationException();
-            var participantDemographic = long.TryParse(exception.NhsNumber, out long nhsNumber) ? await _demographicDataServiceClient.GetSingleByFilter(x => x.NhsNumber == nhsNumber) : null;
-            return GetExceptionDetails(validationException, participantDemographic);
-        });
+            return null;
+        }
 
-        var results = await Task.WhenAll(tasks);
-        return results.Where(x => x != null).ToList()!;
+        try
+        {
+            var errorRecordData = JsonSerializer.Deserialize<ErrorRecordDto>(errorRecord);
+            if (errorRecordData == null)
+            {
+                return null;
+            }
+
+            return new ParticipantDemographic
+            {
+                NhsNumber = long.TryParse(errorRecordData.NhsNumber, out long nhsNumber) ? nhsNumber : 0,
+                GivenName = errorRecordData.FirstName,
+                FamilyName = errorRecordData.FamilyName,
+                DateOfBirth = MappingUtilities.FormatDateTime(MappingUtilities.ParseDates(errorRecordData.DateOfBirth)),
+                SupersededByNhsNumber = long.TryParse(errorRecordData.SupersededByNhsNumber, out long superseded) ? superseded : null,
+                Gender = errorRecordData.Gender,
+                AddressLine1 = errorRecordData.AddressLine1,
+                AddressLine2 = errorRecordData.AddressLine2,
+                AddressLine3 = errorRecordData.AddressLine3,
+                AddressLine4 = errorRecordData.AddressLine4,
+                AddressLine5 = errorRecordData.AddressLine5,
+                PostCode = errorRecordData.Postcode,
+                TelephoneNumberHome = errorRecordData.TelephoneNumber,
+                EmailAddressHome = errorRecordData.EmailAddress,
+                PrimaryCareProvider = errorRecordData.PrimaryCareProvider,
+            };
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogWarning(ex, "Failed to deserialize ErrorRecord JSON: {ErrorRecord}. Error: {Error}", errorRecord, ex.Message);
+            return null;
+        }
     }
 
     private ServiceResponseModel CreateResponse(bool success, HttpStatusCode statusCode, string message)
@@ -173,8 +219,6 @@ public class ValidationExceptionData : IValidationExceptionData
         };
     }
 
-    private ServiceResponseModel CreateSuccessResponse(string message) => CreateResponse(true, HttpStatusCode.OK, message);
-    private ServiceResponseModel CreateErrorResponse(string message, HttpStatusCode statusCode) => CreateResponse(false, statusCode, message);
 
     private static string? ValidateServiceNowId(string serviceNowId)
     {
@@ -225,7 +269,7 @@ public class ValidationExceptionData : IValidationExceptionData
 
         if (participantDemographic == null)
         {
-            _logger.LogWarning("Missing data: ParticipantDemographic: {ParticipantDemographic}", participantDemographic != null);
+            _logger.LogWarning("Missing participant demographic data for exception");
         }
 
         return exception;
