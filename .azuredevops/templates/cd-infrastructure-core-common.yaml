@@ -32,12 +32,12 @@ stages:
   # Only required until commit hashes are passed in by calling pipeline, except for the
   # PreProd pipeline which needs to retag images to move them from the Dev ACR to the Prod ACR
   displayName: ACR re-tag
-  condition: in('${{ parameters.retagImages }}', 'true')
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
     - job: re_tag
       displayName: Re-tag Docker images
+      condition: in('${{ parameters.retagImages }}', 'true')
       variables:
         SELECT_IMAGE_TAG: ${{ parameters.retagImagesFrom }}
         ADD_IMAGE_TAG: ${{ parameters.retagImagesTo }}
