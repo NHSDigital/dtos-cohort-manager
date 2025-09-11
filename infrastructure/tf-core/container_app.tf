@@ -25,8 +25,8 @@ module "container-app" {
   is_tcp_app = each.value.is_tcp_app
   port       = each.value.port
 
-  infra_key_vault_rg = null
-  infra_key_vault_name = null
+  infra_key_vault_rg   = each.value.infra_key_vault_rg
+  infra_key_vault_name = each.value.infra_key_vault_name
 
   depends_on = [
     module.azure_sql_server

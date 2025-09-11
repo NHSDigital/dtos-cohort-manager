@@ -272,6 +272,8 @@ container_apps = {
       add_user_assigned_identity    = true
       is_tcp_app                    = true
       port                          = 8080
+      infra_key_vault_rg            = null
+      infra_key_vault_name          = null
     }
   }
 }
