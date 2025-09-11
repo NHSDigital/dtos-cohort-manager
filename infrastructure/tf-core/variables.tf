@@ -578,10 +578,10 @@ variable "storage_accounts" {
       container_name        = string
       container_access_type = optional(string, "private")
     })), {})
-    shares = optional(map(object({
-      share_name        = string
-      quota             = optional(number, 5)
-    })), {})
+    # shares = optional(map(object({
+    #   share_name        = string
+    #   quota             = optional(number, 5)
+    # })), {})
   }))
 }
 
