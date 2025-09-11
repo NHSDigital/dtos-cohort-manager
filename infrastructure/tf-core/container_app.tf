@@ -1,3 +1,36 @@
+
+module "container-app" {
+  for_each = local.container_apps_map
+
+  source = "../../../dtos-devops-templates/infrastructure/modules/container-app"
+
+  providers = {
+    azurerm     = azurerm
+    azurerm.hub = azurerm.hub
+  }
+
+  name                = "ca-${lower(each.key)}"
+  resource_group_name = azurerm_resource_group.core[each.value.region].name
+  location            = each.value.region
+
+  container_app_environment_id = module.container-app-environment["${each.value.container_app_environment_key}-${each.value.region}"].id
+  user_assigned_identity_ids   = each.value.add_user_assigned_identity ? [module.user_assigned_managed_identity_sql["${each.key}"].id] : []
+
+  acr_login_server           = data.azurerm_container_registry.acr.login_server
+  acr_managed_identity_id    = each.value.container_registry_use_mi ? data.azurerm_user_assigned_identity.acr_mi.id : null
+  docker_image               = "${data.azurerm_container_registry.acr.login_server}/${each.value.docker_image}:${each.value.docker_env_tag != "" ? each.value.docker_env_tag : var.docker_image_tag}"
+
+  environment_variables = each.value.env_vars != null ? each.value.env_vars : {}
+
+  is_tcp_app = each.value.is_tcp_app
+  port       = each.value.port
+
+  depends_on = [
+    module.azure_sql_server
+  ]
+}
+
+
 locals {
   # There are multiple App Service Plans and possibly multiple regions.
   # We cannot nest for loops inside a map, so first iterate all permutations of both as a list of objects...
@@ -34,38 +67,4 @@ locals {
   container_apps_map = {
     for object in local.container_apps_object_list : "${object.container_app}-${object.region}" => object
   }
-}
-
-# Even though we are not enabling public ingress, the structure of the template module requires the provider for the private DNS zone subscription to be supplied.
-provider "azurerm" {
-  alias           = "dns"
-  subscription_id = var.HUB_SUBSCRIPTION_ID
-
-  features {}
-}
-
-module "container-app" {
-  for_each = local.container_apps_map
-
-  source = "../../../dtos-devops-templates/infrastructure/modules/container-app"
-
-  name                = "ca-${lower(each.key)}"
-  resource_group_name = azurerm_resource_group.core[each.value.region].name
-  location            = each.value.region
-
-  container_app_environment_id = module.container-app-environment["${each.value.container_app_environment_key}-${each.value.region}"].id
-  user_assigned_identity_ids   = each.value.add_user_assigned_identity ? [module.user_assigned_managed_identity_sql["${each.key}"].id] : []
-
-  acr_login_server           = data.azurerm_container_registry.acr.login_server
-  acr_managed_identity_id    = each.value.container_registry_use_mi ? data.azurerm_user_assigned_identity.acr_mi.id : null
-  docker_image               = "${data.azurerm_container_registry.acr.login_server}/${each.value.docker_image}:${each.value.docker_env_tag != "" ? each.value.docker_env_tag : var.docker_image_tag}"
-
-  environment_variables = each.value.env_vars != null ? each.value.env_vars : {}
-
-  is_tcp_app = each.value.is_tcp_app
-  port       = each.value.port
-
-  depends_on = [
-    module.azure_sql_server
-  ]
 }
