@@ -630,7 +630,7 @@ public class StaticValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        StringAssert.Contains(body, "53.CurrentPostingAndPrimaryCareProvider.NBO.NonFatal");
+        StringAssert.Contains(body, "53.CurrentPostingAndPrimaryCareProvider.Non.NonFatal");
     }
 
     [TestMethod]
