@@ -1320,7 +1320,7 @@ storage_accounts = {
     containers                              = {}
     shares = {
       wiremock = {
-        container_name = "wiremock"
+        share_name = "wiremock"
         quota          = 5
       }
     }
