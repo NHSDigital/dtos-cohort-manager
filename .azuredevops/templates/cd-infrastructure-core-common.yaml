@@ -149,6 +149,7 @@ stages:
         - task: PowerShell@2
           displayName: 'Build Slack Message'
           name: BuildSlackMessage
+          condition: always()
           inputs:
             targetType: 'inline'
             script: |
@@ -156,12 +157,14 @@ stages:
               $isSucceeded = ${pipeline.status} -eq 'Succeeded'
 
               # Build the list of stages and their results
+
               $allStages = @(
-                  @{ name = "ACR re-tag"; result = "$(dependencies.retag_images_stage.result)" },
-                  @{ name = "Terraform Deploy"; result = "$(dependencies.terraform_deploy_stage.result)" },
-                  @{ name = "Database Changes"; result = "$(dependencies.db_changes_stage.result)" },
-                  @{ name = "Restart Functions"; result = "$(dependencies.restart_functions_stage.result)" }
+                  @{ name = "ACR re-tag"; result = "$env:RETAG_RESULT" },
+                  @{ name = "Terraform Deploy"; result = "$env:TERRAFORM_RESULT" },
+                  @{ name = "Database Changes"; result = "$env:DBCHANGES_RESULT" },
+                  @{ name = "Restart Functions"; result = "$env:RESTART_RESULT" }
               )
+
 
               # Build the success message
               if ($isSucceeded) {
@@ -207,7 +210,12 @@ stages:
                   
                   Write-Host "##vso[task.setvariable variable=slackFailureMessage;isOutput=true]$message"
               }
-          condition: always()
+          env:
+            PIPELINE_STATUS: "$(pipeline.status)"
+            RETAG_RESULT: "$(dependencies.retag_images_stage.result)"
+            TERRAFORM_RESULT: "$(dependencies.terraform_deploy_stage.result)"
+            DBCHANGES_RESULT: "$(dependencies.db_changes_stage.result)"
+            RESTART_RESULT: "$(dependencies.restart_functions_stage.result)"
 
         - task: PythonScript@0
           name: slack_success
