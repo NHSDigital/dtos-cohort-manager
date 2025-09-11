@@ -260,12 +260,18 @@ container_app_jobs = {
       add_user_assigned_identity    = true
       replica_retry_limit           = 1
     }
+  }
+}
+
+container_apps = {
+  apps = {
     wiremock = {
       container_app_environment_key = "wiremock"
       docker_image                  = "cohort-manager-wiremock"
       container_registry_use_mi     = true
       add_user_assigned_identity    = true
-      replica_retry_limit           = 1
+      is_tcp_app                    = true
+      port                          = 8080
     }
   }
 }

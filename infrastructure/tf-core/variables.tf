@@ -189,7 +189,9 @@ variable "container_apps" {
       docker_env_tag                = optional(string, "")
       docker_image                  = optional(string)
       is_web_app                    = optional(bool, false)
+      is_tcp_app                    = optional(bool, false)
       container_registry_use_mi     = optional(bool, false)
+      port                          = optional(number, 8080)
     })), {})
   })
 }
