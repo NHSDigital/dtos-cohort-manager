@@ -16,7 +16,7 @@ locals {
 
             # Add in the database connection string if the name of the variable is provided:
             config.add_user_assigned_identity != null && length(config.db_connection_string_name) > 0 ? {
-              (config.db_connection_string_name) = "Server=tcp:${module.regions_config[region].names.sql-server}.database.windows.net,1433;Initial Catalog=${var.sqlserver.dbs.cohman.db_name_suffix};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication='Active Directory Managed Identity';User ID=${module.user_assigned_managed_identity_sql["${container_app_job}-${region}"].client_id};"
+              (config.db_connection_string_name) = "Server=tcp:${module.regions_config[region].names.sql-server}.database.windows.net,1433;Initial Catalog=${var.sqlserver.dbs.cohman.db_name_suffix};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;Authentication='Active Directory Managed Identity';User ID=${module.user_assigned_managed_identity_sql["${container_app}-${region}"].client_id};"
             } : {},
 
             # Add in the MANAGED_IDENTITY_CLIENT_ID environment variable if using a user assigned managed identity:
@@ -32,7 +32,7 @@ locals {
 
   # ...then project the list of objects into a map with unique keys (combining the iterators), for consumption by a for_each meta argument
   container_apps_map = {
-    for object in local.container_app_jobs_object_list : "${object.container_app_job}-${object.region}" => object
+    for object in local.container_apps_object_list : "${object.container_app}-${object.region}" => object
   }
 }
 
