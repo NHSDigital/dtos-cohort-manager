@@ -31,11 +31,9 @@ public class PaginationService<T> : IPaginationService<T>
             IsFirstPage = page == 1,
             HasNextPage = page < totalPages,
             HasPreviousPage = page > 1,
-            LastResultId = null, // Not used in page-based pagination
             TotalItems = totalItems,
             TotalPages = totalPages,
             CurrentPage = page,
-            PageSize = pageSize
         };
     }
 

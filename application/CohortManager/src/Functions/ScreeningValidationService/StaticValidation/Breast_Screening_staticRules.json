@@ -25,28 +25,6 @@
             }
           }
         }
-      },
-      {
-        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NBO.NonFatal",
-        "LocalParams": [
-          {
-            "Name": "currentPosting",
-            "Expression": "participant.CurrentPosting"
-          },
-          {
-            "Name": "primaryCareProvider",
-            "Expression": "participant.PrimaryCareProvider"
-          }
-        ],
-        "Expression": "!(string.IsNullOrEmpty(currentPosting) AND !string.IsNullOrEmpty(primaryCareProvider))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"Current posting and Primary Care provider contain incompatible values\""
-            }
-          }
-        }
       }
     ]
   },
@@ -147,6 +125,28 @@
   {
     "WorkflowName": "AMENDED",
     "Rules": [
+      {
+        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NBO.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "currentPosting",
+            "Expression": "participant.CurrentPosting"
+          },
+          {
+            "Name": "primaryCareProvider",
+            "Expression": "participant.PrimaryCareProvider"
+          }
+        ],
+        "Expression": "!(string.IsNullOrEmpty(currentPosting) AND !string.IsNullOrEmpty(primaryCareProvider))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Current posting and Primary Care provider contain incompatible values\""
+            }
+          }
+        }
+      },
       {
         "RuleName": "66.DeathStatus.NBO.NonFatal",
         "LocalParams": [

@@ -5,5 +5,6 @@ export const config = {
     "/account",
     "/exceptions/:path*",
     "/participant-information/:path*",
+    "/reports/:path*",
   ],
 };

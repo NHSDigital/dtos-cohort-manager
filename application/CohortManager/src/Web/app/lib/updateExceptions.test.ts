@@ -142,8 +142,8 @@ describe("updateExceptions", () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            ExceptionId: "2073",
-            ServiceNowNumber: "INC1234567890",
+            ExceptionId: 2073,
+            ServiceNowId: "INC1234567890",
           }),
         }
       );
@@ -184,8 +184,8 @@ describe("updateExceptions", () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            ExceptionId: "2073",
-            ServiceNowNumber: "",
+            ExceptionId: 2073,
+            ServiceNowId: "",
           }),
         }
       );
@@ -226,8 +226,8 @@ describe("updateExceptions", () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            ExceptionId: "2073",
-            ServiceNowNumber: "INC1234567890",
+            ExceptionId: 2073,
+            ServiceNowId: "INC1234567890",
           }),
         }
       );
@@ -416,8 +416,8 @@ describe("updateExceptions", () => {
         "https://api.example.com/api/UpdateExceptionServiceNowId",
         expect.objectContaining({
           body: JSON.stringify({
-            ExceptionId: "2075",
-            ServiceNowNumber: "INC9999999999",
+            ExceptionId: 2075,
+            ServiceNowId: "INC9999999999",
           }),
         })
       );
@@ -452,8 +452,8 @@ describe("updateExceptions", () => {
         "https://api.example.com/api/UpdateExceptionServiceNowId",
         expect.objectContaining({
           body: JSON.stringify({
-            ExceptionId: "2073",
-            ServiceNowNumber: longServiceNowId,
+            ExceptionId: 2073,
+            ServiceNowId: longServiceNowId,
           }),
         })
       );
