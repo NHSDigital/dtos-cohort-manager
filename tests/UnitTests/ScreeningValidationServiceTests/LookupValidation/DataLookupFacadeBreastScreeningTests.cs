@@ -40,5 +40,32 @@ public class DataLookupFacadeBreastScreeningTests
         Assert.AreEqual(expectedPostingCategory,result);
     }
 
+    [TestMethod]
+    [DataRow("ENGLAND")]
+    [DataRow("IOM")]
+    [DataRow("DMS")]
+    public void ValidatePostingCategories_validRequest_ReturnsTrue(string postingCategory)
+    {
+        // Arrange
+        _currentPostingClient.Setup(x => x.GetSingle(postingCategory)).ReturnsAsync(new CurrentPosting { PostingCategory = postingCategory });
+        // Act
+        bool result = _dataLookupFacade.ValidatePostingCategories(postingCategory);
+
+        // Assert
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    [DataRow("WALES")]
+    public void ValidatePostingCategories_invalidRequest_ReturnsFalse(string postingCategory)
+    {
+        // Arrange
+        _currentPostingClient.Setup(x => x.GetSingle(postingCategory)).ReturnsAsync(new CurrentPosting { PostingCategory = postingCategory });
+        // Act
+        bool result = _dataLookupFacade.ValidatePostingCategories(postingCategory);
+
+        // Assert
+        Assert.IsFalse(result);
+    }
 
 }
