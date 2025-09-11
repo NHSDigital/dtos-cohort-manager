@@ -1,5 +1,5 @@
 export const formatNhsNumber = (nhsNumber: string | number): string => {
-  if (!nhsNumber) return '';
+  if (!nhsNumber) return "";
   const nhsString = String(nhsNumber);
   return nhsString.replace(/(\d{3})(\d{3})(\d{4})/, "$1 $2 $3");
 };
@@ -17,26 +17,15 @@ export const formatDate = (dateString: string): string => {
 export const formatCompactDate = (dateString: string): string => {
   if (!dateString) return "";
 
-  let year: string, month: string, day: string;
-
-  if (dateString.includes('-') || dateString.includes('/')) {
-    const parts = dateString.split(/[-/]/);
-    if (parts.length !== 3) return "";
-    [year, month, day] = parts;
-  } else {
-    if (dateString.length < 8) return "";
-    year = dateString.slice(0, 4);
-    month = dateString.slice(4, 6);
-    day = dateString.slice(6, 8);
-  }
-
-  const date = new Date(`${year}-${month}-${day}`);
+  const date = new Date(dateString);
   if (isNaN(date.getTime())) return "";
+
   const options: Intl.DateTimeFormatOptions = {
-    year: "numeric",
-    month: "long",
     day: "numeric",
+    month: "long",
+    year: "numeric",
   };
+
   return date.toLocaleDateString("en-GB", options);
 };
 
