@@ -118,14 +118,11 @@ stages:
 
 - stage: notify_stage
   displayName: Send Slack Notification
-  dependsOn:
-  - re_tag_stage
-  - terraform_deploy
-  - db_changes_stage
-  - restart_functions_stage
+  # Depend only on the last stage in the flow
+  dependsOn: restart_functions_stage
   condition: |
     and(
-      always(),
+      succeededOrFailed(),
       eq(variables['Build.SourceBranch'], 'refs/feat/dtoss-10921-slack-generic-messaging'),
       ne('${{ parameters.slackWebHook }}', '')
     )
