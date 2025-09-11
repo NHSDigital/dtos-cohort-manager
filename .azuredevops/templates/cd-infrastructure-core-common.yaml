@@ -192,7 +192,7 @@ stages:
                   }
                   # --- End dynamic approval message logic ---
 
-                  Write-Host "##vso[task.setvariable variable=slackSuccessMessage]$message"
+                  Write-Host "##vso[task.setvariable variable=slackSuccessMessage;isOutput=true]$message"
               }
               # Build the failure message
               else {
@@ -205,7 +205,7 @@ stages:
                   }
                   $message += "`n⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
                   
-                  Write-Host "##vso[task.setvariable variable=slackFailureMessage]$message"
+                  Write-Host "##vso[task.setvariable variable=slackFailureMessage;isOutput=true]$message"
               }
           condition: always()
 
