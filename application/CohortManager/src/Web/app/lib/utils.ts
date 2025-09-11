@@ -15,10 +15,21 @@ export const formatDate = (dateString: string): string => {
 };
 
 export const formatCompactDate = (dateString: string): string => {
-  if (!dateString || dateString.length < 8) return "";
-  const year = dateString.slice(0, 4);
-  const month = dateString.slice(4, 6);
-  const day = dateString.slice(6, 8);
+  if (!dateString) return "";
+
+  let year: string, month: string, day: string;
+
+  if (dateString.includes('-')) {
+    const parts = dateString.split('-');
+    if (parts.length !== 3) return "";
+    [year, month, day] = parts;
+  } else {
+    if (dateString.length < 8) return "";
+    year = dateString.slice(0, 4);
+    month = dateString.slice(4, 6);
+    day = dateString.slice(6, 8);
+  }
+
   const date = new Date(`${year}-${month}-${day}`);
   if (isNaN(date.getTime())) return "";
   const options: Intl.DateTimeFormatOptions = {
