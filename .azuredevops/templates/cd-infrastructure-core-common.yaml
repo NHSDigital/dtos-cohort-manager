@@ -154,7 +154,7 @@ stages:
             script: |
               # Check if the overall pipeline has succeeded or failed
               $isSucceeded = ${pipeline.status} -eq 'Succeeded'
-              
+
               # Build the list of stages and their results
               $allStages = @(
                   @{ name = "ACR re-tag"; result = "$(dependencies.retag_images_stage.result)" },
@@ -218,7 +218,7 @@ stages:
             scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
             arguments: >
               --webhook "${{ parameters.slackWebHook }}"
-              --message "$(slackSuccessMessage)"
+              --message "$(jobs.notify.outputs['BuildSlackMessage.slackFailureMessage'])"
 
         - task: PythonScript@0
           name: slack_failure
@@ -229,4 +229,4 @@ stages:
             scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
             arguments: >
               --webhook "${{ parameters.slackWebHook }}"
-              --message "$(slackFailureMessage)"
+              --message "$(jobs.notify.outputs['BuildSlackMessage.slackFailureMessage'])"
