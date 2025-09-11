@@ -19,8 +19,8 @@ export const formatCompactDate = (dateString: string): string => {
 
   let year: string, month: string, day: string;
 
-  if (dateString.includes('-')) {
-    const parts = dateString.split('-');
+  if (dateString.includes('-') || dateString.includes('/')) {
+    const parts = dateString.split(/[-/]/);
     if (parts.length !== 3) return "";
     [year, month, day] = parts;
   } else {
