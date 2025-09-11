@@ -85,11 +85,8 @@ stages:
 
 - stage: db_changes_stage
   displayName: Database changes
-  condition: |
-    or(
-      in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
-      eq(dependencies.terraform_deploy.jobs.terraform_apply.result, 'Succeeded')
-    )
+  dependsOn: terraform_deploy
+  condition: in(dependencies.terraform_deploy.result, 'Succeeded', 'Skipped')
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
@@ -107,11 +104,8 @@ stages:
 
 - stage: restart_functions_stage
   displayName: Restart Function Apps
-  condition: |
-    or(
-      in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
-      eq(dependencies.terraform_deploy.jobs.terraform_apply.result, 'Succeeded')
-    )
+  dependsOn: db_changes_stage
+  condition: in(dependencies.db_changes_stage.result, 'Succeeded', 'Skipped')
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
