@@ -28,7 +28,7 @@ parameters:
     default: ''
 
 stages:
-- stage: re_tag_stage
+- stage: retag_images_stage
   # Only required until commit hashes are passed in by calling pipeline, except for the
   # PreProd pipeline which needs to retag images to move them from the Dev ACR to the Prod ACR
   displayName: ACR re-tag
@@ -46,12 +46,12 @@ stages:
           parameters:
             serviceConnection: ${{ parameters.serviceConnection }}
 
-- stage: terraform_deploy
+- stage: terraform_deploy_stage
   ${{ if eq(parameters.terraformActions, 'Apply') }}:
     displayName: Terraform Deploy
   ${{ else }}:
     displayName: Terraform Plan Only
-  condition: in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped')
+  condition: in(dependencies.retag_images_stage.result, 'Succeeded', 'Skipped')
   variables:
     tfVarsFile: ${{ parameters.tfVarsFile }}
   pool:
@@ -85,8 +85,8 @@ stages:
 
 - stage: db_changes_stage
   displayName: Database changes
-  dependsOn: terraform_deploy
-  condition: in(dependencies.terraform_deploy.result, 'Succeeded', 'Skipped')
+  dependsOn: terraform_deploy_stage
+  condition: in(dependencies.terraform_deploy_stage.result, 'Succeeded', 'Skipped')
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
@@ -104,8 +104,14 @@ stages:
 
 - stage: restart_functions_stage
   displayName: Restart Function Apps
-  dependsOn: db_changes_stage
-  condition: in(dependencies.db_changes_stage.result, 'Succeeded', 'Skipped')
+  dependsOn:
+  - terraform_deploy_stage
+  - db_changes_stage
+  condition: |
+    or(
+      in(dependencies.terraform_deploy_stage.result, 'Succeeded', 'Skipped'),
+      in(dependencies.db_changes_stage.result, 'Succeeded', 'Skipped')
+    )
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
@@ -116,29 +122,16 @@ stages:
           parameters:
             serviceConnection: ${{ parameters.serviceConnection }}
 
-- stage: check_vars
-  displayName: Check Variable Values
-  dependsOn: restart_functions_stage
-  jobs:
-    - job: check_vars
-      displayName: Check Variable Values
-      steps:
-        - task: PowerShell@2
-          displayName: 'Check Variable Values'
-          inputs:
-            targetType: 'inline'
-            script: |
-              Write-Host "Build.SourceBranch: $(Build.SourceBranch)"
-              Write-Host "slackWebHook: ${{ parameters.slackWebHook }}"
-
 - stage: notify_stage
   displayName: Send Slack Notification
-  # Depend only on the last stage in the flow
-  dependsOn: restart_functions_stage
+  - retag_images_stage
+  - terraform_deploy_stage
+  - db_changes_stage
+  - restart_functions_stage
   condition: |
     and(
-      succeededOrFailed(),
-      eq(variables['Build.SourceBranch'], 'refs/feat/dtoss-10921-slack-generic-messaging'),
+      always(),
+      eq(variables['Build.SourceBranch'], 'refs/heads/feat/dtoss-10921-slack-generic-messaging'),
       ne('${{ parameters.slackWebHook }}', '')
     )
   pool:
@@ -163,8 +156,8 @@ stages:
 
               # Build the list of stages and their results
               $allStages = @(
-                  @{ name = "ACR re-tag"; result = "$(dependencies.re_tag_stage.result)" },
-                  @{ name = "Terraform Deploy"; result = "$(dependencies.terraform_deploy.result)" },
+                  @{ name = "ACR re-tag"; result = "$(dependencies.retag_images_stage.result)" },
+                  @{ name = "Terraform Deploy"; result = "$(dependencies.terraform_deploy_stage.result)" },
                   @{ name = "Database Changes"; result = "$(dependencies.db_changes_stage.result)" },
                   @{ name = "Restart Functions"; result = "$(dependencies.restart_functions_stage.result)" }
               )
