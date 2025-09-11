@@ -1159,7 +1159,6 @@ function_apps = {
       name_suffix                  = "wiremock"
       function_endpoint_name       = "Wiremock"
       app_service_plan_key         = "NonScaling"
-      db_connection_string         = "DtOsDatabaseConnectionString"
       storage_account_env_var_name = "wiremock_STORAGE"
     }
   }
@@ -1319,6 +1318,12 @@ storage_accounts = {
     blob_properties_delete_retention_policy = 7
     blob_properties_versioning_enabled      = false
     containers                              = {}
+    shares = {
+      wiremock = {
+        container_name = "wiremock"
+        quota          = 5
+      }
+    }
   }
   file_exceptions = {
     name_suffix                             = "filexptns"
@@ -1349,21 +1354,6 @@ storage_accounts = {
       }
       nems-poison = {
         container_name = "nems-poison"
-      }
-    }
-  }
-  wiremock = {
-    name_suffix                             = "wiremock"
-    account_tier                            = "Standard"
-    replication_type                        = "LRS"
-    public_network_access_enabled           = false
-    blob_properties_delete_retention_policy = 7
-    blob_properties_versioning_enabled      = false
-    containers                              = {}
-    shares = {
-      wiremock = {
-        container_name = "wiremock"
-        quota          = 5
       }
     }
   }
