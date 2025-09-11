@@ -138,8 +138,8 @@ stages:
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
-    - job: notify
-      displayName: Send Slack Notification
+    - job: prepare_notifications
+      displayName: Prepare Slack Notification
       steps:
         - checkout: dtos-devops-templates
           sparseCheckoutDirectories: scripts
@@ -209,12 +209,18 @@ stages:
               }
           condition: always()
 
+    - job: notify
+      displayName: Send Slack Notification
+      dependsOn: prepare_notifications
+      condition: always()
+      variables:
+        SLACK_SUCCESS_MESSAGE: "$(jobs.prepare_notifications.outputs['BuildSlackMessage.slackSuccessMessage'])"
+        SLACK_FAILURE_MESSAGE: "$(jobs.prepare_notifications.outputs['BuildSlackMessage.slackFailureMessage'])"
+      steps:
         - task: PythonScript@0
           name: slack_success
           displayName: Send Slack Notification (Success)
           condition: succeeded()
-          variables:
-            SLACK_SUCCESS_MESSAGE: "$(jobs.notify.outputs['BuildSlackMessage.slackSuccessMessage'])"
           inputs:
             scriptSource: 'filePath'
             scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
@@ -222,13 +228,10 @@ stages:
               --webhook "${{ parameters.slackWebHook }}"
               --message "$(SLACK_SUCCESS_MESSAGE)"
 
-
         - task: PythonScript@0
           name: slack_failure
           displayName: Send Slack Notification (Failure)
           condition: failed()
-          variables:
-            SLACK_FAILURE_MESSAGE: "$(jobs.notify.outputs['BuildSlackMessage.slackFailureMessage'])"
           inputs:
             scriptSource: 'filePath'
             scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
