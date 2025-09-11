@@ -30,7 +30,7 @@ describe("formatDate", () => {
 
 describe("formatCompactDate", () => {
   it("should format the date as 26 February 1993", () => {
-    const input = "19930226";
+    const input = "1993-02-26";
     const expectedOutput = "26 February 1993";
     expect(formatCompactDate(input)).toBe(expectedOutput);
   });
