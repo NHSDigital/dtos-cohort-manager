@@ -620,6 +620,8 @@ public class StaticValidationTests
         // Arrange
         _participantCsvRecord.Participant.CurrentPosting = currentPosting;
         _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
+        _participantCsvRecord.Participant.RecordType = Actions.Amended;
+
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 

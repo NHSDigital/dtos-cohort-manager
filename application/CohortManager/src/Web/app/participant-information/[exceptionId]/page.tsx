@@ -167,7 +167,7 @@ export default async function Page(props: {
                   <div className="nhsuk-summary-list__row">
                     <dt
                       className="nhsuk-summary-list__key"
-                      data-testid="Service-now-case-label"
+                      data-testid="service-now-case-label"
                     >
                       ServiceNow Case ID
                     </dt>
