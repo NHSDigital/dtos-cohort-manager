@@ -116,6 +116,21 @@ stages:
           parameters:
             serviceConnection: ${{ parameters.serviceConnection }}
 
+- stage: check_vars
+  displayName: Check Variable Values
+  dependsOn: restart_functions_stage
+  jobs:
+    - job: check_vars
+      displayName: Check Variable Values
+      steps:
+        - task: PowerShell@2
+          displayName: 'Check Variable Values'
+          inputs:
+            targetType: 'inline'
+            script: |
+              Write-Host "Build.SourceBranch: $(Build.SourceBranch)"
+              Write-Host "slackWebHook: ${{ parameters.slackWebHook }}"
+
 - stage: notify_stage
   displayName: Send Slack Notification
   # Depend only on the last stage in the flow
