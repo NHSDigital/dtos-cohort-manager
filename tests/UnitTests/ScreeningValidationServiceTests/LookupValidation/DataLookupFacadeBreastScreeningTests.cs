@@ -44,7 +44,7 @@ public class DataLookupFacadeBreastScreeningTests
     [DataRow("ENGLAND")]
     [DataRow("IOM")]
     [DataRow("DMS")]
-    public void ValidatePostingCategories_validRequest_ReturnsTrue(string postingCategory)
+    public void ValidatePostingCategories_ValidRequest_ReturnsTrue(string postingCategory)
     {
         // Arrange
         _currentPostingClient.Setup(x => x.GetSingle(postingCategory)).ReturnsAsync(new CurrentPosting { PostingCategory = postingCategory });
@@ -57,7 +57,7 @@ public class DataLookupFacadeBreastScreeningTests
 
     [TestMethod]
     [DataRow("WALES")]
-    public void ValidatePostingCategories_invalidRequest_ReturnsFalse(string postingCategory)
+    public void ValidatePostingCategories_InvalidRequest_ReturnsFalse(string postingCategory)
     {
         // Arrange
         _currentPostingClient.Setup(x => x.GetSingle(postingCategory)).ReturnsAsync(new CurrentPosting { PostingCategory = postingCategory });
