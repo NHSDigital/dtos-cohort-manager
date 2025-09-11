@@ -78,6 +78,7 @@ export default function SignIn({
             <>
               <hr />
               <form
+                data-testid="test-account-form"
                 action={async (formData) => {
                   "use server";
                   await signIn("credentials", formData);

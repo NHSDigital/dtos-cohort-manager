@@ -2,10 +2,10 @@
   "validParticipantRecord-vhr": {
     "number": "CS0573847",
     "u_case_variable_data": {
-      "nhs_number": "1236547089",
-      "forename_": "Leah",
-      "surname_family_name": "Bloggs",
-      "date_of_birth": "2000-01-01",
+      "nhs_number": "9996294773",
+      "forename_": "Anne",
+      "surname_family_name": "Smith",
+      "date_of_birth": "2010-10-22",
       "enter_dummy_gp_code": "ZZZGBR",
       "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
       "reason_for_adding": "eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached"
@@ -14,10 +14,10 @@
     "validParticipantRecord-ceasing": {
     "number": "CS0573848",
     "u_case_variable_data": {
-      "nhs_number": "1236547099",
-      "forename_": "Liz",
-      "surname_family_name": "Blake",
-      "date_of_birth": "2000-01-01",
+      "nhs_number": "9990642273",
+      "forename_": "Anne",
+      "surname_family_name": "Smith",
+      "date_of_birth": "2010-10-22",
       "enter_dummy_gp_code": "ZZZDKL",
       "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
       "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
@@ -26,10 +26,10 @@
     "validParticipantRecord-routine": {
     "number": "CS0573849",
     "u_case_variable_data": {
-      "nhs_number": "1236547079",
-      "forename_": "Jane",
-      "surname_family_name": "Peter",
-      "date_of_birth": "2000-01-01",
+      "nhs_number": "9993139653",
+      "forename_": "Anne",
+      "surname_family_name": "Smith",
+      "date_of_birth": "2010-10-22",
       "enter_dummy_gp_code": "ZZZCSH",
       "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
       "reason_for_adding": "eligible_for_routine_screening_but_not_registered_with_a_gp_practice"
@@ -38,10 +38,22 @@
   "inValidParticipantRecordMissingDateofBirthAndSurname": {
     "number": "CS0573850",
     "u_case_variable_data": {
-      "nhs_number": "1236547069",
-      "forename_": "Grace",
+      "nhs_number": "9994539760",
+      "forename_": "Anne",
       "surname_family_name": "",
       "date_of_birth": " ",
+      "enter_dummy_gp_code": "ZZZCDS",
+      "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+      "reason_for_adding": "eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached"
+    }
+  },
+    "inValidParticipantRecordDateofBirth": {
+    "number": "CS0573850",
+    "u_case_variable_data": {
+      "nhs_number": "9998266904",
+      "forename_": "Anne",
+      "surname_family_name": "Smith",
+      "date_of_birth": "22-10-2010",
       "enter_dummy_gp_code": "ZZZCDS",
       "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
       "reason_for_adding": "eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached"
@@ -62,10 +74,10 @@
     "inValidParticipantRecordMissingReasonForAdding": {
     "number": "CS0573850",
     "u_case_variable_data": {
-      "nhs_number": "1236547069",
-      "forename_": "Grace",
-      "surname_family_name": "Rock",
-      "date_of_birth": "2000-03-01",
+      "nhs_number": "9996083276",
+      "forename_": "Anne",
+      "surname_family_name": "Smith",
+      "date_of_birth": "2010-10-22",
       "enter_dummy_gp_code": "ZZZBHU",
       "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
       "reason_for_adding": ""
@@ -74,10 +86,10 @@
   "ValidParticipantWithNoDummyCode": {
     "number": "CS0573851",
     "u_case_variable_data": {
-      "nhs_number": "1236547059",
-      "forename_": "Lucy",
-      "surname_family_name": "Cook",
-      "date_of_birth": "2000-02-01",
+      "nhs_number": "9992241578",
+      "forename_": "Anne",
+      "surname_family_name": "Smith",
+      "date_of_birth": "2010-10-22",
       "enter_dummy_gp_code": " ",
       "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
       "reason_for_adding": "eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached"
@@ -86,10 +98,10 @@
     "invalidSchemaName": {
     "number": "CS0573852",
     "u_case_variable_data": {
-      "nhs_number": "1236547010",
-      "forename_": "Lucy",
-      "surnamefamily_name": "Cook",
-      "dateofbirth": "2000-02-01",
+      "nhs_number": "9990337047",
+      "forename_": "Anne",
+      "surnamefamily_name": "Smith",
+      "dateofbirth": "2010-10-22",
       "enterdummy_gp_code": "ZZZJSO",
       "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
       "reason_for_adding": "eligible_for_very_high_risk_breast_screening_referral_form_must_be_attached"
