@@ -124,6 +124,7 @@ stages:
 
 - stage: notify_stage
   displayName: Send Slack Notification
+  dependsOn:
   - retag_images_stage
   - terraform_deploy_stage
   - db_changes_stage
