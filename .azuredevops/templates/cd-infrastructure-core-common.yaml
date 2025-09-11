@@ -138,8 +138,8 @@ stages:
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
-    - job: prepare_notifications
-      displayName: Prepare Slack Notification
+    - job: notify
+      displayName: Send Slack Notification
       steps:
         - checkout: dtos-devops-templates
           sparseCheckoutDirectories: scripts
@@ -209,14 +209,6 @@ stages:
               }
           condition: always()
 
-    - job: notify
-      displayName: Send Slack Notification
-      dependsOn: prepare_notifications
-      condition: always()
-      variables:
-        SLACK_SUCCESS_MESSAGE: "$(jobs.prepare_notifications.outputs['BuildSlackMessage.slackSuccessMessage'])"
-        SLACK_FAILURE_MESSAGE: "$(jobs.prepare_notifications.outputs['BuildSlackMessage.slackFailureMessage'])"
-      steps:
         - task: PythonScript@0
           name: slack_success
           displayName: Send Slack Notification (Success)
@@ -227,6 +219,8 @@ stages:
             arguments: >
               --webhook "${{ parameters.slackWebHook }}"
               --message "$(SLACK_SUCCESS_MESSAGE)"
+          env:
+            SLACK_SUCCESS_MESSAGE: "$(jobs.notify.outputs['BuildSlackMessage.slackSuccessMessage'])"
 
         - task: PythonScript@0
           name: slack_failure
@@ -238,3 +232,5 @@ stages:
             arguments: >
               --webhook "${{ parameters.slackWebHook }}"
               --message "$(SLACK_FAILURE_MESSAGE)"
+          env:
+            SLACK_FAILURE_MESSAGE: "$(jobs.notify.outputs['BuildSlackMessage.slackFailureMessage'])"
