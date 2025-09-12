@@ -1181,12 +1181,6 @@ function_apps = {
       ]
     }
 
-    # WireMock = {
-    #   name_suffix                  = "wiremock"
-    #   function_endpoint_name       = "Wiremock"
-    #   app_service_plan_key         = "NonScaling"
-    #   storage_account_env_var_name = "wiremock_STORAGE"
-    # }
   }
 }
 
