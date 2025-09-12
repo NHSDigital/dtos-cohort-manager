@@ -17,11 +17,11 @@
         "LocalParams": [
           {
             "Name": "EnglishPostingCategory",
-            "Expression": "dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting) == \"ENGLAND\""
+            "Expression": "string.Equals(dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting), \"ENGLAND\", StringComparison.OrdinalIgnoreCase)"
           },
           {
             "Name": "InvalidPostingCategory",
-            "Expression": "!(EnglishPostingCategory || newParticipant.CurrentPosting == \"ENG\" || newParticipant.CurrentPosting == \"IM\" || newParticipant.CurrentPosting == \"DMS\")"
+            "Expression": "!(EnglishPostingCategory || string.Equals(newParticipant.CurrentPosting, \"ENG\", StringComparison.OrdinalIgnoreCase) || string.Equals(newParticipant.CurrentPosting, \"IM\", StringComparison.OrdinalIgnoreCase) || string.Equals(newParticipant.CurrentPosting, \"DMS\", StringComparison.OrdinalIgnoreCase))"
           },
           {
             "Name": "IsExcluded",
@@ -48,7 +48,7 @@
         "LocalParams": [
           {
             "Name": "reasonForRemoval",
-            "Expression": "newParticipant.ReasonForRemoval == \"RDI\" OR newParticipant.ReasonForRemoval == \"RDR\" OR newParticipant.ReasonForRemoval == \"RPR\""
+            "Expression": "string.Equals(newParticipant.ReasonForRemoval, \"RDI\", StringComparison.OrdinalIgnoreCase) OR string.Equals(newParticipant.ReasonForRemoval, \"RDR\", StringComparison.OrdinalIgnoreCase) OR string.Equals(newParticipant.ReasonForRemoval, \"RPR\", StringComparison.OrdinalIgnoreCase)"
           },
           {
             "Name": "postcode",
