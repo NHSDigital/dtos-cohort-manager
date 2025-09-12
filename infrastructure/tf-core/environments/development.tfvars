@@ -1344,12 +1344,6 @@ storage_accounts = {
     blob_properties_delete_retention_policy = 7
     blob_properties_versioning_enabled      = false
     containers                              = {}
-    # shares = {
-    #   wiremock = {
-    #     share_name = "wiremock"
-    #     quota          = 5
-    #   }
-    # }
   }
   file_exceptions = {
     name_suffix                             = "filexptns"
