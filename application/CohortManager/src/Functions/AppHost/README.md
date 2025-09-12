@@ -20,15 +20,20 @@
         },
         "Parameters": {
             "SqlPassword": "",
+            "MeshSandboxKeyPasspharse": "",
             "NemsLocalCertPassword": "",
-            "NemsMeshMailboxId": ""
+            "PdsClientId": ""
         }
     }
     ```
 
-    `SqlPassword` is the password for your local db. It must be at least 8 characters long and contain characters from three of the following four categories: uppercase letters, lowercase letters, numbers, and non-alphanumeric characters.
+    `SqlPassword` - local db password. It must be at least 8 characters long and contain characters from at least three of the following four categories: uppercase letters, lowercase letters, numbers, and non-alphanumeric characters.
 
-    `NemsLocalCertPassword` and `NemsMeshMailboxId` can be any value if using the stubbed ManageNemsSubscription (default).
+    `MeshSandboxKeyPasspharse` - The password for your local MESH Sandbox certificate. Can be set to any value if not using MESH.
+
+    `NemsLocalCertPassword` - The password for your local NEMS certificate. Can be set to any value if using the stubbed service (default).
+
+    `PdsClientId` - The client id for using PDS. Can be set to any value if using the stubbed service (default).
 
 2. Install .NET Aspire if you haven't already
     ```
