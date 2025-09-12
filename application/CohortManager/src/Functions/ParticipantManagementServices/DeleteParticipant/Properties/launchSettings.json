@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "NemsMeshRetrieval": {
+    "DeleteParticipant": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7068",
+      "commandLineArgs": "--port 7087",
       "launchBrowser": false
     }
   }
