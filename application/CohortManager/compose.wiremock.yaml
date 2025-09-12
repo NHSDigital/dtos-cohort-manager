@@ -6,7 +6,7 @@ services:
     networks: [cohman-network]
     build:
       context: ./src/Functions/
-      dockerfile: /Shared/Wiremock/Dockerfile
+      dockerfile: Shared/Wiremock/Dockerfile
     ports:
       - "8080:8080"
     volumes:
