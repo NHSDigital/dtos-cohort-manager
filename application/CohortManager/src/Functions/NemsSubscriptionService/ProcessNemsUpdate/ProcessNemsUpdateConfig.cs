@@ -6,7 +6,12 @@ public class ProcessNemsUpdateConfig
 {
     public required string RetrievePdsDemographicURL { get; set; }
     public required string NemsMessages { get; set; }
-    public required string UnsubscribeNemsSubscriptionUrl { get; set; }
+
+    [Required]
+    public required string ManageNemsSubscriptionSubscribeURL { get; set; }
+
+    [Required]
+    public required string ManageNemsSubscriptionUnsubscribeURL { get; set; }
 
     [Required]
     public required string ServiceBusConnectionString_client_internal { get; set; }
