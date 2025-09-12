@@ -55,7 +55,7 @@ locals {
             } : {},
 
             # Add in the MANAGED_IDENTITY_CLIENT_ID environment variable if using a user assigned managed identity:
-            config.add_user_assigned_identity != null ? {
+            config.add_user_assigned_identity != false ? {
               "MANAGED_IDENTITY_CLIENT_ID" = "${module.user_assigned_managed_identity_sql["${container_app}-${region}"].client_id}",
               "TARGET_SUBSCRIPTION_ID"     = var.TARGET_SUBSCRIPTION_ID
             } : {}
