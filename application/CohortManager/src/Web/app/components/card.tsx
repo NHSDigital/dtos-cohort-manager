@@ -14,7 +14,10 @@ export default function Card({
   url,
 }: Readonly<CardProps>) {
   return (
-    <div className="nhsuk-card nhsuk-card--clickable" data-testid="card">
+    <div
+      className={`nhsuk-card${value > 0 ? " nhsuk-card--clickable" : ""}`}
+      data-testid="card"
+    >
       <div className="nhsuk-card__content">
         <p
           className="nhsuk-heading-xl nhsuk-u-font-size-64 nhsuk-u-margin-bottom-1"
@@ -26,9 +29,13 @@ export default function Card({
           className="nhsuk-card__heading nhsuk-heading-m"
           data-testid="card-heading"
         >
-          <Link href={url} className="nhsuk-link--no-visited-state">
-            {label}
-          </Link>
+          {value > 0 ? (
+            <Link href={url} className="nhsuk-link--no-visited-state">
+              {label}
+            </Link>
+          ) : (
+            label
+          )}
         </h3>
         {description && (
           <p className="nhsuk-card__description" data-testid="card-description">

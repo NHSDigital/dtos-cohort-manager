@@ -28,7 +28,6 @@
       - [Context diagram showing the GitHub App setup](#context-diagram-showing-the-github-app-setup)
       - [Authentication flow diagram](#authentication-flow-diagram)
     - [Limitations](#limitations)
-    - [Examples of acquiring access token](#examples-of-acquiring-access-token)
   - [Actions](#actions)
   - [Tags](#tags)
   - [Footnotes](#footnotes)
@@ -221,13 +220,6 @@ graph LR
 - Only 100 app registrations are allowed per user or organisation, but there is [no limit on the number of installed apps](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/registering-a-github-app#about-registering-github-apps)
 - [Access rate limits apply](https://docs.github.com/en/apps/creating-github-apps/registering-a-github-app/rate-limits-for-github-apps) depending on the number of repositories or users within organisation
 - The app name cannot exceed 34 characters
-
-### Examples of acquiring access token
-
-- [Bash](./assets/ADR-003/examples/bash/README.md)
-- [Golang](./assets/ADR-003/examples/golang/README.md)
-- [Node.js TypeScript (Octokit)](./assets/ADR-003/examples/nodejs/README.md) - This is our preferred method for implementing GitHub Apps. It is supported by the Octokit library, which is an official client for the GitHub API.
-- [Python](./assets/ADR-003/examples/python/README.md)
 
 ## Actions
 

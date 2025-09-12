@@ -16,8 +16,7 @@ const NHS_CIS2: OAuthConfig<Profile> = {
   authorization: {
     params: {
       acr_values: "AAL2_OR_AAL3_ANY",
-      scope:
-        "openid profile email nationalrbacaccess organisationalmemberships",
+      scope: "openid profile nationalrbacaccess",
       response_type: "code",
       max_age: 240, // 4 minutes [Required by CIS2]
     },
@@ -32,7 +31,7 @@ const NHS_CIS2: OAuthConfig<Profile> = {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     NHS_CIS2,
-    ...(process.env.NODE_ENV === "development"
+    ...(process.env.APP_ENV === "development"
       ? [
           Credentials({
             credentials: {
@@ -44,7 +43,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
                 uid: "testuid",
                 firstName: "Test",
                 lastName: "User",
-                email: "",
               };
               return user;
             },
@@ -64,7 +62,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     async signIn({ account }) {
       // Handle test accounts in development
       if (
-        process.env.NODE_ENV === "development" &&
+        process.env.APP_ENV === "development" &&
         account?.provider === "credentials"
       ) {
         return true;
@@ -114,7 +112,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       // Handle test accounts in development
       if (
-        process.env.NODE_ENV === "development" &&
+        process.env.APP_ENV === "development" &&
         account?.provider === "credentials"
       ) {
         Object.assign(token, {
@@ -123,10 +121,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           lastName: "User",
           sub: "1234",
           sid: "5678",
-          orgName: "Test Org",
-          odsCode: "ABC",
           workgroups: ["Test Workgroup"],
-          workgroups_codes: ["TEST-WG"],
+          workgroups_codes: ["000000000000"],
         });
       }
 
@@ -137,15 +133,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           family_name: lastName,
           sub,
           sid,
-          nhsid_org_memberships,
           nhsid_nrbac_roles,
         } = profile;
-
-        const [{ org_name: orgName, org_code: odsCode }] =
-          nhsid_org_memberships as {
-            org_name: string;
-            org_code: string;
-          }[];
 
         const workgroups = (nhsid_nrbac_roles as Array<unknown>).flatMap(
           (role) => (role as { workgroups?: unknown[] }).workgroups || []
@@ -162,8 +151,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           lastName,
           sub: sub ?? undefined,
           sid: sid ?? undefined,
-          orgName,
-          odsCode,
           workgroups,
           workgroups_codes,
         });
@@ -178,8 +165,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           lastName,
           sub,
           sid,
-          odsCode,
-          orgName,
           workgroups,
           workgroups_codes,
         } = token;
@@ -190,8 +175,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           lastName,
           sub,
           sid,
-          odsCode,
-          orgName,
           workgroups,
           workgroups_codes,
         });

@@ -29,7 +29,7 @@ For connecting to an Integration environment Mailbox you will require the follow
 * the passphrase for the key
 * URL for the integration environment
 
-We recommend naming the Mesh Key File as `meshpfx.pfx` and sorting it in to root folder of the function as this will prevent additional changes to have to be made to the project file to copy on build.
+We recommend naming the NEMS Mesh Key File as `nemsmeshpfx.pfx` and storing it in the root folder of the function as this will prevent additional changes to have to be made to the project file to copy on build.
 
 A generic key is available for connecting to the Integration Environment.
 
@@ -42,13 +42,17 @@ note: when running in azure these values will be stored in key vault.
     "Values": {
         "AzureWebJobsStorage": "UseDevelopmentStorage=true",
         "FUNCTIONS_WORKER_RUNTIME": "dotnet-isolated",
-        "MeshApiBaseUrl" : "https://localhost:8700/messageexchange",
-        "BSSMailBox": "X26ABC1",
-        "nemsmeshfolder_STORAGE":"UseDevelopmentStorage=true",
-        "MeshPassword": "password",
-        "MeshSharedKey": "TestKey",
-        "MeshKeyPassphrase":"test123"
-
+        "NemsMeshApiBaseUrl": "https://localhost:8700/messageexchange",
+        "NemsMeshMailBox": "X26DEF9",
+        "NemsMeshPassword": "password",
+        "NemsMeshSharedKey": "TestKey",
+        "NemsMeshKeyName": "nemsmeshpfx.pfx",
+        "NemsMeshKeyPassphrase": "test123",
+        "NemsMeshServerSideCerts": "server-certs.pem",
+        "NemsMeshBypassServerCertificateValidation": "true",
+        "nemsmeshfolder_STORAGE": "UseDevelopmentStorage=true",
+        "NemsMeshInboundContainer": "nems-updates",
+        "NemsMeshConfigContainer": "nems-config"
     }
 }
 ```

@@ -9,20 +9,27 @@ using Common;
 using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
 using NHS.CohortManager.ServiceNowIntegrationService.Models;
+using Model;
+using Microsoft.Extensions.Options;
 
 public class ReceiveServiceNowMessageFunction
 {
     private readonly ILogger<ReceiveServiceNowMessageFunction> _logger;
     private readonly ICreateResponse _createResponse;
+    private readonly IQueueClient _queueClient;
+    private readonly ServiceNowMessageHandlerConfig _config;
 
-    public ReceiveServiceNowMessageFunction(ILogger<ReceiveServiceNowMessageFunction> logger, ICreateResponse createResponse)
+    public ReceiveServiceNowMessageFunction(ILogger<ReceiveServiceNowMessageFunction> logger, ICreateResponse createResponse,
+        IQueueClient queueClient, IOptions<ServiceNowMessageHandlerConfig> config)
     {
         _logger = logger;
         _createResponse = createResponse;
+        _queueClient = queueClient;
+        _config = config.Value;
     }
 
     /// <summary>
-    /// Azure Function to receive and validate an incoming ServiceNow message.
+    /// Azure Function to receive and validate an incoming ServiceNow message. If the message is valid, it will be sent to an Azure Service Bus Topic.
     /// </summary>
     /// <param name="req">The HTTP request containing the incoming message payload.</param>
     /// <returns>
@@ -54,6 +61,27 @@ public class ReceiveServiceNowMessageFunction
             {
                 _logger.LogError("Request body failed validation");
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
+            }
+
+            var participant = new ServiceNowParticipant
+            {
+                ScreeningId = 1, // Hardcoding to the Breast Screening Id
+                NhsNumber = long.Parse(requestBody.VariableData.NhsNumber),
+                FirstName = requestBody.VariableData.FirstName,
+                FamilyName = requestBody.VariableData.FamilyName,
+                DateOfBirth = requestBody.VariableData.DateOfBirth,
+                ServiceNowCaseNumber = requestBody.ServiceNowCaseNumber,
+                BsoCode = requestBody.VariableData.BsoCode,
+                ReasonForAdding = requestBody.VariableData.ReasonForAdding,
+                RequiredGpCode = requestBody.VariableData.RequiredGpCode
+            };
+
+            var success = await _queueClient.AddAsync(participant, _config.ServiceNowParticipantManagementTopic);
+
+            if (!success)
+            {
+                _logger.LogError("Failed to send Participant from ServiceNow to Service Bus Topic");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
         }
         catch (JsonException ex)

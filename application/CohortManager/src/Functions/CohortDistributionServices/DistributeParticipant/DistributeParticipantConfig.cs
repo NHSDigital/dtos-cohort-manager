@@ -5,21 +5,25 @@ using System.ComponentModel.DataAnnotations;
 public class DistributeParticipantConfig
 {
     [Required]
-    public string CohortDistributionTopic { get; set; }
+    public required string CohortDistributionTopic { get; set; }
     [Required]
-    public string DistributeParticipantSubscription { get; set; }
-    public bool IgnoreParticipantExceptions { get; set; } = false;
+    public required string DistributeParticipantSubscription { get; set; }
     [Required]
-    public string LookupValidationURL { get; set; }
+    public required string LookupValidationURL { get; set; }
     [Required]
-    public string StaticValidationURL { get; set; }
+    public required string StaticValidationURL { get; set; }
     [Required]
-    public string TransformDataServiceURL { get; set; }
+    public required string TransformDataServiceURL { get; set; }
     [Required]
-    public string ParticipantManagementUrl { get; set; }
+    public required string ParticipantManagementUrl { get; set; }
     [Required]
-    public string CohortDistributionDataServiceUrl { get; set; }
+    public required string CohortDistributionDataServiceUrl { get; set; }
     [Required]
-    public string ParticipantDemographicDataServiceUrl { get; set; }
+    public required string ParticipantDemographicDataServiceUrl { get; set; }
+    [Required]
+    public required string RemoveOldValidationRecordUrl { get; set; }
+    public required string SendServiceNowMessageURL { get; set; }
+    public int MaxLookupValidationRetries { get; set; } = 3;
     public bool IsExtractedToBSSelect { get; set; } = false;
+    public bool IgnoreParticipantExceptions { get; set; } = false;
 }

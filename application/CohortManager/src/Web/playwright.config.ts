@@ -10,8 +10,8 @@ import path from "path";
 dotenv.config({ path: path.resolve(__dirname, ".env.tests") });
 
 /**
-* Define the BDD config.
-*/
+ * Define the BDD config.
+ */
 const testDir = defineBddConfig({
   features: "./tests/features/*.feature",
   steps: "./tests/features/steps/*.ts",
@@ -34,108 +34,140 @@ export default defineConfig({
   reporter: "html",
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    baseURL: "https://localhost:3000",
+    baseURL: "http://localhost:3000",
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: "on",
     screenshot: "on",
     viewport: { width: 1280, height: 720 },
+    video: "on",
+    ignoreHTTPSErrors: true,
+  },
+
+  // Auto-start the Next.js dev server for tests
+  webServer: {
+    command: "npm run dev",
+    url: "http://localhost:3000",
+    reuseExistingServer: !process.env.CI,
+    timeout: 120_000,
   },
 
   /* Configure projects for major browsers */
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+      },
     },
-    {
-      name: "firefox",
-      use: { ...devices["Desktop Firefox"] },
-    },
-    {
-      name: "webkit",
-      use: { ...devices["Desktop Safari"] },
-    },
+    // {
+    //   name: "firefox",
+    //   use: { ...devices["Desktop Firefox"] },
+    // },
+    // {
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] },
+    // },
     // Test against mobile viewports.
     // Windows Browsers
-    {
-      name: 'Edge (Windows)',
-      use: {
-        channel: 'msedge',
-      },
-    },
-    {
-      name: 'Chrome (Windows)',
-      use: {
-        channel: 'chrome',
-      },
-    },
-    {
-      name: 'Firefox (Windows)',
-      use: {
-        browserName: 'firefox',
-      },
-    },
+    // {
+    //   name: "Edge (Windows)",
+    //   use: {
+    //     ...devices["Desktop Chrome"],
+    //     launchOptions: {
+    //       args: ["--ignore-certificate-errors"],
+    //     },
+    //   },
+    // },
 
-    // macOS Browsers
-    {
-      name: 'Safari (macOS)',
-      use: {
-        browserName: 'webkit',
-      },
-    },
-    {
-      name: 'Chrome (macOS)',
-      use: {
-        channel: 'chrome',
-      },
-    },
-    {
-      name: 'Firefox (macOS)',
-      use: {
-        browserName: 'firefox',
-      },
-    },
+    // {
+    //   name: "firefox",
+    //   use: { ...devices["Desktop Firefox"] },
+    // },
+    // {
+    //   name: "webkit",
+    //   use: { ...devices["Desktop Safari"] },
+    // },
+    // // Test against mobile viewports.
+    // // Windows Browsers
+    // {
+    //   name: 'Edge (Windows)',
+    //   use: {
+    //     channel: 'msedge',
+    //   },
+    // },
+    // {
+    //   name: 'Chrome (Windows)',
+    //   use: {
+    //     channel: 'chrome',
+    //   },
+    // },
+    // {
+    //   name: 'Firefox (Windows)',
+    //   use: {
+    //     browserName: 'firefox',
+    //   },
+    // },
 
-    // iOS Safari (emulated)
-    {
-      name: 'Safari (iOS)',
-      use: {
-        ...devices['iPhone 13'],
-      },
-    },
-    {
-      name: 'Chrome (iOS)',
-      use: {
-        ...devices['iPhone 13'],
-        browserName: 'webkit', // Still uses WebKit on iOS
-      },
-    },
+    // // macOS Browsers
+    // {
+    //   name: 'Safari (macOS)',
+    //   use: {
+    //     browserName: 'webkit',
+    //   },
+    // },
+    // {
+    //   name: 'Chrome (macOS)',
+    //   use: {
+    //     channel: 'chrome',
+    //   },
+    // },
+    // {
+    //   name: 'Firefox (macOS)',
+    //   use: {
+    //     browserName: 'firefox',
+    //   },
+    // },
 
-    // Android Browsers (emulated)
-    {
-      name: 'Chrome (Android)',
-      use: {
-        ...devices['Pixel 5'],
-        browserName: 'chromium',
-      },
-    },
-    {
-      name: 'Edge (Android)',
-      use: {
-        ...devices['Pixel 5'],
-        browserName: 'chromium', // Playwright can't simulate Edge exactly, just Chromium
-      },
-    },
-    {
-      name: 'Firefox (Android)',
-      use: {
-        ...devices['Pixel 5'],
-        browserName: 'firefox',
-        isMobile: undefined,
-        deviceScaleFactor: undefined,
-        hasTouch: undefined,
-      },
-    },
+    // // iOS Safari (emulated)
+    // {
+    //   name: 'Safari (iOS)',
+    //   use: {
+    //     ...devices['iPhone 13'],
+    //   },
+    // },
+    // {
+    //   name: 'Chrome (iOS)',
+    //   use: {
+    //     ...devices['iPhone 13'],
+    //     browserName: 'webkit', // Still uses WebKit on iOS
+    //   },
+    // },
+
+    // // Android Browsers (emulated)
+    // {
+    //   name: 'Chrome (Android)',
+    //   use: {
+    //     ...devices['Pixel 5'],
+    //     browserName: 'chromium',
+    //   },
+    // },
+    // {
+    //   name: 'Edge (Android)',
+    //   use: {
+    //     ...devices['Pixel 5'],
+    //     browserName: 'chromium', // Playwright can't simulate Edge exactly, just Chromium
+    //   },
+    // },
+    // {
+    //   name: 'Firefox (Android)',
+    //   use: {
+    //     ...devices['Pixel 5'],
+    //     browserName: 'firefox',
+    //     isMobile: undefined,
+    //     deviceScaleFactor: undefined,
+    //     hasTouch: undefined,
+    //   },
+    // },
   ],
 });

@@ -17,6 +17,7 @@ Create a `.env` file which should override environment variables required to run
 ```text
 # Default
 SERVICE_NAME="Cohort Manager"
+APP_ENV="development"
 
 # Next Auth
 NEXTAUTH_URL=https://localhost:3000/api/auth
@@ -25,8 +26,8 @@ NEXTAUTH_SECRET={RANDOM_SECRET_STRING}
 # API
 EXCEPTIONS_API_URL=https://localhost:3000
 
-# Cohort Manager users UIDs
-COHORT_MANAGER_USERS=uid1,testuid
+# CIS2 RBAC
+COHORT_MANAGER_RBAC_CODE=000000000000
 
 # CIS2 Auth - only required if using CIS2 in dev
 AUTH_CIS2_ISSUER=https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk

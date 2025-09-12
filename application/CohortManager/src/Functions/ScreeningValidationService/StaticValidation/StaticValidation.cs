@@ -12,32 +12,23 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
-using NHS.Screening.StaticValidation;
+using NHS.CohortManager.Shared.Utilities;
 using RulesEngine.Models;
 
 public class StaticValidation
 {
     private readonly ILogger<StaticValidation> _logger;
     private readonly ICreateResponse _createResponse;
-    private readonly IExceptionHandler _handleException;
     private readonly IReadRules _readRules;
-    private readonly IHttpClientFunction _httpClientFunction;
-    private readonly StaticValidationConfig _config;
 
     public StaticValidation(
         ILogger<StaticValidation> logger,
-        IExceptionHandler handleException,
         ICreateResponse createResponse,
-        IReadRules readRules,
-        IHttpClientFunction httpClientFunction,
-        IOptions<StaticValidationConfig> staticValidationConfig)
+        IReadRules readRules)
     {
         _logger = logger;
-        _handleException = handleException;
         _createResponse = createResponse;
         _readRules = readRules;
-        _httpClientFunction = httpClientFunction;
-        _config = staticValidationConfig.Value;
     }
 
     // TODO: refactor to accept a cohort distribution participant
@@ -57,6 +48,8 @@ public class StaticValidation
             var ruleFileName = $"{participantCsvRecord.Participant.ScreeningName}_staticRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName: {RuleFileName}", ruleFileName);
 
+            bool routineParticipant = (participantCsvRecord.Participant.ReferralFlag ?? "").ToLower() == "false";
+
             var json = await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
 
@@ -69,46 +62,42 @@ public class StaticValidation
             var re = new RulesEngine.RulesEngine(rules, reSettings);
 
             var ruleParameters = new[] {
-                new RuleParameter("participant", participantCsvRecord.Participant),
+                new RuleParameter("participant", participantCsvRecord.Participant)
             };
-            var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
+
+            var resultList = new List<RuleResultTree>();
+
+            if (participantCsvRecord.Participant.RecordType != Actions.Removed)
+            {
+                resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
+
+                if (routineParticipant)
+                {
+                    resultList.AddRange(await re.ExecuteAllRulesAsync("Routine_Common", ruleParameters));
+                }
+            }
 
             if (re.GetAllRegisteredWorkflowNames().Contains(participantCsvRecord.Participant.RecordType))
-            {
-                _logger.LogInformation("Executing workflow {RecordType}", participantCsvRecord.Participant.RecordType);
-                var ActionResults = await re.ExecuteAllRulesAsync(participantCsvRecord.Participant.RecordType, ruleParameters);
-                resultList.AddRange(ActionResults);
-            }
+                {
+                    _logger.LogInformation("Executing workflow {RecordType}", participantCsvRecord.Participant.RecordType);
+                    var ActionResults = await re.ExecuteAllRulesAsync(participantCsvRecord.Participant.RecordType, ruleParameters);
+                    resultList.AddRange(ActionResults);
+                }
 
-            var validationErrors = resultList.Where(x => !x.IsSuccess);
+            var validationErrors = resultList.Where(x => !x.IsSuccess).Select(x => new ValidationRuleResult(x));
 
-            await RemoveOldValidationRecord(participantCsvRecord.Participant.NhsNumber, participantCsvRecord.Participant.ScreeningName);
             if (validationErrors.Any())
             {
-                var createExceptionLogResponse = await _handleException.CreateValidationExceptionLog(validationErrors, participantCsvRecord);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.Created, req, JsonSerializer.Serialize(createExceptionLogResponse));
+                string errors = JsonSerializer.Serialize(validationErrors);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, errors);
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(new ValidationExceptionLog()
-            {
-                IsFatal = false,
-                CreatedException = false
-            }));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-    }
-
-    private async Task RemoveOldValidationRecord(string nhsNumber, string screeningName)
-    {
-        var OldExceptionRecordJson = JsonSerializer.Serialize(new OldExceptionRecord()
-        {
-            NhsNumber = nhsNumber,
-            ScreeningName = screeningName
-        });
-        await _httpClientFunction.SendPost(_config.RemoveOldValidationRecord, OldExceptionRecordJson);
     }
 }

@@ -1,0 +1,64 @@
+Feature: Raised exceptions page
+
+    Background:
+      Given I sign in with a test account
+      When I go to the page "/participant-information/4001"
+      Then I should see the heading "Exception information"
+      And I see the text "Local reference (exception ID): 4001"
+
+    Scenario: Check for accessibility issues as a signed in user
+      Given I should see the heading "Exception information"
+      Then I should expect 0 accessibility issues
+
+    Scenario: Check for raised exception information
+        Given I see the text "Exception information"
+        Then I see the text "Portal form used"
+        And I see the text "Request to amend incorrect patient PDS record data"
+        And I see the text "Exception status"
+        Then I see the tag "Raised"
+        Then I see the text "ServiceNow Case ID" in the element "service-now-case-label"
+        And I see the link "Change ServiceNow Case ID" with the href "?edit=true#exception-status"
+
+    Scenario: Check to make sure the exception status section is not present
+        Given I should not see the secondary heading "Exception status"
+        And I should not see the text input with label "Enter ServiceNow Case ID"
+        And the button "Save and continue" should not be present
+
+    Scenario: Check for the presence of superseded by row when applicable
+        Given I see the row "superseded-by-row" in the summary list
+        And I see the text "444 444 4444" in the "superseded-by-value" row
+
+    Scenario: Check for the change link functionality
+        Given I see the link "Change ServiceNow Case ID" with the href "?edit=true#exception-status"
+        When I go to the page "/participant-information/4001?edit=true#exception-status"
+        And I see the text "Local reference (exception ID): 4001"
+        And I should see the secondary heading "Exception status"
+        And I see the text input with label "Enter ServiceNow Case ID"
+        And I see the button "Save and continue"
+
+    Scenario: Check for breadcrumb navigation back to Raised breast screening exceptions page
+      When I go to the page "/participant-information/3001"
+      Then I see the link "Home"
+      Then I see the link "Raised breast screening exceptions"
+      When I click the link "Raised breast screening exceptions"
+      Then I should see the heading "Raised breast screening exceptions"
+
+    Scenario: Invalid ServiceNow Case ID input shows error message
+        Given I go to the page "/participant-information/3003?edit=true#exception-status"
+        And I fill the input with label "Enter ServiceNow Case ID" with "<input>"
+        And I click the button "Save and continue"
+        Then I should see the error summary with message "<error>"
+        And I should see the inline error message "<error>"
+
+        Examples:
+            | input         | error                                                                 |
+            | CS06191      | ServiceNow case ID must be nine characters or more                    |
+            | CS0619153A   | ServiceNow case ID must start with two letters followed by at least seven digits (e.g. CS0619153) |
+            | CS 0619153   | ServiceNow case ID must not contain spaces                            |
+            | C$0619153    | ServiceNow case ID must only contain letters and numbers              |
+
+    Scenario: Empty ServiceNow Case ID input is allowed in edit mode
+      Given I go to the page "/participant-information/3003?edit=true#exception-status"
+      And I fill the input with label "Enter ServiceNow Case ID" with ""
+      And I click the button "Save and continue"
+      And I should see the heading "Raised breast screening exceptions"

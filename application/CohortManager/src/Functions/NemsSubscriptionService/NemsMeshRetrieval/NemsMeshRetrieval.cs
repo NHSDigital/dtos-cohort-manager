@@ -31,7 +31,7 @@ public class NemsMeshRetrieval
         _logger = logger;
         _meshToBlobTransferHandler = meshToBlobTransferHandler;
         _blobStorageHelper = blobStorageHelper;
-        _mailboxId = options.Value.BSSMailBox;
+        _mailboxId = options.Value.NemsMeshMailBox;
         _config = options.Value;
         _blobConnectionString = _config.nemsmeshfolder_STORAGE;
     }
@@ -39,19 +39,19 @@ public class NemsMeshRetrieval
     /// This function polls the MESH Mailbox every 5 minutes, if there is a file posted to the mailbox.
     /// If there is a file in there will move the file to the Cohort Manager Blob Storage where it will be picked up by the ReceiveCaasFile Function.
     /// </summary>
-    [Function("RetrieveMeshFile")]
+    [Function("RetrieveNemsMeshFile")]
     public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
     {
         _logger.LogInformation("C# Timer trigger function executed at: ,{datetime}", DateTime.UtcNow);
 
         static bool messageFilter(MessageMetaData i) => true; // No current filter defined there might be business rules here
 
-        static string fileNameFunction(MessageMetaData i) => string.Concat(i.MessageId, "_-_", i.WorkflowID, ".parquet");
+        static string fileNameFunction(MessageMetaData i) => string.Concat(i.MessageId, "_-_", i.WorkflowID, ".xml");
 
         try
         {
             var shouldExecuteHandShake = await ShouldExecuteHandShake();
-            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId, _blobConnectionString, "inbound", shouldExecuteHandShake);
+            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId, _blobConnectionString, _config.NemsMeshInboundContainer, shouldExecuteHandShake);
 
             if (!result)
             {
@@ -74,7 +74,7 @@ public class NemsMeshRetrieval
 
         Dictionary<string, string> configValues;
         TimeSpan handShakeInterval = new TimeSpan(0, 23, 54, 0);
-        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobConnectionString, "config", ConfigFileName);
+        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobConnectionString, _config.NemsMeshConfigContainer, ConfigFileName);
         if (meshState == null)
         {
 
@@ -140,7 +140,7 @@ public class NemsMeshRetrieval
             using (var stream = GenerateStreamFromString(jsonString))
             {
                 var blobFile = new BlobFile(stream, ConfigFileName);
-                var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString, "config", blobFile, true);
+                var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString, _config.NemsMeshConfigContainer, blobFile, true);
                 return result;
             }
         }

@@ -498,6 +498,8 @@ namespace DataServices.Migrations.Migrations
 
                     b.HasKey("CohortDistributionId");
 
+                    b.HasIndex(new[] { "IsExtracted", "RequestId" }, "IX_BSCOHORT_IS_EXTACTED_REQUESTID");
+
                     b.HasIndex(new[] { "NHSNumber" }, "IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
 
                     b.ToTable("BS_COHORT_DISTRIBUTION", "dbo");
@@ -750,6 +752,10 @@ namespace DataServices.Migrations.Migrations
                     b.Property<DateTime?>("RecordUpdateDateTime")
                         .HasColumnType("datetime")
                         .HasColumnName("RECORD_UPDATE_DATETIME");
+
+                    b.Property<int?>("SubscriptionSource")
+                        .HasColumnType("int")
+                        .HasColumnName("SUBSCRIPTION_SOURCE");
 
                     b.HasKey("SubscriptionId");
 

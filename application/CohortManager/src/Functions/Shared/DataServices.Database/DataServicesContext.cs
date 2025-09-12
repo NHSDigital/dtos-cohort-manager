@@ -67,6 +67,9 @@ public class DataServicesContext : DbContext
             .ToTable("BS_COHORT_DISTRIBUTION", "dbo")
             .HasIndex(c => new { c.NHSNumber }, "IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
 
+        modelBuilder.Entity<CohortDistribution>()
+            .HasIndex(c => new { c.IsExtracted, c.RequestId }, "IX_BSCOHORT_IS_EXTACTED_REQUESTID");
+
         modelBuilder.Entity<BsSelectRequestAudit>()
             .ToTable("BS_SELECT_REQUEST_AUDIT", "dbo");
 

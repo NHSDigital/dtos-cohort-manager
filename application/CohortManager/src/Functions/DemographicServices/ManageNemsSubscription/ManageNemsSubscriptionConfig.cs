@@ -84,14 +84,6 @@ public class ManageNemsSubscriptionConfig
     public bool NemsBypassServerCertificateValidation { get; set; } = false;
 
     /// <summary>
-    /// Default event types to subscribe to
-    /// </summary>
-    public string[] NemsDefaultEventTypes { get; set; } = new[]
-    {
-        "pds-record-change-1"
-    };
-
-    /// <summary>
     /// HTTP client timeout in seconds for NEMS API requests
     /// Default: 300 seconds (5 minutes)
     /// </summary>
@@ -101,5 +93,9 @@ public class ManageNemsSubscriptionConfig
     /// Custom validation to ensure either KeyVault or local cert is configured
     /// </summary>
     public bool IsValid => !string.IsNullOrEmpty(KeyVaultConnectionString) || !string.IsNullOrEmpty(NemsLocalCertPath);
+    /// <summary>
+    /// Bool to set the function to be in stubbed mode. Simulated responses from NEMS
+    /// </summary>
+    public bool IsStubbed { get; set; } = false;
 }
 

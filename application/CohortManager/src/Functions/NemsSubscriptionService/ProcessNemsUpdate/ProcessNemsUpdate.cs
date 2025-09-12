@@ -2,6 +2,7 @@
 
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using Common;
@@ -10,6 +11,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using DataServices.Client;
+using System.Net;
 
 public class ProcessNemsUpdate
 {
@@ -18,7 +21,11 @@ public class ProcessNemsUpdate
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IHttpClientFunction _httpClientFunction;
+    private readonly IExceptionHandler _exceptionHandler;
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
+    private readonly IBlobStorageHelper _blobStorageHelper;
     private readonly ProcessNemsUpdateConfig _config;
+    private long nhsNumberLong;
 
     public ProcessNemsUpdate(
         ILogger<ProcessNemsUpdate> logger,
@@ -26,85 +33,126 @@ public class ProcessNemsUpdate
         ICreateBasicParticipantData createBasicParticipantData,
         IAddBatchToQueue addBatchToQueue,
         IHttpClientFunction httpClientFunction,
-        IOptions<ProcessNemsUpdateConfig> processNemsUpdateConfig)
+        IDataServiceClient<ParticipantDemographic> participantDemographic,
+        IOptions<ProcessNemsUpdateConfig> processNemsUpdateConfig,
+        IBlobStorageHelper blobStorageHelper)
     {
         _logger = logger;
         _fhirPatientDemographicMapper = fhirPatientDemographicMapper;
         _createBasicParticipantData = createBasicParticipantData;
         _addBatchToQueue = addBatchToQueue;
         _httpClientFunction = httpClientFunction;
+        _participantDemographic = participantDemographic;
         _config = processNemsUpdateConfig.Value;
+        _blobStorageHelper = blobStorageHelper;
     }
 
     /// <summary>
-    /// Function that processes files from the nems-messages blob container. There are a number of stages to this function:
+    /// Function that processes files from the nems-updates blob container. There are a number of stages to this function:
     /// 1) Parse the NHS number from the received file.
     /// 2) Use the parsed NHS number to retrieve the PDS record.
     /// 3) Compare the retrieved PDS record NHS number against the parsed NHS number.
     /// 4) If the NHS numbers match, add the PDS record onto the correct participant management queue.
-    /// 5) If the NHS numbers do not match, build the required superseded record, then add this record onto the correct participant management queue.
+    /// 5) If the NHS numbers do not match, build a record for the new NHS number, as well as a superseded by record for the old NHS number. Add both records to the queue for processing.
     /// 6) Also if the NHS numbers do not match, unsubscribe the parsed NHS number from NEMS.
     /// </summary>
     /// <returns>
     /// This function returns nothing, only logs information/errors for successful or failing tasks.
     /// </returns>
     [Function(nameof(ProcessNemsUpdate))]
-    public async Task Run([BlobTrigger("nems-messages/{name}", Connection = "caasfolder_STORAGE")] Stream blobStream, string name)
+    public async Task Run([BlobTrigger("nems-updates/{name}", Connection = "nemsmeshfolder_STORAGE")] Stream blobStream, string name)
     {
         try
         {
-            string? nhsNumber = await GetNhsNumberFromFile(blobStream, name);
+            var nhsNumber = await GetNhsNumberFromFile(blobStream, name);
 
             if (nhsNumber == null)
             {
-                _logger.LogInformation("There is no NHS number, unable to continue.");
+                _logger.LogError("No NHS number found in file {FileName}. Moving to poison container.", name);
+                await CopyToPoisonContainer(name);
                 return;
             }
 
-            string? pdsRecord = await RetrievePdsRecord(nhsNumber);
-
-            if (pdsRecord == null)
+            if (!ValidationHelper.ValidateNHSNumber(nhsNumber))
             {
-                _logger.LogInformation("There is no PDS record, unable to continue.");
+                _logger.LogError("There was a problem validating the NHS number from blob store in the ProcessNemsUpdate function for file {FileName}. Moving to poison container.", name);
+                await CopyToPoisonContainer(name);
+                return;
+            }
+            nhsNumberLong = long.Parse(nhsNumber!);
+
+            var pdsResponse = await RetrievePdsRecord(nhsNumber, name);
+            if (pdsResponse!.StatusCode == HttpStatusCode.NotFound)
+            {
+                _logger.LogError("the PDS function has returned a 404 error for file {FileName}. Moving file to poison container.", name);
+                await CopyToPoisonContainer(name);
                 return;
             }
 
-            var retrievedPdsRecord = JsonSerializer.Deserialize<PdsDemographic>(pdsRecord);
+            pdsResponse.EnsureSuccessStatusCode();
 
-            if (retrievedPdsRecord?.NhsNumber == nhsNumber)
+            var retrievedPdsRecord = await pdsResponse.Content.ReadFromJsonAsync<PdsDemographic>();
+
+            _logger.LogInformation("Processing the retrieved PDS record.");
+            await ProcessRecord(new Participant(retrievedPdsRecord!), name);
+
+            if (retrievedPdsRecord?.NhsNumber != nhsNumber)
             {
-                _logger.LogInformation("NHS numbers match, processing the retrieved PDS record.");
-                await ProcessRecord(retrievedPdsRecord);
-            }
-
-            else
-            {
-                var supersededRecord = new PdsDemographic()
-                {
-                    NhsNumber = nhsNumber,
-                    SupersededByNhsNumber = retrievedPdsRecord?.NhsNumber,
-                    PrimaryCareProvider = null,
-                    ReasonForRemoval = "ORR",
-                    RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
-                };
-
-                _logger.LogInformation("NHS numbers do not match, processing the superseded record.");
-                await ProcessRecord(supersededRecord);
-
-                var unsubscribedFromNems = await UnsubscribeNems(nhsNumber);
-
-                if (unsubscribedFromNems)
-                {
-                    _logger.LogInformation("Successfully unsubscribed from NEMS.");
-                }
+                _logger.LogInformation("The NHS numbers do not match. Proceeding to process a superseded record.");
+                await CreateSupersededByRecord(nhsNumber, retrievedPdsRecord!, name);
             }
 
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There was an error processing NEMS update.");
+            _logger.LogError(ex, "There was an error processing NEMS update for file {FileName}. Moving to poison container.", name);
+            try
+            {
+                await CopyToPoisonContainer(name);
+            }
+            catch (Exception poisonEx)
+            {
+                _logger.LogError(poisonEx, "Failed to copy NEMS file {FileName} to poison container. Manual intervention required.", name);
+            }
+        }
+    }
+
+    private async Task CopyToPoisonContainer(string fileName)
+    {
+        await _blobStorageHelper.CopyFileToPoisonAsync(_config.nemsmeshfolder_STORAGE, fileName, _config.NemsMessages, _config.NemsPoisonContainer, addTimestamp: true);
+        _logger.LogInformation("Copied failed NEMS file {FileName} to poison container with timestamp.", fileName);
+    }
+
+    private async Task CreateSupersededByRecord(string nhsNumber, PdsDemographic retrievedPdsRecord, string fileName)
+    {
+        var supersededRecord = retrievedPdsRecord;
+        supersededRecord.NhsNumber = nhsNumber;
+        supersededRecord.SupersededByNhsNumber = retrievedPdsRecord.NhsNumber;
+        
+        _logger.LogInformation("Processing a superseded record.");
+        await ProcessRecord(new Participant(supersededRecord), fileName);
+
+        // Unsubscribe the old NHS number from NEMS
+        var unsubscribedFromNems = await UnsubscribeNems(nhsNumber);
+
+        if (unsubscribedFromNems)
+        {
+            _logger.LogInformation("Successfully unsubscribed from NEMS.");
         }
 
+        // Subscribe the new NHS number to NEMS
+        if (!string.IsNullOrEmpty(retrievedPdsRecord.NhsNumber))
+        {
+            var subscribeToNemsSuccess = await SubscribeParticipantToNEMS(retrievedPdsRecord.NhsNumber);
+            if (subscribeToNemsSuccess)
+            {
+                _logger.LogInformation("Successfully subscribed to NEMS.");
+            }
+        }
+        else
+        {
+            _logger.LogWarning("Cannot subscribe to NEMS: retrievedPdsRecord.NhsNumber is null or empty.");
+        }
     }
 
     private async Task<string?> GetNhsNumberFromFile(Stream blobStream, string name)
@@ -119,7 +167,15 @@ public class ProcessNemsUpdate
                 blobJson = await reader.ReadToEndAsync();
             }
 
-            return _fhirPatientDemographicMapper.ParseFhirJsonNhsNumber(blobJson);
+            // Determine format based on file extension and call appropriate parser
+            if (name.EndsWith(".xml", System.StringComparison.OrdinalIgnoreCase))
+            {
+                return _fhirPatientDemographicMapper.ParseFhirXmlNhsNumber(blobJson);
+            }
+            else
+            {
+                return _fhirPatientDemographicMapper.ParseFhirJsonNhsNumber(blobJson);
+            }
 
         }
         catch (Exception ex)
@@ -129,52 +185,59 @@ public class ProcessNemsUpdate
         }
     }
 
-    private async Task<string?> RetrievePdsRecord(string nhsNumber)
+    private async Task<HttpResponseMessage> RetrievePdsRecord(string nhsNumber, string sourceFileName)
     {
-        try
+        var queryParams = new Dictionary<string, string>()
         {
-            var queryParams = new Dictionary<string, string>()
-            {
-                {"nhsNumber", nhsNumber }
-            };
+            {"nhsNumber", nhsNumber },
+            {"sourceFileName", sourceFileName }
+        };
 
-            return await _httpClientFunction.SendGet(_config.RetrievePdsDemographicURL, queryParams);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "There was an error retrieving the PDS record.");
-            return null;
-        }
+        return await _httpClientFunction.SendGetResponse(_config.RetrievePdsDemographicURL, queryParams);
     }
 
-    private async Task ProcessRecord(PdsDemographic pdsDemographic)
+    private async Task ProcessRecord(Participant participant, string fileName)
     {
         var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
 
-        var participant = new Participant(pdsDemographic);
-
-        // TODO validate NHS number in record before enqueuing
         // TODO validate all dates in record before enqueuing
+        var existingParticipant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);
+
+
+        if (existingParticipant == null)
+        {
+            participant.RecordType = Actions.New;
+            _logger.LogWarning("The participant doesn't exist in Cohort Manager. A new record will be created in Cohort Manager.");
+        }
+        else
+        {
+            participant.RecordType = Actions.Amended;
+            _logger.LogWarning("The participant already exists in Cohort Manager. Existing record will get updated.");
+        }
 
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
             BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = "NemsMessages",
+            FileName = fileName,
             Participant = participant
         };
 
         updateRecord.Enqueue(basicParticipantCsvRecord);
 
         _logger.LogInformation("Sending record to the update queue.");
-        await _addBatchToQueue.ProcessBatch(updateRecord, _config.UpdateQueueName);
+
+        await _addBatchToQueue.ProcessBatch(updateRecord, _config.ParticipantManagementTopic);
     }
 
     private async Task<bool> UnsubscribeNems(string nhsNumber)
     {
         try
         {
-            var data = new NameValueCollection { { "NhsNumber", nhsNumber } };
-            var response = await _httpClientFunction.SendPost(_config.UnsubscribeNemsSubscriptionUrl, JsonSerializer.Serialize(data));
+            var queryParams = new Dictionary<string, string>
+            {
+                 {"nhsNumber", nhsNumber}
+            };
+            var response = await _httpClientFunction.SendPost(_config.ManageNemsSubscriptionUnsubscribeURL, queryParams);
 
             return response.IsSuccessStatusCode;
         }
@@ -184,4 +247,17 @@ public class ProcessNemsUpdate
             return false;
         }
     }
+
+    private async Task<bool> SubscribeParticipantToNEMS(string nhsNumber)
+    {
+
+        var queryParams = new Dictionary<string, string>
+        {
+            {"nhsNumber", nhsNumber.ToString()}
+        };
+        var nemsSubscribeResponse = await _httpClientFunction.SendPost(_config.ManageNemsSubscriptionSubscribeURL, queryParams);
+        _logger.LogInformation("NEMS subscribe response status code: {StatusCode}", nemsSubscribeResponse.StatusCode);
+        return nemsSubscribeResponse.IsSuccessStatusCode;
+    }
+
 }

@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { fetchExceptions } from "@/app/lib/fetchExceptions";
-import { checkAccess } from "@/app/lib/checkAccess";
+import { canAccessCohortManager } from "@/app/lib/access";
 import { formatDate } from "@/app/lib/utils";
-
+import { getRuleMapping } from "@/app/lib/ruleMapping";
 import Breadcrumb from "@/app/components/breadcrumb";
 import ParticipantInformationPanel from "@/app/components/participantInformationPanel";
 import Unauthorised from "@/app/components/unauthorised";
@@ -14,15 +14,26 @@ export const metadata: Metadata = {
   title: `Exception information - ${process.env.SERVICE_NAME} - NHS`,
 };
 
+// Upstream can return the literal string "null" for absent values.
+const NULL_STRING_LITERAL = "null";
+
+function isMeaningfulAddressPart(value: unknown): value is string {
+  if (typeof value !== "string") return false;
+  const t = value.trim();
+  return t.length > 0 && t.toLowerCase() !== NULL_STRING_LITERAL;
+}
+
 export default async function Page(props: {
   readonly params: Promise<{
     readonly exceptionId: string;
   }>;
+  readonly searchParams?: Promise<{
+    readonly edit?: string;
+    readonly error?: string;
+  }>;
 }) {
   const session = await auth();
-  const isCohortManager = session?.user
-    ? await checkAccess(session.user.uid)
-    : false;
+  const isCohortManager = await canAccessCohortManager(session);
 
   if (!isCohortManager) {
     return <Unauthorised />;
@@ -30,19 +41,39 @@ export default async function Page(props: {
 
   const params = await props.params;
   const exceptionId = Number(params.exceptionId);
+  const resolvedSearchParams = props.searchParams
+    ? await props.searchParams
+    : {};
+  const isEditMode = resolvedSearchParams.edit === "true";
 
   try {
-    const exception = await fetchExceptions(exceptionId);
+    const { data: exception } = await fetchExceptions({ exceptionId });
+    const ruleMapping = getRuleMapping(
+      exception.RuleId,
+      exception.RuleDescription
+    );
 
     const exceptionDetails: ExceptionDetails = {
       exceptionId: exceptionId,
       nhsNumber: exception.NhsNumber,
+      supersededByNhsNumber: exception.ExceptionDetails.SupersededByNhsNumber,
       surname: exception.ExceptionDetails.FamilyName,
       forename: exception.ExceptionDetails.GivenName,
       dateCreated: exception.DateCreated,
-      shortDescription: exception.RuleDescription,
+      shortDescription: ruleMapping.ruleDescription,
+      moreDetails: ruleMapping.moreDetails,
+      reportingId: ruleMapping.reportingId,
+      portalFormTitle: ruleMapping.portalFormTitle,
       dateOfBirth: exception.ExceptionDetails.DateOfBirth,
       gender: exception.ExceptionDetails.Gender,
+      addressParts: [
+        exception.ExceptionDetails.ParticipantAddressLine1,
+        exception.ExceptionDetails.ParticipantAddressLine2,
+        exception.ExceptionDetails.ParticipantAddressLine3,
+        exception.ExceptionDetails.ParticipantAddressLine4,
+        exception.ExceptionDetails.ParticipantAddressLine5,
+        exception.ExceptionDetails.ParticipantPostCode,
+      ].filter(isMeaningfulAddressPart),
       address: `${exception.ExceptionDetails.ParticipantAddressLine1}${
         exception.ExceptionDetails.ParticipantAddressLine2
           ? `, ${exception.ExceptionDetails.ParticipantAddressLine2}`
@@ -60,10 +91,6 @@ export default async function Page(props: {
           ? `, ${exception.ExceptionDetails.ParticipantAddressLine5}`
           : ""
       }, ${exception.ExceptionDetails.ParticipantPostCode}`,
-      contactDetails: {
-        phoneNumber: exception.ExceptionDetails.TelephoneNumberHome,
-        email: exception.ExceptionDetails.EmailAddressHome,
-      },
       primaryCareProvider: exception.ExceptionDetails.PrimaryCareProvider,
       serviceNowId: exception.ServiceNowId ?? "",
       serviceNowCreatedDate: exception.ServiceNowCreatedDate,
@@ -96,19 +123,29 @@ export default async function Page(props: {
                   Local reference (exception ID): {exceptionDetails.exceptionId}
                 </span>
               </h1>
-              {exceptionDetails.serviceNowId && (
-                <dl className="nhsuk-summary-list">
+              {exceptionDetails.serviceNowId && !isEditMode && (
+                <dl
+                  className="nhsuk-summary-list"
+                  data-testid="exception-details-labels"
+                >
                   <div className="nhsuk-summary-list__row">
-                    <dt className="nhsuk-summary-list__key">
+                    <dt
+                      className="nhsuk-summary-list__key"
+                      data-testid="portal-form-used-label"
+                    >
                       Portal form used
                     </dt>
                     <dd className="nhsuk-summary-list__value">
-                      Request to amend incorrect patient PDS record data
+                      {exceptionDetails.portalFormTitle ||
+                        "Request to amend incorrect patient PDS record data"}
                     </dd>
                     <dd className="nhsuk-summary-list__actions"></dd>
                   </div>
                   <div className="nhsuk-summary-list__row">
-                    <dt className="nhsuk-summary-list__key">
+                    <dt
+                      className="nhsuk-summary-list__key"
+                      data-testid="exception-status-label"
+                    >
                       Exception status
                     </dt>
                     <dd className="nhsuk-summary-list__value">
@@ -128,17 +165,24 @@ export default async function Page(props: {
                     <dd className="nhsuk-summary-list__actions"></dd>
                   </div>
                   <div className="nhsuk-summary-list__row">
-                    <dt className="nhsuk-summary-list__key">
+                    <dt
+                      className="nhsuk-summary-list__key"
+                      data-testid="service-now-case-label"
+                    >
                       ServiceNow Case ID
                     </dt>
                     <dd className="nhsuk-summary-list__value">
                       {exceptionDetails.serviceNowId}
                     </dd>
-                    <dd className="nhsuk-summary-list__actions">
-                      <a href="#">
+                    <dd
+                      className="nhsuk-summary-list__actions"
+                      data-testid="change-link"
+                    >
+                      <a href="?edit=true#exception-status">
                         Change{" "}
                         <span className="nhsuk-u-visually-hidden">
                           ServiceNow Case ID
+                          {isEditMode}
                         </span>
                       </a>
                     </dd>
@@ -147,6 +191,8 @@ export default async function Page(props: {
               )}
               <ParticipantInformationPanel
                 exceptionDetails={exceptionDetails}
+                isEditMode={isEditMode}
+                searchParams={resolvedSearchParams}
               />
             </div>
           </div>

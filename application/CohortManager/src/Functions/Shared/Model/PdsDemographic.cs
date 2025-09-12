@@ -1,7 +1,9 @@
 namespace Model;
 
+using System.Data;
 using System.Text.Json.Serialization;
 using Model.Enums;
+using NHS.CohortManager.Shared.Utilities;
 
 public class PdsDemographic : Demographic
 {
@@ -27,7 +29,7 @@ public class PdsDemographic : Demographic
             OtherGivenName = OtherGivenNames,
             FamilyName = FamilyName,
             PreviousFamilyName = PreviousFamilyName,
-            DateOfBirth = DateOfBirth,
+            DateOfBirth = MappingUtilities.ParseDates(DateOfBirth!)?.ToString("yyyyMMdd"),
             Gender = (short?)(Gender.HasValue ? (Gender?)Gender.Value : null),
             AddressLine1 = AddressLine1,
             AddressLine2 = AddressLine2,
@@ -36,15 +38,15 @@ public class PdsDemographic : Demographic
             AddressLine5 = AddressLine5,
             PostCode = Postcode,
             PafKey = PafKey,
-            UsualAddressFromDate = UsualAddressEffectiveFromDate,
+            UsualAddressFromDate = MappingUtilities.ParseDates(UsualAddressEffectiveFromDate!)?.ToString("yyyyMMdd"),
             DateOfDeath = DateOfDeath,
             DeathStatus = (short?)(DeathStatus.HasValue ? (Status?)DeathStatus.Value : null),
             TelephoneNumberHome = TelephoneNumber,
-            TelephoneNumberHomeFromDate = TelephoneNumberEffectiveFromDate,
+            TelephoneNumberHomeFromDate = MappingUtilities.ParseDates(TelephoneNumberEffectiveFromDate!)?.ToString("yyyy-MM-dd"),
             TelephoneNumberMob = MobileNumber,
-            TelephoneNumberMobFromDate = MobileNumberEffectiveFromDate,
+            TelephoneNumberMobFromDate = MappingUtilities.ParseDates(MobileNumberEffectiveFromDate!)?.ToString("yyyyMMdd"),
             EmailAddressHome = EmailAddress,
-            EmailAddressHomeFromDate = EmailAddressEffectiveFromDate,
+            EmailAddressHomeFromDate = MappingUtilities.ParseDates(EmailAddressEffectiveFromDate!)?.ToString("yyyyMMdd"),
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = IsInterpreterRequired?.ToLower() switch
             {
@@ -53,6 +55,47 @@ public class PdsDemographic : Demographic
                 null => throw new ArgumentNullException(nameof(IsInterpreterRequired)),
                 _ => throw new ArgumentException($"Invalid IsInterpreterRequired value '{IsInterpreterRequired}'. Must be 'true' or 'false'")
             }
+        };
+    }
+
+    public CohortDistributionParticipant ToCohortDistributionParticipant()
+    {
+        return new CohortDistributionParticipant
+        {
+            NhsNumber = !string.IsNullOrEmpty(NhsNumber) ? NhsNumber : throw new FormatException("NHS number cannot be null or empty."),
+            SupersededByNhsNumber = !string.IsNullOrEmpty(SupersededByNhsNumber) ? SupersededByNhsNumber : null,
+            PrimaryCareProvider = PrimaryCareProvider,
+            PrimaryCareProviderEffectiveFromDate = PrimaryCareProviderEffectiveFromDate,
+            CurrentPosting = CurrentPosting,
+            CurrentPostingEffectiveFromDate = CurrentPostingEffectiveFromDate,
+            NamePrefix = NamePrefix,
+            FirstName = FirstName,
+            OtherGivenNames = OtherGivenNames,
+            FamilyName = FamilyName,
+            PreviousFamilyName = PreviousFamilyName,
+            DateOfBirth = DateOfBirth,
+            Gender = Gender.GetValueOrDefault(),
+            AddressLine1 = AddressLine1,
+            AddressLine2 = AddressLine2,
+            AddressLine3 = AddressLine3,
+            AddressLine4 = AddressLine4,
+            AddressLine5 = AddressLine5,
+            Postcode = Postcode,
+            UsualAddressEffectiveFromDate = UsualAddressEffectiveFromDate,
+            DateOfDeath = DateOfDeath,
+            TelephoneNumber = TelephoneNumber,
+            TelephoneNumberEffectiveFromDate = TelephoneNumberEffectiveFromDate,
+            MobileNumber = MobileNumber,
+            MobileNumberEffectiveFromDate = MobileNumberEffectiveFromDate,
+            EmailAddress = EmailAddress,
+            EmailAddressEffectiveFromDate = EmailAddressEffectiveFromDate,
+            PreferredLanguage = PreferredLanguage,
+            IsInterpreterRequired = IsInterpreterRequired,
+            InvalidFlag = InvalidFlag,
+            RecordInsertDateTime = RecordInsertDateTime,
+            RecordUpdateDateTime = RecordUpdateDateTime,
+            ReasonForRemoval = ReasonForRemoval,
+            ReasonForRemovalEffectiveFromDate = RemovalEffectiveFromDate
         };
     }
 

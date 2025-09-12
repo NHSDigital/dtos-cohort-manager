@@ -9,7 +9,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: fa58dc978491f04e1efab73cbf8e2228a351bf81
+      ref: 5603d4113500a7df3d7320e675fef9598c3aac65
       endpoint: NHSDigital
 
 parameters:
@@ -26,6 +26,7 @@ parameters:
     type: string
     values:
       - integration
+      - preprod
     default: integration
 
   - name: destRegistry

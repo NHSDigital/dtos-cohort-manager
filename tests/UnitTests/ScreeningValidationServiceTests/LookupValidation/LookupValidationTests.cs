@@ -5,18 +5,15 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
-using Common.Interfaces;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Model;
-using Model.Enums;
 using Moq;
 using NHS.CohortManager.ScreeningValidationService;
-using RulesEngine.Models;
-using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Logging.Abstractions;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class LookupValidationTests
@@ -29,10 +26,7 @@ public class LookupValidationTests
     private LookupValidationRequestBody _requestBody;
     private LookupValidation _sut;
     private readonly Mock<ILogger<LookupValidation>> _mockLogger = new();
-    private readonly Mock<IReadRules> _readRules = new();
     private readonly Mock<IDataLookupFacadeBreastScreening> _lookupValidation = new();
-
-    private readonly Mock<IOptions<LookupValidationConfig>> _lookupValidationConfig = new();
 
     [TestInitialize]
     public void IntialiseTests()
@@ -42,17 +36,6 @@ public class LookupValidationTests
         _request = new Mock<HttpRequestData>(_context.Object);
         var serviceProvider = _serviceCollection.BuildServiceProvider();
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
-        _exceptionHandler.Setup(x => x.CreateValidationExceptionLog(It.IsAny<IEnumerable<RuleResultTree>>(), It.IsAny<ParticipantCsvRecord>()))
-            .Returns(Task.FromResult(new ValidationExceptionLog()
-            {
-                IsFatal = true,
-                CreatedException = true
-            }));
-        LookupValidationConfig lookupValidationConfig = new LookupValidationConfig
-        {
-            ExceptionFunctionUrl = "CreateValidationExceptionURL"
-        };
-        _lookupValidationConfig.Setup(x => x.Value).Returns(lookupValidationConfig);
 
 
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
@@ -71,7 +54,8 @@ public class LookupValidationTests
             NhsNumber = "9876543210",
             FirstName = "John",
             FamilyName = "Smith",
-            ScreeningName = "Breast Screening"
+            ScreeningName = "Breast Screening",
+            ReferralFlag = "false"
         };
 
         _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv");
@@ -91,14 +75,10 @@ public class LookupValidationTests
     public async Task Run_EmptyRequest_ReturnBadRequest()
     {
         // Act
-        var result = await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _exceptionHandler.Verify(handler => handler.CreateValidationExceptionLog(
-            It.IsAny<IEnumerable<RuleResultTree>>(),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [TestMethod]
@@ -108,14 +88,41 @@ public class LookupValidationTests
         SetUpRequestBody("Invalid request body");
 
         // Act
-        var result = await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _exceptionHandler.Verify(handler => handler.CreateValidationExceptionLog(
-            It.IsAny<IEnumerable<RuleResultTree>>(),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_ParticipantReferred_DoNotRunRules()
+    {
+        // Arrange
+        _requestBody.NewParticipant.ReferralFlag = "true";
+        _requestBody.ExistingParticipant.BlockedFlag = "1";
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task Run_DelRecord_DoNotRunCommonRules()
+    {
+        // Arrange
+        _requestBody.NewParticipant.RecordType = Actions.Removed;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
@@ -134,22 +141,18 @@ public class LookupValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _exceptionHandler.Verify(handleException =>
-            handleException.CreateValidationExceptionLog(
-                It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "54.ValidateBsoCode.NBO.NonFatal")),
-                It.IsAny<ParticipantCsvRecord>()),
-            Times.AtLeastOnce());
+        StringAssert.Contains(body, "54.ValidateBsoCode.Non.NonFatal");
     }
 
     [TestMethod]
     [DataRow("TNR", "not valid", "not valid")] // Reason for removal is not valid
     [DataRow("RDI", "TR2 7FG", "Y02688")] // All fields are valid
     [DataRow("RDR", "ZZZTR2 7FG", null)] // Postcode starts with ZZZ
-    public async Task Run_validParticipant_ValidateBsoCodeRulePasses(string primaryCareProvider, string postcode,
+    public async Task Run_validParticipant_ReturnNoContent(string primaryCareProvider, string postcode,
                                                                     string ReasonForRemoval)
     {
         // Arrange
@@ -160,19 +163,16 @@ public class LookupValidationTests
         SetUpRequestBody(json);
 
         // Act
-        var result = await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
 
         // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "11.ValidateReasonForRemoval.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(response.StatusCode, HttpStatusCode.NoContent);
     }
 
     [TestMethod]
     [DataRow("ValidCurrentPosting")]
     [DataRow(null)]
-    public async Task Run_CurrentPosting_DoesNotCreateException(string currentPosting)
+    public async Task Run_CurrentPosting_ReturnNoContent(string currentPosting)
     {
         // Arrange
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
@@ -182,13 +182,10 @@ public class LookupValidationTests
         _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(It.IsAny<string>())).Returns(currentPosting == "ValidCurrentPosting");
 
         // Act
-        await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
 
         // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "58.CurrentPosting.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.AreEqual(response.StatusCode, HttpStatusCode.NoContent);
     }
 
     [TestMethod]
@@ -197,7 +194,7 @@ public class LookupValidationTests
     [DataRow("InvalidCurrentPosting", "ValidPCP")]
     [DataRow("ValidCurrentPosting", null)]
     [DataRow("InvalidCurrentPosting", null)]
-    public async Task Run_CurrentPostingAndPrimaryProvider_DoesNotCreateException(string currentPosting, string primaryCareProvider)
+    public async Task Run_CurrentPostingAndPrimaryProvider_ReturnNoContent(string currentPosting, string primaryCareProvider)
     {
         // Arrange
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
@@ -209,65 +206,18 @@ public class LookupValidationTests
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
 
         // Act
-        await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3602.CurrentPostingAndPrimaryProvider.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
-    [DataRow("InvalidPCP")]
-    public async Task Run_ValidatePrimaryCareProvider_CreatesException(string primaryCareProvider)
-    {
-        // Arrange
-        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(false);
-
-        // Act
-        var result = await _sut.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Created, result.StatusCode);
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3601.ValidatePrimaryCareProvider.BSSelect.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow("ValidPCP")]
-    [DataRow(null)]
-    public async Task Run_ValidatePrimaryCareProvider_DoesNotCreateException(string primaryCareProvider)
-    {
-        // Arrange
-        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
-
-        // Act
-        var result = await _sut.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "3601.ValidatePrimaryCareProvider.BSSelect.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.IsFalse(body.Contains("45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal"));
     }
 
     #region Validate BSO Code (Rule 54)
     [TestMethod]
     [DataRow("RPR", "", "", Actions.Amended)]
     [DataRow("RDR", "", "", Actions.Amended)]
-    public async Task Run_AmendedRFRParticipantHasInvalidPostcodeAndGpPractice_ThrowsException(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
+    public async Task Run_AmendedRFRParticipantHasInvalidPostcodeAndGpPractice_ReturnValidationException(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
     {
         // Arrange
         _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
@@ -278,22 +228,19 @@ public class LookupValidationTests
         SetUpRequestBody(json);
 
         // Act
-        await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "54.ValidateBsoCode.NBO.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "54.ValidateBsoCode.Non.NonFatal");
     }
 
     [TestMethod]
-    [DataRow("RDI", "ValidPCP", "AL1 1BB", Actions.Amended)]
-    [DataRow("RDR", "", "AL3 0AX", Actions.Amended)]
-    [DataRow("ABC", "ZZZPCP", "", Actions.Amended)]
+    [DataRow("RDI", "ValidPCP", "ValidPostcode", Actions.Amended)]
+    [DataRow("RDR", "", "ValidPostcode", Actions.Amended)]
+    [DataRow("ABC", "ValidPostcode", "", Actions.Amended)]
     [DataRow("RPR", "", "", Actions.New)]
-
-    public async Task Run_AmendedParticipantHasValidBSO_NoExceptionIsRaised(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
+    public async Task Run_AmendedParticipantHasValidBSO_ReturnNoContent(string reasonForRemoval, string primaryCareProvider, string postcode, string recordType)
     {
         // Arrange
         _requestBody.NewParticipant.ReasonForRemoval = reasonForRemoval;
@@ -303,133 +250,123 @@ public class LookupValidationTests
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
+        _lookupValidation
+            .Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>()))
+            .Returns(primaryCareProvider == "ValidPCP");
+        _lookupValidation
+            .Setup(x => x.ValidateOutcode(It.IsAny<string>()))
+            .Returns(postcode == "ValidPostcode");
 
         // Act
-        await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "54.ValidateBsoCode.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
+        Assert.IsFalse(body.Contains("54.ValidateBsoCode.NBO.NonFatal"));
     }
     #endregion
 
     [TestMethod]
-    [DataRow("DMS", "ValidPCP", "", "ABC", "ExcludedPCP", "")] //Valid -> Valid
-    [DataRow("ABC", null, "ABC", "ABC", null, "ENGLAND")]//  Valid -> Valid
-    [DataRow("ABC", "ExcludedPCP", "ABC", "ABC", "ExcludedPCP", "ENGLAND")] //Valid -> Valid
-    [DataRow("DMS", "ExcludedPCP", "", "ABC", "ValidPCP", "ENGLAND")] // DMS Invalid -> Valid
-    [DataRow("ABC", "ValidPCP", "", "DMS", "ExcludedPCP", "ENGLAND")] // Valid -> DMS Invalid
-    [DataRow("DMS", "ValidPCP", "", "ABC", "ExcludedPCP", "WALES")] // Valid -> Wales Invalid
-    [DataRow("CYM", "ValidPCP", "WALES", "ABC", "ExcludedPCP", "ENGLAND")] // Wales Invalid -> Valid
-    [DataRow("DMS", "ValidPCP", "", null, "ExcludedPCP", "WALES")] // Valid -> Wales Invalid (Null current posting)
-    [DataRow(null, "ValidPCP", "WALES", "ABC", "ExcludedPCP", "ENGLAND")] // Wales Invalid -> Valid (Null current posting)
-    public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldNotThrowException(string existingCurrentPosting, string existingPrimaryCareProvider, string existingPostingCategory, string newCurrentPosting, string newPrimaryCareProvider, string newPostingCategory)
-    {
-        // Arrange
-        _requestBody.NewParticipant.RecordType = Actions.Amended;
-        _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
-        _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
-        _requestBody.ExistingParticipant.CurrentPosting = existingCurrentPosting;
-        _requestBody.ExistingParticipant.PrimaryCareProvider = existingPrimaryCareProvider;
+    [DataRow("DMS", "Z00000")]
+    [DataRow("ENG", "Z00000")]
+    [DataRow("IM", "Z00000")]
 
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(newPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(existingPrimaryCareProvider)).Returns(existingPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(newCurrentPosting)).Returns(newPostingCategory);
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(existingCurrentPosting)).Returns(existingPostingCategory);
-
-        // Act
-        await _sut.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ParticipantLocationRemainingOutsideOfCohort.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Never());
-    }
-
-    [TestMethod]
-    [DataRow("DMS", "ExcludedPCP", "ENGLAND", "DMS", "ExcludedPCP", "ENGLAND")] //DMS Invalid -> DMS Invalid
-    [DataRow("DMS", "ExcludedPCP", "WALES", "DMS", "ExcludedPCP", "WALES")] //DMS + Wales Invalid -> DMS Wales Invalid
-    [DataRow("CYM", "ValidPCP", "WALES", "CYM", "ValidPCP", "WALES")] //Wales Invalid -> Wales Invalid
-    [DataRow("CYM", "ExcludedPCP", "WALES", "CYM", "ExcludedPCP", "WALES")] //Wales Invalid -> Wales Invalid
-    [DataRow("DMS", "ExcludedPCP", "ENGLAND", "ABC", "ValidPCP", "WALES")] //DMS Invalid -> Wales Invalid
-    public async Task Run_ParticipantLocationRemainingOutsideOfCohort_ShouldThrowException(string existingCurrentPosting, string existingPrimaryCareProvider, string existingPostingCategory, string newCurrentPosting, string newPrimaryCareProvider, string newPostingCategory)
-    {
-        // Arrange
-        _requestBody.NewParticipant.RecordType = Actions.Amended;
-        _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
-        _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
-        _requestBody.ExistingParticipant.CurrentPosting = existingCurrentPosting;
-        _requestBody.ExistingParticipant.PrimaryCareProvider = existingPrimaryCareProvider;
-
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(newPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(existingPrimaryCareProvider)).Returns(existingPrimaryCareProvider == "ExcludedPCP");
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(newCurrentPosting)).Returns(newPostingCategory);
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(existingCurrentPosting)).Returns(existingPostingCategory);
-
-        // Act
-        await _sut.RunAsync(_request.Object);
-
-        // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "51.ParticipantLocationRemainingOutsideOfCohort.ParticipantLocationRemainingOutsideOfCohort.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
-    }
-
-    [TestMethod]
-    [DataRow("DMS", "ABC")]
-    [DataRow("ENG", "ABC")] 
-    [DataRow("IM", "ABC")] 
-    public async Task Run_ParticipantLocationRemainingOutsideOfCohortAndNotInExcludedSMU_ShouldThrowException(string newCurrentPosting, string newPrimaryCareProvider)
+    public async Task Run_ParticipantLocationRemainingOutsideOfCohortAndNotInExcludedSMU_ReturnValidationException(string newCurrentPosting, string newPrimaryCareProvider)
     {
         // Arrange
         _requestBody.NewParticipant.RecordType = Actions.New;
         _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
         _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
-        
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
-
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(newCurrentPosting)).Returns(newCurrentPosting);
+        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(newCurrentPosting)).Returns(true);
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(false);
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(newPrimaryCareProvider)).Returns(false);
 
         // Act
-        await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal");
     }
 
+
     [TestMethod]
-    public async Task Run_BlockedParticipant_CreatesException()
+
+    [DataRow(null, null, null, null, null, null, "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields null, New Postcode null, Existing Address fields full.
+    [DataRow("", "", "", "", "", "", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields empty, New Postcode empty, Existing Address fields full.
+    [DataRow(null, null, null, null, null, "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // All New Address Fields null, All existing address field full, Postcode does not match.
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // All New Address Fields null, All existing address field full, Postcode does not match.
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "")] // All New Address Fields null, All existing address field full, Postcode does not exist.
+    public async Task Run_AddressLinesNullAndPostcodeDoesNotMatchExisting_ReturnValidationException(string newAddressLine1, string newAddressLine2, string newAddressLine3, string newAddressLine4, string newAddressLine5, string newPostcode, string existingAddressLine1, string existingAddressLine2, string existingAddressLine3, string existingAddressLine4, string existingAddressLine5, string existingPostcode)
     {
         // Arrange
-        _requestBody.ExistingParticipant.BlockedFlag = "1";
+        _requestBody.ExistingParticipant.AddressLine1 = existingAddressLine1;
+        _requestBody.ExistingParticipant.AddressLine2 = existingAddressLine2;
+        _requestBody.ExistingParticipant.AddressLine3 = existingAddressLine3;
+        _requestBody.ExistingParticipant.AddressLine4 = existingAddressLine4;
+        _requestBody.ExistingParticipant.AddressLine5 = existingAddressLine5;
+        _requestBody.ExistingParticipant.Postcode = existingPostcode;
+
+        _requestBody.NewParticipant.RecordType = Actions.Amended;
+        _requestBody.NewParticipant.AddressLine1 = newAddressLine1;
+        _requestBody.NewParticipant.AddressLine2 = newAddressLine2;
+        _requestBody.NewParticipant.AddressLine3 = newAddressLine3;
+        _requestBody.NewParticipant.AddressLine4 = newAddressLine4;
+        _requestBody.NewParticipant.AddressLine5 = newAddressLine5;
+        _requestBody.NewParticipant.Postcode = newPostcode;
+
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
         // Act
-        await _sut.RunAsync(_request.Object);
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        _exceptionHandler.Verify(handleException => handleException.CreateValidationExceptionLog(
-            It.Is<IEnumerable<RuleResultTree>>(r => r.Any(x => x.Rule.RuleName == "12.BlockedParticipant.BSSelect.Fatal")),
-            It.IsAny<ParticipantCsvRecord>()),
-            Times.Once());
+        StringAssert.Contains(body, "17.AddressLinesNullAndPostcodeDoesNotMatchExisting.NBO.NonFatal");
+    }
+
+    [DataRow(null, null, null, null, null, "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields Blank, Postcode exists, Existing Address fields full
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")] // All New Address Fields Empty, All existing address fields full, Postcode exists
+    [DataRow("", "", "", "", "", "RG2 5TX", "Existing Address 1", "", "", "", "", "RG2 5TX")] // All New Address Fields Empty, 1 existing address field full, Postcode exists
+
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "", "", "", "", "RG2 5TX")] // 1 New Address Field full, 1 existing address field empty, Postcode exists
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "", "", "", "", "", "")] // 1 New Address Field full, All existing address field empty, Postcode does not exist
+    [DataRow("", "New Address 2", "", "", "New Address 5", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // 2 New Address Field full, All existing address field full, Postcode does not exist
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // 1 New Address Field full, All existing address field full, Postcode does not exist
+    [DataRow("New Address 1", "", "", "", "", "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")] // 1 New Address Field full, All existing address field full, Postcode does exist
+
+    public async Task Run_AddressLinesNullAndPostcodeDoesNotMatchExisting_ReturnNoValidationException(string newAddressLine1, string newAddressLine2, string newAddressLine3, string newAddressLine4, string newAddressLine5, string newPostcode, string existingAddressLine1, string existingAddressLine2, string existingAddressLine3, string existingAddressLine4, string existingAddressLine5, string existingPostcode)
+    {
+        // Arrange
+        _requestBody.ExistingParticipant.AddressLine1 = existingAddressLine1;
+        _requestBody.ExistingParticipant.AddressLine2 = existingAddressLine2;
+        _requestBody.ExistingParticipant.AddressLine3 = existingAddressLine3;
+        _requestBody.ExistingParticipant.AddressLine4 = existingAddressLine4;
+        _requestBody.ExistingParticipant.AddressLine5 = existingAddressLine5;
+        _requestBody.ExistingParticipant.Postcode = existingPostcode;
+
+        _requestBody.NewParticipant.RecordType = Actions.Amended;
+        _requestBody.NewParticipant.AddressLine1 = newAddressLine1;
+        _requestBody.NewParticipant.AddressLine2 = newAddressLine2;
+        _requestBody.NewParticipant.AddressLine3 = newAddressLine3;
+        _requestBody.NewParticipant.AddressLine4 = newAddressLine4;
+        _requestBody.NewParticipant.AddressLine5 = newAddressLine5;
+        _requestBody.NewParticipant.Postcode = newPostcode;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+
+        // Assert
+        Assert.IsFalse(body.Contains("17.AddressLinesNullAndPostcodeDoesNotMatchExisting.NBO.NonFatal"));
     }
 
     private void SetUpRequestBody(string json)

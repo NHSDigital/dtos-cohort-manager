@@ -1,7 +1,10 @@
 namespace Common;
 
 using System.Globalization;
+using System.Linq.Expressions;
 using System.Text.RegularExpressions;
+using Hl7.Fhir.Validation;
+using Model;
 
 public static class ValidationHelper
 {
@@ -104,22 +107,23 @@ public static class ValidationHelper
     /// </summary>
     /// <param name="postcode">a non-null string representing the postcode</param>
     /// <remarks>
-    /// Works for valid UK postcodes and dummy postcodes.
-    /// Works with or without a space separator between outcode and incode.
+    /// Works for valid UK postcodes and dummy postcodes with
+    /// or without a space separator between outcode and incode.
+    /// Returns the outcode in upper case.
     /// </remarks>
     public static string? ParseOutcode(string postcode)
     {
         string pattern = @"^([A-Za-z][A-Za-z]?[0-9][A-Za-z0-9]?) ?[0-9][A-Za-z]{2}$";
 
         Match match = Regex.Match(postcode, pattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
+
         if (!match.Success)
         {
             return null;
         }
 
         string outcode = match.Groups[1].Value;
-
-        return outcode;
+        return outcode.ToUpper();
     }
 
     private static bool ParseInt32(char value, out int integerValue)

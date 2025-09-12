@@ -1,0 +1,61 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ParticipantManagementDataService",
+        "NHSNumber": 9992886412,
+        "IsHigherRisk": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-9706-01",
+        "requirementJiraId": "@DTOSS-9706-01",
+        "additionalTags": "@DTOSS-9706-01 @e2e @epic4c- Verify that the VHR flag is not overwritten when a participant is amended"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "record_type": "AMENDED",
+      "change_time_stamp": null,
+      "serial_change_number": null,
+      "nhs_number": 9992886412,
+      "superseded_by_nhs_number": null,
+      "primary_care_provider": "B86019",
+      "primary_care_effective_from_date": "20030318",
+      "current_posting": "WGA",
+      "current_posting_effective_from_date": "20130319",
+      "name_prefix": "Mrs",
+      "given_name": "9497 update",
+      "other_given_name": "OtherGivenName",
+      "family_name": "FamiliyName",
+      "previous_family_name": "PreviousFamilyName",
+      "date_of_birth": "19700101",
+      "gender": 1,
+      "address_line_1": "98 Spaight Road",
+      "address_line_2": "Eastbourne",
+      "address_line_3": "Test",
+      "address_line_4": "Brighton",
+      "address_line_5": "United Kingdom",
+      "postcode": "BT1 1NN",
+      "paf_key": "Z3S4Q5X9",
+      "address_effective_from_date": "20130319",
+      "reason_for_removal": null,
+      "reason_for_removal_effective_from_date": null,
+      "date_of_death": null,
+      "death_status": null,
+      "home_telephone_number": "01619999999",
+      "home_telephone_effective_from_date": "20200818",
+      "mobile_telephone_number": "07888888888",
+      "mobile_telephone_effective_from_date": "20200818",
+      "email_address": "bturneux0@soup.io",
+      "email_address_effective_from_date": "20200818",
+      "preferred_language": "en",
+      "is_interpreter_required": false,
+      "invalid_flag": false,
+      "eligibility": true
+    }
+  ],
+  "nhsNumbers": [
+    "9992886412"
+  ]
+}

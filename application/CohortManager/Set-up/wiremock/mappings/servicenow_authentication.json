@@ -1,0 +1,30 @@
+{
+	"request": {
+		"urlPath": "/oauth_token.do",
+		"method": "POST",
+		"formParameters": {
+			"grant_type": {
+				"equalTo": "refresh_token"
+			},
+			"client_id": {
+				"equalTo": "MockClientId-123"
+			},
+			"client_secret": {
+				"equalTo": "MockClientSecret-123"
+			},
+			"refresh_token": {
+				"equalTo": "MockRefreshToken-123"
+			}
+		}
+	},
+	"response": {
+		"jsonBody": {
+			"access_token": "MockAccessToken-123",
+			"refresh_token": "MockRefreshToken-123",
+			"scope": "IntegrationStationAll",
+			"token_type": "Bearer",
+			"expires_in": 1800
+		},
+		"status": 200
+	}
+}

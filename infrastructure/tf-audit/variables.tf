@@ -113,6 +113,12 @@ variable "storage_accounts" {
     containers = optional(map(object({
       container_name        = string
       container_access_type = optional(string, "private")
+      immutability_policy = optional(object({
+        is_locked                           = optional(bool, false)
+        immutability_period_in_days         = optional(number, 0)
+        protected_append_writes_all_enabled = optional(bool, false)
+        protected_append_writes_enabled     = optional(bool, false)
+      }), null)
     })), {})
   }))
 }
