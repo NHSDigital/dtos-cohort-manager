@@ -130,10 +130,7 @@ public class ProcessNemsUpdate
         var supersededRecord = retrievedPdsRecord;
         supersededRecord.NhsNumber = nhsNumber;
         supersededRecord.SupersededByNhsNumber = retrievedPdsRecord.NhsNumber;
-
-        //  _logger.LogInformation("NHS number: ", supersededRecord.NhsNumber);
-        // _logger.LogInformation("superseded by NHS number: ", supersededRecord.SupersededByNhsNumber);
-
+        
         _logger.LogInformation("Processing a superseded record.");
         await ProcessRecord(new Participant(supersededRecord), fileName);
 
