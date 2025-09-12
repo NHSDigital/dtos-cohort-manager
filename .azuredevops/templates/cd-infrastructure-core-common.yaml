@@ -140,6 +140,7 @@ stages:
           ✅ The infrastructure deployment for the ${{ parameters.environment }} environment has completed for user: $(Build.RequestedFor).
           ⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)
           📊 NOTE: End to End tests may still be running: please check #cohort-manager-tests for completed test results.
+          ⚙️ Please click here to view GitHub workflws that may now need to be run: https://github.com/NHSDigital/dtos-cohort-manager/actions?query=branch%3Amain
 
         slackFailureMessage: |
           ❌ The infrastructure deployment for the ${{ parameters.environment }} environment has failed for user: $(Build.RequestedFor).
