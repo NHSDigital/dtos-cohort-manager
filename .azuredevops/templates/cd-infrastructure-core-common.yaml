@@ -124,11 +124,6 @@ stages:
 
 - stage: notify_stage
   displayName: Send Slack Notification
-  dependsOn:
-  - retag_images_stage
-  - terraform_deploy_stage
-  - db_changes_stage
-  - restart_functions_stage
   condition: |
     and(
       always(),
@@ -140,82 +135,21 @@ stages:
   jobs:
     - job: notify
       displayName: Send Slack Notification
+      variables:
+        slackSuccessMessage: |
+          ✅ The infrastructure deployment for the ${{ parameters.environment }} environment has completed for user: $(Build.RequestedFor).
+          ⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)
+          📊 NOTE: End to End tests may still be running: please check #cohort-manager-tests for completed test results.
+
+        slackFailureMessage: |
+          ❌ The infrastructure deployment for the ${{ parameters.environment }} environment has failed for user: $(Build.RequestedFor).
+          ⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)
+
       steps:
         - checkout: dtos-devops-templates
           sparseCheckoutDirectories: scripts
           path: templates
           displayName: 'Checkout Templates Repo'
-
-        - task: PowerShell@2
-          displayName: 'Build Slack Message'
-          name: BuildSlackMessage
-          condition: always()
-          inputs:
-            targetType: 'inline'
-            script: |
-              # Check if the overall pipeline has succeeded or failed
-              $isSucceeded = ${pipeline.status} -eq 'Succeeded'
-
-              # Build the list of stages and their results
-
-              $allStages = @(
-                  @{ name = "ACR re-tag"; result = "$env:RETAG_RESULT" },
-                  @{ name = "Terraform Deploy"; result = "$env:TERRAFORM_RESULT" },
-                  @{ name = "Database Changes"; result = "$env:DBCHANGES_RESULT" },
-                  @{ name = "Restart Functions"; result = "$env:RESTART_RESULT" }
-              )
-
-
-              # Build the success message
-              if ($isSucceeded) {
-                  $message = "✅ The infrastructure deployment for the ${{ parameters.environment }} environment has completed.`n`n"
-                  $message += "Here are the results of the stages:`n"
-                  foreach ($stage in $allStages) {
-                      $message += "• $($stage.name): $($stage.result)`n"
-                  }
-                  $message += "`n⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)`n"
-                  $message += "📊 NOTE: End to End tests may still be running: please check #cohort-manager-tests for completed test results.`n"
-                  
-                  # --- Begin dynamic approval message logic ---
-                  # Hard-coded environment lifecycle mappings
-                  $envLifecycle = @{
-                      "development" = "nft"
-                      "nft" = "integration"
-                      "integration" = "preprod"
-                      "preprod" = "production"
-                  }
-
-                  $currentEnv = "${{ parameters.environment }}"
-                  
-                  # Check if the current environment has a next stage
-                  if ($envLifecycle.ContainsKey($currentEnv)) {
-                      $nextEnv = $envLifecycle[$currentEnv]
-                      $approvalMessage = "`n`nTo approve the push of this code from <$currentEnv> to <$nextEnv> click here: https://github.com/NHSDigital/dtos-cohort-manager/actions?query=branch%3Amain`n"
-                      $message += $approvalMessage
-                  }
-                  # --- End dynamic approval message logic ---
-
-                  Write-Host "##vso[task.setvariable variable=slackSuccessMessage;isOutput=true]$message"
-              }
-              # Build the failure message
-              else {
-                  $message = "❌ The infrastructure deployment for the ${{ parameters.environment }} environment has failed.`n`n"
-                  $message += "The following stages encountered an issue:`n"
-                  foreach ($stage in $allStages) {
-                      if ($stage.result -ne "Succeeded" -and $stage.result -ne "Skipped") {
-                          $message += "• $($stage.name): $($stage.result)`n"
-                      }
-                  }
-                  $message += "`n⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)"
-                  
-                  Write-Host "##vso[task.setvariable variable=slackFailureMessage;isOutput=true]$message"
-              }
-          env:
-            PIPELINE_STATUS: "$(pipeline.status)"
-            RETAG_RESULT: "$(dependencies.retag_images_stage.result)"
-            TERRAFORM_RESULT: "$(dependencies.terraform_deploy_stage.result)"
-            DBCHANGES_RESULT: "$(dependencies.db_changes_stage.result)"
-            RESTART_RESULT: "$(dependencies.restart_functions_stage.result)"
 
         - task: PythonScript@0
           name: slack_success
@@ -226,9 +160,7 @@ stages:
             scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
             arguments: >
               --webhook "${{ parameters.slackWebHook }}"
-              --message "$(SLACK_SUCCESS_MESSAGE)"
-          env:
-            SLACK_SUCCESS_MESSAGE: "$(jobs.notify.outputs['BuildSlackMessage.slackSuccessMessage'])"
+              --message "$(slackSuccessMessage)"
 
         - task: PythonScript@0
           name: slack_failure
@@ -239,6 +171,4 @@ stages:
             scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
             arguments: >
               --webhook "${{ parameters.slackWebHook }}"
-              --message "$(SLACK_FAILURE_MESSAGE)"
-          env:
-            SLACK_FAILURE_MESSAGE: "$(jobs.notify.outputs['BuildSlackMessage.slackFailureMessage'])"
+              --message "$(slackFailureMessage)"
