@@ -9,7 +9,7 @@ using NHS.CohortManager.ServiceNowIntegrationService;
 var host = new HostBuilder()
     .AddConfiguration<ServiceNowCohortLookupConfig>(out ServiceNowCohortLookupConfig config)
     .AddDataServicesHandler()
-        .AddDataService<ServicenowCases>(config.ServiceNowCasesDataServiceURL)
+        .AddDataService<ServicenowCase>(config.ServiceNowCasesDataServiceURL)
         .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceURL)
         .Build()
     .ConfigureFunctionsWorkerDefaults()

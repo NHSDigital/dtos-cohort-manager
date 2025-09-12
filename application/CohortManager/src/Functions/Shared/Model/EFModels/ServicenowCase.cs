@@ -3,7 +3,7 @@ namespace Model;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-public class ServicenowCases
+public class ServicenowCase
 {
     [Key]
     [MaxLength(10)]

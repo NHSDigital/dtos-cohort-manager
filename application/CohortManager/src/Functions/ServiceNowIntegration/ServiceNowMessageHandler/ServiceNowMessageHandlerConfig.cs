@@ -4,6 +4,8 @@ using System.ComponentModel.DataAnnotations;
 
 public class ServiceNowMessageHandlerConfig
 {
+    [Required, Url]
+    public required string ServiceNowCasesDataServiceURL { get; set; }
     [Required]
     public required string ServiceNowRefreshAccessTokenUrl { get; set; }
     [Required]
