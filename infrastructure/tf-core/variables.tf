@@ -191,9 +191,12 @@ variable "container_apps" {
       is_web_app                    = optional(bool, false)
       is_tcp_app                    = optional(bool, false)
       container_registry_use_mi     = optional(bool, false)
+      db_connection_string_name     = optional(string, "")
+      add_user_assigned_identity    = optional(bool, false)
       port                          = optional(number, 8080)
       infra_key_vault_name          = optional(string, "")
       infra_key_vault_rg            = optional(string, "")
+      env_vars_static               = optional(map(string), {})
     })), {})
   })
 }

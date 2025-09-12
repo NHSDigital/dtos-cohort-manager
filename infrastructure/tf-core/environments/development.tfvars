@@ -274,6 +274,7 @@ container_apps = {
       port                          = 8080
       infra_key_vault_rg            = null
       infra_key_vault_name          = null
+      //env_vars_static = {}
     }
   }
 }
