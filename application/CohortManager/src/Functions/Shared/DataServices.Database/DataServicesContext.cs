@@ -14,14 +14,14 @@ public class DataServicesContext : DbContext
     DbSet<GeneCodeLkp> geneCodeLkps { get; set; }
     DbSet<HigherRiskReferralReasonLkp> higherRiskReferralReasonLkps { get; set; }
     DbSet<ExceptionManagement> exceptionManagements { get; set; }
-    DbSet<CohortDistribution> cohortDistributions { get; set; }
-    DbSet<BsSelectRequestAudit> bsSelectRequestAudits { get; set; }
-    DbSet<ScreeningLkp> screeningLkps { get; set; }
-    DbSet<BsoOrganisation> bsoOrganisations { get; set; }
-    DbSet<GenderMaster> genderMasters { get; set; }
-    DbSet<NemsSubscription> nemsSubscriptions { get; set; }
+    DbSet<CohortDistribution> cohortDistributions {get;set;}
+    DbSet<BsSelectRequestAudit> bsSelectRequestAudits {get;set;}
+    DbSet<ScreeningLkp> screeningLkps {get;set;}
+    DbSet<BsoOrganisation> bsoOrganisations {get;set;}
+    DbSet<GenderMaster> genderMasters {get;set;}
+    DbSet<NemsSubscription> nemsSubscriptions {get;set;}
+    public DbSet<ParticipantManagement> ParticipantManagements {get; set;}
     DbSet<ServicenowCases> servicenowCases { get; set; }
-
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
 
