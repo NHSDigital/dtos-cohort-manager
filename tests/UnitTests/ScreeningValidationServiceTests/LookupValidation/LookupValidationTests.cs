@@ -418,6 +418,10 @@ public class LookupValidationTests
         _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
         _requestBody.ExistingParticipant.CurrentPosting = existingCurrentPosting;
         _requestBody.ExistingParticipant.PrimaryCareProvider = existingPrimaryCareProvider;
+        _requestBody.NewParticipant.AddressLine1 = "123 Test Street";
+        _requestBody.NewParticipant.Postcode = "TE57 1NG";
+        _requestBody.ExistingParticipant.AddressLine1 = "123 Test Street";
+        _requestBody.ExistingParticipant.Postcode = "TE57 1NG";
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
