@@ -68,13 +68,9 @@
           {
             "Name": "WelshCurrentPosting",
             "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\""
-          },
-          {
-            "Name": "NoTransformationRequired",
-            "Expression": "existingParticipant.PrimaryCareProvider == null && existingParticipant.ReasonForRemoval == \"ORR\""
           }
         ],
-        "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting) && !NoTransformationRequired",
+        "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting)",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
