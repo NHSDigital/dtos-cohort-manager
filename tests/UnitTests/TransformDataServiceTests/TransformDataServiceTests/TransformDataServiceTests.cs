@@ -699,11 +699,11 @@ public class TransformDataServiceTests
     [TestMethod]
     public async Task Run_ParticipantReferred_RunReferredRules()
     {
-        // Arrange - Set up referred participant without triggering routine rules
+        // Arrange - Set up participant to trigger referred rules
         _requestBody.Participant.ReferralFlag = true;
         _requestBody.Participant.PrimaryCareProvider = "G82650";
         _requestBody.Participant.RecordType = Actions.New;
-        _requestBody.Participant.InvalidFlag = "0"; // Don't trigger routine rules
+        _requestBody.Participant.InvalidFlag = "0";
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
