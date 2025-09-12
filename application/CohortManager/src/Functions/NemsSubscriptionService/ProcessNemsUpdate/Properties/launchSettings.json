@@ -1,8 +1,8 @@
 {
   "profiles": {
-    "NemsMeshRetrieval": {
+    "ProcessNemsUpdate": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7068",
+      "commandLineArgs": "--port 9083",
       "launchBrowser": false
     }
   }

@@ -1,55 +1,9 @@
 var builder = DistributedApplication.CreateBuilder(args);
 
-var containerLifetime = ContainerLifetime.Persistent;
-
-// Database & Migrations
+// Environment Variables
 var sqlPassword = builder.AddParameter("SqlPassword", secret: true);
 var dbConnectionString = $"Server=localhost,1433;Database=DToSDB;User Id=SA;Password={await sqlPassword.Resource.GetValueAsync(CancellationToken.None)};TrustServerCertificate=True";
-var azureSql = builder.AddAzureSqlServer("azuresql")
-                        .RunAsContainer(container =>
-                        {
-                            container.WithEnvironment("ACCEPT_EULA", "Y")
-                                .WithPassword(sqlPassword)
-                                .WithHostPort(1433)
-                                .WithLifetime(containerLifetime);
-                        });
-var db = azureSql.AddDatabase("DToSDB");
-builder.AddProject<Projects.DataServices_Migrations>("db-migrations")
-    .WithEnvironment("DtOsDatabaseConnectionString", dbConnectionString)
-    .WaitFor(db);
 
-// Service Bus
-const string ServiceBusEmulatorConnectionString = "Endpoint=sb://localhost:7777;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true";
-builder.AddAzureServiceBus("servicebus").RunAsEmulator(emulator =>
-{
-    emulator.WithHostPort(7777)
-        .WithConfigurationFile("../../../Set-up/service-bus/config.json")
-        .WithLifetime(containerLifetime);
-});
-
-// Storage
-var storage = builder.AddAzureStorage("storage")
-    .RunAsEmulator(azurite =>
-    {
-        azurite.WithBlobPort(10000)
-            .WithQueuePort(10001)
-            .WithTablePort(10002)
-            .WithLifetime(containerLifetime);
-    });
-const string InboundBlobName = "inbound";
-const string InboundPoisonBlobName = "inbound-poison";
-storage.AddBlobContainer(InboundBlobName);
-storage.AddBlobContainer(InboundPoisonBlobName);
-storage.AddBlobContainer("nems-updates");
-storage.AddBlobContainer("nems-config");
-
-// WireMock
-builder.AddContainer("wiremock", "wiremock/wiremock")
-    .WithHttpEndpoint(port: 8080, targetPort: 8080)
-    .WithBindMount("../../../Set-up/wiremock/mappings", "/home/wiremock/mappings")
-    .WithLifetime(containerLifetime);
-
-// Environment Variables
 const string FunctionsWorkerRuntime = "dotnet-isolated";
 const string AzureWebJobsStorage = "UseDevelopmentStorage=true";
 
@@ -69,50 +23,52 @@ const string ExceptionManagementDataServiceUrl = "http://localhost:7911/api/Exce
 const string BsSelectRequestAuditDataServiceUrl = "http://localhost:7989/api/BsSelectRequestAuditDataService";
 const string CohortDistributionDataServiceUrl = "http://localhost:7992/api/CohortDistributionDataService";
 const string ParticipantDemographicDataServiceUrl = "http://localhost:7993/api/ParticipantDemographicDataService";
-const string ParticipantManagementUrl = "http://localhost:7994/api/ParticipantManagementDataService";
+const string ParticipantManagementDataServiceUrl = "http://localhost:7994/api/ParticipantManagementDataService";
 const string RetrievePdsDemographicUrl = "http://localhost:8082/api/RetrievePDSDemographic";
 const string ScreeningLkpDataServiceUrl = "http://localhost:8996/api/ScreeningLkpDataService";
 const string ManageNemsSubscriptionSubscribeUrl = "http://localhost:9081/api/Subscribe";
+const string ManageNemsSubscriptionUnsubscribeUrl = "http://localhost:9081/api/Unsubscribe";
 const string SendServiceNowMessageUrl = "http://localhost:9092/api/servicenow/send";
+const string ServiceNowCasesDataServiceUrl = "http://servicenow-cases-data-service:9996/api/ServiceNowCasesDataService";
+
+const string InboundContainerName = "inbound";
+const string InboundPoisonContainerName = "inbound-poison";
+const string NemsMeshInboundContainerName = "nems-update";
+const string NemsMeshConfigContainerName = "nems-config";
+const string NemsMessagesContainerName = "nems-updates";
+const string NemsMessagesPoisonContainerName = "nems-poison";
 
 const string CohortDistributionTopic = "cohort-distribution-topic";
 const string DistributeParticipantSubscription = "distribute-participant-sub";
 const string ParticipantManagementTopic = "participant-management-topic";
+const string ManageParticipantSubscription = "manage-participant-sub";
 const string ServiceNowParticipantManagementTopic = "servicenow-participant-management-topic";
 const string ManageServiceNowParticipantSubscription = "manage-servicenow-participant-sub";
 
 const string AcceptableLatencyThresholdMs = "500";
 
-const string MeshApiBaseUrl = "https://localhost:8700/messageexchange";
-const string BSSMailBox = "X26ABC1";
-var MeshPassword = builder.AddParameter("MeshPassword", secret: true);
-var MeshSharedKey = builder.AddParameter("MeshSharedKey", secret: true);
-const string MeshKeyName = "meshpfx.pfx";
-var MeshKeyPassphrase = builder.AddParameter("MeshKeyPassphrase", secret: true);
+const string MeshSandboxApiBaseUrl = "https://localhost:8700/messageexchange";
+const string MeshSandboxMailboxId = "X26ABC1";
+const string MeshSandboxSharedKey = "TestKey";
+const string MeshSandboxPassword = "password";
+const string MeshSandboxKeyName = "meshpfx.pfx";
+var meshSandboxKeyPasspharse = builder.AddParameter("MeshSandboxKeyPasspharse", secret: true);
+
+var nemsMeshServerSideCerts = builder.AddParameter("NemsMeshServerSideCerts", secret: true);
 
 const string NemsFhirEndpoint = "https://msg.intspineservices.nhs.uk/STU3";
 const string NemsFromAsid = "200000002527";
 const string NemsToAsid = "200000002527";
 const string NemsOdsCode = "T8T9T";
-var NemsMeshMailboxId = builder.AddParameter("NemsMeshMailboxId", secret: true);
 const string NemsLocalCertPath = "./nhs_signed_client.pfx";
-var NemsLocalCertPassword = builder.AddParameter("NemsLocalCertPassword", secret: true);
-const string IsStubbed = "true";
-
-var MeshCaasPassword = builder.AddParameter("MeshCaasPassword", secret: true);
-var MeshCaasSharedKey = builder.AddParameter("MeshCaasSharedKey", secret: true);
-var MeshCaasKeyName = builder.AddParameter("MeshCaasKeyName", secret: true);
-var MeshCaasKeyPassword = builder.AddParameter("MeshCaasKeyPassword", secret: true);
-var CaasToMailbox = builder.AddParameter("CaasToMailbox", secret: true);
-var CaasFromMailbox = builder.AddParameter("CaasFromMailbox", secret: true);
+var nemsLocalCertPassword = builder.AddParameter("NemsLocalCertPassword", secret: true);
 
 const string RetrievePdsParticipantUrl = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient";
 const string KId = "RetrievePdsDemographic-DEV1";
 const string Audience = "https://int.api.service.nhs.uk/oauth2/token";
 const string AuthTokenURL = "https://int.api.service.nhs.uk/oauth2/token";
 const string LocalPrivateKeyFileName = "RetrievePdsDemographic-DEV1.pem.key";
-const string ClientId = "Get-private-key-from-NHS-dev-portal";
-const string UseFakePDSServices = "true";
+var clientId = builder.AddParameter("PdsClientId", secret: true);
 
 const string ServiceNowRefreshAccessTokenUrl = "http://localhost:8080/oauth_token.do";
 const string ServiceNowUpdateUrl = "http://localhost:8080/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate";
@@ -121,6 +77,49 @@ const string ServiceNowGrantType = "refresh_token";
 const string ServiceNowClientId = "MockClientId-123";
 const string ServiceNowClientSecret = "MockClientSecret-123";
 const string ServiceNowRefreshToken = "MockRefreshToken-123";
+
+// Database & Migrations
+var azureSql = builder.AddAzureSqlServer("azuresql")
+                        .RunAsContainer(container =>
+                        {
+                            container.WithEnvironment("ACCEPT_EULA", "Y")
+                                .WithPassword(sqlPassword)
+                                .WithHostPort(1433)
+                                .WithLifetime(ContainerLifetime.Persistent);
+                        });
+var db = azureSql.AddDatabase("DToSDB");
+builder.AddProject<Projects.DataServices_Migrations>("db-migrations")
+    .WithEnvironment("DtOsDatabaseConnectionString", dbConnectionString)
+    .WaitFor(db);
+
+// Service Bus
+const string ServiceBusEmulatorConnectionString = "Endpoint=sb://localhost:7777;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true";
+builder.AddAzureServiceBus("servicebus").RunAsEmulator(emulator =>
+{
+    emulator.WithHostPort(7777)
+        .WithConfigurationFile("../../../Set-up/service-bus/config.json")
+        .WithLifetime(ContainerLifetime.Persistent);
+});
+
+// Storage
+var storage = builder.AddAzureStorage("storage")
+    .RunAsEmulator(azurite =>
+    {
+        azurite.WithBlobPort(10000)
+            .WithQueuePort(10001)
+            .WithTablePort(10002)
+            .WithLifetime(ContainerLifetime.Persistent);
+    });
+storage.AddBlobContainer(InboundContainerName);
+storage.AddBlobContainer(InboundPoisonContainerName);
+storage.AddBlobContainer(NemsMeshInboundContainerName);
+storage.AddBlobContainer(NemsMeshConfigContainerName);
+
+// WireMock
+builder.AddContainer("wiremock", "wiremock/wiremock")
+    .WithHttpEndpoint(port: 8080, targetPort: 8080)
+    .WithBindMount("../../../Set-up/wiremock/mappings", "/home/wiremock/mappings")
+    .WithLifetime(ContainerLifetime.Persistent);
 
 // CaasIntegration
 builder.AddProject<Projects.receiveCaasFile>(nameof(Projects.receiveCaasFile))
@@ -137,18 +136,18 @@ builder.AddProject<Projects.receiveCaasFile>(nameof(Projects.receiveCaasFile))
     .WithEnvironment("AllowDeleteRecords", "true")
     .WithEnvironment("BatchSize", "3500")
     .WithEnvironment("maxNumberOfChecks", "50")
-    .WithEnvironment("inboundBlobName", InboundBlobName)
-    .WithEnvironment("fileExceptions", InboundPoisonBlobName);
+    .WithEnvironment("inboundBlobName", InboundContainerName)
+    .WithEnvironment("fileExceptions", InboundPoisonContainerName);
 builder.AddProject<Projects.RetrieveMeshFile>(nameof(Projects.RetrieveMeshFile))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
     .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
     .WithEnvironment("caasfolder_STORAGE", AzureWebJobsStorage)
-    .WithEnvironment("MeshApiBaseUrl", MeshApiBaseUrl)
-    .WithEnvironment("BSSMailBox", BSSMailBox)
-    .WithEnvironment("MeshPassword", MeshPassword)
-    .WithEnvironment("MeshSharedKey", MeshSharedKey)
-    .WithEnvironment("MeshKeyName", MeshKeyName)
-    .WithEnvironment("MeshKeyPassphrase", MeshKeyPassphrase);
+    .WithEnvironment("MeshApiBaseUrl", MeshSandboxApiBaseUrl)
+    .WithEnvironment("BSSMailBox", MeshSandboxMailboxId)
+    .WithEnvironment("MeshPassword", MeshSandboxPassword)
+    .WithEnvironment("MeshSharedKey", MeshSandboxSharedKey)
+    .WithEnvironment("MeshKeyName", MeshSandboxKeyName)
+    .WithEnvironment("MeshKeyPassphrase", meshSandboxKeyPasspharse);
 
 // CohortDistributionServices
 builder.AddProject<Projects.DistributeParticipant>(nameof(Projects.DistributeParticipant))
@@ -159,7 +158,7 @@ builder.AddProject<Projects.DistributeParticipant>(nameof(Projects.DistributePar
     .WithEnvironment("DistributeParticipantSubscription", DistributeParticipantSubscription)
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
     .WithEnvironment("SendServiceNowMessageURL", SendServiceNowMessageUrl)
-    .WithEnvironment("ParticipantManagementURL", ParticipantManagementUrl)
+    .WithEnvironment("ParticipantManagementURL", ParticipantManagementDataServiceUrl)
     .WithEnvironment("LookupValidationURL", LookupValidationUrl)
     .WithEnvironment("StaticValidationURL", StaticValidationUrl)
     .WithEnvironment("CohortDistributionDataServiceUrl", CohortDistributionDataServiceUrl)
@@ -205,14 +204,14 @@ builder.AddProject<Projects.ManageCaasSubscription>(nameof(Projects.ManageCaasSu
     .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
     .WithEnvironment("DtOsDatabaseConnectionString", dbConnectionString)
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
-    .WithEnvironment("MeshApiBaseUrl", MeshApiBaseUrl)
-    .WithEnvironment("MeshCaasPassword", MeshCaasPassword)
-    .WithEnvironment("MeshCaasSharedKey", MeshCaasSharedKey)
-    .WithEnvironment("MeshCaasKeyName", MeshCaasKeyName)
-    .WithEnvironment("MeshCaasKeyPassword", MeshCaasKeyPassword)
-    .WithEnvironment("CaasToMailbox", CaasToMailbox)
-    .WithEnvironment("CaasFromMailbox", CaasFromMailbox)
-    .WithEnvironment("IsStubbed", IsStubbed);
+    .WithEnvironment("MeshApiBaseUrl", MeshSandboxApiBaseUrl)
+    .WithEnvironment("MeshCaasPassword", MeshSandboxPassword)
+    .WithEnvironment("MeshCaasSharedKey", MeshSandboxSharedKey)
+    .WithEnvironment("MeshCaasKeyName", MeshSandboxKeyName)
+    .WithEnvironment("MeshCaasKeyPassword", meshSandboxKeyPasspharse)
+    .WithEnvironment("CaasToMailbox", MeshSandboxMailboxId)
+    .WithEnvironment("CaasFromMailbox", MeshSandboxMailboxId)
+    .WithEnvironment("IsStubbed", "true");
 builder.AddProject<Projects.ManageNemsSubscription>(nameof(Projects.ManageNemsSubscription))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
     .WithEnvironment("DtOsDatabaseConnectionString", dbConnectionString)
@@ -221,10 +220,10 @@ builder.AddProject<Projects.ManageNemsSubscription>(nameof(Projects.ManageNemsSu
     .WithEnvironment("NemsFromAsid", NemsFromAsid)
     .WithEnvironment("NemsToAsid", NemsToAsid)
     .WithEnvironment("NemsOdsCode", NemsOdsCode)
-    .WithEnvironment("NemsMeshMailboxId", NemsMeshMailboxId)
+    .WithEnvironment("NemsMeshMailboxId", MeshSandboxMailboxId)
     .WithEnvironment("NemsLocalCertPath", NemsLocalCertPath)
-    .WithEnvironment("NemsLocalCertPassword", NemsLocalCertPassword)
-    .WithEnvironment("IsStubbed", IsStubbed);
+    .WithEnvironment("NemsLocalCertPassword", nemsLocalCertPassword)
+    .WithEnvironment("IsStubbed", "true");
 builder.AddProject<Projects.RetrievePDSDemographic>(nameof(Projects.RetrievePDSDemographic))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
     .WithEnvironment("ServiceBusConnectionString_client_internal", ServiceBusEmulatorConnectionString)
@@ -235,8 +234,8 @@ builder.AddProject<Projects.RetrievePDSDemographic>(nameof(Projects.RetrievePDSD
     .WithEnvironment("Audience", Audience)
     .WithEnvironment("AuthTokenURL", AuthTokenURL)
     .WithEnvironment("LocalPrivateKeyFileName", LocalPrivateKeyFileName)
-    .WithEnvironment("ClientId", ClientId)
-    .WithEnvironment("UseFakePDSServices", UseFakePDSServices);
+    .WithEnvironment("ClientId", clientId)
+    .WithEnvironment("UseFakePDSServices", "true");
 
 // ExceptionHandling
 builder.AddProject<Projects.CreateException>(nameof(Projects.CreateException))
@@ -244,12 +243,51 @@ builder.AddProject<Projects.CreateException>(nameof(Projects.CreateException))
     .WithEnvironment("DtOsDatabaseConnectionString", dbConnectionString)
     .WithEnvironment("DemographicDataServiceURL", ParticipantDemographicDataServiceUrl)
     .WithEnvironment("ExceptionManagementDataServiceURL", ExceptionManagementDataServiceUrl);
-builder.AddProject<Projects.UpdateException>(nameof(Projects.UpdateException))
+
+// NemsSubscriptionServices
+builder.AddProject<Projects.NemsMeshRetrieval>(nameof(Projects.NemsMeshRetrieval))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
-    .WithEnvironment("DtOsDatabaseConnectionString", dbConnectionString)
-    .WithEnvironment("ExceptionManagementDataServiceURL", ExceptionManagementDataServiceUrl);
+    .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
+    .WithEnvironment("nemsmeshfolder_STORAGE", AzureWebJobsStorage)
+    .WithEnvironment("NemsMeshApiBaseUrl", MeshSandboxApiBaseUrl)
+    .WithEnvironment("NemsMeshMailBox", MeshSandboxMailboxId)
+    .WithEnvironment("NemsMeshPassword", MeshSandboxPassword)
+    .WithEnvironment("NemsMeshSharedKey", MeshSandboxSharedKey)
+    .WithEnvironment("NemsMeshKeyName", MeshSandboxKeyName)
+    .WithEnvironment("NemsMeshKeyPassphrase", meshSandboxKeyPasspharse)
+    .WithEnvironment("NemsMeshBypassServerCertificateValidation", "true")
+    .WithEnvironment("NemsMeshServerSideCerts", nemsMeshServerSideCerts)
+    .WithEnvironment("NemsMeshInboundContainer", NemsMeshInboundContainerName)
+    .WithEnvironment("NemsMeshConfigContainer", NemsMeshConfigContainerName);
+builder.AddProject<Projects.ProcessNemsUpdate>(nameof(Projects.ProcessNemsUpdate))
+    .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
+    .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
+    .WithEnvironment("nemsmeshfolder_STORAGE", AzureWebJobsStorage)
+    .WithEnvironment("ServiceBusConnectionString_client_internal", ServiceBusEmulatorConnectionString)
+    .WithEnvironment("ParticipantManagementTopic", ParticipantManagementTopic)
+    .WithEnvironment("NemsMessages", NemsMessagesContainerName)
+    .WithEnvironment("NemsPoisonContainer", NemsMessagesPoisonContainerName)
+    .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
+    .WithEnvironment("RetrievePdsDemographicURL", RetrievePdsDemographicUrl)
+    .WithEnvironment("UnsubscribeNemsSubscriptionUrl", ManageNemsSubscriptionUnsubscribeUrl)
+    .WithEnvironment("DemographicDataServiceURL", ParticipantDemographicDataServiceUrl);
 
 // ParticipantManagementServices
+builder.AddProject<Projects.DeleteParticipant>(nameof(Projects.DeleteParticipant))
+    .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
+    .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
+    .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
+    .WithEnvironment("CohortDistributionDataServiceURL", CohortDistributionDataServiceUrl)
+    .WithEnvironment("AcceptableLatencyThresholdMs", AcceptableLatencyThresholdMs);
+builder.AddProject<Projects.ManageParticipant>(nameof(Projects.ManageParticipant))
+    .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
+    .WithEnvironment("ServiceBusConnectionString_internal", ServiceBusEmulatorConnectionString)
+    .WithEnvironment("ServiceBusConnectionString_client_internal", ServiceBusEmulatorConnectionString)
+    .WithEnvironment("ParticipantManagementTopic", ParticipantManagementTopic)
+    .WithEnvironment("ManageParticipantSubscription", ManageParticipantSubscription)
+    .WithEnvironment("CohortDistributionTopic", CohortDistributionTopic)
+    .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
+    .WithEnvironment("ParticipantManagementURL", ParticipantManagementDataServiceUrl);
 builder.AddProject<Projects.ManageServiceNowParticipant>(nameof(Projects.ManageServiceNowParticipant))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
     .WithEnvironment("ServiceBusConnectionString_internal", ServiceBusEmulatorConnectionString)
@@ -260,8 +298,18 @@ builder.AddProject<Projects.ManageServiceNowParticipant>(nameof(Projects.ManageS
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
     .WithEnvironment("SendServiceNowMessageURL", SendServiceNowMessageUrl)
     .WithEnvironment("RetrievePdsDemographicURL", RetrievePdsDemographicUrl)
-    .WithEnvironment("ParticipantManagementURL", ParticipantManagementUrl)
+    .WithEnvironment("ParticipantManagementURL", ParticipantManagementDataServiceUrl)
     .WithEnvironment("ManageNemsSubscriptionSubscribeURL", ManageNemsSubscriptionSubscribeUrl);
+builder.AddProject<Projects.UpdateBlockedFlag>(nameof(Projects.UpdateBlockedFlag))
+    .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
+    .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
+    .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
+    .WithEnvironment("ParticipantManagementUrl", ParticipantManagementDataServiceUrl)
+    .WithEnvironment("ParticipantDemographicDataServiceURL", ParticipantDemographicDataServiceUrl)
+    .WithEnvironment("ManageNemsSubscriptionSubscribeURL", ManageNemsSubscriptionSubscribeUrl)
+    .WithEnvironment("ManageNemsSubscriptionUnsubscribeURL", ManageNemsSubscriptionUnsubscribeUrl)
+    .WithEnvironment("RetrievePdsDemographicURL", RetrievePdsDemographicUrl);
+
 
 // ScreeningDataServices
 builder.AddProject<Projects.BsSelectRequestAuditDataService>(nameof(Projects.BsSelectRequestAuditDataService))
@@ -337,6 +385,11 @@ builder.AddProject<Projects.StaticValidation>(nameof(Projects.StaticValidation))
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl);
 
 // ServiceNowIntegration
+builder.AddProject<Projects.ServiceNowCohortLookup>(nameof(Projects.ServiceNowCohortLookup))
+    .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
+    .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
+    .WithEnvironment("ServiceNowCasesDataServiceURL", ServiceNowCasesDataServiceUrl)
+    .WithEnvironment("CohortDistributionDataServiceURL", CohortDistributionDataServiceUrl);
 builder.AddProject<Projects.ServiceNowMessageHandler>(nameof(Projects.ServiceNowMessageHandler))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
     .WithEnvironment("ServiceBusConnectionString_client_internal", ServiceBusEmulatorConnectionString)
