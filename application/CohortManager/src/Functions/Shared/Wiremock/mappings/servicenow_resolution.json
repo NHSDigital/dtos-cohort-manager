@@ -1,0 +1,25 @@
+{
+	"request": {
+		"urlPathPattern": "^/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution/.+$",
+		"method": "PUT",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer MockAccessToken-123"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.state == 6)]"
+      },
+      {
+        "matchesJsonPath": "$[?(@.resolution_code == '28')]"
+      },
+      {
+        "matchesJsonPath": "$.close_notes"
+      }
+    ]
+	},
+	"response": {
+		"status": 200
+	}
+}

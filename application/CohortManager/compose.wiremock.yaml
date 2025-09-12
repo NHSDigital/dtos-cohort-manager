@@ -1,0 +1,18 @@
+name: cohort-manager-pipeline
+services:
+
+  wiremock:
+    container_name: wiremock
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: Shared/Wiremock/Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./src/Functions/Shared/Wiremock/mappings:/home/wiremock/mappings
+    command: --verbose --root-dir /home/wiremock
+
+networks:
+  cohman-network:
+    external: true
