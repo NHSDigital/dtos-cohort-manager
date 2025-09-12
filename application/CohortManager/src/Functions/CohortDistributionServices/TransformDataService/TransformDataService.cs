@@ -140,7 +140,6 @@ public class TransformDataService
 
         var additionalWorkflow = participant.ReferralFlag switch
         {
-            null => null,
             true => "Referred",
             false => "Routine"
         };

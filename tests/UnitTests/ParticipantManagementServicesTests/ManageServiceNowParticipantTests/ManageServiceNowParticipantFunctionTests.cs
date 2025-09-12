@@ -431,14 +431,12 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordUpdateDateTime != null)))
             .ReturnsAsync(true).Verifiable();
 
-        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
-                    x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
-                    x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
-                    x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.Amended &&
-                    x.Participant.ReferralFlag == true &&
-                    x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+        _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantData>(x =>
+                    x.Source == _serviceNowParticipant.ServiceNowCaseNumber &&
+                    x.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
+                    x.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+                    x.RecordType == Actions.Amended &&
+                    x.ReferralFlag == true),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 

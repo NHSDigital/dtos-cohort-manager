@@ -13,21 +13,18 @@ public class PdsProcessor : IPdsProcessor
     private readonly ILogger<PdsProcessor> _logger;
 
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
-    private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly RetrievePDSDemographicConfig _config;
     private readonly IAddBatchToQueue _addBatchToQueue;
 
 
     public PdsProcessor(
         ILogger<PdsProcessor> logger,
-        ICreateBasicParticipantData createBasicParticipantData,
         IDataServiceClient<ParticipantDemographic> participantDemographicClient,
         IAddBatchToQueue addBatchToQueue,
         IOptions<RetrievePDSDemographicConfig> retrievePDSDemographicConfig)
     {
         _logger = logger;
         _participantDemographicClient = participantDemographicClient;
-        _createBasicParticipantData = createBasicParticipantData;
         _addBatchToQueue = addBatchToQueue;
         _config = retrievePDSDemographicConfig.Value;
     }
@@ -52,9 +49,10 @@ public class PdsProcessor : IPdsProcessor
                 RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
             };
             var participant = new Participant(pdsDemographic);
+            participant.Source = sourceFileName;
             participant.RecordType = Actions.Removed;
             //sends record for an update
-            await ProcessRecord(participant, sourceFileName);
+            await ProcessRecord(participant);
             return;
         }
         _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
@@ -65,19 +63,19 @@ public class PdsProcessor : IPdsProcessor
     /// </summary>
     /// <param name="participant"></param>
     /// <returns></returns>
-    public async Task ProcessRecord(Participant participant, string? fileName = null)
+    public async Task ProcessRecord(Participant participant)
     {
-        var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
+        var updateRecord = new ConcurrentQueue<IParticipant>();
         participant.RecordType = Actions.Removed;
 
-        var basicParticipantCsvRecord = new BasicParticipantCsvRecord
-        {
-            BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = string.IsNullOrWhiteSpace(fileName) ? PdsConstants.DefaultFileName : fileName,
-            Participant = participant
-        };
+        var participantRecord = new BasicParticipantData(participant);
 
-        updateRecord.Enqueue(basicParticipantCsvRecord);
+        if (string.IsNullOrWhiteSpace(participantRecord.Source))
+        {
+            participantRecord.Source = PdsConstants.DefaultFileName;
+        }
+
+        updateRecord.Enqueue(participantRecord);
 
         _logger.LogInformation("Sending record to the update queue.");
         await _addBatchToQueue.ProcessBatch(updateRecord, _config.ParticipantManagementTopic);

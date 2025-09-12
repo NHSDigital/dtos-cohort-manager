@@ -16,7 +16,6 @@ using NHS.CohortManager.DemographicServices;
 public class PdsProcessorTests
 {
     private readonly Mock<ILogger<PdsProcessor>> _mockLogger = new();
-    private readonly Mock<ICreateBasicParticipantData> _mockCreateBasicParticipantData = new();
     private readonly Mock<IDataServiceClient<ParticipantDemographic>> _dataServiceClient = new();
     private readonly Mock<IAddBatchToQueue> _addBatchToQueue = new();
     private readonly Mock<IOptions<RetrievePDSDemographicConfig>> _retrievePDSDemographicConfig = new();
@@ -37,15 +36,11 @@ public class PdsProcessorTests
             UseFakePDSServices = false
         };
 
-
-        _mockCreateBasicParticipantData.Setup(x => x.BasicParticipantData(It.IsAny<Participant>()))
-       .Returns(new BasicParticipantData());
-
         _retrievePDSDemographicConfig.Setup(x => x.Value).Returns(testConfig);
 
         _dataServiceClient.Setup(x => x.Update(It.IsAny<ParticipantDemographic>())).ReturnsAsync(true);
         _dataServiceClient.Setup(x => x.Add(It.IsAny<ParticipantDemographic>())).ReturnsAsync(true);
-        _pdsProcessor = new PdsProcessor(_mockLogger.Object, _mockCreateBasicParticipantData.Object, _dataServiceClient.Object, _addBatchToQueue.Object, _retrievePDSDemographicConfig.Object);
+        _pdsProcessor = new PdsProcessor(_mockLogger.Object, _dataServiceClient.Object, _addBatchToQueue.Object, _retrievePDSDemographicConfig.Object);
 
     }
 
@@ -110,8 +105,8 @@ public class PdsProcessorTests
 
         // Assert
         _addBatchToQueue.Verify(x => x.ProcessBatch(
-            It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
-                q.Count == 1 && q.ToArray()[0].FileName == providedFileName),
+            It.Is<ConcurrentQueue<IParticipant>>(q =>
+                q.Count == 1 && q.ToArray()[0].Source == providedFileName),
             It.IsAny<string>()),
             Times.Once);
     }
@@ -127,8 +122,8 @@ public class PdsProcessorTests
 
         // Assert
         _addBatchToQueue.Verify(x => x.ProcessBatch(
-            It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
-                q.Count == 1 && q.ToArray()[0].FileName == PdsConstants.DefaultFileName),
+            It.Is<ConcurrentQueue<IParticipant>>(q =>
+                q.Count == 1 && q.ToArray()[0].Source == PdsConstants.DefaultFileName),
             It.IsAny<string>()),
             Times.Once);
     }

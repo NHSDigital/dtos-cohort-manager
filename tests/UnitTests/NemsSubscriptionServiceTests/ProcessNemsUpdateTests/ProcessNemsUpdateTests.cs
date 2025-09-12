@@ -144,7 +144,7 @@ public class ProcessNemsUpdateTests
             true), Times.Once);
 
         // Assert: early return means no queueing, no unsubscribe
-        _addBatchToQueueMock.Verify(x => x.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Never);
+        _addBatchToQueueMock.Verify(x => x.ProcessBatch(It.IsAny<ConcurrentQueue<IParticipant>>(), It.IsAny<string>()), Times.Never);
         _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Never);
 
         // Log indicates 404 handled
@@ -228,7 +228,7 @@ public class ProcessNemsUpdateTests
 
         _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
 
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<IParticipant>>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -272,7 +272,7 @@ public class ProcessNemsUpdateTests
 
         _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
 
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<IParticipant>>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -305,7 +305,7 @@ public class ProcessNemsUpdateTests
             It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
         Times.Once);
 
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<IParticipant>>(), It.IsAny<string>()), Times.Once);
     }
 
 
@@ -351,7 +351,7 @@ public class ProcessNemsUpdateTests
         Times.Once);
 
         _httpClientFunctionMock.Verify(x => x.SendPost("Unsubscribe", It.IsAny<string>()), Times.Once);
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<IParticipant>>(), It.IsAny<string>()), Times.Once);
 
         //Verify the exception handler was called
         _exceptionHandlerMock.Verify(
@@ -465,8 +465,8 @@ public class ProcessNemsUpdateTests
 
         // Assert the queued record carries the original file name
         _addBatchToQueueMock.Verify(x => x.ProcessBatch(
-            It.Is<ConcurrentQueue<BasicParticipantCsvRecord>>(q =>
-                q.Count == 1 && q.ToArray()[0].FileName == _fileName),
+            It.Is<ConcurrentQueue<IParticipant>>(q =>
+                q.Count == 1 && q.ToArray()[0].Source == _fileName),
             It.IsAny<string>()),
             Times.Once);
     }
@@ -542,7 +542,7 @@ public class ProcessNemsUpdateTests
         _httpClientFunctionMock.Setup(x => x.SendGet("RetrievePdsDemographic", It.IsAny<Dictionary<string, string>>()))
             .ReturnsAsync(JsonSerializer.Serialize(new PdsDemographic() { NhsNumber = _validNhsNumber }));
         // Throw exception in AddBatchToQueue to trigger poison container
-        _addBatchToQueueMock.Setup(x => x.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()))
+        _addBatchToQueueMock.Setup(x => x.ProcessBatch(It.IsAny<ConcurrentQueue<IParticipant>>(), It.IsAny<string>()))
             .ThrowsAsync(new InvalidOperationException("Queue error"));
         // No setup needed; we assert CopyFileToPoisonAsync is called
         // Act
@@ -728,6 +728,6 @@ public class ProcessNemsUpdateTests
         Times.Never);
         
         // Verify successful processing occurred
-        _addBatchToQueueMock.Verify(x => x.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.Once);
+        _addBatchToQueueMock.Verify(x => x.ProcessBatch(It.IsAny<ConcurrentQueue<IParticipant>>(), It.IsAny<string>()), Times.Once);
     }
 }

@@ -5,6 +5,6 @@ using Model;
 
 public interface IAddBatchToQueue
 {
-    Task ProcessBatch(ConcurrentQueue<Participant> batch, string queueName);
-    Task AddMessage(Participant participant, string queueName);
+    Task ProcessBatch(ConcurrentQueue<IParticipant> batch, string queueName);
+    Task AddMessage(IParticipant participant, string queueName);
 }

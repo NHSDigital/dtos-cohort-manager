@@ -133,7 +133,7 @@ public class DurableDemographicTests
         var loggerMock = new Mock<ILogger>();
         var clientMock = new Mock<DurableTaskClient>(MockBehavior.Default, new object[] { "test" });
 
-        var json = JsonSerializer.Serialize(new BasicParticipantCsvRecord());
+        var json = JsonSerializer.Serialize(new BasicParticipantData());
 
         mockHttpRequest = _setupRequest.Setup(json);
 

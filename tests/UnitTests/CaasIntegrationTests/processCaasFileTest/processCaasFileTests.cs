@@ -85,7 +85,7 @@ public class ProcessCaasFileTests
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
 
         // Assert
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.AtLeastOnce);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<IParticipant>>(), It.IsAny<string>()), Times.AtLeastOnce);
 
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
            It.IsAny<EventId>(),
@@ -119,9 +119,9 @@ public class ProcessCaasFileTests
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
         // Assert
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.AtLeastOnce);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<IParticipant>>(), It.IsAny<string>()), Times.AtLeastOnce);
 
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<Participant>>(), It.IsAny<string>()), Times.AtLeastOnce);
+        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<IParticipant>>(), It.IsAny<string>()), Times.AtLeastOnce);
         _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
             It.IsAny<EventId>(),
             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sending 0 records to queue")),

@@ -194,7 +194,7 @@ public class ProcessNemsUpdate
 
     private async Task ProcessRecord(Participant participant)
     {
-        var updateRecord = new ConcurrentQueue<Participant>();
+        var updateRecord = new ConcurrentQueue<IParticipant>();
 
         // TODO validate all dates in record before enqueuing
         var existingParticipant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumberLong);

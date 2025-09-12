@@ -172,7 +172,7 @@ public class Participant : IParticipant, IDemographic
             BusinessRuleVersion = BusinessRuleVersion,
             ExceptionFlag = MappingUtilities.ParseStringFlag(ExceptionFlag ?? "0"),
             BlockedFlag = MappingUtilities.ParseStringFlag(BlockedFlag ?? "0"),
-            ReferralFlag = MappingUtilities.ParseStringFlag(ReferralFlag ?? "0"),
+            ReferralFlag = Convert.ToInt16(ReferralFlag),
             RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime!),
             RecordUpdateDateTime = MappingUtilities.ParseDates(RecordUpdateDateTime!),
         };

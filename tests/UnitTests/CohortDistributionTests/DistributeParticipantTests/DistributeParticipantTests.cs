@@ -83,9 +83,6 @@ public class DistributeParticipantTests
     [TestMethod]
     public async Task DistributeParticipantOrchestrator_ValidRequest_AddParticipantAndDoesNotSendServiceNowMessage()
     {
-        // Arrange
-        _request.Participant.ParticipantId = "1234";
-
         // Act
         await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
 

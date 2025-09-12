@@ -200,7 +200,7 @@ public class ProcessCaasFile : IProcessCaasFile
     }
 
     // TODO: refactor now that it all uses one queue
-    private async Task RemoveParticipant(Participant participant)
+    private async Task RemoveParticipant(IParticipant participant)
     {
         var allowDeleteRecords = _config.AllowDeleteRecords;
         try
@@ -223,7 +223,7 @@ public class ProcessCaasFile : IProcessCaasFile
         }
     }
 
-    private async Task CreateError(Participant participant)
+    private async Task CreateError(IParticipant participant)
     {
         try
         {
