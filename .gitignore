@@ -120,3 +120,4 @@ application/CohortManager/src/Functions/*.json
 # Act
 .act.secrets
 .act.vars
+tests/.vscode/settings.json

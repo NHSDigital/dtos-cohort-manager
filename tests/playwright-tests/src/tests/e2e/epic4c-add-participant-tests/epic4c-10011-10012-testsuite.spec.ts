@@ -6,6 +6,7 @@ import { loadParticipantPayloads } from '../../fixtures/jsonDataReader';
 test.describe.serial('@DTOSS-3881-01 @e2e @epic4c- Cohort Manger subscribed the Added record with PDS', () => {
 
   let participantData: Record<string, ParticipantRecord>;
+  console.log("running from here");
 
   test.beforeAll(async () => {
     const folderName = '@DTOSS-3881-01';
