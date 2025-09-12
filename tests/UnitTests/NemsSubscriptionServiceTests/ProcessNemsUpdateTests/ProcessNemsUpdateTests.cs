@@ -54,7 +54,6 @@ public class ProcessNemsUpdateTests
             _createBasicParticipantDataMock.Object,
             _addBatchToQueueMock.Object,
             _httpClientFunctionMock.Object,
-            _exceptionHandlerMock.Object,
             _participantDemographicMock.Object,
             _config.Object,
             _blobStorageHelperMock.Object

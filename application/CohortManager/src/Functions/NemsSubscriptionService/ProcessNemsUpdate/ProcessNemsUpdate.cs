@@ -33,7 +33,6 @@ public class ProcessNemsUpdate
         ICreateBasicParticipantData createBasicParticipantData,
         IAddBatchToQueue addBatchToQueue,
         IHttpClientFunction httpClientFunction,
-        IExceptionHandler exceptionHandler,
         IDataServiceClient<ParticipantDemographic> participantDemographic,
         IOptions<ProcessNemsUpdateConfig> processNemsUpdateConfig,
         IBlobStorageHelper blobStorageHelper)
@@ -43,7 +42,6 @@ public class ProcessNemsUpdate
         _createBasicParticipantData = createBasicParticipantData;
         _addBatchToQueue = addBatchToQueue;
         _httpClientFunction = httpClientFunction;
-        _exceptionHandler = exceptionHandler;
         _participantDemographic = participantDemographic;
         _config = processNemsUpdateConfig.Value;
         _blobStorageHelper = blobStorageHelper;
@@ -143,10 +141,17 @@ public class ProcessNemsUpdate
         }
 
         // Subscribe the new NHS number to NEMS
-        var subscribeToNemsSuccess = await SubscribeParticipantToNEMS(retrievedPdsRecord.NhsNumber);
-        if (subscribeToNemsSuccess)
+        if (!string.IsNullOrEmpty(retrievedPdsRecord.NhsNumber))
         {
-            _logger.LogInformation("Successfully subscribed to NEMS.");
+            var subscribeToNemsSuccess = await SubscribeParticipantToNEMS(retrievedPdsRecord.NhsNumber);
+            if (subscribeToNemsSuccess)
+            {
+                _logger.LogInformation("Successfully subscribed to NEMS.");
+            }
+        }
+        else
+        {
+            _logger.LogWarning("Cannot subscribe to NEMS: retrievedPdsRecord.NhsNumber is null or empty.");
         }
     }
 
