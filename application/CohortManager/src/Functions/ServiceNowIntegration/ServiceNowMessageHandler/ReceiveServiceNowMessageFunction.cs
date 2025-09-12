@@ -76,11 +76,11 @@ public class ReceiveServiceNowMessageFunction
                 RecordInsertDatetime = DateTime.UtcNow
             };
 
-            var updateSuccess = await _serviceNowCaseClient.Update(serviceNowCase);
+            var addSuccess = await _serviceNowCaseClient.Add(serviceNowCase);
 
-            if (!updateSuccess)
+            if (!addSuccess)
             {
-                _logger.LogError("Failed to save the ServiceNow case in the database");
+                _logger.LogError("Failed to save the ServiceNow case to the database. CaseNumber: {CaseNumber}", requestBody.ServiceNowCaseNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
@@ -101,7 +101,7 @@ public class ReceiveServiceNowMessageFunction
 
             if (!success)
             {
-                _logger.LogError("Failed to send Participant from ServiceNow to Service Bus Topic");
+                _logger.LogError("Failed to send Participant from ServiceNow to Service Bus Topic. CaseNumber: {CaseNumber}", requestBody.ServiceNowCaseNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
         }

@@ -32,6 +32,7 @@ public class ServiceNowClientTests
     {
         _configMock.Setup(x => x.Value).Returns(new ServiceNowMessageHandlerConfig
         {
+            ServiceNowCasesDataServiceURL = "",
             ServiceNowRefreshAccessTokenUrl = ServiceNowRefreshAccessTokenUrl,
             ServiceNowUpdateUrl = ServiceNowUpdateUrl,
             ServiceNowResolutionUrl = ServiceNowResolutionUrl,

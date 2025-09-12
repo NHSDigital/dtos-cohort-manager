@@ -11,6 +11,7 @@ using System.Text.Json;
 using System.Text;
 using Model;
 using Microsoft.Extensions.Options;
+using DataServices.Client;
 
 [TestClass]
 public class ReceiveServiceNowMessageFunctionTests
@@ -21,12 +22,14 @@ public class ReceiveServiceNowMessageFunctionTests
     private readonly Mock<IOptions<ServiceNowMessageHandlerConfig>> _mockConfig = new();
     private readonly Mock<FunctionContext> _mockContext = new();
     private readonly Mock<HttpRequestData> _mockHttpRequest;
+    private Mock<IDataServiceClient<ServicenowCase>> _mockServiceNowCasesClient = new();
     private readonly ReceiveServiceNowMessageFunction _function;
 
     public ReceiveServiceNowMessageFunctionTests()
     {
         _mockConfig.Setup(x => x.Value).Returns(new ServiceNowMessageHandlerConfig
         {
+            ServiceNowCasesDataServiceURL = "",
             ServiceNowRefreshAccessTokenUrl = "https://www.example.net/refresh",
             ServiceNowUpdateUrl = "https://www.example.net/update",
             ServiceNowResolutionUrl = "https://www.example.net/resolution",
@@ -37,7 +40,7 @@ public class ReceiveServiceNowMessageFunctionTests
             ServiceBusConnectionString_client_internal = "Endpoint=",
             ServiceNowParticipantManagementTopic = "servicenow-participant-management-topic"
         });
-        _function = new ReceiveServiceNowMessageFunction(_mockLogger.Object, _createResponse, _mockQueueClient.Object, _mockConfig.Object);
+        _function = new ReceiveServiceNowMessageFunction(_mockLogger.Object, _createResponse, _mockQueueClient.Object, _mockConfig.Object, _mockServiceNowCasesClient.Object);
         _mockHttpRequest = new Mock<HttpRequestData>(_mockContext.Object);
 
         _mockHttpRequest.Setup(r => r.CreateResponse()).Returns(() =>
@@ -54,13 +57,18 @@ public class ReceiveServiceNowMessageFunctionTests
     [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
     [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-12-31", "ABC", ServiceNowReasonsForAdding.RequiresCeasing, "")]
     [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.RoutineScreening, "ZZZ")]
-    public async Task Run_WhenRequestIsValidAndMessageSuccessfullySentToServiceBus_ReturnsAccepted(
+    public async Task Run_WhenRequestIsValidAndCaseSuccessfullySavedToDbAndMessageSuccessfullySentToServiceBus_ReturnsAccepted(
         string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string dummyGpCode)
     {
         // Arrange
         var requestBodyJson = CreateRequestBodyJson(caseNumber, nhsNumber, forename, familyName, dateOfBirth, bsoCode, reasonForAdding, dummyGpCode);
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
+        _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
+                c.ServicenowId == caseNumber &&
+                c.NhsNumber == long.Parse(nhsNumber) &&
+                c.Status == ServiceNowStatus.New
+            ))).ReturnsAsync(true);
         _mockQueueClient.Setup(x => x.AddAsync(It.Is<ServiceNowParticipant>(p =>
                 p.ScreeningId == 1 &&
                 p.ServiceNowCaseNumber == caseNumber &&
@@ -133,6 +141,29 @@ public class ReceiveServiceNowMessageFunctionTests
 
     [TestMethod]
     [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
+    public async Task Run_WhenRequestIsValidButMessageFailsToSaveToDb_ReturnsInternalServiceError(
+        string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string dummyGpCode)
+    {
+        // Arrange
+        var requestBodyJson = CreateRequestBodyJson(caseNumber, nhsNumber, forename, familyName, dateOfBirth, bsoCode, reasonForAdding, dummyGpCode);
+        var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
+        _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
+                _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
+                c.ServicenowId == caseNumber &&
+                c.NhsNumber == long.Parse(nhsNumber) &&
+                c.Status == ServiceNowStatus.New
+            ))).ReturnsAsync(false);
+
+        // Act
+        var result = await _function.Run(_mockHttpRequest.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
+        _mockQueueClient.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
     public async Task Run_WhenRequestIsValidButMessageFailsToSendToServiceBus_ReturnsInternalServiceError(
         string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string dummyGpCode)
     {
@@ -140,6 +171,11 @@ public class ReceiveServiceNowMessageFunctionTests
         var requestBodyJson = CreateRequestBodyJson(caseNumber, nhsNumber, forename, familyName, dateOfBirth, bsoCode, reasonForAdding, dummyGpCode);
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
+                _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
+                c.ServicenowId == caseNumber &&
+                c.NhsNumber == long.Parse(nhsNumber) &&
+                c.Status == ServiceNowStatus.New
+            ))).ReturnsAsync(true);
         _mockQueueClient.Setup(x => x.AddAsync(It.Is<ServiceNowParticipant>(p =>
                 p.ScreeningId == 1 &&
                 p.ServiceNowCaseNumber == caseNumber &&
