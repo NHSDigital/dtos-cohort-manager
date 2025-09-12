@@ -26,6 +26,9 @@ $ContainerName = $env:STORAGE_CONTAINER_NAME
 $BackupFileName = $env:BACKUP_FILE_NAME
 $ManagedIdentityClientId = $env:MANAGED_IDENTITY_CLIENT_ID
 $TargetSubscriptionId = $env:TARGET_SUBSCRIPTION_ID
+# Configuration Parameters for new database:
+$MaxSizeGB = $env:SQL_MAX_SIZE_GB
+$ServiceObjective = $env:SQL_SERVICE_OBJECTIVE
 
 # Check if environment variables are set
 if (-not $ServerName -or -not $DatabaseName) {
@@ -141,10 +144,6 @@ $SqlPackagePath = "/opt/sqlpackage/sqlpackage"
 # Unfortunately the string parameters vary slightly compared to those used by the db-management container so it's easiest to compose it here rather than in the Terraform code.
 $ConnectionString = "Server=$ServerName.database.windows.net;Authentication=Active Directory Managed Identity;Encrypt=True;User Id=$ManagedIdentityClientId;Initial Catalog=$DatabaseName"
 
-# Configuration Parameters for new database:
-$ServiceObjective = "S12"
-$MaxSizeGB = "30"
-
 $Arguments = @(
     "/Action:Import"
     "/SourceFile:$localFilePath"
@@ -157,20 +156,19 @@ $Arguments = @(
 try {
     Write-Output "Starting database restore to $DatabaseName [sku: $ServiceObjective, size: $MaxSizeGB] using file: $localFilePath..."
 
-    $sqlpackageOutput = & $SqlPackagePath $Arguments *>&1
-    Write-Output "sqlpackage output: $sqlpackageOutput"
+    # Execute the command directly and let the logs capture the output in real time
+    & $SqlPackagePath $Arguments 2>&1
 
-    # If output contains error string, throw an error
-    if ($sqlpackageOutput -match "Error:") {
-        throw "sqlpackage reported an error during import: $sqlpackageOutput"
+    # Now, check for the exit code of the last command
+    if ($LASTEXITCODE -ne 0) {
+        throw "sqlpackage reported a non-zero exit code."
     }
     Write-Output "Completed database restore successfully."
 
     # Clean up the local file after successful download
     Remove-Item "$localFilePath" -Force
     Write-Output "Cleaned up local temporary file."
-}
-catch {
+} catch {
     Write-Error "Error: Failed to create SQL Backup File. Error: $($_.Exception.Message)"
     exit 1
 }
