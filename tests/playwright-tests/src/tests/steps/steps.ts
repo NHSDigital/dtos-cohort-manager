@@ -17,6 +17,17 @@ export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers
   });
 }
 
+// Attempt to resolve a stable scenario folder name from a test title or tag string.
+// Prefer the first @DTOSS-xxxxx-yy tag if present; otherwise return the original string.
+function resolveScenarioFolder(raw: string): string {
+  if (!raw) return raw;
+  const match = raw.match(/@DTOSS-\d+-\d+/);
+  if (match && match[0]) return match[0];
+  // Fallback: if multiple tokens separated by spaces, use the first token
+  const firstToken = raw.split(/[\s|]+/).filter(Boolean)[0];
+  return firstToken || raw;
+}
+
 function getWireMockUrl(): string {
   const wireMockUrl = config.wireMockUrl;
 
@@ -210,7 +221,11 @@ export async function getTestData(scenarioFolderName: string
   , recordType: string = "ADD"
   , createParquetFile = false): Promise<[any, string[], string?, Record<string, any>?, string?]> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
-    const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName}/`);
+    const folder = resolveScenarioFolder(scenarioFolderName);
+    const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder}/`);
+    if (!fs.existsSync(testFilesPath)) {
+      throw new Error(`Test files folder not found: ${testFilesPath} (from: ${scenarioFolderName})`);
+    }
     const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
     let parquetFile: string = "";
     if (createParquetFile) {
@@ -246,7 +261,11 @@ export async function getTestData(scenarioFolderName: string
 
 export function getCheckInDataBaseValidations(scenarioFolderName: string
   , recordType: string = "ADD") {
-  const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName}/`);
+  const folder = resolveScenarioFolder(scenarioFolderName);
+  const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder}/`);
+  if (!fs.existsSync(testFilesPath)) {
+    throw new Error(`Test files folder not found: ${testFilesPath} (from: ${scenarioFolderName})`);
+  }
   const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
   const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
   return parsedData.validations;
@@ -301,7 +320,11 @@ export function getConsolidatedAllTestData(
 export async function getApiTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<any> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
     console.info('🏃‍♂️‍➡️\tRunning test For: ', scenarioFolderName);
-    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${scenarioFolderName}/`);
+    const folder = resolveScenarioFolder(scenarioFolderName);
+    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${folder}/`);
+    if (!fs.existsSync(testFilesPath)) {
+      throw new Error(`API test files folder not found: ${testFilesPath} (from: ${scenarioFolderName})`);
+    }
     const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
     const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
     const inputParticipantRecord: Record<string, any> = parsedData.inputParticipantRecord;
@@ -313,7 +336,11 @@ export async function getApiTestData(scenarioFolderName: string, recordType: str
 export async function getApiQueryParams(scenarioFolderName: string, recordType: string): Promise<any> {
   return test.step(`Creating Input Data from JSON file`, async () => {
     console.info('🏃‍♂️‍➡️\tRunning test For: ', scenarioFolderName);
-    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${scenarioFolderName}/`);
+    const folder = resolveScenarioFolder(scenarioFolderName);
+    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${folder}/`);
+    if (!fs.existsSync(testFilesPath)) {
+      throw new Error(`API test files folder not found: ${testFilesPath} (from: ${scenarioFolderName})`);
+    }
     const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
     const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
     return parsedData.queryParams;
