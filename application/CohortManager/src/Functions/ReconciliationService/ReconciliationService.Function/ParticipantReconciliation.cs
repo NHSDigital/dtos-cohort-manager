@@ -31,9 +31,8 @@ public class ParticipantReconciliation : IReconciliationProcessor
     {
         try
         {
-            short isFatal = 1;
             var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.RecordInsertDateTime!.Value > fromDate);
-            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => x.IsFatal.Value.Equals(1) && x.DateCreated!.Value > fromDate);
+            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => x.IsFatal!.Value.Equals(1) && x.DateCreated!.Value > fromDate);
 
 
             var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > fromDate && x.ProcessName == "AuditProcess");
