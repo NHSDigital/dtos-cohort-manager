@@ -12,6 +12,7 @@ const containerName = process.env.CONTAINER_NAME ?? '';
 const endpointCohortDistributionDataService = process.env.ENDPOINT_COHORT_DISTRIBUTION_DATA_SERVICE ?? '';
 const endpointParticipantManagementDataService = process.env.ENDPOINT_PARTICIPANT_MANAGEMENT_DATA_SERVICE ?? '';
 const endpointParticipantDemographicDataService = process.env.ENDPOINT_PARTICIPANT_DEMOGRAPHIC_DATA_SERVICE ?? '';
+const endpointServiceNowCasesDataService = process.env.ENDPOINT_SERVICENOW_CASES_DATA_SERVICE ?? '';
 const endpointExceptionManagementDataService = process.env.ENDPOINT_EXCEPTION_MANAGEMENT_DATA_SERVICE ?? '';
 const endpointNemsSubscriptionDataDataService = process.env.ENDPOINT_SUBSCRIPTION_NEMS_DATA_SERVICE ?? '';
 const endpointBsSelectRetrieveCohortDistributionData = process.env.ENDPOINT_BS_SELECT_RETRIEVE_COHORT_DISTRIBUTION_DATA ?? '';
@@ -35,6 +36,7 @@ export const config = {
   endpointParticipantManagementDataService,
   endpointExceptionManagementDataService,
   endpointParticipantDemographicDataService,
+  endpointServiceNowCasesDataService,
   endpointNemsSubscriptionDataDataService,
   endpointBsSelectRetrieveCohortDistributionData: endpointBsSelectRetrieveCohortDistributionData,
   endpointBsSelectRetrieveCohortRequestAudit: endpointBsSelectRetrieveCohortRequestAudit,
@@ -62,6 +64,7 @@ export const config = {
   participantManagementService: 'ParticipantManagementDataService',
   exceptionManagementService: 'ExceptionManagementDataService',
   participantDemographicDataService: 'ParticipantDemographicDataService',
+  serviceNowCasesDataService: 'ServiceNowCasesDataService',
   createPDSDemographicPath: 'api/RetrievePdsDemographic',
   participantPayloadPath: 'src/tests/api/testFiles',
   e2eTestFilesPath: 'e2e/testFiles',
@@ -74,5 +77,6 @@ export const config = {
   uniqueKeyParticipantManagement: 'ParticipantId',
   uniqueKeyParticipantDemographic: 'ParticipantId',
   uniqueKeyExceptionManagement: 'ExceptionId',
+  uniqueKeyServiceNowCases: 'ServicenowId',
   ignoreValidationKey: 'apiEndpoint'
 }
