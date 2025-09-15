@@ -53,7 +53,9 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
 
   // Auto-enable Mesh WireMock assertions when WIREMOCK_URL is configured
   test.beforeAll(() => {
-    if (config.wireMockUrl && config.wireMockUrl.length > 0) {
+    const url = config.wireMockUrl?.trim() ?? '';
+    // Only enable WireMock assertions when a valid http/https URL is configured
+    if (/^https?:\/\//i.test(url)) {
       process.env.USE_MESH_WIREMOCK = '1';
     }
   });

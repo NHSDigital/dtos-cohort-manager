@@ -46,6 +46,9 @@ if (!scopedTestScenario) {
 }
 
 let addData = getConsolidatedAllTestData(scopedTestScenario, "ADD");
+// Filter validations to only those that declare a concrete API endpoint.
+// Epic4f managecaas flow does not write to all data services, and some test files omit endpoints.
+const dbValidations = (addData.validations || []).filter((v: any) => v?.validations?.apiEndpoint);
 
 let apiContext: APIRequestContext;
 test.beforeAll(async () => {
@@ -58,14 +61,18 @@ test.beforeAll(async () => {
   const updatedParticipantRecords = replaceDynamicDatesInJson(addData.inputParticipantRecords, dateMap);
 
   const runTimeParquetFile = await createParquetFromJson(addData.nhsNumbers, updatedParticipantRecords, addData.testFilesPath, "ADD", false);
-  await processFileViaStorage(runTimeParquetFile);
+  if (runTimeParquetFile && runTimeParquetFile !== 'NO_ROWS_TO_WRITE') {
+    await processFileViaStorage(runTimeParquetFile);
+  } else {
+    console.info('Skipping blob upload: no parquet rows to write for this scenario.');
+  }
 });
 
 test.afterAll(async () => {
   await apiContext.dispose();
 });
 
-addData.validations.forEach((validations) => {
+dbValidations.forEach((validations: any) => {
   test(`${validations.meta?.testJiraId} ${validations.meta?.additionalTags}`, {
     annotation: [
       { type: 'TestId', description: validations.meta?.testJiraId ?? '' },
