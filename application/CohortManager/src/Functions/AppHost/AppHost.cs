@@ -31,12 +31,12 @@ const string ManageNemsSubscriptionUnsubscribeUrl = "http://localhost:9081/api/U
 const string SendServiceNowMessageUrl = "http://localhost:9092/api/servicenow/send";
 const string ServiceNowCasesDataServiceUrl = "http://localhost:9996/api/ServiceNowCasesDataService";
 
-const string InboundContainerName = "inbound";
-const string InboundPoisonContainerName = "inbound-poison";
-const string NemsMeshInboundContainerName = "nems-update";
-const string NemsMeshConfigContainerName = "nems-config";
-const string NemsMessagesContainerName = "nems-updates";
-const string NemsMessagesPoisonContainerName = "nems-poison";
+const string InboundContainer = "inbound";
+const string InboundPoisonContainer = "inbound-poison";
+const string NemsMeshInboundContainer = "nems-update";
+const string NemsMeshConfigContainer = "nems-config";
+const string NemsMessagesContainer = "nems-updates";
+const string NemsMessagesPoisonContainer = "nems-poison";
 
 const string CohortDistributionTopic = "cohort-distribution-topic";
 const string DistributeParticipantSubscription = "distribute-participant-sub";
@@ -110,10 +110,12 @@ var storage = builder.AddAzureStorage("storage")
             .WithTablePort(10002)
             .WithLifetime(ContainerLifetime.Persistent);
     });
-storage.AddBlobContainer(InboundContainerName);
-storage.AddBlobContainer(InboundPoisonContainerName);
-storage.AddBlobContainer(NemsMeshInboundContainerName);
-storage.AddBlobContainer(NemsMeshConfigContainerName);
+storage.AddBlobContainer(InboundContainer);
+storage.AddBlobContainer(InboundPoisonContainer);
+storage.AddBlobContainer(NemsMeshInboundContainer);
+storage.AddBlobContainer(NemsMeshConfigContainer);
+storage.AddBlobContainer(NemsMessagesContainer);
+storage.AddBlobContainer(NemsMessagesPoisonContainer);
 
 // WireMock
 builder.AddContainer("wiremock", "wiremock/wiremock")
@@ -136,8 +138,8 @@ builder.AddProject<Projects.receiveCaasFile>(nameof(Projects.receiveCaasFile))
     .WithEnvironment("AllowDeleteRecords", "true")
     .WithEnvironment("BatchSize", "3500")
     .WithEnvironment("maxNumberOfChecks", "50")
-    .WithEnvironment("inboundBlobName", InboundContainerName)
-    .WithEnvironment("fileExceptions", InboundPoisonContainerName);
+    .WithEnvironment("inboundBlobName", InboundContainer)
+    .WithEnvironment("fileExceptions", InboundPoisonContainer);
 builder.AddProject<Projects.RetrieveMeshFile>(nameof(Projects.RetrieveMeshFile))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
     .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
@@ -257,16 +259,16 @@ builder.AddProject<Projects.NemsMeshRetrieval>(nameof(Projects.NemsMeshRetrieval
     .WithEnvironment("NemsMeshKeyPassphrase", meshSandboxKeyPasspharse)
     .WithEnvironment("NemsMeshBypassServerCertificateValidation", "true")
     .WithEnvironment("NemsMeshServerSideCerts", nemsMeshServerSideCerts)
-    .WithEnvironment("NemsMeshInboundContainer", NemsMeshInboundContainerName)
-    .WithEnvironment("NemsMeshConfigContainer", NemsMeshConfigContainerName);
+    .WithEnvironment("NemsMeshInboundContainer", NemsMeshInboundContainer)
+    .WithEnvironment("NemsMeshConfigContainer", NemsMeshConfigContainer);
 builder.AddProject<Projects.ProcessNemsUpdate>(nameof(Projects.ProcessNemsUpdate))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
     .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
     .WithEnvironment("nemsmeshfolder_STORAGE", AzureWebJobsStorage)
     .WithEnvironment("ServiceBusConnectionString_client_internal", ServiceBusEmulatorConnectionString)
     .WithEnvironment("ParticipantManagementTopic", ParticipantManagementTopic)
-    .WithEnvironment("NemsMessages", NemsMessagesContainerName)
-    .WithEnvironment("NemsPoisonContainer", NemsMessagesPoisonContainerName)
+    .WithEnvironment("NemsMessages", NemsMessagesContainer)
+    .WithEnvironment("NemsPoisonContainer", NemsMessagesPoisonContainer)
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
     .WithEnvironment("RetrievePdsDemographicURL", RetrievePdsDemographicUrl)
     .WithEnvironment("UnsubscribeNemsSubscriptionUrl", ManageNemsSubscriptionUnsubscribeUrl)
