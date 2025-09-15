@@ -31,15 +31,14 @@ public class ParticipantReconciliation : IReconciliationProcessor
     {
         try
         {
-            int transformCategoryCode = (int)ExceptionCategory.TransformExecuted;
-
+            short isFatal = 1;
             var cohortDistributionRecords = await _cohortDistributionDataService.GetByFilter(x => x.RecordInsertDateTime!.Value > fromDate);
-            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => x.Category!.Value != transformCategoryCode && x.DateCreated!.Value > fromDate);
+            var exceptionRecords = await _exceptionManagementDataService.GetByFilter(x => x.IsFatal.Value.Equals(1) && x.DateCreated!.Value > fromDate);
 
 
             var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > fromDate && x.ProcessName == "AuditProcess");
 
-            var recordsProcessed = exceptionRecords.Count() + cohortDistributionRecords.Count();
+            var recordsProcessed = exceptionRecords.DistinctBy(x=> x.NhsNumber).Count() + cohortDistributionRecords.Count();
             var recordsExpected = metrics.Sum(x => x.RecordCount);
 
             if (recordsExpected != recordsProcessed)
