@@ -4,10 +4,11 @@ import { InputData, ParticipantRecord, ServiceNowRequestValidations } from "../.
 import { config } from "../../config/env";
 import * as fs from 'fs';
 import path from "path";
-import { validateApiResponse } from "../../api/apiHelper";
+
 import { cleanDataBaseUsingServices } from "../../api/dataService/dataServiceCleaner";
 import { ensureNhsNumbersStartWith999 } from "../fixtures/testDataHelper";
 import { receiveParticipantViaServiceNow } from "../../api/distributionService/bsSelectService";
+import { validateApiResponse } from "../../api/RetryCore/Retry";
 import { WireMockResponse } from "../../interface/wiremock";
 
 
@@ -158,12 +159,30 @@ export function getConsolidatedAllTestData(
   scenarioFolderName: string,
   recordType: string = "ADD"
 ) {
-  const scenarioFolders = scenarioFolderName.split("|").map(name => name.trim());
+
   let testFilesPath: string = "";
   let allValidations: any[] = [];
   let allInputParticipantRecords: any[] = [];
   let allNhsNumbers: any[] = [];
   let allServiceNowRequestValidations: any[] = [];
+  let scenarioFolders: string[] =[];
+
+  if(!scenarioFolderName) {
+    return {
+      validations: allValidations,
+      inputParticipantRecords: allInputParticipantRecords,
+      nhsNumbers: allNhsNumbers,
+      serviceNowRequestValidations: allServiceNowRequestValidations,
+      testFilesPath
+    }
+  }
+
+
+  if(scenarioFolderName.includes("|")) {
+    scenarioFolders = scenarioFolderName.split("|").map(name => name.trim());    
+  } else {
+    scenarioFolders[0] = scenarioFolderName;
+  }
 
   scenarioFolders.forEach(folder => {
     try {
