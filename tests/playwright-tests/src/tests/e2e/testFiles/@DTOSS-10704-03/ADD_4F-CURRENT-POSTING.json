@@ -1,0 +1,19 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "NHSNumber": 9992039310
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10704-03",
+        "requirementJiraId": "DTOSS-10941",
+        "additionalTags": "@DTOSS-10704-03 @e2e @epic4f- Invalid or missing NHS number"
+      }
+    }
+  ],
+  "inputParticipantRecord": [],
+  "nhsNumbers": [
+    "9992039310"
+  ]
+}
+

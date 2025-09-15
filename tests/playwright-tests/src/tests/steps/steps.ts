@@ -28,6 +28,23 @@ function getWireMockUrl(): string {
   return wireMockUrl;
 }
 
+function getWireMockAdmin(base?: string): { admin: string; requests: string; mappings: string } {
+  // Use shared WIREMOCK_URL for both ServiceNow and Mesh
+  const raw = (base ?? config.wireMockUrl).trim();
+  if (!raw) throw new Error('❌ WIREMOCK_URL is not set.');
+  const noTrail = raw.replace(/\/$/, '');
+  const admin = noTrail.endsWith('/__admin')
+    ? noTrail
+    : noTrail.endsWith('/__admin/requests') || noTrail.endsWith('/__admin/mappings')
+      ? noTrail.replace(/\/(requests|mappings)$/,'')
+      : `${noTrail}/__admin`;
+  return {
+    admin,
+    requests: `${admin}/requests`,
+    mappings: `${admin}/mappings`
+  };
+}
+
 export async function cleanupWireMock(request: APIRequestContext) {
   const wireMockUrl = getWireMockUrl();
 
@@ -46,6 +63,88 @@ export async function validateSqlDatabaseFromAPI(request: APIRequestContext, val
     const { status, errorTrace } = await validateApiResponse(validations, request);
     if (!status) {
       throw new Error(`❌ Validation failed after ${config.apiRetry} attempts, please checks logs for more details: ${errorTrace}`);
+    }
+  });
+}
+
+/**
+ * Validate that Mesh outbox HTTP calls were made to WireMock.
+ * Looks for requests whose URL contains typical Mesh paths, e.g. `messageexchange` and `outbox`.
+ * Optional criteria allow narrowing by mailbox id or custom substrings.
+ */
+export async function validateMeshRequestWithMockServer(
+  request: APIRequestContext,
+  options?: { toMailboxContains?: string; minCount?: number; pathIncludes?: string[] }
+)
+{
+  const { requests: requestsUrl } = getWireMockAdmin();
+
+  const minCount = options?.minCount ?? 1;
+  const includes = options?.pathIncludes ?? ["messageexchange", "outbox"];
+  const mailboxHint = options?.toMailboxContains;
+
+  // Wait briefly for the app to issue outbound Mesh calls
+  await new Promise((resolve) => setTimeout(resolve, 5000));
+
+  const response = await request.get(requestsUrl);
+  const body = await response.json() as WireMockResponse;
+
+  return test.step(`Validate Mesh requests with WireMock`, async () => {
+    let meshRequests = body.requests.filter(r =>
+      includes.every(inc => r.request.url.includes(inc))
+    );
+
+    if (mailboxHint) {
+      meshRequests = meshRequests.filter(r => r.request.url.includes(mailboxHint));
+    }
+
+    if (meshRequests.length < minCount) {
+      const sample = body.requests.slice(0, 5).map(r => r.request.url).join("\n - ");
+      throw new Error(`❌ Expected at least ${minCount} Mesh request(s), found ${meshRequests.length}. Sample captured URLs:\n - ${sample}`);
+    }
+
+    console.info(`✅ Validation Complete - Found ${meshRequests.length} Mesh request(s) to outbox via WireMock`);
+  });
+}
+
+/**
+ * Configure WireMock to return a failure (e.g. 500) for Mesh outbox HTTP calls.
+ */
+export async function enableMeshOutboxFailureInWireMock(
+  request: APIRequestContext,
+  status: number = 500
+) {
+  const { mappings: mappingsUrl } = getWireMockAdmin();
+
+  const body = {
+    priority: 1,
+    request: {
+      method: 'POST',
+      urlPattern: '.*messageexchange/.*/outbox.*'
+    },
+    response: {
+      status,
+      jsonBody: { error: 'Injected Mesh failure from tests' },
+      headers: { 'Content-Type': 'application/json' }
+    }
+  };
+
+  return test.step(`Enable Mesh failure stub in WireMock (status ${status})`, async () => {
+    const res = await request.post(mappingsUrl, { data: body });
+    if (!res.ok()) {
+      throw new Error(`Failed to create WireMock mapping. ${res.status()} - ${await res.text()}`);
+    }
+  });
+}
+
+/** Remove all WireMock mappings (stubs). Useful to clean after failure injection. */
+export async function resetWireMockMappings(request: APIRequestContext) {
+  const { mappings: mappingsUrl } = getWireMockAdmin();
+  return test.step(`Reset WireMock mappings`, async () => {
+    try {
+      await request.delete(mappingsUrl);
+    } catch (e) {
+      console.warn(`Failed to reset WireMock mappings at ${mappingsUrl}. ${e}`);
     }
   });
 }
@@ -111,7 +210,7 @@ export async function getTestData(scenarioFolderName: string
   , recordType: string = "ADD"
   , createParquetFile = false): Promise<[any, string[], string?, Record<string, any>?, string?]> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
-    const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
+    const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName}/`);
     const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
     let parquetFile: string = "";
     if (createParquetFile) {
@@ -147,7 +246,7 @@ export async function getTestData(scenarioFolderName: string
 
 export function getCheckInDataBaseValidations(scenarioFolderName: string
   , recordType: string = "ADD") {
-  const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
+  const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName}/`);
   const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
   const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
   return parsedData.validations;
@@ -167,7 +266,7 @@ export function getConsolidatedAllTestData(
 
   scenarioFolders.forEach(folder => {
     try {
-      testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder.substring(0, 14)}/`);
+      testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder}/`);
       const jsonFiles = fs.readdirSync(testFilesPath).filter(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
       jsonFiles.forEach(jsonFile => {
         const srcPath = path.join(testFilesPath, jsonFile);
@@ -202,7 +301,7 @@ export function getConsolidatedAllTestData(
 export async function getApiTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<any> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
     console.info('🏃‍♂️‍➡️\tRunning test For: ', scenarioFolderName);
-    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
+    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${scenarioFolderName}/`);
     const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
     const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
     const inputParticipantRecord: Record<string, any> = parsedData.inputParticipantRecord;
@@ -214,7 +313,7 @@ export async function getApiTestData(scenarioFolderName: string, recordType: str
 export async function getApiQueryParams(scenarioFolderName: string, recordType: string): Promise<any> {
   return test.step(`Creating Input Data from JSON file`, async () => {
     console.info('🏃‍♂️‍➡️\tRunning test For: ', scenarioFolderName);
-    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
+    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${scenarioFolderName}/`);
     const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
     const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
     return parsedData.queryParams;

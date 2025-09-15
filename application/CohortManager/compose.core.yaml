@@ -311,7 +311,7 @@ services:
         - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
         - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
         - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-        - MeshApiBaseUrl=https://localhost:8700/messageexchange
+        - MeshApiBaseUrl=${MESH_API_BASE_URL:-https://localhost:8700/messageexchange}
         - MeshCaasPassword=password
         - MeshCaasSharedKey=TestKey
         - MeshCaasKeyName=
