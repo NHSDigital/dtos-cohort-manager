@@ -376,8 +376,14 @@ function_apps = {
           function_app_key = "RetrievePDSDemographic"
         },
         {
-          env_var_name     = "UnsubscribeNemsSubscriptionUrl"
+          env_var_name     = "ManageNemsSubscriptionUnsubscribeURL"
           function_app_key = "ManageNemsSubscription"
+          endpoint_name    = "Unsubscribe"
+        },
+        {
+          env_var_name     = "ManageNemsSubscriptionSubscribeURL"
+          function_app_key = "ManageNemsSubscription"
+          endpoint_name    = "Subscribe"
         },
         {
           env_var_name     = "DemographicDataServiceURL"

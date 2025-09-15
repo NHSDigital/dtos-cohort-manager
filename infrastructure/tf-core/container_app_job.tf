@@ -51,8 +51,9 @@ module "container-app-job" {
   acr_login_server           = data.azurerm_container_registry.acr.login_server
   acr_managed_identity_id    = each.value.container_registry_use_mi ? data.azurerm_user_assigned_identity.acr_mi.id : null
   docker_image               = "${data.azurerm_container_registry.acr.login_server}/${each.value.docker_image}:${each.value.docker_env_tag != "" ? each.value.docker_env_tag : var.docker_image_tag}"
-  replica_retry_limit        = each.value.replica_retry_limit != null ? each.value.replica_retry_limit : 1
-  replica_timeout_in_seconds = each.value.replica_timeout_in_seconds != null ? each.value.replica_timeout_in_seconds : 300
+  memory                     = each.value.memory_in_gb
+  replica_retry_limit        = each.value.replica_retry_limit
+  replica_timeout_in_seconds = each.value.replica_timeout_in_seconds
 
   environment_variables = each.value.env_vars != null ? each.value.env_vars : {}
 

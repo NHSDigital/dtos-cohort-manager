@@ -126,7 +126,7 @@
     "WorkflowName": "AMENDED",
     "Rules": [
       {
-        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.NBO.NonFatal",
+        "RuleName": "53.CurrentPostingAndPrimaryCareProvider.Non.NonFatal",
         "LocalParams": [
           {
             "Name": "currentPosting",
