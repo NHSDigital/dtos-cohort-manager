@@ -11,8 +11,8 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
 using Moq;
-using ReconciliationService;
-using ReconciliationServiceCore;
+using NHS.CohortManager.ReconciliationService;
+using NHS.CohortManager.ReconciliationServiceCore;
 
 [TestClass]
 public sealed class ReconciliationFunctionTests

@@ -8,7 +8,8 @@ using Microsoft.Azure.Functions.Worker.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Model;
-using ReconciliationService;
+using NHS.CohortManager.ReconciliationService;
+;
 
 var host = new HostBuilder()
     .ConfigureFunctionsWebApplication()

@@ -10,7 +10,7 @@ using Model;
 using DataServices.Client;
 using HealthChecks.Extensions;
 using Microsoft.Extensions.Options;
-using ReconciliationServiceCore;
+using NHS.CohortManager.ReconciliationServiceCore;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());

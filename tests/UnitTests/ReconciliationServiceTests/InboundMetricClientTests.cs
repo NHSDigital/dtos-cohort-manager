@@ -4,7 +4,7 @@ using Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
-using ReconciliationServiceCore;
+using NHS.CohortManager.ReconciliationServiceCore;
 
 namespace ReconciliationServiceTests;
 

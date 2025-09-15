@@ -1,4 +1,4 @@
-namespace ReconciliationService;
+namespace NHS.CohortManager.ReconciliationService;
 
 using System.ComponentModel.DataAnnotations;
 

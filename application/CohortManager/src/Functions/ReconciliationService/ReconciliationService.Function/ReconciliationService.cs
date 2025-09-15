@@ -1,12 +1,10 @@
-namespace ReconciliationService;
+namespace NHS.CohortManager.ReconciliationService;
 
 using System;
 using System.Net;
-using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Azure.Messaging.ServiceBus;
 using Common;
-using DataServices.Client;
 using DataServices.Core;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
