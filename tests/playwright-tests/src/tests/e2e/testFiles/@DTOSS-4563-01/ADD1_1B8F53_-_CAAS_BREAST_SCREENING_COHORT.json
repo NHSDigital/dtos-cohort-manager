@@ -2,15 +2,13 @@
   "validations": [
     {
       "validations": {
-        "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": "9991742468",
-        "RuleId": 94,
-        "RuleDescription": "Invalid eligibility flag."
+        "apiEndpoint": "api/CohortDistributionDataService",
+        "NHSNumber": 9991742468
       },
       "meta": {
         "testJiraId": "@DTOSS-4563-01",
         "requirementJiraId": "DTOSS-2757",
-        "additionalTags": "@regression @e2e @epic2-high-priority Validation for Eligibility Flag for Add, set to false results in Exception in exception management table"
+        "additionalTags": "@regression @e2e @epic2-high-priority Validation for Eligibility Flag for Add, set to false No Exception in exception management table"
       }
     }
   ],
