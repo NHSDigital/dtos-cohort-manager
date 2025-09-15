@@ -10,7 +10,6 @@ import { TestTypePicker } from './TestTypePicker';
 const TEST_TYPE = process.env.TEST_TYPE ?? 'SMOKE';
 let scopedTestScenario = "";
 
-
 scopedTestScenario = TestTypePicker(TEST_TYPE)
 
 if (!scopedTestScenario) {

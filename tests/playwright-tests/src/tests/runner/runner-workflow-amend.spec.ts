@@ -17,10 +17,6 @@ if (!scopedTestScenario) {
   console.error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");
   fail;
 }
-if (!scopedTestScenario) {
-  console.error("No test scenario tags defined for the current TEST_TYPE. Please check the environment variable.");
-  fail;
-}
 
 let addData = getConsolidatedAllTestData(scopedTestScenario, "ADD");
 let amendData = getConsolidatedAllTestData(scopedTestScenario, "AMENDED");
