@@ -2,7 +2,7 @@
   "profiles": {
     "ServiceNowCohortLookup": {
       "commandName": "Project",
-      "commandLineArgs": "--port 9092",
+      "commandLineArgs": "--port 7180",
       "launchBrowser": false
     }
   }
