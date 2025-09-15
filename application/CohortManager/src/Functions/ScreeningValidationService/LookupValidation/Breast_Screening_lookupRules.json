@@ -78,6 +78,36 @@
           }
         ],
         "Expression": "!((emptyPostcode OR PostcodeDoesNotMatch) AND addressLines)"
+      },
+      {
+        "RuleName": "51.ParticipantLocationRemainingOutsideOfCohort.ParticipantLocationRemainingOutsideOfCohort.NonFatal",
+        "LocalParams": [
+          {
+            "Name": "ExistingParticipantInDMS",
+            "Expression": "(!string.IsNullOrEmpty(existingParticipant.CurrentPosting) AND string.Equals(existingParticipant.CurrentPosting, \"DMS\", StringComparison.OrdinalIgnoreCase) AND !string.IsNullOrEmpty(existingParticipant.PrimaryCareProvider) AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(existingParticipant.PrimaryCareProvider))"
+          },
+          {
+            "Name": "existingParticipantPosting",
+            "Expression": "ExistingParticipantInDMS OR string.Equals(dbLookup.RetrievePostingCategory(existingParticipant.CurrentPosting), \"WALES\", StringComparison.OrdinalIgnoreCase)"
+          },
+          {
+            "Name": "NewParticipantInDMS",
+            "Expression": "(!string.IsNullOrEmpty(newParticipant.CurrentPosting) AND string.Equals(newParticipant.CurrentPosting, \"DMS\", StringComparison.OrdinalIgnoreCase) AND !string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) AND dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider))"
+          },
+          {
+            "Name": "newParticipantPosting",
+            "Expression": "NewParticipantInDMS OR string.Equals(dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting), \"WALES\", StringComparison.OrdinalIgnoreCase)"
+          }
+        ],
+        "Expression": "!(existingParticipantPosting AND newParticipantPosting)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Resident in not included area in cohort moving to same or another area not included in cohort.\""
+            }
+          }
+        }
       }
     ]
   }

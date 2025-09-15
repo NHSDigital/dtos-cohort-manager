@@ -138,16 +138,9 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-        var additionalWorkflow = participant.ReferralFlag switch
+        if (participant.ReferralFlag == true)
         {
-            null => null,
-            true => "Referred",
-            false => "Routine"
-        };
-
-        if (additionalWorkflow != null)
-        {
-            resultList.AddRange(await re.ExecuteAllRulesAsync(additionalWorkflow, ruleParameters));
+            resultList.AddRange(await re.ExecuteAllRulesAsync("Referred", ruleParameters));
         }
 
         await HandleExceptions(resultList, participant);

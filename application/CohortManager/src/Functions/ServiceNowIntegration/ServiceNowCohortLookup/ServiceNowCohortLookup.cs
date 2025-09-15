@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.ServiceNowIntegrationService;
 
 using Microsoft.Azure.Functions.Worker;
-using Common;
 using Microsoft.Extensions.Logging;
 using Model;
 using DataServices.Client;
@@ -11,12 +10,12 @@ public class ServiceNowCohortLookup
 {
     private readonly ILogger<ServiceNowCohortLookup> _logger;
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
-    private readonly IDataServiceClient<ServicenowCases> _serviceNowCasesClient;
+    private readonly IDataServiceClient<ServicenowCase> _serviceNowCasesClient;
 
     public ServiceNowCohortLookup(
         ILogger<ServiceNowCohortLookup> logger,
         IDataServiceClient<CohortDistribution> cohortDistributionClient,
-        IDataServiceClient<ServicenowCases> serviceNowCasesClient)
+        IDataServiceClient<ServicenowCase> serviceNowCasesClient)
     {
         _logger = logger;
         _cohortDistributionClient = cohortDistributionClient;
@@ -24,12 +23,13 @@ public class ServiceNowCohortLookup
     }
 
     /// <summary>
-    /// Azure Function that processes ServiceNow cases on a timer trigger.
+    /// Azure Function that run once per day to check whether the ServiceNow cases have been processed
+    /// for auditing purposes.
     /// </summary>
     /// <param name="myTimer">Timer information from the Azure Functions host.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <remarks>
-    /// This function runs every 2 minutes (as per the cron expression) and:
+    /// This function runs once per day at midnight (as per the cron expression) and:
     /// 1. Retrieves new ServiceNow cases
     /// 2. Finds matching participants in cohort distribution which were added yesterday.
     /// 3. Updates case statuses for successful matches
@@ -83,7 +83,7 @@ public class ServiceNowCohortLookup
     /// Retrieves all new ServiceNow cases with status 'NEW'.
     /// </summary>
     /// <returns>List of new ServiceNow cases.</returns>
-    private async Task<List<ServicenowCases>> GetNewServiceNowCasesAsync()
+    private async Task<List<ServicenowCase>> GetNewServiceNowCasesAsync()
     {
         var cases = (await _serviceNowCasesClient.GetByFilter(c => c.Status == ServiceNowStatus.New)).ToList();
         _logger.LogInformation("Found {CaseCount} new ServiceNow cases", cases.Count);
@@ -122,7 +122,7 @@ public class ServiceNowCohortLookup
     /// </list>
     /// </returns>
     private async Task<(int ProcessedCount, int TotalCases)> ProcessCasesAsync(
-        List<ServicenowCases> cases,
+        List<ServicenowCase> cases,
         List<CohortDistribution> participants)
     {
         var processedCount = 0;
@@ -162,7 +162,7 @@ public class ServiceNowCohortLookup
     /// 'true' if the case was processed successfully; 'false' if processing failed due to:
     /// </returns>
     private async Task<bool> TryProcessCaseAsync(
-        ServicenowCases caseItem,
+        ServicenowCase caseItem,
         Dictionary<long, CohortDistribution> participantLookup)
     {
         if (!caseItem.NhsNumber.HasValue)
@@ -192,7 +192,7 @@ public class ServiceNowCohortLookup
     /// </summary>
     /// <param name="caseItem">The case to update.</param>
     /// <returns>'true' if the update was successful; otherwise, 'false'.</returns>
-    private async Task<bool> UpdateCaseStatusAsync(ServicenowCases caseItem)
+    private async Task<bool> UpdateCaseStatusAsync(ServicenowCase caseItem)
     {
         caseItem.Status = ServiceNowStatus.Complete;
         caseItem.RecordUpdateDatetime = DateTime.UtcNow;
