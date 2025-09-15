@@ -14,6 +14,7 @@ using Model;
 using Moq;
 using NHS.CohortManager.ReconciliationService;
 using NHS.CohortManager.ReconciliationServiceCore;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public sealed class ParticipantReconciliationTests
@@ -48,7 +49,10 @@ public sealed class ParticipantReconciliationTests
             .ReturnsAsync(cohortDistributionRecords);
 
         var exceptionRecords = Enumerable.Range(1, 25)
-            .Select(i => new ExceptionManagement());
+            .Select(i => new ExceptionManagement
+            {
+                NhsNumber = i.ToString()
+            });
 
         _mockExceptionManagementDataService
             .Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>()))
@@ -100,7 +104,10 @@ public sealed class ParticipantReconciliationTests
             .ReturnsAsync(cohortDistributionRecords);
 
         var exceptionRecords = Enumerable.Range(1, 25)
-            .Select(i => new ExceptionManagement());
+            .Select(i => new ExceptionManagement
+            {
+                NhsNumber = i.ToString()
+            });
 
         _mockExceptionManagementDataService
             .Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>()))
