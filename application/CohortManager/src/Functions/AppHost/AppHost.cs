@@ -29,7 +29,7 @@ const string ScreeningLkpDataServiceUrl = "http://localhost:8996/api/ScreeningLk
 const string ManageNemsSubscriptionSubscribeUrl = "http://localhost:9081/api/Subscribe";
 const string ManageNemsSubscriptionUnsubscribeUrl = "http://localhost:9081/api/Unsubscribe";
 const string SendServiceNowMessageUrl = "http://localhost:9092/api/servicenow/send";
-const string ServiceNowCasesDataServiceUrl = "http://servicenow-cases-data-service:9996/api/ServiceNowCasesDataService";
+const string ServiceNowCasesDataServiceUrl = "http://localhost:9996/api/ServiceNowCasesDataService";
 
 const string InboundContainerName = "inbound";
 const string InboundPoisonContainerName = "inbound-poison";
@@ -394,6 +394,7 @@ builder.AddProject<Projects.ServiceNowMessageHandler>(nameof(Projects.ServiceNow
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
     .WithEnvironment("ServiceBusConnectionString_client_internal", ServiceBusEmulatorConnectionString)
     .WithEnvironment("ServiceNowParticipantManagementTopic", ServiceNowParticipantManagementTopic)
+    .WithEnvironment("ServiceNowCasesDataServiceURL", ServiceNowCasesDataServiceUrl)
     .WithEnvironment("ServiceNowRefreshAccessTokenUrl", ServiceNowRefreshAccessTokenUrl)
     .WithEnvironment("ServiceNowUpdateUrl", ServiceNowUpdateUrl)
     .WithEnvironment("ServiceNowResolutionUrl", ServiceNowResolutionUrl)

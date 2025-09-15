@@ -2,7 +2,7 @@
   "profiles": {
     "NemsMeshRetrieval": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7068",
+      "commandLineArgs": "--port 7058",
       "launchBrowser": false
     }
   }
