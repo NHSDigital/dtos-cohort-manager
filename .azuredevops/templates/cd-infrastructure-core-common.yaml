@@ -127,7 +127,7 @@ stages:
   condition: |
     and(
       always(),
-      eq(variables['Build.SourceBranch'], 'refs/heads/feat/dtoss-10921-slack-generic-messaging'),
+      eq(variables['Build.SourceBranch'], 'refs/heads/main'),
       ne('${{ parameters.slackWebHook }}', '')
     )
   pool:
