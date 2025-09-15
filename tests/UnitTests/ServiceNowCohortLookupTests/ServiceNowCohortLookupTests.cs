@@ -14,7 +14,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
  {
      private Mock<ILogger<ServiceNowCohortLookup>> _loggerMock;
      private Mock<IDataServiceClient<CohortDistribution>> _cohortDistributionClientMock;
-     private Mock<IDataServiceClient<ServicenowCases>> _serviceNowCasesClientMock;
+     private Mock<IDataServiceClient<ServicenowCase>> _serviceNowCasesClientMock;
      private ServiceNowCohortLookup _service;
      private TimerInfo _timerInfo;
      private const string ValidNhsNumber = "3112728165";
@@ -25,7 +25,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
      {
          _loggerMock = new Mock<ILogger<ServiceNowCohortLookup>>();
          _cohortDistributionClientMock = new Mock<IDataServiceClient<CohortDistribution>>();
-         _serviceNowCasesClientMock = new Mock<IDataServiceClient<ServicenowCases>>();
+         _serviceNowCasesClientMock = new Mock<IDataServiceClient<ServicenowCase>>();
 
          _service = new ServiceNowCohortLookup(
              _loggerMock.Object,
@@ -48,7 +48,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
      public async Task Run_WithInvalidNhsNumber_LogsWarningAndSkips()
      {
          // Arrange
-         var invalidCase = new ServicenowCases
+         var invalidCase = new ServicenowCase
          {
              ServicenowId = ServiceNowId,
              NhsNumber = 0, // Invalid NHS number
@@ -57,15 +57,15 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
          };
 
          _serviceNowCasesClientMock.Setup(x =>
-                 x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
-             .ReturnsAsync(new List<ServicenowCases> { invalidCase });
+                 x.GetByFilter(It.IsAny<Expression<Func<ServicenowCase, bool>>>()))
+             .ReturnsAsync(new List<ServicenowCase> { invalidCase });
 
          // Act
          await _service.Run(_timerInfo);
 
          // Assert
          _serviceNowCasesClientMock.Verify(x =>
-             x.Update(It.IsAny<ServicenowCases>()),
+             x.Update(It.IsAny<ServicenowCase>()),
              Times.Never);
 
          _loggerMock.Verify(x => x.Log(
@@ -82,7 +82,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
      {
          // Arrange
          var validNhsNumberLong = long.Parse(ValidNhsNumber);
-         var newCase = new ServicenowCases
+         var newCase = new ServicenowCase
          {
              ServicenowId = ServiceNowId,
              NhsNumber = validNhsNumberLong,
@@ -91,8 +91,8 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
          };
 
          _serviceNowCasesClientMock.Setup(x =>
-                 x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
-             .ReturnsAsync(new List<ServicenowCases> { newCase });
+                 x.GetByFilter(It.IsAny<Expression<Func<ServicenowCase, bool>>>()))
+             .ReturnsAsync(new List<ServicenowCase> { newCase });
 
          _cohortDistributionClientMock.Setup(x =>
                  x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
@@ -116,7 +116,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
      {
          // Arrange
          var validNhsNumberLong = long.Parse(ValidNhsNumber);
-         var processedCase = new ServicenowCases
+         var processedCase = new ServicenowCase
          {
              ServicenowId = ServiceNowId,
              NhsNumber = validNhsNumberLong,
@@ -125,15 +125,15 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
          };
 
          _serviceNowCasesClientMock.Setup(x =>
-                 x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
-             .ReturnsAsync(new List<ServicenowCases> { processedCase });
+                 x.GetByFilter(It.IsAny<Expression<Func<ServicenowCase, bool>>>()))
+             .ReturnsAsync(new List<ServicenowCase> { processedCase });
 
          // Act
          await _service.Run(_timerInfo);
 
          // Assert
          _serviceNowCasesClientMock.Verify(x =>
-             x.Update(It.IsAny<ServicenowCases>()),
+             x.Update(It.IsAny<ServicenowCase>()),
              Times.Never);
      }
 
@@ -141,21 +141,21 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
      public async Task Run_WithMixedCases_ProcessesCorrectly()
      {
          // Arrange
-         var validCase1 = new ServicenowCases
+         var validCase1 = new ServicenowCase
          {
              ServicenowId = "SN1",
              NhsNumber = 123,
              Status = ServiceNowStatus.New
          };
 
-         var validCase2 = new ServicenowCases
+         var validCase2 = new ServicenowCase
          {
              ServicenowId = "SN2",
              NhsNumber = 456,
              Status = ServiceNowStatus.New
          };
 
-         var invalidCase = new ServicenowCases
+         var invalidCase = new ServicenowCase
          {
              ServicenowId = "SN3",
              NhsNumber = 0, // Invalid
@@ -164,8 +164,8 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
 
          // Mock case retrieval
          _serviceNowCasesClientMock.Setup(x =>
-                 x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
-             .ReturnsAsync(new List<ServicenowCases> { validCase1, validCase2, invalidCase });
+                 x.GetByFilter(It.IsAny<Expression<Func<ServicenowCase, bool>>>()))
+             .ReturnsAsync(new List<ServicenowCase> { validCase1, validCase2, invalidCase });
 
          // Mock participant lookup - only match validCase1
          var participants = new List<CohortDistribution>
@@ -177,11 +177,11 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
                  x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
              .ReturnsAsync(participants);
 
-         var updatedCases = new List<ServicenowCases>();
+         var updatedCases = new List<ServicenowCase>();
          _serviceNowCasesClientMock.Setup(x =>
-                 x.Update(It.IsAny<ServicenowCases>()))
+                 x.Update(It.IsAny<ServicenowCase>()))
              .ReturnsAsync(true)
-             .Callback<ServicenowCases>(c => updatedCases.Add(c));
+             .Callback<ServicenowCase>(c => updatedCases.Add(c));
 
          // Act
          await _service.Run(_timerInfo);
@@ -218,14 +218,14 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
          // Arrange
          const long testNhsNumber = 123;
 
-         var case1 = new ServicenowCases
+         var case1 = new ServicenowCase
          {
              ServicenowId = "SN1",
              NhsNumber = testNhsNumber,
              Status = ServiceNowStatus.New
          };
 
-         var case2 = new ServicenowCases
+         var case2 = new ServicenowCase
          {
              ServicenowId = "SN2",
              NhsNumber = testNhsNumber, // Same NHS number
@@ -233,8 +233,8 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
          };
 
          _serviceNowCasesClientMock.Setup(x =>
-             x.GetByFilter(It.IsAny<Expression<Func<ServicenowCases, bool>>>()))
-             .ReturnsAsync(new List<ServicenowCases> { case1, case2 });
+             x.GetByFilter(It.IsAny<Expression<Func<ServicenowCase, bool>>>()))
+             .ReturnsAsync(new List<ServicenowCase> { case1, case2 });
 
          var participant = new CohortDistribution { NHSNumber = testNhsNumber };
          var participants = new List<CohortDistribution> { participant };
@@ -243,11 +243,11 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
              x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
              .ReturnsAsync(participants);
 
-         var updatedCases = new List<ServicenowCases>();
+         var updatedCases = new List<ServicenowCase>();
          _serviceNowCasesClientMock.Setup(x =>
-             x.Update(It.IsAny<ServicenowCases>()))
+             x.Update(It.IsAny<ServicenowCase>()))
              .ReturnsAsync(true)
-             .Callback<ServicenowCases>(c => updatedCases.Add(c));
+             .Callback<ServicenowCase>(c => updatedCases.Add(c));
 
          // Act
          await _service.Run(_timerInfo);

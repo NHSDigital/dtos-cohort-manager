@@ -31,7 +31,7 @@ RUN wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor 
     && sh -c "echo 'deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/22.04/prod $(lsb_release -cs) main' > /etc/apt/sources.list.d/microsoft-prod.list" \
     && rm packages.microsoft.gpg \
     && apt-get update \
-    && apt-get install -y azcopy
+    && apt-get install -y --no-install-recommends azcopy
 
 # Switch to the non-root user
 USER appuser

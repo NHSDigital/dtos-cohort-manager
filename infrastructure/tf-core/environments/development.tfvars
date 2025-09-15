@@ -933,6 +933,12 @@ function_apps = {
       app_service_plan_key    = "NonScaling"
       key_vault_url           = "KeyVaultConnectionString"
       service_bus_connections = ["internal"]
+      app_urls = [
+        {
+          env_var_name     = "ServiceNowCasesDataServiceURL"
+          function_app_key = "ServiceNowCasesDataService"
+        }
+      ]
       env_vars_static = {
         ServiceNowRefreshAccessTokenUrl      = "https://nhsdigitaldev.service-now.com/oauth_token.do"
         ServiceNowUpdateUrl                  = "https://nhsdigitaldev.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
@@ -1001,11 +1007,11 @@ function_apps = {
         },
         {
           env_var_name     = "ServiceNowCasesDataServiceURL"
-          function_app_key = "CohortDistributionDataService"
+          function_app_key = "ServiceNowCasesDataService"
         },
         {
           env_var_name     = "CohortDistributionDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
+          function_app_key = "CohortDistributionDataService"
         }
       ]
     }
