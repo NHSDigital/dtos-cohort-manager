@@ -23,18 +23,21 @@ parameters:
     type: string
   - name: retagImagesTo
     type: string
+  - name: slackWebHook
+    type: string
+    default: ''
 
 stages:
-- stage: re_tag_stage
+- stage: retag_images_stage
   # Only required until commit hashes are passed in by calling pipeline, except for the
   # PreProd pipeline which needs to retag images to move them from the Dev ACR to the Prod ACR
   displayName: ACR re-tag
-  condition: in('${{ parameters.retagImages }}', 'true')
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
     - job: re_tag
       displayName: Re-tag Docker images
+      condition: in('${{ parameters.retagImages }}', 'true')
       variables:
         SELECT_IMAGE_TAG: ${{ parameters.retagImagesFrom }}
         ADD_IMAGE_TAG: ${{ parameters.retagImagesTo }}
@@ -43,12 +46,12 @@ stages:
           parameters:
             serviceConnection: ${{ parameters.serviceConnection }}
 
-- stage: terraform_deploy
+- stage: terraform_deploy_stage
   ${{ if eq(parameters.terraformActions, 'Apply') }}:
     displayName: Terraform Deploy
   ${{ else }}:
-    displayName: Terraform Plan
-  condition: in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped')
+    displayName: Terraform Plan Only
+  condition: in(dependencies.retag_images_stage.result, 'Succeeded', 'Skipped')
   variables:
     tfVarsFile: ${{ parameters.tfVarsFile }}
   pool:
@@ -82,11 +85,8 @@ stages:
 
 - stage: db_changes_stage
   displayName: Database changes
-  condition: |
-    or(
-      in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
-      eq(dependencies.terraform_deploy.jobs.terraform_apply.result, 'Succeeded')
-    )
+  dependsOn: terraform_deploy_stage
+  condition: in(dependencies.terraform_deploy_stage.result, 'Succeeded', 'Skipped')
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
@@ -104,10 +104,13 @@ stages:
 
 - stage: restart_functions_stage
   displayName: Restart Function Apps
+  dependsOn:
+  - terraform_deploy_stage
+  - db_changes_stage
   condition: |
     or(
-      in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
-      eq(dependencies.terraform_deploy.jobs.terraform_apply.result, 'Succeeded')
+      in(dependencies.terraform_deploy_stage.result, 'Succeeded', 'Skipped'),
+      in(dependencies.db_changes_stage.result, 'Succeeded', 'Skipped')
     )
   pool:
     name: ${{ parameters.hostPoolName }}
@@ -118,3 +121,55 @@ stages:
         - template: .azuredevops/templates/steps/app-services-restart.yaml@dtos-devops-templates
           parameters:
             serviceConnection: ${{ parameters.serviceConnection }}
+
+- stage: notify_stage
+  displayName: Send Slack Notification
+  condition: |
+    and(
+      always(),
+      eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+      ne('${{ parameters.slackWebHook }}', '')
+    )
+  pool:
+    name: ${{ parameters.hostPoolName }}
+  jobs:
+    - job: notify
+      displayName: Send Slack Notification
+      variables:
+        slackSuccessMessage: |
+          ✅ The infrastructure deployment for the ${{ parameters.environment }} environment has completed for user: $(Build.RequestedFor).
+          ⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)
+          📊 NOTE: End to End tests may still be running: please check #cohort-manager-tests for completed test results.
+          ⚙️ Please check GitHub for any subsequent workflows that need approving: https://github.com/NHSDigital/dtos-cohort-manager/actions?query=branch%3Amain
+
+        slackFailureMessage: |
+          ❌ The infrastructure deployment for the ${{ parameters.environment }} environment has failed for user: $(Build.RequestedFor).
+          ⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)
+
+      steps:
+        - checkout: dtos-devops-templates
+          sparseCheckoutDirectories: scripts
+          path: templates
+          displayName: 'Checkout Templates Repo'
+
+        - task: PythonScript@0
+          name: slack_success
+          displayName: Send Slack Notification (Success)
+          condition: succeeded()
+          inputs:
+            scriptSource: 'filePath'
+            scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
+            arguments: >
+              --webhook "${{ parameters.slackWebHook }}"
+              --message "$(slackSuccessMessage)"
+
+        - task: PythonScript@0
+          name: slack_failure
+          displayName: Send Slack Notification (Failure)
+          condition: failed()
+          inputs:
+            scriptSource: 'filePath'
+            scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
+            arguments: >
+              --webhook "${{ parameters.slackWebHook }}"
+              --message "$(slackFailureMessage)"
