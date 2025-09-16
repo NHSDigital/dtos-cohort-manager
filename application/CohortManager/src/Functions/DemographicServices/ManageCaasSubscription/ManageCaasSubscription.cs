@@ -118,8 +118,9 @@ public class ManageCaasSubscription
             _logger.LogError(ex, "Error sending CAAS subscribe request");
             try
             {
-                // Do not log NHS numbers
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, string.Empty, nameof(ManageCaasSubscription), "", string.Empty);
+                string? rawNhs = req.Query["nhsNumber"];
+                var nhsForLog = ValidationHelper.ValidateNHSNumber(rawNhs!) ? rawNhs! : string.Empty;
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsForLog, nameof(ManageCaasSubscription), "", string.Empty);
             }
             catch
             {
@@ -182,8 +183,9 @@ public class ManageCaasSubscription
             _logger.LogError(ex, "Error checking subscription status");
             try
             {
-                // Do not log NHS numbers
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, string.Empty, nameof(ManageCaasSubscription), "", string.Empty);
+                string? rawNhs = req.Query["nhsNumber"];
+                var nhsForLog = ValidationHelper.ValidateNHSNumber(rawNhs!) ? rawNhs! : string.Empty;
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsForLog, nameof(ManageCaasSubscription), "", string.Empty);
             }
             catch
             {
