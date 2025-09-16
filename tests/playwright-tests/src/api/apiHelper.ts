@@ -9,11 +9,13 @@ const endpointParticipantManagementDataService = config.endpointParticipantManag
 const endpointExceptionManagementDataService = config.endpointExceptionManagementDataService;
 const endpointNemsSubscriptionDataDataService = config.endpointNemsSubscriptionDataDataService;
 const endpointParticipantDemographicDataService = config.endpointParticipantDemographicDataService;
+const endpointServicenowCasesDataService = config.endpointServiceNowCasesDataService;
 
 const COHORT_DISTRIBUTION_SERVICE = config.cohortDistributionService;
 const PARTICIPANT_MANAGEMENT_SERVICE = config.participantManagementService;
 const EXCEPTION_MANAGEMENT_SERVICE = config.exceptionManagementService;
 const PARTICIPANT_DEMOGRAPHIC_SERVICE = config.participantDemographicDataService;
+const SERVICENOW_CASES_SERVICE = config.serviceNowCasesDataService;
 const NHS_NUMBER_KEY = config.nhsNumberKey;
 const NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC = config.nhsNumberKeyExceptionDemographic;
 const IGNORE_VALIDATION_KEY = config.ignoreValidationKey;
@@ -95,6 +97,8 @@ export async function fetchApiResponse(endpoint: string, request: any): Promise<
     return await request.get(`${endpointParticipantDemographicDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes("NemsSubscriptionDataService")) {
     return await request.get(`${endpointNemsSubscriptionDataDataService}${endpoint.toLowerCase()}`);
+  } else if (endpoint.includes(SERVICENOW_CASES_SERVICE)) {
+    return await request.get(`${endpointServicenowCasesDataService}${endpoint.toLowerCase()}`);
   }
   throw new Error(`Unknown endpoint: ${endpoint}`);
 }

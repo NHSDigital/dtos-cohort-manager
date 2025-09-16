@@ -8,18 +8,21 @@ const endpointParticipantManagementDataService = config.endpointParticipantManag
 const endpointExceptionManagementDataService = config.endpointExceptionManagementDataService;
 const endpointParticipantDemographicDataService = config.endpointParticipantDemographicDataService;
 const endpointNemsSubscriptionDataDataService = config.endpointNemsSubscriptionDataDataService;
+const endpointServiceNowCasesDataService = config.endpointServiceNowCasesDataService;
 
 
 const COHORT_DISTRIBUTION_SERVICE = config.cohortDistributionService;
 const PARTICIPANT_MANAGEMENT_SERVICE = config.participantManagementService;
 const PARTICIPANT_DEMOGRAPHIC_SERVICE = config.participantDemographicDataService;
 const EXCEPTION_MANAGEMENT_SERVICE = config.exceptionManagementService;
+const SERVICENOW_CASES_SERVICE = config.serviceNowCasesDataService;
 const NHS_NUMBER_KEY = config.nhsNumberKey;
 const NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC = config.nhsNumberKeyExceptionDemographic;
 const UNIQUE_KEY_COHORT_DISTRIBUTION = config.uniqueKeyCohortDistribution;
 const UNIQUE_KEY_PARTICIPANT_MANAGEMENT = config.uniqueKeyParticipantManagement;
 const UNIQUE_KEY_EXCEPTION_MANAGEMENT = config.uniqueKeyExceptionManagement;
 const UNIQUE_KEY_PARTICIPANT_DEMOGRAPHIC = config.uniqueKeyParticipantDemographic;
+const UNIQUE_KEY_SERVICENOW_CASES = config.uniqueKeyServiceNowCases;
 
 
 interface ServiceConfig {
@@ -97,6 +100,11 @@ const serviceConfigs = {
     serviceName: 'NemsSubscriptionDataService',
     idField: 'SubscriptionId',
     endpoint: endpointNemsSubscriptionDataDataService
+  },
+  serviceNowCases: {
+    serviceName: SERVICENOW_CASES_SERVICE,
+    idField: UNIQUE_KEY_SERVICENOW_CASES,
+    endpoint: endpointServiceNowCasesDataService
   }
   // Add more services as needed
 };

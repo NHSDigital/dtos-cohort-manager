@@ -1,81 +1,7 @@
 [
   {
-    "WorkflowName": "Routine",
+    "WorkflowName": "Common",
     "Rules": [
-      {
-        "RuleName": "8.Transform.UpdatedRecordExcludedAndDMS",
-        "LocalParams": [
-          {
-            "Name": "DMSInSMU",
-            "Expression": "participant.CurrentPosting == \"DMS\" && excludedSMUList.Contains(participant.PrimaryCareProvider)"
-          },
-          {
-            "Name": "WelshCurrentPosting",
-            "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\""
-          },
-          {
-            "Name": "NoTransformationRequired",
-            "Expression": "existingParticipant.PrimaryCareProvider == null && existingParticipant.ReasonForRemoval == \"ORR\""
-          }
-        ],
-        "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting) && !NoTransformationRequired",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "TransformAction",
-            "Context": {
-              "transformFields": [
-                {
-                  "isExpression": false,
-                  "field": "PrimaryCareProvider",
-                  "value": null
-                },
-                {
-                  "field": "ReasonForRemoval",
-                  "value": "ORR",
-                  "isExpression": false
-                },
-                {
-                  "field": "ReasonForRemovalEffectiveFromDate",
-                  "value": "DateTime.Today.ToString(\"yyyyMMdd\")",
-                  "isExpression": true
-                }
-              ]
-            }
-          }
-        }
-      },
-      {
-        "RuleName": "8a.Transform.NoTransformButError",
-        "LocalParams": [
-          {
-            "Name": "DMSInSMU",
-            "Expression": "participant.CurrentPosting == \"DMS\" && excludedSMUList.Contains(participant.PrimaryCareProvider)"
-          },
-          {
-            "Name": "WelshCurrentPosting",
-            "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\""
-          },
-          {
-            "Name": "NoTransformationRequired",
-            "Expression": "existingParticipant.PrimaryCareProvider == null && existingParticipant.ReasonForRemoval == \"ORR\""
-          }
-        ],
-        "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting) && NoTransformationRequired",
-        "Actions": {
-          "OnSuccess": {
-            "Name": "TransformAction",
-            "Context": {
-              "transformFields": [
-                {
-                  "isExpression": false,
-                  "field": "PrimaryCareProvider",
-                  "value": null
-                }
-              ]
-            }
-          }
-        }
-      },
       {
         "RuleName": "60.Other.SupersededNhsNumber",
         "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.SupersededByNhsNumber)",
@@ -103,12 +29,7 @@
             }
           }
         }
-      }
-    ]
-  },
-  {
-    "WorkflowName": "Common",
-    "Rules": [
+      },
       {
         "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider",
         "Expression": "(!string.IsNullOrEmpty(participant.PrimaryCareProvider) && participant.InvalidFlag  == \"1\") OR participant.RecordType == Actions.Removed",
@@ -121,6 +42,44 @@
                   "field": "PrimaryCareProvider",
                   "value": "",
                   "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemoval",
+                  "value": "ORR",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": "DateTime.UtcNow.Date.ToString(\"yyyyMMdd\")",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "8.Transform.UpdatedRecordExcludedAndDMS",
+        "LocalParams": [
+          {
+            "Name": "DMSInSMU",
+            "Expression": "participant.CurrentPosting == \"DMS\" && excludedSMUList.Contains(participant.PrimaryCareProvider)"
+          },
+          {
+            "Name": "WelshCurrentPosting",
+            "Expression": "dbLookup.RetrievePostingCategory(participant.CurrentPosting) == \"WALES\""
+          }
+        ],
+        "Expression": "participant.RecordType == Actions.Amended && (DMSInSMU || WelshCurrentPosting)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "PrimaryCareProvider",
+                  "value": null
                 },
                 {
                   "field": "ReasonForRemoval",

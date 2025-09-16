@@ -4,7 +4,6 @@
       "validations": {
         "apiEndpoint": "api/CohortDistributionDataService",
         "NHSNumber": 9996534472,
-        "PrimaryCareProvider": "B86019",
         "TelephoneNumberHome": "01632960999"
       },
       "meta": {

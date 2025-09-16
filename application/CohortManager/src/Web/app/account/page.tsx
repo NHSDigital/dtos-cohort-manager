@@ -31,12 +31,6 @@ export default async function Page() {
                 </dd>
               </div>
               <div className="nhsuk-summary-list__row">
-                <dt className="nhsuk-summary-list__key">Organisation</dt>
-                <dd className="nhsuk-summary-list__value">
-                  {session?.user?.orgName} ({session?.user?.odsCode})
-                </dd>
-              </div>
-              <div className="nhsuk-summary-list__row">
                 <dt className="nhsuk-summary-list__key">Workgroups</dt>
                 <dd className="nhsuk-summary-list__value">
                   <ul>

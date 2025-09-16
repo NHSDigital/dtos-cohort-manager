@@ -20,7 +20,7 @@ public class DataServicesContext : DbContext
     DbSet<BsoOrganisation> bsoOrganisations { get; set; }
     DbSet<GenderMaster> genderMasters { get; set; }
     DbSet<NemsSubscription> nemsSubscriptions { get; set; }
-    DbSet<ServicenowCases> servicenowCases { get; set; }
+    DbSet<ServicenowCase> servicenowCases { get; set; }
 
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
@@ -83,7 +83,7 @@ public class DataServicesContext : DbContext
         modelBuilder.Entity<NemsSubscription>()
             .ToTable("NEMS_SUBSCRIPTION", "dbo");
 
-        modelBuilder.Entity<ServicenowCases>()
+        modelBuilder.Entity<ServicenowCase>()
             .ToTable("SERVICENOW_CASES", "dbo");
     }
 }

@@ -7,7 +7,7 @@ using Model.Enums;
 public interface IValidationExceptionData
 {
     Task<bool> Create(ValidationException exception);
-    Task<List<ValidationException>?> GetAllFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory);
+    Task<List<ValidationException>?> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory);
     Task<ValidationException?> GetExceptionById(int exceptionId);
     Task<bool> RemoveOldException(string nhsNumber, string screeningName);
     Task<ServiceResponseModel> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId);

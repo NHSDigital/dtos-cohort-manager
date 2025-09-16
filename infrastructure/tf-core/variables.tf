@@ -200,13 +200,14 @@ variable "container_app_jobs" {
   type = object({
     apps = optional(map(object({
       name_suffix                   = optional(string)
+      add_user_assigned_identity    = optional(bool, false)
       container_app_environment_key = optional(string)
-      docker_env_tag                = optional(string, "")
-      docker_image                  = optional(string)
       container_registry_use_mi     = optional(bool, false)
       db_connection_string_name     = optional(string, "")
+      docker_env_tag                = optional(string, "")
+      docker_image                  = optional(string)
       env_vars_static               = optional(map(string), {})
-      add_user_assigned_identity    = optional(bool, false)
+      memory_in_gb                  = optional(number, 0.5)
       replica_retry_limit           = optional(number, 3)
       replica_timeout_in_seconds    = optional(number, 300)
     })), {})

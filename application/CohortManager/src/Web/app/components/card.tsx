@@ -14,7 +14,10 @@ export default function Card({
   url,
 }: Readonly<CardProps>) {
   return (
-    <div className="nhsuk-card nhsuk-card--clickable" data-testid="card">
+    <div
+      className={`nhsuk-card${value > 0 ? " nhsuk-card--clickable" : ""}`}
+      data-testid="card"
+    >
       <div className="nhsuk-card__content">
         <p
           className="nhsuk-heading-xl nhsuk-u-font-size-64 nhsuk-u-margin-bottom-1"

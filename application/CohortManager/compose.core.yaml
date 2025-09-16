@@ -58,9 +58,8 @@ services:
       - NemsPoisonContainer=nems-poison
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
-      - UnsubscribeNemsSubscriptionUrl=http://manage-nems-subscription:9081/api/Unsubscribe
-      # CAAS manage subscription stub available at manage-caas-subscription when needed
-      # - UnsubscribeCaasSubscriptionUrl=http://manage-caas-subscription:9084/api/Unsubscribe
+      - ManageNemsSubscriptionUnsubscribeURL=http://manage-nems-subscription:9081/api/Unsubscribe
+      - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - ParticipantManagementTopic=participant-management-topic
@@ -350,6 +349,7 @@ services:
     profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:9092
+      - ServiceNowCasesDataServiceURL=http://servicenow-cases-data-service:9996/api/ServiceNowCasesDataService
       - ServiceNowRefreshAccessTokenUrl=http://wiremock:8080/oauth_token.do
       - ServiceNowUpdateUrl=http://wiremock:8080/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate
       - ServiceNowResolutionUrl=http://wiremock:8080/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution

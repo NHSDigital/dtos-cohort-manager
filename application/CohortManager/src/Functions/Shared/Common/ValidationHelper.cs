@@ -107,8 +107,9 @@ public static class ValidationHelper
     /// </summary>
     /// <param name="postcode">a non-null string representing the postcode</param>
     /// <remarks>
-    /// Works for valid UK postcodes and dummy postcodes.
-    /// Works with or without a space separator between outcode and incode.
+    /// Works for valid UK postcodes and dummy postcodes with
+    /// or without a space separator between outcode and incode.
+    /// Returns the outcode in upper case.
     /// </remarks>
     public static string? ParseOutcode(string postcode)
     {
@@ -122,7 +123,7 @@ public static class ValidationHelper
         }
 
         string outcode = match.Groups[1].Value;
-        return outcode;
+        return outcode.ToUpper();
     }
 
     private static bool ParseInt32(char value, out int integerValue)

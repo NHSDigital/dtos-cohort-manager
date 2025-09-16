@@ -620,6 +620,8 @@ public class StaticValidationTests
         // Arrange
         _participantCsvRecord.Participant.CurrentPosting = currentPosting;
         _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
+        _participantCsvRecord.Participant.RecordType = Actions.Amended;
+
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
 
@@ -628,7 +630,7 @@ public class StaticValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        StringAssert.Contains(body, "53.CurrentPostingAndPrimaryCareProvider.NBO.NonFatal");
+        StringAssert.Contains(body, "53.CurrentPostingAndPrimaryCareProvider.Non.NonFatal");
     }
 
     [TestMethod]

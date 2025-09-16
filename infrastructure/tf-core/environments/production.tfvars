@@ -256,8 +256,9 @@ container_app_jobs = {
       docker_env_tag                = "latest"
       container_registry_use_mi     = true
       add_user_assigned_identity    = true
+      memory_in_gb                  = 2
       replica_retry_limit           = 1
-      replica_timeout_in_seconds    = 1800
+      replica_timeout_in_seconds    = 3600
       env_vars_static = {
         SQL_SERVER_NAME        = "sqlsvr-cohman-prod-uks"
         SQL_DATABASE_NAME      = "DToSDB"
@@ -271,11 +272,14 @@ container_app_jobs = {
       docker_env_tag                = "latest"
       container_registry_use_mi     = true
       add_user_assigned_identity    = true
+      memory_in_gb                  = 2
       replica_retry_limit           = 1
-      replica_timeout_in_seconds    = 1800
+      replica_timeout_in_seconds    = 3600
       env_vars_static = {
         SQL_SERVER_NAME        = "sqlsvr-cohman-prod-uks"
         SQL_DATABASE_NAME      = "DToSDB_RESTORE"
+        SQL_MAX_SIZE_GB        = "100"
+        SQL_SERVICE_OBJECTIVE  = "S9"
         STORAGE_ACCOUNT_NAME   = "stcohmanprodukssqlbackup"
         STORAGE_CONTAINER_NAME = "sql-backups-immutable"
         BACKUP_FILE_NAME       = "filename.bacpac"
@@ -406,9 +410,15 @@ function_apps = {
           env_var_name     = "RetrievePdsDemographicURL"
           function_app_key = "RetrievePDSDemographic"
         },
-        {
-          env_var_name     = "UnsubscribeNemsSubscriptionUrl"
+                {
+          env_var_name     = "ManageNemsSubscriptionUnsubscribeURL"
           function_app_key = "ManageNemsSubscription"
+          endpoint_name    = "Unsubscribe"
+        },
+        {
+          env_var_name     = "ManageNemsSubscriptionSubscribeURL"
+          function_app_key = "ManageNemsSubscription"
+          endpoint_name    = "Subscribe"
         },
         {
           env_var_name     = "DemographicDataServiceURL"
@@ -958,6 +968,12 @@ function_apps = {
       app_service_plan_key    = "NonScaling"
       key_vault_url           = "KeyVaultConnectionString"
       service_bus_connections = ["internal"]
+      app_urls = [
+        {
+          env_var_name     = "ServiceNowCasesDataServiceURL"
+          function_app_key = "ServiceNowCasesDataService"
+        }
+      ]
       env_vars_static = {
         ServiceNowRefreshAccessTokenUrl      = ""                                  # TODO: Get value
         ServiceNowUpdateUrl                  = ""                                  # TODO: Get value
@@ -1026,11 +1042,11 @@ function_apps = {
         },
         {
           env_var_name     = "ServiceNowCasesDataServiceURL"
-          function_app_key = "CohortDistributionDataService"
+          function_app_key = "ServiceNowCasesDataService"
         },
         {
           env_var_name     = "CohortDistributionDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
+          function_app_key = "CohortDistributionDataService"
         }
       ]
     }
