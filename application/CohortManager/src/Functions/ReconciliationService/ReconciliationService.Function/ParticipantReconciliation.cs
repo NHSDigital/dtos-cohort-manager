@@ -57,7 +57,7 @@ public class ParticipantReconciliation : IReconciliationProcessor
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "an exception occurred while reconciling participants");
+            _logger.LogError(ex, "an exception occurred while reconciling participants from date: {FromDate}",fromDate);
             return false;
         }
 
