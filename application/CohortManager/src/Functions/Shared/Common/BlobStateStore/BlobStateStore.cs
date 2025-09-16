@@ -70,11 +70,3 @@ public class BlobStateStore : IStateStore
     }
 
 }
-
-public class BlobStateStoreConfig
-{
-    [Required]
-    public required string AzureWebJobsStorage { get; set; }
-    [Required]
-    public required string StateBlobContainerName { get; set; }
-}
