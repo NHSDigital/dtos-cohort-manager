@@ -56,13 +56,6 @@ regions = {
         service_delegation_name    = "Microsoft.App/environments"
         service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
       }
-      container-app-default = {
-        cidr_newbits               = 7
-        cidr_offset                = 7
-        delegation_name            = "Microsoft.App/environments"
-        service_delegation_name    = "Microsoft.App/environments"
-        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
-      }
     }
   }
 }
@@ -244,9 +237,6 @@ container_app_environments = {
     db-management = {
       zone_redundancy_enabled = false
     }
-    default = {
-      zone_redundancy_enabled = false
-    }
   }
 }
 
@@ -266,7 +256,7 @@ container_app_jobs = {
 container_apps = {
   apps = {
     wiremock = {
-      container_app_environment_key = "default"
+      container_app_environment_key = "db-management"
       docker_image                  = "cohort-manager-wiremock"
       container_registry_use_mi     = true
       add_user_assigned_identity    = false
