@@ -4,13 +4,15 @@ import mockDataStore from "@/app/data/mockDataStore";
 function sortExceptions<
   T extends { DateCreated: string; ServiceNowCreatedDate?: string }
 >(items: T[], sortBy: string | null, dateField: keyof T = "DateCreated"): T[] {
-  if (sortBy === "1") {
+  if (sortBy === "0") {
+    // Ascending: oldest first
     return items.sort(
       (a, b) =>
         new Date(a[dateField] as string).getTime() -
         new Date(b[dateField] as string).getTime()
     );
-  } else if (sortBy === "0") {
+  } else if (sortBy === "1") {
+    // Descending: newest first
     return items.sort(
       (a, b) =>
         new Date(b[dateField] as string).getTime() -
