@@ -26,7 +26,11 @@ public class ParticipantReconciliation : IReconciliationProcessor
         _exceptionManagementDataService = exceptionManagementDataService;
 
     }
-
+    /// <summary>
+    /// Runs a reconciliation where it will validate that all of the records received are processed successfully or logged to the exception table from the from date provided
+    /// </summary>
+    /// <param name="fromDate"></param>
+    /// <returns>returns boolean if the reconciliation ran successfully (no error not a mis-match)</returns>
     public async Task<bool> RunReconciliation(DateTime fromDate)
     {
         try
