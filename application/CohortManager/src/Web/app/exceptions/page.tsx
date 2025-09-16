@@ -49,7 +49,7 @@ export default async function Page({
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const sortBy = resolvedSearchParams.sortBy === "1" ? 1 : 0;
+  const sortBy = resolvedSearchParams.sortBy === "0" ? 0 : 1;
   const currentPage = Math.max(
     1,
     parseInt(resolvedSearchParams.page || "1", 10)
@@ -57,11 +57,11 @@ export default async function Page({
 
   const sortOptions = [
     {
-      value: "0",
+      value: "1",
       label: "Date exception created (newest first)",
     },
     {
-      value: "1",
+      value: "0",
       label: "Date exception created (oldest first)",
     },
   ];

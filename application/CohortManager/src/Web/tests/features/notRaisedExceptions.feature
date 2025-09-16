@@ -11,7 +11,7 @@ Feature: Not raised exceptions page
   Scenario: Table shows 10 "Not raised" exceptions with expected columns
     Then the table "exceptions-table" has 10 rows
     And every row in the table "exceptions-table" has status "Not raised"
-    And the first row in the table "exceptions-table" has exception ID "2073"
+    And the first row in the table "exceptions-table" has exception ID "2028"
 
     Scenario: Sort the not raised exceptions table by "Date exception created (oldest first)"
       Given I should see the heading "Not raised breast screening exceptions"
@@ -23,7 +23,7 @@ Feature: Not raised exceptions page
       Given I should see the heading "Not raised breast screening exceptions"
       When I sort the table by "Date exception created (newest first)"
       Then the table "exceptions-table" has 10 rows
-      And the first row in the table "exceptions-table" has exception ID "2073"
+      And the first row in the table "exceptions-table" has exception ID "2028"
 
   Scenario: Breadcrumb back to homepage
     Then I see the link "Home"
