@@ -40,7 +40,7 @@ public class ParticipantReconciliation : IReconciliationProcessor
 
 
             var metrics = await _inboundMetricDataServiceAccessor.GetRange(x => x.ReceivedDateTime > fromDate && x.ProcessName == "AuditProcess");
-            var exceptionCount = exceptionRecords.Where(x => string.IsNullOrWhiteSpace(x.NhsNumber)).DistinctBy(x => x.NhsNumber).Count();
+            var exceptionCount = exceptionRecords.Where(x => !string.IsNullOrWhiteSpace(x.NhsNumber)).DistinctBy(x => x.NhsNumber).Count();
             var recordsProcessed = exceptionCount + cohortDistributionRecords.Count();
             var recordsExpected = metrics.Sum(x => x.RecordCount);
 
