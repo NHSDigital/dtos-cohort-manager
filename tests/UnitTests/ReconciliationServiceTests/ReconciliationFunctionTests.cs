@@ -74,12 +74,8 @@ public sealed class ReconciliationFunctionTests
 
         _mockInboundMetricAccessor.Setup(x => x.InsertSingle(It.IsAny<InboundMetric>())).ReturnsAsync(false);
 
-        //act
-        await _reconciliationService.RunInboundMetric(message, _mockMessageActions.Object);
-
-        //assert
-        _mockMessageActions.Verify(x => x.DeferMessageAsync(It.IsAny<ServiceBusReceivedMessage>(), null, It.IsAny<CancellationToken>()), Times.Once);
-        _mockMessageActions.VerifyNoOtherCalls();
+        //act & assert
+        await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () => await _reconciliationService.RunInboundMetric(message, _mockMessageActions.Object));
     }
     [TestMethod]
     public async Task LogInboundMetric_NullMessage_MessageDeadLettered()
