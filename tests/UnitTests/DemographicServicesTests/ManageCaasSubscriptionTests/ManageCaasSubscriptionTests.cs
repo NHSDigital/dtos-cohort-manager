@@ -377,5 +377,23 @@ public class ManageCaasSubscriptionTests
         _meshPoller.Verify(p => p.ExecuteHandshake("TEST_FROM"), Times.Once);
     }
 
+    [TestMethod]
+    public async Task Subscribe_ExistingSubscription_ReturnsExisting_DoesNotCallMeshOrInsert()
+    {
+        // Arrange: Ensure an existing subscription is returned for the NHS number
+        _nemsAccessor
+            .Setup(a => a.GetSingle(It.IsAny<System.Linq.Expressions.Expression<Func<NemsSubscription, bool>>>() ))
+            .ReturnsAsync(new NemsSubscription { NhsNumber = 9000000009, SubscriptionId = "SUB_EXISTING" });
+
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+
+        // Act
+        var res = await _sut.Subscribe(req.Object);
+
+        // Assert: OK with early return, no mesh call, no DB insert
+        Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
+        _mesh.Verify(m => m.SendSubscriptionRequest(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _nemsAccessor.Verify(a => a.InsertSingle(It.IsAny<NemsSubscription>()), Times.Never);
+    }
     
 }
