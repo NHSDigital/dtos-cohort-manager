@@ -7,6 +7,7 @@ const endpointCohortDistributionDataService = config.endpointCohortDistributionD
 const endpointParticipantManagementDataService = config.endpointParticipantManagementDataService;
 const endpointExceptionManagementDataService = config.endpointExceptionManagementDataService;
 const endpointParticipantDemographicDataService = config.endpointParticipantDemographicDataService;
+const endpointNemsSubscriptionDataDataService = config.endpointNemsSubscriptionDataDataService;
 
 
 const COHORT_DISTRIBUTION_SERVICE = config.cohortDistributionService;
@@ -91,6 +92,11 @@ const serviceConfigs = {
     serviceName: PARTICIPANT_DEMOGRAPHIC_SERVICE,
     idField: UNIQUE_KEY_PARTICIPANT_DEMOGRAPHIC,
     endpoint: endpointParticipantDemographicDataService
+  },
+  nemsSubscription: {
+    serviceName: 'NemsSubscriptionDataService',
+    idField: 'SubscriptionId',
+    endpoint: endpointNemsSubscriptionDataDataService
   }
   // Add more services as needed
 };

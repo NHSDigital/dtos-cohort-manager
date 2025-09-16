@@ -7,6 +7,7 @@ const initialWaitTime = Number(config.apiWaitTime) || 2000;
 const endpointCohortDistributionDataService = config.endpointCohortDistributionDataService;
 const endpointParticipantManagementDataService = config.endpointParticipantManagementDataService;
 const endpointExceptionManagementDataService = config.endpointExceptionManagementDataService;
+const endpointNemsSubscriptionDataDataService = config.endpointNemsSubscriptionDataDataService;
 const endpointParticipantDemographicDataService = config.endpointParticipantDemographicDataService;
 
 const COHORT_DISTRIBUTION_SERVICE = config.cohortDistributionService;
@@ -92,6 +93,8 @@ export async function fetchApiResponse(endpoint: string, request: any): Promise<
     return await request.get(`${endpointExceptionManagementDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
     return await request.get(`${endpointParticipantDemographicDataService}${endpoint.toLowerCase()}`);
+  } else if (endpoint.includes("NemsSubscriptionDataService")) {
+    return await request.get(`${endpointNemsSubscriptionDataDataService}${endpoint.toLowerCase()}`);
   }
   throw new Error(`Unknown endpoint: ${endpoint}`);
 }
