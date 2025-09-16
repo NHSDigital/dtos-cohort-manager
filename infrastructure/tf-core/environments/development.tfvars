@@ -56,6 +56,13 @@ regions = {
         service_delegation_name    = "Microsoft.App/environments"
         service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
       }
+      container-app-default = {
+        cidr_newbits               = 7
+        cidr_offset                = 7
+        delegation_name            = "Microsoft.App/environments"
+        service_delegation_name    = "Microsoft.App/environments"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
+      }
     }
   }
 }
@@ -237,6 +244,9 @@ container_app_environments = {
     db-management = {
       zone_redundancy_enabled = false
     }
+    default = {
+      zone_redundancy_enabled = false
+    }
   }
 }
 
@@ -249,6 +259,22 @@ container_app_jobs = {
       db_connection_string_name     = "DtOsDatabaseConnectionString"
       add_user_assigned_identity    = true
       replica_retry_limit           = 1
+    }
+  }
+}
+
+container_apps = {
+  apps = {
+    wiremock = {
+      container_app_environment_key = "default"
+      docker_image                  = "cohort-manager-wiremock"
+      container_registry_use_mi     = true
+      add_user_assigned_identity    = false
+      is_tcp_app                    = false
+      is_web_app                    = true
+      port                          = 8080
+      infra_key_vault_rg            = null
+      infra_key_vault_name          = null
     }
   }
 }
