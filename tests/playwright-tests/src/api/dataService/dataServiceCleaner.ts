@@ -47,7 +47,28 @@ async function cleanDataService(
       return;
     }
 
-    const responseBody = await response.json();
+    // Be tolerant of services returning empty bodies or text/plain
+    const raw = (await response.text()) ?? '';
+    const trimmed = raw.trim();
+    if (!trimmed) {
+      console.info(`No data in the table for ${serviceName}`);
+      return;
+    }
+
+    let responseBody: any;
+    try {
+      responseBody = JSON.parse(trimmed);
+    } catch (e) {
+      const contentType = response.headers()['content-type'];
+      const status = response.status();
+      const preview = trimmed.length > 1000 ? `${trimmed.slice(0, 1000)}... [truncated ${trimmed.length - 1000} chars]` : trimmed;
+      console.warn(
+        `Non-JSON response from ${serviceName}; treating as no data. ` +
+        `Status=${status}, Content-Type=${contentType}, BodyPreview=${JSON.stringify(preview)}`
+      );
+      return;
+    }
+
     expect(Array.isArray(responseBody)).toBeTruthy();
 
     // Extract ALL IDs from the response without filtering
