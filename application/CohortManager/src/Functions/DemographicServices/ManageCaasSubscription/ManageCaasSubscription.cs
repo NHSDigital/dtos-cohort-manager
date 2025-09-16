@@ -13,7 +13,6 @@ using DataServices.Core;
 using Model;
 using NHS.CohortManager.DemographicServices;
 using Common.Interfaces;
-using System.Linq;
 
 /// <summary>
 /// Azure Functions endpoints for managing CaaS subscriptions via MESH and data services.
@@ -49,18 +48,6 @@ public class ManageCaasSubscription
         _exceptionHandler = exceptionHandler;
     }
 
-    private async Task<NemsSubscription?> GetLatestSubscriptionAsync(long nhsNumber)
-    {
-        var records = await _nemsSubscriptionAccessor.GetRange(i => i.NhsNumber == nhsNumber);
-        if (records == null || records.Count == 0)
-        {
-            return null;
-        }
-        return records
-            .OrderByDescending(r => r.RecordInsertDateTime ?? DateTime.MinValue)
-            .FirstOrDefault();
-    }
-
 
     /// <summary>
     /// Creates a new CaaS subscription for the given NHS number and persists a record.
@@ -80,7 +67,7 @@ public class ManageCaasSubscription
 
             var nhsNo = long.Parse(nhsNumber!);
 
-            var existing = await GetLatestSubscriptionAsync(nhsNo);
+            var existing = await _nemsSubscriptionAccessor.GetSingle(i => i.NhsNumber == nhsNo);
             if (existing != null && !string.IsNullOrWhiteSpace(existing.SubscriptionId))
             {
                 _logger.LogInformation("CAAS Subscribe called for NHS {Nhs} but existing subscription found {SubId}; returning existing.", nhsNo, existing.SubscriptionId);
@@ -181,8 +168,7 @@ public class ManageCaasSubscription
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
             }
 
-            var nhs = long.Parse(nhsNumber!);
-            var record = await GetLatestSubscriptionAsync(nhs);
+            var record = await _nemsSubscriptionAccessor.GetSingle(i => i.NhsNumber == long.Parse(nhsNumber!));
             string? subscriptionId = record?.SubscriptionId;
 
             if (string.IsNullOrEmpty(subscriptionId))
