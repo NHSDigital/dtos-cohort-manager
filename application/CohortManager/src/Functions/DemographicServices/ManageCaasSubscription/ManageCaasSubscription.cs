@@ -70,7 +70,7 @@ public class ManageCaasSubscription
             var existing = await _nemsSubscriptionAccessor.GetSingle(i => i.NhsNumber == nhsNo);
             if (existing != null && !string.IsNullOrWhiteSpace(existing.SubscriptionId))
             {
-                _logger.LogInformation("CAAS Subscribe called for NHS {Nhs} but existing subscription found {SubId}; returning existing.", nhsNo, existing.SubscriptionId);
+                _logger.LogInformation("CAAS Subscribe called but existing subscription found {SubId}; returning existing.", existing.SubscriptionId);
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Already subscribed. Subscription ID: {existing.SubscriptionId}");
             }
 
@@ -118,9 +118,8 @@ public class ManageCaasSubscription
             _logger.LogError(ex, "Error sending CAAS subscribe request");
             try
             {
-                string? rawNhs = req.Query["nhsNumber"];
-                var nhsForLog = ValidationHelper.ValidateNHSNumber(rawNhs!) ? rawNhs! : string.Empty;
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsForLog, nameof(ManageCaasSubscription), "", string.Empty);
+                // Do not log NHS numbers
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, string.Empty, nameof(ManageCaasSubscription), "", string.Empty);
             }
             catch
             {
@@ -183,9 +182,8 @@ public class ManageCaasSubscription
             _logger.LogError(ex, "Error checking subscription status");
             try
             {
-                string? rawNhs = req.Query["nhsNumber"];
-                var nhsForLog = ValidationHelper.ValidateNHSNumber(rawNhs!) ? rawNhs! : string.Empty;
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsForLog, nameof(ManageCaasSubscription), "", string.Empty);
+                // Do not log NHS numbers
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, string.Empty, nameof(ManageCaasSubscription), "", string.Empty);
             }
             catch
             {
