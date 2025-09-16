@@ -51,15 +51,38 @@ export const getRecordsFromNemsSubscription = (
 };
 
 export function extractSubscriptionID(response: ApiResponse): string | null {
-  const source =
-    (typeof response.text === 'string' && response.text.length > 0)
-      ? response.text
-      : JSON.stringify(response.data ?? '');
+  // Prefer textual body if provided; fall back to serialised data
+  const raw = typeof (response as any).text === 'string' && (response as any).text.length > 0
+    ? (response as any).text
+    : JSON.stringify((response as any).data ?? '');
 
-  const cleaned = source.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
-  const match = cleaned.match(/Subscription ID:\s*([a-f0-9]{32})/i);
+  const cleaned = raw.replace(/[\r\n\t]+/g, ' ').replace(/\s+/g, ' ').trim();
 
-  return match ? match[1] : null;
+  // 1) Try JSON shape: { subscriptionId: "..." } or similar
+  try {
+    const asJson = JSON.parse(cleaned);
+    const cand = (asJson?.subscriptionId || asJson?.SubscriptionId || asJson?.subscriptionID || asJson?.id || null);
+    if (typeof cand === 'string' && cand.length > 0) return cand;
+  } catch { /* not JSON */ }
+
+  // 2) Try explicit label formats e.g. "Subscription ID: <id>"
+  let m = cleaned.match(/Subscription\s*ID\s*:\s*([A-Za-z0-9_\-]{8,})/i);
+  if (m) return m[1];
+
+  // 2b) Fallback: split on label and take first token
+  if (/Subscription\s*ID\s*:/i.test(cleaned)) {
+    const after = cleaned.split(/Subscription\s*ID\s*:/i)[1] ?? '';
+    const token = after.trim().split(/\s+/)[0];
+    if (/^(STUB_[a-f0-9]{32}|[a-f0-9]{32})$/i.test(token)) return token;
+  }
+
+  // 3) Accept plain IDs: STUB_<32-hex> or bare 32-hex anywhere in the body
+  m = cleaned.match(/STUB_[a-f0-9]{32}/i);
+  if (m) return m[0];
+  m = cleaned.match(/\b[a-f0-9]{32}\b/i);
+  if (m) return m[0];
+
+  return null;
 }
 
 export const deleteParticipant = (
