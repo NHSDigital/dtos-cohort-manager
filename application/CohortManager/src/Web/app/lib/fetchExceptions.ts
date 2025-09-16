@@ -20,7 +20,8 @@ export async function fetchExceptions(params: FetchExceptionsParams = {}) {
   if (params.lastId) query.append("lastId", params.lastId.toString());
   if (params.exceptionStatus !== undefined)
     query.append("exceptionStatus", params.exceptionStatus.toString());
-  if (params.sortOrder) query.append("sortOrder", params.sortOrder.toString());
+  if (params.sortOrder !== undefined)
+    query.append("sortOrder", params.sortOrder.toString());
   if (params.exceptionCategory)
     query.append("exceptionCategory", params.exceptionCategory);
   if (params.reportDate) query.append("reportDate", params.reportDate);

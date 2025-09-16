@@ -11,10 +11,10 @@ using Model;
 public class ServiceNowCasesDataService
 {
     private readonly ILogger<ServiceNowCasesDataService> _logger;
-    private readonly IRequestHandler<ServicenowCases> _requestHandler;
+    private readonly IRequestHandler<ServicenowCase> _requestHandler;
     private readonly ICreateResponse _createResponse;
 
-    public ServiceNowCasesDataService(ILogger<ServiceNowCasesDataService> logger, IRequestHandler<ServicenowCases> requestHandler, ICreateResponse createResponse)
+    public ServiceNowCasesDataService(ILogger<ServiceNowCasesDataService> logger, IRequestHandler<ServicenowCase> requestHandler, ICreateResponse createResponse)
     {
         _logger = logger;
         _requestHandler = requestHandler;

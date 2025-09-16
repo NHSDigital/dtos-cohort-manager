@@ -66,6 +66,18 @@ public class ManageCaasSubscription
             }
 
             var nhsNo = long.Parse(nhsNumber!);
+
+            var existing = await _nemsSubscriptionAccessor.GetSingle(i => i.NhsNumber == nhsNo);
+            if (existing != null && !string.IsNullOrWhiteSpace(existing.SubscriptionId))
+            {
+                var src = existing.SubscriptionSource?.ToString() ?? "";
+                _logger.LogInformation("CAAS Subscribe: existing subscription {SubId}, source {Source}; returning existing.", existing.SubscriptionId, string.IsNullOrWhiteSpace(src) ? "Unknown" : src);
+                var message = string.IsNullOrWhiteSpace(src)
+                    ? $"Already subscribed. Subscription ID: {existing.SubscriptionId}"
+                    : $"Already subscribed. Subscription ID: {existing.SubscriptionId}. Source: {src}";
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, message);
+            }
+
             var toMailbox = _config.CaasToMailbox!;
             var fromMailbox = _config.CaasFromMailbox!;
             var messageId = await _meshSendCaasSubscribe.SendSubscriptionRequest(nhsNo, toMailbox, fromMailbox);

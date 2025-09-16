@@ -1,0 +1,54 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "apiEndpoint": "api/ServiceNowCasesDataService",
+        "ServicenowId": "CS1095501",
+        "NhsNumber": 9993047856,
+        "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10955-01",
+        "requirementJiraId": "@DTOSS-10955-01",
+        "additionalTags": "@DTOSS-10955-01 @e2e @epic4c- Manual add request accepted, ServiceNow case saved to db (ServiceNow Cases table)"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ServiceNowCasesDataService",
+        "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10955-01",
+        "requirementJiraId": "@DTOSS-10955-01",
+        "additionalTags": "@DTOSS-10955-01 @e2e @epic4c- Manual add request not accepted (NHS Number missing), no additional ServiceNow case saved to db (ServiceNow Cases table)"
+      }
+    }
+  ],
+  "inputParticipantRecord": [
+    {
+      "number": "CS1095501",
+      "u_case_variable_data": {
+        "nhs_number": "9993047856",
+        "forename_": "Jan",
+        "surname_family_name": "Doe",
+        "date_of_birth": "2010-10-22",
+        "enter_dummy_gp_code": "ZZZDKL",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
+      }
+    },
+    {
+      "number": "CS1095502",
+      "u_case_variable_data": {
+        "forename_": "Jan",
+        "surname_family_name": "Doe",
+        "date_of_birth": "2010-10-22",
+        "enter_dummy_gp_code": "ZZZDKL",
+        "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+        "reason_for_adding": "requires_ceasing_following_surgery_bilateral_mastectomy"
+      }
+    }
+  ],
+  "nhsNumbers": []
+}

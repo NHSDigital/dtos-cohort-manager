@@ -76,9 +76,14 @@ $Arguments = @(
 
 # Execute SQLPackage
 try {
-    $sqlpackageOutput = & $SqlPackagePath $Arguments *>&1
-    # Uncomment for debugging
-    # Write-Output "sqlpackage output: $sqlpackageOutput"
+    Write-Output "Executing sqlpackage to export database $DatabaseName..."
+
+    & $SqlPackagePath $Arguments 2>&1
+
+    # Now, check for the exit code of the last command
+    if ($LASTEXITCODE -ne 0) {
+        throw "sqlpackage reported a non-zero exit code."
+    }
 
     # Check file was written by getting its size
     $fileInfo = Get-Item -Path "$localFilePath" -ErrorAction Stop
@@ -92,77 +97,41 @@ catch {
     exit 1
 }
 
-# Upload file to Blob storage
-Write-Output "Uploading $localFilePath to Blob Storage container '$ContainerName' in storage account '$StorageAccountName'."
 
 # Upload the blob:
 # Cannot use Set-AzStorageBlobContent with System Assigned Managed Identity as it is not possible to pass in the correct identity to use.
-# Therefore we need to obtain a token manually and then push the file using a web request..
+# Also earlier approach of using REST api failed as the upload file was larger than the max size for a single PUT operation (5GiB).
+# However, AzCopy appears to work fine with Managed Identity so we will use that.
+
+# Construct the AzCopy destination URI.
+$destinationUrl = "https://$StorageAccountName.blob.core.windows.net/$ContainerName/$BackupFileName"
+
+# Upload file to Blob storage
+Write-Output "Uploading backup file to Azure Blob Storage: $destinationUrl"
 
 try {
-    # Get the access token using the managed identity endpoint...
-    # The IDENTITY_ENDPOINT and IDENTITY_HEADER environment variables are injected by Azure.
-    $resource = "https://storage.azure.com/"
-    $headers = @{
-        "X-IDENTITY-HEADER" = $env:IDENTITY_HEADER
+    # Set up required environment variables for AzCopy
+    $env:AZCOPY_AUTO_LOGIN_TYPE = "MSI"
+    $env:AZCOPY_MSI_CLIENT_ID = $ManagedIdentityClientId
+    $env:AZCOPY_LOG_LOCATION = "/tmp"
+    $env:AZCOPY_JOB_PLAN_LOCATION = "/tmp"
+
+    # Use the `copy` command with the `--identity` and `--identity-client-id` flags.
+    azcopy copy $localFilePath $destinationUrl --log-level=INFO *>&1
+
+    # Check the exit code of the last command (AzCopy).
+    if ($LASTEXITCODE -ne 0) {
+        throw "AzCopy failed to upload the file. Exit code: $LASTEXITCODE."
     }
 
-    $apiVersion = "2019-08-01"
-    $IdentityEndpointUri = "$($env:IDENTITY_ENDPOINT)?resource=$resource&client_id=$ManagedIdentityClientId&api-version=$apiVersion"
-
-    # Use -SkipHttpErrorCheck to ensure the response object is not disposed, even on failure - we will check the status code ourselves.
-    $tokenResponse = Invoke-WebRequest -Method GET -Uri $IdentityEndpointUri -Headers $headers -SkipHttpErrorCheck
-    
-    if ($tokenResponse.StatusCode -ne 200) {
-        # An HTTP error occurred. Read the response content for details.
-        $responseBody = $tokenResponse.Content | ConvertFrom-Json
-        Write-Error "Failed to get access token from managed identity endpoint."
-        Write-Error "HTTP Status Code: $($tokenResponse.StatusCode)"
-        Write-Error "Response Body: $($responseBody | ConvertTo-Json -Compress)"
-        exit 1
-    }
-
-    # If the status code is 200, parse the content to get the token.
-    $responseContent = $tokenResponse.Content | ConvertFrom-Json
-    $accessToken = $responseContent.access_token
-    Write-Output "Successfully retrieved storage account access token."
-
-    # Prepare the blob upload
-    $blobUrl = "https://$StorageAccountName.blob.core.windows.net/$ContainerName/$BackupFileName"
-    Write-Output "Uploading to: $blobUrl"
-
-    # Define the headers for the PUT request to Azure Storage
-    $uploadHeaders = @{
-        "Authorization" = "Bearer $accessToken"
-        "x-ms-blob-type" = "BlockBlob"
-        "x-ms-version" = "2021-08-06"
-    }
-
-    try {
-        # Upload the blob via REST API
-        $uploadResult = Invoke-WebRequest -Method PUT -Uri $blobUrl -Headers $uploadHeaders -InFile $localFilePath -ContentType "application/octet-stream" -TimeoutSec 300 -SkipHttpErrorCheck
-    
-        if ($uploadResult.StatusCode -ne 201) {
-            throw "Failed to upload blob to Azure Storage. HTTP Status Code: $($uploadResult.StatusCode). Response Body: $($uploadResult.Content)"
-        }
-    }
-    catch {
-        throw "Failed to upload blob to Azure Storage. Error: $($_.Exception.Message)"
-    }
-
-    Write-Output "Upload complete: $blobUrl"
-} catch {
-    # This catch block will only be triggered for network-level errors such as DNS lookup failure or a connection timeout, not for HTTP status errors.
-    Write-Error "Error: An unexpected network or system error occurred: $($_.Exception.Message)"
+    Write-Output "AzCopy upload complete: $destinationUrl"
+}
+catch {
+    Write-Error "Error: Failed to upload file using AzCopy. Error: $($_.Exception.Message)"
     exit 1
 }
-
-# Clean up the local file after successful upload
-Remove-Item "$localFilePath" -Force
-Write-Output "Cleaned up local temporary file."
-
-# SQL permissions required:
-# CREATE USER [mi-prod-uks-cohman-db-backup] FROM EXTERNAL PROVIDER;
-# ALTER ROLE db_datareader ADD MEMBER [mi-prod-uks-cohman-db-backup];
-# GRANT VIEW DEFINITION TO [mi-prod-uks-cohman-db-backup];
-# GRANT VIEW DATABASE STATE TO [mi-prod-uks-cohman-db-backup];
+finally {
+    # Ensure the local file is removed even if the upload fails
+    Remove-Item "$localFilePath" -Force
+    Write-Output "Cleaned up local temporary file."
+}

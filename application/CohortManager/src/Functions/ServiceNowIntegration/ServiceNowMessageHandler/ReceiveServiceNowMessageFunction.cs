@@ -11,6 +11,7 @@ using System.ComponentModel.DataAnnotations;
 using NHS.CohortManager.ServiceNowIntegrationService.Models;
 using Model;
 using Microsoft.Extensions.Options;
+using DataServices.Client;
 
 public class ReceiveServiceNowMessageFunction
 {
@@ -18,14 +19,16 @@ public class ReceiveServiceNowMessageFunction
     private readonly ICreateResponse _createResponse;
     private readonly IQueueClient _queueClient;
     private readonly ServiceNowMessageHandlerConfig _config;
+    private readonly IDataServiceClient<ServicenowCase> _serviceNowCaseClient;
 
     public ReceiveServiceNowMessageFunction(ILogger<ReceiveServiceNowMessageFunction> logger, ICreateResponse createResponse,
-        IQueueClient queueClient, IOptions<ServiceNowMessageHandlerConfig> config)
+        IQueueClient queueClient, IOptions<ServiceNowMessageHandlerConfig> config, IDataServiceClient<ServicenowCase> serviceNowCaseClient)
     {
         _logger = logger;
         _createResponse = createResponse;
         _queueClient = queueClient;
         _config = config.Value;
+        _serviceNowCaseClient = serviceNowCaseClient;
     }
 
     /// <summary>
@@ -63,10 +66,28 @@ public class ReceiveServiceNowMessageFunction
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
+            var nhsNumber = long.Parse(requestBody.VariableData.NhsNumber);
+
+            var serviceNowCase = new ServicenowCase
+            {
+                ServicenowId = requestBody.ServiceNowCaseNumber,
+                NhsNumber = nhsNumber,
+                Status = ServiceNowStatus.New,
+                RecordInsertDatetime = DateTime.UtcNow
+            };
+
+            var addSuccess = await _serviceNowCaseClient.Add(serviceNowCase);
+
+            if (!addSuccess)
+            {
+                _logger.LogError("Failed to save the ServiceNow case to the database. CaseNumber: {CaseNumber}", requestBody.ServiceNowCaseNumber);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            }
+
             var participant = new ServiceNowParticipant
             {
                 ScreeningId = 1, // Hardcoding to the Breast Screening Id
-                NhsNumber = long.Parse(requestBody.VariableData.NhsNumber),
+                NhsNumber = nhsNumber,
                 FirstName = requestBody.VariableData.FirstName,
                 FamilyName = requestBody.VariableData.FamilyName,
                 DateOfBirth = requestBody.VariableData.DateOfBirth,
@@ -80,7 +101,7 @@ public class ReceiveServiceNowMessageFunction
 
             if (!success)
             {
-                _logger.LogError("Failed to send Participant from ServiceNow to Service Bus Topic");
+                _logger.LogError("Failed to send Participant from ServiceNow to Service Bus Topic. CaseNumber: {CaseNumber}", requestBody.ServiceNowCaseNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
         }

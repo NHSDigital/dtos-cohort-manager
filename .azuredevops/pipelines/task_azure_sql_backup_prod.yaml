@@ -17,7 +17,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 34a7e5c3072bddaa350804905c60b9c8e7ae7191
+      ref: 6ef691d0ed3ff16b12a06692c258f6c950be6507
       endpoint: NHSDigital
 
 variables:
@@ -51,3 +51,5 @@ stages:
             targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
             resourceGroupName: $(RESOURCE_GROUP_NAME_SQL)
             jobName: ca-db-backup-uksouth
+            maxPollingAttempts: 240
+            pollingIntervalSeconds: 15

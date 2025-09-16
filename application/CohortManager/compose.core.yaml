@@ -351,6 +351,7 @@ services:
     profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:9092
+      - ServiceNowCasesDataServiceURL=http://servicenow-cases-data-service:9996/api/ServiceNowCasesDataService
       - ServiceNowRefreshAccessTokenUrl=http://wiremock:8080/oauth_token.do
       - ServiceNowUpdateUrl=http://wiremock:8080/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate
       - ServiceNowResolutionUrl=http://wiremock:8080/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution

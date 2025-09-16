@@ -935,6 +935,12 @@ function_apps = {
       app_service_plan_key    = "NonScaling"
       key_vault_url           = "KeyVaultConnectionString"
       service_bus_connections = ["internal"]
+      app_urls = [
+        {
+          env_var_name     = "ServiceNowCasesDataServiceURL"
+          function_app_key = "ServiceNowCasesDataService"
+        }
+      ]
       env_vars_static = {
         ServiceNowRefreshAccessTokenUrl      = ""                                  # TODO: Get value
         ServiceNowUpdateUrl                  = ""                                  # TODO: Get value
@@ -1003,11 +1009,11 @@ function_apps = {
         },
         {
           env_var_name     = "ServiceNowCasesDataServiceURL"
-          function_app_key = "CohortDistributionDataService"
+          function_app_key = "ServiceNowCasesDataService"
         },
         {
           env_var_name     = "CohortDistributionDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
+          function_app_key = "CohortDistributionDataService"
         }
       ]
     }
