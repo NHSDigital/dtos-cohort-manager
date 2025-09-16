@@ -1168,7 +1168,7 @@ function_apps = {
         }
         env_vars_static = {
           ReconciliationTimer               = "59 23 * * *"
-          inboundMetricTopic                = "inbound-metric"
+          InboundMetricTopic                = "inbound-metric-topic"
           ReconciliationServiceSubscription = "ReconciliationService"
           StateBlobContainerName            = "config"
         }
