@@ -364,6 +364,7 @@ function_apps = {
         recordThresholdForBatching = "3"
         ParticipantManagementTopic = "participant-management"
         AllowDeleteRecords         = true
+        InboundMetricTopic         = "inbound-metric-topic"
       }
       storage_containers = [
         {
@@ -410,7 +411,7 @@ function_apps = {
           env_var_name     = "RetrievePdsDemographicURL"
           function_app_key = "RetrievePDSDemographic"
         },
-                {
+        {
           env_var_name     = "ManageNemsSubscriptionUnsubscribeURL"
           function_app_key = "ManageNemsSubscription"
           endpoint_name    = "Unsubscribe"
@@ -1176,6 +1177,25 @@ function_apps = {
         }
       ]
     }
+    ReconciliationService = {
+      name_suffix             = "update-exception"
+      function_endpoint_name  = "InboundMetricDataService"
+      app_service_plan_key    = "DefaultPlan"
+      db_connection_string    = "DtOsDatabaseConnectionString"
+      service_bus_connections = ["internal"]
+      env_vars = {
+        app_urls = {
+          ExceptionManagementDataServiceURL = "ExceptionManagementDataService"
+          CohortDistributionDataServiceUrl  = "CohortDistributionDataService"
+        }
+        env_vars_static = {
+          ReconciliationTimer               = "59 23 * * *"
+          InboundMetricTopic                = "inbound-metric-topic"
+          ReconciliationServiceSubscription = "ReconciliationService"
+          StateBlobContainerName            = "config"
+        }
+      }
+    }
   }
 }
 
@@ -1282,6 +1302,10 @@ service_bus = {
       participant-management = {
         batched_operations_enabled = true
         subscribers                = ["ManageParticipant"]
+      }
+      inbound-metric = {
+        batched_operations_enabled = true
+        subscribers                = ["ReconciliationService"]
       }
       servicenow-participant-management = {
         batched_operations_enabled = true
