@@ -72,8 +72,8 @@ public class ReconciliationService
         if (!result)
         {
             _logger.LogWarning("Metric failed to add to the database, Message will be deferred");
-            await messageActions.DeferMessageAsync(message);
-            return;
+            throw new InvalidOperationException("Metric failed to add to the database, Message will be deferred");
+
         }
 
 
