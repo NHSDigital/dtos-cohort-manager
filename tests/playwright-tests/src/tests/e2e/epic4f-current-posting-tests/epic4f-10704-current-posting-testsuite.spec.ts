@@ -33,19 +33,27 @@ function generateValidNhsNumber(prefix: string = '999'): string {
   }
 }
 
+function buildSubUrl(route: string, params: Record<string, string | number> = {}) {
+  // Ensure a valid absolute base and preserve any existing query (e.g., function key)
+  const base = config.ManageCaasSubscribe || config.SubToNems;
+  const u = new URL(route, base);
+  Object.entries(params).forEach(([k, v]) => u.searchParams.set(k, String(v)));
+  return u.toString();
+}
+
 async function checkSubscriptionStatus(nhsNumber: string) {
-  const url = `${config.SubToNems}${config.CheckNemsSubPath}?nhsNumber=${nhsNumber}`;
+  const url = buildSubUrl(config.CheckNemsSubPath, { nhsNumber });
   return await sendHttpGet(url);
 }
 
 async function subscribe(nhsNumber: string, body: string = '') {
-  const url = `${config.SubToNems}${config.SubToNemsPath}?nhsNumber=${nhsNumber}`;
+  const url = buildSubUrl(config.SubToNemsPath, { nhsNumber });
   return await sendHttpPOSTCall(url, body);
 }
 
 async function unsubscribe(nhsNumber: string) {
   // Unsubscribe support is not implemented; endpoint should return success with "not supported" message per AC
-  const url = `${config.SubToNems}api/Unsubscribe?nhsNumber=${nhsNumber}`;
+  const url = buildSubUrl('api/Unsubscribe', { nhsNumber });
   return await sendHttpPOSTCall(url, '');
 }
 

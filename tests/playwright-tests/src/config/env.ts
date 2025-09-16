@@ -25,6 +25,8 @@ const invalidEndpointSerNow = process.env.INVALID_ENDPOINT_SERVICE_NOW_MESSAGE_H
 const participantPayloadPath = process.env.PARTICIPANT_PAYLOAD_PATH ?? '';
 const createPDSDemographicEnv = process.env.ENDPOINT_PDS_DEMOGRAPHIC ?? '';
 const subToNemsEndPoint = process.env.ENDPOINT_SUB_TO_NEMS ?? '';
+// Optional: dedicated Manage-CAAS Subscribe base for Epic 4f
+const manageCaasSubscribeEndPoint = process.env.ENDPOINT_MANAGE_CAAS_SUBSCRIBE ?? '';
 const wireMockUrl = process.env.WIREMOCK_URL ?? '';
 
 export const config = {
@@ -46,6 +48,8 @@ export const config = {
   createPDSDemographic: createPDSDemographicEnv,
   invalidEndpointSerNow: invalidEndpointSerNow,
   SubToNems: subToNemsEndPoint,
+  // Prefer dedicated Manage-CAAS Subscribe endpoint if provided, fallback to SubToNems
+  ManageCaasSubscribe: manageCaasSubscribeEndPoint || subToNemsEndPoint,
   wireMockUrl: wireMockUrl,
   SubToNemsPath: 'api/Subscribe',
   CheckNemsSubPath:'api/CheckSubscriptionStatus',
