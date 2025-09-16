@@ -199,7 +199,14 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     const [_, nhsNumbers] = await getTestData(testInfo.title);
     const nhs = nhsNumbers[0] ?? generateValidNhsNumber();
     const s1 = await subscribe(nhs);
-    expect(s1.status).toBe(200);
+    if (s1.status !== 200) {
+      const s1Text = await s1.text();
+      const pre = await checkSubscriptionStatus(nhs);
+      if (pre.status !== 200) {
+        await testInfo.attach('unsubscribe-presubscribe-failed.txt', { body: `status=${s1.status}\nbody=${s1Text}`, contentType: 'text/plain' });
+        expect(s1.status).toBe(200);
+      }
+    }
 
     // Call unsubscribe endpoint
     const u = await unsubscribe(nhs);
