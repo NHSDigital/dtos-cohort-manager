@@ -1,7 +1,7 @@
 import { expect, test } from '../../fixtures/test-fixtures';
 import { config } from '../../../config/env';
 import { sendHttpGet, sendHttpPOSTCall } from '../../../api/core/sendHTTPRequest';
-import { extractSubscriptionID } from '../../../api/distributionService/bsSelectService';
+import { extractSubscriptionID, retry } from '../../../api/distributionService/bsSelectService';
 import { cleanupWireMock, enableMeshOutboxFailureInWireMock, getTestData, resetWireMockMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI } from '../../steps/steps';
 
 function computeNhsCheckDigit(nineDigits: string): number {
@@ -33,27 +33,30 @@ function generateValidNhsNumber(prefix: string = '999'): string {
   }
 }
 
-function buildSubUrl(route: string, params: Record<string, string | number> = {}) {
+function buildUrl(base: string, route: string, params: Record<string, string | number> = {}) {
   // Ensure a valid absolute base and preserve any existing query (e.g., function key)
-  const base = config.ManageCaasSubscribe || config.SubToNems;
   const u = new URL(route, base);
   Object.entries(params).forEach(([k, v]) => u.searchParams.set(k, String(v)));
   return u.toString();
 }
 
 async function checkSubscriptionStatus(nhsNumber: string) {
-  const url = buildSubUrl(config.CheckNemsSubPath, { nhsNumber });
+  // Check endpoint is served by the Manage NEMS Subscription service
+  const url = buildUrl(config.SubToNems, config.CheckNemsSubPath, { nhsNumber });
   return await sendHttpGet(url);
 }
 
 async function subscribe(nhsNumber: string, body: string = '') {
-  const url = buildSubUrl(config.SubToNemsPath, { nhsNumber });
+  // Subscribe endpoint lives on Manage-CAAS (preferred), fallback to Manage-NEMS if not configured
+  const base = config.ManageCaasSubscribe || config.SubToNems;
+  const url = buildUrl(base, config.SubToNemsPath, { nhsNumber });
   return await sendHttpPOSTCall(url, body);
 }
 
 async function unsubscribe(nhsNumber: string) {
   // Unsubscribe support is not implemented; endpoint should return success with "not supported" message per AC
-  const url = buildSubUrl('api/Unsubscribe', { nhsNumber });
+  const base = config.ManageCaasSubscribe || config.SubToNems;
+  const url = buildUrl(base, 'api/Unsubscribe', { nhsNumber });
   return await sendHttpPOSTCall(url, '');
 }
 
@@ -75,7 +78,7 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
       await cleanupWireMock(request);
     }
     // Given not subscribed
-    const pre = await checkSubscriptionStatus(freshNhs);
+    const pre = await retry(() => checkSubscriptionStatus(freshNhs), r => [404, 200].includes(r.status), { retries: 3, delayMs: 1500, throwLastError: false });
     expect([404, 200]).toContain(pre.status); // allow 200 in case of prior runs; prefer 404
 
     // When POST Subscribe
@@ -87,9 +90,13 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     }
 
     // Then check status returns 200 and has a subscription id
-    const check = await checkSubscriptionStatus(freshNhs);
+    const check = await retry(() => checkSubscriptionStatus(freshNhs), r => r.status === 200, { retries: 3, delayMs: 2000, throwLastError: false });
     expect(check.status).toBe(200);
-    const subId = extractSubscriptionID({ status: check.status, data: undefined as any, text: await check.text() } as any);
+    const checkText = await check.text();
+    const subId = extractSubscriptionID({ status: check.status, data: undefined as any, text: checkText } as any);
+    if (!subId) {
+      await testInfo.attach('subscribe-check-body.txt', { body: checkText, contentType: 'text/plain' });
+    }
     expect(subId).not.toBeNull();
   });
 
@@ -104,9 +111,10 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     expect(first.status).toBe(200);
 
     // Capture current subscription id
-    const beforeCheck = await checkSubscriptionStatus(subscribedNhs);
+    const beforeCheck = await retry(() => checkSubscriptionStatus(subscribedNhs), r => r.status === 200, { retries: 3, delayMs: 1500, throwLastError: false });
     expect(beforeCheck.status).toBe(200);
-    const beforeId = extractSubscriptionID({ status: beforeCheck.status, data: undefined as any, text: await beforeCheck.text() } as any);
+    const beforeText = await beforeCheck.text();
+    const beforeId = extractSubscriptionID({ status: beforeCheck.status, data: undefined as any, text: beforeText } as any);
 
     // When subscribing again
     const again = await subscribe(subscribedNhs);
@@ -117,9 +125,16 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     }
 
     // Then status remains subscribed with same id
-    const afterCheck = await checkSubscriptionStatus(subscribedNhs);
+    const afterCheck = await retry(() => checkSubscriptionStatus(subscribedNhs), r => r.status === 200, { retries: 3, delayMs: 2000, throwLastError: false });
     expect(afterCheck.status).toBe(200);
-    const afterId = extractSubscriptionID({ status: afterCheck.status, data: undefined as any, text: await afterCheck.text() } as any);
+    const afterText = await afterCheck.text();
+    const afterId = extractSubscriptionID({ status: afterCheck.status, data: undefined as any, text: afterText } as any);
+    if (afterId !== beforeId) {
+      // Extra diagnostics to help investigate idempotency differences in non-prod
+      console.info(`Idempotency check mismatch:\nBeforeID=${beforeId}\nAfterID=${afterId}\nBeforeBody=${beforeText}\nAfterBody=${afterText}`);
+      await testInfo.attach('idempotent-before-body.txt', { body: beforeText, contentType: 'text/plain' });
+      await testInfo.attach('idempotent-after-body.txt', { body: afterText, contentType: 'text/plain' });
+    }
     expect(afterId).toBe(beforeId);
   });
 
