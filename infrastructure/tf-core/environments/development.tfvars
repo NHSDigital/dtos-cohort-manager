@@ -328,7 +328,7 @@ function_apps = {
         recordThresholdForBatching = "3"
         ParticipantManagementTopic = "participant-management"
         AllowDeleteRecords         = true
-        InboundMetricTopic         = "InboundMetricTopic"
+        InboundMetricTopic         = "inbound-metric-topic"
       }
       storage_containers = [
         {

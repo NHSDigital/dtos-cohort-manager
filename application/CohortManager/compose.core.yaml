@@ -89,7 +89,7 @@ services:
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
       - ParticipantManagementTopic=participant-management-topic
-      - InboundMetricTopic=InboundMetricTopic
+      - InboundMetricTopic=inbound-metric-topic
 
   # Participant Management Service
   manage-participant:
@@ -391,7 +391,7 @@ services:
       - ReconciliationTimer=5/5 * * * *
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
-      - inboundMetricTopic=inboundMetricTopic
+      - inboundMetricTopic=inbound-metric-topic
       - ReconciliationServiceSubscription=inboundMetricSub
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/

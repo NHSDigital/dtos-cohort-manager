@@ -93,7 +93,7 @@
             ]
           },
           {
-              "Name": "inboundMetricTopic",
+              "Name": "inbound-metric-topic",
               "Properties": {
                 "DefaultMessageTimeToLive": "PT1H",
                 "DuplicateDetectionHistoryTimeWindow": "PT20S",
@@ -101,7 +101,7 @@
               },
               "Subscriptions": [
                 {
-                  "Name": "inboundMetricSub",
+                  "Name": "inbound-metric-sub",
                   "Properties": {
                   "DeadLetteringOnMessageExpiration": false,
                   "DefaultMessageTimeToLive": "PT1H",
