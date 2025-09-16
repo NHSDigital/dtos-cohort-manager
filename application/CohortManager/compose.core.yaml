@@ -397,7 +397,7 @@ services:
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
       - AcceptableLatencyThresholdMs=500
-      - StateBlobContainerName=config
+      - StateBlobContainerName=reconciliation-config
 
   # UI
   web:
