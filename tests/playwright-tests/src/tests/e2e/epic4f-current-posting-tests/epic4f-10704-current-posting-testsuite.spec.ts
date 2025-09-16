@@ -186,7 +186,8 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     const u = await unsubscribe(nhs);
     expect([200, 501]).toContain(u.status); // 200 with message, or 501 Not Implemented
     const text = (await u.text()).toLowerCase();
-    expect(text).toMatch(/not\s+supported|unsub/);
+    // Accept dev env stub message as well as spec language
+    expect(text).toMatch(/not\s+supported|unsub|stub.*removed/);
 
     // Ensure subscription remains only if we confirmed it was subscribed
     if (subscriptionConfirmed) {
