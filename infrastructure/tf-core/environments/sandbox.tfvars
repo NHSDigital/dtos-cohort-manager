@@ -1211,7 +1211,7 @@ function_apps = {
           ReconciliationTimer               = "59 23 * * *"
           InboundMetricTopic                = "inbound-metric-topic"
           ReconciliationServiceSubscription = "ReconciliationService"
-          StateBlobContainerName            = "config"
+          StateBlobContainerName            = "reconciliation-config"
         }
       }
     }
