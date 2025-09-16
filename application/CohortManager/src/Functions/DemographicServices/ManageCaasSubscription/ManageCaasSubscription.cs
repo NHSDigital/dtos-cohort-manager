@@ -70,8 +70,12 @@ public class ManageCaasSubscription
             var existing = await _nemsSubscriptionAccessor.GetSingle(i => i.NhsNumber == nhsNo);
             if (existing != null && !string.IsNullOrWhiteSpace(existing.SubscriptionId))
             {
-                _logger.LogInformation("CAAS Subscribe called but existing subscription found {SubId}; returning existing.", existing.SubscriptionId);
-                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Already subscribed. Subscription ID: {existing.SubscriptionId}");
+                var src = existing.SubscriptionSource?.ToString() ?? "";
+                _logger.LogInformation("CAAS Subscribe: existing subscription {SubId}, source {Source}; returning existing.", existing.SubscriptionId, string.IsNullOrWhiteSpace(src) ? "Unknown" : src);
+                var message = string.IsNullOrWhiteSpace(src)
+                    ? $"Already subscribed. Subscription ID: {existing.SubscriptionId}"
+                    : $"Already subscribed. Subscription ID: {existing.SubscriptionId}. Source: {src}";
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, message);
             }
 
             var toMailbox = _config.CaasToMailbox!;
