@@ -205,6 +205,9 @@ public class ManageCaasSubscriptionTests
     [TestMethod]
     public async Task Subscribe_MeshCalled_WithConfigMailboxes()
     {
+        _nemsAccessor
+            .Setup(a => a.GetSingle(It.IsAny<System.Linq.Expressions.Expression<Func<NemsSubscription, bool>>>() ))
+            .ReturnsAsync((NemsSubscription?)null);
         _nemsAccessor.Setup(a => a.InsertSingle(It.IsAny<NemsSubscription>())).ReturnsAsync(true);
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
         var res = await _sut.Subscribe(req.Object);
@@ -216,6 +219,9 @@ public class ManageCaasSubscriptionTests
     [TestMethod]
     public async Task Subscribe_MeshThrows_ReturnsInternalServerError()
     {
+        _nemsAccessor
+            .Setup(a => a.GetSingle(It.IsAny<System.Linq.Expressions.Expression<Func<NemsSubscription, bool>>>() ))
+            .ReturnsAsync((NemsSubscription?)null);
         _mesh
             .Setup(m => m.SendSubscriptionRequest(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new Exception("mesh-down"));
@@ -229,6 +235,9 @@ public class ManageCaasSubscriptionTests
     [TestMethod]
     public async Task Subscribe_DBInsertFails_ReturnsInternalServerError()
     {
+        _nemsAccessor
+            .Setup(a => a.GetSingle(It.IsAny<System.Linq.Expressions.Expression<Func<NemsSubscription, bool>>>() ))
+            .ReturnsAsync((NemsSubscription?)null);
         _nemsAccessor.Setup(a => a.InsertSingle(It.IsAny<NemsSubscription>())).ReturnsAsync(false);
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
         var res = await _sut.Subscribe(req.Object);
@@ -260,6 +269,9 @@ public class ManageCaasSubscriptionTests
         );
 
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+        _nemsAccessor
+            .Setup(a => a.GetSingle(It.IsAny<System.Linq.Expressions.Expression<Func<NemsSubscription, bool>>>() ))
+            .ReturnsAsync((NemsSubscription?)null);
         var res = await sut.Subscribe(req.Object);
         Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
         _logger.Verify(l => l.Log(
@@ -294,6 +306,9 @@ public class ManageCaasSubscriptionTests
         );
 
         var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+        _nemsAccessor
+            .Setup(a => a.GetSingle(It.IsAny<System.Linq.Expressions.Expression<Func<NemsSubscription, bool>>>() ))
+            .ReturnsAsync((NemsSubscription?)null);
         var res = await sut.Subscribe(req.Object);
         Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
         _logger.Verify(l => l.Log(
@@ -321,6 +336,9 @@ public class ManageCaasSubscriptionTests
     [TestMethod]
     public async Task Subscribe_MeshReturnsNull_ReturnsInternalServerError()
     {
+        _nemsAccessor
+            .Setup(a => a.GetSingle(It.IsAny<System.Linq.Expressions.Expression<Func<NemsSubscription, bool>>>() ))
+            .ReturnsAsync((NemsSubscription?)null);
         _mesh
             .Setup(m => m.SendSubscriptionRequest(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync((string?)null);
@@ -359,5 +377,23 @@ public class ManageCaasSubscriptionTests
         _meshPoller.Verify(p => p.ExecuteHandshake("TEST_FROM"), Times.Once);
     }
 
+    [TestMethod]
+    public async Task Subscribe_ExistingSubscription_ReturnsExisting_DoesNotCallMeshOrInsert()
+    {
+        // Arrange: Ensure an existing subscription is returned for the NHS number
+        _nemsAccessor
+            .Setup(a => a.GetSingle(It.IsAny<System.Linq.Expressions.Expression<Func<NemsSubscription, bool>>>() ))
+            .ReturnsAsync(new NemsSubscription { NhsNumber = 9000000009, SubscriptionId = "SUB_EXISTING" });
+
+        var req = _setupRequest.Setup(null, new NameValueCollection { { "nhsNumber", "9000000009" } }, HttpMethod.Post);
+
+        // Act
+        var res = await _sut.Subscribe(req.Object);
+
+        // Assert: OK with early return, no mesh call, no DB insert
+        Assert.AreEqual(HttpStatusCode.OK, res.StatusCode);
+        _mesh.Verify(m => m.SendSubscriptionRequest(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _nemsAccessor.Verify(a => a.InsertSingle(It.IsAny<NemsSubscription>()), Times.Never);
+    }
     
 }
