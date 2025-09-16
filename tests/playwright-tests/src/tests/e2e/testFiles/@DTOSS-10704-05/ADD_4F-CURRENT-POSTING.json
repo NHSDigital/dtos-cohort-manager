@@ -2,7 +2,7 @@
   "validations": [
     {
       "validations": {
-        "NHSNumber": 9994813049
+        "NHSNumber": 9994813048
       },
       "meta": {
         "testJiraId": "@DTOSS-10704-05",
@@ -13,7 +13,6 @@
   ],
   "inputParticipantRecord": [],
   "nhsNumbers": [
-    "9994813049"
+    "9994813048"
   ]
 }
-
