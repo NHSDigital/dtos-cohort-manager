@@ -277,7 +277,6 @@ builder.AddProject<Projects.ProcessNemsUpdate>(nameof(Projects.ProcessNemsUpdate
 // ParticipantManagementServices
 builder.AddProject<Projects.DeleteParticipant>(nameof(Projects.DeleteParticipant))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
-    .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
     .WithEnvironment("CohortDistributionDataServiceURL", CohortDistributionDataServiceUrl)
     .WithEnvironment("AcceptableLatencyThresholdMs", AcceptableLatencyThresholdMs);
@@ -304,14 +303,12 @@ builder.AddProject<Projects.ManageServiceNowParticipant>(nameof(Projects.ManageS
     .WithEnvironment("ManageNemsSubscriptionSubscribeURL", ManageNemsSubscriptionSubscribeUrl);
 builder.AddProject<Projects.UpdateBlockedFlag>(nameof(Projects.UpdateBlockedFlag))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
-    .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
     .WithEnvironment("ParticipantManagementUrl", ParticipantManagementDataServiceUrl)
     .WithEnvironment("ParticipantDemographicDataServiceURL", ParticipantDemographicDataServiceUrl)
     .WithEnvironment("ManageNemsSubscriptionSubscribeURL", ManageNemsSubscriptionSubscribeUrl)
     .WithEnvironment("ManageNemsSubscriptionUnsubscribeURL", ManageNemsSubscriptionUnsubscribeUrl)
     .WithEnvironment("RetrievePdsDemographicURL", RetrievePdsDemographicUrl);
-
 
 // ScreeningDataServices
 builder.AddProject<Projects.BsSelectRequestAuditDataService>(nameof(Projects.BsSelectRequestAuditDataService))
@@ -369,7 +366,6 @@ builder.AddProject<Projects.ServiceNowCasesDataService>(nameof(Projects.ServiceN
 // ScreeningValidationService
 builder.AddProject<Projects.LookupValidation>(nameof(Projects.LookupValidation))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
-    .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
     .WithEnvironment("DtOsDatabaseConnectionString", dbConnectionString)
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
     .WithEnvironment("BsSelectOutCodeUrl", BsSelectOutCodeUrl)
@@ -383,7 +379,6 @@ builder.AddProject<Projects.RemoveValidationException>(nameof(Projects.RemoveVal
     .WithEnvironment("ExceptionManagementDataServiceURL", ExceptionManagementDataServiceUrl);
 builder.AddProject<Projects.StaticValidation>(nameof(Projects.StaticValidation))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
-    .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl);
 
 // ServiceNowIntegration
