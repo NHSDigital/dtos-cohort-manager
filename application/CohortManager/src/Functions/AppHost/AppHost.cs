@@ -120,7 +120,7 @@ storage.AddBlobContainer(NemsMessagesPoisonContainer);
 // WireMock
 builder.AddContainer("wiremock", "wiremock/wiremock")
     .WithHttpEndpoint(port: 8080, targetPort: 8080)
-    .WithBindMount("../../../Set-up/wiremock/mappings", "/home/wiremock/mappings")
+    .WithBindMount("../Shared/Wiremock/mappings", "/home/wiremock/mappings")
     .WithLifetime(ContainerLifetime.Persistent);
 
 // CaasIntegration
