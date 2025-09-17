@@ -106,15 +106,7 @@ public class ManageCaasSubscription
                 _logger.LogError("Failed to write CAAS subscription record to database");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to save subscription record.");
             }
-
-            if (_config.IsStubbed)
-            {
-                _logger.LogInformation("CAAS Subscribe forwarded to MESH stub. MessageId: {Msg}", messageId);
-            }
-            else
-            {
-                _logger.LogInformation("CAAS Subscribe sent to MESH. MessageId: {Msg}", messageId);
-            }
+            LogSubscriptionSuccess(messageId);
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Subscription request accepted. MessageId: {messageId}");
         }
         catch (Exception ex)
@@ -239,5 +231,13 @@ public class ManageCaasSubscription
         await _meshPoller.ExecuteHandshake(_config.CaasFromMailbox!);
     }
 
+    private void LogSubscriptionSuccess(string messageId)
+    {
+        var logMessage = _config.IsStubbed 
+        ? $"CAAS Subscribe forwarded to MESH stub. MessageId: {messageId}"
+        : $"CAAS Subscribe sent to MESH. MessageId: {messageId}";
+    
+        _logger.LogInformation(logMessage);
+    }
 
 }
