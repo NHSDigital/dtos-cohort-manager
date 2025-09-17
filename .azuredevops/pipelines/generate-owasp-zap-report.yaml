@@ -19,7 +19,7 @@ schedules:
 variables:
   - group: DEV_core_backend
   - name: dev_rg
-    value: rg-cohort-manager-dev-uks
+    value: rg-cohman-dev-uks
 
 jobs:
   - job: owasp_zap_report
