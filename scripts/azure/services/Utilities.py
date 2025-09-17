@@ -38,5 +38,5 @@ def new_function_deployed(function_name, image_tags, slack):
     payload = new_function_deployment_slack_payload(function_name, image_tags)
     slack.send(payload)
 
-def unstructured_slack_message(file_path, slack):
+def unstructured_slack_message(functionName, file_path, slack):
     slack.send_file_content(file_path, file_path)
