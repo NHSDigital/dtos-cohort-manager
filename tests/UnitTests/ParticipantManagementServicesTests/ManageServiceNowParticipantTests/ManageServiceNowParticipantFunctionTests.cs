@@ -537,7 +537,7 @@ public class ManageServiceNowParticipantFunctionTests
         _queueClientMock.VerifyNoOtherCalls();
 
         _loggerMock.VerifyLogger(LogLevel.Information, "Participant not in participant management table, adding new record");
-        _loggerMock.VerifyLogger(LogLevel.Information, $"Participant with NHS Number: {vhrParticipant.NhsNumber} set as High Risk");
+        _loggerMock.VerifyLogger(LogLevel.Information, $"Participant set as High Risk");
     }
 
     [TestMethod]

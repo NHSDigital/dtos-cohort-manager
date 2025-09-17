@@ -253,6 +253,22 @@ container_app_jobs = {
   }
 }
 
+container_apps = {
+  apps = {
+    wiremock = {
+      container_app_environment_key = "db-management"
+      docker_image                  = "cohort-manager-wiremock"
+      container_registry_use_mi     = true
+      add_user_assigned_identity    = false
+      is_tcp_app                    = false
+      is_web_app                    = true
+      port                          = 8080
+      infra_key_vault_rg            = null
+      infra_key_vault_name          = null
+    }
+  }
+}
+
 diagnostic_settings = {
   metric_enabled = true
 }
