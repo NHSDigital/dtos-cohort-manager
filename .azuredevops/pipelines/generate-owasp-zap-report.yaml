@@ -35,8 +35,11 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
           echo "generating report"
+          echo $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+          echo "generating report"
           echo $(TARGET_SUBSCRIPTION_ID)
-          echo  $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+          echo "generating report"
+
 
           az account set --subscription $(TARGET_SUBSCRIPTION_ID)
 
