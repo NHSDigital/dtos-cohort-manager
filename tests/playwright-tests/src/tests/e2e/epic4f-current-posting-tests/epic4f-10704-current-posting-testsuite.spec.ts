@@ -88,15 +88,21 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     const beforeText = await beforeCheck.text();
     const beforeId = extractSubscriptionID({ status: beforeCheck.status, data: undefined as any, text: beforeText } as any);
 
+    // Clear WireMock requests to isolate idempotent path (no new Mesh post expected)
+    if (process.env.USE_MESH_WIREMOCK === '1') {
+      await cleanupWireMock(request);
+    }
+
     // When subscribing again
     const again = await subscribe(subscribedNhs);
     expect(again.status).toBe(200);
 
+    // Then no new Mesh outbox request is posted (no new Parquet/file posted)
     if (process.env.USE_MESH_WIREMOCK === '1') {
-      await validateMeshRequestWithMockServer(request, { minCount: 2 });
+      await validateMeshRequestWithMockServer(request, { minCount: 0 });
     }
 
-    // Then status remains subscribed with same id
+    // And status remains subscribed with same id
     const afterCheck = await retry(() => checkSubscriptionStatus(subscribedNhs), r => r.status === 200, { retries: 3, delayMs: 2000, throwLastError: false });
     expect(afterCheck.status).toBe(200);
     const afterText = await afterCheck.text();
@@ -110,18 +116,32 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     expect(afterId).toBe(beforeId);
   });
 
-  test('@DTOSS-10704-03 DTOSS-10941 - Invalid request missing/incorrect NHS number returns validation error', async () => {
+  test('@DTOSS-10704-03 DTOSS-10941 - Invalid request missing/incorrect NHS number returns validation error', async ({ request }) => {
+    // Start with a clean WireMock state when enabled
+    if (process.env.USE_MESH_WIREMOCK === '1') {
+      await cleanupWireMock(request);
+    }
     // Missing nhsNumber
     const noParam = await sendHttpPOSTCall(`${config.SubToNems}${config.SubToNemsPath}`, '');
     expect([400, 404]).toContain(noParam.status); // depending on routing, 404 if endpoint requires param in route
     const noParamText = (await noParam.text()).toLowerCase();
     expect(noParamText).toMatch(/invalid|missing|nhs/);
 
+    // Ensure no Mesh interaction occurs on invalid input
+    if (process.env.USE_MESH_WIREMOCK === '1') {
+      await validateMeshRequestWithMockServer(request, { minCount: 0 });
+    }
+
     // Invalid nhsNumber format
     const invalidParam = await sendHttpPOSTCall(`${config.SubToNems}${config.SubToNemsPath}?nhsNumber=abc`, '');
     expect([400, 422]).toContain(invalidParam.status);
     const invalidText = (await invalidParam.text()).toLowerCase();
     expect(invalidText).toMatch(/invalid|nhs/);
+
+    // Ensure no Mesh interaction occurs on invalid input
+    if (process.env.USE_MESH_WIREMOCK === '1') {
+      await validateMeshRequestWithMockServer(request, { minCount: 0 });
+    }
   });
 
   test('@DTOSS-10704-04 DTOSS-10942 - Failure to send to Mesh logs exception and no subscription (conditional)', async ({ request }, testInfo) => {
@@ -184,7 +204,8 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
 
     // Call unsubscribe endpoint
     const u = await unsubscribe(nhs);
-    expect([200, 501]).toContain(u.status); // 200 with message, or 501 Not Implemented
+    // Per AC, unsubscribe returns a successful 200 with a not-supported message
+    expect(u.status).toBe(200);
     const text = (await u.text()).toLowerCase();
     // Accept dev env stub message as well as spec language
     expect(text).toMatch(/not\s+supported|unsub|stub.*removed/);
