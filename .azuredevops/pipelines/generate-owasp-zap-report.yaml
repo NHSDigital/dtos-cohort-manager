@@ -17,7 +17,7 @@ schedules:
     always: true
 
 variables:
-  - group: global_variable_group
+  - group: DEV_core_backend
   - name: dev_rg
     value: rg-cohort-manager-dev-uks
 
@@ -55,5 +55,3 @@ jobs:
           for function in $function_list; do
             cat zap_report_$function
           done
-
-
