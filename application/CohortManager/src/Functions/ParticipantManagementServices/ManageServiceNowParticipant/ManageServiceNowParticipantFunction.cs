@@ -180,7 +180,7 @@ public class ManageServiceNowParticipantFunction
 
         if (isVhrParticipant)
         {
-            _logger.LogInformation("Participant with NHS Number: {NhsNumber} set as High Risk", serviceNowParticipant.NhsNumber);
+            _logger.LogInformation("Participant set as High Risk");
         }
 
         return await _participantManagementClient.Add(participantToAdd);
