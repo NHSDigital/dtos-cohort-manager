@@ -1,0 +1,28 @@
+---
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 0abead1e42da2bb60cbc85054ac2452746679d29
+      endpoint: NHSDigital
+
+variables:
+  - name: hostPoolName
+    value: private-pool-dev-uks
+  - group: SBRK_core_backend
+  - name: ENVIRONMENT
+    value: sandbox
+
+stages:
+  - template: ../templates/owasp-zap-report-core-common.yaml
+    parameters:
+      hostPoolName: $(hostPoolName)
+      environment: $(ENVIRONMENT)
+      slackWebHook: $(SLACK_WEBHOOK_URL_WORKFLOWS)
+      apiUrl: 'https://sbrk-uks-retrieve-cohort-distribution-data.azurewebsites.net/api/RetrieveCohortDistributionData'
+      webUrl: 'https://cohort-dev.non-live.screening.nhs.uk'
