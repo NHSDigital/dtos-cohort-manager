@@ -13,7 +13,8 @@
     {
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
-        "NhsNumber": 9990237166
+        "NhsNumber": 9990237166,
+        "expectedCount": 1
       },
       "meta": {
         "testJiraId": "@DTOSS-10704-04",

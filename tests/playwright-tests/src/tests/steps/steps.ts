@@ -85,7 +85,7 @@ export async function validateSqlDatabaseFromAPI(request: APIRequestContext, val
  */
 export async function validateMeshRequestWithMockServer(
   request: APIRequestContext,
-  options?: { toMailboxContains?: string; minCount?: number; pathIncludes?: string[] }
+  options?: { toMailboxContains?: string; minCount?: number; pathIncludes?: string[]; attempts?: number; delayMs?: number }
 )
 {
   const { requests: requestsUrl } = getWireMockAdmin();
@@ -93,28 +93,46 @@ export async function validateMeshRequestWithMockServer(
   const minCount = options?.minCount ?? 1;
   const includes = options?.pathIncludes ?? ["messageexchange", "outbox"];
   const mailboxHint = options?.toMailboxContains;
-
-  // Wait briefly for the app to issue outbound Mesh calls
-  await new Promise((resolve) => setTimeout(resolve, 5000));
-
-  const response = await request.get(requestsUrl);
-  const body = await response.json() as WireMockResponse;
+  const attempts = Math.max(1, options?.attempts ?? 5);
+  const delayMs = Math.max(250, options?.delayMs ?? 2000);
 
   return test.step(`Validate Mesh requests with WireMock`, async () => {
-    let meshRequests = body.requests.filter(r =>
-      includes.every(inc => r.request.url.includes(inc))
-    );
+    let lastBody: WireMockResponse | undefined;
+    for (let i = 1; i <= attempts; i++) {
+      try {
+        const response = await request.get(requestsUrl);
+        lastBody = await response.json() as WireMockResponse;
 
-    if (mailboxHint) {
-      meshRequests = meshRequests.filter(r => r.request.url.includes(mailboxHint));
+        let meshRequests = (lastBody.requests || []).filter(r =>
+          includes.every(inc => r.request.url.includes(inc))
+        );
+
+        if (mailboxHint) {
+          meshRequests = meshRequests.filter(r => r.request.url.includes(mailboxHint));
+        }
+
+        if (meshRequests.length >= minCount) {
+          console.info(`✅ Validation Complete - Found ${meshRequests.length} Mesh request(s) to outbox via WireMock`);
+          return;
+        }
+
+        if (i < attempts) {
+          console.info(`⏳ No Mesh requests yet (found ${meshRequests.length}/${minCount}); retrying in ${Math.round(delayMs/1000)}s...`);
+          await new Promise(res => setTimeout(res, delayMs));
+          continue;
+        }
+
+        const sample = (lastBody.requests || []).slice(0, 5).map(r => r.request.url).join("\n - ");
+        throw new Error(
+          `❌ Expected at least ${minCount} Mesh request(s), found 0 after ${attempts} attempt(s).` +
+          `\nWireMock requests endpoint: ${requestsUrl}` +
+          `\nSample captured URLs:\n - ${sample || '(none)'}\n`
+        );
+      } catch (e) {
+        if (i >= attempts) throw e;
+        await new Promise(res => setTimeout(res, delayMs));
+      }
     }
-
-    if (meshRequests.length < minCount) {
-      const sample = body.requests.slice(0, 5).map(r => r.request.url).join("\n - ");
-      throw new Error(`❌ Expected at least ${minCount} Mesh request(s), found ${meshRequests.length}. Sample captured URLs:\n - ${sample}`);
-    }
-
-    console.info(`✅ Validation Complete - Found ${meshRequests.length} Mesh request(s) to outbox via WireMock`);
   });
 }
 
