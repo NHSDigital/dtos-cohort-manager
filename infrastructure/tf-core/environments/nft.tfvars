@@ -236,7 +236,8 @@ app_service_plan = {
 container_app_environments = {
   instances = {
     db-management = {
-      zone_redundancy_enabled = false
+      zone_redundancy_enabled  = false
+      use_custom_infra_rg_name = false
     }
   }
 }
@@ -250,6 +251,22 @@ container_app_jobs = {
       db_connection_string_name     = "DtOsDatabaseConnectionString"
       add_user_assigned_identity    = true
       replica_retry_limit           = 1
+    }
+  }
+}
+
+container_apps = {
+  apps = {
+    wiremock = {
+      container_app_environment_key = "db-management"
+      docker_image                  = "cohort-manager-wiremock"
+      container_registry_use_mi     = true
+      add_user_assigned_identity    = false
+      is_tcp_app                    = false
+      is_web_app                    = true
+      port                          = 8080
+      infra_key_vault_rg            = null
+      infra_key_vault_name          = null
     }
   }
 }
@@ -276,7 +293,7 @@ function_apps = {
   enable_appsrv_storage         = "false"
   ftps_state                    = "Disabled"
   https_only                    = true
-  http2_enabled                 = false
+  http2_enabled                 = true
   remote_debugging_enabled      = false
   storage_uses_managed_identity = null
   worker_32bit                  = false
@@ -1142,9 +1159,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        NemsMeshCertName         = "NemsMeshCert"
-        NemsMeshInboundContainer = "nems-updates"
-        NemsMeshConfigContainer  = "nems-config"
+        NemsMeshCertName                          = "NemsMeshCert"
+        NemsMeshInboundContainer                  = "nems-updates"
+        NemsMeshConfigContainer                   = "nems-config"
+        NemsMeshBypassServerCertificateValidation = "true"
       }
     }
 
