@@ -37,8 +37,10 @@ public class ManageCaasSubscriptionTests
         {
             CaasToMailbox = "TEST_TO",
             CaasFromMailbox = "TEST_FROM",
-            MeshApiBaseUrl = "http://localhost",
-            MeshCaasSharedKey = "dummy"
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost/messageexchange",
+            MeshCaasSharedKey = "dummy",
+            UseWireMock = false,
+            WireMockAdminUrl = null
         });
 
         _mesh
@@ -246,15 +248,16 @@ public class ManageCaasSubscriptionTests
     }
 
     [TestMethod]
-    public async Task Subscribe_LogsStubMessage_WhenIsStubbedTrue()
+    public async Task Subscribe_LogsWireMockMessage_WhenUseWireMockTrue()
     {
         _config.Setup(x => x.Value).Returns(new ManageCaasSubscriptionConfig
         {
             CaasToMailbox = "TEST_TO",
             CaasFromMailbox = "TEST_FROM",
-            MeshApiBaseUrl = "http://localhost",
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost/messageexchange",
             MeshCaasSharedKey = "dummy",
-            IsStubbed = true
+            UseWireMock = true,
+            WireMockAdminUrl = "http://localhost/__admin"
         });
 
         var sut = new ManageCaasSubscription(
@@ -277,21 +280,22 @@ public class ManageCaasSubscriptionTests
         _logger.Verify(l => l.Log(
             LogLevel.Information,
             It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("MESH stub")),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("via WireMock")),
             It.IsAny<Exception>(),
             It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
     }
 
     [TestMethod]
-    public async Task Subscribe_LogsRealMessage_WhenIsStubbedFalse()
+    public async Task Subscribe_LogsRealMessage_WhenUseWireMockFalse()
     {
         _config.Setup(x => x.Value).Returns(new ManageCaasSubscriptionConfig
         {
             CaasToMailbox = "TEST_TO",
             CaasFromMailbox = "TEST_FROM",
-            MeshApiBaseUrl = "http://localhost",
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost/messageexchange",
             MeshCaasSharedKey = "dummy",
-            IsStubbed = false
+            UseWireMock = false,
+            WireMockAdminUrl = null
         });
 
         var sut = new ManageCaasSubscription(
@@ -358,8 +362,9 @@ public class ManageCaasSubscriptionTests
         {
             CaasFromMailbox = "TEST_FROM",
             CaasToMailbox = "TEST_TO",
-            MeshApiBaseUrl = "http://localhost",
-            MeshCaasSharedKey = "dummy"
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost/messageexchange",
+            MeshCaasSharedKey = "dummy",
+            UseWireMock = false
         });
 
         var sut = new ManageCaasSubscription(

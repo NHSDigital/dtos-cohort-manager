@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
+using System.Collections.Generic;
 
 public static class WireMockAdminHelper
 {
@@ -31,7 +32,7 @@ public static class WireMockAdminHelper
                 {
                     status = 200,
                     jsonBody = new { messageId = "{{randomValue length=24 type='ALPHANUMERIC'}}" },
-                    headers = new { ["Content-Type"] = "application/json" },
+                    headers = new Dictionary<string, string> { { "Content-Type", "application/json" } },
                     transformers = new[] { "response-template" }
                 }
             };
@@ -52,4 +53,3 @@ public static class WireMockAdminHelper
         }
     }
 }
-
