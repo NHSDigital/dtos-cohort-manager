@@ -142,6 +142,16 @@ locals {
               )
             },
 
+            # Dynamic references to Container App FQDNs (e.g., WireMock admin URL)
+            length(lookup(config, "container_app_urls", [])) > 0 ? {
+              for obj in config.container_app_urls :
+              obj.env_var_name => format(
+                "https://%s%s",
+                module.container-app[format("%s-%s", obj.container_app_key, region)].fqdn,
+                try(obj.path, "")
+              )
+            } : {},
+
             # Dynamic reference to Key Vault
             length(config.key_vault_url) > 0 ? {
               (config.key_vault_url) = module.key_vault[region].key_vault_url

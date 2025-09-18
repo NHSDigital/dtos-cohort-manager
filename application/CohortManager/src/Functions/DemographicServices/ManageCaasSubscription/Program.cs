@@ -12,7 +12,7 @@ var hostBuilder = new HostBuilder()
     .AddConfiguration<ManageCaasSubscriptionConfig>(out ManageCaasSubscriptionConfig? config)
     .AddMeshMailboxes(new MeshConfig
     {
-        MeshApiBaseUrl = config!.MeshApiBaseUrl,
+        MeshApiBaseUrl = config!.CaasSubscriptionMeshApiBaseUrl,
         KeyVaultConnectionString = config.KeyVaultConnectionString,
         BypassServerCertificateValidation = config.BypassServerCertificateValidation,
         MailboxConfigs = new List<MailboxConfig>
@@ -31,16 +31,8 @@ var hostBuilder = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddBasicHealthCheck("ManageCaasSubscription");
-        if (config.IsStubbed)
-        {
-            services.AddSingleton<IMeshSendCaasSubscribe, MeshSendCaasSubscribeStub>();
-            services.AddSingleton<IMeshPoller, MeshPollerStub>();
-        }
-        else
-        {
-            services.AddScoped<IMeshSendCaasSubscribe, MeshSendCaasSubscribe>();
-            services.AddScoped<IMeshPoller, MeshPoller>();
-        }
+        services.AddScoped<IMeshSendCaasSubscribe, MeshSendCaasSubscribe>();
+        services.AddScoped<IMeshPoller, MeshPoller>();
     })
     .AddDataServicesHandler<DataServicesContext>()
     .AddHttpClient()
@@ -50,13 +42,12 @@ var hostBuilder = new HostBuilder()
 // Log startup mode for visibility
 var startupLoggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
 var startupLogger = startupLoggerFactory.CreateLogger("ManageCaasSubscription.Program");
-if (config!.IsStubbed)
+startupLogger.LogInformation("ManageCaasSubscription starting with real MESH services. BaseUrl={Base}", config!.CaasSubscriptionMeshApiBaseUrl);
+
+// Optionally seed WireMock success mapping for Mesh outbox when enabled
+if (config.UseWireMock)
 {
-    startupLogger.LogWarning("ManageCaasSubscription starting in STUBBED mode: using MeshSendCaasSubscribeStub and MeshPollerStub.");
-}
-else
-{
-    startupLogger.LogInformation("ManageCaasSubscription starting in LIVE mode: using real MESH services.");
+    await WireMockAdminHelper.SeedMeshSuccessMappingAsync(startupLogger, config.WireMockAdminUrl);
 }
 
 var host = hostBuilder.Build();
