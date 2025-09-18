@@ -12,7 +12,7 @@ var hostBuilder = new HostBuilder()
     .AddConfiguration<ManageCaasSubscriptionConfig>(out ManageCaasSubscriptionConfig? config)
     .AddMeshMailboxes(new MeshConfig
     {
-        MeshApiBaseUrl = config!.MeshApiBaseUrl,
+        MeshApiBaseUrl = config!.CaasSubscriptionMeshApiBaseUrl,
         KeyVaultConnectionString = config.KeyVaultConnectionString,
         BypassServerCertificateValidation = config.BypassServerCertificateValidation,
         MailboxConfigs = new List<MailboxConfig>

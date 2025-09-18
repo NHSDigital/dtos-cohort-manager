@@ -37,7 +37,7 @@ public class ManageCaasSubscriptionTests
         {
             CaasToMailbox = "TEST_TO",
             CaasFromMailbox = "TEST_FROM",
-            MeshApiBaseUrl = "http://localhost",
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost",
             MeshCaasSharedKey = "dummy"
         });
 
@@ -252,7 +252,7 @@ public class ManageCaasSubscriptionTests
         {
             CaasToMailbox = "TEST_TO",
             CaasFromMailbox = "TEST_FROM",
-            MeshApiBaseUrl = "http://localhost",
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost",
             MeshCaasSharedKey = "dummy",
             IsStubbed = true
         });
@@ -289,7 +289,7 @@ public class ManageCaasSubscriptionTests
         {
             CaasToMailbox = "TEST_TO",
             CaasFromMailbox = "TEST_FROM",
-            MeshApiBaseUrl = "http://localhost",
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost",
             MeshCaasSharedKey = "dummy",
             IsStubbed = false
         });
@@ -358,7 +358,7 @@ public class ManageCaasSubscriptionTests
         {
             CaasFromMailbox = "TEST_FROM",
             CaasToMailbox = "TEST_TO",
-            MeshApiBaseUrl = "http://localhost",
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost",
             MeshCaasSharedKey = "dummy"
         });
 
