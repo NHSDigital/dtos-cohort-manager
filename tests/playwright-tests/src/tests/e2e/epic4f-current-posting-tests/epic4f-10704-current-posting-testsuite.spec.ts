@@ -75,12 +75,13 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     const subscribeUrl = buildUrl(config.ManageCaasSubscribe || config.SubToNems, config.SubToNemsPath, { nhsNumber: freshNhs });
     await testInfo.attach('debug-subscribe-url.txt', { body: subscribeUrl, contentType: 'text/plain' });
     const resp = await subscribe(freshNhs);
-    expect(resp.status).toBe(200);
-    // Attach response body for diagnostics
+    // Attach response body for diagnostics before asserting
+    let respBody = '';
     try {
-      const body = await resp.text();
-      await testInfo.attach('subscribe-response.txt', { body, contentType: 'text/plain' });
+      respBody = await resp.text();
+      await testInfo.attach('subscribe-response.txt', { body: respBody, contentType: 'text/plain' });
     } catch {}
+    expect(resp.status).toBe(200);
 
     if (process.env.USE_MESH_WIREMOCK === '1') {
       await validateMeshRequestWithMockServer(request, { minCount: 1, attempts: 8, delayMs: 1500 });
