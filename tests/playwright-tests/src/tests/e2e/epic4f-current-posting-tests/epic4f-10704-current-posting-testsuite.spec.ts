@@ -52,10 +52,14 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
       await cleanupWireMock(request);
     }
     // Given not subscribed
+    const preUrl = buildUrl(config.ManageCaasSubscribe || config.SubToNems, config.CheckNemsSubPath, { nhsNumber: freshNhs });
+    await testInfo.attach('debug-precheck-url.txt', { body: preUrl, contentType: 'text/plain' });
     const pre = await retry(() => checkSubscriptionStatus(freshNhs), r => [404, 200].includes(r.status), { retries: 3, delayMs: 1500, throwLastError: false });
     expect([404, 200]).toContain(pre.status); // allow 200 in case of prior runs; prefer 404
 
     // When POST Subscribe
+    const subscribeUrl = buildUrl(config.ManageCaasSubscribe || config.SubToNems, config.SubToNemsPath, { nhsNumber: freshNhs });
+    await testInfo.attach('debug-subscribe-url.txt', { body: subscribeUrl, contentType: 'text/plain' });
     const resp = await subscribe(freshNhs);
     expect(resp.status).toBe(200);
     // Attach response body for diagnostics

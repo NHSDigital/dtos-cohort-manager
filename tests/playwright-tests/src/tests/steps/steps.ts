@@ -83,9 +83,13 @@ export async function cleanupWireMock(request: APIRequestContext) {
   });
 }
 
-export async function validateSqlDatabaseFromAPI(request: APIRequestContext, validations: any) {
+export async function validateSqlDatabaseFromAPI(
+  request: APIRequestContext,
+  validations: any,
+  options?: { retries?: number; initialWaitMs?: number; stepMs?: number }
+) {
   return test.step(`Validate database for assertions`, async () => {
-    const { status, errorTrace } = await validateApiResponse(validations, request);
+    const { status, errorTrace } = await validateApiResponse(validations, request, options);
     if (!status) {
       throw new Error(`❌ Validation failed after ${config.apiRetry} attempts, please checks logs for more details: ${errorTrace}`);
     }

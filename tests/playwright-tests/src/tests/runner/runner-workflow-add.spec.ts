@@ -79,6 +79,9 @@ dbValidations.forEach((validations: any) => {
       { type: 'RequirementId', description: validations.meta?.requirementJiraId ?? '' },
     ],
   }, async ({ request }) => {
-    await validateSqlDatabaseFromAPI(request, [validations]);
+    const endpoint = validations?.validations?.apiEndpoint as string | undefined;
+    const isExceptionCheck = typeof endpoint === 'string' && endpoint.includes('ExceptionManagementDataService');
+    const fast = isExceptionCheck ? { retries: 3, initialWaitMs: 2000, stepMs: 2000 } : undefined;
+    await validateSqlDatabaseFromAPI(request, [validations], fast);
   });
 });
