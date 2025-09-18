@@ -57,14 +57,20 @@ function getWireMockAdmin(base?: string): { admin: string; requests: string; map
 }
 
 export async function cleanupWireMock(request: APIRequestContext) {
-  const wireMockUrl = getWireMockUrl();
+  const { requests: requestsUrl } = getWireMockAdmin();
 
   return test.step(`Cleaning up WireMock`, async () => {
     try {
-      await request.delete(wireMockUrl);
+      // Prefer the explicit reset endpoint if available
+      const resetUrl = `${requestsUrl}/reset`;
+      const res = await request.post(resetUrl);
+      if (!res.ok()) {
+        // Fallback to DELETE all requests
+        await request.delete(requestsUrl);
+      }
     }
-    catch {
-      console.warn(`Failed to clean up WireMock requests. Is the WireMock server running? URL: ${wireMockUrl}`);
+    catch (e) {
+      console.warn(`Failed to clean up WireMock requests. Attempted: POST ${requestsUrl}/reset then DELETE ${requestsUrl}. Error: ${e}`);
     }
   });
 }
