@@ -1,10 +1,8 @@
 namespace NHS.Screening.ReceiveCaasFile;
 
 
-using System.Net.Http.Headers;
 using System.Text.Json;
 using Common;
-using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
@@ -84,7 +82,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
 
             if (finalStatus == WorkFlowStatus.Completed)
             {
-                _logger.LogWarning("Durable function completed {finalStatus}", finalStatus);
+                _logger.LogWarning("Durable function completed {FinalStatus}", finalStatus);
                 return true;
             }
             else

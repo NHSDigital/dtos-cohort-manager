@@ -85,7 +85,7 @@ public class DurableDemographicFunction
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Orchestration failed with exception. {exception}", ex.Message);
+                _logger.LogError(ex, "Orchestration failed with exception. {Exception}", ex.Message);
                 throw;
             }
         }

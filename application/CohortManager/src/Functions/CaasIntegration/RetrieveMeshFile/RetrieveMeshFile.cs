@@ -42,7 +42,7 @@ public class RetrieveMeshFile
     [Function("RetrieveMeshFile")]
     public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
     {
-        _logger.LogInformation("C# Timer trigger function executed at: ,{datetime}", DateTime.UtcNow);
+        _logger.LogInformation("C# Timer trigger function executed at: ,{DateTime}", DateTime.UtcNow);
 
         static bool messageFilter(MessageMetaData i) => true; // No current filter defined there might be business rules here
 
@@ -65,7 +65,7 @@ public class RetrieveMeshFile
 
         if (myTimer.ScheduleStatus is not null)
         {
-            _logger.LogInformation("Next timer schedule at: {scheduleStatus}", myTimer.ScheduleStatus.Next);
+            _logger.LogInformation("Next timer schedule at: {ScheduleStatus}", myTimer.ScheduleStatus.Next);
         }
     }
 
@@ -127,7 +127,7 @@ public class RetrieveMeshFile
             return true;
 
         }
-        _logger.LogInformation("Next handshake scheduled for {nextHandShakeDateTime}", nextHandShakeDateTime);
+        _logger.LogInformation("Next handshake scheduled for {NextHandShakeDateTime}", nextHandShakeDateTime);
         return false;
     }
 

@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Common;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
-using Azure.Messaging.ServiceBus;
 
 public class ReceiveCaasFile
 {
@@ -117,7 +116,7 @@ public class ReceiveCaasFile
     public async Task<ScreeningLkp> GetScreeningService(FileNameParser fileNameParser)
     {
         var screeningWorkflowId = fileNameParser.GetScreeningService();
-        _logger.LogInformation("Screening Acronym {screeningWorkflowId}", screeningWorkflowId);
+        _logger.LogInformation("Screening Acronym {ScreeningWorkflowId}", screeningWorkflowId);
 
         ScreeningLkp screeningService = await _screeningLkpClient.GetSingleByFilter(x => x.ScreeningWorkflowId == screeningWorkflowId)
             ?? throw new ArgumentException("Could not get screening service data for screening id: " + screeningWorkflowId);
