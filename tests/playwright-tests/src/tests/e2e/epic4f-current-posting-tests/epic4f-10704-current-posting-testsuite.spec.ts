@@ -5,6 +5,20 @@ import { extractSubscriptionID, retry } from '../../../api/distributionService/b
 import { cleanupWireMock, cleanupNemsSubscriptions, enableMeshOutboxFailureInWireMock, enableMeshOutboxSuccessInWireMock, getTestData, resetWireMockMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI } from '../../steps/steps';
 const DEFAULT_NHS_NUMBER = '9997160908';
 
+// Generate a valid 10-digit NHS number starting with 999 using the Mod 11 algorithm
+function generateValidNhsNumber(): string {
+  while (true) {
+    const base9 = '999' + Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+    const weights = [10,9,8,7,6,5,4,3,2];
+    const sum = base9.split('').reduce((acc, d, i) => acc + Number(d) * weights[i], 0);
+    const remainder = sum % 11;
+    let check = 11 - remainder;
+    if (check === 11) check = 0;
+    if (check === 10) continue; // invalid, regenerate
+    return base9 + String(check);
+  }
+}
+
 function buildUrl(base: string, route: string, params: Record<string, string | number> = {}) {
   // Ensure a valid absolute base and preserve any existing query (e.g., function key)
   const u = new URL(route, base);
@@ -44,8 +58,8 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
   });
 
   test('@DTOSS-10704-01 DTOSS-10939 - Successful subscription when participant not already subscribed', async ({ request }, testInfo) => {
-    const [_, nhsNumbers] = await getTestData(testInfo.title);
-    const freshNhs = (nhsNumbers[0] as any) ?? DEFAULT_NHS_NUMBER;
+    // Use a fresh, valid NHS number to avoid pre-existing subscriptions from other flows
+    const freshNhs = generateValidNhsNumber();
     // Ensure not already subscribed to exercise first-time path
     await cleanupNemsSubscriptions(request, [freshNhs]);
     if (process.env.USE_MESH_WIREMOCK === '1') {
@@ -69,7 +83,7 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     } catch {}
 
     if (process.env.USE_MESH_WIREMOCK === '1') {
-      await validateMeshRequestWithMockServer(request, { minCount: 1 });
+      await validateMeshRequestWithMockServer(request, { minCount: 1, attempts: 8, delayMs: 1500 });
     }
 
     // Then check status returns 200 and has a subscription id
@@ -84,8 +98,8 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
   });
 
   test('@DTOSS-10704-02 DTOSS-10940 - Already subscribed returns success with existing id (idempotent)', async ({ request }, testInfo) => {
-    const [_, nhsNumbers] = await getTestData(testInfo.title);
-    const subscribedNhs = (nhsNumbers[0] as any) ?? DEFAULT_NHS_NUMBER;
+    // Use a fresh, valid NHS number per run to make idempotency deterministic within the test
+    const subscribedNhs = generateValidNhsNumber();
     // Start clean then create an initial subscription for idempotency check
     await cleanupNemsSubscriptions(request, [subscribedNhs]);
     if (process.env.USE_MESH_WIREMOCK === '1') {
