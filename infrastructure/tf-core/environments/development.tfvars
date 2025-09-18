@@ -472,7 +472,7 @@ function_apps = {
         },
         {
           env_var_name     = "ManageNemsSubscriptionSubscribeURL"
-          function_app_key = "ManageNemsSubscription"
+          function_app_key = "ManageCaasSubscription"
           endpoint_name    = "Subscribe"
         }
       ]
@@ -502,12 +502,12 @@ function_apps = {
         },
         {
           env_var_name     = "ManageNemsSubscriptionUnsubscribeURL"
-          function_app_key = "ManageNemsSubscription"
+          function_app_key = "ManageCaasSubscription"
           endpoint_name    = "Unsubscribe"
         },
         {
           env_var_name     = "ManageNemsSubscriptionSubscribeURL"
-          function_app_key = "ManageNemsSubscription"
+          function_app_key = "ManageCaasSubscription"
           endpoint_name    = "Subscribe"
         },
         {
@@ -1095,7 +1095,8 @@ function_apps = {
       db_connection_string   = "DtOsDatabaseConnectionString"
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
-        IsStubbed = "true"
+        IsStubbed                         = "true"
+        BypassServerCertificateValidation = "true"
       }
       app_urls = [
         {
