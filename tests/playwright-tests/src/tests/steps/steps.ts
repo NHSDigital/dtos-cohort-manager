@@ -166,6 +166,34 @@ export async function enableMeshOutboxFailureInWireMock(
   });
 }
 
+/** Configure WireMock to return success for Mesh outbox HTTP calls with a dynamic messageId. */
+export async function enableMeshOutboxSuccessInWireMock(
+  request: APIRequestContext
+) {
+  const { mappings: mappingsUrl } = getWireMockAdmin();
+
+  const body = {
+    priority: 5,
+    request: {
+      method: 'POST',
+      urlPattern: '.*messageexchange/.*/outbox.*'
+    },
+    response: {
+      status: 200,
+      jsonBody: { messageId: "{{randomValue length=24 type='ALPHANUMERIC'}}" },
+      headers: { 'Content-Type': 'application/json' },
+      transformers: ["response-template"]
+    }
+  };
+
+  return test.step(`Enable Mesh success stub in WireMock`, async () => {
+    const res = await request.post(mappingsUrl, { data: body });
+    if (!res.ok()) {
+      throw new Error(`Failed to create WireMock success mapping. ${res.status()} - ${await res.text()}`);
+    }
+  });
+}
+
 /** Remove all WireMock mappings (stubs). Useful to clean after failure injection. */
 export async function resetWireMockMappings(request: APIRequestContext) {
   const { mappings: mappingsUrl } = getWireMockAdmin();

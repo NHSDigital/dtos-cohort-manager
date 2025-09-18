@@ -2,7 +2,7 @@ import { expect, test } from '../../fixtures/test-fixtures';
 import { config } from '../../../config/env';
 import { sendHttpGet, sendHttpPOSTCall } from '../../../api/core/sendHTTPRequest';
 import { extractSubscriptionID, retry } from '../../../api/distributionService/bsSelectService';
-import { cleanupWireMock, enableMeshOutboxFailureInWireMock, getTestData, resetWireMockMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI } from '../../steps/steps';
+import { cleanupWireMock, enableMeshOutboxFailureInWireMock, enableMeshOutboxSuccessInWireMock, getTestData, resetWireMockMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI } from '../../steps/steps';
 const DEFAULT_NHS_NUMBER = '9997160908';
 
 function buildUrl(base: string, route: string, params: Record<string, string | number> = {}) {
@@ -154,6 +154,7 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     const usingWireMock = process.env.USE_MESH_WIREMOCK === '1';
     if (usingWireMock) {
       await cleanupWireMock(request);
+      // Seed failure mapping for this test case only
       await enableMeshOutboxFailureInWireMock(request, 500);
     }
 
@@ -182,7 +183,9 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
 
     // Clean up WireMock mappings afterwards to avoid affecting subsequent tests
     if (usingWireMock) {
+      // Restore default happy-path mapping after the test to avoid impacting others
       await resetWireMockMappings(request);
+      await enableMeshOutboxSuccessInWireMock(request);
     }
   });
 
