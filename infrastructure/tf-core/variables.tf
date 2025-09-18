@@ -59,6 +59,12 @@ variable "application" {
   default     = "DToS"
 }
 
+variable "environment_hub" {
+  description = "Project/Application should use Dev Hub or Prod Hub"
+  type        = string
+  default     = "dev"
+}
+
 variable "application_full_name" {
   description = "Full name of the Project/Application code for deployment"
   type        = string
@@ -168,13 +174,15 @@ variable "container_app_environments" {
   default     = {}
   type = object({
     instances = optional(map(object({
-      workload_profile = optional(object({
+      infrastructure_resource_group_name = optional(string)
+      workload_profile                   = optional(object({
         name                  = optional(string)
         workload_profile_type = optional(string)
         minimum_count         = optional(number, 0)
         maximum_count         = optional(string, 0) # Value not used for Consumption type and causes unnecessary plan changes
       }), {})
-      zone_redundancy_enabled = optional(bool, false)
+      zone_redundancy_enabled  = optional(bool, false)
+      use_custom_infra_rg_name = optional(bool, false)
     })), {})
   })
 }

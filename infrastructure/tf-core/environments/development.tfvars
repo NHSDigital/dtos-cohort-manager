@@ -1,6 +1,7 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
 environment           = "DEV"
+environment_hub       = "dev"
 
 features = {
   acr_enabled                          = false
@@ -235,7 +236,8 @@ app_service_plan = {
 container_app_environments = {
   instances = {
     db-management = {
-      zone_redundancy_enabled = false
+      zone_redundancy_enabled  = false
+      use_custom_infra_rg_name = false
     }
   }
 }

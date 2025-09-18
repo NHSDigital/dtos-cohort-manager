@@ -1,6 +1,7 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
 environment           = "PRE"
+environment_hub       = "prod"
 
 features = {
   acr_enabled                          = false
