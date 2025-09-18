@@ -2,7 +2,7 @@ import { expect, test } from '../../fixtures/test-fixtures';
 import { config } from '../../../config/env';
 import { sendHttpGet, sendHttpPOSTCall } from '../../../api/core/sendHTTPRequest';
 import { extractSubscriptionID, retry } from '../../../api/distributionService/bsSelectService';
-import { cleanupWireMock, enableMeshOutboxFailureInWireMock, enableMeshOutboxSuccessInWireMock, getTestData, resetWireMockMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI } from '../../steps/steps';
+import { cleanupWireMock, cleanupNemsSubscriptions, enableMeshOutboxFailureInWireMock, enableMeshOutboxSuccessInWireMock, getTestData, resetWireMockMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI } from '../../steps/steps';
 const DEFAULT_NHS_NUMBER = '9997160908';
 
 function buildUrl(base: string, route: string, params: Record<string, string | number> = {}) {
@@ -46,6 +46,8 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
   test('@DTOSS-10704-01 DTOSS-10939 - Successful subscription when participant not already subscribed', async ({ request }, testInfo) => {
     const [_, nhsNumbers] = await getTestData(testInfo.title);
     const freshNhs = (nhsNumbers[0] as any) ?? DEFAULT_NHS_NUMBER;
+    // Ensure not already subscribed to exercise first-time path
+    await cleanupNemsSubscriptions(request, [freshNhs]);
     if (process.env.USE_MESH_WIREMOCK === '1') {
       await cleanupWireMock(request);
     }
@@ -56,6 +58,11 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     // When POST Subscribe
     const resp = await subscribe(freshNhs);
     expect(resp.status).toBe(200);
+    // Attach response body for diagnostics
+    try {
+      const body = await resp.text();
+      await testInfo.attach('subscribe-response.txt', { body, contentType: 'text/plain' });
+    } catch {}
 
     if (process.env.USE_MESH_WIREMOCK === '1') {
       await validateMeshRequestWithMockServer(request, { minCount: 1 });
@@ -75,12 +82,18 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
   test('@DTOSS-10704-02 DTOSS-10940 - Already subscribed returns success with existing id (idempotent)', async ({ request }, testInfo) => {
     const [_, nhsNumbers] = await getTestData(testInfo.title);
     const subscribedNhs = (nhsNumbers[0] as any) ?? DEFAULT_NHS_NUMBER;
+    // Start clean then create an initial subscription for idempotency check
+    await cleanupNemsSubscriptions(request, [subscribedNhs]);
     if (process.env.USE_MESH_WIREMOCK === '1') {
       await cleanupWireMock(request);
     }
     // Ensure subscribed once
     const first = await subscribe(subscribedNhs);
     expect(first.status).toBe(200);
+    try {
+      const body = await first.text();
+      await testInfo.attach('first-subscribe-response.txt', { body, contentType: 'text/plain' });
+    } catch {}
 
     // Capture current subscription id
     const beforeCheck = await retry(() => checkSubscriptionStatus(subscribedNhs), r => r.status === 200, { retries: 3, delayMs: 1500, throwLastError: false });

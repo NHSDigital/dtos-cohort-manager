@@ -17,6 +17,14 @@ export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers
   });
 }
 
+export async function cleanupNemsSubscriptions(request: APIRequestContext, numbers: string[]) {
+  return test.step(`Cleanup NEMS subscriptions via data service`, async () => {
+    // Note: current data service cleaner deletes all records in the selected service.
+    // This keeps the environment clean and ensures first-time subscribe paths.
+    await cleanDataBaseUsingServices(numbers, request, ['nemsSubscription' as any]);
+  });
+}
+
 // Attempt to resolve a stable scenario folder name from a test title or tag string.
 // Prefer the first @DTOSS-xxxxx-yy tag if present; otherwise return the original string.
 function resolveScenarioFolder(raw: string): string {
