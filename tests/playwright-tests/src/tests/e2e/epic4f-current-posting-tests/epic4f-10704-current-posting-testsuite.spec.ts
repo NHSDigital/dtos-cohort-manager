@@ -64,6 +64,8 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     await cleanupNemsSubscriptions(request, [freshNhs]);
     if (process.env.USE_MESH_WIREMOCK === '1') {
       await cleanupWireMock(request);
+      // Ensure success mapping uses expected response shape (message_id)
+      await enableMeshOutboxSuccessInWireMock(request);
     }
     // Given not subscribed
     const preUrl = buildUrl(config.ManageCaasSubscribe || config.SubToNems, config.CheckNemsSubPath, { nhsNumber: freshNhs });
@@ -105,6 +107,7 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     await cleanupNemsSubscriptions(request, [subscribedNhs]);
     if (process.env.USE_MESH_WIREMOCK === '1') {
       await cleanupWireMock(request);
+      await enableMeshOutboxSuccessInWireMock(request);
     }
     // Ensure subscribed once
     const first = await subscribe(subscribedNhs);

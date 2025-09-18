@@ -191,14 +191,16 @@ export async function enableMeshOutboxSuccessInWireMock(
   const { mappings: mappingsUrl } = getWireMockAdmin();
 
   const body = {
-    priority: 5,
+    // Lower number = higher priority to override default mappings
+    priority: 2,
     request: {
       method: 'POST',
       urlPattern: '.*messageexchange/.*/outbox.*'
     },
     response: {
       status: 200,
-      jsonBody: { messageId: "{{randomValue length=24 type='ALPHANUMERIC'}}" },
+      // Client expects snake_case property: message_id
+      jsonBody: { message_id: "{{randomValue length=24 type='ALPHANUMERIC'}}" },
       headers: { 'Content-Type': 'application/json' },
       transformers: ["response-template"]
     }
