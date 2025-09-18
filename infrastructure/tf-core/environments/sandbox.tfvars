@@ -560,7 +560,8 @@ function_apps = {
       db_connection_string   = "DtOsDatabaseConnectionString"
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
-        IsStubbed = "false"
+        IsStubbed                         = "false"
+        BypassServerCertificateValidation = "true"
       }
       app_urls = [
         {
