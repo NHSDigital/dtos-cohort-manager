@@ -236,7 +236,8 @@ app_service_plan = {
 container_app_environments = {
   instances = {
     db-management = {
-      zone_redundancy_enabled = false
+      zone_redundancy_enabled  = false
+      use_custom_infra_rg_name = false
     }
   }
 }
@@ -276,7 +277,7 @@ function_apps = {
   enable_appsrv_storage         = "false"
   ftps_state                    = "Disabled"
   https_only                    = true
-  http2_enabled                 = false
+  http2_enabled                 = true
   remote_debugging_enabled      = false
   storage_uses_managed_identity = null
   worker_32bit                  = false
@@ -499,24 +500,6 @@ function_apps = {
         {
           env_var_name     = "RetrievePdsDemographicURL"
           function_app_key = "RetrievePDSDemographic"
-        }
-      ]
-    }
-
-    ManageCaasSubscription = {
-      name_suffix            = "manage-caas-subscription"
-      function_endpoint_name = "ManageCaasSubscription"
-      app_service_plan_key   = "NonScaling"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      key_vault_url          = "KeyVaultConnectionString"
-      env_vars_static = {
-        IsStubbed                         = "false"
-        BypassServerCertificateValidation = "true"
-      }
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
         }
       ]
     }
@@ -1091,6 +1074,24 @@ function_apps = {
       }
     }
 
+    ManageCaasSubscription = {
+      name_suffix            = "manage-caas-subscription"
+      function_endpoint_name = "ManageCaasSubscription"
+      app_service_plan_key   = "NonScaling"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      key_vault_url          = "KeyVaultConnectionString"
+      env_vars_static = {
+        IsStubbed                         = "false"
+        BypassServerCertificateValidation = "true"
+      }
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
+    }
+
     ReferenceDataService = {
       name_suffix            = "reference-data-service"
       function_endpoint_name = "ReferenceDataService"
@@ -1143,9 +1144,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        NemsMeshCertName         = "NemsMeshCert"
-        NemsMeshInboundContainer = "nems-updates"
-        NemsMeshConfigContainer  = "nems-config"
+        NemsMeshCertName                          = "NemsMeshCert"
+        NemsMeshInboundContainer                  = "nems-updates"
+        NemsMeshConfigContainer                   = "nems-config"
+        NemsMeshBypassServerCertificateValidation = "true"
       }
     }
 

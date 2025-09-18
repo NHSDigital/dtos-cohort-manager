@@ -37,7 +37,7 @@ public class ManageCaasSubscriptionTests
         {
             CaasToMailbox = "TEST_TO",
             CaasFromMailbox = "TEST_FROM",
-            MeshApiBaseUrl = "http://localhost",
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost/messageexchange",
             MeshCaasSharedKey = "dummy"
         });
 
@@ -252,7 +252,7 @@ public class ManageCaasSubscriptionTests
         {
             CaasToMailbox = "TEST_TO",
             CaasFromMailbox = "TEST_FROM",
-            MeshApiBaseUrl = "http://localhost",
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost/messageexchange",
             MeshCaasSharedKey = "dummy",
             IsStubbed = true
         });
@@ -289,7 +289,7 @@ public class ManageCaasSubscriptionTests
         {
             CaasToMailbox = "TEST_TO",
             CaasFromMailbox = "TEST_FROM",
-            MeshApiBaseUrl = "http://localhost",
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost/messageexchange",
             MeshCaasSharedKey = "dummy",
             IsStubbed = false
         });
@@ -358,7 +358,7 @@ public class ManageCaasSubscriptionTests
         {
             CaasFromMailbox = "TEST_FROM",
             CaasToMailbox = "TEST_TO",
-            MeshApiBaseUrl = "http://localhost",
+            CaasSubscriptionMeshApiBaseUrl = "http://localhost/messageexchange",
             MeshCaasSharedKey = "dummy"
         });
 
@@ -395,5 +395,5 @@ public class ManageCaasSubscriptionTests
         _mesh.Verify(m => m.SendSubscriptionRequest(It.IsAny<long>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         _nemsAccessor.Verify(a => a.InsertSingle(It.IsAny<NemsSubscription>()), Times.Never);
     }
-    
+
 }

@@ -9,7 +9,7 @@ public class ManageCaasSubscriptionConfig
 {
     /// <summary>Base URL for the MESH API.</summary>
     [Required]
-    public required string MeshApiBaseUrl { get; set; }
+    public required string CaasSubscriptionMeshApiBaseUrl { get; set; }
     /// <summary>Optional Azure Key Vault URL for certificate and secret retrieval.</summary>
     public string? KeyVaultConnectionString { get; set; }
     /// <summary>Bypass server certificate validation for local/dev purposes.</summary>
