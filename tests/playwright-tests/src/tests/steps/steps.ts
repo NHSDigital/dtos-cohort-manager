@@ -226,6 +226,34 @@ export async function resetWireMockMappings(request: APIRequestContext) {
   });
 }
 
+/**
+ * Remove only MESH outbox mappings so tests can deterministically set success/failure
+ * without affecting other WireMock stubs used by unrelated tests.
+ */
+export async function removeMeshOutboxMappings(request: APIRequestContext) {
+  const { mappings: mappingsUrl } = getWireMockAdmin();
+  return test.step(`Remove MESH outbox mappings`, async () => {
+    try {
+      const res = await request.get(mappingsUrl);
+      const body = await res.json();
+      const mappings = (body?.mappings || []) as Array<any>;
+      const toDelete = mappings.filter(m => {
+        const pat = m?.request?.urlPattern || m?.request?.urlPathPattern || '';
+        const method = (m?.request?.method || '').toUpperCase();
+        return method === 'POST' && pat.includes('messageexchange') && pat.includes('outbox');
+      });
+      for (const m of toDelete) {
+        const id = m.id || m.uuid;
+        if (id) {
+          await request.delete(`${mappingsUrl}/${id}`);
+        }
+      }
+    } catch (e) {
+      console.warn(`Failed to remove specific MESH outbox mappings at ${mappingsUrl}. ${e}`);
+    }
+  });
+}
+
 export async function validateServiceNowRequestWithMockServer(request: APIRequestContext, validations: ServiceNowRequestValidations[]) {
   const wireMockUrl = getWireMockUrl();
 

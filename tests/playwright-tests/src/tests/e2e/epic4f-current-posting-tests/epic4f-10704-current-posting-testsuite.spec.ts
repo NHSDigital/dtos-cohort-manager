@@ -2,7 +2,7 @@ import { expect, test } from '../../fixtures/test-fixtures';
 import { config } from '../../../config/env';
 import { sendHttpGet, sendHttpPOSTCall } from '../../../api/core/sendHTTPRequest';
 import { extractSubscriptionID, retry } from '../../../api/distributionService/bsSelectService';
-import { cleanupWireMock, cleanupNemsSubscriptions, enableMeshOutboxFailureInWireMock, enableMeshOutboxSuccessInWireMock, getTestData, resetWireMockMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI } from '../../steps/steps';
+import { cleanupWireMock, cleanupNemsSubscriptions, enableMeshOutboxFailureInWireMock, enableMeshOutboxSuccessInWireMock, getTestData, removeMeshOutboxMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI } from '../../steps/steps';
 const DEFAULT_NHS_NUMBER = '9997160908';
 
 // Generate a valid 10-digit NHS number starting with 999 using the Mod 11 algorithm
@@ -64,6 +64,7 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     await cleanupNemsSubscriptions(request, [freshNhs]);
     if (process.env.USE_MESH_WIREMOCK === '1') {
       await cleanupWireMock(request);
+      await removeMeshOutboxMappings(request);
       // Ensure success mapping uses expected response shape (message_id)
       await enableMeshOutboxSuccessInWireMock(request);
     }
@@ -107,6 +108,7 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     await cleanupNemsSubscriptions(request, [subscribedNhs]);
     if (process.env.USE_MESH_WIREMOCK === '1') {
       await cleanupWireMock(request);
+      await removeMeshOutboxMappings(request);
       await enableMeshOutboxSuccessInWireMock(request);
     }
     // Ensure subscribed once
@@ -189,7 +191,8 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     const usingWireMock = process.env.USE_MESH_WIREMOCK === '1';
     if (usingWireMock) {
       await cleanupWireMock(request);
-      // Seed failure mapping for this test case only
+      // Make failure deterministic: remove only prior outbox mappings, then add failure mapping
+      await removeMeshOutboxMappings(request);
       await enableMeshOutboxFailureInWireMock(request, 500);
     }
 
