@@ -113,11 +113,7 @@ public class DistributeParticipantActivities
         transformedParticipant.Extracted = Convert.ToInt32(_config.IsExtractedToBSSelect).ToString();
         var newRecord = transformedParticipant.ToCohortDistribution();
 
-        if (newRecord.RecordInsertDateTime is null)
-        {
-            newRecord.RecordInsertDateTime = DateTime.UtcNow;
-        }
-        newRecord.RecordUpdateDateTime = DateTime.UtcNow;
+        newRecord.RecordUpdateDateTime = newRecord.RecordInsertDateTime = DateTime.UtcNow;
         var isAdded = await _cohortDistributionClient.Add(newRecord);
 
         _logger.LogInformation("sent participant to cohort distribution data service");
