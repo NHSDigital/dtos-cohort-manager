@@ -280,12 +280,6 @@ variable "function_apps" {
         function_app_key = string
         endpoint_name    = optional(string, "")
       })), [])
-      # Optional references to container apps (e.g., WireMock) whose FQDNs are needed as env vars
-      container_app_urls = optional(list(object({
-        env_var_name       = string
-        container_app_key  = string
-        path               = optional(string, "") # appended path like "/__admin"
-      })), [])
       env_vars_static = optional(map(string), {})
     }))
   })
