@@ -124,8 +124,8 @@ services:
       - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
       - SendServiceNowMessageURL=http://servicenow-message-handler:9092/api/servicenow/send
       - ParticipantManagementURL=http://participant-management-data-service:7994/api/ParticipantManagementDataService
-      - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
-      # - ManageNemsSubscriptionSubscribeURL=http://manage-caas-subscription:9084/api/Subscribe
+      # - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
+      - ManageNemsSubscriptionSubscribeURL=http://manage-caas-subscription:9084/api/Subscribe
       - CohortDistributionTopic=cohort-distribution-topic
 
   update-blocked-flag:
@@ -144,10 +144,10 @@ services:
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ManageNemsSubscriptionUnsubscribeURL=http://manage-nems-subscription:9081/api/Unsubscribe
-      - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
-      # - ManageNemsSubscriptionUnsubscribeURL=http://manage-caas-subscription:9084/api/Unsubscribe
-      # - ManageNemsSubscriptionSubscribeURL=http://manage-caas-subscription:9084/api/Subscribe
+      # - ManageNemsSubscriptionUnsubscribeURL=http://manage-nems-subscription:9081/api/Unsubscribe
+      # - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
+      - ManageNemsSubscriptionUnsubscribeURL=http://manage-caas-subscription:9084/api/Unsubscribe
+      - ManageNemsSubscriptionSubscribeURL=http://manage-caas-subscription:9084/api/Subscribe
       - RetrievePdsDemographicURL=http://etrieve-pds-demographic:8082/api/RetrievePdsDemographic
 
   delete-participant:

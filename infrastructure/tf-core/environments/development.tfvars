@@ -1,6 +1,7 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
 environment           = "DEV"
+environment_hub       = "dev"
 
 features = {
   acr_enabled                          = false
@@ -235,7 +236,8 @@ app_service_plan = {
 container_app_environments = {
   instances = {
     db-management = {
-      zone_redundancy_enabled = false
+      zone_redundancy_enabled  = false
+      use_custom_infra_rg_name = false
     }
   }
 }
@@ -472,7 +474,7 @@ function_apps = {
         },
         {
           env_var_name     = "ManageNemsSubscriptionSubscribeURL"
-          function_app_key = "ManageNemsSubscription"
+          function_app_key = "ManageCaasSubscription"
           endpoint_name    = "Subscribe"
         }
       ]
@@ -502,12 +504,12 @@ function_apps = {
         },
         {
           env_var_name     = "ManageNemsSubscriptionUnsubscribeURL"
-          function_app_key = "ManageNemsSubscription"
+          function_app_key = "ManageCaasSubscription"
           endpoint_name    = "Unsubscribe"
         },
         {
           env_var_name     = "ManageNemsSubscriptionSubscribeURL"
-          function_app_key = "ManageNemsSubscription"
+          function_app_key = "ManageCaasSubscription"
           endpoint_name    = "Subscribe"
         },
         {
@@ -1095,7 +1097,8 @@ function_apps = {
       db_connection_string   = "DtOsDatabaseConnectionString"
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
-        IsStubbed = "true"
+        IsStubbed                         = "true"
+        BypassServerCertificateValidation = "true"
       }
       app_urls = [
         {

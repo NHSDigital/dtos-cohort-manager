@@ -3,27 +3,22 @@ module "container-app-environment" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/container-app-environment"
 
+  # Even though we are not enabling public ingress, the structure of the template module requires the provider for the private DNS zone subscription to be supplied because we need to create the Private DNS zone entry.
   providers = {
     azurerm     = azurerm
-    azurerm.dns = azurerm
+    azurerm.dns = azurerm.hub
   }
 
-  name                = "${module.regions_config[each.value.region].names.container-app-environment}-${lower(each.value.container_app_environment)}"
-  resource_group_name = azurerm_resource_group.core[each.value.region].name
-  location            = each.value.region
+  name                 = "${module.regions_config[each.value.region].names.container-app-environment}-${lower(each.value.container_app_environment)}"
+  resource_group_name  = azurerm_resource_group.core[each.value.region].name
+  location             = each.value.region
+  custom_infra_rg_name = each.value.use_custom_infra_rg_name == true ? "${azurerm_resource_group.core[each.value.region].name}-cae-${each.value.container_app_environment}" : null
 
   log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-container-app-${lower(each.value.container_app_environment)}"].id
   workload_profile           = each.value.workload_profile
   zone_redundancy_enabled    = each.value.zone_redundancy_enabled
-}
-
-# Even though we are not enabling public ingress, the structure of the template module requires the provider for the private DNS zone subscription to be supplied.
-provider "azurerm" {
-  alias           = "dns"
-  subscription_id = var.HUB_SUBSCRIPTION_ID
-
-  features {}
+  private_dns_zone_rg_name   = "rg-hub-${var.environment_hub}-uks-private-dns-zones"
 }
 
 locals {
