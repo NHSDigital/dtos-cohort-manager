@@ -472,7 +472,7 @@ function_apps = {
         },
         {
           env_var_name     = "ManageNemsSubscriptionSubscribeURL"
-          function_app_key = "ManageNemsSubscription"
+          function_app_key = "ManageCaasSubscription"
           endpoint_name    = "Subscribe"
         }
       ]
@@ -502,12 +502,12 @@ function_apps = {
         },
         {
           env_var_name     = "ManageNemsSubscriptionUnsubscribeURL"
-          function_app_key = "ManageNemsSubscription"
+          function_app_key = "ManageCaasSubscription"
           endpoint_name    = "Unsubscribe"
         },
         {
           env_var_name     = "ManageNemsSubscriptionSubscribeURL"
-          function_app_key = "ManageNemsSubscription"
+          function_app_key = "ManageCaasSubscription"
           endpoint_name    = "Subscribe"
         },
         {
