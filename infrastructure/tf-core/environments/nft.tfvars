@@ -1096,14 +1096,18 @@ function_apps = {
       db_connection_string   = "DtOsDatabaseConnectionString"
       key_vault_url          = "KeyVaultConnectionString"
       env_vars_static = {
-        IsStubbed                         = "false"
         BypassServerCertificateValidation = "true"
+        # Enable WireMock admin seeding; Mesh base URL remains in Key Vault
+        UseWireMock                       = "true"
       }
       app_urls = [
         {
           env_var_name     = "ExceptionFunctionURL"
           function_app_key = "CreateException"
         }
+      ]
+      container_app_urls = [
+        { env_var_name = "WireMockAdminUrl", container_app_key = "wiremock", path = "/__admin" }
       ]
     }
 
