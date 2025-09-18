@@ -254,6 +254,13 @@ export async function removeMeshOutboxMappings(request: APIRequestContext) {
   });
 }
 
+/** Fetch the current WireMock mappings as a raw JSON string for diagnostics. */
+export async function getWireMockMappingsJson(request: APIRequestContext): Promise<string> {
+  const { mappings: mappingsUrl } = getWireMockAdmin();
+  const res = await request.get(mappingsUrl);
+  return await res.text();
+}
+
 export async function validateServiceNowRequestWithMockServer(request: APIRequestContext, validations: ServiceNowRequestValidations[]) {
   const wireMockUrl = getWireMockUrl();
 
