@@ -28,6 +28,8 @@ const string RetrievePdsDemographicUrl = "http://localhost:8082/api/RetrievePDSD
 const string ScreeningLkpDataServiceUrl = "http://localhost:8996/api/ScreeningLkpDataService";
 const string ManageNemsSubscriptionSubscribeUrl = "http://localhost:9081/api/Subscribe";
 const string ManageNemsSubscriptionUnsubscribeUrl = "http://localhost:9081/api/Unsubscribe";
+const string ManageCaasSubscriptionSubscribeUrl = "http://localhost:9084/api/Subscribe";
+const string ManageCaasSubscriptionUnsubscribeUrl = "http://localhost:9084/api/Unsubscribe";
 const string SendServiceNowMessageUrl = "http://localhost:9092/api/servicenow/send";
 const string ServiceNowCasesDataServiceUrl = "http://localhost:9996/api/ServiceNowCasesDataService";
 
@@ -53,8 +55,6 @@ const string MeshSandboxSharedKey = "TestKey";
 const string MeshSandboxPassword = "password";
 const string MeshSandboxKeyName = "meshpfx.pfx";
 var meshSandboxKeyPasspharse = builder.AddParameter("MeshSandboxKeyPasspharse", secret: true);
-
-var nemsMeshServerSideCerts = builder.AddParameter("NemsMeshServerSideCerts", secret: true);
 
 const string NemsFhirEndpoint = "https://msg.intspineservices.nhs.uk/STU3";
 const string NemsFromAsid = "200000002527";
@@ -144,12 +144,14 @@ builder.AddProject<Projects.RetrieveMeshFile>(nameof(Projects.RetrieveMeshFile))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
     .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
     .WithEnvironment("caasfolder_STORAGE", AzureWebJobsStorage)
+    .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
     .WithEnvironment("MeshApiBaseUrl", MeshSandboxApiBaseUrl)
     .WithEnvironment("BSSMailBox", MeshSandboxMailboxId)
     .WithEnvironment("MeshPassword", MeshSandboxPassword)
     .WithEnvironment("MeshSharedKey", MeshSandboxSharedKey)
     .WithEnvironment("MeshKeyName", MeshSandboxKeyName)
-    .WithEnvironment("MeshKeyPassphrase", meshSandboxKeyPasspharse);
+    .WithEnvironment("MeshKeyPassphrase", meshSandboxKeyPasspharse)
+    .WithEnvironment("ServerSideCerts", "meshServerSideCerts.crt");
 
 // CohortDistributionServices
 builder.AddProject<Projects.DistributeParticipant>(nameof(Projects.DistributeParticipant))
@@ -206,7 +208,7 @@ builder.AddProject<Projects.ManageCaasSubscription>(nameof(Projects.ManageCaasSu
     .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
     .WithEnvironment("DtOsDatabaseConnectionString", dbConnectionString)
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
-    .WithEnvironment("MeshApiBaseUrl", MeshSandboxApiBaseUrl)
+    .WithEnvironment("CaasSubscriptionMeshApiBaseUrl", MeshSandboxApiBaseUrl)
     .WithEnvironment("MeshCaasPassword", MeshSandboxPassword)
     .WithEnvironment("MeshCaasSharedKey", MeshSandboxSharedKey)
     .WithEnvironment("MeshCaasKeyName", MeshSandboxKeyName)
@@ -251,6 +253,7 @@ builder.AddProject<Projects.NemsMeshRetrieval>(nameof(Projects.NemsMeshRetrieval
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
     .WithEnvironment("AzureWebJobsStorage", AzureWebJobsStorage)
     .WithEnvironment("nemsmeshfolder_STORAGE", AzureWebJobsStorage)
+    .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
     .WithEnvironment("NemsMeshApiBaseUrl", MeshSandboxApiBaseUrl)
     .WithEnvironment("NemsMeshMailBox", MeshSandboxMailboxId)
     .WithEnvironment("NemsMeshPassword", MeshSandboxPassword)
@@ -258,7 +261,7 @@ builder.AddProject<Projects.NemsMeshRetrieval>(nameof(Projects.NemsMeshRetrieval
     .WithEnvironment("NemsMeshKeyName", MeshSandboxKeyName)
     .WithEnvironment("NemsMeshKeyPassphrase", meshSandboxKeyPasspharse)
     .WithEnvironment("NemsMeshBypassServerCertificateValidation", "true")
-    .WithEnvironment("NemsMeshServerSideCerts", nemsMeshServerSideCerts)
+    .WithEnvironment("NemsMeshServerSideCerts", "meshServerSideCerts.crt")
     .WithEnvironment("NemsMeshInboundContainer", NemsMeshInboundContainer)
     .WithEnvironment("NemsMeshConfigContainer", NemsMeshConfigContainer);
 builder.AddProject<Projects.ProcessNemsUpdate>(nameof(Projects.ProcessNemsUpdate))
@@ -271,7 +274,8 @@ builder.AddProject<Projects.ProcessNemsUpdate>(nameof(Projects.ProcessNemsUpdate
     .WithEnvironment("NemsPoisonContainer", NemsMessagesPoisonContainer)
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
     .WithEnvironment("RetrievePdsDemographicURL", RetrievePdsDemographicUrl)
-    .WithEnvironment("UnsubscribeNemsSubscriptionUrl", ManageNemsSubscriptionUnsubscribeUrl)
+    .WithEnvironment("ManageNemsSubscriptionSubscribeURL", ManageNemsSubscriptionSubscribeUrl)
+    .WithEnvironment("ManageNemsSubscriptionUnsubscribeURL", ManageNemsSubscriptionUnsubscribeUrl)
     .WithEnvironment("DemographicDataServiceURL", ParticipantDemographicDataServiceUrl);
 
 // ParticipantManagementServices
@@ -300,14 +304,14 @@ builder.AddProject<Projects.ManageServiceNowParticipant>(nameof(Projects.ManageS
     .WithEnvironment("SendServiceNowMessageURL", SendServiceNowMessageUrl)
     .WithEnvironment("RetrievePdsDemographicURL", RetrievePdsDemographicUrl)
     .WithEnvironment("ParticipantManagementURL", ParticipantManagementDataServiceUrl)
-    .WithEnvironment("ManageNemsSubscriptionSubscribeURL", ManageNemsSubscriptionSubscribeUrl);
+    .WithEnvironment("ManageNemsSubscriptionSubscribeURL", ManageCaasSubscriptionSubscribeUrl);
 builder.AddProject<Projects.UpdateBlockedFlag>(nameof(Projects.UpdateBlockedFlag))
     .WithEnvironment("FUNCTIONS_WORKER_RUNTIME", FunctionsWorkerRuntime)
     .WithEnvironment("ExceptionFunctionURL", ExceptionFunctionUrl)
     .WithEnvironment("ParticipantManagementUrl", ParticipantManagementDataServiceUrl)
     .WithEnvironment("ParticipantDemographicDataServiceURL", ParticipantDemographicDataServiceUrl)
-    .WithEnvironment("ManageNemsSubscriptionSubscribeURL", ManageNemsSubscriptionSubscribeUrl)
-    .WithEnvironment("ManageNemsSubscriptionUnsubscribeURL", ManageNemsSubscriptionUnsubscribeUrl)
+    .WithEnvironment("ManageNemsSubscriptionSubscribeURL", ManageCaasSubscriptionSubscribeUrl)
+    .WithEnvironment("ManageNemsSubscriptionUnsubscribeURL", ManageCaasSubscriptionUnsubscribeUrl)
     .WithEnvironment("RetrievePdsDemographicURL", RetrievePdsDemographicUrl);
 
 // ScreeningDataServices

@@ -22,18 +22,19 @@
             "SqlPassword": "",
             "MeshSandboxKeyPasspharse": "",
             "NemsLocalCertPassword": "",
+            "NemsMeshServerSideCerts": "",
             "PdsClientId": ""
         }
     }
     ```
 
-    `SqlPassword` - local db password. It must be at least 8 characters long and contain characters from at least three of the following four categories: uppercase letters, lowercase letters, numbers, and non-alphanumeric characters.
+    `SqlPassword` - The local db password. Must be at least 8 characters long and contain characters from at least three of the following four categories: uppercase letters, lowercase letters, numbers, and non-alphanumeric characters.
 
-    `MeshSandboxKeyPasspharse` - The password for your local MESH Sandbox certificate. Can be set to any value if not using MESH.
+    `MeshSandboxKeyPasspharse` - The password for your local MESH Sandbox certificate. Required for the RetrieveMeshFile, ManageCaasSubscription & NemsMeshRetrieval functions. Can be set to any value if not using MESH if using the stubbed versions.
 
-    `NemsLocalCertPassword` - The password for your local NEMS certificate. Can be set to any value if using the stubbed service (default).
+    `NemsLocalCertPassword` - The password for your local NEMS certificate. Required for the ManageNemsSubscription function, can be set to any value if using the stubbed version (default).
 
-    `PdsClientId` - The client id for using PDS. Can be set to any value if using the stubbed service (default).
+    `PdsClientId` - The client id for using PDS. Required for the RetrievePDSDemographic function, can be set to any value if using the stubbed version (default).
 
 2. Install .NET Aspire if you haven't already
     ```
