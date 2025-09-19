@@ -390,7 +390,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
-        var arguments = new object[] { participant, "testFile" };
+        var arguments = new object[] { participant, "testFile", "some error" };
 
         // Act
         var task = (Task)method.Invoke(processCaasFile, arguments);
