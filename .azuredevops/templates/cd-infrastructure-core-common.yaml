@@ -46,6 +46,26 @@ stages:
           parameters:
             serviceConnection: ${{ parameters.serviceConnection }}
 
+    - job: set_stage_status
+      displayName: Set Stage Status
+      dependsOn:
+        - re_tag
+      condition: always()
+      variables:
+        # Capture the results of the preceding jobs as variables
+        re_tag_result: $[ dependencies.re_tag.result ]
+      steps:
+        - bash: |
+            status="failed"
+            # Access the variables that were set at the job level
+            if [[ "$(re_tag_result)" == "Succeeded" || "$(re_tag_result)" == "Skipped" ]]; then
+              status="succeeded"
+            fi
+            echo "The final status of the Retag Image stage is: $status"
+            echo "##vso[task.setvariable variable=stage_status;isOutput=true]$status"
+          name: set_status
+          displayName: Set Stage Status
+
 - stage: terraform_deploy_stage
   ${{ if eq(parameters.terraformActions, 'Apply') }}:
     displayName: Terraform Deploy
@@ -83,6 +103,28 @@ stages:
               - checkout: dtos-devops-templates
               - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
 
+    - job: set_stage_status
+      displayName: Set Stage Status
+      dependsOn:
+        - init_and_plan
+        - terraform_apply
+      condition: always()
+      variables:
+        # Capture the results of the preceding jobs as variables
+        init_plan_result: $[ dependencies.init_and_plan.result ]
+        terraform_apply_result: $[ dependencies.terraform_apply.result ]
+      steps:
+        - bash: |
+            status="failed"
+            # Access the variables that were set at the job level
+            if [[ "$(init_plan_result)" == "Succeeded" || "$(init_plan_result)" == "Skipped" ]] && [[ "$(terraform_apply_result)" == "Succeeded" || "$(terraform_apply_result)" == "Skipped" ]]; then
+              status="succeeded"
+            fi
+            echo "The final status of the Terraform Deploy stage is: $status"
+            echo "##vso[task.setvariable variable=stage_status;isOutput=true]$status"
+          name: set_status
+          displayName: Set Stage Status
+              
 - stage: db_changes_stage
   displayName: Database changes
   dependsOn: terraform_deploy_stage
@@ -101,6 +143,26 @@ stages:
             targetSubscriptionId: ${{ parameters.targetSubscriptionId }}
             resourceGroupName: ${{ parameters.resourceGroupNameSql }}
             jobName: ${{ parameters.databaseManagementJobName }}
+
+    - job: set_stage_status
+      displayName: Set Stage Status
+      dependsOn:
+        - db_changes
+      condition: always()
+      variables:
+        # Capture the results of the preceding jobs as variables
+        db_changes_result: $[ dependencies.db_changes.result ]
+      steps:
+        - bash: |
+            status="failed"
+            # Access the variables that were set at the job level
+            if [[ "$(db_changes_result)" == "Succeeded" || "$(db_changes_result)" == "Skipped" ]]; then
+              status="succeeded"
+            fi
+            echo "The final status of the DB Changes stage is: $status"
+            echo "##vso[task.setvariable variable=stage_status;isOutput=true]$status"
+          name: set_status
+          displayName: Set Stage Status
 
 - stage: restart_functions_stage
   displayName: Restart Function Apps
@@ -122,30 +184,124 @@ stages:
           parameters:
             serviceConnection: ${{ parameters.serviceConnection }}
 
+    - job: set_stage_status
+      displayName: Set Stage Status
+      dependsOn:
+        - restart_functions
+      condition: always()
+      variables:
+        # Capture the results of the preceding jobs as variables
+        restart_functions_result: $[ dependencies.restart_functions.result ]
+      steps:
+        - bash: |
+            status="failed"
+            # Access the variables that were set at the job level
+            if [[ "$(restart_functions_result)" == "Succeeded" || "$(restart_functions_result)" == "Skipped" ]]; then
+              status="succeeded"
+            fi
+            echo "The final status of the Restart Functions stage is: $status"
+            echo "##vso[task.setvariable variable=stage_status;isOutput=true]$status"
+          name: set_status
+          displayName: Set Stage Status
+
 - stage: notify_stage
   displayName: Send Slack Notification
+  dependsOn:
+    - retag_images_stage
+    - terraform_deploy_stage
+    - db_changes_stage
+    - restart_functions_stage
   condition: |
     and(
       always(),
-      eq(variables['Build.SourceBranch'], 'refs/heads/main'),
       ne('${{ parameters.slackWebHook }}', '')
     )
   pool:
     name: ${{ parameters.hostPoolName }}
+  variables:
+    retag_images_status: $[ stageDependencies.retag_images_stage.set_stage_status.outputs['set_status.stage_status'] ]
+    terraform_deploy_status: $[ stageDependencies.terraform_deploy_stage.set_stage_status.outputs['set_status.stage_status'] ]
+    db_changes_status: $[ stageDependencies.db_changes_stage.set_stage_status.outputs['set_status.stage_status'] ]
+    restart_functions_status: $[ stageDependencies.restart_functions_stage.set_stage_status.outputs['set_status.stage_status'] ]
   jobs:
-    - job: notify
-      displayName: Send Slack Notification
+    - job: set_status_job
+      displayName: Set Status Output
+      steps:
+        - bash: |
+            declare -A stage_statuses=(
+              ["Retag Images"]="$(retag_images_status)"
+              ["Terraform Deploy"]="$(terraform_deploy_status)"
+              ["DB Changes"]="$(db_changes_status)"
+              ["Restart Functions"]="$(restart_functions_status)"
+            )
+
+            failed_stages=""
+            skipped_stages=""
+            for stage in "${!stage_statuses[@]}"; do
+              status="${stage_statuses[$stage]}"
+              echo "$stage status: $status"
+              if [ "$status" == "" ]; then
+                if [ -n "$skipped_stages" ]; then
+                  skipped_stages="$skipped_stages, $stage"
+                else
+                  skipped_stages="$stage"
+                fi
+              elif [ "$status" != "succeeded" ]; then
+                if [ -n "$failed_stages" ]; then
+                  failed_stages="$failed_stages, $stage"
+                else
+                  failed_stages="$stage"
+                fi
+              fi
+            done
+
+            if [ -z "$failed_stages" ]; then
+              echo "##vso[task.setvariable variable=status;isOutput=true]succeeded"
+            else
+              echo "##vso[task.setvariable variable=status;isOutput=true]failed"
+              echo "##vso[task.setvariable variable=failedStages;isOutput=true]$failed_stages"
+            fi
+            if [ -n "$skipped_stages" ]; then
+              echo "##vso[task.setvariable variable=skippedStages;isOutput=true]$skipped_stages"
+            else
+              echo "##vso[task.setvariable variable=skippedStages;isOutput=true]None"
+            fi
+          name: set_status
+          displayName: Set Slack Message Status
+
+    - job: send_message_job
+      displayName: Send Slack Message
+      dependsOn: set_status_job
       variables:
+        final_status: $[ dependencies.set_status_job.outputs['set_status.status'] ]
+        failed_stages: $[ dependencies.set_status_job.outputs['set_status.failedStages'] ]
+        skipped_stages: $[ dependencies.set_status_job.outputs['set_status.skippedStages'] ]
         slackSuccessMessage: |
-          ✅ The infrastructure deployment for the ${{ parameters.environment }} environment has completed for user: $(Build.RequestedFor).
-          ⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)
-          📊 NOTE: End to End tests may still be running: please check #cohort-manager-tests for completed test results.
-          ⚙️ Please check GitHub for any subsequent workflows that need approving: https://github.com/NHSDigital/dtos-cohort-manager/actions?query=branch%3Amain
+          *✅ Infrastructure Deployment Complete*
 
+          *Environment:* _${{ parameters.environment }}_
+          *Requested By:* $(Build.RequestedFor)
+          *Branch:* $(Build.SourceBranchName)
+          *Docker Image Tag:* ${{ parameters.dockerImageTag }}
+
+          *Skipped Stage(s):* $(skipped_stages)
+
+          • *<$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)|View ADO Pipeline Run $(Build.BuildId) here>*
+          • *<https://github.com/Digital/manager/actions?query=branch%3Amain|Approve GitHub Actions to promote to next environment here>*
+
+          *📊 Note:* End-to-end tests may still be running. Please check the <#C08U1DTP6CQ|manager-tests> Slack channel for completed test results.
         slackFailureMessage: |
-          ❌ The infrastructure deployment for the ${{ parameters.environment }} environment has failed for user: $(Build.RequestedFor).
-          ⚙️ Please check the ADO pipeline results for details: $(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)
+          *❌ Infrastructure Deployment _Failed_*
 
+          *Environment:* _${{ parameters.environment }}_
+          *Requested By:* $(Build.RequestedFor)
+          *Branch:* $(Build.SourceBranchName)
+          *Docker Image Tag:* ${{ parameters.dockerImageTag }}
+
+          *Failed Stage(s):* $(failed_stages)
+          *Skipped Stage(s):* $(skipped_stages)
+
+          • *<$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)|View ADO Pipeline Run $(Build.BuildId) here>*
       steps:
         - checkout: dtos-devops-templates
           sparseCheckoutDirectories: scripts
@@ -153,23 +309,21 @@ stages:
           displayName: 'Checkout Templates Repo'
 
         - task: PythonScript@0
-          name: slack_success
-          displayName: Send Slack Notification (Success)
-          condition: succeeded()
+          displayName: 'Send Slack Success Notification'
+          condition: eq(variables.final_status, 'succeeded')
           inputs:
             scriptSource: 'filePath'
             scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
             arguments: >
               --webhook "${{ parameters.slackWebHook }}"
-              --message "$(slackSuccessMessage)"
+              --markdown "$(slackSuccessMessage)"
 
         - task: PythonScript@0
-          name: slack_failure
-          displayName: Send Slack Notification (Failure)
-          condition: failed()
+          displayName: 'Send Slack Failure Notification'
+          condition: eq(variables.final_status, 'failed')
           inputs:
             scriptSource: 'filePath'
             scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
             arguments: >
               --webhook "${{ parameters.slackWebHook }}"
-              --message "$(slackFailureMessage)"
+              --markdown "$(slackFailureMessage)"
