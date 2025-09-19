@@ -11,12 +11,10 @@ using Model;
 public class PdsProcessor : IPdsProcessor
 {
     private readonly ILogger<PdsProcessor> _logger;
-
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly RetrievePDSDemographicConfig _config;
     private readonly IAddBatchToQueue _addBatchToQueue;
-
 
     public PdsProcessor(
         ILogger<PdsProcessor> logger,
@@ -33,53 +31,64 @@ public class PdsProcessor : IPdsProcessor
     }
 
     /// <summary>
-    /// processes pds error responses. Sends a record to distribute participant via service bus
+    /// Processes PDS NotFound responses.
+    /// If the NotFound response is part of a NEMS update and the response contains an INVALIDATED_RESOURCE code, the participant will be removed.
     /// </summary>
     /// <param name="pdsResponse"></param>
     /// <param name="nhsNumber"></param>
     /// <returns></returns>
     public async Task ProcessPdsNotFoundResponse(HttpResponseMessage pdsResponse, string nhsNumber, string? sourceFileName = null)
     {
-        var errorResponse = await pdsResponse!.Content.ReadFromJsonAsync<PdsErrorResponse>();
-        // we now create a record as an update record and send to the manage participant function. Reason for removal for date should be today and the reason for remove of ORR
-        if (errorResponse!.issue!.FirstOrDefault()!.details!.coding!.FirstOrDefault()!.code == PdsConstants.InvalidatedResourceCode)
+        // Only NEMS updates will have a sourceFileName
+        if (string.IsNullOrWhiteSpace(sourceFileName))
         {
-            var pdsDemographic = new PdsDemographic()
-            {
-                NhsNumber = nhsNumber,
-                PrimaryCareProvider = null,
-                ReasonForRemoval = PdsConstants.OrrRemovalReason,
-                RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
-            };
-            var participant = new Participant(pdsDemographic);
-            participant.RecordType = Actions.Removed;
-            //sends record for an update
-            await ProcessRecord(participant, sourceFileName);
             return;
         }
-        _logger.LogError("the PDS function has returned a 404 error. function now stopping processing");
+
+        var errorResponse = await pdsResponse.Content.ReadFromJsonAsync<PdsErrorResponse>();
+
+        if (errorResponse?.issue?.FirstOrDefault()?.details?.coding?.FirstOrDefault()?.code != PdsConstants.InvalidatedResourceCode)
+        {
+            return;
+        }
+
+        _logger.LogInformation("NotFound response contains INVALIDATED_RESOURCE code");
+
+        // Reason for removal for date should be today and the reason for removal ORR
+        var pdsDemographic = new PdsDemographic()
+        {
+            NhsNumber = nhsNumber,
+            PrimaryCareProvider = null,
+            ReasonForRemoval = PdsConstants.OrrRemovalReason,
+            RemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
+        };
+        var participant = new Participant(pdsDemographic);
+        participant.RecordType = Actions.Removed;
+
+        await ProcessRecord(participant, sourceFileName);
+
+        return;
     }
 
     /// <summary>
-    /// sends a participant record to the distribute service bus topic 
+    /// Sends a participant record to the Participant Management service bus topic
     /// </summary>
     /// <param name="participant"></param>
     /// <returns></returns>
-    public async Task ProcessRecord(Participant participant, string? fileName = null)
+    private async Task ProcessRecord(Participant participant, string fileName)
     {
         var updateRecord = new ConcurrentQueue<BasicParticipantCsvRecord>();
-        participant.RecordType = Actions.Removed;
 
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
             BasicParticipantData = _createBasicParticipantData.BasicParticipantData(participant),
-            FileName = string.IsNullOrWhiteSpace(fileName) ? PdsConstants.DefaultFileName : fileName,
+            FileName = fileName,
             Participant = participant
         };
 
         updateRecord.Enqueue(basicParticipantCsvRecord);
 
-        _logger.LogInformation("Sending record to the update queue.");
+        _logger.LogInformation("Sending record to the Participant Management service bus topic.");
         await _addBatchToQueue.ProcessBatch(updateRecord, _config.ParticipantManagementTopic);
     }
 
@@ -120,5 +129,4 @@ public class PdsProcessor : IPdsProcessor
         _logger.LogError("Failed to update Participant Demographic.");
         return false;
     }
-
 }

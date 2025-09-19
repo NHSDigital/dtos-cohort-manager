@@ -10,7 +10,6 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
-using Model;
 using Microsoft.AspNetCore.WebUtilities;
 
 public class RetrievePdsDemographic
@@ -23,7 +22,6 @@ public class RetrievePdsDemographic
     private readonly IBearerTokenService _bearerTokenService;
     private readonly IPdsProcessor _pdsProcessor;
     private const string PdsParticipantUrlFormat = "{0}/{1}";
-
 
     public RetrievePdsDemographic(
         ILogger<RetrievePdsDemographic> logger,
@@ -73,22 +71,22 @@ public class RetrievePdsDemographic
 
             var url = string.Format(PdsParticipantUrlFormat, _config.RetrievePdsParticipantURL, nhsNumber);
             var response = await _httpClientFunction.SendPdsGet(url, bearerToken);
-            string jsonResponse = "";
 
-            jsonResponse = await _httpClientFunction.GetResponseText(response);
+            var jsonResponse = await _httpClientFunction.GetResponseText(response);
 
             if (response.StatusCode == HttpStatusCode.NotFound)
             {
+                _logger.LogError("PDS returned a 404");
                 await _pdsProcessor.ProcessPdsNotFoundResponse(response, nhsNumber, sourceFileName);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404 please database for details");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404");
             }
 
             var pdsDemographic = _fhirPatientDemographicMapper.ParseFhirJson(jsonResponse);
 
             if (pdsDemographic.ConfidentialityCode == "R")
             {
-                await _pdsProcessor.ProcessPdsNotFoundResponse(response, nhsNumber, sourceFileName);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404 please database for details");
+                _logger.LogError("ConfidentialityCode was set to 'R', returning 404");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NotFound, req, "PDS returned a 404");
             }
 
             response.EnsureSuccessStatusCode();
