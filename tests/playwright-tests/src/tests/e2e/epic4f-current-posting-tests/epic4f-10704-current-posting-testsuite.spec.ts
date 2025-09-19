@@ -182,25 +182,20 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
   });
 
   test('@DTOSS-10704-04 DTOSS-10942 - Failure to send to Mesh logs exception and no subscription (conditional)', async ({ request }, testInfo) => {
-    // Only run when Mesh WireMock is enabled
-    test.skip(process.env.USE_MESH_WIREMOCK !== '1', 'Skipping Mesh failure test; enable USE_MESH_WIREMOCK=1');
     // Use a fresh NHS number to avoid idempotent short-circuit or prior state
     const nhs = generateValidNhsNumber();
 
-    // If using WireMock, inject a failure stub for Mesh and clear prior requests
-    const usingWireMock = process.env.USE_MESH_WIREMOCK === '1';
-    if (usingWireMock) {
-      await cleanupNemsSubscriptions(request, [nhs]);
-      await cleanupWireMock(request);
-      // Make failure deterministic: remove only prior outbox mappings, then add failure mapping
-      await removeMeshOutboxMappings(request);
-      await enableMeshOutboxFailureInWireMock(request, 500);
-      // Attach current mappings for diagnostics
-      try {
-        const mappings = await getWireMockMappingsJson(request);
-        await testInfo.attach('wiremock-mappings-after-failure-stub.json', { body: mappings, contentType: 'application/json' });
-      } catch {}
-    }
+    // Inject a failure stub for Mesh and clear prior requests via WireMock
+    await cleanupNemsSubscriptions(request, [nhs]);
+    await cleanupWireMock(request);
+    // Make failure deterministic: remove only prior outbox mappings, then add failure mapping
+    await removeMeshOutboxMappings(request);
+    await enableMeshOutboxFailureInWireMock(request, 500);
+    // Attach current mappings for diagnostics
+    try {
+      const mappings = await getWireMockMappingsJson(request);
+      await testInfo.attach('wiremock-mappings-after-failure-stub.json', { body: mappings, contentType: 'application/json' });
+    } catch {}
 
     // Attempt subscribe (environment or WireMock should make Mesh call fail)
     const resp = await subscribe(nhs);
@@ -230,11 +225,9 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     ], { retries: 3, initialWaitMs: 2000, stepMs: 2000 });
 
     // Clean up WireMock mappings afterwards to avoid affecting subsequent tests
-    if (usingWireMock) {
-      // Restore default happy-path mapping after the test to avoid impacting others
-      await resetWireMockMappings(request);
-      await enableMeshOutboxSuccessInWireMock(request);
-    }
+    // Restore default happy-path mapping after the test to avoid impacting others
+    await resetWireMockMappings(request);
+    await enableMeshOutboxSuccessInWireMock(request);
   });
 
   test('@DTOSS-10704-05 DTOSS-10943 - Unsubscribe returns success with not supported', async ({}, testInfo) => {
