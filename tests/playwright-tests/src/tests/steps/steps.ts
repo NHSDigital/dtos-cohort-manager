@@ -11,9 +11,13 @@ import { receiveParticipantViaServiceNow } from "../../api/distributionService/b
 import { WireMockResponse } from "../../interface/wiremock";
 
 
-export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers: string[]) {
+export async function cleanupDatabaseFromAPI(
+  request: APIRequestContext,
+  numbers: string[],
+  services?: Array<'cohortDistribution' | 'participantManagement' | 'exceptionManagement' | 'participantDemographic' | 'nemsSubscription' | 'serviceNowCases'>
+) {
   return test.step(`Cleanup database using data services`, async () => {
-    await cleanDataBaseUsingServices(numbers, request);
+    await cleanDataBaseUsingServices(numbers, request, services as any);
   });
 }
 

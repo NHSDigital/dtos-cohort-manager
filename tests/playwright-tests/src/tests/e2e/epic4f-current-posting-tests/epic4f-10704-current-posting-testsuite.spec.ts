@@ -2,7 +2,7 @@ import { expect, test } from '../../fixtures/test-fixtures';
 import { config } from '../../../config/env';
 import { sendHttpGet, sendHttpPOSTCall } from '../../../api/core/sendHTTPRequest';
 import { extractSubscriptionID, retry } from '../../../api/distributionService/bsSelectService';
-import { cleanupWireMock, cleanupNemsSubscriptions, enableMeshOutboxFailureInWireMock, enableMeshOutboxSuccessInWireMock, getTestData, removeMeshOutboxMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI, getWireMockMappingsJson, resetWireMockMappings } from '../../steps/steps';
+import { cleanupWireMock, cleanupNemsSubscriptions, enableMeshOutboxFailureInWireMock, enableMeshOutboxSuccessInWireMock, getTestData, removeMeshOutboxMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI, getWireMockMappingsJson, resetWireMockMappings, cleanupDatabaseFromAPI } from '../../steps/steps';
 const DEFAULT_NHS_NUMBER = '9997160908';
 
 // Generate a valid 10-digit NHS number starting with 999 using the Mod 11 algorithm
@@ -182,12 +182,20 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
   });
 
   test('@DTOSS-10704-04 DTOSS-10942 - Failure to send to Mesh logs exception and no subscription (conditional)', async ({ request }, testInfo) => {
-    // Use a fresh NHS number to avoid idempotent short-circuit or prior state
-    const nhs = generateValidNhsNumber();
+    // Use the scenario NHS number so runner DB checks align with e2e
+    let nhs: string;
+    try {
+      const [_, nhsNumbers] = await getTestData(testInfo.title);
+      nhs = String((nhsNumbers[0] as any) ?? generateValidNhsNumber());
+    } catch {
+      nhs = generateValidNhsNumber();
+    }
 
     // Inject a failure stub for Mesh and clear prior requests via WireMock
     await cleanupNemsSubscriptions(request, [nhs]);
     await cleanupWireMock(request);
+    // Start from a clean Exception table, then make failure deterministic
+    await cleanupDatabaseFromAPI(request, [nhs], ['exceptionManagement']);
     // Make failure deterministic: remove only prior outbox mappings, then add failure mapping
     await removeMeshOutboxMappings(request);
     await enableMeshOutboxFailureInWireMock(request, 500);

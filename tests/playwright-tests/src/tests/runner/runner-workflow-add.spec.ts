@@ -1,5 +1,7 @@
 import { test, request as playwrightRequest, APIRequestContext } from '@playwright/test'
-import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI } from '../steps/steps';
+import { cleanupDatabaseFromAPI, getConsolidatedAllTestData, processFileViaStorage, validateSqlDatabaseFromAPI, cleanupWireMock, removeMeshOutboxMappings, enableMeshOutboxFailureInWireMock, resetWireMockMappings, enableMeshOutboxSuccessInWireMock } from '../steps/steps';
+import { config } from '../../config/env';
+import { sendHttpPOSTCall } from '../../api/core/sendHTTPRequest';
 import { createParquetFromJson } from '../../parquet/parquet-multiplier';
 import { runnerBasedEpic123TestScenariosAdd } from '../e2e/epic123-smoke-tests/epic123-smoke-tests-migrated';
 import { runnerBasedEpic1TestScenariosAdd } from '../e2e/epic1-highpriority-tests/epic1-high-priority-testsuite-migrated';
@@ -54,6 +56,7 @@ let apiContext: APIRequestContext;
 test.beforeAll(async () => {
   apiContext = await playwrightRequest.newContext();
   console.log(`Running ${TEST_TYPE} tests with scenario tags: ${scopedTestScenario}`);
+  // Clean all services at the start to ensure a consistent baseline
   await cleanupDatabaseFromAPI(apiContext, addData.nhsNumbers);
 
 
@@ -82,6 +85,42 @@ dbValidations.forEach((validations: any) => {
     const endpoint = validations?.validations?.apiEndpoint as string | undefined;
     const isExceptionCheck = typeof endpoint === 'string' && endpoint.includes('ExceptionManagementDataService');
     const fast = isExceptionCheck ? { retries: 3, initialWaitMs: 2000, stepMs: 2000 } : undefined;
-    await validateSqlDatabaseFromAPI(request, [validations], fast);
+
+    // For the Mesh failure scenario, explicitly create the exception record:
+    // - Reset WireMock mappings for outbox
+    // - Inject a failure mapping
+    // - Call subscribe for the scenario NHS number
+    // Then validate the exception exists.
+    const tag = validations.meta?.testJiraId ?? '';
+    const additional = validations.meta?.additionalTags ?? '';
+    const isMeshFailureScenario = isExceptionCheck && (tag.includes('@DTOSS-10704-04') || /Mesh\s+failure/i.test(additional));
+
+    if (isMeshFailureScenario) {
+      // Determine NHS number from validations
+      const nhs = String(validations?.validations?.NhsNumber ?? validations?.validations?.NHSNumber ?? '');
+      if (!nhs) {
+        throw new Error('Runner mesh failure scenario requires NhsNumber/NHSNumber in validations');
+      }
+
+      // Safe-guard: if WireMock URL not configured, this will still attempt against given URL
+      await cleanupWireMock(request);
+      await removeMeshOutboxMappings(request);
+      await enableMeshOutboxFailureInWireMock(request, 500);
+
+      // Build subscribe URL and call
+      const base = config.ManageCaasSubscribe || config.SubToNems;
+      const url = new URL(config.SubToNemsPath, base);
+      url.searchParams.set('nhsNumber', nhs);
+      await sendHttpPOSTCall(url.toString(), '');
+
+      // Proceed to validate DB
+      await validateSqlDatabaseFromAPI(request, [validations], fast);
+
+      // Restore mappings for subsequent tests
+      await resetWireMockMappings(request);
+      await enableMeshOutboxSuccessInWireMock(request);
+    } else {
+      await validateSqlDatabaseFromAPI(request, [validations], fast);
+    }
   });
 });
