@@ -46,6 +46,14 @@ async function unsubscribe(nhsNumber: string) {
   return await sendHttpPOSTCall(url, '');
 }
 
+function extractIdFromBody(text: string): string | null {
+  const m1 = text.match(/Subscription\s*ID\s*:\s*([A-Za-z0-9_\-]{8,})/i);
+  if (m1) return m1[1];
+  const m2 = text.match(/MessageId\s*:\s*([A-Za-z0-9_\-]{8,})/i);
+  if (m2) return m2[1];
+  return null;
+}
+
 test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubscribe tests', () => {
   const wireMockEnabled = () => /^https?:\/\//i.test((config.wireMockUrl ?? '').trim());
 
@@ -62,6 +70,9 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
 
     const resp = await subscribe(freshNhs);
     expect(resp.status).toBe(200);
+    const respText = await resp.text();
+    expect(/messageid|subscription\s*id/i.test(respText)).toBeTruthy();
+    expect(extractIdFromBody(respText)).not.toBeNull();
 
     if (wireMockEnabled()) {
       await validateMeshRequestWithMockServer(request, { minCount: 1, attempts: 8, delayMs: 1500 });
@@ -96,6 +107,9 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
 
     const again = await subscribe(subscribedNhs);
     expect(again.status).toBe(200);
+    const againText = await again.text();
+    expect(/already\s+subscribed|subscription\s*id/i.test(againText)).toBeTruthy();
+    const againId = extractIdFromBody(againText);
 
     if (wireMockEnabled()) {
       await validateMeshRequestWithMockServer(request, { minCount: 0 });
@@ -106,6 +120,9 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     const afterText = await afterCheck.text();
     const afterId = extractSubscriptionID({ status: afterCheck.status, data: undefined as any, text: afterText } as any);
     expect(afterId).toBe(beforeId);
+    if (againId) {
+      expect(againId).toBe(beforeId);
+    }
   });
 
   test('@DTOSS-10704-03 DTOSS-10941 - Invalid request missing/incorrect NHS number returns validation error', async ({ request }) => {
