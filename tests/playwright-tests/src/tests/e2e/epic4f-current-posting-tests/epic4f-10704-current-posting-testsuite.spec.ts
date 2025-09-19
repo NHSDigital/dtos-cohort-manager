@@ -145,6 +145,9 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
     }
 
     const resp = await subscribe(nhs);
+    if (wireMockEnabled()) {
+      expect(resp.status).toBeGreaterThanOrEqual(400);
+    }
 
     const check = await checkSubscriptionStatus(nhs);
     expect([404]).toContain(check.status);
