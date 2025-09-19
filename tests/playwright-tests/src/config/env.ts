@@ -26,6 +26,8 @@ const invalidEndpointSerNow = process.env.INVALID_ENDPOINT_SERVICE_NOW_MESSAGE_H
 const participantPayloadPath = process.env.PARTICIPANT_PAYLOAD_PATH ?? '';
 const createPDSDemographicEnv = process.env.ENDPOINT_PDS_DEMOGRAPHIC ?? '';
 const subToNemsEndPoint = process.env.ENDPOINT_SUB_TO_NEMS ?? '';
+// Optional: dedicated Manage-CAAS Subscribe base for Epic 4f
+const manageCaasSubscribeEndPoint = process.env.ENDPOINT_MANAGE_CAAS_SUBSCRIBE ?? '';
 const wireMockUrl = process.env.WIREMOCK_URL ?? '';
 
 export const config = {
@@ -48,6 +50,8 @@ export const config = {
   createPDSDemographic: createPDSDemographicEnv,
   invalidEndpointSerNow: invalidEndpointSerNow,
   SubToNems: subToNemsEndPoint,
+  // Prefer dedicated Manage-CAAS Subscribe endpoint if provided, fallback to SubToNems
+  ManageCaasSubscribe: manageCaasSubscribeEndPoint || subToNemsEndPoint,
   wireMockUrl: wireMockUrl,
   SubToNemsPath: 'api/Subscribe',
   CheckNemsSubPath:'api/CheckSubscriptionStatus',
@@ -69,8 +73,9 @@ export const config = {
   participantPayloadPath: 'src/tests/api/testFiles',
   e2eTestFilesPath: 'e2e/testFiles',
   apiTestFilesPath: 'api/testFiles',
-  apiRetry: 8,
-  apiWaitTime: 5000,
+  apiRetry: Number(process.env.API_RETRY ?? 8),
+  apiWaitTime: Number(process.env.API_WAIT_MS ?? 5000),
+  apiStepMs: Number(process.env.API_STEP_MS ?? 5000),
   nhsNumberKey: 'NHSNumber',
   nhsNumberKeyExceptionDemographic: 'NhsNumber',
   uniqueKeyCohortDistribution: 'CohortDistributionId',

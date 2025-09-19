@@ -1,0 +1,4 @@
+// Epic 4f tag mapping
+// 10704-01 -> 10939; 10704-02 -> 10940; 10704-03 -> 10941; 10704-04 -> 10942; 10704-05 -> 10943
+
+export const runnerBasedEpic4fTestScenariosAdd = "@DTOSS-10704-01|@DTOSS-10704-02|@DTOSS-10704-03|@DTOSS-10704-04|@DTOSS-10704-05";

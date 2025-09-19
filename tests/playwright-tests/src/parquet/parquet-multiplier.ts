@@ -14,42 +14,52 @@ export async function createParquetFromJson(
     const schema = reader.getSchema();
 
     await reader.close();
-    const writer = await parquet.ParquetWriter.openFile(schema, outputFilePath);
-    const baseRecords: Record<string, any> = inputParticipantRecord;
 
-    for (const baseRecord of Object.values(baseRecords)){
+    const baseRecords: any[] = Array.isArray(inputParticipantRecord)
+      ? inputParticipantRecord
+      : Object.values(inputParticipantRecord ?? {});
 
+    const prospectiveRows = multiply
+      ? baseRecords.length * (nhsNumbers?.length ?? 0)
+      : baseRecords.length;
 
-    if (multiply) {
-      let updatedNameForAmended = baseRecord.given_name;
-      if (recordType === 'AMENDED') {
-        updatedNameForAmended = `${baseRecord.given_name}Updated`;
-      }
-
-      for (const nhsNumber of nhsNumbers) {
-        const updatedRecord = {
-          ...baseRecord,
-          nhs_number: nhsNumber,
-          serial_change_number: nhsNumbers.indexOf(nhsNumber) + 1,
-          record_type: recordType,
-          given_name: `${updatedNameForAmended}`,
-        };
-        await writer.appendRow(updatedRecord);
-      }
-
-
-    } else {
-      await writer.appendRow(baseRecord);
+    if (!prospectiveRows || prospectiveRows <= 0) {
+      console.warn('Parquet generation skipped: no rows to write');
+      return 'NO_ROWS_TO_WRITE';
     }
 
-  }
+    const writer = await parquet.ParquetWriter.openFile(schema, outputFilePath);
+
+    for (const baseRecord of baseRecords) {
+      if (multiply) {
+        let updatedNameForAmended = baseRecord.given_name;
+        if (recordType === 'AMENDED') {
+          updatedNameForAmended = `${baseRecord.given_name}Updated`;
+        }
+
+        for (const nhsNumber of nhsNumbers) {
+          const updatedRecord = {
+            ...baseRecord,
+            nhs_number: nhsNumber,
+            serial_change_number: nhsNumbers.indexOf(nhsNumber) + 1,
+            record_type: recordType,
+            given_name: `${updatedNameForAmended}`,
+          };
+          await writer.appendRow(updatedRecord);
+        }
+      } else {
+        await writer.appendRow(baseRecord);
+      }
+    }
 
     await writer.close();
     console.info(`New Parquet file created with updated records: ${outputFilePath}`);
     return outputFilePath;
   } catch (error: any) { //TODO: fix this error type
     console.error('Error processing Parquet file:', error);
-    return error.message.toString();
+    const msg = (error && typeof error === 'object' && 'message' in error)
+      ? (error as any).message
+      : String(error);
+    return String(msg);
   }
 }
-

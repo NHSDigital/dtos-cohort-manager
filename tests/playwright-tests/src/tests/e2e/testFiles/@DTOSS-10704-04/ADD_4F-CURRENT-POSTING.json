@@ -1,0 +1,30 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "NHSNumber": 9990237166
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10704-04",
+        "requirementJiraId": "DTOSS-10942",
+        "additionalTags": "@DTOSS-10704-04 @e2e @epic4f- Mesh failure scenario"
+      }
+    },
+    {
+      "validations": {
+        "apiEndpoint": "api/ExceptionManagementDataService",
+        "NhsNumber": 9990237166,
+        "expectedCount": 1
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10704-04",
+        "requirementJiraId": "DTOSS-10942",
+        "additionalTags": "@DTOSS-10704-04 @e2e @epic4f- Exception recorded for Mesh failure"
+      }
+    }
+  ],
+  "inputParticipantRecord": [],
+  "nhsNumbers": [
+    "9990237166"
+  ]
+}
