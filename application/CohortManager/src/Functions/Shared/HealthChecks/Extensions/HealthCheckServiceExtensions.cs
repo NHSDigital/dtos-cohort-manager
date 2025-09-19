@@ -18,5 +18,5 @@ public static class HealthCheckServiceExtensions
         });
 
         return response;
-    } 
+    }
 }
