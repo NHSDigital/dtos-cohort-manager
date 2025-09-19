@@ -91,7 +91,8 @@ export async function validateSqlDatabaseFromAPI(
   return test.step(`Validate database for assertions`, async () => {
     const { status, errorTrace } = await validateApiResponse(validations, request, options);
     if (!status) {
-      throw new Error(`❌ Validation failed after ${config.apiRetry} attempts, please checks logs for more details: ${errorTrace}`);
+      const attempts = Math.max(1, options?.retries ?? config.apiRetry);
+      throw new Error(`❌ Validation failed after ${attempts} attempt(s), please check logs for more details: ${errorTrace}`);
     }
   });
 }

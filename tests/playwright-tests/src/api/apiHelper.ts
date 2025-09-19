@@ -4,6 +4,7 @@ import { config } from "../config/env";
 
 const apiRetryDefault = Number(config.apiRetry);
 const initialWaitTimeDefault = Number(config.apiWaitTime) || 2000;
+const stepWaitTimeDefault = Number(config.apiStepMs) || 5000;
 const endpointCohortDistributionDataService = config.endpointCohortDistributionDataService;
 const endpointParticipantManagementDataService = config.endpointParticipantManagementDataService;
 const endpointExceptionManagementDataService = config.endpointExceptionManagementDataService;
@@ -33,7 +34,7 @@ export async function validateApiResponse(
 
   const maxAttempts = Math.max(1, options?.retries ?? apiRetryDefault);
   let waitTime = Math.max(0, options?.initialWaitMs ?? initialWaitTimeDefault);
-  const stepMs = Math.max(0, options?.stepMs ?? 5000);
+  const stepMs = Math.max(0, options?.stepMs ?? stepWaitTimeDefault);
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     if (status) break;
@@ -311,7 +312,12 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
       }
 
       expect(matchingObject).toHaveProperty(fieldName);
-      expect(matchingObject[fieldName]).toBe(expectedValue);
+      // Normalise common numeric-id fields that may arrive as strings from APIs
+      if (fieldName === 'NHSNumber' || fieldName === 'NhsNumber') {
+        expect(String(matchingObject[fieldName])).toBe(String(expectedValue));
+      } else {
+        expect(matchingObject[fieldName]).toBe(expectedValue);
+      }
       console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
     }
   }

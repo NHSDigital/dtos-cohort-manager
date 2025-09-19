@@ -2,7 +2,7 @@ import { expect, test } from '../../fixtures/test-fixtures';
 import { config } from '../../../config/env';
 import { sendHttpGet, sendHttpPOSTCall } from '../../../api/core/sendHTTPRequest';
 import { extractSubscriptionID, retry } from '../../../api/distributionService/bsSelectService';
-import { cleanupWireMock, cleanupNemsSubscriptions, enableMeshOutboxFailureInWireMock, enableMeshOutboxSuccessInWireMock, getTestData, removeMeshOutboxMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI, getWireMockMappingsJson } from '../../steps/steps';
+import { cleanupWireMock, cleanupNemsSubscriptions, enableMeshOutboxFailureInWireMock, enableMeshOutboxSuccessInWireMock, getTestData, removeMeshOutboxMappings, validateMeshRequestWithMockServer, validateSqlDatabaseFromAPI, getWireMockMappingsJson, resetWireMockMappings } from '../../steps/steps';
 const DEFAULT_NHS_NUMBER = '9997160908';
 
 // Generate a valid 10-digit NHS number starting with 999 using the Mod 11 algorithm
@@ -227,7 +227,7 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
           additionalTags: '@epic4f- @e2e Mesh failure exception present'
         }
       }
-    ]);
+    ], { retries: 3, initialWaitMs: 2000, stepMs: 2000 });
 
     // Clean up WireMock mappings afterwards to avoid affecting subsequent tests
     if (usingWireMock) {
