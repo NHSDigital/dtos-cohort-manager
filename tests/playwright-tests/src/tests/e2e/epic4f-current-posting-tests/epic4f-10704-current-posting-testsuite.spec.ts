@@ -182,14 +182,10 @@ test.describe.serial('@regression @e2e @epic4f- Current Posting Subscribe/Unsubs
   });
 
   test('@DTOSS-10704-04 DTOSS-10942 - Failure to send to Mesh logs exception and no subscription (conditional)', async ({ request }, testInfo) => {
-    // Use the scenario NHS number so runner DB checks align with e2e
-    let nhs: string;
-    try {
-      const [_, nhsNumbers] = await getTestData(testInfo.title);
-      nhs = String((nhsNumbers[0] as any) ?? generateValidNhsNumber());
-    } catch {
-      nhs = generateValidNhsNumber();
-    }
+    // Use a fresh NHS number to ensure it is not already subscribed in external systems
+    const nhs = generateValidNhsNumber();
+    // Share with runner via env for cross-spec coordination
+    process.env.EPIC4F_04_NHS = nhs;
 
     // Inject a failure stub for Mesh and clear prior requests via WireMock
     await cleanupNemsSubscriptions(request, [nhs]);

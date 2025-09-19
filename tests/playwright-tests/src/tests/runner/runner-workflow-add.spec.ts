@@ -97,10 +97,13 @@ dbValidations.forEach((validations: any) => {
 
     if (isMeshFailureScenario) {
       // Determine NHS number from validations
-      const nhs = String(validations?.validations?.NhsNumber ?? validations?.validations?.NHSNumber ?? '');
+      let nhs = String(process.env.EPIC4F_04_NHS ?? validations?.validations?.NhsNumber ?? validations?.validations?.NHSNumber ?? '');
       if (!nhs) {
         throw new Error('Runner mesh failure scenario requires NhsNumber/NHSNumber in validations');
       }
+      // Ensure validations target the NHS we just used
+      if (validations?.validations?.NhsNumber !== undefined) validations.validations.NhsNumber = Number(nhs);
+      if (validations?.validations?.NHSNumber !== undefined) validations.validations.NHSNumber = Number(nhs);
 
       // Safe-guard: if WireMock URL not configured, this will still attempt against given URL
       await cleanupWireMock(request);
