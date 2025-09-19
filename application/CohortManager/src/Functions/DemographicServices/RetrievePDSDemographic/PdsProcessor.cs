@@ -65,8 +65,6 @@ public class PdsProcessor : IPdsProcessor
         participant.RecordType = Actions.Removed;
 
         await ProcessRecord(participant, sourceFileName);
-
-        return;
     }
 
     /// <summary>
