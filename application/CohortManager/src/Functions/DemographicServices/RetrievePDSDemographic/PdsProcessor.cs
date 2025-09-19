@@ -54,7 +54,6 @@ public class PdsProcessor : IPdsProcessor
 
         _logger.LogInformation("NotFound response contains INVALIDATED_RESOURCE code");
 
-        // Reason for removal for date should be today and the reason for removal ORR
         var pdsDemographic = new PdsDemographic()
         {
             NhsNumber = nhsNumber,
