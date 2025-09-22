@@ -29,7 +29,14 @@ public static class MeshMailboxExtension
         });
         var logger = factory.CreateLogger("MeshMailboxExtension");
 
-        hostBuilder.ConfigureServices(async services =>
+        var certTasks = config.MailboxConfigs.Select(m =>
+            GetCertificate(logger, m.MeshKeyName, m.MeshKeyPassword, config.KeyVaultConnectionString));
+        var certs = Task.WhenAll(certTasks).GetAwaiter().GetResult();
+
+        var serverSideCerts = GetCACertificates(logger, config.MeshCACertName, config.KeyVaultConnectionString)
+                            .GetAwaiter().GetResult();
+
+        hostBuilder.ConfigureServices(services =>
         {
             var meshClientBuilder = services.AddMeshClient(_ =>
             {
@@ -37,16 +44,16 @@ public static class MeshMailboxExtension
                 _.BypassServerCertificateValidation = config.BypassServerCertificateValidation;
             });
 
-
+            int i = 0;
             foreach (var mailbox in config.MailboxConfigs)
             {
-                var cert = await GetCertificate(logger, mailbox.MeshKeyName, mailbox.MeshKeyPassword, config.KeyVaultConnectionString);
-                var serverSideCerts = await GetCACertificates(logger, config.MeshCACertName, config.KeyVaultConnectionString);
+                //var cert = await GetCertificate(logger, mailbox.MeshKeyName, mailbox.MeshKeyPassword, config.KeyVaultConnectionString);
+                //var serverSideCerts = await GetCACertificates(logger, config.MeshCACertName, config.KeyVaultConnectionString);
                 meshClientBuilder.AddMailbox(mailbox.MailboxId, new MailboxConfiguration
                 {
                     Password = mailbox.MeshPassword,
                     SharedKey = mailbox.SharedKey,
-                    Cert = cert,
+                    Cert = certs[i++],
                     serverSideCertCollection = serverSideCerts
                 });
             }
