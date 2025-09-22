@@ -103,13 +103,7 @@ stages:
         dependsOn: regression_e2e_epic1_stage
       ${{ if eq(testType, 'regression_e2e_epic3') }}:
         dependsOn: regression_e2e_epic2_stage
-      condition: |
-        and(
-          in(dependencies.re_tag_stage.result, 'Succeeded', 'Skipped'),
-          in(dependencies.terraform_deploy.jobs.terraform_apply.result, 'Succeeded', 'Skipped'),
-          in(dependencies.db_changes_stage.jobs.db_changes.result, 'Succeeded', 'Skipped'),
-          in(dependencies.restart_functions_stage.jobs.restart_functions.result, 'Succeeded', 'Skipped')
-        )
+      condition: succeededOrFailed()
       jobs:
         - job: ${{ testType }}_job
           pool:
