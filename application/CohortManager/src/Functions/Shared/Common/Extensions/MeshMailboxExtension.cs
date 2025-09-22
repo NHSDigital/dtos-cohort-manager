@@ -47,8 +47,6 @@ public static class MeshMailboxExtension
             int i = 0;
             foreach (var mailbox in config.MailboxConfigs)
             {
-                //var cert = await GetCertificate(logger, mailbox.MeshKeyName, mailbox.MeshKeyPassword, config.KeyVaultConnectionString);
-                //var serverSideCerts = await GetCACertificates(logger, config.MeshCACertName, config.KeyVaultConnectionString);
                 meshClientBuilder.AddMailbox(mailbox.MailboxId, new MailboxConfiguration
                 {
                     Password = mailbox.MeshPassword,
