@@ -463,7 +463,7 @@ public class ManageServiceNowParticipantFunctionTests
         _queueClientMock.Verify();
         _queueClientMock.VerifyNoOtherCalls();
 
-        _loggerMock.VerifyLogger(LogLevel.Error, $"Failed to subscribe participant to NEMS. Case Number: {_serviceNowParticipant.ServiceNowCaseNumber}");
+        _loggerMock.VerifyLogger(LogLevel.Error, $"Failed to subscribe participant for updates. Case Number: {_serviceNowParticipant.ServiceNowCaseNumber}");
     }
 
     [TestMethod]
