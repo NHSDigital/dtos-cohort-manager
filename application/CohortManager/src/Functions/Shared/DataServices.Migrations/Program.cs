@@ -127,4 +127,48 @@ public class Program
 
     }
 
+    static async Task<bool> ExtractData(IHost host)
+    {
+        using var scope = host.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<DataServicesContext>();
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+        await ExtractFor<ExcludedSMULookup>(dbContext, "ExcludedSMULookup.json");
+        await ExtractFor<CurrentPosting>(dbContext, "CurrentPosting.json");
+        await ExtractFor<BsSelectOutCode>(dbContext, "BsSelectOutCode.json");
+        await ExtractFor<BsSelectGpPractice>(dbContext, "BsSelectGpPractice.json");
+        return true;
+
+    }
+
+    static async Task<bool> ExtractFor<T>(DataServicesContext context, string fileName) where T : class
+    {
+        try
+        {
+            // Get all data from the DbSet<T>
+            var data = await context.Set<T>().ToListAsync();
+
+            // Serialize to JSON (pretty-printed for readability)
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true,
+                ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles // prevents circular ref issues
+            };
+
+            string json = JsonSerializer.Serialize(data, options);
+
+            // Write to file
+            await File.WriteAllTextAsync(fileName, json);
+
+            return true;
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error extracting data for {typeof(T).Name}: {ex.Message}");
+            return false;
+        }
+    }
+
+
+
 }
