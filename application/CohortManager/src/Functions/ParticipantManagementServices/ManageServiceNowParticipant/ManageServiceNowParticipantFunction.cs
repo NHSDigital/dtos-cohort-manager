@@ -61,7 +61,7 @@ public class ManageServiceNowParticipantFunction
 
             if (!subscribeToNemsSuccess)
             {
-                _logger.LogError("Failed to subscribe participant with Id {ParticipantId} to NEMS", participantManagement.ParticipantId);
+                _logger.LogError("Failed to subscribe participant to NEMS. Case Number: {CaseNumber}", serviceNowParticipant.ServiceNowCaseNumber);
             }
 
             var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantManagement);
