@@ -1,6 +1,7 @@
 import logging
 import requests
 import os
+import re
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -13,6 +14,24 @@ class SlackWebhookBot:
             'Content-Type': 'application/json',
         }
 
+    def summarise_zap_report(self, content: str) -> str:
+        """Extract a clean summary from a ZAP scan report text."""
+        # Totals
+        total_urls = re.search(r"Total of (\d+) URLs", content)
+        totals_line = re.search(r"FAIL-NEW.*", content)
+
+        # Warnings
+        warn_matches = re.findall(r"WARN-NEW: (.+?)\s+\[.*?\]\s+x\s+\d+", content)
+        warn_summary = "\n".join([f"- {w}" for w in warn_matches]) if warn_matches else "None"
+
+        summary = (
+            f"*ZAP Scan Summary:*\n"
+            f"- URLs Scanned: {total_urls.group(1) if total_urls else 'N/A'}\n"
+            f"- {totals_line.group(0) if totals_line else 'No totals found'}\n"
+            f"- Warnings:\n{warn_summary}"
+        )
+        return summary
+
     def send_file_content(self, file_path: str, message: str = '') -> bool:
         if not os.path.isfile(file_path):
             logger.error(f'The file at path {file_path} does not exist.')
@@ -22,9 +41,10 @@ class SlackWebhookBot:
             with open(file_path, 'r') as file:
                 file_content = file.read()
 
-            # Create the payload with the file content
+            summary = self.summarise_zap_report(file_content)
+
             payload = {
-                "text": f"{message}\n```{file_content}```"
+                "text": f"{message}\n{summary}"
             }
 
             return self.send(payload)
