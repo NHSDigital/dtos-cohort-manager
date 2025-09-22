@@ -37,6 +37,7 @@ public static class MeshMailboxExtension
                 _.BypassServerCertificateValidation = config.BypassServerCertificateValidation;
             });
 
+
             foreach (var mailbox in config.MailboxConfigs)
             {
                 var cert = await GetCertificate(logger, mailbox.MeshKeyName, mailbox.MeshKeyPassword, config.KeyVaultConnectionString);
@@ -49,8 +50,8 @@ public static class MeshMailboxExtension
                     serverSideCertCollection = serverSideCerts
                 });
             }
-
-            meshClientBuilder.Build();
+            services = meshClientBuilder.Build();
+            logger.LogInformation("{NumberOfMeshMailboxes} Mesh Mailboxes have been registered", config.MailboxConfigs.Count());
 
         });
 
