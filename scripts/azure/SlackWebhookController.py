@@ -41,7 +41,7 @@ def main(argv):
         print("Please provide the function name")
         exit(1)
 
-    webhook_url = os.environ.get('SLACK_WEBHOOK_URL')
+    webhook_url = os.environ.get('SLACK_WEBHOOK_URL_SCANS')
     slack = SlackWebhookBot(webhook_url)
 
     if verbose:
