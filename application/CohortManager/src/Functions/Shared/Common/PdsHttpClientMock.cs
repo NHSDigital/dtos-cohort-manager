@@ -42,7 +42,15 @@ public class PdsHttpClientMock : HttpClientFunction
 
         if (patient == null)
         {
-            var notFoundResponseBody = await File.ReadAllTextAsync("MockedPDSData/patient-not-found.json");
+            string? notFoundResponseBody;
+            if (nhsNumber == "9111231130")
+            {
+                notFoundResponseBody = await File.ReadAllTextAsync("MockedPDSData/patient-not-found-invalid-recourse.json");
+            }
+            else
+            {
+                notFoundResponseBody = await File.ReadAllTextAsync("MockedPDSData/patient-not-found.json");
+            }
             return HttpStubUtilities.CreateFakeHttpResponse(url, notFoundResponseBody, HttpStatusCode.NotFound);
         }
         return HttpStubUtilities.CreateFakeHttpResponse(url, patient);
