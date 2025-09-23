@@ -13,6 +13,7 @@ permissions:
   contents: read
   id-token: write
   pull-requests: write
+  packages: write
 
 jobs:
   metadata:
@@ -97,6 +98,7 @@ jobs:
     uses: ./.github/workflows/stage-2-test.yaml
     with:
       unit_test_dir: tests/UnitTests
+      snapshot_test_dir: tests/snapshot-tests
       app_dir: application/CohortManager
       build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
       build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
@@ -122,16 +124,19 @@ jobs:
     secrets: inherit
   build-image-stage: # Recommended maximum execution time is 3 minutes
     name: "Image build stage"
-    needs: [metadata, commit-stage, test-stage, analysis-stage]
+    needs: [metadata, commit-stage] #, test-stage, analysis-stage]
     uses: ./.github/workflows/stage-3-build-images.yaml
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     with:
       docker_compose_file: application/CohortManager/compose.yaml
+      snapshot_test_dir: tests/snapshot-tests
+      app_dir: application/CohortManager
       excluded_containers_csv_list: azurite,azurite-setup,sql-server
       environment_tag: ${{ needs.metadata.outputs.environment_tag }}
       function_app_source_code_path: application/CohortManager/src
       project_name: cohort-manager
       build_all_images: true
+      gh_registry: ghcr.io
     secrets: inherit
   acceptance-stage: # Recommended maximum execution time is 10 minutes
     name: "Acceptance stage"

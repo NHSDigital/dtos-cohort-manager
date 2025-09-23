@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>snapshot_tests</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DiffEngine" Version="15.9.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.2" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
+    <PackageReference Include="MSTest" Version="3.8.2" />
+    <PackageReference Include="Verify.MSTest" Version="28.13.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../application/CohortManager/src/Functions/Shared/Common/Common.csproj" />
+    <ProjectReference Include="../../application/CohortManager/src/Functions/Shared/DataServices.Database/DataServices.Database.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="ADD_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="AMENDED_MASTER_1_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="AMENDED_MASTER_2_BSO_CODE_1B8F53_-_CAAS_BREAST_SCREENING_COHORT.parquet">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+</Project>
