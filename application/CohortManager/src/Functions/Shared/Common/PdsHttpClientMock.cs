@@ -45,7 +45,7 @@ public class PdsHttpClientMock : HttpClientFunction
             string? notFoundResponseBody;
             if (nhsNumber == "9111231130")
             {
-                notFoundResponseBody = await File.ReadAllTextAsync("MockedPDSData/patient-not-found-invalid-recourse.json");
+                notFoundResponseBody = await File.ReadAllTextAsync("MockedPDSData/patient-not-found-invalid-resource.json");
             }
             else
             {
