@@ -133,7 +133,8 @@ public class ProcessCaasFile : IProcessCaasFile
             case Actions.Amended:
                 if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
                 {
-                    await CreateError(participant, fileName, "old record did not exist or there was a problem when getting the old record form the database");
+                    currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                    currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
                     break;
                 }
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
@@ -192,7 +193,7 @@ public class ProcessCaasFile : IProcessCaasFile
             }
 
             _logger.LogError("updating old Demographic record was not successful");
-            return updated;
+            throw new InvalidOperationException("updating old Demographic record was not successful");
         }
         catch (Exception ex)
         {
