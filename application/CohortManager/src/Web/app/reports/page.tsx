@@ -41,7 +41,7 @@ export default async function Page() {
           reportId: `${dateString}?category=13`,
           dateCreated: dateString,
           category: 13,
-        }, 
+        },
         {
           reportId: `${dateString}?category=12`,
           dateCreated: dateString,
