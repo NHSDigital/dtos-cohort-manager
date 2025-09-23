@@ -59,6 +59,8 @@ jobs:
         run: chmod +x scripts/bash/wait_ado_pipeline.sh
 
       - name: Call deployment pipeline
+        env:
+          COMMIT_ID: ${{inputs.commit_sha}}
         run: |
           # Define common variables
           organisation='https://dev.azure.com/nhse-dtos'
@@ -74,12 +76,12 @@ jobs:
             ["production"]=""
           )
 
-          git_short_sha=$(git rev-parse --short ${{inputs.commit_sha}})
+          git_short_sha=$(git rev-parse --short $COMMIT_ID)
           parameters="dockerImageTag=${git_short_sha} testTypes=[${test_types[${{ matrix.environment }}]}]"
 
           echo "Starting Azure devops pipeline \"Deploy to Azure - Core ${{ matrix.environment }}\"..."
           RUN_ID=$(az pipelines run \
-            --commit-id ${{inputs.commit_sha}} \
+            --commit-id $COMMIT_ID \
             --name "Deploy to Azure - Core ${{ matrix.environment }}" \
             --org "${organisation}" \
             --project "${project_name}" \

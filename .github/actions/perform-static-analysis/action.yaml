@@ -61,23 +61,28 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ github.token }}
+        GITHUB_HEAD: ${{ github.head_ref }}
+        SONAR_PROJECT_KEY: ${{ inputs.sonar_project_key }}
+        SONAR_ORGANISATION_KEY: ${{ inputs.sonar_organisation_key }}
         SONAR_TOKEN: ${{ inputs.sonar_token }}
+        COVERAGE_PATH: ${{ inputs.coverage_path }}
+        UNIT_TESTS_DIRECTORY: ${{ inputs.unit_test_dir }}
       run: |
         # Make the script executable
         chmod +x ${{ github.workspace }}/scripts/reports/sonar-analysis.sh
         
         # Run the script with all necessary parameters
         ${{ github.workspace }}/scripts/reports/sonar-analysis.sh \
-        "${{ inputs.sonar_project_key }}" \
-        "${{ inputs.sonar_organisation_key }}" \
-        "${{ inputs.sonar_token }}" \
-        "${{ inputs.coverage_path }}" \
-        "${{ github.token }}" \
+        "$SONAR_PROJECT_KEY" \
+        "$SONAR_ORGANISATION_KEY" \
+        "$SONAR_TOKEN" \
+        "$COVERAGE_PATH" \
+        "$GITHUB_TOKEN" \
         "${{ github.event_name }}" \
-        "${{ github.head_ref }}" \
+        "$GITHUB_HEAD" \
         "${{ github.base_ref }}" \
         "${{ github.event.pull_request.number }}" \
         "${{ github.repository }}" \
         "${{ github.ref }}" \
         "${{ github.sha }}" \
-        "${{ inputs.unit_test_dir }}"
+        "$UNIT_TESTS_DIRECTORY"
