@@ -10,6 +10,7 @@ using DataServices.Core;
 var hostBuilder = new HostBuilder()
     .ConfigureFunctionsWebApplication()
     .AddConfiguration<ManageCaasSubscriptionConfig>(out ManageCaasSubscriptionConfig? config)
+    .AddConfiguration<MeshSendCaasSubscribeConfig>()
     .AddMeshMailboxes(new MeshConfig
     {
         MeshApiBaseUrl = config!.CaasSubscriptionMeshApiBaseUrl,
