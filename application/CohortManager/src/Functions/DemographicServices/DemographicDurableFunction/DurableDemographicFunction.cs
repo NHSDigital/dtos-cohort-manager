@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
-using Microsoft.AspNetCore.Components;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;

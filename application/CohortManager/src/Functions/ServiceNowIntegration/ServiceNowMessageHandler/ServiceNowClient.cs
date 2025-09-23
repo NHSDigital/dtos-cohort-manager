@@ -156,7 +156,7 @@ public class ServiceNowClient : IServiceNowClient
 
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("Failed to refresh ServiceNow access token. StatusCode: {statusCode}", response.StatusCode);
+            _logger.LogError("Failed to refresh ServiceNow access token. StatusCode: {StatusCode}", response.StatusCode);
             return null;
         }
 

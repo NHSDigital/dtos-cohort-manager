@@ -22,12 +22,12 @@ public class ReadRules : IReadRules
 
             // Construct the path to the JSON file (assuming it was copied to the output directory)
             var filePath = Path.Combine(currentDirectory, jsonFileName);
-             _logger.LogInformation("file path: {filePath}", filePath);
+             _logger.LogInformation("file path: {FilePath}", filePath);
 
             // Check if the file exists
             if (!File.Exists(filePath))
             {
-                _logger.LogError("File not found: {filePath}", filePath);
+                _logger.LogError("File not found: {FilePath}", filePath);
                 return string.Empty;
             }
 
@@ -37,7 +37,7 @@ public class ReadRules : IReadRules
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "error while getting rules from directory: {ex} {fileName}", ex.Message, jsonFileName);
+            _logger.LogError(ex, "error while getting rules from directory: {Ex} {FileName}", ex.Message, jsonFileName);
             return string.Empty;
         }
     }

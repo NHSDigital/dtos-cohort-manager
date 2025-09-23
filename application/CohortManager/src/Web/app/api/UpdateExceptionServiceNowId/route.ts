@@ -51,7 +51,7 @@ export async function PUT(request: NextRequest) {
     const exceptionId =
       typeof rawExceptionId === "number"
         ? rawExceptionId
-        : parseInt(rawExceptionId, 10);
+        : Number.parseInt(rawExceptionId, 10);
     if (!Number.isFinite(exceptionId) || exceptionId <= 0) {
       console.warn("Invalid ExceptionId provided:", rawExceptionId);
       return NextResponse.json(

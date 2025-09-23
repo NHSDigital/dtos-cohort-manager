@@ -16,6 +16,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicDataService;
     private readonly IHttpClientFunction _httpClient;
     private readonly UpdateBlockedFlagConfig _config;
+    private static string CultureInfo = "en-GB";
     public BlockParticipantHandler(ILogger<BlockParticipantHandler> logger,
         IDataServiceClient<ParticipantManagement> participantManagementDataService,
         IDataServiceClient<ParticipantDemographic> participantDemographicDataService,
@@ -241,12 +242,12 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     private static bool ValidateRecordsMatch(ParticipantDemographic participant, BlockParticipantDto dto)
     {
 
-        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd", new CultureInfo("en-GB"), DateTimeStyles.None, out var dtoDateOfBirth))
+        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd", new CultureInfo(CultureInfo), DateTimeStyles.None, out var dtoDateOfBirth))
         {
             throw new FormatException("Date of Birth not in the correct format");
         }
 
-        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd", new CultureInfo("en-GB"), DateTimeStyles.None, out var parsedDob))
+        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyyMMdd", new CultureInfo(CultureInfo), DateTimeStyles.None, out var parsedDob))
         {
             return false;
         }
@@ -259,12 +260,12 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     private static bool ValidateRecordsMatch(PdsDemographic participant, BlockParticipantDto dto)
     {
 
-        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd", new CultureInfo("en-GB"), DateTimeStyles.None, out var dtoDateOfBirth))
+        if (!DateOnly.TryParseExact(dto.DateOfBirth, "yyyy-MM-dd", new CultureInfo(CultureInfo), DateTimeStyles.None, out var dtoDateOfBirth))
         {
             throw new FormatException("Date of Birth not in the correct format");
         }
 
-        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyy-MM-dd", new CultureInfo("en-GB"), DateTimeStyles.None, out var parsedDob))
+        if (!DateOnly.TryParseExact(participant.DateOfBirth, "yyyy-MM-dd", new CultureInfo(CultureInfo), DateTimeStyles.None, out var parsedDob))
         {
             return false;
         }

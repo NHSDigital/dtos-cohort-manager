@@ -49,7 +49,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
     public async Task<List<CohortDistributionParticipantDto>> GetCohortDistributionParticipantsByRequestId(Guid requestId)
     {
-        var requestIdString = requestId.ToString();
         if (requestId == Guid.Empty)
         {
             CohortDistributionParticipantDto(new List<CohortDistributionParticipant>());
