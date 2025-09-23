@@ -179,23 +179,40 @@ jobs:
 
           export VULNERABILITIES_REPOSITORY_REPORT="vulnerabilities-${function}-repository-report"
           echo "VULNERABILITIES_REPOSITORY_REPORT=$VULNERABILITIES_REPOSITORY_REPORT" >> $GITHUB_ENV
-          bash -x ${GITHUB_WORKSPACE}/templates/scripts/reports/scan-vulnerabilities.sh
 
-          run: |
-            retries=5
-            delay=10
-            count=0
-            until [ $count -ge $retries ]
-            do
-              curl -sSfL https://get.anchore.io/grype | sudo sh -s -- -b /usr/local/bin && break
-              count=$((count+1))
-              echo "Retry $count/$retries exited with failure, retrying in $delay seconds..."
-              sleep $delay
-            done
-            if [ $count -eq $retries ]; then
-              echo "Failed to install grype after $retries attempts."
-              exit 1
-            fi
+          echo "Running the scan-vulnerabilities script in a look with 10 minutes timeout, with 3 retries..."
+          retries=3
+          delay=300 # 5 minutes
+          count=0
+          until [ $count -ge $retries ]
+          do
+            timeout 10m bash -x ${GITHUB_WORKSPACE}/templates/scripts/reports/scan-vulnerabilities.sh && break
+            count=$((count+1))
+            echo "Attempt $count/$retries failed, retrying after $delay seconds..."
+            sleep $delay
+          done
+
+          if [ $count -eq $retries ]; then
+            echo "All attempts failed. Exiting with error."
+            exit 1
+          fi
+
+          echo "Installing grype using a loop..."
+          retries=5
+          delay=10
+          count=0
+          until [ $count -ge $retries ]
+          do
+            curl -sSfL https://get.anchore.io/grype | sudo sh -s -- -b /usr/local/bin && break
+            count=$((count+1))
+            echo "Retry $count/$retries exited with failure, retrying in $delay seconds..."
+            sleep $delay
+          done
+          if [ $count -eq $retries ]; then
+            echo "Failed to install grype after $retries attempts."
+            exit 1
+          fi
+          echo "grype installation successful"
 
           SCAN_RESULTS=$(grype "${PROJECT_NAME}-${function}:latest" --scope all-layers)
           # ANSI color codes
