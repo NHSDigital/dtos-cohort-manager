@@ -22,7 +22,6 @@
             "SqlPassword": "",
             "MeshSandboxKeyPasspharse": "",
             "NemsLocalCertPassword": "",
-            "NemsMeshServerSideCerts": "",
             "PdsClientId": ""
         }
     }
