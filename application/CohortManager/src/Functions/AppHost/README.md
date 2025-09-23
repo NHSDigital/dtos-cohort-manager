@@ -29,7 +29,7 @@
 
     `SqlPassword` - The local db password. Must be at least 8 characters long and contain characters from at least three of the following four categories: uppercase letters, lowercase letters, numbers, and non-alphanumeric characters.
 
-    `MeshSandboxKeyPasspharse` - The password for your local MESH Sandbox certificate. Required for the RetrieveMeshFile, ManageCaasSubscription & NemsMeshRetrieval functions. Can be set to any value if not using MESH if using the stubbed versions.
+    `MeshSandboxKeyPasspharse` - The password for your local MESH Sandbox certificate. Required for the RetrieveMeshFile, ManageCaasSubscription & NemsMeshRetrieval functions. Can be set to any value if using the stubbed versions.
 
     `NemsLocalCertPassword` - The password for your local NEMS certificate. Required for the ManageNemsSubscription function, can be set to any value if using the stubbed version (default).
 
