@@ -7,7 +7,7 @@ using System.ComponentModel.DataAnnotations;
 /// </summary>
 public class ManageCaasSubscriptionConfig
 {
-    /// <summary>Base URL for the MESH API used by ManageCaasSubscription.</summary>
+    /// <summary>Base URL for the MESH API.</summary>
     [Required]
     public required string CaasSubscriptionMeshApiBaseUrl { get; set; }
     /// <summary>Optional Azure Key Vault URL for certificate and secret retrieval.</summary>
@@ -32,9 +32,6 @@ public class ManageCaasSubscriptionConfig
     [Required]
     public required string CaasFromMailbox { get; set; }
 
-    /// <summary>Enable WireMock support in dev/test; when true and WireMockAdminUrl is set, default Mesh outbox success mapping is seeded.</summary>
-    public bool UseWireMock { get; set; } = false;
-
-    /// <summary>WireMock admin base URL (e.g., https://wiremock-host/__admin). If provided with UseWireMock, mappings may be seeded.</summary>
-    public string? WireMockAdminUrl { get; set; }
+    /// <summary>Controls whether shared implementations use stubbed behavior.</summary>
+    public bool IsStubbed { get; set; }
 }

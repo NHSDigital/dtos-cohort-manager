@@ -1,0 +1,19 @@
+{
+  "validations": [
+    {
+      "validations": {
+        "NHSNumber": 9997160908
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-10704-01",
+        "requirementJiraId": "DTOSS-10939",
+        "additionalTags": "@DTOSS-10704-01 @e2e @epic4f- Successful first-time subscription"
+      }
+    }
+  ],
+  "inputParticipantRecord": [],
+  "nhsNumbers": [
+    "9997160908"
+  ]
+}
+

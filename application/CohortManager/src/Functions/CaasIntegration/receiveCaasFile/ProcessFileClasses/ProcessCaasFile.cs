@@ -133,7 +133,8 @@ public class ProcessCaasFile : IProcessCaasFile
             case Actions.Amended:
                 if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
                 {
-                    await CreateError(participant, fileName);
+                    currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                    currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
                     break;
                 }
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
@@ -192,12 +193,13 @@ public class ProcessCaasFile : IProcessCaasFile
             }
 
             _logger.LogError("updating old Demographic record was not successful");
-            return updated;
+            throw new InvalidOperationException("updating old Demographic record was not successful");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Update participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await CreateError(basicParticipantCsvRecord.Participant, name);
+            var errorDescription = $"Update participant function failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
+            _logger.LogError(ex, errorDescription);
+            await CreateError(basicParticipantCsvRecord.Participant, name, errorDescription);
         }
         return false;
     }
@@ -221,17 +223,17 @@ public class ProcessCaasFile : IProcessCaasFile
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Remove participant function failed.\nMessage: {Message}\nStack Trace: {StackTrace}", ex.Message, ex.StackTrace);
-            await CreateError(basicParticipantCsvRecord.Participant, filename);
+            var errorDescription = $"Remove participant function failed. Message: {ex.Message} Stack Trace: {ex.StackTrace}";
+            _logger.LogError(ex, errorDescription);
+            await CreateError(basicParticipantCsvRecord.Participant, filename, errorDescription);
         }
     }
 
-    private async Task CreateError(Participant participant, string filename)
+    private async Task CreateError(Participant participant, string filename, string errorDescription)
     {
         try
         {
             _logger.LogError("Cannot parse record type with action: {ParticipantRecordType}", participant.RecordType);
-            var errorDescription = $"a record has failed to process with the NHS Number: REDACTED because of an incorrect record type";
             await _exceptionHandler.CreateRecordValidationExceptionLog(participant.NhsNumber, filename, errorDescription, "", JsonSerializer.Serialize(participant));
         }
         catch (Exception ex)

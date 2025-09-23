@@ -96,7 +96,6 @@ public class ValidateParticipant
             // Transformation
             _logger.LogInformation("Transforming participant");
             var transformedParticipant = await context.CallActivityAsync<CohortDistributionParticipant?>(nameof(TransformParticipant), validationRecord);
-            transformedParticipant.RecordInsertDateTime = previousRecord.RecordInsertDateTime;
 
             return transformedParticipant;
         }

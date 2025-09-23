@@ -2,11 +2,13 @@ import { APIResponse, expect } from "@playwright/test";
 
 import { config } from "../config/env";
 
-const apiRetry = Number(config.apiRetry);
-const initialWaitTime = Number(config.apiWaitTime) || 2000;
+const apiRetryDefault = Number(config.apiRetry);
+const initialWaitTimeDefault = Number(config.apiWaitTime) || 2000;
+const stepWaitTimeDefault = Number(config.apiStepMs) || 5000;
 const endpointCohortDistributionDataService = config.endpointCohortDistributionDataService;
 const endpointParticipantManagementDataService = config.endpointParticipantManagementDataService;
 const endpointExceptionManagementDataService = config.endpointExceptionManagementDataService;
+const endpointNemsSubscriptionDataDataService = config.endpointNemsSubscriptionDataDataService;
 const endpointParticipantDemographicDataService = config.endpointParticipantDemographicDataService;
 const endpointServicenowCasesDataService = config.endpointServiceNowCasesDataService;
 
@@ -19,15 +21,22 @@ const NHS_NUMBER_KEY = config.nhsNumberKey;
 const NHS_NUMBER_KEY_EXCEPTION_DEMOGRAPHIC = config.nhsNumberKeyExceptionDemographic;
 const IGNORE_VALIDATION_KEY = config.ignoreValidationKey;
 
-let waitTime = initialWaitTime;
 let response: APIResponse;
 
-export async function validateApiResponse(validationJson: any, request: any): Promise<{ status: boolean; errorTrace?: any }> {
+export async function validateApiResponse(
+  validationJson: any,
+  request: any,
+  options?: { retries?: number; initialWaitMs?: number; stepMs?: number }
+): Promise<{ status: boolean; errorTrace?: any }> {
   let status = false;
   let endpoint = "";
   let errorTrace: any = undefined;
 
-  for (let attempt = 1; attempt <= apiRetry; attempt++) {
+  const maxAttempts = Math.max(1, options?.retries ?? apiRetryDefault);
+  let waitTime = Math.max(0, options?.initialWaitMs ?? initialWaitTimeDefault);
+  const stepMs = Math.max(0, options?.stepMs ?? stepWaitTimeDefault);
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     if (status) break;
 
     try {
@@ -75,12 +84,15 @@ export async function validateApiResponse(validationJson: any, request: any): Pr
       }
     }
 
-    if (attempt < apiRetry && !status) {
-      console.info(`🚧 Function processing in progress; will check again using data service ${endpoint} in ${Math.round(waitTime / 1000)} seconds...`);
-      await delayRetry();
+    if (attempt < maxAttempts && !status) {
+      const secs = waitTime > 0 ? Math.round(waitTime / 1000) : 0;
+      console.info(`🚧 Function processing in progress; will check again using data service ${endpoint} in ${secs} seconds...`);
+      if (waitTime > 0) {
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+      }
+      waitTime += stepMs;
     }
   }
-  waitTime = Number(config.apiWaitTime);
   return { status, errorTrace };
 }
 
@@ -94,6 +106,8 @@ export async function fetchApiResponse(endpoint: string, request: any): Promise<
     return await request.get(`${endpointExceptionManagementDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(PARTICIPANT_DEMOGRAPHIC_SERVICE)) {
     return await request.get(`${endpointParticipantDemographicDataService}${endpoint.toLowerCase()}`);
+  } else if (endpoint.includes("NemsSubscriptionDataService")) {
+    return await request.get(`${endpointNemsSubscriptionDataDataService}${endpoint.toLowerCase()}`);
   } else if (endpoint.includes(SERVICENOW_CASES_SERVICE)) {
     return await request.get(`${endpointServicenowCasesDataService}${endpoint.toLowerCase()}`);
   }
@@ -298,7 +312,12 @@ async function validateFields(apiValidation: any, matchingObject: any, nhsNumber
       }
 
       expect(matchingObject).toHaveProperty(fieldName);
-      expect(matchingObject[fieldName]).toBe(expectedValue);
+      // Normalise common numeric-id fields that may arrive as strings from APIs
+      if (fieldName === 'NHSNumber' || fieldName === 'NhsNumber') {
+        expect(String(matchingObject[fieldName])).toBe(String(expectedValue));
+      } else {
+        expect(matchingObject[fieldName]).toBe(expectedValue);
+      }
       console.info(`✅ Validation completed for field ${fieldName} with value ${expectedValue} for NHS Number ${nhsNumber}`);
     }
   }
@@ -325,10 +344,7 @@ function validateTimestampFormat(timestamp: string, pattern: string): boolean {
   }
 }
 
-async function delayRetry() {
-  await new Promise((resolve) => setTimeout(resolve, waitTime));
-  waitTime += 5000;
-}
+// legacy delayRetry removed; handled inline per-call
 
 
 export async function checkMappingsByIndex(

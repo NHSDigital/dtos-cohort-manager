@@ -3,32 +3,21 @@ namespace NHS.CohortManager.Tests.UnitTests.DemographicServicesTests;
 using System.Net;
 using Common;
 using Common.Interfaces;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
 using Moq;
 using NHS.CohortManager.DemographicServices;
-using DataServices.Client;
 using NHS.CohortManager.Tests.TestUtils;
-using System.Linq.Expressions;
-using Microsoft.Extensions.Caching.Memory;
-using System.ComponentModel;
 
 [TestClass]
 public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemographic>
 {
-    private static readonly Mock<IHttpClientFunction> _mockHttpClientFunction = new();
     private static readonly Mock<IOptions<RetrievePDSDemographicConfig>> _mockConfig = new();
     private static readonly Mock<IFhirPatientDemographicMapper> _mockFhirPatientDemographicMapper = new();
-    private static Mock<IBearerTokenService> _bearerTokenService = new();
-
-    private static Mock<IHttpClientFunction> _httpClientFunction = new();
-
+    private static readonly Mock<IBearerTokenService> _bearerTokenService = new();
+    private static readonly Mock<IHttpClientFunction> _httpClientFunction = new();
     private static readonly Mock<IPdsProcessor> _mockPdsProcessor = new();
-
-
     private const string _validNhsNumber = "9000000009";
-    private const long _validNhsNumberLong = 9000000009;
 
     public RetrievePdsDemographicTests() : base((conn, logger, transaction, command, response) =>
     new RetrievePdsDemographic(
@@ -68,74 +57,47 @@ public class RetrievePdsDemographicTests : DatabaseTestBaseSetup<RetrievePdsDemo
     }
 
     [TestMethod]
-    public async Task Run_NotFound_WithoutSourceFileName_ForwardsNull()
+    [DataRow(null)]
+    [DataRow("nems-file-123.xml")]
+    public async Task Run_WhenPdsReturnsNotFound_TheNotFoundResponseIsProcessedAndReturned(string? sourceFileName)
     {
         // Arrange
         _bearerTokenService.Setup(x => x.GetBearerToken()).ReturnsAsync("token");
         _mockFhirPatientDemographicMapper.Setup(x => x.ParseFhirJson(It.IsAny<string>()))
             .Returns(new PdsDemographic { ConfidentialityCode = "R" });
 
-        var okResponse = new HttpResponseMessage(HttpStatusCode.OK)
+        var notFoundResponse = new HttpResponseMessage(HttpStatusCode.NotFound)
         {
             Content = new StringContent("{}")
         };
         _httpClientFunction.Setup(x => x.SendPdsGet(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(okResponse);
+            .ReturnsAsync(notFoundResponse);
         _httpClientFunction.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
-            .ReturnsAsync("{}");
+            .ReturnsAsync("");
 
         SetupRequest("{}");
         SetupRequestWithQueryParams(new Dictionary<string, string>
         {
             {"nhsNumber", _validNhsNumber }
         });
-        _request.Setup(r => r.Url).Returns(new Uri($"http://localhost/api/RetrievePdsDemographic?nhsNumber={_validNhsNumber}"));
+
+        var url = $"http://localhost/api/RetrievePdsDemographic?nhsNumber={_validNhsNumber}";
+        if (sourceFileName != null)
+        {
+            url += $"&sourceFileName={Uri.EscapeDataString(sourceFileName)}";
+        }
+        _request.Setup(r => r.Url).Returns(new Uri(url));
 
         // Act
-        await _service.Run(_request.Object);
+        var response = await _service.Run(_request.Object);
 
         // Assert
         _mockPdsProcessor.Verify(p => p.ProcessPdsNotFoundResponse(
-            It.IsAny<HttpResponseMessage>(),
+            notFoundResponse,
             _validNhsNumber,
-            It.Is<string?>(s => s == null)
+            It.Is<string?>(s => s == sourceFileName)
         ), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Run_NotFound_WithSourceFileName_ForwardsFilename()
-    {
-        // Arrange
-        _bearerTokenService.Setup(x => x.GetBearerToken()).ReturnsAsync("token");
-        _mockFhirPatientDemographicMapper.Setup(x => x.ParseFhirJson(It.IsAny<string>()))
-            .Returns(new PdsDemographic { ConfidentialityCode = "R" });
-
-        var okResponse = new HttpResponseMessage(HttpStatusCode.OK)
-        {
-            Content = new StringContent("{}")
-        };
-        _httpClientFunction.Setup(x => x.SendPdsGet(It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(okResponse);
-        _httpClientFunction.Setup(x => x.GetResponseText(It.IsAny<HttpResponseMessage>()))
-            .ReturnsAsync("{}");
-
-        var fileName = "nems-file-123.xml";
-
-        SetupRequest("{}");
-        SetupRequestWithQueryParams(new Dictionary<string, string>
-        {
-            {"nhsNumber", _validNhsNumber }
-        });
-        _request.Setup(r => r.Url).Returns(new Uri($"http://localhost/api/RetrievePdsDemographic?nhsNumber={_validNhsNumber}&sourceFileName={Uri.EscapeDataString(fileName)}"));
-
-        // Act
-        await _service.Run(_request.Object);
-
-        // Assert
-        _mockPdsProcessor.Verify(p => p.ProcessPdsNotFoundResponse(
-            It.IsAny<HttpResponseMessage>(),
-            _validNhsNumber,
-            It.Is<string?>(s => s == fileName)
-        ), Times.Once);
+        _mockPdsProcessor.VerifyNoOtherCalls();
+        Assert.AreEqual(HttpStatusCode.NotFound, response.StatusCode);
     }
 }

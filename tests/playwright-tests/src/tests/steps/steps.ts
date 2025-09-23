@@ -11,10 +11,33 @@ import { receiveParticipantViaServiceNow } from "../../api/distributionService/b
 import { WireMockResponse } from "../../interface/wiremock";
 
 
-export async function cleanupDatabaseFromAPI(request: APIRequestContext, numbers: string[]) {
+export async function cleanupDatabaseFromAPI(
+  request: APIRequestContext,
+  numbers: string[],
+  services?: Array<'cohortDistribution' | 'participantManagement' | 'exceptionManagement' | 'participantDemographic' | 'nemsSubscription' | 'serviceNowCases'>
+) {
   return test.step(`Cleanup database using data services`, async () => {
-    await cleanDataBaseUsingServices(numbers, request);
+    await cleanDataBaseUsingServices(numbers, request, services as any);
   });
+}
+
+export async function cleanupNemsSubscriptions(request: APIRequestContext, numbers: string[]) {
+  return test.step(`Cleanup NEMS subscriptions via data service`, async () => {
+    // Note: current data service cleaner deletes all records in the selected service.
+    // This keeps the environment clean and ensures first-time subscribe paths.
+    await cleanDataBaseUsingServices(numbers, request, ['nemsSubscription' as any]);
+  });
+}
+
+// Attempt to resolve a stable scenario folder name from a test title or tag string.
+// Prefer the first @DTOSS-xxxxx-yy tag if present; otherwise return the original string.
+function resolveScenarioFolder(raw: string): string {
+  if (!raw) return raw;
+  const match = raw.match(/@DTOSS-\d+-\d+/);
+  if (match && match[0]) return match[0];
+  // Fallback: if multiple tokens separated by spaces, use the first token
+  const firstToken = raw.split(/[\s|]+/).filter(Boolean)[0];
+  return firstToken || raw;
 }
 
 function getWireMockUrl(): string {
@@ -28,26 +51,219 @@ function getWireMockUrl(): string {
   return wireMockUrl;
 }
 
+function getWireMockAdmin(base?: string): { admin: string; requests: string; mappings: string } {
+  // Use shared WIREMOCK_URL for both ServiceNow and Mesh
+  const raw = (base ?? config.wireMockUrl).trim();
+  if (!raw) throw new Error('❌ WIREMOCK_URL is not set.');
+  const noTrail = raw.replace(/\/$/, '');
+  const admin = noTrail.endsWith('/__admin')
+    ? noTrail
+    : noTrail.endsWith('/__admin/requests') || noTrail.endsWith('/__admin/mappings')
+      ? noTrail.replace(/\/(requests|mappings)$/,'')
+      : `${noTrail}/__admin`;
+  return {
+    admin,
+    requests: `${admin}/requests`,
+    mappings: `${admin}/mappings`
+  };
+}
+
 export async function cleanupWireMock(request: APIRequestContext) {
-  const wireMockUrl = getWireMockUrl();
+  const { requests: requestsUrl } = getWireMockAdmin();
 
   return test.step(`Cleaning up WireMock`, async () => {
     try {
-      await request.delete(wireMockUrl);
+      // Prefer the explicit reset endpoint if available
+      const resetUrl = `${requestsUrl}/reset`;
+      const res = await request.post(resetUrl);
+      if (!res.ok()) {
+        // Fallback to DELETE all requests
+        await request.delete(requestsUrl);
+      }
     }
-    catch {
-      console.warn(`Failed to clean up WireMock requests. Is the WireMock server running? URL: ${wireMockUrl}`);
+    catch (e) {
+      console.warn(`Failed to clean up WireMock requests. Attempted: POST ${requestsUrl}/reset then DELETE ${requestsUrl}. Error: ${e}`);
     }
   });
 }
 
-export async function validateSqlDatabaseFromAPI(request: APIRequestContext, validations: any) {
+export async function validateSqlDatabaseFromAPI(
+  request: APIRequestContext,
+  validations: any,
+  options?: { retries?: number; initialWaitMs?: number; stepMs?: number }
+) {
   return test.step(`Validate database for assertions`, async () => {
-    const { status, errorTrace } = await validateApiResponse(validations, request);
+    const { status, errorTrace } = await validateApiResponse(validations, request, options);
     if (!status) {
-      throw new Error(`❌ Validation failed after ${config.apiRetry} attempts, please checks logs for more details: ${errorTrace}`);
+      const attempts = Math.max(1, options?.retries ?? config.apiRetry);
+      throw new Error(`❌ Validation failed after ${attempts} attempt(s), please check logs for more details: ${errorTrace}`);
     }
   });
+}
+
+/**
+ * Validate that Mesh outbox HTTP calls were made to WireMock.
+ * Looks for requests whose URL contains typical Mesh paths, e.g. `messageexchange` and `outbox`.
+ * Optional criteria allow narrowing by mailbox id or custom substrings.
+ */
+export async function validateMeshRequestWithMockServer(
+  request: APIRequestContext,
+  options?: { toMailboxContains?: string; minCount?: number; pathIncludes?: string[]; attempts?: number; delayMs?: number }
+)
+{
+  const { requests: requestsUrl } = getWireMockAdmin();
+
+  const minCount = options?.minCount ?? 1;
+  const includes = options?.pathIncludes ?? ["messageexchange", "outbox"];
+  const mailboxHint = options?.toMailboxContains;
+  const attempts = Math.max(1, options?.attempts ?? 5);
+  const delayMs = Math.max(250, options?.delayMs ?? 2000);
+
+  return test.step(`Validate Mesh requests with WireMock`, async () => {
+    let lastBody: WireMockResponse | undefined;
+    for (let i = 1; i <= attempts; i++) {
+      try {
+        const response = await request.get(requestsUrl);
+        lastBody = await response.json() as WireMockResponse;
+
+        let meshRequests = (lastBody.requests || []).filter(r =>
+          includes.every(inc => r.request.url.includes(inc))
+        );
+
+        if (mailboxHint) {
+          meshRequests = meshRequests.filter(r => r.request.url.includes(mailboxHint));
+        }
+
+        if (meshRequests.length >= minCount) {
+          console.info(`✅ Validation Complete - Found ${meshRequests.length} Mesh request(s) to outbox via WireMock`);
+          return;
+        }
+
+        if (i < attempts) {
+          console.info(`⏳ No Mesh requests yet (found ${meshRequests.length}/${minCount}); retrying in ${Math.round(delayMs/1000)}s...`);
+          await new Promise(res => setTimeout(res, delayMs));
+          continue;
+        }
+
+        const sample = (lastBody.requests || []).slice(0, 5).map(r => r.request.url).join("\n - ");
+        throw new Error(
+          `❌ Expected at least ${minCount} Mesh request(s), found 0 after ${attempts} attempt(s).` +
+          `\nWireMock requests endpoint: ${requestsUrl}` +
+          `\nSample captured URLs:\n - ${sample || '(none)'}\n`
+        );
+      } catch (e) {
+        if (i >= attempts) throw e;
+        await new Promise(res => setTimeout(res, delayMs));
+      }
+    }
+  });
+}
+
+/**
+ * Configure WireMock to return a failure (e.g. 500) for Mesh outbox HTTP calls.
+ */
+export async function enableMeshOutboxFailureInWireMock(
+  request: APIRequestContext,
+  status: number = 500
+) {
+  const { mappings: mappingsUrl } = getWireMockAdmin();
+
+  const body = {
+    priority: 1,
+    request: {
+      method: 'POST',
+      urlPattern: '.*messageexchange/.*/outbox.*'
+    },
+    response: {
+      status,
+      jsonBody: { error: 'Injected Mesh failure from tests' },
+      headers: { 'Content-Type': 'application/json' }
+    }
+  };
+
+  return test.step(`Enable Mesh failure stub in WireMock (status ${status})`, async () => {
+    const res = await request.post(mappingsUrl, { data: body });
+    if (!res.ok()) {
+      throw new Error(`Failed to create WireMock mapping. ${res.status()} - ${await res.text()}`);
+    }
+  });
+}
+
+/** Configure WireMock to return success for Mesh outbox HTTP calls with a dynamic messageId. */
+export async function enableMeshOutboxSuccessInWireMock(
+  request: APIRequestContext
+) {
+  const { mappings: mappingsUrl } = getWireMockAdmin();
+
+  const body = {
+    // Lower number = higher priority to override default mappings
+    priority: 2,
+    request: {
+      method: 'POST',
+      urlPattern: '.*messageexchange/.*/outbox.*'
+    },
+    response: {
+      status: 200,
+      // Client expects snake_case property: message_id
+      jsonBody: { message_id: "{{randomValue length=24 type='ALPHANUMERIC'}}" },
+      headers: { 'Content-Type': 'application/json' },
+      transformers: ["response-template"]
+    }
+  };
+
+  return test.step(`Enable Mesh success stub in WireMock`, async () => {
+    const res = await request.post(mappingsUrl, { data: body });
+    if (!res.ok()) {
+      throw new Error(`Failed to create WireMock success mapping. ${res.status()} - ${await res.text()}`);
+    }
+  });
+}
+
+/** Remove all WireMock mappings (stubs). Useful to clean after failure injection. */
+export async function resetWireMockMappings(request: APIRequestContext) {
+  const { mappings: mappingsUrl } = getWireMockAdmin();
+  return test.step(`Reset WireMock mappings`, async () => {
+    try {
+      await request.delete(mappingsUrl);
+    } catch (e) {
+      console.warn(`Failed to reset WireMock mappings at ${mappingsUrl}. ${e}`);
+    }
+  });
+}
+
+/**
+ * Remove only MESH outbox mappings so tests can deterministically set success/failure
+ * without affecting other WireMock stubs used by unrelated tests.
+ */
+export async function removeMeshOutboxMappings(request: APIRequestContext) {
+  const { mappings: mappingsUrl } = getWireMockAdmin();
+  return test.step(`Remove MESH outbox mappings`, async () => {
+    try {
+      const res = await request.get(mappingsUrl);
+      const body = await res.json();
+      const mappings = (body?.mappings || []) as Array<any>;
+      const toDelete = mappings.filter(m => {
+        const pat = m?.request?.urlPattern || m?.request?.urlPathPattern || '';
+        const method = (m?.request?.method || '').toUpperCase();
+        return method === 'POST' && pat.includes('messageexchange') && pat.includes('outbox');
+      });
+      for (const m of toDelete) {
+        const id = m.id || m.uuid;
+        if (id) {
+          await request.delete(`${mappingsUrl}/${id}`);
+        }
+      }
+    } catch (e) {
+      console.warn(`Failed to remove specific MESH outbox mappings at ${mappingsUrl}. ${e}`);
+    }
+  });
+}
+
+/** Fetch the current WireMock mappings as a raw JSON string for diagnostics. */
+export async function getWireMockMappingsJson(request: APIRequestContext): Promise<string> {
+  const { mappings: mappingsUrl } = getWireMockAdmin();
+  const res = await request.get(mappingsUrl);
+  return await res.text();
 }
 
 export async function validateServiceNowRequestWithMockServer(request: APIRequestContext, validations: ServiceNowRequestValidations[]) {
@@ -111,7 +327,11 @@ export async function getTestData(scenarioFolderName: string
   , recordType: string = "ADD"
   , createParquetFile = false): Promise<[any, string[], string?, Record<string, any>?, string?]> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
-    const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
+    const folder = resolveScenarioFolder(scenarioFolderName);
+    const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder}/`);
+    if (!fs.existsSync(testFilesPath)) {
+      throw new Error(`Test files folder not found: ${testFilesPath} (from: ${scenarioFolderName})`);
+    }
     const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
     let parquetFile: string = "";
     if (createParquetFile) {
@@ -147,7 +367,11 @@ export async function getTestData(scenarioFolderName: string
 
 export function getCheckInDataBaseValidations(scenarioFolderName: string
   , recordType: string = "ADD") {
-  const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
+  const folder = resolveScenarioFolder(scenarioFolderName);
+  const testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder}/`);
+  if (!fs.existsSync(testFilesPath)) {
+    throw new Error(`Test files folder not found: ${testFilesPath} (from: ${scenarioFolderName})`);
+  }
   const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
   const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
   return parsedData.validations;
@@ -167,7 +391,7 @@ export function getConsolidatedAllTestData(
 
   scenarioFolders.forEach(folder => {
     try {
-      testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder.substring(0, 14)}/`);
+      testFilesPath = path.join(__dirname, `../`, `${config.e2eTestFilesPath}/${folder}/`);
       const jsonFiles = fs.readdirSync(testFilesPath).filter(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
       jsonFiles.forEach(jsonFile => {
         const srcPath = path.join(testFilesPath, jsonFile);
@@ -202,7 +426,11 @@ export function getConsolidatedAllTestData(
 export async function getApiTestData(scenarioFolderName: string, recordType: string = "ADD"): Promise<any> { //TODO fix return type
   return test.step(`Creating Input Data from JSON file`, async () => {
     console.info('🏃‍♂️‍➡️\tRunning test For: ', scenarioFolderName);
-    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
+    const folder = resolveScenarioFolder(scenarioFolderName);
+    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${folder}/`);
+    if (!fs.existsSync(testFilesPath)) {
+      throw new Error(`API test files folder not found: ${testFilesPath} (from: ${scenarioFolderName})`);
+    }
     const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
     const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
     const inputParticipantRecord: Record<string, any> = parsedData.inputParticipantRecord;
@@ -214,7 +442,11 @@ export async function getApiTestData(scenarioFolderName: string, recordType: str
 export async function getApiQueryParams(scenarioFolderName: string, recordType: string): Promise<any> {
   return test.step(`Creating Input Data from JSON file`, async () => {
     console.info('🏃‍♂️‍➡️\tRunning test For: ', scenarioFolderName);
-    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${scenarioFolderName.substring(0, 14)}/`);
+    const folder = resolveScenarioFolder(scenarioFolderName);
+    const testFilesPath = path.join(__dirname, `../`, `${config.apiTestFilesPath}/${folder}/`);
+    if (!fs.existsSync(testFilesPath)) {
+      throw new Error(`API test files folder not found: ${testFilesPath} (from: ${scenarioFolderName})`);
+    }
     const jsonFile = fs.readdirSync(testFilesPath).find(fileName => fileName.endsWith('.json') && fileName.startsWith(recordType));
     const parsedData: InputData = JSON.parse(fs.readFileSync(testFilesPath + jsonFile, 'utf-8'));
     return parsedData.queryParams;

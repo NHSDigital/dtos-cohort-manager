@@ -230,10 +230,10 @@ public class ManageCaasSubscription
 
     private void LogSubscriptionSuccess(string messageId)
     {
-        var logMessage = _config.UseWireMock
-            ? $"CAAS Subscribe sent to MESH via WireMock. MessageId: {messageId}"
-            : $"CAAS Subscribe sent to MESH. MessageId: {messageId}";
-
+        var logMessage = _config.IsStubbed 
+        ? $"CAAS Subscribe forwarded to MESH stub. MessageId: {messageId}"
+        : $"CAAS Subscribe sent to MESH. MessageId: {messageId}";
+    
         _logger.LogInformation(logMessage);
     }
 
