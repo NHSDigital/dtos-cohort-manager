@@ -29,6 +29,19 @@ on:
         required: false
         type: boolean
         default: false
+      app_dir:
+        description: Directory containing application code and compose files
+        required: true
+        type: string
+      snapshot_test_dir:
+        description: Directory containing the snapshot tests
+        required: true
+        type: string
+      gh_registry:
+        description: GitHub registry to push images for Snapshot Testing
+        required: true
+        type: string
+        default: ghcr.io
 
 jobs:
   get-functions:
@@ -69,6 +82,7 @@ jobs:
       id-token: write
       contents: read
       pull-requests: read
+      packages: write
     needs: get-functions
     strategy:
       matrix:
@@ -90,6 +104,13 @@ jobs:
           repository: NHSDigital/dtos-devops-templates
           path: templates
           ref: main
+
+      - name: Log in to the GitHub Container registry
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1
+        with:
+          registry: ${{ inputs.gh_registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Az CLI login
         if: github.ref == 'refs/heads/main'
@@ -135,6 +156,7 @@ jobs:
         env:
           COMPOSE_FILE: ${{ inputs.docker_compose_file }}
           PROJECT_NAME: ${{ inputs.project_name }}
+          GH_REGISTRY: ${{ inputs.gh_registry }}
         run: |
           function=${{ matrix.function }}
 
@@ -172,6 +194,15 @@ jobs:
             fi
             docker push "${repo_name}:${ENVIRONMENT_TAG}"
           fi
+
+          echo Tagging the image for GitHub Registry...
+          GH_IMAGE=${{ inputs.gh_registry }}/${{ github.repository_owner }}/${{ inputs.project_name }}-${{ matrix.function }}:${{ env.COMMIT_HASH_TAG }}
+          # make it lowercase
+          GH_IMAGE_ID="${GH_IMAGE,,}"
+          docker tag ${PROJECT_NAME}-${function}:latest $GH_IMAGE_ID
+
+          echo Pushing the image into GitHub Registry...
+          docker push $GH_IMAGE_ID
 
           export SBOM_REPOSITORY_REPORT="sbom-${function}-repository-report"
           echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV
@@ -242,6 +273,12 @@ jobs:
           docker rmi "${repo_name}:${ENVIRONMENT_TAG}"
           docker rmi ${PROJECT_NAME}-${function}:latest
 
+      # - name: Upload docker image as an artifact
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ${{ env.ARTIFACT_NAME }}.tar
+      #     path: ./${{ env.ARTIFACT_NAME }}.tar
+
       - name: Compress SBOM report
         shell: bash
         run: |
@@ -275,9 +312,95 @@ jobs:
           path: ./${{ env.VULNERABILITIES_SUMMARY_LOGFILE }}
           retention-days: 21
 
+  snapshot-tests:
+    name: Snapshot tests
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    needs: build-and-push
+    env:
+      SNAPSHOT_TEST_DIR: ${{ inputs.snapshot_test_dir }}
+      APP_DIR: ${{ inputs.app_dir }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Check runner resources before download
+        run: |
+          echo "--- DISK SPACE ---"
+          df -h
+          echo "--- MEMORY ---"
+          free -h
+
+      - name: Log in to the GitHub Container registry
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1
+        with:
+          registry: ${{ inputs.gh_registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run application using GHCR images
+        working-directory: ${{ inputs.app_dir }}
+        env:
+          PROJECT_NAME: ${{ inputs.project_name }}
+        run: |
+          for function in $(echo '${{ needs.get-functions.outputs.FUNC_NAMES }}' | jq -r '.[]'); do
+            raw_id="${{ inputs.gh_registry }}/${{ github.repository }}/${function}:${{ needs.build-and-push.outputs.short_commit_hash }}"
+            image_id="${raw_id,,}"
+
+            # Convert to UPPER_SNAKE_CASE for the env var
+            env_var_name="IMAGE_$(echo "$function" | tr '[:lower:]' '[:upper:]' | tr '-' '_')"
+
+            echo "Exporting $env_var_name=$image_id"
+            export "$env_var_name=$image_id"
+          done
+
+          echo "Build the dependencies needed for local operation..."
+          docker compose -f compose.deps.yaml -p ${PROJECT_NAME} --profile "*" build --no-cache
+          echo "Waiting for the depencies to be accessible..."
+          echo ".........."
+          sleep 20
+
+          # Run docker compose using BOTH the base file and the CI override file
+          echo "Run docker compose deps and apps with the GHCR"
+          docker compose -f compose.deps.yaml up -d --no-build
+          sleep 20
+
+          echo "Run docker compose app with the GHCR"
+          docker compose -f compose.yaml up -d --no-build
+          sleep 20
+
+      - name: Run snapshot tests
+        run: ./tests/snapshot-tests/run-snapshot-tests.sh
+
+      - name: Teardown application
+        working-directory: ${{ env.APP_DIR }}
+        run: docker compose down && docker compose -f compose.deps.yaml down
+
+      # - name: Run dependencies
+      #   working-directory: ${{ env.APP_DIR }}
+      #   run: |
+      #     docker compose -f compose.deps.yaml up -d
+      #     sleep 20
+
+      # - name: Run application
+      #   working-directory: ${{ env.APP_DIR }}
+      #   run: |
+      #     docker compose up -d
+      #     sleep 20
+
+      # - name: Run snapshot tests
+      #   run: ./tests/snapshot-tests/run-snapshot-tests.sh
+
+      # - name: teardown application
+      #   working-directory: ${{ env.APP_DIR }}
+      #   run: docker compose down && docker compose -f compose.deps.yaml down
+
   aggregate-json:
     runs-on: ubuntu-latest
-    needs: build-and-push
+    needs: snapshot-tests
     steps:
       - name: Download SBOM JSON artifacts
         uses: actions/download-artifact@v4
