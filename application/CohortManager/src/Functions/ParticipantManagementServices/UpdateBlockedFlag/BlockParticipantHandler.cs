@@ -16,7 +16,7 @@ public class BlockParticipantHandler : IBlockParticipantHandler
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicDataService;
     private readonly IHttpClientFunction _httpClient;
     private readonly UpdateBlockedFlagConfig _config;
-    private static string CultureInfo = "en-GB";
+    private static readonly string CultureInfo = "en-GB";
     public BlockParticipantHandler(ILogger<BlockParticipantHandler> logger,
         IDataServiceClient<ParticipantManagement> participantManagementDataService,
         IDataServiceClient<ParticipantDemographic> participantDemographicDataService,

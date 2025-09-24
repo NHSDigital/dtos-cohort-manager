@@ -44,7 +44,7 @@ public class PdsDemographic : Demographic
             TelephoneNumberHome = TelephoneNumber,
             TelephoneNumberHomeFromDate = MappingUtilities.ParseDates(TelephoneNumberEffectiveFromDate!)?.ToString(DateFormat),
             TelephoneNumberMob = MobileNumber,
-            TelephoneNumberMobFromDate = MappingUtilities.ParseDates(MobileNumberEffectiveFromDate!)?.ToString(DateFormat),
+            TelephoneNumberMobFromDate = MappingUtilities.ParseDates(MobileNumberEffectiveFromDate!)?.ToString("yyyy-MM-dd"),
             EmailAddressHome = EmailAddress,
             EmailAddressHomeFromDate = MappingUtilities.ParseDates(EmailAddressEffectiveFromDate!)?.ToString(DateFormat),
             PreferredLanguage = PreferredLanguage,
