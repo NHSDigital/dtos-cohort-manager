@@ -27,7 +27,7 @@ public class MeshSendCaasSubscribeTests
         string? capturedFrom = null, capturedTo = null, capturedWorkflow = null;
         FileAttachment? capturedFile = null;
         _meshOutbox
-            .Setup(m => m.SendCompressedMessageAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<FileAttachment>(), null, null, false))
+            .Setup(m => m.SendUnCompressedMessageAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<FileAttachment>(), null, null, false))
             .Callback((string from, string to, string workflow, FileAttachment file, string? _, string? __, bool ___) =>
             {
                 capturedFrom = from; capturedTo = to; capturedWorkflow = workflow; capturedFile = file;
@@ -60,7 +60,7 @@ public class MeshSendCaasSubscribeTests
     {
         // Arrange
         _meshOutbox
-            .Setup(m => m.SendCompressedMessageAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<FileAttachment>(), null, null, false))
+            .Setup(m => m.SendUnCompressedMessageAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<FileAttachment>(), null, null, false))
             .ReturnsAsync(new MeshResponse<SendMessageResponse>
             {
                 IsSuccessful = false,
