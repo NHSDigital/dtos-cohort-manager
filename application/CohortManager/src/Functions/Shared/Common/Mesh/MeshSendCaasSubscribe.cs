@@ -1,8 +1,10 @@
 namespace Common;
 
 using System.Threading.Tasks;
+using Azure.Messaging.EventGrid.SystemEvents;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using NHS.MESH.Client.Contracts.Services;
 using NHS.MESH.Client.Models;
 using ParquetSharp;
@@ -34,7 +36,18 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
     {
 
         var content = CreateParquetFile(nhsNumber);
+        return await SendMeshMessage(content, fromMailbox, toMailbox);
+    }
 
+    public async Task<string?> SendSubscriptionRequest(long[] nhsNumbers, string toMailbox, string fromMailbox)
+    {
+
+        var content = CreateParquetFile(nhsNumbers);
+        return await SendMeshMessage(content, fromMailbox, toMailbox);
+    }
+
+    private async Task<string?> SendMeshMessage(byte[] content, string fromMailbox, string toMailbox)
+    {
         FileAttachment file = new FileAttachment
         {
             FileName = "CaaSSubscribe.parquet",
@@ -57,12 +70,18 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
 
     private static byte[] CreateParquetFile(long nhsNumber)
     {
+
+        long[] nhsNumberList = { nhsNumber };
+
+        return CreateParquetFile(nhsNumberList);
+    }
+
+    private static byte[] CreateParquetFile(long[] nhsNumber)
+    {
         var columns = new Column[]
         {
             new Column<long>("nhs_number"),
         };
-        long[] nhsNumberList = { nhsNumber };
-
         using var stream = new MemoryStream();
         using var writer = new ManagedOutputStream(stream);
         using (var file = new ParquetFileWriter(writer, columns))
@@ -70,11 +89,10 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
             using var rowGroup = file.AppendRowGroup();
             using (var nhsNumberColumn = rowGroup.NextColumn().LogicalWriter<long>())
             {
-                nhsNumberColumn.WriteBatch(nhsNumberList);
+                nhsNumberColumn.WriteBatch(nhsNumber);
             }
         }
 
         return stream.ToArray();
-
     }
 }
