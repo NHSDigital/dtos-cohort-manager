@@ -54,6 +54,8 @@ law = {
     "AppTraces",
     "AzureDiagnostics",
     "AzureMetrics",
+    "ContainerAppConsoleLogs",
+    "ContainerAppSystemLogs",
     "FunctionAppLogs",
     "LAQueryLogs",
     "StorageBlobLogs",

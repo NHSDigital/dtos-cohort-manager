@@ -2,6 +2,10 @@ locals {
   # APPSERVICEPLAN
   monitor_diagnostic_setting_appserviceplan_metrics = ["AllMetrics"]
 
+  # CONTAINER APP ENVIRONMENT
+  monitor_diagnostic_setting_cae_enabled_logs = ["ContainerAppConsoleLogs", "ContainerAppSystemLogs", "AppEnvSpringAppConsoleLogs", "AppEnvSessionConsoleLogs", "AppEnvSessionPoolEventLogs", "AppEnvSessionLifeCycleLogs"]
+  monitor_diagnostic_setting_cae_metrics      = ["AllMetrics"]
+
   # FUNCTIONAPP
   monitor_diagnostic_setting_function_app_enabled_logs = ["AppServiceAuthenticationLogs", "FunctionAppLogs"]
   monitor_diagnostic_setting_function_app_metrics      = ["AllMetrics"]
