@@ -59,16 +59,16 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
     {
         var columns = new Column[]
         {
-            new Column<long>("nhs_number"),
+            new Column<string>("nhs_number"),
         };
-        long[] nhsNumberList = { nhsNumber };
+        string[] nhsNumberList = { nhsNumber.ToString() };
 
         using var stream = new MemoryStream();
         using var writer = new ManagedOutputStream(stream);
         using (var file = new ParquetFileWriter(writer, columns))
         {
             using var rowGroup = file.AppendRowGroup();
-            using (var nhsNumberColumn = rowGroup.NextColumn().LogicalWriter<long>())
+            using (var nhsNumberColumn = rowGroup.NextColumn().LogicalWriter<string>())
             {
                 nhsNumberColumn.WriteBatch(nhsNumberList);
             }
