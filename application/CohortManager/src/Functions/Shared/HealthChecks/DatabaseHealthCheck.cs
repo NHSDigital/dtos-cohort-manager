@@ -57,8 +57,9 @@ public class DatabaseHealthCheck : IHealthCheck
             var acceptableLatencyThresholdMs = int.Parse(value ?? throw new InvalidOperationException("Environment variable AcceptableLatencyThresholdMs is required."));
             return latency.TotalMilliseconds < acceptableLatencyThresholdMs;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Exception occured whilst checking database latency");
             return false;
         }
     }
