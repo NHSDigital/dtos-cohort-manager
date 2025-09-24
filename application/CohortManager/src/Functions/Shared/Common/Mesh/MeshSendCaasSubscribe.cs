@@ -41,8 +41,8 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
             Content = content,
             ContentType = "application/octet-stream"
         };
-        
-        var result = await _meshOutboxService.SendCompressedMessageAsync(fromMailbox, toMailbox, _config.SendCaasWorkflowId, file);
+
+        var result = await _meshOutboxService.SendUnCompressedMessageAsync(fromMailbox, toMailbox, _config.SendCaasWorkflowId, file);
         if (!result.IsSuccessful)
         {
             _logger.LogError(
