@@ -84,10 +84,9 @@ public sealed class SendCaasSubscribeTests
 
         // act - download message and decompress message
         var message = await _meshInboxService.GetMessageByIdAsync(toMailbox, messageId);
-        var fileContent = GZIPHelpers.DeCompressBuffer(message.Response.FileAttachment.Content);
 
         // asset - ensure message contains expected parquet file
-        ParquetAsserts.ContainsExpectedNhsNumber(fileContent, nhsNumber);
+        ParquetAsserts.ContainsExpectedNhsNumber(message.Response.FileAttachment.Content, nhsNumber);
 
     }
 }
