@@ -1240,6 +1240,7 @@ linux_web_app = {
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
+          AUTH_CIS2_ACR_VALUES = "AAL3_ANY"
         }
         from_key_vault = {
           # env_var_name           = "key_vault_secret_name"
