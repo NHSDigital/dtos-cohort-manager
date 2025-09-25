@@ -1,8 +1,13 @@
 # How to run the Cohort Manager backend solution with .NET Aspire
 
+## Overview
+
+The .NET Aspire AppHost project acts as an orchestrator for running the Cohort Manager solution. The AppHost project is configured to run the dependencies (db, azurite, service bus, etc) in containers and run the functions natively.
+
 ## Prerequisites
 
 - .NET 8.0 or later
+- Azure Functions Core Tools
 - A container runtime (Docker or Podman)
 
 ## Steps
@@ -42,4 +47,6 @@
 
 3. Verify you have Docker or Podman running
 
-4. Run `dotnet run` from the AppHost directory
+4. Run `dotnet run` from a terminal located in the AppHost directory
+
+5. On startup you will see a link to the .NET Aspire dashboard output to the terminal. The dashboard can be used for monitoring and inspection.
