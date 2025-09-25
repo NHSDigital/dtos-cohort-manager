@@ -412,7 +412,7 @@ function_apps = {
           env_var_name     = "RetrievePdsDemographicURL"
           function_app_key = "RetrievePDSDemographic"
         },
-                {
+        {
           env_var_name     = "ManageNemsSubscriptionUnsubscribeURL"
           function_app_key = "ManageNemsSubscription"
           endpoint_name    = "Unsubscribe"
@@ -980,10 +980,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        ServiceNowRefreshAccessTokenUrl      = ""                                  # TODO: Get value
-        ServiceNowUpdateUrl                  = ""                                  # TODO: Get value
-        ServiceNowResolutionUrl              = ""                                  # TODO: Get value
-        ServiceNowGrantType                  = ""                                  # TODO: Get value
+        ServiceNowRefreshAccessTokenUrl      = "https://nhsdigitallive.service-now.com/oauth_token.do"
+        ServiceNowUpdateUrl                  = "https://nhsdigitallive.service-now.com/api/x_nhsd_intstation/nhs_integration/7ce726ef1b4b66d0772fa756b04bcb2a/CohortCaseUpdate"
+        ServiceNowResolutionUrl              = "https://nhsdigitallive.service-now.com/api/x_nhsd_intstation/nhs_integration/7ce726ef1b4b66d0772fa756b04bcb2a/CohortCaseResolution"
+        ServiceNowGrantType                  = "client_credentials"
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }
@@ -1077,6 +1077,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
+        # TODO: Add PDS details when available
         RetrievePdsParticipantURL  = ""
         Kid                        = ""
         Audience                   = ""
@@ -1233,6 +1234,7 @@ linux_web_app = {
       app_service_plan_key = "NonScaling"
       env_vars = {
         static = {
+          # TODO: Add CIS details when available
           AUTH_CIS2_ISSUER_URL = ""
           AUTH_CIS2_CLIENT_ID  = ""
           AUTH_TRUST_HOST      = "true"
