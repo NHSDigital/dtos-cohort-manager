@@ -13,6 +13,9 @@ using DataServices.Core;
 using Model;
 using NHS.CohortManager.DemographicServices;
 using Common.Interfaces;
+using System.Text.Json;
+using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 
 /// <summary>
 /// Azure Functions endpoints for managing CaaS subscriptions via MESH and data services.
@@ -103,6 +106,113 @@ public class ManageCaasSubscription
             {
                 var ex = new InvalidOperationException("Failed to save CAAS subscription record to database");
                 await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsNo.ToString(), nameof(ManageCaasSubscription), "", System.Text.Json.JsonSerializer.Serialize(record));
+                _logger.LogError("Failed to write CAAS subscription record to database");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to save subscription record.");
+            }
+            LogSubscriptionSuccess(messageId);
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.OK, req, $"Subscription request accepted. MessageId: {messageId}");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending CAAS subscribe request");
+            try
+            {
+                string? rawNhs = req.Query["nhsNumber"];
+                var nhsForLog = ValidationHelper.ValidateNHSNumber(rawNhs!) ? rawNhs! : string.Empty;
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsForLog, nameof(ManageCaasSubscription), "", string.Empty);
+            }
+            catch
+            {
+                // Swallow secondary errors to preserve primary failure path
+            }
+            return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "An error occurred while sending the CAAS subscription request.");
+        }
+    }
+        /// <summary>
+    /// Creates a new CaaS subscription for the given NHS number and persists a record.
+    /// </summary>
+    /// <param name="req">HTTP request containing an <c>nhsNumber</c> query parameter.</param>
+    /// <returns>HTTP 200 on success, 400 for invalid input, or 500 on error.</returns>
+    [Function("SubscribeMany")]
+    public async Task<HttpResponseData> SubscribeMany([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
+    {
+        try
+        {
+            List<string> nhsNumbers;
+
+            using (var reader = new StreamReader(req.Body, Encoding.UTF8))
+            {
+                var requestBody = await reader.ReadToEndAsync();
+                nhsNumbers = JsonSerializer.Deserialize<List<string>>(requestBody);
+            }
+
+            if (nhsNumbers.Count == 0)
+            {
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "No NHS numbers were provided");
+            }
+
+            HashSet<long> nhsNumberLongSet = new HashSet<long>();
+            HashSet<string> failedNhsNumbers = new HashSet<string>();
+
+            foreach (var nhsNumber in nhsNumbers)
+            {
+                if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
+                {
+                    failedNhsNumbers.Add(nhsNumber!);
+                }
+
+                if (!long.TryParse(nhsNumber, out long nhsNumberLong))
+                {
+                    failedNhsNumbers.Add(nhsNumber!);
+                }
+
+                nhsNumberLongSet.Add(nhsNumberLong);
+            }
+
+            var existing = await _nemsSubscriptionAccessor.GetRange(x => nhsNumberLongSet.Contains(x.NhsNumber));
+
+            var existingNhsNumbers = existing.Select(e => e.NhsNumber).ToHashSet();
+            var removedNhsNumbers = nhsNumberLongSet.Where(existingNhsNumbers.Contains);
+
+            foreach (var nhsNumber in removedNhsNumbers)
+            {
+                var subscription = existing.Single(x => x.NhsNumber == nhsNumber);
+                var src = subscription.SubscriptionSource?.ToString() ?? "";
+                _logger.LogInformation("CAAS Subscribe: existing subscription {SubId}, source {Source}; returning existing.", subscription.SubscriptionId, string.IsNullOrWhiteSpace(src) ? "Unknown" : src);
+            }
+
+            nhsNumberLongSet.RemoveWhere(existingNhsNumbers.Contains);
+            failedNhsNumbers.UnionWith(removedNhsNumbers.Select(x => x.ToString()));
+
+
+
+            var toMailbox = _config.CaasToMailbox!;
+            var fromMailbox = _config.CaasFromMailbox!;
+            var messageId = await _meshSendCaasSubscribe.SendSubscriptionRequest(nhsNumberLongSet.ToArray(), toMailbox, fromMailbox);
+
+            if (string.IsNullOrEmpty(messageId))
+            {
+                var ex = new InvalidOperationException("Failed to send CAAS subscription via MESH");
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", nameof(ManageCaasSubscription), "", $"to={toMailbox}");
+                _logger.LogError("Failed to send CAAS subscription via MESH");
+                return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to send CAAS subscription via MESH.");
+            }
+            int recordCount = 1;
+            // Save a record to NEMS_SUBSCRIPTION table with source = MESH
+            var records = nhsNumberLongSet.Select(x => new NemsSubscription
+            {
+                SubscriptionId = $"{messageId}_{recordCount++}",
+                NhsNumber = x,
+                RecordInsertDateTime = DateTime.UtcNow,
+                SubscriptionSource = SubscriptionSource.MESH
+            });
+            var saved = await _nemsSubscriptionAccessor.InsertMany(records);
+
+
+            if (!saved)
+            {
+                var ex = new InvalidOperationException("Failed to save CAAS subscription record to database");
+                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, "", nameof(ManageCaasSubscription), "", "");
                 _logger.LogError("Failed to write CAAS subscription record to database");
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.InternalServerError, req, "Failed to save subscription record.");
             }
@@ -233,10 +343,10 @@ public class ManageCaasSubscription
 
     private void LogSubscriptionSuccess(string messageId)
     {
-        var logMessage = _config.IsStubbed 
+        var logMessage = _config.IsStubbed
         ? $"CAAS Subscribe forwarded to MESH stub. MessageId: {messageId}"
         : $"CAAS Subscribe sent to MESH. MessageId: {messageId}";
-    
+
         _logger.LogInformation(logMessage);
     }
 
