@@ -76,7 +76,7 @@ public sealed class SendCaasSubscribeTests
         // assert
         Assert.IsNotNull(messageId);
 
-        // act - validate message recieved
+        // act - validate message received
         var getMessagesResult = await _meshInboxService.GetMessagesAsync(toMailbox);
 
         // assert - File is in mesh
@@ -86,7 +86,7 @@ public sealed class SendCaasSubscribeTests
         var message = await _meshInboxService.GetMessageByIdAsync(toMailbox, messageId);
 
         // asset - ensure message contains expected parquet file
-        ParquetAsserts.ContainsExpectedNhsNumber(message.Response.FileAttachment.Content, nhsNumber);
+        ParquetAsserts.ContainsExpectedNhsNumber(message.Response.FileAttachment.Content, nhsNumber.ToString());
 
     }
 }
