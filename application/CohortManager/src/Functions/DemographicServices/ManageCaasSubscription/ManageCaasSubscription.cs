@@ -184,8 +184,6 @@ public class ManageCaasSubscription
             nhsNumberLongSet.RemoveWhere(existingNhsNumbers.Contains);
             failedNhsNumbers.UnionWith(removedNhsNumbers.Select(x => x.ToString()));
 
-
-
             var toMailbox = _config.CaasToMailbox!;
             var fromMailbox = _config.CaasFromMailbox!;
             var messageId = await _meshSendCaasSubscribe.SendSubscriptionRequest(nhsNumberLongSet.ToArray(), toMailbox, fromMailbox);
