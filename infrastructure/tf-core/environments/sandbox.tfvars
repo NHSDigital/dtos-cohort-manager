@@ -288,7 +288,8 @@ app_service_plan = {
 container_app_environments = {
   instances = {
     db-management = {
-      zone_redundancy_enabled = false
+      zone_redundancy_enabled  = false
+      use_custom_infra_rg_name = false
     }
   }
 }
@@ -301,6 +302,7 @@ container_app_jobs = {
       container_registry_use_mi     = true
       db_connection_string_name     = "DtOsDatabaseConnectionString"
       add_user_assigned_identity    = true
+      replica_retry_limit           = 1
     }
   }
 }
@@ -427,7 +429,7 @@ function_apps = {
           env_var_name     = "RetrievePdsDemographicURL"
           function_app_key = "RetrievePDSDemographic"
         },
-         {
+        {
           env_var_name     = "ManageNemsSubscriptionUnsubscribeURL"
           function_app_key = "ManageNemsSubscription"
           endpoint_name    = "Unsubscribe"
@@ -549,24 +551,6 @@ function_apps = {
         {
           env_var_name     = "RetrievePdsDemographicURL"
           function_app_key = "RetrievePDSDemographic"
-        }
-      ]
-    }
-
-    ManageCaasSubscription = {
-      name_suffix            = "manage-caas-subscription"
-      function_endpoint_name = "ManageCaasSubscription"
-      app_service_plan_key   = "NonScaling"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      key_vault_url          = "KeyVaultConnectionString"
-      env_vars_static = {
-        IsStubbed                         = "false"
-        BypassServerCertificateValidation = "true"
-      }
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
         }
       ]
     }
@@ -1107,10 +1091,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL  = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        RetrievePdsParticipantURL  = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
         Kid                        = "RetrievePdsDemographic-DEV1"
-        Audience                   = "https://int.api.service.nhs.uk/oauth2/token"
-        AuthTokenURL               = "https://int.api.service.nhs.uk/oauth2/token"
+        Audience                   = "https://sandbox.api.service.nhs.uk/oauth2/token"
+        AuthTokenURL               = "https://sandbox.api.service.nhs.uk/oauth2/token"
         KeyNamePrivateKey          = "PDSPRIVATEKEY"
         UseFakePDSServices         = "true"
         ParticipantManagementTopic = "participant-management"
@@ -1138,7 +1122,26 @@ function_apps = {
         NemsSubscriptionProfile               = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
         NemsSubscriptionCriteria              = "https://fhir.nhs.uk/Id/nhs-number"
         NemsBypassServerCertificateValidation = "true"
+        IsStubbed                             = "true"
       }
+    }
+
+    ManageCaasSubscription = {
+      name_suffix            = "manage-caas-subscription"
+      function_endpoint_name = "ManageCaasSubscription"
+      app_service_plan_key   = "NonScaling"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      key_vault_url          = "KeyVaultConnectionString"
+      env_vars_static = {
+        IsStubbed                         = "false"
+        BypassServerCertificateValidation = "true"
+      }
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
     }
 
     ReferenceDataService = {
@@ -1250,6 +1253,7 @@ linux_web_app = {
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort-dev.non-live.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
+          APP_ENV              = "development"
         }
         from_key_vault = {
           # env_var_name           = "key_vault_secret_name"
@@ -1267,6 +1271,29 @@ linux_web_app = {
 }
 
 linux_web_app_slots = []
+
+monitor_action_group = {
+  app-errors = {
+    short_name = "App Errors"
+    email_receiver = {
+      dev-team = {
+        name                    = "Dev Team"
+        email_address           = "richard.kingston2@nhs.net"
+        use_common_alert_schema = true
+      }
+    }
+  }
+  db-errors = {
+    short_name = "DB Errors"
+    email_receiver = {
+      dev-team = {
+        name                    = "Dev Team"
+        email_address           = "richard.kingston2@nhs.net"
+        use_common_alert_schema = true
+      }
+    }
+  }
+}
 
 frontdoor_endpoint = {
   cohort = {
