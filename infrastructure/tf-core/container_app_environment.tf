@@ -14,7 +14,12 @@ module "container-app-environment" {
   location             = each.value.region
   custom_infra_rg_name = each.value.use_custom_infra_rg_name == true ? "${azurerm_resource_group.core[each.value.region].name}-cae-${each.value.container_app_environment}" : null
 
-  log_analytics_workspace_id = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  log_analytics_workspace_id                  = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  logs_destination                            = "azure-monitor"
+  monitor_diagnostic_setting_cae_enabled_logs = local.monitor_diagnostic_setting_cae_enabled_logs
+  monitor_diagnostic_setting_cae_metrics      = local.monitor_diagnostic_setting_cae_metrics
+  metric_enabled                              = var.diagnostic_settings.metric_enabled
+
   vnet_integration_subnet_id = module.subnets["${module.regions_config[each.value.region].names.subnet}-container-app-${lower(each.value.container_app_environment)}"].id
   workload_profile           = each.value.workload_profile
   zone_redundancy_enabled    = each.value.zone_redundancy_enabled
