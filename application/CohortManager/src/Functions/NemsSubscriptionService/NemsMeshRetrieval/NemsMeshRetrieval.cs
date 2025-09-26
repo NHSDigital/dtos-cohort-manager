@@ -1,9 +1,7 @@
 namespace NHS.Screening.NemsMeshRetrieval;
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
-using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Common;
@@ -42,7 +40,7 @@ public class NemsMeshRetrieval
     [Function("RetrieveNemsMeshFile")]
     public async Task RunAsync([TimerTrigger("0 */5 * * * *")] TimerInfo myTimer)
     {
-        _logger.LogInformation("C# Timer trigger function executed at: ,{datetime}", DateTime.UtcNow);
+        _logger.LogInformation("C# Timer trigger function executed at: ,{Datetime}", DateTime.UtcNow);
 
         static bool messageFilter(MessageMetaData i) => true; // No current filter defined there might be business rules here
 
@@ -65,7 +63,7 @@ public class NemsMeshRetrieval
 
         if (myTimer.ScheduleStatus is not null)
         {
-            _logger.LogInformation("Next timer schedule at: {scheduleStatus}", myTimer.ScheduleStatus.Next);
+            _logger.LogInformation("Next timer schedule at: {ScheduleStatus}", myTimer.ScheduleStatus.Next);
         }
     }
 
@@ -127,7 +125,7 @@ public class NemsMeshRetrieval
             return true;
 
         }
-        _logger.LogInformation("Next handshake scheduled for {nextHandShakeDateTime}", nextHandShakeDateTime);
+        _logger.LogInformation("Next handshake scheduled for {NextHandShakeDateTime}", nextHandShakeDateTime);
         return false;
     }
 
