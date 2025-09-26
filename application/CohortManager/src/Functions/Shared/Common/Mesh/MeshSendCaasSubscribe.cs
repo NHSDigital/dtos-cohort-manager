@@ -91,7 +91,7 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
             using var rowGroup = file.AppendRowGroup();
             using (var nhsNumberColumn = rowGroup.NextColumn().LogicalWriter<string>())
             {
-                nhsNumberColumn.WriteBatch(nhsNumber);
+                nhsNumberColumn.WriteBatch(nhsNumberList);
             }
         }
 
