@@ -363,10 +363,20 @@ jobs:
           echo ".........."
           sleep 20
 
+          echo "--- DISK SPACE ---"
+          df -h
+          echo "--- MEMORY ---"
+          free -h
+
           # Run docker compose using BOTH the base file and the CI override file
           echo "Run docker compose deps and apps with the GHCR"
           docker compose -f compose.deps.yaml up -d --no-build
           sleep 20
+
+          echo "--- DISK SPACE ---"
+          df -h
+          echo "--- MEMORY ---"
+          free -h
 
           echo "Run docker compose app with the GHCR"
           docker compose -f compose.yaml up -d --no-build
