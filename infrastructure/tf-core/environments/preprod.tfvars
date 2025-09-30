@@ -1043,7 +1043,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL  = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        RetrievePdsParticipantURL  = "https://api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
         Kid                        = "RetrievePdsDemographic-prod"
         Audience                   = "https://api.service.nhs.uk/oauth2/token"
         AuthTokenURL               = "https://api.service.nhs.uk/oauth2/token"
