@@ -15,7 +15,7 @@ const NHS_CIS2: OAuthConfig<Profile> = {
   clientSecret: process.env.AUTH_CIS2_CLIENT_SECRET,
   authorization: {
     params: {
-      acr_values: "AAL2_OR_AAL3_ANY",
+      acr_values: process.env.AUTH_CIS2_ACR_VALUES || "AAL2_OR_AAL3_ANY",
       scope: "openid profile nationalrbacaccess",
       response_type: "code",
       max_age: 240, // 4 minutes [Required by CIS2]
