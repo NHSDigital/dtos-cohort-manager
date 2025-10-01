@@ -359,9 +359,9 @@ jobs:
 
           echo "Build the dependencies needed for local operation..."
           docker compose -f compose.deps.yaml -p ${PROJECT_NAME} --profile "*" build --no-cache
-          echo "Waiting for the depencies to be accessible..."
-          echo ".........."
-          sleep 20
+          echo "Waiting 30s for the depencies to be accessible..."
+
+          sleep 30
 
           echo "--- DISK SPACE ---"
           df -h
@@ -369,7 +369,7 @@ jobs:
           free -h
 
           # Run docker compose using BOTH the base file and the CI override file
-          echo "Run docker compose deps and apps with the GHCR"
+          echo "Run docker compose deps and apps with the GHCR..."
           docker compose -f compose.deps.yaml -f compose.ghcr.yaml up -d --no-build
           sleep 20
 
@@ -378,7 +378,7 @@ jobs:
           echo "--- MEMORY ---"
           free -h
 
-          echo "Run docker compose app with the GHCR"
+          echo "Run docker compose app with the GHCR..."
           docker compose -f compose.yaml -f compose.ghcr.yaml up -d --no-build
           sleep 20
 
