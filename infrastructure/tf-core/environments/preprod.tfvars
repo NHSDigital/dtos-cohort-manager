@@ -1043,7 +1043,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL  = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        RetrievePdsParticipantURL  = "https://api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
         Kid                        = "RetrievePdsDemographic-prod"
         Audience                   = "https://api.service.nhs.uk/oauth2/token"
         AuthTokenURL               = "https://api.service.nhs.uk/oauth2/token"
@@ -1199,11 +1199,12 @@ linux_web_app = {
       app_service_plan_key = "NonScaling"
       env_vars = {
         static = {
-          AUTH_CIS2_ISSUER_URL = ""
-          AUTH_CIS2_CLIENT_ID  = ""
+          AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
+          AUTH_CIS2_CLIENT_ID  = "5780695865.cohort_manager_preprod.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort-pre.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
+          AUTH_CIS2_ACR_VALUES = "AAL3_ANY"
         }
         from_key_vault = {
           # env_var_name           = "key_vault_secret_name"
