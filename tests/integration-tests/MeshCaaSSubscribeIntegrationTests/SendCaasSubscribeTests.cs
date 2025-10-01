@@ -76,7 +76,7 @@ public sealed class SendCaasSubscribeTests
         // assert
         Assert.IsNotNull(messageId);
 
-        // act - validate message recieved
+        // act - validate message received
         var getMessagesResult = await _meshInboxService.GetMessagesAsync(toMailbox);
 
         // assert - File is in mesh
@@ -84,10 +84,9 @@ public sealed class SendCaasSubscribeTests
 
         // act - download message and decompress message
         var message = await _meshInboxService.GetMessageByIdAsync(toMailbox, messageId);
-        var fileContent = GZIPHelpers.DeCompressBuffer(message.Response.FileAttachment.Content);
 
         // asset - ensure message contains expected parquet file
-        ParquetAsserts.ContainsExpectedNhsNumber(fileContent, nhsNumber);
+        ParquetAsserts.ContainsExpectedNhsNumber(message.Response.FileAttachment.Content, nhsNumber.ToString());
 
     }
 }
