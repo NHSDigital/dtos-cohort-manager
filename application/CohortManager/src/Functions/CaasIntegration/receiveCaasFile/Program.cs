@@ -35,8 +35,9 @@ try
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
-        services.AddTransient<IBlobStorageHelper, BlobStorageHelper>();
-        services.AddTransient<ICopyFailedBatchToBlob, CopyFailedBatchToBlob>();
+        services.AddSingleton<IFailedBatchDict, FailedBatchDict>();
+        services.AddSingleton<IBlobStorageHelper, BlobStorageHelper>();
+        services.AddSingleton<ICopyFailedBatchToBlob, CopyFailedBatchToBlob>();
         services.AddScoped<IValidateDates, ValidateDates>();
         // Register health checks
         services.AddBlobStorageHealthCheck("receiveCaasFile");

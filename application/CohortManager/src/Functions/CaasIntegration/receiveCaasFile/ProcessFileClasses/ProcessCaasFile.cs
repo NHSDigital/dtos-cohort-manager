@@ -64,30 +64,35 @@ public class ProcessCaasFile : IProcessCaasFile
     public async Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningLkp screeningService, string name)
     {
         var currentBatch = new Batch();
+
         await Parallel.ForEachAsync(values, options, async (rec, cancellationToken) =>
         {
             var participant = _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId.ToString(), screeningService.ScreeningName, name);
 
             if (participant == null)
             {
+                values.Remove(rec);
                 await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception($"Could not map participant in file {name}"), rec.NhsNumber.ToString(), name, screeningService.ScreeningName, "");
                 return;
             }
 
             if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
             {
+                values.Remove(rec);
                 await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed in for participant {participant} and file {name}"), participant, name, nameof(ExceptionCategory.CaaS));
                 return; // skip current participant
             }
 
             if (!_validateDates.ValidateAllDates(participant))
             {
+                values.Remove(rec);
                 await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data {participant} and file name {name}"), participant, name);
                 return; // Skip current participant
             }
 
             if (!_recordsProcessTracker.RecordAlreadyProcessed(participant.RecordType, participant.NhsNumber))
             {
+                values.Remove(rec);
                 await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Duplicate Participant was in the file"), participant, name);
                 return; // Skip current participant
             }
@@ -95,7 +100,7 @@ public class ProcessCaasFile : IProcessCaasFile
             await AddRecordToBatch(participant, currentBatch, name);
         });
 
-        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI, name))
+        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI, name, values))
         {
             await AddBatchToQueue(currentBatch, name);
         }

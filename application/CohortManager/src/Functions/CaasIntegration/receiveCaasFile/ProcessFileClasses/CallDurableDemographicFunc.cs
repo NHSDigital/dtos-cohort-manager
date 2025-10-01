@@ -51,7 +51,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
     /// This method handles posting data, logging, and checking the status of the durable function.
     /// Implements retry logic for status checking.
     /// </remarks>
-    public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI, string fileName)
+    public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI, string fileName, List<ParticipantsParquetMap> parquetValuesForRetry)
     {
         var batchSize = participants.Count;
         var responseContent = "";
@@ -92,7 +92,9 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
                 _logger.LogError("Check limit reached or demographic function failed for a batch of size: {BatchSize} {FinalStatus}", batchSize, finalStatus);
                 await _copyFailedBatchToBlob.writeBatchToBlob(
                     JsonSerializer.Serialize(participants),
-                    new InvalidOperationException("there was an error while adding batch of participants to the demographic table")
+                    new InvalidOperationException("there was an error while adding batch of participants to the demographic table"),
+                    parquetValuesForRetry,
+                    fileName
                 );
 
                 return false;
@@ -106,7 +108,9 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
 
             await _copyFailedBatchToBlob.writeBatchToBlob(
                 JsonSerializer.Serialize(participants),
-                new InvalidOperationException("there was an error while adding batch of participants to the demographic table")
+                new InvalidOperationException("there was an error while adding batch of participants to the demographic table"),
+                parquetValuesForRetry,
+                fileName
             );
 
             return false;
