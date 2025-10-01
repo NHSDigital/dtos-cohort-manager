@@ -368,6 +368,10 @@ jobs:
           # ... and so on for all other variables your compose files need
           EOL
 
+          echo "Check the .env file"
+          ls -l
+          echo .env
+
           echo "Build the dependencies needed for local operation..."
           docker compose -f compose.deps.yaml -p ${PROJECT_NAME} --profile "*" build --no-cache
           echo "Waiting 30s for the depencies to be accessible..."
