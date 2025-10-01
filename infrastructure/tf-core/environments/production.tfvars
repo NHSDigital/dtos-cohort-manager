@@ -1056,7 +1056,7 @@ function_apps = {
       ]
     }
 
-    RetrievePDSDemographic = {
+   RetrievePDSDemographic = {
       name_suffix             = "retrieve-pds-demographic"
       function_endpoint_name  = "RetrievePDSDemographic"
       app_service_plan_key    = "NonScaling"
@@ -1077,11 +1077,11 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL  = ""
-        Kid                        = ""
-        Audience                   = ""
-        AuthTokenURL               = ""
-        KeyNamePrivateKey          = ""
+        RetrievePdsParticipantURL  = "https://api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        Kid                        = "RetrievePdsDemographic-prod"
+        Audience                   = "https://api.service.nhs.uk/oauth2/token"
+        AuthTokenURL               = "https://api.service.nhs.uk/oauth2/token"
+        KeyNamePrivateKey          = "PDSPRIVATEKEY"
         ParticipantManagementTopic = "participant-management"
         UseFakePDSServices         = "false"
       }
