@@ -1077,12 +1077,11 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        # TODO: Add PDS details when available
-        RetrievePdsParticipantURL  = ""
-        Kid                        = ""
-        Audience                   = ""
-        AuthTokenURL               = ""
-        KeyNamePrivateKey          = ""
+       RetrievePdsParticipantURL  = "https://api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        Kid                        = "RetrievePdsDemographic-prod"
+        Audience                   = "https://api.service.nhs.uk/oauth2/token"
+        AuthTokenURL               = "https://api.service.nhs.uk/oauth2/token"
+        KeyNamePrivateKey          = "PDSPRIVATEKEY"
         ParticipantManagementTopic = "participant-management"
         UseFakePDSServices         = "false"
       }
