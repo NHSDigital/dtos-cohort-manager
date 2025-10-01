@@ -211,13 +211,13 @@ jobs:
           export VULNERABILITIES_REPOSITORY_REPORT="vulnerabilities-${function}-repository-report"
           echo "VULNERABILITIES_REPOSITORY_REPORT=$VULNERABILITIES_REPOSITORY_REPORT" >> $GITHUB_ENV
 
-          echo "Running the scan-vulnerabilities script in a look with 10 minutes timeout, with 3 retries..."
+          echo "Running the scan-vulnerabilities script in a look with 5 minutes timeout, with 3 retries..."
           retries=3
-          delay=300 # 5 minutes
+          delay=30
           count=0
           until [ $count -ge $retries ]
           do
-            timeout 10m bash -x ${GITHUB_WORKSPACE}/templates/scripts/reports/scan-vulnerabilities.sh && break
+            timeout 5m bash -x ${GITHUB_WORKSPACE}/templates/scripts/reports/scan-vulnerabilities.sh && break
             count=$((count+1))
             echo "Attempt $count/$retries failed, retrying after $delay seconds..."
             sleep $delay
@@ -365,12 +365,11 @@ jobs:
           PASSWORD=$SNAPSHOT_PASSWORD
           AZURITE_CONNECTION_STRING=$SNAPSHOT_AZURITE_CONNECTION_STRING
           DB_NAME=$SNAPSHOT_DB_NAME
-          # ... and so on for all other variables your compose files need
           EOL
 
           echo "Check the .env file"
           ls -l
-          echo .env
+          cat .env
 
           echo "Build the dependencies needed for local operation..."
           docker compose -f compose.deps.yaml -p ${PROJECT_NAME} --profile "*" build --no-cache
