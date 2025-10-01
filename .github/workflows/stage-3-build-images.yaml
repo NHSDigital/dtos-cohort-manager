@@ -345,6 +345,9 @@ jobs:
         working-directory: ${{ inputs.app_dir }}
         env:
           PROJECT_NAME: ${{ inputs.project_name }}
+          SNAPSHOT_PASSWORD: ${{ secrets.SNAPSHOT_PASSWORD }}
+          SNAPSHOT_AZURITE_CONNECTION_STRING: ${{ secrets.SNAPSHOT_AZURITE_CONNECTION_STRING }}
+          SNAPSHOT_DB_NAME: ${{ vars.SNAPSHOT_DB_NAME }}
         run: |
           for function in $(echo '${{ needs.get-functions.outputs.FUNC_NAMES }}' | jq -r '.[]'); do
             raw_id="${{ inputs.gh_registry }}/${{ github.repository }}/${function}:${{ needs.build-and-push.outputs.short_commit_hash }}"
@@ -356,6 +359,10 @@ jobs:
             echo "Exporting $env_var_name=$image_id"
             export "$env_var_name=$image_id"
           done
+
+          PASSWORD=$SNAPSHOT_PASSWORD
+          AZURITE_CONNECTION_STRING=$SNAPSHOT_AZURITE_CONNECTION_STRING
+          DB_NAME=$SNAPSHOT_DB_NAME
 
           echo "Build the dependencies needed for local operation..."
           docker compose -f compose.deps.yaml -p ${PROJECT_NAME} --profile "*" build --no-cache
