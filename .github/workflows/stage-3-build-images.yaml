@@ -362,19 +362,12 @@ jobs:
 
           echo "Build the dependencies needed for local operation..."
           docker compose -f compose.deps.yaml -p ${PROJECT_NAME} --profile "*" build --no-cache
-          echo "Waiting 30s for the depencies to be accessible..."
-
-          sleep 30
-
-          echo "--- DISK SPACE ---"
-          df -h
-          echo "--- MEMORY ---"
-          free -h
 
           # Run docker compose using the base file
-          echo "Run docker compose deps and apps with the GHCR..."
+          echo "Run docker compose deps..."
           docker compose -f compose.deps.yaml up -d --no-build
-          sleep 20
+                    echo "Waiting 10s for the depencies to be accessible..."
+          sleep 10
 
           echo "--- DISK SPACE ---"
           df -h
@@ -383,10 +376,18 @@ jobs:
 
           echo "Run docker compose app with the GHCR..."
           docker compose -f compose.data-services.yaml -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.ghcr.link.yaml up -d --no-build
-          sleep 20
+          echo "Waiting 10s for the app to be accessible..."
+          sleep 10
+
+      - name: Check runner resources before download
+        run: |
+          echo "--- DISK SPACE ---"
+          df -h
+          echo "--- MEMORY ---"
+          free -h
 
       - name: Run snapshot tests
-        run: ./tests/snapshot-tests/run-snapshot-tests.sh
+        run: bash tests/snapshot-tests/run-snapshot-tests.sh
 
       - name: Teardown application
         working-directory: ${{ env.APP_DIR }}
