@@ -311,7 +311,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: read
-    needs: build-and-push
+    needs:
+      - get-functions
+      - build-and-push
     env:
       SNAPSHOT_TEST_DIR: ${{ inputs.snapshot_test_dir }}
       APP_DIR: ${{ inputs.app_dir }}
@@ -342,12 +344,17 @@ jobs:
         run: |
 
           echo "Testing the access to get-functions output"
-          echo ${{ needs.get-function-names.outputs.FUNC_NAMES }}
+          echo ${{ needs.get-functions.outputs.FUNC_NAMES }}
           echo "___________________"
 
           echo "Generating compose.ghcr.yaml file..."
           echo "services:" > compose.ghcr.yaml
-          for function in $(echo ${{ needs.get-function-names.outputs.FUNC_NAMES }} | jq -r '.[]'); do
+          for function in $(echo '${{ needs.get-functions.outputs.FUNC_NAMES }}' | jq -r '.[]'); do
+            # Skipping services we don't need during local testing on the agent
+            if [[ "$function" == "web" || "$function" == "wiremock" ]]; then
+              echo "Skipping ${function}..."
+              continue
+            fi
             RAW_IMAGE_URL="${{ inputs.gh_registry }}/${{ github.repository_owner }}/${PROJECT_NAME}-${function}:latest"
             LOWERCASE_IMAGE_URL="${RAW_IMAGE_URL,,}"
             echo "  ${function}:" >> compose.ghcr.yaml
@@ -383,15 +390,15 @@ jobs:
           # Run docker compose using the base file
           echo "Run docker compose deps..."
           docker compose -f compose.deps.yaml up -d --no-build
-                    echo "Waiting 10s for the depencies to be accessible..."
+          echo "Waiting 10s for the depencies to be accessible..."
           sleep 10
 
           echo "Run docker compose app with the GHCR..."
-          docker compose -f compose.data-services.yaml -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.ghcr.link.yaml up -d --no-build
+          docker compose -f compose.data-services.yaml -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.ghcr.yaml up -d --no-build
           echo "Waiting 10s for the app to be accessible..."
           sleep 10
 
-      - name: Check runner resources before download
+      - name: Check runner resources after starting the application
         run: |
           echo "--- DISK SPACE ---"
           df -h
@@ -405,25 +412,6 @@ jobs:
       - name: Teardown application
         working-directory: ${{ env.APP_DIR }}
         run: docker compose down && docker compose -f compose.deps.yaml down
-
-      # - name: Run dependencies
-      #   working-directory: ${{ env.APP_DIR }}
-      #   run: |
-      #     docker compose -f compose.deps.yaml up -d
-      #     sleep 20
-
-      # - name: Run application
-      #   working-directory: ${{ env.APP_DIR }}
-      #   run: |
-      #     docker compose up -d
-      #     sleep 20
-
-      # - name: Run snapshot tests
-      #   run: ./tests/snapshot-tests/run-snapshot-tests.sh
-
-      # - name: teardown application
-      #   working-directory: ${{ env.APP_DIR }}
-      #   run: docker compose down && docker compose -f compose.deps.yaml down
 
   aggregate-json:
     runs-on: ubuntu-latest
