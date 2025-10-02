@@ -82,7 +82,7 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
         {
             new Column<string>("nhs_number"),
         };
-        string[] nhsNumberList = { nhsNumber.ToString() };
+        string[] nhsNumberList = [.. nhsNumber.Select(x => x.ToString())];
 
         using var stream = new MemoryStream();
         using var writer = new ManagedOutputStream(stream);
