@@ -339,16 +339,15 @@ jobs:
         working-directory: ${{ inputs.app_dir }}
         env:
           PROJECT_NAME: ${{ inputs.project_name }}
-          FUNC_NAMES: ${{ needs.get-function-names.outputs.FUNC_NAMES }}
         run: |
 
           echo "Testing the access to get-functions output"
-          echo $FUNC_NAMES
+          echo ${{ needs.get-function-names.outputs.FUNC_NAMES }}
           echo "___________________"
 
           echo "Generating compose.ghcr.yaml file..."
           echo "services:" > compose.ghcr.yaml
-          for function in $(echo $FUNC_NAMES | jq -r '.[]'); do
+          for function in $(echo ${{ needs.get-function-names.outputs.FUNC_NAMES }} | jq -r '.[]'); do
             RAW_IMAGE_URL="${{ inputs.gh_registry }}/${{ github.repository_owner }}/${PROJECT_NAME}-${function}:latest"
             LOWERCASE_IMAGE_URL="${RAW_IMAGE_URL,,}"
             echo "  ${function}:" >> compose.ghcr.yaml
