@@ -60,24 +60,38 @@ runs:
     - name: SonarCloud analysis
       shell: bash
       env:
+        # Tokens and inputs
         GITHUB_TOKEN: ${{ github.token }}
         SONAR_TOKEN: ${{ inputs.sonar_token }}
+        SONAR_PROJECT_KEY: ${{ inputs.sonar_project_key }}
+        SONAR_ORGANISATION_KEY: ${{ inputs.sonar_organisation_key }}
+        COVERAGE_PATH: ${{ inputs.coverage_path }}
+        UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
+        # GitHub context
+        GITHUB_EVENT_NAME: ${{ github.event_name }}
+        GITHUB_HEAD_REF: ${{ github.head_ref }}
+        GITHUB_BASE_REF: ${{ github.base_ref }}
+        GITHUB_PR_NUMBER: ${{ github.event.pull_request.number }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_REF_VALUE: ${{ github.ref }}
+        GITHUB_SHA_VALUE: ${{ github.sha }}
       run: |
+        set -euo pipefail
         # Make the script executable
-        chmod +x ${{ github.workspace }}/scripts/reports/sonar-analysis.sh
-        
-        # Run the script with all necessary parameters
-        ${{ github.workspace }}/scripts/reports/sonar-analysis.sh \
-        "${{ inputs.sonar_project_key }}" \
-        "${{ inputs.sonar_organisation_key }}" \
-        "${{ inputs.sonar_token }}" \
-        "${{ inputs.coverage_path }}" \
-        "${{ github.token }}" \
-        "${{ github.event_name }}" \
-        "${{ github.head_ref }}" \
-        "${{ github.base_ref }}" \
-        "${{ github.event.pull_request.number }}" \
-        "${{ github.repository }}" \
-        "${{ github.ref }}" \
-        "${{ github.sha }}" \
-        "${{ inputs.unit_test_dir }}"
+        chmod +x "$GITHUB_WORKSPACE/scripts/reports/sonar-analysis.sh"
+
+        # Run the script with all necessary parameters (quoted)
+        "$GITHUB_WORKSPACE/scripts/reports/sonar-analysis.sh" \
+          "$SONAR_PROJECT_KEY" \
+          "$SONAR_ORGANISATION_KEY" \
+          "$SONAR_TOKEN" \
+          "$COVERAGE_PATH" \
+          "$GITHUB_TOKEN" \
+          "$GITHUB_EVENT_NAME" \
+          "$GITHUB_HEAD_REF" \
+          "$GITHUB_BASE_REF" \
+          "$GITHUB_PR_NUMBER" \
+          "$GITHUB_REPOSITORY" \
+          "$GITHUB_REF_VALUE" \
+          "$GITHUB_SHA_VALUE" \
+          "$UNIT_TEST_DIR"
