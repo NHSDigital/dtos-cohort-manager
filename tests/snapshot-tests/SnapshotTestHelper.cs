@@ -36,27 +36,27 @@ public class SnapshotTestHelper
     {
         _logger.LogInformation("Clearing database");
 
-        var exceptionRecords = dbContext.ExceptionManagements
+        var exceptionRecords = dbContext.exceptionManagements
             .AsNoTracking()
             .Where(i => nhsNumbers.Select(i => i.ToString())
             .ToList()
             .Contains(i.NhsNumber));
-        dbContext.ExceptionManagements.RemoveRange(exceptionRecords);
+        dbContext.exceptionManagements.RemoveRange(exceptionRecords);
 
-        var cohortDistRecords = dbContext.CohortDistributions
+        var cohortDistRecords = dbContext.cohortDistributions
             .AsNoTracking()
             .Where(i => nhsNumbers.Contains(i.NHSNumber));
-        dbContext.CohortDistributions.RemoveRange(cohortDistRecords);
+        dbContext.cohortDistributions.RemoveRange(cohortDistRecords);
 
-        var demographicRecords = dbContext.ParticipantDemographics
+        var demographicRecords = dbContext.participantDemographics
             .AsNoTracking()
             .Where(i => nhsNumbers.Contains(i.NhsNumber));
-        dbContext.ParticipantDemographics.RemoveRange(demographicRecords);
+        dbContext.participantDemographics.RemoveRange(demographicRecords);
 
-        var managementRecords = dbContext.ParticipantManagements
+        var managementRecords = dbContext.participantManagements
             .AsNoTracking()
             .Where(i => nhsNumbers.Contains(i.NHSNumber));
-        dbContext.ParticipantManagements.RemoveRange(managementRecords);
+        dbContext.participantManagements.RemoveRange(managementRecords);
 
         dbContext.SaveChanges();
     }
