@@ -349,7 +349,7 @@ jobs:
 
           echo "Generating compose.ghcr.yaml file..."
           echo "services:" > compose.ghcr.yaml
-          for function in $(echo ${{ needs.get-functions.outputs.FUNC_NAMES }} | jq -r '.[]'); do
+          for function in $(echo '${{ needs.get-functions.outputs.FUNC_NAMES }}' | jq -r '.[]'); do
             RAW_IMAGE_URL="${{ inputs.gh_registry }}/${{ github.repository_owner }}/${PROJECT_NAME}-${function}:latest"
             LOWERCASE_IMAGE_URL="${RAW_IMAGE_URL,,}"
             echo "  ${function}:" >> compose.ghcr.yaml
