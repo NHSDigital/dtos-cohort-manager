@@ -382,7 +382,7 @@ jobs:
           free -h
 
           echo "Run docker compose app with the GHCR..."
-          docker compose -f compose.yaml -f compose.ghcr.link.yaml up -d --no-build
+          docker compose -f compose.data-services.yaml -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.ghcr.link.yaml up -d --no-build
           sleep 20
 
       - name: Run snapshot tests
