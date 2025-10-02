@@ -14,10 +14,6 @@ on:
         description: Directory containing the unit tests
         required: true
         type: string
-      snapshot_test_dir:
-        description: Directory containing the snapshot tests
-        required: true
-        type: string
       app_dir:
         description: Directory containing application code and compose files
         required: true
@@ -65,7 +61,6 @@ jobs:
       has-consolidated-tests: ${{ steps.check.outputs.has-consolidated-tests }}
     env:
       UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
-      SNAPSHOT_TEST_DIR: ${{ inputs.snapshot_test_dir }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -204,38 +199,6 @@ jobs:
             TestResults/**/*.${{ inputs.unit_test_logger_format }}
             TestResults/**/coverage.opencover.xml
           if-no-files-found: ignore
-
-
-  snapshot-tests:
-    name: Snapshot tests
-    runs-on: ubuntu-latest
-    env:
-      SNAPSHOT_TEST_DIR: ${{ inputs.snapshot_test_dir }}
-      APP_DIR: ${{ inputs.app_dir }}
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      # - name: Run dependencies
-      #   working-directory: ${{ env.APP_DIR }}
-      #   run: |
-      #     docker compose -f compose.deps.yaml up -d
-      #     sleep 20
-
-      # - name: Run application
-      #   working-directory: ${{ env.APP_DIR }}
-      #   run: |
-      #     docker compose up -d
-      #     sleep 20
-
-      # - name: Run snapshot tests
-      #   run: ./tests/snapshot-tests/run-snapshot-tests.sh
-
-      # - name: teardown application
-      #   working-directory: ${{ env.APP_DIR }}
-      #   run: docker compose down && docker compose -f compose.deps.yaml down
 
   aggregate-test-results:
     name: Aggregate results and report

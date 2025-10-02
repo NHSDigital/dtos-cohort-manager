@@ -390,7 +390,7 @@ jobs:
           # Run docker compose using the base file
           echo "Run docker compose deps..."
           docker compose -f compose.deps.yaml up -d --no-build
-                    echo "Waiting 10s for the depencies to be accessible..."
+          echo "Waiting 10s for the depencies to be accessible..."
           sleep 10
 
           echo "Run docker compose app with the GHCR..."
@@ -398,7 +398,7 @@ jobs:
           echo "Waiting 10s for the app to be accessible..."
           sleep 10
 
-      - name: Check runner resources before download
+      - name: Check runner resources after starting the application
         run: |
           echo "--- DISK SPACE ---"
           df -h
@@ -412,25 +412,6 @@ jobs:
       - name: Teardown application
         working-directory: ${{ env.APP_DIR }}
         run: docker compose down && docker compose -f compose.deps.yaml down
-
-      # - name: Run dependencies
-      #   working-directory: ${{ env.APP_DIR }}
-      #   run: |
-      #     docker compose -f compose.deps.yaml up -d
-      #     sleep 20
-
-      # - name: Run application
-      #   working-directory: ${{ env.APP_DIR }}
-      #   run: |
-      #     docker compose up -d
-      #     sleep 20
-
-      # - name: Run snapshot tests
-      #   run: ./tests/snapshot-tests/run-snapshot-tests.sh
-
-      # - name: teardown application
-      #   working-directory: ${{ env.APP_DIR }}
-      #   run: docker compose down && docker compose -f compose.deps.yaml down
 
   aggregate-json:
     runs-on: ubuntu-latest
