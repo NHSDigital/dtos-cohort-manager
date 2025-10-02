@@ -37,57 +37,40 @@ public class DurableDemographicFunction
     public async Task<bool> RunOrchestrator(
         [OrchestrationTrigger] TaskOrchestrationContext context)
     {
-        var orchestrationTimeout = TimeSpan.FromHours(2.5);
-        var expirationTime = context.CurrentUtcDateTime.Add(orchestrationTimeout);
 
-        using (var cts = new CancellationTokenSource(orchestrationTimeout))
+
+        try
         {
-            try
+            var demographicJsonData = context.GetInput<string>();
+
+            if (string.IsNullOrEmpty(demographicJsonData))
             {
-                var demographicJsonData = context.GetInput<string>();
-
-                if (string.IsNullOrEmpty(demographicJsonData))
-                {
-                    throw new InvalidDataException("demographicJsonData was null or empty in Orchestration function");
-                }
-
-                var retryOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
-                    maxNumberOfAttempts: 1, // this means the function will not retry and therefore add duplicates
-                    firstRetryInterval: TimeSpan.FromSeconds(100))
-                );
-
-                // Add timeout-aware logic
-                var task = context.CallActivityAsync<bool>(
-                    nameof(InsertDemographicData),
-                    demographicJsonData,
-                    options: retryOptions
-                );
-
-                // Monitor for timeout
-                var timeoutTask = context.CreateTimer(expirationTime, cts.Token);
-                var completedTask = await Task.WhenAny(task, timeoutTask);
-
-                if (completedTask == timeoutTask)
-                {
-                    _logger.LogWarning("Orchestration timed out.");
-                    throw new TimeoutException("Orchestration function exceeded its timeout.");
-                }
-
-                cts.Cancel();
-                var recordsInserted = await task;
-
-                if (!recordsInserted)
-                {
-                    throw new InvalidOperationException("Demographic records were not added to the database in the orchestration function");
-                }
-                return true;
-
+                throw new InvalidDataException("demographicJsonData was null or empty in Orchestration function");
             }
-            catch (Exception ex)
+
+            var retryOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
+                maxNumberOfAttempts: 1, // this means the function will not retry and therefore add duplicates
+                firstRetryInterval: TimeSpan.FromSeconds(100))
+            );
+
+            // Add timeout-aware logic
+            var recordsInserted = await context.CallActivityAsync<bool>(
+                nameof(InsertDemographicData),
+                demographicJsonData,
+                options: retryOptions
+            );
+
+            if (!recordsInserted)
             {
-                _logger.LogError(ex, "Orchestration failed with exception. {exception}", ex.Message);
-                throw;
+                throw new InvalidOperationException("Demographic records were not added to the database in the orchestration function");
             }
+            return true;
+
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Orchestration failed with exception. {exception}", ex.Message);
+            throw;
         }
     }
 
