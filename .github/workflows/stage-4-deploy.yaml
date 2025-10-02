@@ -59,7 +59,12 @@ jobs:
         run: chmod +x scripts/bash/wait_ado_pipeline.sh
 
       - name: Call deployment pipeline
+        shell: bash
+        env:
+          COMMIT_SHA: ${{ inputs.commit_sha }}
+          ENVIRONMENT_NAME: ${{ matrix.environment }}
         run: |
+          set -euo pipefail
           # Define common variables
           organisation='https://dev.azure.com/nhse-dtos'
           project_name='dtos-cohort-manager'
@@ -74,16 +79,17 @@ jobs:
             ["production"]=""
           )
 
-          git_short_sha=$(git rev-parse --short ${{inputs.commit_sha}})
-          parameters="dockerImageTag=${git_short_sha} testTypes=[${test_types[${{ matrix.environment }}]}]"
+          # Derive the short SHA from the provided commit
+          git_short_sha=$(git rev-parse --short "$COMMIT_SHA")
+          parameters="dockerImageTag=${git_short_sha} testTypes=[${test_types[$ENVIRONMENT_NAME]}]"
 
-          echo "Starting Azure devops pipeline \"Deploy to Azure - Core ${{ matrix.environment }}\"..."
+          echo "Starting Azure devops pipeline \"Deploy to Azure - Core ${ENVIRONMENT_NAME}\"..."
           RUN_ID=$(az pipelines run \
-            --commit-id ${{inputs.commit_sha}} \
-            --name "Deploy to Azure - Core ${{ matrix.environment }}" \
+            --commit-id "$COMMIT_SHA" \
+            --name "Deploy to Azure - Core ${ENVIRONMENT_NAME}" \
             --org "${organisation}" \
             --project "${project_name}" \
-            --parameters $parameters \
+            --parameters "$parameters" \
             --output tsv --query id)
 
           echo "Click here to view the ADO pipeline: ${organisation}/${project_name}/_build/results?buildId=${RUN_ID}"
