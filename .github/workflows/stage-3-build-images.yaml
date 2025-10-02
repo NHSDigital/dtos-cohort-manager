@@ -389,7 +389,7 @@ jobs:
           sleep 10
 
           echo "Run docker compose app with the GHCR..."
-          docker compose -f compose.data-services.yaml -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.ghcr.link.yaml up -d --no-build
+          docker compose -f compose.data-services.yaml -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.ghcr.yaml up -d --no-build
           echo "Waiting 10s for the app to be accessible..."
           sleep 10
 
