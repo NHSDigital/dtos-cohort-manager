@@ -1,0 +1,121 @@
+# This override file is for Snapshot Testing only. It directs Docker Compose to use pre-built images
+# from the GitHub Container Registry instead of building them locally.
+
+services:
+  # From compose.data-services.yaml
+  bs-request-audit-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-bs-request-audit-data-service:latest
+    build: {}
+  cohort-distribution-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-cohort-distribution-data-service:latest
+    build: {}
+  exception-management-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-exception-management-data-service:latest
+    build: {}
+  gene-code-lkp-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-gene-code-lkp-data-service:latest
+    build: {}
+  higher-risk-referral-reason-lkp-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-higher-risk-referral-reason-lkp-data-service:latest
+    build: {}
+  nems-subscription-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-nems-subscription-data-service:latest
+    build: {}
+  participant-demographic-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-participant-demographic-data-service:latest
+    build: {}
+  participant-management-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-participant-management-data-service:latest
+    build: {}
+  reference-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-reference-data-service:latest
+    build: {}
+  screening-lkp-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-screening-lkp-data-service:latest
+    build: {}
+  servicenow-cases-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-servicenow-cases-data-service:latest
+    build: {}
+  transform-data-service:
+    image: ghcr.io/nhsdigital/cohort-manager-transform-data-service:latest
+    build: {}
+
+  # From compose.core.yaml
+  create-exception:
+    image: ghcr.io/nhsdigital/cohort-manager-create-exception:latest
+    build: {}
+  delete-participant:
+    image: ghcr.io/nhsdigital/cohort-manager-delete-participant:latest
+    build: {}
+  durable-demographic-function:
+    image: ghcr.io/nhsdigital/cohort-manager-durable-demographic-function:latest
+    build: {}
+  get-validation-exceptions:
+    image: ghcr.io/nhsdigital/cohort-manager-get-validation-exceptions:latest
+    build: {}
+  manage-caas-subscription:
+    image: ghcr.io/nhsdigital/cohort-manager-manage-caas-subscription:latest
+    build: {}
+  manage-nems-subscription:
+    image: ghcr.io/nhsdigital/cohort-manager-manage-nems-subscription:latest
+    build: {}
+  manage-participant:
+    image: ghcr.io/nhsdigital/cohort-manager-manage-participant:latest
+    build: {}
+  manage-servicenow-participant:
+    image: ghcr.io/nhsdigital/cohort-manager-manage-servicenow-participant:latest
+    build: {}
+  process-nems-update:
+    image: ghcr.io/nhsdigital/cohort-manager-process-nems-update:latest
+    build: {}
+  remove-validation-exception-data:
+    image: ghcr.io/nhsdigital/cohort-manager-remove-validation-exception-data:latest
+    build: {}
+  retrieve-cohort-distribution-data:
+    image: ghcr.io/nhsdigital/cohort-manager-retrieve-cohort-distribution-data:latest
+    build: {}
+  retrieve-cohort-request-audit:
+    image: ghcr.io/nhsdigital/cohort-manager-retrieve-cohort-request-audit:latest
+    build: {}
+  retrieve-pds-demographic:
+    image: ghcr.io/nhsdigital/cohort-manager-retrieve-pds-demographic:latest
+    build: {}
+  servicenow-cohort-lookup:
+    image: ghcr.io/nhsdigital/cohort-manager-servicenow-cohort-lookup:latest
+    build: {}
+  servicenow-message-handler:
+    image: ghcr.io/nhsdigital/cohort-manager-servicenow-message-handler:latest
+    build: {}
+  update-blocked-flag:
+    image: ghcr.io/nhsdigital/cohort-manager-update-blocked-flag:latest
+    build: {}
+  update-exception:
+    image: ghcr.io/nhsdigital/cohort-manager-update-exception:latest
+    build: {}
+
+  # From compose.cohort-distribution.yaml
+  distribute-participant:
+    image: ghcr.io/nhsdigital/cohort-manager-distribute-participant:latest
+    build: {}
+
+  # From compose.pipeline.yaml
+  lookup-validation:
+    image: ghcr.io/nhsdigital/cohort-manager-lookup-validation:latest
+    build: {}
+  nems-mesh-retrieval:
+    image: ghcr.io/nhsdigital/cohort-manager-nems-mesh-retrieval:latest
+    build: {}
+  receive-caas-file:
+    image: ghcr.io/nhsdigital/cohort-manager-receive-caas-file:latest
+    build: {}
+  retrieve-mesh-file:
+    image: ghcr.io/nhsdigital/cohort-manager-retrieve-mesh-file:latest
+    build: {}
+  static-validation:
+    image: ghcr.io/nhsdigital/cohort-manager-static-validation:latest
+    build: {}
+
+  # From compose.wiremock.yaml
+  wiremock:
+    image: ghcr.io/nhsdigital/cohort-manager-wiremock:latest
+    build: {}
