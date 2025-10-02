@@ -273,12 +273,6 @@ jobs:
           docker rmi "${repo_name}:${ENVIRONMENT_TAG}"
           docker rmi ${PROJECT_NAME}-${function}:latest
 
-      # - name: Upload docker image as an artifact
-      #   uses: actions/upload-artifact@v4
-      #   with:
-      #     name: ${{ env.ARTIFACT_NAME }}.tar
-      #     path: ./${{ env.ARTIFACT_NAME }}.tar
-
       - name: Compress SBOM report
         shell: bash
         run: |
@@ -341,6 +335,30 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Generate GHCR override file
+        working-directory: ${{ inputs.app_dir }}
+        env:
+          PROJECT_NAME: ${{ inputs.project_name }}
+          FUNC_NAMES: ${{ steps.get-function-names.outputs.FUNC_NAMES }}
+        run: |
+
+          echo "Testing the access to get-functions output"
+          echo $FUNC_NAMES
+          echo "___________________"
+
+          echo "Generating compose.ghcr.yaml file..."
+          echo "services:" > compose.ghcr.yaml
+          for function in $(echo $FUNC_NAMES | jq -r '.[]'); do
+            RAW_IMAGE_URL="${{ inputs.gh_registry }}/${{ github.repository_owner }}/${PROJECT_NAME}-${function}:latest"
+            LOWERCASE_IMAGE_URL="${RAW_IMAGE_URL,,}"
+            echo "  ${function}:" >> compose.ghcr.yaml
+            echo "    image: ${LOWERCASE_IMAGE_URL}" >> compose.ghcr.yaml
+            echo "    build: {}" >> compose.ghcr.yaml
+          done
+          echo "--- Generated compose.ghcr.yaml ---"
+          cat compose.ghcr.yaml
+          echo "----------------------------------------"
+
       - name: Run application using GHCR images
         working-directory: ${{ inputs.app_dir }}
         env:
@@ -368,11 +386,6 @@ jobs:
           docker compose -f compose.deps.yaml up -d --no-build
                     echo "Waiting 10s for the depencies to be accessible..."
           sleep 10
-
-          echo "--- DISK SPACE ---"
-          df -h
-          echo "--- MEMORY ---"
-          free -h
 
           echo "Run docker compose app with the GHCR..."
           docker compose -f compose.data-services.yaml -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.ghcr.link.yaml up -d --no-build
