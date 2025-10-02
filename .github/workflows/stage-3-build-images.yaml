@@ -356,7 +356,8 @@ jobs:
             # Convert to UPPER_SNAKE_CASE for the env var
             env_var_name="IMAGE_$(echo "$function" | tr '[:lower:]' '[:upper:]' | tr '-' '_')"
 
-            echo "Exporting $env_var_name=$image_id"
+            echo "Exporting the image_id for $function : $image_id"
+            echo "Exporting the variable for $function : $env_var_name"
             export "$env_var_name=$image_id"
           done
 
@@ -368,7 +369,6 @@ jobs:
           EOL
 
           echo "Check the .env file"
-          ls -l
           cat .env
 
           echo "Build the dependencies needed for local operation..."
