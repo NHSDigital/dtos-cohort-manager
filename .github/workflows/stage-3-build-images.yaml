@@ -349,7 +349,7 @@ jobs:
           SNAPSHOT_AZURITE_CONNECTION_STRING: ${{ secrets.SNAPSHOT_AZURITE_CONNECTION_STRING }}
           SNAPSHOT_DB_NAME: ${{ vars.SNAPSHOT_DB_NAME }}
         run: |
-          for function in ${{ fromJSON(steps.get-functions.outputs.FUNC_NAMES) }}; do
+          for function in ${{ steps.get-functions.outputs.FUNC_NAMES }}; do
             raw_id="${{ inputs.gh_registry }}/${{ github.repository }}/${function}:${{ needs.build-and-push.outputs.short_commit_hash }}"
             image_id="${raw_id,,}"
 
