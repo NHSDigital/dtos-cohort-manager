@@ -114,8 +114,3 @@ services:
   static-validation:
     image: ghcr.io/nhsdigital/cohort-manager-static-validation:latest
     build: {}
-
-  # From compose.wiremock.yaml
-  wiremock:
-    image: ghcr.io/nhsdigital/cohort-manager-wiremock:latest
-    build: {}
