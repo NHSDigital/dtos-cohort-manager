@@ -158,17 +158,8 @@ public class DurableDemographicTests
     public async Task RunOrchestrator_ActivityTimesOut_ReturnFalseAndLogError()
     {
         // Arrange
-        var utcNow = DateTime.UtcNow;
-        var timeoutDuration = TimeSpan.FromHours(0);
-        var expirationTime = utcNow.Add(timeoutDuration);
-
         var mockContext = new Mock<TaskOrchestrationContext>();
-
-        mockContext.Setup(c => c.CurrentUtcDateTime).Returns(utcNow);
-
         var sut = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
-
-        var neverEndingTask = new TaskCompletionSource<bool>();
 
         mockContext
             .Setup(c => c.CallActivityAsync<bool>(
@@ -176,28 +167,22 @@ public class DurableDemographicTests
                 It.IsAny<string>(),
                 It.IsAny<TaskOptions>()
             ))
-             .Returns(Task.Delay(Timeout.Infinite).ContinueWith(_ => false));
-
-        mockContext
-            .Setup(c => c.CreateTimer(expirationTime, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
+            .ReturnsAsync(false);
 
         mockContext.Setup(ctx => ctx.CreateReplaySafeLogger(It.IsAny<string>())).Returns(_logger.Object);
         mockContext.Setup(ctx => ctx.GetInput<string>()).Returns("[{\"NhsNumber\": \"111111\", \"FirstName\": \"Test\"}]");
 
-
         // Act and Assert
-
-        await Assert.ThrowsExceptionAsync<TimeoutException>(async () =>
+        await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
         {
             var result = await sut.RunOrchestrator(mockContext.Object);
             Assert.IsFalse(result);
         });
         _logger.Verify(
            x => x.Log(
-               LogLevel.Warning,
+               LogLevel.Error,
                It.IsAny<EventId>(),
-               It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Orchestration timed out.")),
+               It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Demographic records were not added to the database in the orchestration function")),
                It.IsAny<Exception>(),
                It.IsAny<Func<It.IsAnyType, Exception?, string>>()
            ),
