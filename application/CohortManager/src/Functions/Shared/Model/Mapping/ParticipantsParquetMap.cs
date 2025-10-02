@@ -1,5 +1,9 @@
 namespace Model;
+
 using ParquetSharp.RowOriented;
+using Parquet.Serialization.Attributes;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Security.Cryptography;
 
 public struct ParticipantsParquetMap
 {
@@ -116,4 +120,49 @@ public struct ParticipantsParquetMap
 
     [MapToColumn("eligibility")]
     public bool? EligibilityFlag { get; set; }
+
+    public static ParticipantsParquet ToParticipantParquet(ParticipantsParquetMap participantsParquetMap)
+    {
+        return new ParticipantsParquet()
+        {
+            record_type = participantsParquetMap.RecordType,
+            change_time_stamp = participantsParquetMap.ChangeTimeStamp,
+            serial_change_number = participantsParquetMap.SerialChangeNumber,
+            nhs_number = participantsParquetMap.NhsNumber,
+            superseded_by_nhs_number = participantsParquetMap.SupersededByNhsNumber,
+            primary_care_provider = participantsParquetMap.PrimaryCareProvider,
+            primary_care_effective_from_date = participantsParquetMap.PrimaryCareEffectiveFromDate,
+            current_posting = participantsParquetMap.CurrentPosting,
+            current_posting_effective_from_date = participantsParquetMap.CurrentPostingEffectiveFromDate,
+            name_prefix = participantsParquetMap.NamePrefix,
+            given_name = participantsParquetMap.FirstName,
+            other_given_name = participantsParquetMap.OtherGivenNames,
+            family_name = participantsParquetMap.SurnamePrefix,
+            previous_family_name = participantsParquetMap.PreviousSurnamePrefix,
+            date_of_birth = participantsParquetMap.DateOfBirth,
+            gender = participantsParquetMap.Gender,
+            address_line_1 = participantsParquetMap.AddressLine1,
+            address_line_2 = participantsParquetMap.AddressLine2,
+            address_line_3 = participantsParquetMap.AddressLine3,
+            address_line_4 = participantsParquetMap.AddressLine4,
+            address_line_5 = participantsParquetMap.AddressLine5,
+            postcode = participantsParquetMap.Postcode,
+            paf_key = participantsParquetMap.PafKey,
+            address_effective_from_date = participantsParquetMap.UsualAddressEffectiveFromDate,
+            reason_for_removal = participantsParquetMap.ReasonForRemoval,
+            reason_for_removal_effective_from_date = participantsParquetMap.ReasonForRemovalEffectiveFromDate,
+            date_of_death = participantsParquetMap.DateOfDeath,
+            death_status = participantsParquetMap.DeathStatus,
+            home_telephone_number = participantsParquetMap.TelephoneNumber,
+            home_telephone_effective_from_date = participantsParquetMap.TelephoneNumberEffectiveFromDate,
+            mobile_telephone_number = participantsParquetMap.MobileNumber,
+            mobile_telephone_effective_from_date = participantsParquetMap.MobileNumberEffectiveFromDate,
+            email_address = participantsParquetMap.EmailAddress,
+            email_address_effective_from_date = participantsParquetMap.EmailAddressEffectiveFromDate,
+            preferred_language = participantsParquetMap.PreferredLanguage,
+            is_interpreter_required = participantsParquetMap.IsInterpreterRequired,
+            invalid_flag = participantsParquetMap.InvalidFlag,
+            eligibility = participantsParquetMap.EligibilityFlag
+        };
+    }
 }
