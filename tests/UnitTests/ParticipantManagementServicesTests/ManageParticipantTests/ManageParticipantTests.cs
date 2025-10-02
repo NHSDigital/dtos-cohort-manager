@@ -28,7 +28,11 @@ public class ManageParticipantTests
     {
         var testConfig = new ManageParticipantConfig
         {
-            CohortDistributionTopic = "CohortTopicName"
+            ParticipantManagementUrl = "ParticipantManagementUrl",
+            CohortDistributionTopic = "CohortTopicName",
+            ParticipantManagementTopic = "ParticipantManagementTopic",
+            ServiceBusConnectionString_client_internal = "ServiceBusConnectionString_client_internal",
+            ManageParticipantSubscription = "ManageParticipantSubscription"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);

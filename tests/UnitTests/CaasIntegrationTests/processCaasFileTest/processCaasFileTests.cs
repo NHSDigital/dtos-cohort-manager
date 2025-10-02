@@ -55,7 +55,15 @@ public class ProcessCaasFileTests
         {
             DemographicURI = "DemographicURI",
             AllowDeleteRecords = allowDeleteRecords,
-            ParticipantManagementTopic = "ParticipantManagementTopic"
+            ParticipantManagementTopic = "ParticipantManagementTopic",
+            DemographicDataServiceURL = "DemographicDataService",
+            ScreeningLkpDataServiceURL = "ScreeningLkpDataServiceURL",
+            GetOrchestrationStatusURL = "GetOrchestrationStatusURL",
+            caasfolder_STORAGE = "caasfolder_STORAGE",
+            inboundBlobName = "inbound",
+            ServiceBusConnectionString_client_internal = "ServiceBusConnectionString_client_internal",
+            maxNumberOfChecks = 50,
+            BatchSize = 50
         };
     }
 

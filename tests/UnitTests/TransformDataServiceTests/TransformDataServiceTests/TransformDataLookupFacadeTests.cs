@@ -37,6 +37,12 @@ public class TransformDataLookupFacadeTests
     {
         var testConfig = new TransformDataServiceConfig
         {
+            ExceptionFunctionURL = "ExceptionFunctionURL",
+            BsSelectOutCodeUrl = "BsSelectOutCodeUrl",
+            BsSelectGpPracticeUrl = "BsSelectGpPracticeUrl",
+            LanguageCodeUrl = "LanguageCodeUrl",
+            ExcludedSMULookupUrl = "ExcludedSMULookupUrl",
+            CurrentPostingUrl = "CurrentPostingUrl",
             CacheTimeOutHours = 24
         };
 
