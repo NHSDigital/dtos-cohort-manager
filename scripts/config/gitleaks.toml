@@ -37,7 +37,8 @@ paths = [
   '''tests/e2e-tests/dtos-cohort-manager-e2e-tests/dtos_cohort_manager_e2e_tests.csproj'''
 ]
 regexes = [
-  '''[0-9]{10}\.cohort-.*\.b099494b-7c49-4d78-9e3c-3a801aac691b\.apps'''
+  '''[0-9]{10}\.cohort-.*\.b099494b-7c49-4d78-9e3c-3a801aac691b\.apps''',
+  '''[0-9]+\.apps\.national'''
 ]
 
 
