@@ -349,17 +349,6 @@ jobs:
           SNAPSHOT_AZURITE_CONNECTION_STRING: ${{ secrets.SNAPSHOT_AZURITE_CONNECTION_STRING }}
           SNAPSHOT_DB_NAME: ${{ vars.SNAPSHOT_DB_NAME }}
         run: |
-          for function in ${{ steps.get-functions.outputs.FUNC_NAMES }}; do
-            raw_id="${{ inputs.gh_registry }}/${{ github.repository }}/${function}:${{ needs.build-and-push.outputs.short_commit_hash }}"
-            image_id="${raw_id,,}"
-
-            # Convert to UPPER_SNAKE_CASE for the env var
-            env_var_name="IMAGE_$(echo "$function" | tr '[:lower:]' '[:upper:]' | tr '-' '_')"
-
-            echo "Exporting the image_id for $function : $image_id"
-            echo "Exporting the variable for $function : $env_var_name"
-            export "$env_var_name=$image_id"
-          done
 
           echo "Creating .env file for Docker Compose..."
           cat > .env <<EOL
