@@ -311,7 +311,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: read
-    needs: build-and-push
+    needs:
+      - get-functions
+      - build-and-push
     env:
       SNAPSHOT_TEST_DIR: ${{ inputs.snapshot_test_dir }}
       APP_DIR: ${{ inputs.app_dir }}
