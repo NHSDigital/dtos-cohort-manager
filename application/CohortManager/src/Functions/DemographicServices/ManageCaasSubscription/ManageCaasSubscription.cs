@@ -7,6 +7,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Common;
+using System.Text;
 using DataServices.Core;
 using Model;
 using System.Text.Json;
