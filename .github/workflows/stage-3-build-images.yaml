@@ -387,7 +387,8 @@ jobs:
           free -h
 
       - name: Run snapshot tests
-        run: bash tests/snapshot-tests/run-snapshot-tests.sh
+        working-directory: ${{ inputs.snapshot_test_dir }}
+        run: bash run-snapshot-tests.sh
 
       - name: Teardown application
         working-directory: ${{ env.APP_DIR }}
