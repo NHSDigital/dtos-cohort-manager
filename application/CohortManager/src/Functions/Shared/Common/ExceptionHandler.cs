@@ -9,6 +9,11 @@ using Model.Enums;
 using RulesEngine.Models;
 using Common.Interfaces;
 
+/// </summary>
+/// Handles the creation and logging of various types of exceptions within the cohort management system.
+/// Provides methods to create system exceptions, validation exceptions, transformation exceptions, and other specialized exception types.
+/// </summary>
+
 public class ExceptionHandler : IExceptionHandler
 {
     private readonly IExceptionSender _exceptionSender;
@@ -22,12 +27,26 @@ public class ExceptionHandler : IExceptionHandler
 
     private const string logErrorMessage = "There was an error while logging an exception to the database.";
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ExceptionHandler"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance for logging errors and information.</param>
+    /// <param name="exceptionSender">The service responsible for sending exceptions to the database.</param>
     public ExceptionHandler(ILogger<ExceptionHandler> logger, IExceptionSender exceptionSender)
     {
         _logger = logger;
         _exceptionSender = exceptionSender;
     }
 
+    /// <summary>
+    /// Creates a system exception log for a participant with full details including NHS number and file information.
+    /// Sets the participant's exception flag to "Y" if NHS number is present.
+    /// </summary>
+    /// <param name="exception">The exception that occurred.</param>
+    /// <param name="participant">The participant data associated with the exception.</param>
+    /// <param name="fileName">The name of the file being processed when the exception occurred.</param>
+    /// <param name="category">Optional category for the exception. If empty, determined automatically.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task CreateSystemExceptionLog(Exception exception, Participant participant, string fileName, string category = "")
     {
         if (participant.NhsNumber != null)
@@ -47,6 +66,13 @@ public class ExceptionHandler : IExceptionHandler
         }
     }
 
+    /// <summary>
+    /// Creates a system exception log for a basic participant with file context.
+    /// </summary>
+    /// <param name="exception">The exception that occurred.</param>
+    /// <param name="participant">The basic participant data associated with the exception.</param>
+    /// <param name="fileName">The name of the file being processed when the exception occurred.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task CreateSystemExceptionLog(Exception exception, BasicParticipantData participant, string fileName)
     {
         var nhsNumber = participant.NhsNumber ?? DefaultNhsNumber;
@@ -56,6 +82,12 @@ public class ExceptionHandler : IExceptionHandler
         await _exceptionSender.sendToCreateException(validationException);
     }
 
+    /// <summary>
+    /// Creates a system exception log for a ServiceNow participant without file context.
+    /// </summary>
+    /// <param name="exception">The exception that occurred.</param>
+    /// <param name="participant">The ServiceNow participant data associated with the exception.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task CreateSystemExceptionLog(Exception exception, ServiceNowParticipant participant)
     {
         var validationException = CreateDefaultSystemValidationException(participant.NhsNumber.ToString(), exception, DefaultFileName, DefaultScreeningName, JsonSerializer.Serialize(participant));
@@ -63,6 +95,15 @@ public class ExceptionHandler : IExceptionHandler
         await _exceptionSender.sendToCreateException(validationException);
     }
 
+    /// <summary>
+    /// Creates a system exception log using only NHS number and related context information.
+    /// </summary>
+    /// <param name="exception">The exception that occurred.</param>
+    /// <param name="nhsNumber">The NHS number of the participant associated with the exception.</param>
+    /// <param name="fileName">The name of the file being processed when the exception occurred.</param>
+    /// <param name="screeningName">The screening name associated with the participant.</param>
+    /// <param name="errorRecord">The serialized error record or participant data.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task CreateSystemExceptionLogFromNhsNumber(Exception exception, string nhsNumber, string fileName, string screeningName, string errorRecord)
     {
         var validationException = CreateDefaultSystemValidationException(nhsNumber, exception, fileName, screeningName, errorRecord);
@@ -70,6 +111,11 @@ public class ExceptionHandler : IExceptionHandler
         await _exceptionSender.sendToCreateException(validationException);
     }
 
+    /// <summary>
+    /// Creates a deletion record exception for a participant marked for deletion.
+    /// </summary>
+    /// <param name="participantCsvRecord">The record containing the participant data marked for deletion.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task CreateDeletedRecordException(BasicParticipantCsvRecord participantCsvRecord)
     {
         var exception = new ValidationException
@@ -96,6 +142,12 @@ public class ExceptionHandler : IExceptionHandler
         }
     }
 
+    /// <summary>
+    /// Creates a schema validation exception for a participant record that failed schema validation.
+    /// </summary>
+    /// <param name="participantCsvRecord">The record that failed schema validation.</param>
+    /// <param name="description">The description of the schema validation error.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task CreateSchemaValidationException(BasicParticipantCsvRecord participantCsvRecord, string description)
     {
         var exception = new ValidationException
@@ -123,7 +175,12 @@ public class ExceptionHandler : IExceptionHandler
         }
     }
 
-
+    /// <summary>
+    /// Creates transformation exception logs for each transformation error encountered during participant processing.
+    /// </summary>
+    /// <param name="transformationErrors">The collection of transformation rule errors.</param>
+    /// <param name="participant">The cohort distribution participant being transformed.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task CreateTransformationExceptionLog(IEnumerable<RuleResultTree> transformationErrors, CohortDistributionParticipant participant)
     {
         foreach (var error in transformationErrors)
@@ -155,6 +212,13 @@ public class ExceptionHandler : IExceptionHandler
         }
     }
 
+    /// <summary>
+    /// Creates validation exception logs for validation errors encountered during participant processing.
+    /// Also creates a system exception indicating inability to add to cohort distribution.
+    /// </summary>
+    /// <param name="validationErrors">The collection of validation rule errors.</param>
+    /// <param name="participantCsvRecord">The participant record being validated.</param>
+    /// <returns>True if all exceptions were logged successfully; otherwise, false.</returns>
     public async Task<bool> CreateValidationExceptionLog(IEnumerable<ValidationRuleResult> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
         participantCsvRecord.Participant.ExceptionFlag = "Y";
@@ -202,6 +266,12 @@ public class ExceptionHandler : IExceptionHandler
         return true;
     }
 
+    /// <summary>
+    /// [Obsolete] Creates validation exception logs using the legacy RulesEngine rule result trees.
+    /// </summary>
+    /// <param name="validationErrors">The collection of rule result trees from the RulesEngine.</param>
+    /// <param name="participantCsvRecord">The participant record being validated.</param>
+    /// <returns>A validation exception log containing fatal rule information and creation status.</returns>
     [Obsolete("Use the above overload")]
     public async Task<ValidationExceptionLog> CreateValidationExceptionLog(IEnumerable<RuleResultTree> validationErrors, ParticipantCsvRecord participantCsvRecord)
     {
@@ -265,11 +335,25 @@ public class ExceptionHandler : IExceptionHandler
         };
     }
 
+    /// <summary>
+    /// Converts a category string to its corresponding exception category integer value.
+    /// </summary>
+    /// <param name="category">The category string to parse.</param>
+    /// <returns>The integer value of the exception category.</returns>
     private static int GetCategory(string category)
     {
         return (int)Enum.Parse(typeof(ExceptionCategory), category, ignoreCase: true);
     }
 
+    // <summary>
+    /// Creates a record validation exception log with custom error description.
+    /// </summary>
+    /// <param name="nhsNumber">The NHS number of the participant.</param>
+    /// <param name="fileName">The name of the file being processed.</param>
+    /// <param name="errorDescription">The description of the validation error.</param>
+    /// <param name="screeningName">The screening name associated with the participant.</param>
+    /// <param name="errorRecord">The serialized error record.</param>
+    /// <returns>True if the exception was logged successfully; otherwise, false.</returns>
     public async Task<bool> CreateRecordValidationExceptionLog(string nhsNumber, string fileName, string errorDescription, string screeningName, string errorRecord)
     {
         var validationException = CreateDefaultValidationException(nhsNumber, fileName, errorDescription, screeningName, errorRecord);
@@ -284,6 +368,14 @@ public class ExceptionHandler : IExceptionHandler
         return isSentSuccessfully;
     }
 
+    /// <summary>
+    /// Creates transform executed exceptions when transformation rules are successfully applied to a participant.
+    /// </summary>
+    /// <param name="participant">The cohort distribution participant being transformed.</param>
+    /// <param name="ruleName">The name of the transformation rule that was executed.</param>
+    /// <param name="ruleId">The ID of the transformation rule.</param>
+    /// <param name="exceptionCategory">Optional specific exception category. If null, determined by rule ID.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task CreateTransformExecutedExceptions(CohortDistributionParticipant participant, string ruleName, int ruleId, ExceptionCategory? exceptionCategory = null)
     {
 
@@ -402,6 +494,11 @@ public class ExceptionHandler : IExceptionHandler
     }
 
 
+    /// <summary>
+    /// Parses the fatal rule type from a string representation.
+    /// </summary>
+    /// <param name="fatal">The string representation of the fatal rule type.</param>
+    /// <returns>The integer value of the fatal rule type (1 for fatal, 0 for non-fatal).</returns>
     private int ParseFatalRuleType(string fatal)
     {
         var FatalRuleParsed = Enum.TryParse(fatal, out FatalRule IsFatal);
@@ -413,6 +510,11 @@ public class ExceptionHandler : IExceptionHandler
         return (int)IsFatal;
     }
 
+    /// <summary>
+    /// Determines if an NHS number represents a nil return file entry.
+    /// </summary>
+    /// <param name="nhsNumber">The NHS number to check.</param>
+    /// <returns>True if the NHS number is a nil return file indicator; otherwise, false.</returns>
     private static bool IsNilReturnFileNhsNumber(string nhsNumber)
     {
         string[] nilReturnFileNhsNumbers = { "0", "0000000000" };

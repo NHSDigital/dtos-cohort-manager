@@ -13,4 +13,12 @@ public interface IMeshSendCaasSubscribe
     /// <param name="fromMailbox">Source MESH mailbox ID.</param>
     /// <returns>The MESH message ID on success; otherwise null.</returns>
     Task<string?> SendSubscriptionRequest(long nhsNumber, string toMailbox, string fromMailbox);
+    /// <summary>
+    /// Sends a CAAS subscription request for the given list of NHS numbers.
+    /// </summary>
+    /// <param name="nhsNumber">list of NHS numbers to be sent.</param>
+    /// <param name="toMailbox">Destination MESH mailbox ID.</param>
+    /// <param name="fromMailbox">Source MESH mailbox ID.</param>
+    /// <returns>The MESH message ID on success; otherwise null.</returns>
+    Task<string?> SendSubscriptionRequest(long[] nhsNumbers, string toMailbox, string fromMailbox);
 }

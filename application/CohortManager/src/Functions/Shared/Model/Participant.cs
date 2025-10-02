@@ -198,8 +198,8 @@ public class Participant
             ExceptionFlag = MappingUtilities.ParseStringFlag(ExceptionFlag ?? "0"),
             BlockedFlag = MappingUtilities.ParseStringFlag(BlockedFlag ?? "0"),
             ReferralFlag = existingRecord.ReferralFlag,
-            RecordInsertDateTime = MappingUtilities.ParseDates(RecordInsertDateTime),
-            RecordUpdateDateTime = existingRecord.RecordInsertDateTime,
+            RecordInsertDateTime = existingRecord.RecordInsertDateTime,
+            RecordUpdateDateTime = existingRecord.RecordUpdateDateTime,
             IsHigherRisk = existingRecord.IsHigherRisk
         };
 

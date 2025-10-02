@@ -9,4 +9,10 @@ public class MeshSendCaasSubscribeStub : IMeshSendCaasSubscribe
         await Task.CompletedTask;
         return $"STUB_{Guid.NewGuid():N}";
     }
+
+    public async Task<string?> SendSubscriptionRequest(long[] nhsNumbers, string toMailbox, string fromMailbox)
+    {
+        await Task.CompletedTask;
+        return $"STUB_{Guid.NewGuid():N}";
+    }
 }

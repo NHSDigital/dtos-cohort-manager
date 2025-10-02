@@ -6,7 +6,7 @@ using ParquetSharp;
 using ParquetSharp.IO;
 public static class ParquetAsserts
 {
-    public static void ContainsExpectedNhsNumber(byte[] parquetBytes, long expectedNhsNumber)
+    public static void ContainsExpectedNhsNumber(byte[] parquetBytes, string expectedNhsNumber)
     {
         using var stream = new MemoryStream(parquetBytes);
         using var reader = new ManagedRandomAccessFile(stream);
@@ -20,7 +20,7 @@ public static class ParquetAsserts
         var columnCount = rowGroup.MetaData.NumColumns;
         Assert.AreEqual(1, columnCount, "Expected exactly 1 column.");
 
-        using var columnReader = rowGroup.Column(0).LogicalReader<long>();
+        using var columnReader = rowGroup.Column(0).LogicalReader<string>();
         var values = columnReader.ReadAll(checked((int)rowGroup.MetaData.NumRows));
 
         Assert.AreEqual(1, values.Length, "Expected exactly 1 row.");
