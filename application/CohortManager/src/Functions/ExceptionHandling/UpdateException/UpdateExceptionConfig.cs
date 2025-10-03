@@ -5,5 +5,5 @@ using System.ComponentModel.DataAnnotations;
 public class UpdateExceptionConfig
 {
     [Required]
-    public string ExceptionManagementDataServiceURL {get; set;}
+    public required string ExceptionManagementDataServiceURL {get; set;}
 }
