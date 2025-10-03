@@ -5,9 +5,7 @@ using System.ComponentModel.DataAnnotations;
 // Todo: get connection strings from .env file
 public class SnapshotTestsConfig
 {
-    [Required]
     public string DbConnectionString {get;set;}
-    [Required]
     public string StorageConnectionString { get; set; }
     [Required]
     public string StorageContainerName { get; set; }

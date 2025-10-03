@@ -8,8 +8,10 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Newtonsoft.Json.Linq;
 using ParquetSharp;
+using DotNetEnv;
+using Common;
 
-public class SnapshotTestHelper 
+public class SnapshotTestHelper
 {
     private readonly SnapshotTestsConfig _config;
     private readonly ILogger<SnapshotTestHelper> _logger;
@@ -103,7 +105,7 @@ public class SnapshotTestHelper
 
     public List<long?> GetNhsNumbersFromFile()
     {
-        var nhsNumbers = new List<long?>(); 
+        var nhsNumbers = new List<long?>();
 
         using (var reader = new ParquetFileReader(_config.AddFileName))
         {
@@ -114,6 +116,23 @@ public class SnapshotTestHelper
         }
 
         return nhsNumbers;
+    }
+
+    public static SnapshotTestsConfig GetConfig()
+    {
+        Env.Load(".env");
+
+        List<string> configFiles = ["appsettings.json"];
+        var config = ConfigurationExtension.GetConfiguration<SnapshotTestsConfig>(null, configFiles);
+
+        string azuriteConnectionString = Environment.GetEnvironmentVariable("AZURITE_CONNECTION_STRING");
+        string dbName = Environment.GetEnvironmentVariable("PASSWORD");
+        string dbPassword = Environment.GetEnvironmentVariable("DB_NAME");
+
+        config.StorageConnectionString = azuriteConnectionString.Replace("azurite", "127.0.0.1");
+        config.DbConnectionString = $"Server=db,1433;Database={dbName};User Id=SA;Password={dbPassword};TrustServerCertificate=True";
+
+        return config;
     }
 
 }

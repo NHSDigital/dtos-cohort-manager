@@ -67,10 +67,8 @@ application/CohortManager/SampleData/
 *.csv
 *.parquet
 *.xml
-
-# Test files
 !tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
-!tests/snapshot-tests/*.parquet
+
 
 # csv to sql statement scripts
 bs_select_gp_practice_lpk.txt
@@ -121,6 +119,10 @@ application/CohortManager/src/Functions/*.json
 !**/playwright-tests/src/parquet/*.parquet
 # Explicitly include test JSON files
 !**/playwright-tests/src/tests/e2e/testFiles/**/*.json
+
+# Snapshot tests
+!tests/snapshot-tests/*.parquet
+!tests/snapshot-tests/appsettings.json
 
 # Act
 .act.secrets

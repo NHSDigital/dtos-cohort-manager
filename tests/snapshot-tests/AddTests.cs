@@ -21,8 +21,7 @@ public class AddTests : VerifyBase
     {
         verifySettings = SnapshotTestHelper.ConfigureVerify("Add");
 
-        List<string> configFiles = ["appsettings.json"];
-        _config = ConfigurationExtension.GetConfiguration<SnapshotTestsConfig>(null, configFiles);
+        _config = SnapshotTestHelper.GetConfig();
 
         var options = new DbContextOptionsBuilder<DataServicesContext>()
             .UseSqlServer(_config.DbConnectionString)

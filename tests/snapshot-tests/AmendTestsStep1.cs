@@ -21,8 +21,7 @@ public class AmendStep1Tests : VerifyBase
     {
         verifySettings = SnapshotTestHelper.ConfigureVerify("AmendStep1");
 
-        List<string> configFiles = ["appsettings.json"];
-        _config = ConfigurationExtension.GetConfiguration<SnapshotTestsConfig>(null, configFiles);
+        _config = SnapshotTestHelper.GetConfig();
 
         var options = new DbContextOptionsBuilder<DataServicesContext>()
             .UseSqlServer(_config.DbConnectionString)
