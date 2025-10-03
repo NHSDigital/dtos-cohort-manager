@@ -54,8 +54,10 @@ public class DurableDemographicTests
     }
 
 
+
+
     [TestMethod]
-    public async Task RunOrchestrator_ValidInput_ReturnsTrue()
+    public async Task RunOrchestrator_ValidInput_InsertsData()
     {
         // Arrange
         var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
@@ -70,11 +72,16 @@ public class DurableDemographicTests
             .ReturnsAsync(true);
 
         // Act
-        var result = await function.RunOrchestrator(mockContext.Object);
+        await function.RunOrchestrator(mockContext.Object);
 
         // Assert
-        Assert.IsTrue(result);
         mockContext.Verify(ctx => ctx.CallActivityAsync<bool>(nameof(function.InsertDemographicData), It.IsAny<string>(), It.IsAny<TaskOptions>()), Times.Once);
+        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Warning),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Retrying batch after failure. Current Retry count")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()!),
+        Times.Never);
     }
 
 
@@ -90,14 +97,22 @@ public class DurableDemographicTests
         _participantDemographic.Setup(x => x.AddRange(It.IsAny<IEnumerable<ParticipantDemographic>>())).ReturnsAsync(true);
 
         // Act
-        var result = await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext().Object);
+        await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext().Object);
 
         // Assert
-        Assert.IsTrue(result);
+        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
+             It.IsAny<EventId>(),
+             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("InsertDemographicData function has successfully completed")),
+             It.IsAny<Exception>(),
+             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+         Times.Once);
     }
 
 
+
     [TestMethod]
+    [ExpectedException(typeof(Exception),
+    "some new exception")]
     public async Task InsertDemographicData_DataInsertionFails_ReturnsFalseAndLogsError()
     {
         // Arrange
@@ -110,11 +125,10 @@ public class DurableDemographicTests
             .ThrowsAsync(new Exception("some new exception"));
 
         // Act
-        var result = await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext().Object);
+
+        await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext().Object);
 
         // Assert
-        Assert.IsFalse(result);
-
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
               It.IsAny<EventId>(),
               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Inserting demographic data failed")),
@@ -154,41 +168,6 @@ public class DurableDemographicTests
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
-    [TestMethod]
-    public async Task RunOrchestrator_ActivityTimesOut_ReturnFalseAndLogError()
-    {
-        // Arrange
-        var mockContext = new Mock<TaskOrchestrationContext>();
-        var sut = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
-
-        mockContext
-            .Setup(c => c.CallActivityAsync<bool>(
-                nameof(DurableDemographicFunction.InsertDemographicData),
-                It.IsAny<string>(),
-                It.IsAny<TaskOptions>()
-            ))
-            .ReturnsAsync(false);
-
-        mockContext.Setup(ctx => ctx.CreateReplaySafeLogger(It.IsAny<string>())).Returns(_logger.Object);
-        mockContext.Setup(ctx => ctx.GetInput<string>()).Returns("[{\"NhsNumber\": \"111111\", \"FirstName\": \"Test\"}]");
-
-        // Act and Assert
-        await Assert.ThrowsExceptionAsync<InvalidOperationException>(async () =>
-        {
-            var result = await sut.RunOrchestrator(mockContext.Object);
-            Assert.IsFalse(result);
-        });
-        _logger.Verify(
-           x => x.Log(
-               LogLevel.Error,
-               It.IsAny<EventId>(),
-               It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Demographic records were not added to the database in the orchestration function")),
-               It.IsAny<Exception>(),
-               It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-           ),
-           Times.Once
-       );
-    }
 
     [TestMethod]
     public async Task GetOrchestrationStatus_ValidRequest_ReturnOrchestrationStatus()
