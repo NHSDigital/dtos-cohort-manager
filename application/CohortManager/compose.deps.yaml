@@ -17,6 +17,7 @@ services:
     build:
       context: ./
       dockerfile: ./Set-up/azurite/Dockerfile
+    image: cohort-manager-deps-azurite-setup
     networks: [cohman-network]
     depends_on:
       - azurite
@@ -64,6 +65,7 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: Shared/DataServices.Migrations/Dockerfile
+    image: cohort-manager-deps-db-migration
     depends_on:
       - db
     environment:
