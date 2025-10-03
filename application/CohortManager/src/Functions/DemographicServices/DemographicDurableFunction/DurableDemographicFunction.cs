@@ -1,10 +1,12 @@
 namespace NHS.CohortManager.DemographicServices;
 
 using System.Net;
+using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
+using FluentValidation.Validators;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -18,6 +20,8 @@ public class DurableDemographicFunction
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
     private readonly ILogger<DurableDemographicFunction> _logger;
     private readonly ICreateResponse _createResponse;
+
+    protected static readonly int MaxRetryCount = 3;
 
 
     public DurableDemographicFunction(IDataServiceClient<ParticipantDemographic> dataServiceClient, ILogger<DurableDemographicFunction> logger, ICreateResponse createResponse)
@@ -34,11 +38,9 @@ public class DurableDemographicFunction
     /// <returns></returns>
     /// <exception cref="TimeoutException"></exception>
     [Function(nameof(DurableDemographicFunction))]
-    public async Task<bool> RunOrchestrator(
+    public async Task RunOrchestrator(
         [OrchestrationTrigger] TaskOrchestrationContext context)
     {
-
-
         try
         {
             var demographicJsonData = context.GetInput<string>();
@@ -48,24 +50,17 @@ public class DurableDemographicFunction
                 throw new InvalidDataException("demographicJsonData was null or empty in Orchestration function");
             }
 
-            var retryOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
-                maxNumberOfAttempts: 1, // this means the function will not retry and therefore add duplicates
-                firstRetryInterval: TimeSpan.FromSeconds(100))
-            );
+            TaskOptions retryOptions = TaskOptions.FromRetryHandler(retryContext =>
+            {
+                _logger.LogWarning("Retrying batch after failure. Current Retry count: {retryCount} ", retryContext.LastAttemptNumber);
+                return retryContext.LastAttemptNumber < MaxRetryCount;
+            });
 
-            // Add timeout-aware logic
-            var recordsInserted = await context.CallActivityAsync<bool>(
+            await context.CallActivityAsync<bool>(
                 nameof(InsertDemographicData),
                 demographicJsonData,
                 options: retryOptions
             );
-
-            if (!recordsInserted)
-            {
-                throw new InvalidOperationException("Demographic records were not added to the database in the orchestration function");
-            }
-            return true;
-
         }
         catch (Exception ex)
         {
@@ -81,18 +76,16 @@ public class DurableDemographicFunction
     /// <param name="executionContext"></param>
     /// <returns></returns>
     [Function(nameof(InsertDemographicData))]
-    public async Task<bool> InsertDemographicData([ActivityTrigger] string demographicJsonData, FunctionContext executionContext)
+    public async Task InsertDemographicData([ActivityTrigger] string demographicJsonData, FunctionContext executionContext)
     {
-        try
+        var participantData = JsonSerializer.Deserialize<List<ParticipantDemographic>>(demographicJsonData);
+        var recordsInserted = await _participantDemographic.AddRange(participantData!);
+
+        if (!recordsInserted)
         {
-            var participantData = JsonSerializer.Deserialize<List<ParticipantDemographic>>(demographicJsonData);
-            return await _participantDemographic.AddRange(participantData);
+            throw new InvalidOperationException("Demographic records were not added to the database in the orchestration function");
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Inserting demographic data failed");
-            return false;
-        }
+        _logger.LogInformation("InsertDemographicData function has successfully completed");
     }
 
 
