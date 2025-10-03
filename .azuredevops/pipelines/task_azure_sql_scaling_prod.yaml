@@ -1,0 +1,104 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+pool:
+  name: private-pool-prod-uks
+
+schedules:
+  - cron: "0 7 * * *" # Run at 7:00 AM UTC
+    displayName: 'Scale_Peak'
+    branches:
+      include:
+      - main
+    always: true
+
+  - cron: "0 17 * * *" # Run at 5:00 PM UTC
+    displayName: 'Scale_OffPeak'
+    branches:
+      include:
+      - main
+    always: true
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 54153011a070c1d5ebe306243c28a605691c7eeb
+      endpoint: NHSDigital
+
+parameters:
+  - name: manualOverride
+    displayName: Manual Override
+    type: string
+    default: 'false'
+    values:
+    - 'false'
+    - 'Scale_Peak'
+    - 'Scale_OffPeak'
+  - name: Sku_Peak
+    displayName: Peak SKU
+    type: string
+    default: 'S12'
+  - name: Sku_OffPeak
+    displayName: Off-Peak SKU
+    type: string
+    default: 'S9'
+
+variables:
+  - group: PROD_core_backend
+
+stages:
+  - stage: ScaleDatabase
+    jobs:
+      - job: SetVariablesJob
+        displayName: Set Environment-Specific Variables
+        steps:
+          - task: Bash@3
+            displayName: Set Environment-Specific Variables
+            name: SetVariables
+            inputs:
+              targetType: inline
+              script: |
+                echo "##vso[task.setvariable variable=resourceGroupName;isOutput=true]rg-cohman-$(ENVIRONMENT_SHORT)-uks"
+                echo "##vso[task.setvariable variable=serverName;isOutput=true]sqlsvr-cohman-$(ENVIRONMENT_SHORT)-uks"
+                echo "##vso[task.setvariable variable=databaseName;isOutput=true]DToSDB"
+
+      - job: ScaleUpDatabaseJob
+        displayName: 'Azure CLI - Scale Up'
+        condition: and(succeeded(), or(eq(variables['Build.CronSchedule.DisplayName'], 'Scale_Peak'), eq('${{ parameters.manualOverride }}', 'Scale_Peak')))
+        dependsOn: SetVariablesJob
+        variables:
+          resourceGroupName: $[ dependencies.SetVariablesJob.outputs['SetVariables.resourceGroupName'] ]
+          serverName: $[ dependencies.SetVariablesJob.outputs['SetVariables.serverName'] ]
+          databaseName: $[ dependencies.SetVariablesJob.outputs['SetVariables.databaseName'] ]
+        steps:
+        - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: $(SERVICE_CONNECTION)
+            subscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+            resourceGroupName: $(resourceGroupName)
+            serverName: $(serverName)
+            databaseName: $(databaseName)
+            sku: ${{ parameters.Sku_Peak }}
+
+      - job: ScaleDownDatabaseJob
+        displayName: 'Azure CLI - Scale Down'
+        condition: and(succeeded(), or(eq(variables['Build.CronSchedule.DisplayName'], 'Scale_OffPeak'), eq('${{ parameters.manualOverride }}', 'Scale_OffPeak')))
+        dependsOn: SetVariablesJob
+        variables:
+          resourceGroupName: $[ dependencies.SetVariablesJob.outputs['SetVariables.resourceGroupName'] ]
+          serverName: $[ dependencies.SetVariablesJob.outputs['SetVariables.serverName'] ]
+          databaseName: $[ dependencies.SetVariablesJob.outputs['SetVariables.databaseName'] ]
+        steps:
+        - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: $(SERVICE_CONNECTION)
+            subscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+            resourceGroupName: $(resourceGroupName)
+            serverName: $(serverName)
+            databaseName: $(databaseName)
+            sku: ${{ parameters.Sku_OffPeak }}
