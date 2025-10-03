@@ -44,7 +44,7 @@ public class AmendStep2Tests : VerifyBase
     {
         await _testHelper.ValidateWithRetries(async () =>
         {
-            var exceptions = await _dbContext.ExceptionManagements
+            var exceptions = await _dbContext.exceptionManagements
                 .Where(i => _nhsNumbers.Select(i => i.ToString()).ToList().Contains(i.NhsNumber))
                 .OrderBy(i => i.NhsNumber)
                 .ThenBy(i => i.RuleId)
@@ -60,7 +60,7 @@ public class AmendStep2Tests : VerifyBase
     {
         await _testHelper.ValidateWithRetries(async () =>
         {
-            var participants = await _dbContext.ParticipantManagements
+            var participants = await _dbContext.participantManagements
                 .Where(i => _nhsNumbers.Contains(i.NHSNumber))
                 .OrderBy(i => i.NHSNumber)
                 .ThenBy(i => i.RecordType)
@@ -80,7 +80,7 @@ public class AmendStep2Tests : VerifyBase
     {
         await _testHelper.ValidateWithRetries(async () =>
         {
-            var participants = await _dbContext.ParticipantDemographics
+            var participants = await _dbContext.participantDemographics
                 .Where(i => _nhsNumbers.Contains(i.NhsNumber))
                 .OrderBy(i => i.NhsNumber)
                 .ToListAsync();
@@ -94,7 +94,7 @@ public class AmendStep2Tests : VerifyBase
     {
         await _testHelper.ValidateWithRetries(async () =>
         {
-            var participants = await _dbContext.CohortDistributions
+            var participants = await _dbContext.cohortDistributions
                 .Where(i => _nhsNumbers.Contains(i.NHSNumber))
                 .OrderBy(i => i.NHSNumber)
                 .ThenBy(i => i.NamePrefix)
