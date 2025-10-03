@@ -404,6 +404,9 @@ jobs:
           df -h
           echo "--- MEMORY ---"
           free -h
+      
+      - name: print DB logs
+        run: docker logs db
 
       - name: Run snapshot tests
         working-directory: ${{ inputs.snapshot_test_dir }}
