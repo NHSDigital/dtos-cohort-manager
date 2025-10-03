@@ -67,7 +67,10 @@ application/CohortManager/SampleData/
 *.csv
 *.parquet
 *.xml
+
+# Test files
 !tests/UnitTests/CaasIntegrationTests/receiveCaasFileTest/*.parquet
+!tests/snapshot-tests/*.parquet
 
 # csv to sql statement scripts
 bs_select_gp_practice_lpk.txt
