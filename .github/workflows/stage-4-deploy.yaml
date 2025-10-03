@@ -81,7 +81,10 @@ jobs:
 
           # Derive the short SHA from the provided commit
           git_short_sha=$(git rev-parse --short "$COMMIT_SHA")
-          parameters="dockerImageTag=${git_short_sha} testTypes=[${test_types[$ENVIRONMENT_NAME]}]"
+
+          # Prepare parameters as separate key=value tokens
+          param_image="dockerImageTag=${git_short_sha}"
+          param_tests="testTypes=[${test_types[$ENVIRONMENT_NAME]}]"
 
           echo "Starting Azure devops pipeline \"Deploy to Azure - Core ${ENVIRONMENT_NAME}\"..."
           RUN_ID=$(az pipelines run \
@@ -89,7 +92,7 @@ jobs:
             --name "Deploy to Azure - Core ${ENVIRONMENT_NAME}" \
             --org "${organisation}" \
             --project "${project_name}" \
-            --parameters "$parameters" \
+            --parameters "$param_image" "$param_tests" \
             --output tsv --query id)
 
           echo "Click here to view the ADO pipeline: ${organisation}/${project_name}/_build/results?buildId=${RUN_ID}"
