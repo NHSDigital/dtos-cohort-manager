@@ -1235,7 +1235,7 @@ linux_web_app = {
         static = {
           # TODO: Add CIS details when available
           AUTH_CIS2_ISSUER_URL = "https://am.nhsidentity.spineservices.nhs.uk:443/openam/oauth2/realms/root/realms/NHSIdentity/realms/Healthcare"
-          AUTH_CIS2_CLIENT_ID  = ""
+          AUTH_CIS2_CLIENT_ID  = "392455101813.apps.national"
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
