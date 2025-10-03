@@ -52,7 +52,7 @@ public class DurableDemographicFunction
 
             TaskOptions retryOptions = TaskOptions.FromRetryHandler(retryContext =>
             {
-                _logger.LogWarning("Retrying batch after failure. Current Retry count: {retryCount} ", retryContext.LastAttemptNumber);
+                _logger.LogWarning("Retrying batch after failure. Current Retry count: {RetryCount} ", retryContext.LastAttemptNumber);
                 return retryContext.LastAttemptNumber < MaxRetryCount;
             });
 
