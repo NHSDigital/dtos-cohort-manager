@@ -110,10 +110,7 @@ public class FhirPatientDemographicMapper : IFhirPatientDemographicMapper
     {
         var demographic = new PdsDemographic();
 
-        if (patient == null)
-        {
-            throw new ArgumentNullException(nameof(patient));
-        }
+        ArgumentNullException.ThrowIfNull(patient, nameof(patient));
 
         // Basic Identifiers
         demographic.NhsNumber = patient.Id; // We set to PDS NHS even if different from request

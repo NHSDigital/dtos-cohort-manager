@@ -7,15 +7,12 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Common;
-using System.Collections.Specialized;
 using System.Text;
 using DataServices.Core;
 using Model;
-using NHS.CohortManager.DemographicServices;
-using Common.Interfaces;
 using System.Text.Json;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
+
 
 /// <summary>
 /// Azure Functions endpoints for managing CaaS subscriptions via MESH and data services.
@@ -345,7 +342,7 @@ public class ManageCaasSubscription
         ? $"CAAS Subscribe forwarded to MESH stub. MessageId: {messageId}"
         : $"CAAS Subscribe sent to MESH. MessageId: {messageId}";
 
-        _logger.LogInformation(logMessage);
+        _logger.LogInformation("{LogMessage}", logMessage);
     }
 
 }

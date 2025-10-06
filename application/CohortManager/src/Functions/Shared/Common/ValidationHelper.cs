@@ -34,7 +34,7 @@ public static class ValidationHelper
         return false;
     }
 
-    public static bool ValidateNHSNumber(string nhsNumber)
+    public static bool ValidateNHSNumber(string nhsNumber) //TODO maybe make this accept a null string?
     {
         // Check the NHS number is a number
         if (!long.TryParse(nhsNumber, out _))

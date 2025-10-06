@@ -166,8 +166,8 @@ public class TransformDataService
         // Execute rules
         var rulesList = await re.ExecuteAllRulesAsync("NamePrefix", ruleParameters);
 
-        bool prefixTransformed = rulesList.Any(r => r.IsSuccess);
-        var namePrefixRule = rulesList.Where(result => result.IsSuccess).FirstOrDefault();
+        bool prefixTransformed = rulesList.Count(r => r.IsSuccess) > 0;
+        var namePrefixRule = rulesList.FirstOrDefault(result => result.IsSuccess);
 
         if (namePrefixRule == null)
         {

@@ -98,7 +98,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
 
         var result = _outcodeClient.GetSingle(outcode).Result;
 
-        return result?.BSO;
+        return result.BSO;
     }
 
 

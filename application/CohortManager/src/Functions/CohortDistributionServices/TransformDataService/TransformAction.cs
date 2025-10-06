@@ -58,7 +58,7 @@ class TransformAction : ActionBase
             }
             return participant;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return null;
         }

@@ -458,7 +458,7 @@ public class ExceptionHandler : IExceptionHandler
     /// <returns></returns>
     private static ValidationException CreateDefaultSystemValidationException(string nhsNumber, Exception exception, string fileName, string screeningName, string errorRecord, string category = "")
     {
-        int categoryToSendToDB = (int)ExceptionCategory.Non;
+        int categoryToSendToDB;
         if (string.IsNullOrEmpty(category))
         {
             if (IsNilReturnFileNhsNumber(nhsNumber))

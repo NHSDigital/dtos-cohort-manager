@@ -198,7 +198,7 @@ public class ProcessCaasFile : IProcessCaasFile
         catch (Exception ex)
         {
             var errorDescription = $"Update participant function failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
-            _logger.LogError(ex, errorDescription);
+            _logger.LogError(ex, "{ErrorDescription}", errorDescription);
             await CreateError(basicParticipantCsvRecord.Participant, name, errorDescription);
         }
         return false;
@@ -224,7 +224,7 @@ public class ProcessCaasFile : IProcessCaasFile
         catch (Exception ex)
         {
             var errorDescription = $"Remove participant function failed. Message: {ex.Message} Stack Trace: {ex.StackTrace}";
-            _logger.LogError(ex, errorDescription);
+            _logger.LogError(ex, "{ErrorDescription}", errorDescription);
             await CreateError(basicParticipantCsvRecord.Participant, filename, errorDescription);
         }
     }

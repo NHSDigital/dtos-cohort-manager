@@ -10,6 +10,8 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ITransformDataLookupFacade _dataLookup;
     private const int ruleId = 1;
+    private static readonly string[] noRegisteredGP = ["RDR", "RDI", "RPR"];
+
     public TransformReasonForRemoval(IExceptionHandler exceptionHandler, ITransformDataLookupFacade dataLookup)
     {
         _exceptionHandler = exceptionHandler;
@@ -25,7 +27,7 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
     /// <returns>Either a number of transformations if rules 1 or 2 are triggered, or raises an exception if rules 3 or 4 are triggered</returns>
     public async Task<CohortDistributionParticipant> ReasonForRemovalTransformations(CohortDistributionParticipant participant, CohortDistribution? existingParticipant)
     {
-        var participantNotRegisteredToGP = new string[] { "RDR", "RDI", "RPR" }.Contains(participant.ReasonForRemoval);
+        var participantNotRegisteredToGP = noRegisteredGP.Contains(participant.ReasonForRemoval);
         var validOutcode = !string.IsNullOrEmpty(participant.Postcode) && _dataLookup.ValidateOutcode(participant.Postcode);
         var existingPrimaryCareProvider = existingParticipant == null ? null : existingParticipant.PrimaryCareProvider;
 
@@ -39,7 +41,7 @@ public class TransformReasonForRemoval : ITransformReasonForRemoval
             participant.PrimaryCareProviderEffectiveFromDate = participant.ReasonForRemovalEffectiveFromDate;
             participant.ReasonForRemovalEffectiveFromDate = null;
             participant.ReasonForRemoval = null;
-            participant.PrimaryCareProvider = GetDummyPrimaryCareProvider(participant.Postcode ?? "", existingPrimaryCareProvider, validOutcode);
+            participant.PrimaryCareProvider = GetDummyPrimaryCareProvider(participant.Postcode ?? "", existingPrimaryCareProvider ?? "", validOutcode);
 
             await _exceptionHandler.CreateTransformExecutedExceptions(participant, "ReasonForRemovalRule", ruleId);
 

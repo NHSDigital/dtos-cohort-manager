@@ -102,7 +102,7 @@ public class TransformString
         return stringBuilder.ToString();
     }
 
-    private async Task<string?> CheckEmailCharacters(string emailAddress)
+    private async Task<string?> CheckEmailCharacters(string? emailAddress)
     {
         string? transformedEmail = emailAddress;
         var rulesList = await _ruleEngine.ExecuteAllRulesAsync("71.InvalidEmailCharacter", emailAddress);
