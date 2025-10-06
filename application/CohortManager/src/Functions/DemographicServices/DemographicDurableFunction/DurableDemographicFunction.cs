@@ -21,7 +21,7 @@ public class DurableDemographicFunction
     private readonly ILogger<DurableDemographicFunction> _logger;
     private readonly ICreateResponse _createResponse;
 
-    protected static readonly int MaxRetryCount = 3;
+    private static readonly int MaxRetryCount = 3;
 
 
     public DurableDemographicFunction(IDataServiceClient<ParticipantDemographic> dataServiceClient, ILogger<DurableDemographicFunction> logger, ICreateResponse createResponse)
