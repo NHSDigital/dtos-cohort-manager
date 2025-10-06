@@ -130,7 +130,7 @@ public class SnapshotTestHelper
         string dbPassword = Environment.GetEnvironmentVariable("PASSWORD");
 
         config.StorageConnectionString = azuriteConnectionString.Replace("azurite", "127.0.0.1");
-        config.DbConnectionString = $"Server=db,1433;Database={dbName};User Id=SA;Password={dbPassword};TrustServerCertificate=True";
+        config.DbConnectionString = $"Server=127.0.0.1,1433;Database={dbName};User Id=SA;Password={dbPassword};TrustServerCertificate=True";
 
         return config;
     }
