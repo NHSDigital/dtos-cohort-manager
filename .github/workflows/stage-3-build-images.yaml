@@ -408,6 +408,9 @@ jobs:
       - name: print DB logs
         run: docker logs db
 
+      - name: check container statuses
+        run: docker ps -a
+
       - name: Run snapshot tests
         working-directory: ${{ inputs.snapshot_test_dir }}
         run: bash run-snapshot-tests.sh
