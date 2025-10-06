@@ -22,7 +22,6 @@ public class AddTests : VerifyBase
         verifySettings = SnapshotTestHelper.ConfigureVerify("Add");
 
         _config = SnapshotTestHelper.GetConfig();
-        System.Console.WriteLine("DB CONN STRING: " + _config.DbConnectionString);
 
         var options = new DbContextOptionsBuilder<DataServicesContext>()
             .UseSqlServer(_config.DbConnectionString)

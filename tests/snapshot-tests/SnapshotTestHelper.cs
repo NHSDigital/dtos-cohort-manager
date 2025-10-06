@@ -126,8 +126,8 @@ public class SnapshotTestHelper
         var config = ConfigurationExtension.GetConfiguration<SnapshotTestsConfig>(null, configFiles);
 
         string azuriteConnectionString = Environment.GetEnvironmentVariable("AZURITE_CONNECTION_STRING");
-        string dbName = Environment.GetEnvironmentVariable("PASSWORD");
-        string dbPassword = Environment.GetEnvironmentVariable("DB_NAME");
+        string dbName = Environment.GetEnvironmentVariable("DB_NAME");
+        string dbPassword = Environment.GetEnvironmentVariable("PASSWORD");
 
         config.StorageConnectionString = azuriteConnectionString.Replace("azurite", "127.0.0.1");
         config.DbConnectionString = $"Server=db,1433;Database={dbName};User Id=SA;Password={dbPassword};TrustServerCertificate=True";
