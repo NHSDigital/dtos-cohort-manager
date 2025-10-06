@@ -1,18 +1,17 @@
 namespace NHS.CohortManager.DemographicServices;
 
 using System.Net;
-using System.Runtime.InteropServices.Marshalling;
+
 using System.Text;
 using System.Text.Json;
 using Common;
 using DataServices.Client;
-using FluentValidation.Validators;
-using Microsoft.AspNetCore.Components;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Model;
 
 public class DurableDemographicFunction
@@ -21,14 +20,15 @@ public class DurableDemographicFunction
     private readonly ILogger<DurableDemographicFunction> _logger;
     private readonly ICreateResponse _createResponse;
 
-    private static readonly int MaxRetryCount = 3;
+    private readonly DemographicDurableFunctionConfig _config;
 
 
-    public DurableDemographicFunction(IDataServiceClient<ParticipantDemographic> dataServiceClient, ILogger<DurableDemographicFunction> logger, ICreateResponse createResponse)
+    public DurableDemographicFunction(IDataServiceClient<ParticipantDemographic> dataServiceClient, ILogger<DurableDemographicFunction> logger, ICreateResponse createResponse, IOptions<DemographicDurableFunctionConfig> demographicDurableFunctionConfig)
     {
         _participantDemographic = dataServiceClient;
         _logger = logger;
         _createResponse = createResponse;
+        _config = demographicDurableFunctionConfig.Value;
     }
 
     /// <summary>
@@ -53,7 +53,7 @@ public class DurableDemographicFunction
             TaskOptions retryOptions = TaskOptions.FromRetryHandler(retryContext =>
             {
                 _logger.LogWarning("Retrying batch after failure. Current Retry count: {RetryCount} ", retryContext.LastAttemptNumber);
-                return retryContext.LastAttemptNumber < MaxRetryCount;
+                return retryContext.LastAttemptNumber < _config.MaxRetryCount;
             });
 
             await context.CallActivityAsync<bool>(

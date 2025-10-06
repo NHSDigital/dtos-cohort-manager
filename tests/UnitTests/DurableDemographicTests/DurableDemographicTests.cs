@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Net;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class DurableDemographicTests
@@ -29,15 +30,19 @@ public class DurableDemographicTests
     private Mock<HttpRequestData> mockHttpRequest;
     private readonly Mock<FunctionContext> mockFunctionContext;
     private readonly SetupRequest _setupRequest = new();
-
-    private Mock<HttpRequestData> _request;
-
-
+    private DemographicDurableFunctionConfig demographicDurableFunctionConfig;
+    private Mock<IOptions<DemographicDurableFunctionConfig>> _demographicDurableFunctionConfig = new();
 
     public DurableDemographicTests()
     {
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
-        _function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        demographicDurableFunctionConfig = new DemographicDurableFunctionConfig
+        {
+            MaxRetryCount = 3
+        };
+        _demographicDurableFunctionConfig.Setup(c => c.Value).Returns(demographicDurableFunctionConfig);
+
+        _function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
 
         serviceProvider = _serviceCollection.BuildServiceProvider();
         mockFunctionContext = CreateMockFunctionContext();
@@ -60,7 +65,7 @@ public class DurableDemographicTests
     public async Task RunOrchestrator_ValidInput_InsertsData()
     {
         // Arrange
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
 
         var mockContext = new Mock<TaskOrchestrationContext>();
         var logger = Mock.Of<ILogger>();
@@ -90,7 +95,7 @@ public class DurableDemographicTests
     {
         // Arrange
         var Participants = new List<ParticipantDemographic>();
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
         var mockLogger = new Mock<ILogger>();
 
         var demographicJsonData = JsonSerializer.Serialize(Participants);
@@ -117,7 +122,7 @@ public class DurableDemographicTests
     {
         // Arrange
         var Participants = new List<ParticipantDemographic>();
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
         var mockLogger = new Mock<ILogger>();
 
         var demographicJsonData = JsonSerializer.Serialize(Participants);
@@ -156,7 +161,7 @@ public class DurableDemographicTests
             Setup(x => x.ScheduleNewOrchestrationInstanceAsync(functionName, It.IsAny<string>(), CancellationToken.None)).
             ReturnsAsync(instanceId);
 
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
 
         // Call Orchestration trigger function
         var result = await function.HttpStart(
@@ -174,7 +179,7 @@ public class DurableDemographicTests
     {
         // Arrange
         var _mockClient = new Mock<DurableTaskClient>(MockBehavior.Default, new object[] { "test" });
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
 
         var instanceId = "test-instance";
         var request = _setupRequest.Setup(JsonSerializer.Serialize(instanceId));
