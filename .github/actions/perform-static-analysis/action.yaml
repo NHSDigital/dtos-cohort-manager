@@ -62,9 +62,6 @@ runs:
       env:
         # Tokens and inputs
         GITHUB_TOKEN: ${{ github.token }}
-        GITHUB_HEAD: ${{ github.head_ref }}
-        SONAR_PROJECT_KEY: ${{ inputs.sonar_project_key }}
-        SONAR_ORGANISATION_KEY: ${{ inputs.sonar_organisation_key }}
         SONAR_TOKEN: ${{ inputs.sonar_token }}
         SONAR_PROJECT_KEY: ${{ inputs.sonar_project_key }}
         SONAR_ORGANISATION_KEY: ${{ inputs.sonar_organisation_key }}
