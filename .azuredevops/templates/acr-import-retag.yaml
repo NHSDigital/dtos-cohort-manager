@@ -1,0 +1,67 @@
+---
+
+parameters:
+  - name: serviceConnection
+    type: string
+
+steps:
+  - task: AzureCLI@2
+    name: publish_images
+    displayName: Publish $(SELECT_IMAGE_TAG) images to $(ADD_IMAGE_TAG)
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      addSpnToEnvironment: true
+      failOnStandardError: false
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        # Prerequisite: A DNS A record for the chosen Dev ACR must exist in the Prod privatelink.azurecr.io zone, resolving to the public IP for that ACR
+        set -eo pipefail
+        declare -a pids
+
+        wait_for_completion() {
+          # acr tasks are backgrounded for parallelism
+          local -n arr=$1
+          for pid in "${arr[@]}"; do
+            wait ${pid}
+          done
+        }
+
+        echo "##[debug] Authenticating with container registry ${SRC_REGISTRY}..."
+        az acr login --name ${SRC_REGISTRY}
+        # az acr check-health --name ${SRC_REGISTRY} --yes
+
+        if [[ "${SRC_REGISTRY}" == ${DEST_REGISTRY} ]]; then
+          src_reg_prefix="${SRC_REGISTRY}.azurecr.io/" # omitted when the source registry is in a different subscription
+        else
+          [[ "${SRC_REGISTRY}" =~ dev ]] && cmdopt_sub="--subscription ${TF_VAR_HUB_SUBSCRIPTION_ID}"
+          source_registry_id=$(az acr show --name ${SRC_REGISTRY} ${cmdopt_sub} --query id --output tsv)
+          cmdopt_reg="--registry ${source_registry_id}" # needed when the source registry is in a different subscription
+          echo "##[debug] Authenticating with container registry ${DEST_REGISTRY}..."
+          az acr login --name ${DEST_REGISTRY}
+          # az acr check-health --name ${DEST_REGISTRY} --yes
+        fi
+
+        [[ "${DEST_REGISTRY}" =~ dev ]] && az account set -s ${TF_VAR_HUB_SUBSCRIPTION_ID}
+        repos=$(az acr repository list --name ${SRC_REGISTRY} --output tsv)
+
+        for repo in ${repos}; do
+          echo "##[debug] Importing ${SRC_REGISTRY}/${repo}:${SELECT_IMAGE_TAG} to ${DEST_REGISTRY}/${repo}:${ADD_IMAGE_TAG}..."
+          #az acr import --name ${DEST_REGISTRY} --source ${src_reg_prefix}${repo}:${SELECT_IMAGE_TAG} --image ${repo}:${ADD_IMAGE_TAG} ${cmdopt_reg} --force &
+          pids+=($!)
+        done
+        wait_for_completion pids
+
+        # if [[ "${SRC_REGISTRY}" != "${DEST_REGISTRY}" ]]; then
+        #   # To minimise data transfers, use only the destination acr to add other relevant tags taken from the source registry (PR ref, commit hash)
+        #   pids=()
+        #   for repo in ${repos}; do
+        #     image_sha=$(az acr repository show --name ${SRC_REGISTRY} --image ${repo}:${SELECT_IMAGE_TAG} --query digest --output tsv)
+        #     for tag in $(az acr repository show --name ${SRC_REGISTRY} --image ${repo}@${image_sha} --query "tags" --output tsv | grep -E '^(pr[0-9]+|[a-f0-9]{7})$'); do
+        #       echo "##[debug] Adding tag ${repo}:${tag}..."
+        #       az acr import --name ${DEST_REGISTRY} --source ${DEST_REGISTRY}.azurecr.io/${repo}:${ADD_IMAGE_TAG} --image ${repo}:${tag} --force &
+        #       pids+=($!)
+        #     done
+        #   done
+        #   wait_for_completion pids
+        # fi

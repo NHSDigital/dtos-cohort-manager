@@ -1,0 +1,60 @@
+---
+
+parameters:
+  - name: serviceConnection
+    type: string
+
+steps:
+  - task: AzureCLI@2
+    name: publish_images
+    displayName: Publish $(SELECT_IMAGE_TAG) images to $(ADD_IMAGE_TAG)
+    inputs:
+      azureSubscription: ${{ parameters.serviceConnection }}
+      addSpnToEnvironment: true
+      failOnStandardError: false
+      scriptType: bash
+      scriptLocation: inlineScript
+      inlineScript: |
+        # Prerequisite: A DNS A record for the chosen Dev ACR must exist in the Prod privatelink.azurecr.io zone, resolving to the public IP for that ACR
+        # Pipeline 'Update ACR private DNS' in the dtos-hub ADO project should perform the necessary configuration on a scheduled basis
+        set -eo pipefail
+        declare -a pids
+
+        wait_for_completion() {
+          # acr tasks are backgrounded for parallelism
+          local -n arr=$1
+          for pid in "${arr[@]}"; do
+            wait ${pid}
+          done
+        }
+
+        if [[ "${SRC_REGISTRY}" == ${DEST_REGISTRY} ]]; then
+          echo "##[debug] Authenticating with container registry ${SRC_REGISTRY}..."
+          az acr login --name ${SRC_REGISTRY}
+          src_reg_prefix="${SRC_REGISTRY}.azurecr.io/" # omitted when the source registry is in a different subscription
+        else
+          [[ "${SRC_REGISTRY}" =~ dev ]] && cmdopt_sub="--subscription ${TF_VAR_HUB_SUBSCRIPTION_ID}"
+          source_registry_id=$(az acr show --name ${SRC_REGISTRY} ${cmdopt_sub} --query id --output tsv)
+          cmdopt_reg="--registry ${source_registry_id}" # needed when the source registry is in a different subscription
+          echo "##[debug] Authenticating with container registry ${DEST_REGISTRY}..."
+          az acr login --name ${DEST_REGISTRY}
+          # az acr check-health --name ${DEST_REGISTRY} --yes
+        fi
+
+        [[ "${DEST_REGISTRY}" =~ dev ]] && az account set -s ${TF_VAR_HUB_SUBSCRIPTION_ID}
+        repos=$(az acr repository list --name ${SRC_REGISTRY} --output tsv)
+
+        for repo in ${repos}; do
+          # Check if the specific tag exists for the repository
+          tag_exists=$(az acr repository show-tags --name ${SRC_REGISTRY} --repository $repo --query "[?contains(@, '${SELECT_IMAGE_TAG}')]" --output tsv)
+
+          if [[ -n "$tag_exists" ]]; then
+            echo "##[debug] Importing ${SRC_REGISTRY}/${repo}:${SELECT_IMAGE_TAG} to ${DEST_REGISTRY}/${repo}:${ADD_IMAGE_TAG}..."
+            # az acr import --name ${DEST_REGISTRY} --source ${src_reg_prefix}${repo}:${SELECT_IMAGE_TAG} --image ${repo}:${ADD_IMAGE_TAG} ${cmdopt_reg} --force &
+            pids+=($!)
+          else
+            echo "##[debug] Skipping ${SRC_REGISTRY}/${repo}:${SELECT_IMAGE_TAG} because the tag does not exist."
+          fi
+        done
+
+        wait_for_completion pids

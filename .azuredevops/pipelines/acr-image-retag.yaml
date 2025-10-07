@@ -62,6 +62,6 @@ stages:
       SELECT_IMAGE_TAG: ${{ parameters.selectImageTag }}
       ADD_IMAGE_TAG: ${{ parameters.addImageTag }}
     steps:
-      - template: .azuredevops/templates/steps/acr-import-retag.yaml@dtos-devops-templates
+      - template: ../templates/acr-import-retag-no-additional-tags.yaml
         parameters:
           serviceConnection: sc-cohort-manager-prod
