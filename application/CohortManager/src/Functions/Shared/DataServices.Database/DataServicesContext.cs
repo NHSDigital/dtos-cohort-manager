@@ -44,7 +44,8 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<ParticipantManagement>()
             .ToTable("PARTICIPANT_MANAGEMENT", "dbo")
-            .HasIndex(i => new { i.NHSNumber, i.ScreeningId }, "ix_PARTICIPANT_MANAGEMENT_screening_nhs");
+            .HasIndex(i => new { i.NHSNumber, i.ScreeningId }, "ix_PARTICIPANT_MANAGEMENT_screening_nhs")
+            .IsUnique();
 
         modelBuilder.Entity<ParticipantDemographic>()
             .ToTable("PARTICIPANT_DEMOGRAPHIC", "dbo")
