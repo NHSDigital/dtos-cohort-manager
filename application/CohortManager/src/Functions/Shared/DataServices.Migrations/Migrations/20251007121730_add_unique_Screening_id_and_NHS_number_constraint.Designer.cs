@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataServices.Migrations.Migrations
 {
     [DbContext(typeof(DataServicesContext))]
-    [Migration("20251007115908_add_unique_Screening_id_and_NHS_number_constraint")]
+    [Migration("20251007121730_add_unique_Screening_id_and_NHS_number_constraint")]
     partial class add_unique_Screening_id_and_NHS_number_constraint
     {
         /// <inheritdoc />
