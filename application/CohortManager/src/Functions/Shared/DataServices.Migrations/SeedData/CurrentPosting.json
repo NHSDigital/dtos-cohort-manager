@@ -1,1 +1,566 @@
-[{"Posting":"BAA","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"BD","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"BE","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"BIK","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"BIR","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"BRA","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"BRS","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"BU","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"CB","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"CH","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"CLD","InUse":"Y","IncludedInCohort":"N","PostingCategory":"WALES"},{"Posting":"COV","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"CR","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"CU","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"CYM","InUse":"Y","IncludedInCohort":"N","PostingCategory":"WALES"},{"Posting":"DCR","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"DE","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"DMS","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"DMS"},{"Posting":"DN","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"DO","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"DR","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"DUD","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"DYF","InUse":"Y","IncludedInCohort":"N","PostingCategory":"WALES"},{"Posting":"ENG","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"EX","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"GAT","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"GG","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"GMK","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"GWE","InUse":"Y","IncludedInCohort":"N","PostingCategory":"WALES"},{"Posting":"HJ","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"HJ"},{"Posting":"HMP","InUse":"N","IncludedInCohort":"N","PostingCategory":"HMP"},{"Posting":"HT","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"IM","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"IOM"},{"Posting":"KC","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"KHU","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LA","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LD","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LDS","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LIP","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LL","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNA","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNB","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNC","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LND","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNE","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNH","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNJ","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNK","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNL","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNM","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNN","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNP","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNR","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNS","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNT","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"LNW","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"MAN","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"MHI","InUse":"N","IncludedInCohort":"N","PostingCategory":"MH"},{"Posting":"MID","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"NEW","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"NF","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"NN","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"NO","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"NR","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"OX","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"ROC","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"ROT","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"SA","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"SGA","InUse":"Y","IncludedInCohort":"N","PostingCategory":"WALES"},{"Posting":"SHE","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"SLF","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"SM","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"SO","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"SOP","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"SPT","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"ST","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"STL","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"SU","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"SUN","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"SY","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"TE","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"TW","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"WA","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"WAK","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"WAL","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"WBH","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"WGA","InUse":"Y","IncludedInCohort":"N","PostingCategory":"WALES"},{"Posting":"WIG","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"WL","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"WMF","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"WOM","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"WR","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"YN","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"},{"Posting":"YW","InUse":"Y","IncludedInCohort":"Y","PostingCategory":"ENGLAND"}]
+[
+  {
+    "Posting": "BAA",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "BD",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "BE",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "BIK",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "BIR",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "BRA",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "BRS",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "BU",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "CB",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "CH",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "CLD",
+    "InUse": "Y",
+    "IncludedInCohort": "N",
+    "PostingCategory": "WALES"
+  },
+  {
+    "Posting": "COV",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "CR",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "CU",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "CYM",
+    "InUse": "Y",
+    "IncludedInCohort": "N",
+    "PostingCategory": "WALES"
+  },
+  {
+    "Posting": "DCR",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "DE",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "DMS",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "DMS"
+  },
+  {
+    "Posting": "DN",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "DO",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "DR",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "DUD",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "DYF",
+    "InUse": "Y",
+    "IncludedInCohort": "N",
+    "PostingCategory": "WALES"
+  },
+  {
+    "Posting": "ENG",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "EX",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "GAT",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "GG",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "GMK",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "GWE",
+    "InUse": "Y",
+    "IncludedInCohort": "N",
+    "PostingCategory": "WALES"
+  },
+  {
+    "Posting": "HJ",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "HJ"
+  },
+  {
+    "Posting": "HMP",
+    "InUse": "N",
+    "IncludedInCohort": "N",
+    "PostingCategory": "HMP"
+  },
+  {
+    "Posting": "HT",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "IM",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "IOM"
+  },
+  {
+    "Posting": "KC",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "KHU",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LA",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LD",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LDS",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LIP",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LL",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNA",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNB",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNC",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LND",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNE",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNH",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNJ",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNK",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNL",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNM",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNN",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNP",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNR",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNS",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNT",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "LNW",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "MAN",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "MHI",
+    "InUse": "N",
+    "IncludedInCohort": "N",
+    "PostingCategory": "MH"
+  },
+  {
+    "Posting": "MID",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "NEW",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "NF",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "NN",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "NO",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "NR",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "OX",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "ROC",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "ROT",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "SA",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "SGA",
+    "InUse": "Y",
+    "IncludedInCohort": "N",
+    "PostingCategory": "WALES"
+  },
+  {
+    "Posting": "SHE",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "SLF",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "SM",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "SO",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "SOP",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "SPT",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "ST",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "STL",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "SU",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "SUN",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "SY",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "TE",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "TW",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "WA",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "WAK",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "WAL",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "WBH",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "WGA",
+    "InUse": "Y",
+    "IncludedInCohort": "N",
+    "PostingCategory": "WALES"
+  },
+  {
+    "Posting": "WIG",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "WL",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "WMF",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "WOM",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "WR",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "YN",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  },
+  {
+    "Posting": "YW",
+    "InUse": "Y",
+    "IncludedInCohort": "Y",
+    "PostingCategory": "ENGLAND"
+  }
+]

@@ -1,8 +1,10 @@
 namespace Common;
 
 using System.Threading.Tasks;
+using Azure.Messaging.EventGrid.SystemEvents;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Identity.Client;
 using NHS.MESH.Client.Contracts.Services;
 using NHS.MESH.Client.Models;
 using ParquetSharp;
@@ -34,15 +36,26 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
     {
 
         var content = CreateParquetFile(nhsNumber);
+        return await SendMeshMessage(content, fromMailbox, toMailbox);
+    }
 
+    public async Task<string?> SendSubscriptionRequest(long[] nhsNumbers, string toMailbox, string fromMailbox)
+    {
+
+        var content = CreateParquetFile(nhsNumbers);
+        return await SendMeshMessage(content, fromMailbox, toMailbox);
+    }
+
+    private async Task<string?> SendMeshMessage(byte[] content, string fromMailbox, string toMailbox)
+    {
         FileAttachment file = new FileAttachment
         {
             FileName = "CaaSSubscribe.parquet",
             Content = content,
             ContentType = "application/octet-stream"
         };
-        
-        var result = await _meshOutboxService.SendCompressedMessageAsync(fromMailbox, toMailbox, _config.SendCaasWorkflowId, file);
+
+        var result = await _meshOutboxService.SendUnCompressedMessageAsync(fromMailbox, toMailbox, _config.SendCaasWorkflowId, file);
         if (!result.IsSuccessful)
         {
             _logger.LogError(
@@ -57,24 +70,31 @@ public class MeshSendCaasSubscribe : IMeshSendCaasSubscribe
 
     private static byte[] CreateParquetFile(long nhsNumber)
     {
+
+        long[] nhsNumberList = { nhsNumber };
+
+        return CreateParquetFile(nhsNumberList);
+    }
+
+    private static byte[] CreateParquetFile(long[] nhsNumber)
+    {
         var columns = new Column[]
         {
-            new Column<long>("nhs_number"),
+            new Column<string>("nhs_number"),
         };
-        long[] nhsNumberList = { nhsNumber };
+        string[] nhsNumberList = [.. nhsNumber.Select(x => x.ToString())];
 
         using var stream = new MemoryStream();
         using var writer = new ManagedOutputStream(stream);
         using (var file = new ParquetFileWriter(writer, columns))
         {
             using var rowGroup = file.AppendRowGroup();
-            using (var nhsNumberColumn = rowGroup.NextColumn().LogicalWriter<long>())
+            using (var nhsNumberColumn = rowGroup.NextColumn().LogicalWriter<string>())
             {
                 nhsNumberColumn.WriteBatch(nhsNumberList);
             }
         }
 
         return stream.ToArray();
-
     }
 }

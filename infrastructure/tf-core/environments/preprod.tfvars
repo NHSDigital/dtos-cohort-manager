@@ -812,6 +812,9 @@ function_apps = {
           function_app_key = "CreateException"
         }
       ]
+      env_vars_static = {
+        AcceptableLatencyThresholdMs = "500"
+      }
     }
 
     ParticipantDemographicDataService = {
@@ -847,6 +850,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        MaxRetryCount=3
       }
     }
 
@@ -1196,11 +1200,12 @@ linux_web_app = {
       app_service_plan_key = "NonScaling"
       env_vars = {
         static = {
-          AUTH_CIS2_ISSUER_URL = ""
-          AUTH_CIS2_CLIENT_ID  = ""
+          AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
+          AUTH_CIS2_CLIENT_ID  = "5780695865.cohort_manager_preprod.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort-pre.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
+          AUTH_CIS2_ACR_VALUES = "AAL3_ANY"
         }
         from_key_vault = {
           # env_var_name           = "key_vault_secret_name"
@@ -1301,7 +1306,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 100
       read_scale           = false
-      sku                  = "S2"
+      sku                  = "S12"
       storage_account_type = "GeoZone"
       zone_redundant       = false
 

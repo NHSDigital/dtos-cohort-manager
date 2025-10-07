@@ -46,7 +46,6 @@ public class PdsProcessor : IPdsProcessor
         }
 
         var errorResponse = await pdsResponse.Content.ReadFromJsonAsync<PdsErrorResponse>();
-
         if (errorResponse?.issue?.FirstOrDefault()?.details?.coding?.FirstOrDefault()?.code != PdsConstants.InvalidatedResourceCode)
         {
             return;

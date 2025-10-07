@@ -56,6 +56,7 @@ OutputDirectory
 
 # User Settings
 local.settings.json
+local.settings.*.json
 appsettings.json
 
 # Docker
@@ -93,6 +94,7 @@ application/CohortManager/.vscode/
 
 # Ignore all appsettings-local.json files
 **/appsettings-local.json
+
 
 # Ignore all .crt files
 *.crt

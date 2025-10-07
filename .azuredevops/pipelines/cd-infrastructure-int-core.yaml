@@ -47,15 +47,15 @@ parameters:
       - 'Apply'
     default: 'Apply'
 
-  # - name: testTypes
-  #   displayName: 'End-2-End Tests to run (enter [] to skip)'
-  #   type: object
-  #   default:
-  #     - smoke_e2e
-  #     - regression_api
-  #     - regression_e2e_epic1
-  #     - regression_e2e_epic2
-  #     - regression_e2e_epic3
+  - name: testTypes
+    displayName: 'End-2-End Tests to run (enter [] to skip)'
+    type: object
+    default:
+      - smoke_e2e
+      - regression_api
+      - regression_e2e_epic1
+      - regression_e2e_epic2
+      - regression_e2e_epic3
 
 variables:
   - name: hostPoolName
