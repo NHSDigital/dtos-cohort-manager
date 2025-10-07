@@ -337,6 +337,7 @@ services:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - AcceptableLatencyThresholdMs=500
+      - MaxRetryCount=3
 
   # Service Now Integration Service
   servicenow-message-handler:

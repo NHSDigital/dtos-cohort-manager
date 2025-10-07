@@ -4,8 +4,8 @@ using Microsoft.Extensions.Hosting;
 using Data.Database;
 using Model;
 using DataServices.Client;
-using NHS.Screening.DemographicDurableFunction;
 using HealthChecks.Extensions;
+using NHS.CohortManager.DemographicServices;
 
 var host = new HostBuilder()
     .AddConfiguration<DemographicDurableFunctionConfig>(out DemographicDurableFunctionConfig config)

@@ -12,8 +12,10 @@ runs:
   steps:
     - name: "Generate SBOM"
       shell: bash
+      env:
+        BUILD_DATETIME: ${{ inputs.build_datetime }}
       run: |
-        export BUILD_DATETIME=${{ inputs.build_datetime }}
+        export BUILD_DATETIME=$BUILD_DATETIME
         ./scripts/reports/create-sbom-report.sh
     - name: "Compress SBOM report"
       shell: bash
@@ -27,8 +29,10 @@ runs:
         retention-days: 21
     - name: "Scan vulnerabilities"
       shell: bash
+      env:
+        BUILD_DATETIME: ${{ inputs.build_datetime }}
       run: |
-        export BUILD_DATETIME=${{ inputs.build_datetime }}
+        export BUILD_DATETIME=$BUILD_DATETIME
         ./scripts/reports/scan-vulnerabilities.sh
     - name: "Display vulnerabilities summary"
       shell: bash
