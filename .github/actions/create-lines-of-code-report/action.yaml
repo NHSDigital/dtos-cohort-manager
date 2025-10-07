@@ -12,8 +12,10 @@ runs:
   steps:
     - name: "Create CLOC report"
       shell: bash
+      env: 
+        BUILD_DATETIME: ${{ inputs.build_datetime }}
       run: |
-        export BUILD_DATETIME=${{ inputs.build_datetime }}
+        export BUILD_DATETIME=$BUILD_DATETIME
         ./scripts/reports/create-lines-of-code-report.sh
     - name: "Compress CLOC report"
       shell: bash
