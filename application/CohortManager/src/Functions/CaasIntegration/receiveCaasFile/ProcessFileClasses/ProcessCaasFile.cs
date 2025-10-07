@@ -3,14 +3,14 @@ namespace NHS.Screening.ReceiveCaasFile;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
-using Data.Database;
 using DataServices.Client;
-using Hl7.Fhir.Rest;
+using Microsoft.EntityFrameworkCore.Migrations.Operations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Protocols.Configuration;
+using Microsoft.VisualBasic;
 using Model;
 using Model.Enums;
+using NHS.CohortManager.Shared.Utilities;
 
 public class ProcessCaasFile : IProcessCaasFile
 {
@@ -121,12 +121,12 @@ public class ProcessCaasFile : IProcessCaasFile
         {
 
             case Actions.New:
+
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
                 if (await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
                 {
                     break;
                 }
-
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 break;
             case Actions.Amended:
@@ -185,8 +185,12 @@ public class ProcessCaasFile : IProcessCaasFile
                 return false;
             }
 
+            basicParticipantCsvRecord.Participant.RecordInsertDateTime = participant.RecordInsertDateTime?.ToString("yyyy-MM-dd HH:mm:ss");
             var participantForUpdate = basicParticipantCsvRecord.Participant.ToParticipantDemographic();
+
+            participantForUpdate.RecordUpdateDateTime = DateTime.UtcNow;
             participantForUpdate.ParticipantId = participant.ParticipantId;
+
 
             var updated = await _participantDemographic.Update(participantForUpdate);
             if (updated)

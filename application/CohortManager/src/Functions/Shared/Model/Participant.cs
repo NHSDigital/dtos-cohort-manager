@@ -154,8 +154,8 @@ public class Participant
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = !string.IsNullOrEmpty(IsInterpreterRequired) ? short.Parse(IsInterpreterRequired) : null,
             InvalidFlag = (short?)GetInvalidFlag(),
-            RecordInsertDateTime = DateTime.UtcNow,
-            RecordUpdateDateTime = null,
+            RecordInsertDateTime = !string.IsNullOrEmpty(RecordInsertDateTime) ? MappingUtilities.ParseDates(RecordInsertDateTime) : DateTime.UtcNow,
+            RecordUpdateDateTime = !string.IsNullOrEmpty(RecordUpdateDateTime) ? MappingUtilities.ParseDates(RecordUpdateDateTime) : null
         };
     }
 
