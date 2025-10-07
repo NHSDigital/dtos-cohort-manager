@@ -850,6 +850,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        MaxRetryCount=3
       }
     }
 
@@ -1305,7 +1306,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 100
       read_scale           = false
-      sku                  = "S2"
+      sku                  = "S12"
       storage_account_type = "GeoZone"
       zone_redundant       = false
 

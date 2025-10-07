@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Net;
 using System.Text;
+using Microsoft.Extensions.Options;
 
 [TestClass]
 public class DurableDemographicTests
@@ -29,15 +30,19 @@ public class DurableDemographicTests
     private Mock<HttpRequestData> mockHttpRequest;
     private readonly Mock<FunctionContext> mockFunctionContext;
     private readonly SetupRequest _setupRequest = new();
-
-    private Mock<HttpRequestData> _request;
-
-
+    private DemographicDurableFunctionConfig demographicDurableFunctionConfig;
+    private Mock<IOptions<DemographicDurableFunctionConfig>> _demographicDurableFunctionConfig = new();
 
     public DurableDemographicTests()
     {
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
-        _function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        demographicDurableFunctionConfig = new DemographicDurableFunctionConfig
+        {
+            MaxRetryCount = 3
+        };
+        _demographicDurableFunctionConfig.Setup(c => c.Value).Returns(demographicDurableFunctionConfig);
+
+        _function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
 
         serviceProvider = _serviceCollection.BuildServiceProvider();
         mockFunctionContext = CreateMockFunctionContext();
@@ -54,11 +59,13 @@ public class DurableDemographicTests
     }
 
 
+
+
     [TestMethod]
-    public async Task RunOrchestrator_ValidInput_ReturnsTrue()
+    public async Task RunOrchestrator_ValidInput_InsertsData()
     {
         // Arrange
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
 
         var mockContext = new Mock<TaskOrchestrationContext>();
         var logger = Mock.Of<ILogger>();
@@ -70,11 +77,16 @@ public class DurableDemographicTests
             .ReturnsAsync(true);
 
         // Act
-        var result = await function.RunOrchestrator(mockContext.Object);
+        await function.RunOrchestrator(mockContext.Object);
 
         // Assert
-        Assert.IsTrue(result);
         mockContext.Verify(ctx => ctx.CallActivityAsync<bool>(nameof(function.InsertDemographicData), It.IsAny<string>(), It.IsAny<TaskOptions>()), Times.Once);
+        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Warning),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Retrying batch after failure. Current Retry count")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()!),
+        Times.Never);
     }
 
 
@@ -83,26 +95,34 @@ public class DurableDemographicTests
     {
         // Arrange
         var Participants = new List<ParticipantDemographic>();
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
         var mockLogger = new Mock<ILogger>();
 
         var demographicJsonData = JsonSerializer.Serialize(Participants);
         _participantDemographic.Setup(x => x.AddRange(It.IsAny<IEnumerable<ParticipantDemographic>>())).ReturnsAsync(true);
 
         // Act
-        var result = await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext().Object);
+        await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext().Object);
 
         // Assert
-        Assert.IsTrue(result);
+        _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
+             It.IsAny<EventId>(),
+             It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("InsertDemographicData function has successfully completed")),
+             It.IsAny<Exception>(),
+             It.IsAny<Func<It.IsAnyType, Exception, string>>()),
+         Times.Once);
     }
 
 
+
     [TestMethod]
+    [ExpectedException(typeof(Exception),
+    "some new exception")]
     public async Task InsertDemographicData_DataInsertionFails_ReturnsFalseAndLogsError()
     {
         // Arrange
         var Participants = new List<ParticipantDemographic>();
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
         var mockLogger = new Mock<ILogger>();
 
         var demographicJsonData = JsonSerializer.Serialize(Participants);
@@ -110,11 +130,10 @@ public class DurableDemographicTests
             .ThrowsAsync(new Exception("some new exception"));
 
         // Act
-        var result = await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext().Object);
+
+        await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext().Object);
 
         // Assert
-        Assert.IsFalse(result);
-
         _logger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Error),
               It.IsAny<EventId>(),
               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Inserting demographic data failed")),
@@ -142,7 +161,7 @@ public class DurableDemographicTests
             Setup(x => x.ScheduleNewOrchestrationInstanceAsync(functionName, It.IsAny<string>(), CancellationToken.None)).
             ReturnsAsync(instanceId);
 
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
 
         // Call Orchestration trigger function
         var result = await function.HttpStart(
@@ -154,63 +173,13 @@ public class DurableDemographicTests
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 
-    [TestMethod]
-    public async Task RunOrchestrator_ActivityTimesOut_ReturnFalseAndLogError()
-    {
-        // Arrange
-        var utcNow = DateTime.UtcNow;
-        var timeoutDuration = TimeSpan.FromHours(0);
-        var expirationTime = utcNow.Add(timeoutDuration);
-
-        var mockContext = new Mock<TaskOrchestrationContext>();
-
-        mockContext.Setup(c => c.CurrentUtcDateTime).Returns(utcNow);
-
-        var sut = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
-
-        var neverEndingTask = new TaskCompletionSource<bool>();
-
-        mockContext
-            .Setup(c => c.CallActivityAsync<bool>(
-                nameof(DurableDemographicFunction.InsertDemographicData),
-                It.IsAny<string>(),
-                It.IsAny<TaskOptions>()
-            ))
-             .Returns(Task.Delay(Timeout.Infinite).ContinueWith(_ => false));
-
-        mockContext
-            .Setup(c => c.CreateTimer(expirationTime, It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        mockContext.Setup(ctx => ctx.CreateReplaySafeLogger(It.IsAny<string>())).Returns(_logger.Object);
-        mockContext.Setup(ctx => ctx.GetInput<string>()).Returns("[{\"NhsNumber\": \"111111\", \"FirstName\": \"Test\"}]");
-
-
-        // Act and Assert
-
-        await Assert.ThrowsExceptionAsync<TimeoutException>(async () =>
-        {
-            var result = await sut.RunOrchestrator(mockContext.Object);
-            Assert.IsFalse(result);
-        });
-        _logger.Verify(
-           x => x.Log(
-               LogLevel.Warning,
-               It.IsAny<EventId>(),
-               It.Is<It.IsAnyType>((o, t) => o.ToString().Contains("Orchestration timed out.")),
-               It.IsAny<Exception>(),
-               It.IsAny<Func<It.IsAnyType, Exception?, string>>()
-           ),
-           Times.Once
-       );
-    }
 
     [TestMethod]
     public async Task GetOrchestrationStatus_ValidRequest_ReturnOrchestrationStatus()
     {
         // Arrange
         var _mockClient = new Mock<DurableTaskClient>(MockBehavior.Default, new object[] { "test" });
-        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object);
+        var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
 
         var instanceId = "test-instance";
         var request = _setupRequest.Setup(JsonSerializer.Serialize(instanceId));
