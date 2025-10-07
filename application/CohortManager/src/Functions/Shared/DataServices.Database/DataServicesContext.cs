@@ -49,7 +49,8 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<ParticipantDemographic>()
             .ToTable("PARTICIPANT_DEMOGRAPHIC", "dbo")
-            .HasIndex(i => new { i.NhsNumber }, "Index_PARTICIPANT_DEMOGRAPHIC_NhsNumber");
+            .HasIndex(i => new { i.NhsNumber }, "Index_PARTICIPANT_DEMOGRAPHIC_NhsNumber")
+            .IsUnique();
 
         modelBuilder.Entity<GeneCodeLkp>()
             .ToTable("GENE_CODE_LKP", "dbo");
