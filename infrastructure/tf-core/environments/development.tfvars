@@ -1240,29 +1240,6 @@ linux_web_app = {
 
 linux_web_app_slots = []
 
-monitor_action_group = {
-  app-errors = {
-    short_name = "App Errors"
-    email_receiver = {
-      dev-team = {
-        name                    = "Dev Team"
-        email_address           = "richard.kingston2@nhs.net"
-        use_common_alert_schema = true
-      }
-    }
-  }
-  db-errors = {
-    short_name = "DB Errors"
-    email_receiver = {
-      dev-team = {
-        name                    = "Dev Team"
-        email_address           = "richard.kingston2@nhs.net"
-        use_common_alert_schema = true
-      }
-    }
-  }
-}
-
 frontdoor_endpoint = {
   cohort = {
     origin_group = {

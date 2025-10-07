@@ -31,7 +31,7 @@ module "app-service-plan" {
   log_analytics_workspace_id                        = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_appserviceplan_metrics = local.monitor_diagnostic_setting_appserviceplan_metrics
 
-  enable_monitoring              = var.features.monitoring_enabled && var.monitor_action_groups != {} && var.app_service_plan.monitor_action_group_key != null
+  enable_alerting                = var.features.alerting_enabled && var.monitor_action_groups != {} && var.app_service_plan.monitor_action_group_key != null
   action_group_id                = var.monitor_action_groups != {} && var.app_service_plan.monitor_action_group_key != null ? module.monitor_action_group[var.app_service_plan.monitor_action_group_key].monitor_action_group.id : null
   resource_group_name_monitoring = var.monitor_action_groups != {} && var.app_service_plan.monitor_action_group_key != null ? azurerm_resource_group.monitoring.name : null
 
