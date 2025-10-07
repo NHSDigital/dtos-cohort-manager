@@ -121,9 +121,8 @@ public class ProcessCaasFile : IProcessCaasFile
         {
 
             case Actions.New:
-                var DemographicRecordUpdated = await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
-                if (DemographicRecordUpdated)
+                if (await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
                 {
                     break;
                 }
@@ -140,6 +139,10 @@ public class ProcessCaasFile : IProcessCaasFile
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Removed:
+                if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
+                {
+                    currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                }
                 currentBatch.DeleteRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             default:
