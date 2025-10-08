@@ -43,7 +43,8 @@ steps:
         fi
 
         [[ "${DEST_REGISTRY}" =~ dev ]] && az account set -s ${TF_VAR_HUB_SUBSCRIPTION_ID}
-        repos=$(az acr repository list --name ${SRC_REGISTRY} --output tsv)
+        # repos=$(az acr repository list --name ${SRC_REGISTRY} --output tsv)
+        repos="test-hello-world"
 
         for repo in ${repos}; do
           echo "##[debug] Importing ${SRC_REGISTRY}/${repo}:${SELECT_IMAGE_TAG} to ${DEST_REGISTRY}/${repo}:${ADD_IMAGE_TAG}..."

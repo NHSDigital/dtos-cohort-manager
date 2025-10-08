@@ -38,15 +38,15 @@ steps:
           cmdopt_reg="--registry ${source_registry_id}" # needed when the source registry is in a different subscription
           echo "##[debug] Authenticating with container registry ${DEST_REGISTRY}..."
           az acr login --name ${DEST_REGISTRY}
-          # az acr check-health --name ${DEST_REGISTRY} --yes
         fi
 
         [[ "${DEST_REGISTRY}" =~ dev ]] && az account set -s ${TF_VAR_HUB_SUBSCRIPTION_ID}
-        repos=$(az acr repository list --name ${SRC_REGISTRY} --output tsv)
+        #repos=$(az acr repository list --name ${SRC_REGISTRY} --output tsv)
+        repos="test-hello-world"
 
         for repo in ${repos}; do
           # Check if the specific tag exists for the repository
-          tag_exists=$(az acr repository show-tags --name ${SRC_REGISTRY} --repository $repo --query "[?contains(@, '${SELECT_IMAGE_TAG}')]" --output tsv)
+          # tag_exists=$(az acr repository show-tags --name ${SRC_REGISTRY} --repository $repo --query "[?contains(@, '${SELECT_IMAGE_TAG}')]" --output tsv)
 
           if [[ -n "$tag_exists" ]]; then
             echo "##[debug] Importing ${SRC_REGISTRY}/${repo}:${SELECT_IMAGE_TAG} to ${DEST_REGISTRY}/${repo}:${ADD_IMAGE_TAG}..."
