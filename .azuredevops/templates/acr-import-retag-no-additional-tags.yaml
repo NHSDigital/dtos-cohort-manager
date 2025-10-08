@@ -50,7 +50,7 @@ steps:
 
           if [[ -n "$tag_exists" ]]; then
             echo "##[debug] Importing ${SRC_REGISTRY}/${repo}:${SELECT_IMAGE_TAG} to ${DEST_REGISTRY}/${repo}:${ADD_IMAGE_TAG}..."
-            # az acr import --name ${DEST_REGISTRY} --source ${src_reg_prefix}${repo}:${SELECT_IMAGE_TAG} --image ${repo}:${ADD_IMAGE_TAG} ${cmdopt_reg} --force &
+            az acr import --name ${DEST_REGISTRY} --source ${src_reg_prefix}${repo}:${SELECT_IMAGE_TAG} --image ${repo}:${ADD_IMAGE_TAG} ${cmdopt_reg} --force &
             pids+=($!)
           else
             echo "##[debug] Skipping ${SRC_REGISTRY}/${repo}:${SELECT_IMAGE_TAG} because the tag does not exist."
