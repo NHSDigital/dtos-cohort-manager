@@ -46,7 +46,7 @@ steps:
 
         for repo in ${repos}; do
           # Check if the specific tag exists for the repository
-          # tag_exists=$(az acr repository show-tags --name ${SRC_REGISTRY} --repository $repo --query "[?contains(@, '${SELECT_IMAGE_TAG}')]" --output tsv)
+          tag_exists=$(az acr repository show-tags --name ${SRC_REGISTRY} --repository $repo --query "[?contains(@, '${SELECT_IMAGE_TAG}')]" --output tsv)
 
           if [[ -n "$tag_exists" ]]; then
             echo "##[debug] Importing ${SRC_REGISTRY}/${repo}:${SELECT_IMAGE_TAG} to ${DEST_REGISTRY}/${repo}:${ADD_IMAGE_TAG}..."
