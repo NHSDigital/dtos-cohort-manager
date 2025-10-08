@@ -34,6 +34,7 @@ steps:
           src_reg_prefix="${SRC_REGISTRY}.azurecr.io/" # omitted when the source registry is in a different subscription
         else
           [[ "${SRC_REGISTRY}" =~ dev ]] && cmdopt_sub="--subscription ${TF_VAR_HUB_SUBSCRIPTION_ID}"
+          echo "##[debug] In Else: SRC_REGISTRY: ${SRC_REGISTRY} DEST_REGISTRY: ${DEST_REGISTRY}..."
           source_registry_id=$(az acr show --name ${SRC_REGISTRY} ${cmdopt_sub} --query id --output tsv)
           cmdopt_reg="--registry ${source_registry_id}" # needed when the source registry is in a different subscription
           echo "##[debug] Authenticating with container registry ${DEST_REGISTRY}..."
