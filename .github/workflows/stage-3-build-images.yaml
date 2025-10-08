@@ -29,6 +29,19 @@ on:
         required: false
         type: boolean
         default: false
+      app_dir:
+        description: Directory containing application code and compose files
+        required: true
+        type: string
+      snapshot_test_dir:
+        description: Directory containing the snapshot tests
+        required: true
+        type: string
+      gh_registry:
+        description: GitHub registry to push images for Snapshot Testing
+        required: true
+        type: string
+        default: ghcr.io
 
 jobs:
   get-functions:
@@ -69,6 +82,7 @@ jobs:
       id-token: write
       contents: read
       pull-requests: read
+      packages: write
     needs: get-functions
     strategy:
       matrix:
@@ -90,6 +104,13 @@ jobs:
           repository: NHSDigital/dtos-devops-templates
           path: templates
           ref: main
+
+      - name: Log in to the GitHub Container registry
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1
+        with:
+          registry: ${{ inputs.gh_registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Az CLI login
         if: github.ref == 'refs/heads/main'
@@ -135,6 +156,7 @@ jobs:
         env:
           COMPOSE_FILE: ${{ inputs.docker_compose_file }}
           PROJECT_NAME: ${{ inputs.project_name }}
+          GH_REGISTRY: ${{ inputs.gh_registry }}
         run: |
           function=${{ matrix.function }}
 
@@ -173,6 +195,15 @@ jobs:
             docker push "${repo_name}:${ENVIRONMENT_TAG}"
           fi
 
+          echo Tagging the image for GitHub Registry...
+          GH_IMAGE="${{ inputs.gh_registry }}/${{ github.repository_owner }}/${{ inputs.project_name }}-${{ matrix.function }}:latest"
+          # make it lowercase
+          GH_IMAGE_ID="${GH_IMAGE,,}"
+          docker tag ${PROJECT_NAME}-${function}:latest $GH_IMAGE_ID
+
+          echo Pushing the image into GitHub Registry...
+          docker push $GH_IMAGE_ID
+
           export SBOM_REPOSITORY_REPORT="sbom-${function}-repository-report"
           echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV
           bash -x ${GITHUB_WORKSPACE}/templates/scripts/reports/create-sbom-report.sh
@@ -180,13 +211,13 @@ jobs:
           export VULNERABILITIES_REPOSITORY_REPORT="vulnerabilities-${function}-repository-report"
           echo "VULNERABILITIES_REPOSITORY_REPORT=$VULNERABILITIES_REPOSITORY_REPORT" >> $GITHUB_ENV
 
-          echo "Running the scan-vulnerabilities script in a look with 10 minutes timeout, with 3 retries..."
+          echo "Running the scan-vulnerabilities script in a look with 5 minutes timeout, with 3 retries..."
           retries=3
-          delay=300 # 5 minutes
+          delay=30
           count=0
           until [ $count -ge $retries ]
           do
-            timeout 10m bash -x ${GITHUB_WORKSPACE}/templates/scripts/reports/scan-vulnerabilities.sh && break
+            timeout 5m bash -x ${GITHUB_WORKSPACE}/templates/scripts/reports/scan-vulnerabilities.sh && break
             count=$((count+1))
             echo "Attempt $count/$retries failed, retrying after $delay seconds..."
             sleep $delay
@@ -274,6 +305,119 @@ jobs:
           name: ${{ env.VULNERABILITIES_SUMMARY_LOGFILE }}
           path: ./${{ env.VULNERABILITIES_SUMMARY_LOGFILE }}
           retention-days: 21
+
+  snapshot-tests:
+    name: Snapshot tests
+    runs-on: ubuntu-latest
+    permissions:
+      packages: read
+    needs:
+      - get-functions
+      - build-and-push
+    env:
+      SNAPSHOT_TEST_DIR: ${{ inputs.snapshot_test_dir }}
+      APP_DIR: ${{ inputs.app_dir }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Check runner resources before download
+        run: |
+          echo "--- DISK SPACE ---"
+          df -h
+          echo "--- MEMORY ---"
+          free -h
+
+      - name: Log in to the GitHub Container registry
+        uses: docker/login-action@184bdaa0721073962dff0199f1fb9940f07167d1
+        with:
+          registry: ${{ inputs.gh_registry }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate GHCR override file
+        working-directory: ${{ inputs.app_dir }}
+        env:
+          PROJECT_NAME: ${{ inputs.project_name }}
+        run: |
+
+          echo "Testing the access to get-functions output"
+          echo ${{ needs.get-functions.outputs.FUNC_NAMES }}
+          echo "___________________"
+
+          echo "Generating compose.ghcr.yaml file..."
+          echo "services:" > compose.ghcr.yaml
+          for function in $(echo '${{ needs.get-functions.outputs.FUNC_NAMES }}' | jq -r '.[]'); do
+            # Skipping services we don't need during local testing on the agent
+            if [[ "$function" == "web" || "$function" == "wiremock" ]]; then
+              echo "Skipping ${function}..."
+              continue
+            fi
+            RAW_IMAGE_URL="${{ inputs.gh_registry }}/${{ github.repository_owner }}/${PROJECT_NAME}-${function}:latest"
+            LOWERCASE_IMAGE_URL="${RAW_IMAGE_URL,,}"
+            echo "  ${function}:" >> compose.ghcr.yaml
+            echo "    image: ${LOWERCASE_IMAGE_URL}" >> compose.ghcr.yaml
+            echo "    build: {}" >> compose.ghcr.yaml
+          done
+          echo "--- Generated compose.ghcr.yaml ---"
+          cat compose.ghcr.yaml
+          echo "----------------------------------------"
+
+      - name: Run application using GHCR images
+        working-directory: ${{ inputs.app_dir }}
+        env:
+          PROJECT_NAME: ${{ inputs.project_name }}
+          SNAPSHOT_PASSWORD: ${{ secrets.SNAPSHOT_PASSWORD }}
+          SNAPSHOT_AZURITE_CONNECTION_STRING: ${{ secrets.SNAPSHOT_AZURITE_CONNECTION_STRING }}
+          SNAPSHOT_DB_NAME: ${{ vars.SNAPSHOT_DB_NAME }}
+        run: |
+
+          echo "Creating .env file for Docker Compose..."
+          cat > .env <<EOL
+          PASSWORD=$SNAPSHOT_PASSWORD
+          AZURITE_CONNECTION_STRING=$SNAPSHOT_AZURITE_CONNECTION_STRING
+          DB_NAME=$SNAPSHOT_DB_NAME
+          EOL
+
+          echo "Check the .env file"
+          cat .env
+
+          echo "Build the dependencies needed for local operation..."
+          docker compose -f compose.deps.yaml -p ${PROJECT_NAME} --profile "*" build --no-cache
+
+          # Run docker compose using the base file
+          echo "Run docker compose deps..."
+          docker compose -f compose.deps.yaml up -d --no-build
+          echo "Waiting 10s for the depencies to be accessible..."
+          sleep 10
+
+          echo "Run docker compose app with the GHCR..."
+          docker compose -f compose.data-services.yaml -f compose.core.yaml -f compose.cohort-distribution.yaml -f compose.ghcr.yaml up -d --no-build
+          echo "Waiting 10s for the app to be accessible..."
+          sleep 10
+
+      - name: Check runner resources after starting the application
+        run: |
+          echo "--- DISK SPACE ---"
+          df -h
+          echo "--- MEMORY ---"
+          free -h
+
+      - name: print DB logs
+        run: docker logs db
+
+      - name: check container statuses
+        run: docker ps -a
+
+      - name: Run snapshot tests
+        working-directory: ${{ inputs.snapshot_test_dir }}
+        run: bash run-snapshot-tests.sh
+
+      - name: Teardown application
+        working-directory: ${{ env.APP_DIR }}
+        run: docker compose down && docker compose -f compose.deps.yaml down
 
   aggregate-json:
     runs-on: ubuntu-latest

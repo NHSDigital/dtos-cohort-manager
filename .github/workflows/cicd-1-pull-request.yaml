@@ -13,6 +13,7 @@ permissions:
   contents: read
   id-token: write
   pull-requests: write
+  packages: write
 
 jobs:
   metadata:
@@ -127,11 +128,14 @@ jobs:
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     with:
       docker_compose_file: application/CohortManager/compose.yaml
+      snapshot_test_dir: tests/snapshot-tests
+      app_dir: application/CohortManager
       excluded_containers_csv_list: azurite,azurite-setup,sql-server
       environment_tag: ${{ needs.metadata.outputs.environment_tag }}
       function_app_source_code_path: application/CohortManager/src
       project_name: cohort-manager
       build_all_images: true
+      gh_registry: ghcr.io
     secrets: inherit
   acceptance-stage: # Recommended maximum execution time is 10 minutes
     name: "Acceptance stage"
