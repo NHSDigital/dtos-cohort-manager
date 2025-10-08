@@ -884,6 +884,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        MaxRetryCount=3
       }
     }
 
@@ -1233,9 +1234,8 @@ linux_web_app = {
       app_service_plan_key = "NonScaling"
       env_vars = {
         static = {
-          # TODO: Add CIS details when available
-          AUTH_CIS2_ISSUER_URL = "https://am.nhsidentity.spineservices.nhs.uk:443/openam/oauth2/realms/root/realms/NHSIdentity/realms/Healthcare"
-          AUTH_CIS2_CLIENT_ID  = ""
+          AUTH_CIS2_ISSUER_URL = "https://am.nhsidentity.spineservices.nhs.uk:443"
+          AUTH_CIS2_CLIENT_ID  = "392455101813.apps.national"
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
@@ -1342,7 +1342,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 100
       read_scale           = false
-      sku                  = "S2"
+      sku                  = "S12"
       storage_account_type = "GeoZone"
       zone_redundant       = false
 
