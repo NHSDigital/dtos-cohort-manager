@@ -679,7 +679,7 @@
     "WorkflowName": "Referred",
     "Rules": [
       {
-        "RuleName": "00.UpdateServiceNowData.ReferralWithPrimaryCareProvider",
+        "RuleName": "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",
         "LocalParams": [
           {
             "Name": "IsReferralFlag",
