@@ -84,11 +84,6 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
             }
         );
 
-        if(rowsEffected == 0)
-        {
-            return false;
-        }
-
         return true;
 
     }
