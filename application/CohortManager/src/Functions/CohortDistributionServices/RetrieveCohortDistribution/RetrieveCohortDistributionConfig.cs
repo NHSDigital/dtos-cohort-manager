@@ -6,11 +6,11 @@ public class RetrieveCohortDistributionConfig
 {
 
     [Required]
-    public string ExceptionFunctionURL { get; set; }
+    public required string ExceptionFunctionURL { get; set; }
     [Required]
-    public string CohortDistributionDataServiceURL { get; set; }
+    public required string CohortDistributionDataServiceURL { get; set; }
     [Required]
-    public string BsSelectRequestAuditDataService { get; set; }
+    public required string BsSelectRequestAuditDataService { get; set; }
     public int MaxRowCount { get; set; } = 1_000;
 
 }
