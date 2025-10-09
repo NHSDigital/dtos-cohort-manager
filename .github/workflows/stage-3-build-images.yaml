@@ -190,6 +190,55 @@ jobs:
             docker push "${repo_name}:${ENVIRONMENT_TAG}"
           fi
 
+      - name: Run Grype Scan and Save Full Report
+        uses: anchore/scan-action@v6
+        env:
+          PROJECT_NAME: ${{ inputs.project_name }}
+        id: grype
+        with:
+          image: "${{ env.PROJECT_NAME }}-${{ matrix.function }}:latest"
+          output-format: 'table'
+          output-file: grype-report.txt
+          fail-build: false
+
+      - name: Create Custom Summary Log from Report
+        working-directory: ${{ steps.get-function-names.outputs.DOCKER_COMPOSE_DIR }}
+        if: steps.grype.outcome == 'success'
+        env:
+          PROJECT_NAME: ${{ inputs.project_name }}
+        run: |
+          function=${{ matrix.function }}
+
+          SCAN_RESULTS=$(cat grype-report.txt)
+
+          # ANSI color codes
+          RED="\033[0;31m"
+          RESET="\033[0m"
+
+          # Define your log file
+          VULNERABILITIES_SUMMARY_LOGFILE="${PROJECT_NAME}-${function}-vulnerabilities-summary.txt"
+          echo "VULNERABILITIES_SUMMARY_LOGFILE=$VULNERABILITIES_SUMMARY_LOGFILE" >> $GITHUB_ENV
+
+          # Clear existing log file (or create if it doesn't exist)
+          > "$VULNERABILITIES_SUMMARY_LOGFILE"
+
+          for SEVERITY in CRITICAL HIGH MEDIUM; do
+            {
+              echo ""
+              echo "${PROJECT_NAME}-${function}: vulnerabilities"
+              echo -e "=== ${RED}${SEVERITY}${RESET} Vulnerabilities list ==="
+              # If grep finds nothing, we print a fallback message
+              echo "$SCAN_RESULTS" | grep -i "$SEVERITY" || echo "No $SEVERITY vulnerabilities found."
+            } | tee -a "$VULNERABILITIES_SUMMARY_LOGFILE"
+          done
+
+      - name: Run the SBOM and scan-vulnerabilities script
+        working-directory: ${{ steps.get-function-names.outputs.DOCKER_COMPOSE_DIR }}
+        env:
+          PROJECT_NAME: ${{ inputs.project_name }}
+        run: |
+          function=${{ matrix.function }}
+
           export SBOM_REPOSITORY_REPORT="sbom-${function}-repository-report"
           echo "SBOM_REPOSITORY_REPORT=$SBOM_REPOSITORY_REPORT" >> $GITHUB_ENV
           bash -x ${GITHUB_WORKSPACE}/templates/scripts/reports/create-sbom-report.sh
@@ -214,46 +263,14 @@ jobs:
             exit 1
           fi
 
-          echo "Installing grype using a loop..."
-          retries=5
-          delay=10
-          count=0
-          until [ $count -ge $retries ]
-          do
-            curl -sSfL https://get.anchore.io/grype | sudo sh -s -- -b /usr/local/bin && break
-            count=$((count+1))
-            echo "Retry $count/$retries exited with failure, retrying in $delay seconds..."
-            sleep $delay
-          done
-          if [ $count -eq $retries ]; then
-            echo "Failed to install grype after $retries attempts."
-            exit 1
-          fi
-          echo "grype installation successful"
+      - name: Cleanup the docker images
+        env:
+          PROJECT_NAME: ${{ inputs.project_name }}
+        run: |
+          function=${{ matrix.function }}
+          repo_name="${{ secrets.ACR_NAME }}.azurecr.io/${PROJECT_NAME}-${function}"
 
-          SCAN_RESULTS=$(grype "${PROJECT_NAME}-${function}:latest" --scope all-layers)
-          # ANSI color codes
-          RED="\033[0;31m"
-          RESET="\033[0m"
-
-          # Define your log file
-          VULNERABILITIES_SUMMARY_LOGFILE="${PROJECT_NAME}-${function}-vulnerabilities-summary.txt"
-          echo "VULNERABILITIES_SUMMARY_LOGFILE=$VULNERABILITIES_SUMMARY_LOGFILE" >> $GITHUB_ENV
-
-          # Clear existing log file (or create if it doesn't exist)
-          > "$VULNERABILITIES_SUMMARY_LOGFILE"
-
-          for SEVERITY in CRITICAL HIGH MEDIUM; do
-            {
-              echo ""
-              echo "${PROJECT_NAME}-${function}: vulnerabilities"
-              echo -e "=== ${RED}${SEVERITY}${RESET} Vulnerabilities list ==="
-              # If grep finds nothing, we print a fallback message
-              echo "$SCAN_RESULTS" | grep -i "$SEVERITY" || echo "No $SEVERITY vulnerabilities found."
-            } | tee -a "$VULNERABILITIES_SUMMARY_LOGFILE"
-          done
-
-          # Remove the image
+          # Remove the images
           docker rmi "${repo_name}:${COMMIT_HASH_TAG}"
           docker rmi "${repo_name}:${PR_NUM_TAG}"
           docker rmi "${repo_name}:${ENVIRONMENT_TAG}"
