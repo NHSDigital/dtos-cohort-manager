@@ -15,7 +15,18 @@ on:
         description: Pull request number when used in a pull request
         required: false
         type: string
-  
+
+    secrets:
+      client_id:
+        description: 'The Azure Client ID.'
+        required: true
+      tenant_id:
+        description: 'The Azure Tenant ID.'
+        required: true
+      subscription_id:
+        description: 'The Azure Subscription ID.'
+        required: true
+
   workflow_dispatch:
     inputs:
       environments:
@@ -30,6 +41,17 @@ on:
         description: Pull request number when used in a pull request
         required: false
         type: string
+
+    secrets:
+      client_id:
+        description: 'The Azure Client ID.'
+        required: true
+      tenant_id:
+        description: 'The Azure Tenant ID.'
+        required: true
+      subscription_id:
+        description: 'The Azure Subscription ID.'
+        required: true
 
 jobs:
   deploy:
@@ -51,9 +73,9 @@ jobs:
 
       - uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.client_id }}
+          tenant-id: ${{ secrets.tenant_id }}
+          subscription-id: ${{ secrets.subscription_id }}
 
       - name: Make script executable
         run: chmod +x scripts/bash/wait_ado_pipeline.sh
