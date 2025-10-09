@@ -115,7 +115,9 @@ jobs:
 
       - name: Azure Container Registry login
         if: github.ref == 'refs/heads/main'
-        run: az acr login --name ${{ secrets.acr_name }}
+        env:
+          ACR_NAME: ${{ secrets.acr_name }}
+        run: az acr login --name ${ACR_NAME}
 
       - name: Create Tags
         env:
@@ -149,6 +151,7 @@ jobs:
         env:
           COMPOSE_FILE: ${{ inputs.docker_compose_file }}
           PROJECT_NAME: ${{ inputs.project_name }}
+          ACR_NAME: ${{ secrets.acr_name }}
         run: |
           function=${{ matrix.function }}
 
@@ -162,7 +165,7 @@ jobs:
           # Build the image
           docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --profile "*" build --no-cache --pull ${function}
 
-          repo_name="${{ secrets.acr_name }}.azurecr.io/${PROJECT_NAME}-${function}"
+          repo_name="${ACR_NAME}.azurecr.io/${PROJECT_NAME}-${function}"
           echo $(repo_name)
 
           # Tag the image
