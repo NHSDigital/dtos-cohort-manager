@@ -30,6 +30,20 @@ on:
         type: boolean
         default: false
 
+    secrets:
+      client_id:
+        description: 'The Azure Client ID.'
+        required: true
+      tenant_id:
+        description: 'The Azure Tenant ID.'
+        required: true
+      subscription_id:
+        description: 'The Azure Subscription ID.'
+        required: true
+      acr_name:
+        description: 'The name of the Azure Container Registry.'
+        required: true
+
 jobs:
   get-functions:
     runs-on: ubuntu-latest
@@ -95,13 +109,15 @@ jobs:
         if: github.ref == 'refs/heads/main'
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.client_id }}
+          tenant-id: ${{ secrets.tenant_id }}
+          subscription-id: ${{ secrets.subscription_id }}
 
       - name: Azure Container Registry login
         if: github.ref == 'refs/heads/main'
-        run: az acr login --name ${{ secrets.ACR_NAME }}
+        env:
+          ACR_NAME: ${{ secrets.acr_name }}
+        run: az acr login --name ${ACR_NAME}
 
       - name: Create Tags
         env:
@@ -135,6 +151,7 @@ jobs:
         env:
           COMPOSE_FILE: ${{ inputs.docker_compose_file }}
           PROJECT_NAME: ${{ inputs.project_name }}
+          ACR_NAME: ${{ secrets.acr_name }}
         run: |
           function=${{ matrix.function }}
 
@@ -148,7 +165,7 @@ jobs:
           # Build the image
           docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --profile "*" build --no-cache --pull ${function}
 
-          repo_name="${{ secrets.ACR_NAME }}.azurecr.io/${PROJECT_NAME}-${function}"
+          repo_name="${ACR_NAME}.azurecr.io/${PROJECT_NAME}-${function}"
           echo $(repo_name)
 
           # Tag the image
