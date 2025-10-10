@@ -191,7 +191,7 @@ jobs:
           fi
 
       - name: Run Grype Scan and Save Full Report
-        uses: anchore/scan-action@v6
+        uses: anchore/scan-action@56e320f818c551f3f035fde89894504f269ad30b
         env:
           PROJECT_NAME: ${{ inputs.project_name }}
         id: grype
