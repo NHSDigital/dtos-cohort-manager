@@ -11,6 +11,7 @@ features = {
   private_service_connection_is_manual = false
   public_network_access_enabled        = false
   frontdoor_endpoint_enabled           = true
+  alerting_enabled                   = true
 }
 
 # these will be merged with compliance tags in locals.tf
@@ -108,6 +109,7 @@ routes = {
 }
 
 app_service_plan = {
+  monitor_action_group_key = "app-performance"
   os_type                  = "Linux"
   vnet_integration_enabled = true
 
@@ -1257,6 +1259,19 @@ linux_web_app = {
 }
 
 linux_web_app_slots = []
+
+monitor_action_groups = {
+  app-performance = {
+    short_name = "App Perf"
+    email_receiver = {
+      dev-team = {
+        name                    = "Dev Team"
+        email_address           = "england.cohortmanager@nhs.net"
+        use_common_alert_schema = true
+      }
+    }
+  }
+}
 
 frontdoor_endpoint = {
   cohort = {

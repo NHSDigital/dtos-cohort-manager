@@ -109,6 +109,7 @@ variable "regions" {
 variable "app_service_plan" {
   description = "Configuration for the app service plan"
   type = object({
+    monitor_action_group_key = optional(string, null)
     os_type                  = optional(string, "Linux")
     vnet_integration_enabled = optional(bool, false)
     zone_balancing_enabled   = optional(bool, false)
@@ -175,7 +176,7 @@ variable "container_app_environments" {
   type = object({
     instances = optional(map(object({
       infrastructure_resource_group_name = optional(string)
-      workload_profile                   = optional(object({
+      workload_profile = optional(object({
         name                  = optional(string)
         workload_profile_type = optional(string)
         minimum_count         = optional(number, 0)
@@ -416,6 +417,41 @@ variable "linux_web_app_slots" {
     linux_web_app_slots_enabled = optional(bool, false)
   }))
   default = []
+}
+
+variable "monitor_action_groups" {
+  description = "Default configuration for the monitor action groups."
+  type = map(object({
+    short_name = string
+    email_receiver = optional(map(object({
+      name                    = string
+      email_address           = string
+      use_common_alert_schema = optional(bool, false)
+    })))
+    event_hub_receiver = optional(map(object({
+      name                    = string
+      event_hub_namespace     = string
+      event_hub_name          = string
+      subscription_id         = string
+      use_common_alert_schema = optional(bool, false)
+    })))
+    sms_receiver = optional(map(object({
+      name         = string
+      country_code = string
+      phone_number = string
+    })))
+    voice_receiver = optional(map(object({
+      name         = string
+      country_code = string
+      phone_number = string
+    })))
+    webhook_receiver = optional(map(object({
+      name                    = string
+      service_uri             = string
+      use_common_alert_schema = optional(bool, false)
+    })))
+  }))
+  default = {}
 }
 
 variable "network_security_group_rules" {
