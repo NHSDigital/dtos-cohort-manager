@@ -74,6 +74,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
                 rowsEffected =  await _context.SaveChangesAsync();
                 if(rowsEffected > 1)
                 {
+                    _logger.LogError("Multiple records ({RowsAffected}) were affected during delete operation. Rolling back transaction.", rowsEffected);
                     await transaction.RollbackAsync();
                     return;
 
@@ -82,16 +83,6 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
                 await transaction.CommitAsync();
             }
         );
-
-        if(rowsEffected > 1)
-        {
-            _logger.LogError("There was an error while trying to deleted despite a record being found");
-            throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
-        }
-        else if(rowsEffected == 0)
-        {
-            return false;
-        }
 
         return true;
 
