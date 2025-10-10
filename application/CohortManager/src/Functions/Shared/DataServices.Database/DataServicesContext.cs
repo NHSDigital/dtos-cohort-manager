@@ -44,11 +44,13 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<ParticipantManagement>()
             .ToTable("PARTICIPANT_MANAGEMENT", "dbo")
-            .HasIndex(i => new { i.NHSNumber, i.ScreeningId }, "ix_PARTICIPANT_MANAGEMENT_screening_nhs");
+            .HasIndex(i => new { i.NHSNumber, i.ScreeningId }, "ix_PARTICIPANT_MANAGEMENT_screening_nhs")
+            .IsUnique();
 
         modelBuilder.Entity<ParticipantDemographic>()
             .ToTable("PARTICIPANT_DEMOGRAPHIC", "dbo")
-            .HasIndex(i => new { i.NhsNumber }, "Index_PARTICIPANT_DEMOGRAPHIC_NhsNumber");
+            .HasIndex(i => new { i.NhsNumber }, "Index_PARTICIPANT_DEMOGRAPHIC_NhsNumber")
+            .IsUnique();
 
         modelBuilder.Entity<GeneCodeLkp>()
             .ToTable("GENE_CODE_LKP", "dbo");

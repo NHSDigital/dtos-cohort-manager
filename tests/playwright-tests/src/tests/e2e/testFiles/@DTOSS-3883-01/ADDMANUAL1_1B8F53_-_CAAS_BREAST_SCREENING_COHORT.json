@@ -62,7 +62,7 @@
       "meta": {
         "testJiraId": "@DTOSS-3883-05",
         "requirementJiraId": "@DTOSS-3883-05",
-        "additionalTags": "@DTOSS-3883-06 @e2e @epic4c- Verify exception is raised when record fails to meet validation rules 2, Verify Participant exists in Participant Management"
+        "additionalTags": "@DTOSS-3883-05 @e2e @epic4c- Verify exception is raised when record fails to meet validation rules 2, Verify Participant exists in Participant Management"
       }
     },
     {
@@ -93,7 +93,7 @@
   ],
   "inputParticipantRecord": [
     {
-      "number": "CS0573848",
+      "number": "CS388301",
       "u_case_variable_data": {
         "nhs_number": "9998380197",
         "forename_": "Jane",
@@ -105,7 +105,7 @@
       }
     },
     {
-      "number": "CS0573848",
+      "number": "CS388302",
       "u_case_variable_data": {
         "nhs_number": "9992039310",
         "forename_": "Anne",
@@ -117,7 +117,7 @@
       }
     },
     {
-      "number": "CS0573848",
+      "number": "CS388303",
       "u_case_variable_data": {
         "nhs_number": "9990237166",
         "forename_": "Jane",

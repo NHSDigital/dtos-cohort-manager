@@ -3,14 +3,12 @@ namespace NHS.Screening.ReceiveCaasFile;
 using System.Text.Json;
 using Common;
 using Common.Interfaces;
-using Data.Database;
 using DataServices.Client;
-using Hl7.Fhir.Rest;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Protocols.Configuration;
 using Model;
 using Model.Enums;
+using NHS.CohortManager.Shared.Utilities;
 
 public class ProcessCaasFile : IProcessCaasFile
 {
@@ -121,13 +119,12 @@ public class ProcessCaasFile : IProcessCaasFile
         {
 
             case Actions.New:
-                var DemographicRecordUpdated = await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
+
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
-                if (DemographicRecordUpdated)
+                if (await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
                 {
                     break;
                 }
-
                 currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 break;
             case Actions.Amended:
@@ -140,6 +137,10 @@ public class ProcessCaasFile : IProcessCaasFile
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Removed:
+                if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
+                {
+                    currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                }
                 currentBatch.DeleteRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             default:
@@ -182,8 +183,12 @@ public class ProcessCaasFile : IProcessCaasFile
                 return false;
             }
 
+            basicParticipantCsvRecord.Participant.RecordInsertDateTime = participant.RecordInsertDateTime?.ToString("yyyy-MM-dd HH:mm:ss");
             var participantForUpdate = basicParticipantCsvRecord.Participant.ToParticipantDemographic();
+
+            participantForUpdate.RecordUpdateDateTime = DateTime.UtcNow;
             participantForUpdate.ParticipantId = participant.ParticipantId;
+
 
             var updated = await _participantDemographic.Update(participantForUpdate);
             if (updated)

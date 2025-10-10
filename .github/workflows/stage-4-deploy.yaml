@@ -15,7 +15,18 @@ on:
         description: Pull request number when used in a pull request
         required: false
         type: string
-  
+
+    secrets:
+      client_id:
+        description: 'The Azure Client ID.'
+        required: true
+      tenant_id:
+        description: 'The Azure Tenant ID.'
+        required: true
+      subscription_id:
+        description: 'The Azure Subscription ID.'
+        required: true
+
   workflow_dispatch:
     inputs:
       environments:
@@ -30,6 +41,17 @@ on:
         description: Pull request number when used in a pull request
         required: false
         type: string
+
+    secrets:
+      client_id:
+        description: 'The Azure Client ID.'
+        required: true
+      tenant_id:
+        description: 'The Azure Tenant ID.'
+        required: true
+      subscription_id:
+        description: 'The Azure Subscription ID.'
+        required: true
 
 jobs:
   deploy:
@@ -51,15 +73,20 @@ jobs:
 
       - uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
         with:
-          client-id: ${{ secrets.AZURE_CLIENT_ID }}
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+          client-id: ${{ secrets.client_id }}
+          tenant-id: ${{ secrets.tenant_id }}
+          subscription-id: ${{ secrets.subscription_id }}
 
       - name: Make script executable
         run: chmod +x scripts/bash/wait_ado_pipeline.sh
 
       - name: Call deployment pipeline
+        shell: bash
+        env:
+          COMMIT_SHA: ${{ inputs.commit_sha }}
+          ENVIRONMENT_NAME: ${{ matrix.environment }}
         run: |
+          set -euo pipefail
           # Define common variables
           organisation='https://dev.azure.com/nhse-dtos'
           project_name='dtos-cohort-manager'
@@ -74,16 +101,20 @@ jobs:
             ["production"]=""
           )
 
-          git_short_sha=$(git rev-parse --short ${{inputs.commit_sha}})
-          parameters="dockerImageTag=${git_short_sha} testTypes=[${test_types[${{ matrix.environment }}]}]"
+          # Derive the short SHA from the provided commit
+          git_short_sha=$(git rev-parse --short "$COMMIT_SHA")
 
-          echo "Starting Azure devops pipeline \"Deploy to Azure - Core ${{ matrix.environment }}\"..."
+          # Prepare parameters as separate key=value tokens
+          param_image="dockerImageTag=${git_short_sha}"
+          param_tests="testTypes=[${test_types[$ENVIRONMENT_NAME]}]"
+
+          echo "Starting Azure devops pipeline \"Deploy to Azure - Core ${ENVIRONMENT_NAME}\"..."
           RUN_ID=$(az pipelines run \
-            --commit-id ${{inputs.commit_sha}} \
-            --name "Deploy to Azure - Core ${{ matrix.environment }}" \
+            --commit-id "$COMMIT_SHA" \
+            --name "Deploy to Azure - Core ${ENVIRONMENT_NAME}" \
             --org "${organisation}" \
             --project "${project_name}" \
-            --parameters $parameters \
+            --parameters "$param_image" "$param_tests" \
             --output tsv --query id)
 
           echo "Click here to view the ADO pipeline: ${organisation}/${project_name}/_build/results?buildId=${RUN_ID}"

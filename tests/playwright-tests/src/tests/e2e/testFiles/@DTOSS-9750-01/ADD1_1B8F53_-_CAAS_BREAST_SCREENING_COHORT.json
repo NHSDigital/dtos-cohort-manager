@@ -88,8 +88,8 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997111591",
-        "RuleDescription": "Object reference not set to an instance of an object.",
-        "RuleId": -2147467261
+        "RuleDescription": "Participant contains illegal characters",
+        "RuleId": -2147024809
       },
       "meta": {
         "testJiraId": "DTOSS-10063",
@@ -113,8 +113,8 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9997111494",
-        "RuleDescription": "Object reference not set to an instance of an object.",
-        "RuleId": -2147467261
+        "RuleDescription": "Participant contains illegal characters",
+        "RuleId": -2147024809
       },
       "meta": {
         "testJiraId": "DTOSS-10063",
@@ -138,8 +138,8 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9996735168",
-        "RuleDescription": "Object reference not set to an instance of an object.",
-        "RuleId": -2147467261
+        "RuleDescription": "Participant contains illegal characters",
+        "RuleId": -2147024809
       },
       "meta": {
         "testJiraId": "DTOSS-10063",
@@ -163,8 +163,8 @@
       "validations": {
         "apiEndpoint": "api/ExceptionManagementDataService",
         "NhsNumber": "9996689301",
-        "RuleDescription": "Object reference not set to an instance of an object.",
-        "RuleId": -2147467261
+        "RuleDescription": "Participant contains illegal characters",
+        "RuleId": -2147024809
       },
       "meta": {
         "testJiraId": "DTOSS-10063",

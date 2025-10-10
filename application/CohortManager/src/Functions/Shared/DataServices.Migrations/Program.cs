@@ -164,7 +164,7 @@ public class Program
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"Error extracting data for {typeof(T).Name}: {ex.Message}");
+            await Console.Error.WriteLineAsync($"Error extracting data for {typeof(T).Name}: {ex.Message}");
             return false;
         }
     }
