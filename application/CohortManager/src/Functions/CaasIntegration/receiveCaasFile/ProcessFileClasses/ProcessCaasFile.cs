@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
-using NHS.CohortManager.Shared.Utilities;
 
 public class ProcessCaasFile : IProcessCaasFile
 {
