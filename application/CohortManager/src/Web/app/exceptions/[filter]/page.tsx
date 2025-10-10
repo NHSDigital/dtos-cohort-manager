@@ -42,7 +42,7 @@ export default async function Page({
   const sortBy = resolvedSearchParams.sortBy === "0" ? 0 : 1;
   const currentPage = Math.max(
     1,
-    parseInt(resolvedSearchParams.page || "1", 10)
+    Number.parseInt(resolvedSearchParams.page || "1", 10)
   );
 
   const sortOptions = [

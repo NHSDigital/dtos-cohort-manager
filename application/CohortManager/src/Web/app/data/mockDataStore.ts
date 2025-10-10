@@ -66,8 +66,13 @@ const initializeDataStore = () => {
       }
     };
 
-    store.raisedExceptions.forEach(updateListItem);
-    store.notRaisedExceptions.forEach(updateListItem);
+    for (const item of store.raisedExceptions) {
+      updateListItem(item);
+    }
+
+    for (const item of store.notRaisedExceptions) {
+      updateListItem(item);
+    }
   };
 
   // 3001: category 12 (raised) – keep original times but set to today
