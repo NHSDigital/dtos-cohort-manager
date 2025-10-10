@@ -266,9 +266,10 @@ jobs:
       - name: Cleanup the docker images
         env:
           PROJECT_NAME: ${{ inputs.project_name }}
+          ACR_NAME: ${{ secrets.acr_name }}
         run: |
           function=${{ matrix.function }}
-          repo_name="${{ secrets.ACR_NAME }}.azurecr.io/${PROJECT_NAME}-${function}"
+          repo_name="${ACR_NAME}.azurecr.io/${PROJECT_NAME}-${function}"
 
           # Remove the images
           docker rmi "${repo_name}:${COMMIT_HASH_TAG}"
