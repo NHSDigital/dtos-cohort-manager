@@ -65,3 +65,17 @@ data "azurerm_user_assigned_identity" "acr_mi" {
   name                = var.function_apps.acr_mi_name
   resource_group_name = var.function_apps.acr_rg_name
 }
+
+data "azurerm_key_vault" "infra" {
+  for_each = var.key_vault != {} ? var.regions : {}
+
+  name                = module.regions_config[each.key].names.key-vault
+  resource_group_name = azurerm_resource_group.core[each.key].name
+}
+
+data "azurerm_key_vault_secret" "infra" {
+  for_each = var.key_vault != {} ? var.regions : {}
+
+  name         = "monitoring-email-address"
+  key_vault_id = data.azurerm_key_vault.infra[each.key].id
+}

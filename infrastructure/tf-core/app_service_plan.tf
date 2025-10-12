@@ -28,16 +28,20 @@ module "app-service-plan" {
   resource_group_name = azurerm_resource_group.core[each.value.region].name
   location            = each.value.region
 
+  enable_alerting                                   = var.features.alerts_enabled
+  action_group_id                                   = var.features.alerts_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
   log_analytics_workspace_id                        = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_appserviceplan_metrics = local.monitor_diagnostic_setting_appserviceplan_metrics
-  os_type                                           = lookup(each.value, "os_type", var.app_service_plan.os_type)
-  sku_name                                          = each.value.sku_name
-  zone_balancing_enabled                            = lookup(each.value, "zone_balancing_enabled", var.app_service_plan.zone_balancing_enabled)
-  vnet_integration_subnet_id                        = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
-  wildcard_ssl_cert_name                            = each.value.wildcard_ssl_cert_key
-  wildcard_ssl_cert_pfx_blob_key_vault_secret_name  = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.certificates[each.value.wildcard_ssl_cert_key].key_vault_certificate[each.value.region].pfx_blob_secret_name : null
-  wildcard_ssl_cert_pfx_password                    = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.certificates[each.value.wildcard_ssl_cert_key].key_vault_certificate[each.value.region].pfx_password : null
-  wildcard_ssl_cert_key_vault_id                    = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.key_vault[each.value.region].key_vault_id : null
+  resource_group_name_monitoring                    = var.features.alerts_enabled ? azurerm_resource_group.monitoring.name : null
+
+  os_type                                          = lookup(each.value, "os_type", var.app_service_plan.os_type)
+  sku_name                                         = each.value.sku_name
+  zone_balancing_enabled                           = lookup(each.value, "zone_balancing_enabled", var.app_service_plan.zone_balancing_enabled)
+  vnet_integration_subnet_id                       = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
+  wildcard_ssl_cert_name                           = each.value.wildcard_ssl_cert_key
+  wildcard_ssl_cert_pfx_blob_key_vault_secret_name = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.certificates[each.value.wildcard_ssl_cert_key].key_vault_certificate[each.value.region].pfx_blob_secret_name : null
+  wildcard_ssl_cert_pfx_password                   = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.certificates[each.value.wildcard_ssl_cert_key].key_vault_certificate[each.value.region].pfx_password : null
+  wildcard_ssl_cert_key_vault_id                   = each.value.wildcard_ssl_cert_key != null ? data.terraform_remote_state.hub.outputs.key_vault[each.value.region].key_vault_id : null
 
   tags = var.tags
 
