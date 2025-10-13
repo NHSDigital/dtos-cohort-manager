@@ -10,6 +10,7 @@ features = {
   private_service_connection_is_manual = false
   public_network_access_enabled        = false
   frontdoor_endpoint_enabled           = false
+  alerts_enabled                       = true
 }
 
 # these will be merged with compliance tags in locals.tf
@@ -339,6 +340,7 @@ function_apps = {
       name_suffix                  = "receive-caas-file"
       function_endpoint_name       = "ReceiveCaasFile"
       app_service_plan_key         = "NonScaling"
+      producer_to_service_bus      = ["dtoss-nsp"]
       db_connection_string         = "DtOsDatabaseConnectionString"
       service_bus_connections      = ["internal"]
       storage_account_env_var_name = "caasfolder_STORAGE"
@@ -427,7 +429,7 @@ function_apps = {
           env_var_name     = "RetrievePdsDemographicURL"
           function_app_key = "RetrievePDSDemographic"
         },
-         {
+        {
           env_var_name     = "ManageNemsSubscriptionUnsubscribeURL"
           function_app_key = "ManageNemsSubscription"
           endpoint_name    = "Unsubscribe"
@@ -549,24 +551,6 @@ function_apps = {
         {
           env_var_name     = "RetrievePdsDemographicURL"
           function_app_key = "RetrievePDSDemographic"
-        }
-      ]
-    }
-
-    ManageCaasSubscription = {
-      name_suffix            = "manage-caas-subscription"
-      function_endpoint_name = "ManageCaasSubscription"
-      app_service_plan_key   = "NonScaling"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      key_vault_url          = "KeyVaultConnectionString"
-      env_vars_static = {
-        IsStubbed                         = "false"
-        BypassServerCertificateValidation = "true"
-      }
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
         }
       ]
     }
@@ -1143,6 +1127,24 @@ function_apps = {
         NemsSubscriptionCriteria              = "https://fhir.nhs.uk/Id/nhs-number"
         NemsBypassServerCertificateValidation = "true"
       }
+    }
+
+    ManageCaasSubscription = {
+      name_suffix            = "manage-caas-subscription"
+      function_endpoint_name = "ManageCaasSubscription"
+      app_service_plan_key   = "NonScaling"
+      db_connection_string   = "DtOsDatabaseConnectionString"
+      key_vault_url          = "KeyVaultConnectionString"
+      env_vars_static = {
+        IsStubbed                         = "false"
+        BypassServerCertificateValidation = "true"
+      }
+      app_urls = [
+        {
+          env_var_name     = "ExceptionFunctionURL"
+          function_app_key = "CreateException"
+        }
+      ]
     }
 
     ReferenceDataService = {
