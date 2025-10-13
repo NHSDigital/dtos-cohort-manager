@@ -186,7 +186,7 @@ export default function ParticipantInformationPanel({
             </div>
             {!exceptionDetails.serviceNowId && (
               <div className="nhsuk-summary-list__row">
-                <dt className="nhsuk-summary-list__key">ServiceNow ID</dt>
+                <dt className="nhsuk-summary-list__key">Exception status</dt>
                 <dd className="nhsuk-summary-list__value">
                   <strong className="nhsuk-tag nhsuk-tag--grey">
                     Not raised
