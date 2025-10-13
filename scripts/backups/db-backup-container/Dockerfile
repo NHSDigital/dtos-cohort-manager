@@ -2,22 +2,22 @@
 FROM mcr.microsoft.com/powershell:latest
 
 # Create a non-root user and group
-RUN groupadd -r appgroup && useradd -r -g appgroup appuser \
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 # Update package lists and install required tools.
 # 'lsb-release' is added to fix the 'lsb_release: not found' error.
-&& apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    wget \
+    unzip \
     gnupg \
     lsb-release \
-    unzip \
-    wget \
-    && rm -rf /var/lib/apt/lists/* \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install the Az PowerShell module for Azure authentication.
-&& pwsh -Command "Install-Module -Name Az.Accounts -RequiredVersion 2.12.0 -Force -Scope AllUsers"
+RUN pwsh -Command "Install-Module -Name Az.Accounts -RequiredVersion 2.12.0 -Force -Scope AllUsers"
 
 # Install SqlPackage by downloading the binary.
-ADD -O sqlpackage.zip https://aka.ms/sqlpackage-linux \
+RUN wget -O sqlpackage.zip https://aka.ms/sqlpackage-linux \
     && mkdir /opt/sqlpackage \
     && unzip sqlpackage.zip -d /opt/sqlpackage \
     && rm sqlpackage.zip \
