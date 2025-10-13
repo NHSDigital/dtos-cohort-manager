@@ -37,7 +37,7 @@ class BearerTokenService : IBearerTokenService
         {
             return "";
         }
-
+        //set time span to 10 seconds
         var expires = new TimeSpan(0, 10, 0);
         var cacheEntryOptions = new MemoryCacheEntryOptions().SetAbsoluteExpiration(expires);
         _memoryCache.Set(AccessTokenCacheKey, bearerToken, cacheEntryOptions);
