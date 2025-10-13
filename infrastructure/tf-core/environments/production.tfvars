@@ -57,6 +57,13 @@ regions = {
         service_delegation_name    = "Microsoft.App/environments"
         service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/join/action"]
       }
+      power-bi= {
+        cidr_newbits               = 8
+        cidr_offset                = 6
+        delegation_name            = "Microsoft.PowerPlatform/vnetaccesslinks"
+        service_delegation_name    = "Microsoft.PowerPlatform/vnetaccesslinks"
+        service_delegation_actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+      }
     }
   }
 }
