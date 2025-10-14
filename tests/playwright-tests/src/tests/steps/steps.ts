@@ -40,17 +40,6 @@ function resolveScenarioFolder(raw: string): string {
   return firstToken || raw;
 }
 
-function getWireMockUrl(): string {
-  const wireMockUrl = config.wireMockUrl;
-
-  if (wireMockUrl.length === 0)
-  {
-    throw new Error(`❌ WIREMOCK_URL environment variable is empty`);
-  }
-
-  return wireMockUrl;
-}
-
 function getWireMockAdmin(base?: string): { admin: string; requests: string; mappings: string } {
   // Use shared WIREMOCK_URL for both ServiceNow and Mesh
   const raw = (base ?? config.wireMockUrl).trim();
@@ -267,12 +256,12 @@ export async function getWireMockMappingsJson(request: APIRequestContext): Promi
 }
 
 export async function validateServiceNowRequestWithMockServer(request: APIRequestContext, validations: ServiceNowRequestValidations[]) {
-  const wireMockUrl = getWireMockUrl();
+  const { requests: wireMockRequestsUrl } = getWireMockAdmin();;
 
   // Wait for 5 seconds
   await new Promise((resolve) => setTimeout(resolve, 5000));
 
-  var response = await request.get(wireMockUrl);
+  var response = await request.get(wireMockRequestsUrl);
   var body = await response.json() as WireMockResponse;
 
   return test.step(`Validate ServiceNow Requests with WireMock`, async () => {
