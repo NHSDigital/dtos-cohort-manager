@@ -42,7 +42,7 @@ stages:
         SELECT_IMAGE_TAG: ${{ parameters.retagImagesFrom }}
         ADD_IMAGE_TAG: ${{ parameters.retagImagesTo }}
       steps:
-        - template: .azuredevops/templates/steps/acr-import-retag-no-additional-tags.yaml@dtos-devops-templates
+        - template: .azuredevops/templates/steps/acr-import-retag-verbose.yaml@dtos-devops-templates
           parameters:
             serviceConnection: ${{ parameters.serviceConnection }}
 
