@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/powershell:latest
 # Create a non-root user and group
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
-# Update package lists and install unzip.
+# Update package lists, install unzip, and clean up to reduce image size.
 RUN apt-get update && apt-get --no-install-recommends install -y unzip && rm -rf /var/lib/apt/lists/*
 
 # Install the Az PowerShell module for Azure authentication
