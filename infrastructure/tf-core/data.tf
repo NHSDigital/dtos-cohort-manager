@@ -73,8 +73,8 @@ data "azurerm_key_vault" "infra" {
   resource_group_name = azurerm_resource_group.core[each.key].name
 }
 
-data "azurerm_key_vault_secret" "infra" {
-  for_each = var.key_vault != {} ? var.regions : {}
+data "azurerm_key_vault_secret" "monitoring_email_address" {
+  for_each = var.features.alerts_enabled && var.key_vault != {} ? var.regions : {}
 
   name         = "monitoring-email-address"
   key_vault_id = data.azurerm_key_vault.infra[each.key].id
