@@ -1,0 +1,180 @@
+
+parameters:
+  - name: manualOverride
+    type: string
+  - name: Sku_Peak
+    type: string
+  - name: Sku_OffPeak
+    type: string
+
+stages:
+  - stage: ScaleDatabase
+    variables:
+      - name: manualOverride
+        value: ${{ parameters.manualOverride }}
+    jobs:
+      - job: SetVariablesJob
+        displayName: Set Environment-Specific Variables
+        steps:
+          - task: Bash@3
+            displayName: Set Environment-Specific Variables
+            name: SetVariables
+            inputs:
+              targetType: inline
+              script: |
+                echo "##vso[task.setvariable variable=resourceGroupName;isOutput=true]rg-cohman-$(ENVIRONMENT_SHORT)-uks"
+                echo "##vso[task.setvariable variable=serverName;isOutput=true]sqlsvr-cohman-$(ENVIRONMENT_SHORT)-uks"
+                echo "##vso[task.setvariable variable=databaseName;isOutput=true]DToSDB"
+
+      - job: ScaleUpDatabaseJob
+        displayName: 'Azure CLI - Scale Up'
+        condition: and(succeeded(), or(eq(variables['Build.CronSchedule.DisplayName'], 'Scale_Peak'), eq(variables['manualOverride'], 'Scale_Peak')))
+        dependsOn: SetVariablesJob
+        variables:
+          resourceGroupName: $[ dependencies.SetVariablesJob.outputs['SetVariables.resourceGroupName'] ]
+          serverName: $[ dependencies.SetVariablesJob.outputs['SetVariables.serverName'] ]
+          databaseName: $[ dependencies.SetVariablesJob.outputs['SetVariables.databaseName'] ]
+        steps:
+        - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: $(SERVICE_CONNECTION)
+            subscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+            resourceGroupName: $(resourceGroupName)
+            serverName: $(serverName)
+            databaseName: $(databaseName)
+            sku: ${{ parameters.Sku_Peak }}
+
+      - job: set_scaleup_stage_status
+        displayName: Set ScaleUp Stage Status
+        dependsOn:
+          - ScaleUpDatabaseJob
+        condition: always()
+        variables:
+          ScaleUpDatabaseJob_result: $[ dependencies.ScaleUpDatabaseJob.result ]
+        steps:
+          - bash: |
+              status="failed"
+              # Access the variables that were set at the job level
+              if [[ "$(ScaleUpDatabaseJob_result)" == "Succeeded" || "$(ScaleUpDatabaseJob_result)" == "Skipped" ]]; then
+                status="succeeded"
+              fi
+              echo "The final status of the Scale Up Database stage is: $status"
+              echo "##vso[task.setvariable variable=stage_status;isOutput=true]$status"
+            name: set_scaleup_status
+            displayName: Set ScaleUp Stage Status
+
+      - job: ScaleDownDatabaseJob
+        displayName: 'Azure CLI - Scale Down'
+        condition: and(succeeded(), or(eq(variables['Build.CronSchedule.DisplayName'], 'Scale_OffPeak'), eq(variables['manualOverride'], 'Scale_OffPeak')))
+        dependsOn: SetVariablesJob
+        variables:
+          resourceGroupName: $[ dependencies.SetVariablesJob.outputs['SetVariables.resourceGroupName'] ]
+          serverName: $[ dependencies.SetVariablesJob.outputs['SetVariables.serverName'] ]
+          databaseName: $[ dependencies.SetVariablesJob.outputs['SetVariables.databaseName'] ]
+        steps:
+        - template: .azuredevops/templates/steps/azure_sql_scale.yaml@dtos-devops-templates
+          parameters:
+            serviceConnection: $(SERVICE_CONNECTION)
+            subscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+            resourceGroupName: $(resourceGroupName)
+            serverName: $(serverName)
+            databaseName: $(databaseName)
+            sku: ${{ parameters.Sku_OffPeak }}
+
+      - job: set_scaledown_stage_status
+        displayName: Set ScaleDown Stage Status
+        dependsOn:
+          - ScaleDownDatabaseJob
+        condition: always()
+        variables:
+          # Capture the results of the preceding jobs as variables
+          ScaleDownDatabaseJob_result: $[ dependencies.ScaleDownDatabaseJob.result ]
+        steps:
+          - bash: |
+              status="failed"
+              # Access the variables that were set at the job level
+              if [[ "$(ScaleDownDatabaseJob_result)" == "Succeeded" || "$(ScaleDownDatabaseJob_result)" == "Skipped" ]]; then
+                status="succeeded"
+              fi
+              echo "The final status of the Scale Down Database stage is: $status"
+              echo "##vso[task.setvariable variable=stage_status;isOutput=true]$status"
+            name: set_scaledown_status
+            displayName: Set ScaleDown Stage Status
+
+  - stage: notify_stage
+    displayName: Send Slack Notification
+    dependsOn:
+      - ScaleDatabase
+    condition: always()
+    variables:
+      set_scaleup_stage_status: $[ stageDependencies.ScaleDatabase.set_scaleup_stage_status.outputs['set_scaleup_status.stage_status'] ]
+      set_scaledown_stage_status: $[ stageDependencies.ScaleDatabase.set_scaledown_stage_status.outputs['set_scaledown_status.stage_status'] ]
+      slackWebHook: $(SLACK_WEBHOOK_URL_WORKFLOWS)
+    jobs:
+      - job: set_status_job
+        displayName: Set Status Output
+        steps:
+          - bash: |
+              declare -A stage_statuses=(
+                ["Scale Up"]="$(set_scaleup_stage_status)"
+                ["Scale Down"]="$(set_scaledown_stage_status)"
+              )
+
+              failed_stages=""
+              skipped_stages=""
+              for stage in "${!stage_statuses[@]}"; do
+                status="${stage_statuses[$stage]}"
+                echo "$stage status: $status"
+                if [ "$status" == "" ]; then
+                  if [ -n "$skipped_stages" ]; then
+                    skipped_stages="$skipped_stages, $stage"
+                  else
+                    skipped_stages="$stage"
+                  fi
+                elif [ "$status" != "succeeded" ]; then
+                  if [ -n "$failed_stages" ]; then
+                    failed_stages="$failed_stages, $stage"
+                  else
+                    failed_stages="$stage"
+                  fi
+                fi
+              done
+
+              if [ -z "$failed_stages" ]; then
+                echo "##vso[task.setvariable variable=status;isOutput=true]succeeded"
+              else
+                echo "##vso[task.setvariable variable=status;isOutput=true]failed"
+                echo "##vso[task.setvariable variable=failedStages;isOutput=true]$failed_stages"
+              fi
+              if [ -n "$skipped_stages" ]; then
+                echo "##vso[task.setvariable variable=skippedStages;isOutput=true]$skipped_stages"
+              else
+                echo "##vso[task.setvariable variable=skippedStages;isOutput=true]None"
+              fi
+            name: set_status
+            displayName: Set Slack Message Status
+
+      - job: send_message_job
+        displayName: Send Slack Message
+        dependsOn: set_status_job
+        variables:
+          final_status: $[ dependencies.set_status_job.outputs['set_status.status'] ]
+          failed_stages: $[ dependencies.set_status_job.outputs['set_status.failedStages'] ]
+          slackFailureMessage: |
+            *❌ $(ENVIRONMENT_SHORT) Database Scaling _Failed_*
+
+            *Failed Action:* $(failed_stages)
+            *<$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)|View Pipeline Run for details>*
+        steps:
+          - checkout: dtos-devops-templates
+            sparseCheckoutDirectories: scripts
+            path: templates
+          - task: PythonScript@0
+            displayName: 'Send Slack Failure Notification'
+            condition: eq(variables.final_status, 'failed')
+            inputs:
+              scriptSource: 'filePath'
+              scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
+              arguments: >
+                --webhook "$(slackWebHook)"
+                --markdown "$(slackFailureMessage)"
