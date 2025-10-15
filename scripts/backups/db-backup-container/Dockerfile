@@ -9,6 +9,7 @@ RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gnupg \
     lsb-release \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install the Az PowerShell module for Azure authentication.
