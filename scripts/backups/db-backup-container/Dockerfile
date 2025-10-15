@@ -26,7 +26,7 @@ RUN mkdir /opt/sqlpackage \
 # The 'sh -c' command is fixed to correctly interpret 'lsb_release -cs'.
 # We also ensure the apt cache is updated before installing AzCopy.
 # Use curl with security flags to enforce HTTPS and TLS 1.2+ for secure downloads.
-RUN curl --proto "=https" --tlsv1.2 -sSfL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg \
+RUN curl --proto "=https" --tlsv1.2 --tls-max 1.3 -sSfL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg \
     && install -o root -g root -m 644 packages.microsoft.gpg /etc/apt/trusted.gpg.d/ \
     && sh -c "echo 'deb [arch=amd64,arm64,armhf] https://packages.microsoft.com/ubuntu/22.04/prod $(lsb_release -cs) main' > /etc/apt/sources.list.d/microsoft-prod.list" \
     && rm packages.microsoft.gpg \
