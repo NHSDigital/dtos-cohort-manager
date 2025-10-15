@@ -14,6 +14,7 @@ module "functionapp" {
   log_analytics_workspace_id                           = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_function_app_enabled_logs = local.monitor_diagnostic_setting_function_app_enabled_logs
   monitor_diagnostic_setting_function_app_metrics      = local.monitor_diagnostic_setting_function_app_metrics
+  resource_group_name_monitoring                       = var.features.alerts_enabled ? azurerm_resource_group.monitoring.name : null
 
   public_network_access_enabled = var.features.public_network_access_enabled
   vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id
