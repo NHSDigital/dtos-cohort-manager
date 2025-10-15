@@ -5,7 +5,8 @@ FROM mcr.microsoft.com/powershell:latest
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
 # Update package lists, install unzip, and clean up to reduce image size.
-RUN apt-get update && apt-get --no-install-recommends install -y unzip && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get --no-install-recommends install -y unzip
+RUN rm -rf /var/lib/apt/lists/*
 
 # Install the Az PowerShell module for Azure authentication
 RUN pwsh -Command "Install-Module -Name Az.Accounts -RequiredVersion 2.12.0 -Force -Scope AllUsers"
