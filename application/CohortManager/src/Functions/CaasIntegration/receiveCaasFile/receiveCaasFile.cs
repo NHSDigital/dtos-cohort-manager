@@ -57,6 +57,8 @@ public class ReceiveCaasFile
             downloadFilePath = Path.Combine(Path.GetTempPath(), name);
 
             _logger.LogInformation("Downloading file from the blob, file: {Name}.", name);
+            
+            // In order to use the parquet file we need to download it 
             await using (var fileStream = File.Create(downloadFilePath))
             {
                 await blobStream.CopyToAsync(fileStream);
@@ -84,7 +86,7 @@ public class ReceiveCaasFile
                         );
                     }
 
-                    // process each batches
+                    // process each of the batches
                     Task.WaitAll(allTasks.ToArray());
 
                     // dispose of all lists and variables from memory because they are no longer needed
