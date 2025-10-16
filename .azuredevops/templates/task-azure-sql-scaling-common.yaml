@@ -115,42 +115,17 @@ stages:
         displayName: Set Status Output
         steps:
           - bash: |
-              declare -A stage_statuses=(
-                ["Scale Up"]="$(set_scaleup_stage_status)"
-                ["Scale Down"]="$(set_scaledown_stage_status)"
+              # Construct the JSON string
+              JSON_INPUT=$(cat <<EOF
+              {
+                "Scale Up": "$(set_scaleup_stage_status)",
+                "Scale Down": "$(set_scaledown_stage_status)"
+              }
+              EOF
               )
 
-              failed_stages=""
-              skipped_stages=""
-              for stage in "${!stage_statuses[@]}"; do
-                status="${stage_statuses[$stage]}"
-                echo "$stage status: $status"
-                if [ "$status" == "" ]; then
-                  if [ -n "$skipped_stages" ]; then
-                    skipped_stages="$skipped_stages, $stage"
-                  else
-                    skipped_stages="$stage"
-                  fi
-                elif [ "$status" != "succeeded" ]; then
-                  if [ -n "$failed_stages" ]; then
-                    failed_stages="$failed_stages, $stage"
-                  else
-                    failed_stages="$stage"
-                  fi
-                fi
-              done
+              bash $(System.DefaultWorkingDirectory)/scripts/bash/ado_set_stage_status.sh "$JSON_INPUT"
 
-              if [ -z "$failed_stages" ]; then
-                echo "##vso[task.setvariable variable=status;isOutput=true]succeeded"
-              else
-                echo "##vso[task.setvariable variable=status;isOutput=true]failed"
-                echo "##vso[task.setvariable variable=failedStages;isOutput=true]$failed_stages"
-              fi
-              if [ -n "$skipped_stages" ]; then
-                echo "##vso[task.setvariable variable=skippedStages;isOutput=true]$skipped_stages"
-              else
-                echo "##vso[task.setvariable variable=skippedStages;isOutput=true]None"
-              fi
             name: set_status
             displayName: Set Slack Message Status
 
