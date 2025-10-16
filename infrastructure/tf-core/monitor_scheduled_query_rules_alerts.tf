@@ -1,5 +1,7 @@
 # Log alert to monitor for CaaS file not being received every 26 hours
 resource "azurerm_monitor_scheduled_query_rules_alert" "caas_file_not_received" {
+  count = var.features.alerts_enabled ? 1 : 0
+  
   name                = "${module.storage["file_exceptions-${local.primary_region}"].storage_account_name}-caas-file-not-received"
   resource_group_name = azurerm_resource_group.monitoring.name
   location            = azurerm_resource_group.monitoring.location
