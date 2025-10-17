@@ -40,7 +40,7 @@ stages:
   pool:
     name: $(hostPoolName)
   jobs:
-    - job: db_changes
+    - job: db_backup
       displayName: Create Database Backup and Upload to Storage Account
       steps:
         - checkout: self
@@ -59,15 +59,15 @@ stages:
       pool:
         name: $(hostPoolName)
       dependsOn:
-        - db_changes
+        - db_backup
       condition: always()
       variables:
-        db_backup_stage_result: $[ dependencies.db_backup_stage.result ]
+        db_backup_result: $[ dependencies.db_backup.result ]
       steps:
           - bash: |
               status="failed"
               # Access the variables that were set at the job level
-              if [[ "$(db_backup_stage_result)" == "Succeeded" || "$(db_backup_stage_result)" == "Skipped" ]]; then
+              if [[ "$(db_backup_result)" == "Succeeded" || "$(db_backup_result)" == "Skipped" ]]; then
                 status="succeeded"
               fi
               echo "The final status of the DB Backup stage is: $status"
@@ -88,41 +88,15 @@ stages:
       displayName: Set Status Output
       steps:
         - bash: |
-            declare -A stage_statuses=(
-              ["DB Backup"]="$(set_db_backup_stage_status)"
+            # Construct the JSON string
+            JSON_INPUT=$(cat <<EOF
+            {
+              "DB Backup": "$(set_db_backup_stage_status)"
+            }
+            EOF
             )
 
-            failed_stages=""
-            skipped_stages=""
-            for stage in "${!stage_statuses[@]}"; do
-              status="${stage_statuses[$stage]}"
-              echo "$stage status: $status"
-              if [ "$status" == "" ]; then
-                if [ -n "$skipped_stages" ]; then
-                  skipped_stages="$skipped_stages, $stage"
-                else
-                  skipped_stages="$stage"
-                fi
-              elif [ "$status" != "succeeded" ]; then
-                if [ -n "$failed_stages" ]; then
-                  failed_stages="$failed_stages, $stage"
-                else
-                  failed_stages="$stage"
-                fi
-              fi
-            done
-
-            if [ -z "$failed_stages" ]; then
-              echo "##vso[task.setvariable variable=status;isOutput=true]succeeded"
-            else
-              echo "##vso[task.setvariable variable=status;isOutput=true]failed"
-              echo "##vso[task.setvariable variable=failedStages;isOutput=true]$failed_stages"
-            fi
-            if [ -n "$skipped_stages" ]; then
-              echo "##vso[task.setvariable variable=skippedStages;isOutput=true]$skipped_stages"
-            else
-              echo "##vso[task.setvariable variable=skippedStages;isOutput=true]None"
-            fi
+            bash $(System.DefaultWorkingDirectory)/scripts/bash/ado_set_stage_status.sh "$JSON_INPUT"
           name: set_status
           displayName: Set Slack Message Status
 
