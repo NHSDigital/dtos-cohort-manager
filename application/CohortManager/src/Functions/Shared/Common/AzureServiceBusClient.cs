@@ -46,7 +46,7 @@ public class AzureServiceBusClient : IQueueClient
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There was an error sending message to service bus queue {queueName} {errorMessage}", queueName, ex.Message);
+            _logger.LogError(ex, "There was an error sending message to service bus queue {QueueName} {ErrorMessage}", queueName, ex.Message);
             return false;
         }
     }
