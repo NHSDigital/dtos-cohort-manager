@@ -225,8 +225,8 @@ public class ManageServiceNowParticipantFunction
 
     private static bool CheckParticipantDataMatches(ServiceNowParticipant serviceNowParticipant, PdsDemographic pdsDemographic)
     {
-        return string.Equals(serviceNowParticipant.FirstName, pdsDemographic.FirstName, StringComparison.OrdinalIgnoreCase) &&
-               string.Equals(serviceNowParticipant.FamilyName, pdsDemographic.FamilyName, StringComparison.OrdinalIgnoreCase) &&
+        return serviceNowParticipant.FirstName == pdsDemographic.FirstName &&
+               serviceNowParticipant.FamilyName == pdsDemographic.FamilyName &&
                serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd") == pdsDemographic.DateOfBirth;
     }
 
