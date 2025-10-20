@@ -48,6 +48,7 @@ public class PdsDemographic : Demographic
             EmailAddressHome = EmailAddress,
             EmailAddressHomeFromDate = MappingUtilities.ParseDates(EmailAddressEffectiveFromDate!)?.ToString("yyyyMMdd"),
             PreferredLanguage = PreferredLanguage,
+            RecordInsertDateTime = DateTime.UtcNow,
             InterpreterRequired = IsInterpreterRequired?.ToLower() switch
             {
                 "true" => 1,
