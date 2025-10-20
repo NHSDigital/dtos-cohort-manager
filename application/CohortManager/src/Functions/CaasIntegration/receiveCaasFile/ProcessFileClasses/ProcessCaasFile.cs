@@ -175,34 +175,28 @@ public class ProcessCaasFile : IProcessCaasFile
                 throw new FormatException("Unable to parse NHS Number");
             }
 
-            var participant = await _participantDemographic.GetSingleByFilter(x => x.NhsNumber == nhsNumber);
+            // Use Upsert instead of separate Get + Update
+            // This handles both insert and update atomically at the database level
+            var participantForUpsert = basicParticipantCsvRecord.Participant.ToParticipantDemographic();
+            participantForUpsert.RecordUpdateDateTime = DateTime.UtcNow;
 
-            if (participant == null)
+            // Note: For new records, RecordInsertDateTime will be set by the database
+            // For existing records, it will be preserved
+            // The ParticipantId will be set automatically by the database for new records
+
+            var upserted = await _participantDemographic.Upsert(participantForUpsert);
+            if (upserted)
             {
-                _logger.LogWarning("The participant could not be found, when trying to update old Participant");
-                return false;
+                _logger.LogInformation("Upsert of Demographic record was successful for NHS Number: {NhsNumber}", nhsNumber);
+                return true;
             }
 
-            basicParticipantCsvRecord.Participant.RecordInsertDateTime = participant.RecordInsertDateTime?.ToString("yyyy-MM-dd HH:mm:ss");
-            var participantForUpdate = basicParticipantCsvRecord.Participant.ToParticipantDemographic();
-
-            participantForUpdate.RecordUpdateDateTime = DateTime.UtcNow;
-            participantForUpdate.ParticipantId = participant.ParticipantId;
-
-
-            var updated = await _participantDemographic.Update(participantForUpdate);
-            if (updated)
-            {
-                _logger.LogInformation("updating old Demographic record was successful");
-                return updated;
-            }
-
-            _logger.LogError("updating old Demographic record was not successful");
-            throw new InvalidOperationException("updating old Demographic record was not successful");
+            _logger.LogError("Upsert of Demographic record was not successful for NHS Number: {NhsNumber}", nhsNumber);
+            throw new InvalidOperationException($"Upsert of Demographic record was not successful for NHS Number: {nhsNumber}");
         }
         catch (Exception ex)
         {
-            var errorDescription = $"Update participant function failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
+            var errorDescription = $"Upsert participant function failed.\nMessage: {ex.Message}\nStack Trace: {ex.StackTrace}";
             _logger.LogError(ex, errorDescription);
             await CreateError(basicParticipantCsvRecord.Participant, name, errorDescription);
         }
