@@ -672,6 +672,42 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "09.AddSeparatorToPostcode",
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode != \"ZZZSECUR\" && !Char.IsWhiteSpace(participant.Postcode, participant.Postcode.Length - 4)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": true,
+                  "field": "Postcode",
+                  "value": "participant.Postcode.Insert(participant.Postcode.Length - 3, \" \")"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "10.TransformZZZSECUR",
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode == \"ZZZSECUR\"",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "Postcode",
+                  "value": "ZZ99 3VZ"
+                }
+              ]
+            }
+          }
+        }
       }
     ]
   },

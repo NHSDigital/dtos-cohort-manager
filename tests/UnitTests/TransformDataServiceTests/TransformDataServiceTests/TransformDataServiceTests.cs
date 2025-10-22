@@ -296,7 +296,6 @@ public class TransformDataServiceTests
             AddressLine3 = new string('A', 36),
             AddressLine4 = new string('A', 36),
             AddressLine5 = new string('A', 36),
-            Postcode = new string('A', 36),
             TelephoneNumber = new string('A', 33),
             MobileNumber = new string('A', 33),
             EmailAddress = new string('A', 91),
@@ -316,7 +315,6 @@ public class TransformDataServiceTests
             AddressLine3 = new string('A', 35),
             AddressLine4 = new string('A', 35),
             AddressLine5 = new string('A', 35),
-            Postcode = new string('A', 35),
             TelephoneNumber = new string('A', 32),
             MobileNumber = new string('A', 32),
             EmailAddress = new string('A', 90),
@@ -329,7 +327,7 @@ public class TransformDataServiceTests
         // Assert
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
-        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>(), null), times: Times.Exactly(13));
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>(), null), times: Times.Exactly(12));
     }
 
     [TestMethod]
@@ -825,6 +823,85 @@ public class TransformDataServiceTests
         var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
 
         Assert.AreEqual(emailAddress, actualResponse?.EmailAddress);
+    }
+
+    [TestMethod]
+    [DataRow("ec1a1bb", "ec1a 1bb")]
+    [DataRow("EC1A1BB", "EC1A 1BB")]
+    [DataRow("M11AE", "M1 1AE")]
+    [DataRow("CR26XH", "CR2 6XH")]
+    // Dummy Postcodes
+    [DataRow("ZZ999FZ", "ZZ99 9FZ")]
+    public async Task Run_PostcodeWithNoSpaceSeparator_TransformPostcode(string postcode, string expectedPostcode)
+    {
+        // Arrange
+        _requestBody.Participant.Postcode = postcode;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        Assert.AreEqual(expectedPostcode, actualResponse?.Postcode);
+    }
+
+    [TestMethod]
+    [DataRow("ec1a 1bb")]
+    [DataRow("M1 1AE")]
+    [DataRow("B33 8TH")]
+    [DataRow("")]
+    [DataRow(null)]
+    // Dummy Postcodes
+    [DataRow("ZZ99 9FZ")]
+    public async Task Run_PostcodeHasSpaceSeparator_DoNotTransformPostcode(string postcode)
+    {
+        // Arrange
+        _requestBody.Participant.Postcode = postcode;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(
+                It.IsAny<CohortDistributionParticipant>(),
+                "AddSeparatorToPostcode",
+                It.IsAny<int>(),
+                It.IsAny<ExceptionCategory?>()),
+            times: Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Run_ZZZSECURPostcode_TransformPostcode()
+    {
+        // Arrange
+        _requestBody.Participant.Postcode = "ZZZSECUR";
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        Assert.AreEqual("ZZ99 3VZ", actualResponse?.Postcode);
     }
 
     private void SetUpRequestBody(string json)
