@@ -13,18 +13,6 @@
             }
           }
         }
-      },
-      {
-        "RuleName": "3.PrimaryCareProviderAndReasonForRemoval.NBO.NonFatal",
-        "Expression": "(string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR (!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval))",
-        "Actions": {
-          "OnFailure": {
-            "Name": "OutputExpression",
-            "Context": {
-              "Expression": "\"GP practice code and Reason for Removal fields contain incompatible values\""
-            }
-          }
-        }
       }
     ]
   },
@@ -99,6 +87,18 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Interpreter required does not contain a valid value\""
+            }
+          }
+        }
+      },
+            {
+        "RuleName": "3.PrimaryCareProviderAndReasonForRemoval.NBO.NonFatal",
+        "Expression": "(string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR (!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval))",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"GP practice code and Reason for Removal fields contain incompatible values\""
             }
           }
         }
