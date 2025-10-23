@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.ParticipantManagementServices;
 
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -177,7 +178,7 @@ public class ManageServiceNowParticipantFunction
             RecordInsertDateTime = DateTime.UtcNow,
             IsHigherRisk = isVhrParticipant ? 1 : null,
             ReasonForRemoval = pdsDemographic.ReasonForRemoval,
-            ReasonForRemovalDate = pdsDemographic.RemovalEffectiveFromDate != null ? DateTime.Parse(pdsDemographic.RemovalEffectiveFromDate) : null
+            ReasonForRemovalDate = ParseRemovalEffectiveFromDateStringToDateTime(pdsDemographic.RemovalEffectiveFromDate)
         };
 
         if (isVhrParticipant)
@@ -197,11 +198,21 @@ public class ManageServiceNowParticipantFunction
         participantManagement.ReferralFlag = 1;
         participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
         participantManagement.ReasonForRemoval = pdsDemographic.ReasonForRemoval;
-        participantManagement.ReasonForRemovalDate = pdsDemographic.RemovalEffectiveFromDate != null ? DateTime.Parse(pdsDemographic.RemovalEffectiveFromDate) : null;
+        participantManagement.ReasonForRemovalDate = ParseRemovalEffectiveFromDateStringToDateTime(pdsDemographic.RemovalEffectiveFromDate);
 
         HandleVhrFlagForExistingParticipant(serviceNowParticipant, participantManagement);
 
         return await _participantManagementClient.Update(participantManagement);
+    }
+
+    private static DateTime? ParseRemovalEffectiveFromDateStringToDateTime(string? removalEffectiveFromDate)
+    {
+        if (removalEffectiveFromDate == null)
+        {
+            return null;
+        }
+
+        return DateTime.ParseExact(removalEffectiveFromDate, "yyyy'-'MM'-'dd'T'HH':'mm':'ssK", CultureInfo.InvariantCulture);
     }
 
     private void HandleVhrFlagForExistingParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantManagement participantManagement)
