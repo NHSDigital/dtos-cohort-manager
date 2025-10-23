@@ -14,7 +14,6 @@ public class ProcessCaasFile : IProcessCaasFile
 {
     private readonly ILogger<ProcessCaasFile> _logger;
     private readonly IReceiveCaasFileHelper _receiveCaasFileHelper;
-    private readonly ICallDurableDemographicFunc _callDurableDemographicFunc;
     private readonly ICreateBasicParticipantData _createBasicParticipantData;
     private readonly IAddBatchToQueue _addBatchToQueue;
     private readonly IExceptionHandler _exceptionHandler;
@@ -22,7 +21,6 @@ public class ProcessCaasFile : IProcessCaasFile
     private readonly IRecordsProcessedTracker _recordsProcessTracker;
     private readonly IValidateDates _validateDates;
     private readonly ReceiveCaasFileConfig _config;
-    private readonly string DemographicURI;
 
 
     public ProcessCaasFile(
@@ -34,7 +32,6 @@ public class ProcessCaasFile : IProcessCaasFile
         IDataServiceClient<ParticipantDemographic> participantDemographic,
         IRecordsProcessedTracker recordsProcessedTracker,
         IValidateDates validateDates,
-        ICallDurableDemographicFunc callDurableDemographicFunc,
         IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig
     )
     {
@@ -46,9 +43,7 @@ public class ProcessCaasFile : IProcessCaasFile
         _participantDemographic = participantDemographic;
         _recordsProcessTracker = recordsProcessedTracker;
         _validateDates = validateDates;
-        _callDurableDemographicFunc = callDurableDemographicFunc;
         _config = receiveCaasFileConfig.Value;
-        DemographicURI = _config.DemographicURI;
     }
 
     /// <summary>
@@ -93,10 +88,7 @@ public class ProcessCaasFile : IProcessCaasFile
             await AddRecordToBatch(participant, currentBatch, name);
         });
 
-        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI, name))
-        {
-            await AddBatchToQueue(currentBatch, name);
-        }
+        await AddBatchToQueue(currentBatch, name);
     }
 
     /// <summary>
@@ -114,40 +106,26 @@ public class ProcessCaasFile : IProcessCaasFile
             FileName = fileName,
             Participant = participant
         };
-        // take note: we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
+
+        // Upsert demographic record immediately (no batching)
+        await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName);
+
+        // Add to Service Bus queues based on record type
         switch (participant.RecordType?.Trim())
         {
-
             case Actions.New:
-
                 currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
-                if (await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
-                {
-                    break;
-                }
-                currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
                 break;
             case Actions.Amended:
-                if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
-                {
-                    currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
-                    currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
-                    break;
-                }
                 currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             case Actions.Removed:
-                if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
-                {
-                    currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
-                }
                 currentBatch.DeleteRecords.Enqueue(basicParticipantCsvRecord);
                 break;
             default:
                 await _exceptionHandler.CreateSchemaValidationException(basicParticipantCsvRecord, "RecordType was not set to an expected value");
                 break;
         }
-
     }
 
     private async Task AddBatchToQueue(Batch currentBatch, string name)

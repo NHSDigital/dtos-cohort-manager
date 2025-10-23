@@ -31,7 +31,6 @@ try
         services.AddScoped<IProcessCaasFile, ProcessCaasFile>(); //Do not change the lifetime of this.
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddScoped<ICheckDemographic, CheckDemographic>();
-        services.AddScoped<ICallDurableDemographicFunc, CallDurableDemographicFunc>();
         services.AddScoped<ICreateBasicParticipantData, CreateBasicParticipantData>();
         services.AddScoped<IAddBatchToQueue, AddBatchToQueue>();
         services.AddScoped<IRecordsProcessedTracker, RecordsProcessedTracker>(); //Do not change the lifetime of this.
