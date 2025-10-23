@@ -154,6 +154,7 @@ services:
     container_name: delete-participant
     image: cohort-manager-delete-participant
     networks: [cohman-network]
+    profiles: [non-essential]
     ports:
     - "7087:7087"
     build:
