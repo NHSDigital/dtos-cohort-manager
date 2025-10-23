@@ -4,6 +4,11 @@
       "validations": {
         "apiEndpoint": "api/ParticipantManagementDataService",
         "NHSNumber": 9996554801
+      },
+      "meta": {
+        "testJiraId": "@DTOSS-WELSH-01",
+        "requirementJiraId": "@DTOSS-WELSH-01",
+        "additionalTags": "@DTOSS-WELSH-01 @e2e @epic4c @epic4c-welsh"
       }
     }
   ],
@@ -14,9 +19,9 @@
       "serial_change_number": null,
       "nhs_number": "9996554801",
       "superseded_by_nhs_number": null,
-      "primary_care_provider": "EX",
+      "primary_care_provider": "W92038",
       "primary_care_effective_from_date": "20130319",
-      "current_posting": "WAL",
+      "current_posting": "ENG",
       "current_posting_effective_from_date": "20130319",
       "name_prefix": "Mr",
       "given_name": "WelshTest",
@@ -33,7 +38,7 @@
       "postcode": "CF10 1AA",
       "paf_key": "W1A1A1A1",
       "address_effective_from_date": null,
-      "reason_for_removal": null,
+      "reason_for_removal": "DEA",
       "reason_for_removal_effective_from_date": null,
       "date_of_death": null,
       "death_status": null,
