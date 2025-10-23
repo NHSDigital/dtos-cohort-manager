@@ -169,13 +169,22 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
                         // Update existing entity - preserve key fields
                         _logger.LogInformation("Updating existing entity in Upsert operation");
 
-                        // Preserve ParticipantId (primary key) from existing record
-                        var keyProperty = typeof(TEntity).GetProperty("ParticipantId");
-                        if (keyProperty != null)
+                        // Preserve primary key(s) from existing record using EF Core metadata
+                        var entityType = _context.Model.FindEntityType(typeof(TEntity));
+                        var keyProperties = entityType?.FindPrimaryKey()?.Properties;
+
+                        if (keyProperties != null)
                         {
-                            var existingKey = keyProperty.GetValue(existingEntity);
-                            keyProperty.SetValue(entity, existingKey);
-                            _logger.LogDebug("Preserved ParticipantId: {ParticipantId}", existingKey);
+                            foreach (var keyProperty in keyProperties)
+                            {
+                                var clrProperty = typeof(TEntity).GetProperty(keyProperty.Name);
+                                if (clrProperty != null)
+                                {
+                                    var existingKey = clrProperty.GetValue(existingEntity);
+                                    clrProperty.SetValue(entity, existingKey);
+                                    _logger.LogDebug("Preserved primary key {KeyName}: {KeyValue}", keyProperty.Name, existingKey);
+                                }
+                            }
                         }
 
                         // Preserve RecordInsertDateTime from existing record to maintain audit trail
