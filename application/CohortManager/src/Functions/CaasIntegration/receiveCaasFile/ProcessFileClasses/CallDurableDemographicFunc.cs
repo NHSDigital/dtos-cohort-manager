@@ -63,12 +63,11 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
 
         try
         {
-            // this seems to be better for memory management
             var content = JsonSerializer.Serialize(participants);
             var response = await _httpClientFunction.SendPost(DemographicFunctionURI, content);
 
             responseContent = response.Headers.Location!.ToString();
-            // this is not retrying the function if it fails but checking if it has done yet.
+            // This is not retrying the function if it fails but checking if it has done yet.
             var retryPolicy = Policy
                 .HandleResult<WorkFlowStatus>(status => status != WorkFlowStatus.Completed && status != WorkFlowStatus.Failed)
                 .WaitAndRetryAsync(_maxNumberOfChecks, check => _delayBetweenChecks,
@@ -92,7 +91,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
                 _logger.LogError("Check limit reached or demographic function failed for a batch of size: {BatchSize} {FinalStatus}", batchSize, finalStatus);
                 await _copyFailedBatchToBlob.writeBatchToBlob(
                     JsonSerializer.Serialize(participants),
-                    new InvalidOperationException("there was an error while adding batch of participants to the demographic table")
+                    new InvalidOperationException("There was an error while adding batch of participants to the demographic table")
                 );
 
                 return false;
@@ -127,6 +126,7 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
     {
         try
         {
+            // We are not calling a function that we have written here we are calling a webhook that is created by the durable demographic function
             using HttpResponseMessage response = await _httpClient.GetAsync(statusRequestGetUri);
             var jsonResponse = await response.Content.ReadAsStringAsync();
 
