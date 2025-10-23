@@ -210,9 +210,9 @@ public class ProcessCaasFileTests
 
         _databaseClientParticipantMock.Verify(x => x.Update(It.IsAny<ParticipantDemographic>()), Times.Never);
 
-        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Warning),
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
                It.IsAny<EventId>(),
-               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The participant could not be found")),
+               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Upsert of Demographic record was successful")),
                It.IsAny<Exception>(),
                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
            Times.Once);
@@ -258,7 +258,7 @@ public class ProcessCaasFileTests
 
         _databaseClientParticipantMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).Returns(Task.FromResult(response));
 
-        _databaseClientParticipantMock.Setup(x => x.Update(It.IsAny<ParticipantDemographic>()))
+        _databaseClientParticipantMock.Setup(x => x.Upsert(It.IsAny<ParticipantDemographic>()))
             .ThrowsAsync(new Exception("some exception"));
 
         var updateParticipant = processCaasFile.GetType().GetMethod("UpdateOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -272,7 +272,7 @@ public class ProcessCaasFileTests
         _loggerMock.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Update participant function failed")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Upsert participant function failed")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);
