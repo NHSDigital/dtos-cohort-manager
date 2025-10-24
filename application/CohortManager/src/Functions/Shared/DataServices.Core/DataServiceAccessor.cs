@@ -155,64 +155,21 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
 
                 try
                 {
-                    // Check if entity exists
                     var existingEntity = await _context.Set<TEntity>().AsNoTracking().SingleOrDefaultAsync(predicate);
 
                     if (existingEntity == null)
                     {
-                        // Insert new entity
-                        await _context.AddAsync(entity);
-                        _logger.LogInformation("Inserting new entity in Upsert operation");
+                        await InsertNewEntity(entity);
                     }
                     else
                     {
-                        // Update existing entity - preserve key fields
-                        _logger.LogInformation("Updating existing entity in Upsert operation");
-
-                        // Preserve primary key(s) from existing record using EF Core metadata
-                        var entityType = _context.Model.FindEntityType(typeof(TEntity));
-                        var keyProperties = entityType?.FindPrimaryKey()?.Properties;
-
-                        if (keyProperties != null)
-                        {
-                            foreach (var keyProperty in keyProperties)
-                            {
-                                var clrProperty = typeof(TEntity).GetProperty(keyProperty.Name);
-                                if (clrProperty != null)
-                                {
-                                    var existingKey = clrProperty.GetValue(existingEntity);
-                                    clrProperty.SetValue(entity, existingKey);
-                                    _logger.LogDebug("Preserved primary key {KeyName}: {KeyValue}", keyProperty.Name, existingKey);
-                                }
-                            }
-                        }
-
-                        // Preserve RecordInsertDateTime from existing record to maintain audit trail
-                        var insertDateProperty = typeof(TEntity).GetProperty("RecordInsertDateTime");
-                        if (insertDateProperty != null)
-                        {
-                            var existingInsertDate = insertDateProperty.GetValue(existingEntity);
-                            if (existingInsertDate != null)
-                            {
-                                insertDateProperty.SetValue(entity, existingInsertDate);
-                                _logger.LogDebug("Preserved RecordInsertDateTime: {RecordInsertDateTime}", existingInsertDate);
-                            }
-                        }
-
-                        _context.Update(entity);
+                        await UpdateExistingEntity(entity, existingEntity);
                     }
 
                     rowsAffected = await _context.SaveChangesAsync();
 
-                    if (rowsAffected == 0)
+                    if (!ValidateRowsAffected(rowsAffected))
                     {
-                        _logger.LogWarning("Upsert resulted in 0 rows affected");
-                        await transaction.RollbackAsync();
-                        return;
-                    }
-                    else if (rowsAffected > 1)
-                    {
-                        _logger.LogError("Multiple records ({RowsAffected}) were affected during upsert operation. Rolling back transaction.", rowsAffected);
                         await transaction.RollbackAsync();
                         return;
                     }
@@ -222,14 +179,88 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error during upsert operation");
+                    _logger.LogError(ex, "Error during upsert operation. Rolling back transaction.");
                     await transaction.RollbackAsync();
-                    throw;
+                    throw new InvalidOperationException("Upsert operation failed. See inner exception for details.", ex);
                 }
             }
         );
 
         return rowsAffected > 0;
+    }
+
+    private async Task InsertNewEntity(TEntity entity)
+    {
+        await _context.AddAsync(entity);
+        _logger.LogInformation("Inserting new entity in Upsert operation");
+    }
+
+    private async Task UpdateExistingEntity(TEntity entity, TEntity existingEntity)
+    {
+        _logger.LogInformation("Updating existing entity in Upsert operation");
+
+        PreservePrimaryKeys(entity, existingEntity);
+        PreserveRecordInsertDateTime(entity, existingEntity);
+
+        _context.Update(entity);
+        await Task.CompletedTask;
+    }
+
+    private void PreservePrimaryKeys(TEntity entity, TEntity existingEntity)
+    {
+        var entityType = _context.Model.FindEntityType(typeof(TEntity));
+        var keyProperties = entityType?.FindPrimaryKey()?.Properties;
+
+        if (keyProperties == null)
+        {
+            return;
+        }
+
+        var propertyNames = keyProperties.Select(kp => kp.Name).ToList();
+
+        foreach (var propertyName in propertyNames)
+        {
+            var clrProperty = typeof(TEntity).GetProperty(propertyName);
+            if (clrProperty != null)
+            {
+                var existingKey = clrProperty.GetValue(existingEntity);
+                clrProperty.SetValue(entity, existingKey);
+                _logger.LogDebug("Preserved primary key {KeyName}: {KeyValue}", propertyName, existingKey);
+            }
+        }
+    }
+
+    private void PreserveRecordInsertDateTime(TEntity entity, TEntity existingEntity)
+    {
+        var insertDateProperty = typeof(TEntity).GetProperty("RecordInsertDateTime");
+        if (insertDateProperty == null)
+        {
+            return;
+        }
+
+        var existingInsertDate = insertDateProperty.GetValue(existingEntity);
+        if (existingInsertDate != null)
+        {
+            insertDateProperty.SetValue(entity, existingInsertDate);
+            _logger.LogDebug("Preserved RecordInsertDateTime: {RecordInsertDateTime}", existingInsertDate);
+        }
+    }
+
+    private bool ValidateRowsAffected(int rowsAffected)
+    {
+        if (rowsAffected == 0)
+        {
+            _logger.LogWarning("Upsert resulted in 0 rows affected");
+            return false;
+        }
+
+        if (rowsAffected > 1)
+        {
+            _logger.LogError("Multiple records ({RowsAffected}) were affected during upsert operation. Rolling back transaction.", rowsAffected);
+            return false;
+        }
+
+        return true;
     }
 
 }
