@@ -245,7 +245,13 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                 return CreateErrorResponse(req, "Entity key is null", HttpStatusCode.BadRequest);
             }
 
-            var keyPredicate = CreateGetByKeyExpression(keyValue.ToString());
+            var keyValueString = keyValue.ToString();
+            if (string.IsNullOrEmpty(keyValueString))
+            {
+                return CreateErrorResponse(req, "Entity key string representation is invalid", HttpStatusCode.BadRequest);
+            }
+
+            var keyPredicate = CreateGetByKeyExpression(keyValueString);
             var result = await _dataServiceAccessor.Upsert(entityData, keyPredicate);
 
             if (!result)
