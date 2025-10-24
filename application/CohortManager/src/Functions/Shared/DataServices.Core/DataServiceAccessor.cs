@@ -105,6 +105,7 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
                 {
                     return null;
                 }
+
                 _context.Update(entity);
                 rowsEffected  = await _context.SaveChangesAsync();
 
@@ -113,12 +114,13 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
                     await transaction.RollbackAsync();
                     return existingEntity;
                 }
-                else if (rowsEffected > 1)
+
+                if (rowsEffected > 1)
                 {
                     await transaction.RollbackAsync();
                     return null;
-
                 }
+
                 await transaction.CommitAsync();
                 return entity;
 
@@ -130,16 +132,19 @@ public class DataServiceAccessor<TEntity> : IDataServiceAccessor<TEntity> where 
             _logger.LogWarning("Entity to be updated not found");
             return null;
         }
-        else if(rowsEffected == 0 && dbEntity != null)
+
+        if(rowsEffected == 0 && dbEntity != null)
         {
             _logger.LogError("Records where found to be updated but the update failed");
             throw new MultipleRecordsFoundException("Records where found to be updated but the update failed");
         }
-        else if(rowsEffected > 1)
+
+        if(rowsEffected > 1)
         {
             _logger.LogError("Multiple Records were updated by PUT request, Changes have been Rolled-back");
             throw new MultipleRecordsFoundException("Multiple Records were updated by PUT request, Changes have been Rolled-back");
         }
+
         return dbEntity!;
     }
 
