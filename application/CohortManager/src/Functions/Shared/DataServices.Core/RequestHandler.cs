@@ -27,6 +27,8 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         };
 
     private const string UnauthorizedErrorMessage = "Action was either Unauthorized or not enabled";
+    private const string SuccessMessage = "Success";
+    private const string DeserializationErrorMessage = "Failed to deserialize Record";
 
     public RequestHandler(IDataServiceAccessor<TEntity> dataServiceAccessor, ILogger<RequestHandler<TEntity>> logger, AuthenticationConfiguration authenticationConfiguration)
     {
@@ -199,13 +201,13 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             }
             return CreateHttpResponse(req,new DataServiceResponse<string>
             {
-                JsonData = "Success"
+                JsonData = SuccessMessage
             });
         }
         catch(JsonException je)
         {
             _logger.LogError(je, "Failed to get deserialize Data, This is due to a badly formed request");
-            return CreateErrorResponse(req,"Failed to deserialize Record",HttpStatusCode.BadRequest);
+            return CreateErrorResponse(req, DeserializationErrorMessage, HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
@@ -233,7 +235,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             var entityData = JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);
             if (entityData == null)
             {
-                return CreateErrorResponse(req, "Failed to deserialize Record", HttpStatusCode.BadRequest);
+                return CreateErrorResponse(req, DeserializationErrorMessage, HttpStatusCode.BadRequest);
             }
 
             // Get the key value from the entity to create the predicate
@@ -253,13 +255,13 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
             return CreateHttpResponse(req,new DataServiceResponse<string>
             {
-                JsonData = "Success"
+                JsonData = SuccessMessage
             });
         }
         catch(JsonException je)
         {
             _logger.LogError(je, "Failed to deserialize Data, This is due to a badly formed request");
-            return CreateErrorResponse(req,"Failed to deserialize Record",HttpStatusCode.BadRequest);
+            return CreateErrorResponse(req, DeserializationErrorMessage, HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
@@ -294,13 +296,13 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             }
             return CreateHttpResponse(req,new DataServiceResponse<string>
             {
-                JsonData = "Success"
+                JsonData = SuccessMessage
             });
         }
         catch(JsonException je)
         {
             _logger.LogError(je, "Failed to get deserialize Data, This is due to a badly formed request");
-            return CreateErrorResponse(req,"Failed to deserialize Record",HttpStatusCode.BadRequest);
+            return CreateErrorResponse(req, DeserializationErrorMessage, HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
@@ -323,7 +325,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
         return CreateHttpResponse(req,new DataServiceResponse<string>
         {
-            JsonData = "Success"
+            JsonData = SuccessMessage
         });
 
     }
@@ -336,6 +338,11 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     private Expression<Func<TEntity, bool>> CreateGetByKeyExpression(string filter)
     {
+        if (filter == null)
+        {
+            throw new ArgumentNullException(nameof(filter), "Filter parameter cannot be null");
+        }
+
         var entityParameter = Expression.Parameter(typeof(TEntity));
         var entityKey = Expression.Property(entityParameter, _keyInfo.Name);
         var filterConstant = Expression.Constant(Convert.ChangeType(filter, ReflectionUtilities.GetPropertyType(typeof(TEntity), _keyInfo.Name)));
