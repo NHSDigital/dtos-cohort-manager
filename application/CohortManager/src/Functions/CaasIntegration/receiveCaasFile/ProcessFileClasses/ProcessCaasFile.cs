@@ -153,24 +153,18 @@ public class ProcessCaasFile : IProcessCaasFile
                 throw new FormatException("Unable to parse NHS Number");
             }
 
-            // Use Upsert instead of separate Get + Update
-            // This handles both insert and update atomically at the database level
             var participantForUpsert = basicParticipantCsvRecord.Participant.ToParticipantDemographic();
             participantForUpsert.RecordUpdateDateTime = DateTime.UtcNow;
-
-            // Note: For new records, RecordInsertDateTime will be set by the database
-            // For existing records, it will be preserved
-            // The ParticipantId will be set automatically by the database for new records
 
             var upserted = await _participantDemographic.Upsert(participantForUpsert);
             if (upserted)
             {
-                _logger.LogInformation("Upsert of Demographic record was successful for NHS Number: {NhsNumber}", nhsNumber);
+                _logger.LogInformation("Upsert of Demographic record was successful");
                 return true;
             }
 
-            _logger.LogError("Upsert of Demographic record was not successful for NHS Number: {NhsNumber}", nhsNumber);
-            throw new InvalidOperationException($"Upsert of Demographic record was not successful for NHS Number: {nhsNumber}");
+            _logger.LogError("Upsert of Demographic record was not successful");
+            throw new InvalidOperationException("Upsert of Demographic record was not successful");
         }
         catch (Exception ex)
         {
