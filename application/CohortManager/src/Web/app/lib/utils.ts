@@ -20,13 +20,11 @@ export const formatCompactDate = (dateString: string): string => {
   const date = new Date(dateString);
   if (isNaN(date.getTime())) return "";
 
-  const options: Intl.DateTimeFormatOptions = {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  };
+  const day = String(date.getDate()).padStart(2, "0");
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const year = date.getFullYear();
 
-  return date.toLocaleDateString("en-GB", options);
+  return `${day}/${month}/${year}`;
 };
 
 export function getCurrentDate(): string {
