@@ -100,6 +100,7 @@ public class PdsProcessor : IPdsProcessor
         if (oldParticipantDemographic == null)
         {
             _logger.LogInformation("Participant Demographic record not found, attemping to add Participant Demographic.");
+            participantDemographic.RecordInsertDateTime = DateTime.UtcNow;
             bool addSuccess = await _participantDemographicClient.Add(participantDemographic);
 
             if (addSuccess)
@@ -113,7 +114,12 @@ public class PdsProcessor : IPdsProcessor
         }
 
         _logger.LogInformation("Participant Demographic record found, attempting to update Participant Demographic.");
+
         participantDemographic.ParticipantId = oldParticipantDemographic.ParticipantId;
+
+        participantDemographic.RecordUpdateDateTime = DateTime.UtcNow;
+        participantDemographic.RecordInsertDateTime = oldParticipantDemographic.RecordInsertDateTime;
+
         bool updateSuccess = await _participantDemographicClient.Update(participantDemographic);
 
         if (updateSuccess)
