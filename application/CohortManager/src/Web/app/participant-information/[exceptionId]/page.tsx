@@ -76,11 +76,11 @@ export default async function Page(props: {
       ].filter(isMeaningfulAddressPart),
       address: `${exception.ExceptionDetails.ParticipantAddressLine1}${
         exception.ExceptionDetails.ParticipantAddressLine2
-          ? `, ${exception.ExceptionDetails.ParticipantAddressLine2}`
+          ? `${exception.ExceptionDetails.ParticipantAddressLine2}`
           : ""
       }${
         exception.ExceptionDetails.ParticipantAddressLine3
-          ? `, ${exception.ExceptionDetails.ParticipantAddressLine3}`
+          ? `${exception.ExceptionDetails.ParticipantAddressLine3}`
           : ""
       }${
         exception.ExceptionDetails.ParticipantAddressLine4
@@ -88,7 +88,7 @@ export default async function Page(props: {
           : ""
       }${
         exception.ExceptionDetails.ParticipantAddressLine5
-          ? `, ${exception.ExceptionDetails.ParticipantAddressLine5}`
+          ? `${exception.ExceptionDetails.ParticipantAddressLine5}`
           : ""
       }, ${exception.ExceptionDetails.ParticipantPostCode}`,
       primaryCareProvider: exception.ExceptionDetails.PrimaryCareProvider,

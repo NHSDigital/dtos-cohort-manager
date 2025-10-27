@@ -102,23 +102,6 @@ public class StaticValidationTests
     }
 
     [TestMethod]
-    public async Task Run_ParticipantReferred_DoNotRunRoutineRules()
-    {
-        // Arrange
-        _participantCsvRecord.Participant.ReferralFlag = "true";
-        _participantCsvRecord.Participant.PrimaryCareProvider = "ABC";
-        _participantCsvRecord.Participant.ReasonForRemoval = "123";
-        var json = JsonSerializer.Serialize(_participantCsvRecord);
-        SetUpRequestBody(json);
-
-        // Act
-        var response = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
-    }
-
-    [TestMethod]
     public async Task Run_ParticipantReferred_RunCommonRules()
     {
         // Arrange

@@ -133,12 +133,7 @@ export default function ParticipantInformationPanel({
                 ? exceptionDetails.addressParts.map((line, idx, arr) => (
                     <span key={makeAddressKey(line)}>
                       {line}
-                      {idx < (arr.length ?? 0) - 1 && (
-                        <>
-                          ,
-                          <br />
-                        </>
-                      )}
+                      {idx < (arr.length ?? 0) - 1 && <br />}
                     </span>
                   ))
                 : exceptionDetails.address}
