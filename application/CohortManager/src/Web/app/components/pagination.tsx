@@ -4,17 +4,132 @@ interface PaginationItem {
   readonly current?: boolean;
 }
 
-interface PaginationLink {
-  readonly href: string;
-}
-
 interface PaginationProps {
-  readonly items: readonly PaginationItem[];
-  readonly previous?: PaginationLink;
-  readonly next?: PaginationLink;
+  readonly linkHeader?: string | null;
+  readonly currentPage: number;
+  readonly totalPages: number;
+  readonly buildUrl: (page: number) => string;
 }
 
-export default function Pagination({ items, previous, next }: PaginationProps) {
+function parseLinkHeader(linkHeader: string): {
+  first?: string;
+  previous?: string;
+  next?: string;
+  last?: string;
+} {
+  const links: {
+    first?: string;
+    previous?: string;
+    next?: string;
+    last?: string;
+  } = {};
+
+  if (!linkHeader) return links;
+
+  const linkRegex = /<([^>]+)>;\s*rel="([^"]+)"/g;
+  let match;
+
+  while ((match = linkRegex.exec(linkHeader)) !== null) {
+    const url = match[1];
+    const rel = match[2];
+
+    if (rel === "first") links.first = url;
+    if (rel === "prev" || rel === "previous") links.previous = url;
+    if (rel === "next") links.next = url;
+    if (rel === "last") links.last = url;
+  }
+
+  return links;
+}
+
+function generatePaginationItems(
+  currentPage: number,
+  totalPages: number,
+  buildUrl: (page: number) => string,
+  maxVisiblePages: number = 10
+): PaginationItem[] {
+  const items: PaginationItem[] = [];
+
+  if (totalPages <= maxVisiblePages) {
+    for (let i = 1; i <= totalPages; i++) {
+      items.push({
+        number: i,
+        href: buildUrl(i),
+        current: i === currentPage,
+      });
+    }
+    return items;
+  }
+
+  let startPage = Math.max(1, currentPage - 3);
+  let endPage = Math.min(totalPages, currentPage + 3);
+
+  if (currentPage <= 4) {
+    endPage = Math.min(maxVisiblePages, totalPages);
+  }
+
+  if (currentPage >= totalPages - 3) {
+    startPage = Math.max(1, totalPages - maxVisiblePages + 1);
+  }
+
+  if (startPage > 1) {
+    items.push({
+      number: 1,
+      href: buildUrl(1),
+      current: false,
+    });
+
+    if (startPage > 2) {
+      items.push({
+        number: -1,
+        href: "#",
+        current: false,
+      });
+    }
+  }
+
+  for (let i = startPage; i <= endPage; i++) {
+    items.push({
+      number: i,
+      href: buildUrl(i),
+      current: i === currentPage,
+    });
+  }
+
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      items.push({
+        number: -1,
+        href: "#",
+        current: false,
+      });
+    }
+    items.push({
+      number: totalPages,
+      href: buildUrl(totalPages),
+      current: false,
+    });
+  }
+
+  return items;
+}
+
+export default function Pagination({
+  linkHeader,
+  currentPage,
+  totalPages,
+  buildUrl,
+}: PaginationProps) {
+  const paginationLinks = parseLinkHeader(linkHeader || "");
+  const items = generatePaginationItems(currentPage, totalPages, buildUrl);
+
+  const previous = paginationLinks.previous
+    ? { href: buildUrl(currentPage - 1) }
+    : undefined;
+
+  const next = paginationLinks.next
+    ? { href: buildUrl(currentPage + 1) }
+    : undefined;
   return (
     <nav
       className="app-pagination"
@@ -48,7 +163,7 @@ export default function Pagination({ items, previous, next }: PaginationProps) {
       <ul className="app-pagination__list">
         {items.map((item, index) => (
           <li
-            key={item.number !== -1 ? item.number : `ellipsis-${index}`}
+            key={item.number === -1 ? `ellipsis-${index}` : item.number}
             className={`app-pagination__item${
               item.current ? " app-pagination__item--current" : ""
             }`}
