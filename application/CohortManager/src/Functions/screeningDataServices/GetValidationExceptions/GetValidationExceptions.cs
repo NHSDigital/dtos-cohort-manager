@@ -47,9 +47,7 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var page = _httpParserHelper.GetQueryParameterAsInt(req, "page");
-        if (page <= 0) page = 1;
         var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize");
-        if (pageSize <= 0) pageSize = 10;
         var exceptionStatus = HttpParserHelper.GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
         var sortOrder = HttpParserHelper.GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
         var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);

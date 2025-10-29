@@ -11,8 +11,11 @@ public class PaginationService<T> : IPaginationService<T>
     /// <param name="page">The page number (1-based)</param>
     /// <param name="pageSize">The number of items per page (default: 10)</param>
     /// <returns>Paginated result</returns>
-    public PaginationResult<T> GetPaginatedResult(IQueryable<T> source, int page = 1, int pageSize = 10)
+    public PaginationResult<T> GetPaginatedResult(IQueryable<T> source, int page, int pageSize)
     {
+        if (pageSize <= 0) pageSize = 10;
+        if (page <= 0) page = 1;
+
         var totalItems = source.Count();
         var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
 
