@@ -26,7 +26,7 @@ function parseLinkHeader(linkHeader: string): {
 
   if (!linkHeader) return links;
 
-  const linkRegex = /<([^>]+)>; ?rel="([^"]+)"/g;
+  const linkRegex = /<([^\s>]{1,2048})>;\s*rel="([^\s"]{1,100})"/g
   let match;
 
   while ((match = linkRegex.exec(linkHeader)) !== null) {
