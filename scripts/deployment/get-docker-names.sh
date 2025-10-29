@@ -54,7 +54,7 @@ IFS=$', \n'
 
 echo "Adding Docker compose file includes..."
 files_to_process=(${COMPOSE_FILES_CSV})
-while [ ${#files_to_process[@]} -gt 0 ]; do
+while [[ ${#files_to_process[@]} -gt 0 ]]; do
     compose_file="${files_to_process[0]}"
     files_to_process=("${files_to_process[@]:1}")  # Remove the first file from the list
     includes=($(yq -r '.include[]' "${compose_file}"))
@@ -121,7 +121,7 @@ for compose_file in ${COMPOSE_FILES_CSV}; do
     echo
 done
 
-if [ ${#non_matched_changes[@]} -ne 0 ]; then
+if [[ ${#non_matched_changes[@]} -ne 0 ]]; then
     # Remove duplicates (non-matched items across several compose files)
     mapfile -t unique_changes < <(printf "%s\n" "${non_matched_changes[@]}" | sort -u)
 

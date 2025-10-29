@@ -14,7 +14,7 @@ check_tools() {
     return 0
   fi
   
-  if [ ${#missing_tools[@]} -ne 0 ]; then
+  if [[ ${#missing_tools[@]} -ne 0 ]]; then
     echo "Error: Missing required tools: ${missing_tools[*]}" >&2
     echo "Please install the missing tools and try again." >&2
     exit 1
@@ -70,7 +70,7 @@ parse_services() {
 }
 
 # Validate arguments
-if [ $# -eq 0 ]; then
+if [[ $# -eq 0 ]]; then
   echo "Usage: $0 <compose-file1> [compose-file2] ..." >&2
   exit 1
 fi
@@ -122,7 +122,7 @@ for compose_file in "$@"; do
   done
   
   # Check if the while loop failed (due to pipe)
-  if [ ${PIPESTATUS[1]} -ne 0 ]; then
+  if [[ ${PIPESTATUS[1]} -ne 0 ]]; then
     echo "Error: Build failed for $compose_file" >&2
     exit 1
   fi

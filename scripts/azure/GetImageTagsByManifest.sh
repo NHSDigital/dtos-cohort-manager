@@ -55,28 +55,28 @@ while [[ "$#" -gt 0 ]]; do
     shift
 done
 
-if [ -z "${containerRegistry}" ]; then
+if [[ -z "${containerRegistry}" ]]; then
   echo "Please provide a container registry argument"
   exit 1
 fi
 
 # stop processing if no image name is provided
-if [ -z "${functionAppName}" ]; then
+if [[ -z "${functionAppName}" ]]; then
   echo "Please provide an image name as an argument"
   exit 1
 fi
 
-if [ -z "${subscriptionId}" ]; then
+if [[ -z "${subscriptionId}" ]]; then
   echo "Please provide a Subscription ID argument"
   exit 1
 fi
 
-if [ -z "${resourceGroup}" ]; then
+if [[ -z "${resourceGroup}" ]]; then
   echo "Please provide a resource group argument"
   exit 1
 fi
 
-if [ verbose == true ]; then
+if [[ verbose == true ]]; then
   echo "function app name: $functionAppName"
   echo "subscription Id: $subscriptionId"
   echo "resourceGroup: $resourceGroup"
@@ -88,13 +88,13 @@ fi
 digest=$(az acr repository show --name $containerRegistry --image $functionAppName:$tag --query 'digest' --output tsv 2> /dev/null)
 
 # stop processing if the image does not exist
-if [ -z "$digest" ]; then
+if [[ -z "$digest" ]]; then
   echo "Image $image not found in $containerRegistry"
   exit 1
 fi
 
 # echo the digest
-if [ verbose == true ]; then
+if [[ verbose == true ]]; then
   echo $digest
 fi
 
