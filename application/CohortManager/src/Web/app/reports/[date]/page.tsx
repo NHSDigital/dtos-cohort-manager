@@ -39,6 +39,7 @@ export default async function Page(props: {
     ? await props.searchParams
     : {};
   const categoryId = Number(resolvedSearchParams.category);
+  const pageSize = 20;
   const categoryTitle =
     categoryId === 12
       ? "Possible confusion"
@@ -47,7 +48,7 @@ export default async function Page(props: {
       : String(categoryId);
 
   try {
-    const report = await fetchReports(categoryId, date);
+    const report = await fetchReports(categoryId, date, pageSize);
 
     return (
       <>
