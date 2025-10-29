@@ -9,6 +9,7 @@ type FetchExceptionsParams = {
   exceptionCategory?: string;
   reportDate?: string;
   isReport?: boolean;
+  pageSize?: number;
 };
 
 export async function fetchExceptions(params: FetchExceptionsParams = {}) {
@@ -27,6 +28,7 @@ export async function fetchExceptions(params: FetchExceptionsParams = {}) {
   if (params.reportDate) query.append("reportDate", params.reportDate);
   if (params.isReport !== undefined)
     query.append("isReport", params.isReport.toString());
+  query.append("pageSize", (params.pageSize ?? 10).toString());
 
   const apiUrl = `${
     process.env.EXCEPTIONS_API_URL
