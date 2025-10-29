@@ -29,7 +29,7 @@ describe("fetchReports", () => {
           DateCreated: "2025-08-27T10:00:00.000Z",
           DateResolved: "",
           RuleId: 0,
-          RuleDescription: "Possible confusion",
+          RuleDescription: "Possible Confusion",
           Category: category,
           ScreeningName: "",
           ExceptionDate: "2025-08-27T10:00:00.000Z",

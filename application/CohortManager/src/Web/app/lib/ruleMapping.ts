@@ -56,7 +56,7 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
   },
   35: {
     ruleDescription:
-      "Possible confusion. At least 2 of the following have changed: family name, gender or date of birth",
+      "Possible Confusion. At least 2 of the following have changed: family name, gender or date of birth",
     moreDetails:
       "Verify that the changes are correct, and that the NHS number is not involved in a confusion case.",
     reportingId: "CMR38",

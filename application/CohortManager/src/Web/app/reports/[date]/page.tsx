@@ -47,12 +47,11 @@ export default async function Page(props: {
   );
   const pageSize = 20;
 
-  let categoryTitle = String(categoryId);
-  if (categoryId === 12) {
-    categoryTitle = "Possible confusion";
-  } else if (categoryId === 13) {
-    categoryTitle = "NHS number change";
-  }
+  const categoryTitles: Record<number, string> = {
+    12: "Possible Confusion",
+    13: "NHS Number Change",
+  };
+  const categoryTitle = categoryTitles[categoryId] ?? String(categoryId);
 
   try {
     const response = await fetchReports(categoryId, date, pageSize, currentPage);
