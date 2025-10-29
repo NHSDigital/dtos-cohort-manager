@@ -72,7 +72,7 @@ public class GetValidationExceptions
                 }
 
                 var reportExceptions = await _validationData.GetReportExceptions(reportDate, exceptionCategory);
-                return CreatePaginatedResponse(req, reportExceptions!.AsQueryable(), page, pageSize);
+                return CreatePaginatedResponse(req, reportExceptions!.AsQueryable(), page, reportExceptions!.Count);
             }
 
             var filteredExceptions = await _validationData.GetFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
