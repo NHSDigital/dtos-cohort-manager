@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
-import { fetchReports } from "@/app/lib/fetchReports";
+import { fetchExceptions } from "@/app/lib/fetchExceptions";
 import { formatDate } from "@/app/lib/utils";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
@@ -54,7 +54,15 @@ export default async function Page(props: {
   const categoryTitle = categoryTitles[categoryId] ?? String(categoryId);
 
   try {
-    const response = await fetchReports(categoryId, date, pageSize, currentPage);
+    const response = await fetchExceptions({
+      exceptionStatus: 1,
+      sortOrder: 1,
+      exceptionCategory: categoryId,
+      isReport: true,
+      reportDate: date,
+      pageSize,
+      page: currentPage,
+    });
     const reportData = response.data;
     const linkHeader = response.headers?.get("Link") || response.linkHeader;
 
