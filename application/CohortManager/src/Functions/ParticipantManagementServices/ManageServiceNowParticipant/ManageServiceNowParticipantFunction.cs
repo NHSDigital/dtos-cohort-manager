@@ -1,5 +1,6 @@
 namespace NHS.CohortManager.ParticipantManagementServices;
 
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -51,7 +52,7 @@ public class ManageServiceNowParticipantFunction
             var participantManagement = await _participantManagementClient.GetSingleByFilter(
                 x => x.NHSNumber == serviceNowParticipant.NhsNumber && x.ScreeningId == serviceNowParticipant.ScreeningId);
 
-            var success = await ProcessParticipantRecord(serviceNowParticipant, participantManagement);
+            var success = await ProcessParticipantRecord(serviceNowParticipant, participantManagement, pdsDemographic);
             if (!success)
             {
                 return;
@@ -133,14 +134,14 @@ public class ManageServiceNowParticipantFunction
         return true;
     }
 
-    private async Task<bool> ProcessParticipantRecord(ServiceNowParticipant serviceNowParticipant, ParticipantManagement? participantManagement)
+    private async Task<bool> ProcessParticipantRecord(ServiceNowParticipant serviceNowParticipant, ParticipantManagement? participantManagement, PdsDemographic pdsDemographic)
     {
         var success = false;
         string? failureDescription;
 
         if (participantManagement is null)
         {
-            success = await AddNewParticipant(serviceNowParticipant);
+            success = await AddNewParticipant(serviceNowParticipant, pdsDemographic);
             failureDescription = "Participant Management Data Service add request failed";
         }
         else if (participantManagement.BlockedFlag == 1)
@@ -149,7 +150,7 @@ public class ManageServiceNowParticipantFunction
         }
         else
         {
-            success = await UpdateExistingParticipant(serviceNowParticipant, participantManagement);
+            success = await UpdateExistingParticipant(serviceNowParticipant, participantManagement, pdsDemographic);
             failureDescription = "Participant Management Data Service update request failed";
         }
 
@@ -161,7 +162,7 @@ public class ManageServiceNowParticipantFunction
         return success;
     }
 
-    private async Task<bool> AddNewParticipant(ServiceNowParticipant serviceNowParticipant)
+    private async Task<bool> AddNewParticipant(ServiceNowParticipant serviceNowParticipant, PdsDemographic pdsDemographic)
     {
         _logger.LogInformation("Participant not in participant management table, adding new record");
 
@@ -175,7 +176,9 @@ public class ManageServiceNowParticipantFunction
             EligibilityFlag = 1,
             ReferralFlag = 1,
             RecordInsertDateTime = DateTime.UtcNow,
-            IsHigherRisk = isVhrParticipant ? 1 : null
+            IsHigherRisk = isVhrParticipant ? 1 : null,
+            ReasonForRemoval = pdsDemographic.ReasonForRemoval,
+            ReasonForRemovalDate = ParseRemovalEffectiveFromDateStringToDateTime(pdsDemographic.RemovalEffectiveFromDate)
         };
 
         if (isVhrParticipant)
@@ -186,7 +189,7 @@ public class ManageServiceNowParticipantFunction
         return await _participantManagementClient.Add(participantToAdd);
     }
 
-    private async Task<bool> UpdateExistingParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantManagement participantManagement)
+    private async Task<bool> UpdateExistingParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantManagement participantManagement, PdsDemographic pdsDemographic)
     {
         _logger.LogInformation("Existing participant management record found, updating record {ParticipantId}", participantManagement.ParticipantId);
 
@@ -194,10 +197,22 @@ public class ManageServiceNowParticipantFunction
         participantManagement.EligibilityFlag = 1;
         participantManagement.ReferralFlag = 1;
         participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
+        participantManagement.ReasonForRemoval = pdsDemographic.ReasonForRemoval;
+        participantManagement.ReasonForRemovalDate = ParseRemovalEffectiveFromDateStringToDateTime(pdsDemographic.RemovalEffectiveFromDate);
 
         HandleVhrFlagForExistingParticipant(serviceNowParticipant, participantManagement);
 
         return await _participantManagementClient.Update(participantManagement);
+    }
+
+    private static DateTime? ParseRemovalEffectiveFromDateStringToDateTime(string? removalEffectiveFromDate)
+    {
+        if (removalEffectiveFromDate == null)
+        {
+            return null;
+        }
+
+        return DateTime.ParseExact(removalEffectiveFromDate, "yyyy'-'MM'-'dd'T'HH':'mm':'ssK", CultureInfo.InvariantCulture);
     }
 
     private void HandleVhrFlagForExistingParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantManagement participantManagement)
@@ -225,8 +240,8 @@ public class ManageServiceNowParticipantFunction
 
     private static bool CheckParticipantDataMatches(ServiceNowParticipant serviceNowParticipant, PdsDemographic pdsDemographic)
     {
-        return serviceNowParticipant.FirstName == pdsDemographic.FirstName &&
-               serviceNowParticipant.FamilyName == pdsDemographic.FamilyName &&
+        return string.Equals(serviceNowParticipant.FirstName, pdsDemographic.FirstName, StringComparison.OrdinalIgnoreCase) &&
+               string.Equals(serviceNowParticipant.FamilyName, pdsDemographic.FamilyName, StringComparison.OrdinalIgnoreCase) &&
                serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd") == pdsDemographic.DateOfBirth;
     }
 

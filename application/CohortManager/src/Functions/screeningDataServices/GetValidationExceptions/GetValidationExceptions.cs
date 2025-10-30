@@ -47,7 +47,7 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var page = _httpParserHelper.GetQueryParameterAsInt(req, "page");
-        if (page <= 0) page = 1;
+        var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize");
         var exceptionStatus = HttpParserHelper.GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
         var sortOrder = HttpParserHelper.GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
         var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
@@ -72,11 +72,11 @@ public class GetValidationExceptions
                 }
 
                 var reportExceptions = await _validationData.GetReportExceptions(reportDate, exceptionCategory);
-                return CreatePaginatedResponse(req, reportExceptions!.AsQueryable(), page);
+                return CreatePaginatedResponse(req, reportExceptions!.AsQueryable(), page, reportExceptions!.Count);
             }
 
             var filteredExceptions = await _validationData.GetFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
-            return CreatePaginatedResponse(req, filteredExceptions!.AsQueryable(), page);
+            return CreatePaginatedResponse(req, filteredExceptions!.AsQueryable(), page, pageSize);
         }
         catch (Exception ex)
         {
@@ -85,9 +85,9 @@ public class GetValidationExceptions
         }
     }
 
-    private HttpResponseData CreatePaginatedResponse(HttpRequestData request, IQueryable<ValidationException> source, int page)
+    private HttpResponseData CreatePaginatedResponse(HttpRequestData request, IQueryable<ValidationException> source, int page, int pageSize)
     {
-        var paginatedResult = _paginationService.GetPaginatedResult(source, page);
+        var paginatedResult = _paginationService.GetPaginatedResult(source, page, pageSize);
         var headers = _paginationService.AddNavigationHeaders(request, paginatedResult);
 
         return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, request, JsonSerializer.Serialize(paginatedResult), headers);

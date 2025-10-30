@@ -38,6 +38,10 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.3" />
+
+    <!-- Pin Hl7.Fhir versions to prevent CI version mismatch -->
+    <PackageReference Include="Hl7.Fhir.R4" Version="5.11.4" />
+    <PackageReference Include="Hl7.Fhir.Base" Version="5.11.4" />
   </ItemGroup>
 
   <!-- Global Using Statements -->

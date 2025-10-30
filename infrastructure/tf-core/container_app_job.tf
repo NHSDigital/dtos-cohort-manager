@@ -48,6 +48,11 @@ module "container-app-job" {
   container_app_environment_id = module.container-app-environment["${each.value.container_app_environment_key}-${each.value.region}"].id
   user_assigned_identity_ids   = each.value.add_user_assigned_identity ? [module.user_assigned_managed_identity_sql["${each.key}"].id] : []
 
+  enable_alerting                = var.features.alerts_enabled
+  action_group_id                = var.features.alerts_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
+  log_analytics_workspace_id     = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  resource_group_name_monitoring = var.features.alerts_enabled ? azurerm_resource_group.monitoring.name : null
+
   acr_login_server           = data.azurerm_container_registry.acr.login_server
   acr_managed_identity_id    = each.value.container_registry_use_mi ? data.azurerm_user_assigned_identity.acr_mi.id : null
   docker_image               = "${data.azurerm_container_registry.acr.login_server}/${each.value.docker_image}:${each.value.docker_env_tag != "" ? each.value.docker_env_tag : var.docker_image_tag}"

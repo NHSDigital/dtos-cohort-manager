@@ -79,7 +79,9 @@ public class ManageServiceNowParticipantFunctionTests
             NhsNumber = _serviceNowParticipant.NhsNumber.ToString(),
             FirstName = _serviceNowParticipant.FirstName,
             FamilyName = _serviceNowParticipant.FamilyName,
-            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd")
+            DateOfBirth = _serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd"),
+            ReasonForRemoval = "ABC",
+            RemovalEffectiveFromDate = "2020-01-01T00:00:00+00:00"
         };
     }
 
@@ -203,7 +205,7 @@ public class ManageServiceNowParticipantFunctionTests
 
     [TestMethod]
     [DataRow("Sam", "Bloggs", "1970-01-01")]        // First names don't match
-    [DataRow("Samantha", "bloggs", "1970-01-01")]   // Family names don't match
+    [DataRow("Samantha", "Smith", "1970-01-01")]    // Family names don't match
     [DataRow("Samantha", "Bloggs", "1970-01-02")]   // Dates of birth don't match
     public async Task Run_WhenParticipantDataDoesNotMatchPdsData_SendsServiceNowMessageType1(
         string firstName, string familyName, string dateOfBirth)
@@ -243,9 +245,15 @@ public class ManageServiceNowParticipantFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_WhenServiceNowParticipantIsValidAndDoesNotExistInTheDataStore_AddsTheNewParticipant()
+    [DataRow("Samantha", "Bloggs", "1970-01-01")]   // Valid - exact match
+    [DataRow("SAMANTHA", "bloggs", "1970-01-01")]   // Valid - only differs by casing
+    public async Task Run_WhenServiceNowParticipantIsValidAndDoesNotExistInTheDataStore_AddsTheNewParticipant(
+        string firstName, string familyName, string dateOfBirth)
     {
         // Arrange
+        _matchingPdsDemographic.FirstName = firstName;
+        _matchingPdsDemographic.FamilyName = familyName;
+        _matchingPdsDemographic.DateOfBirth = dateOfBirth;
         var json = JsonSerializer.Serialize(_matchingPdsDemographic);
         _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
@@ -268,7 +276,9 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordType == Actions.New &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
-                p.RecordInsertDateTime != null)))
+                p.RecordInsertDateTime != null &&
+                p.ReasonForRemoval == "ABC" &&
+                p.ReasonForRemovalDate == new DateTime(2020, 1, 1))))
             .ReturnsAsync(true).Verifiable();
 
         _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>
@@ -375,7 +385,9 @@ public class ManageServiceNowParticipantFunctionTests
                 p.RecordType == Actions.Amended &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
-                p.RecordUpdateDateTime != null)))
+                p.RecordUpdateDateTime != null &&
+                p.ReasonForRemoval == "ABC" &&
+                p.ReasonForRemovalDate == new DateTime(2020, 1, 1))))
             .ReturnsAsync(true).Verifiable();
 
         _queueClientMock.Setup(x => x.AddAsync(It.Is<BasicParticipantCsvRecord>(x =>

@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
-import { fetchReports } from "@/app/lib/fetchReports";
+import { fetchExceptions } from "@/app/lib/fetchExceptions";
 import { formatDate } from "@/app/lib/utils";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 import ReportsInformationTable from "@/app/components/reportsInformationTable";
+import Pagination from "@/app/components/pagination";
 import { type ExceptionAPIDetails } from "@/app/types/exceptionsApi";
 
 export const metadata: Metadata = {
@@ -19,6 +20,7 @@ export default async function Page(props: {
   }>;
   readonly searchParams?: Promise<{
     readonly category?: string;
+    readonly page?: string;
   }>;
 }) {
   const session = await auth();
@@ -39,15 +41,38 @@ export default async function Page(props: {
     ? await props.searchParams
     : {};
   const categoryId = Number(resolvedSearchParams.category);
-  const categoryTitle =
-    categoryId === 12
-      ? "Possible confusion"
-      : categoryId === 13
-      ? "NHS number change"
-      : String(categoryId);
+  const currentPage = Math.max(
+    1,
+    Number.parseInt(resolvedSearchParams.page || "1", 10)
+  );
+  const pageSize = 20;
+
+  const categoryTitles: Record<number, string> = {
+    12: "Possible Confusion",
+    13: "NHS Number Change",
+  };
+  const categoryTitle = categoryTitles[categoryId] ?? String(categoryId);
 
   try {
-    const report = await fetchReports(categoryId, date);
+    const response = await fetchExceptions({
+      exceptionStatus: 1,
+      sortOrder: 1,
+      exceptionCategory: categoryId,
+      isReport: true,
+      reportDate: date,
+      pageSize,
+      page: currentPage,
+    });
+    const reportData = response.data;
+    const linkHeader = response.headers?.get("Link") || response.linkHeader;
+
+    const totalPages = reportData.TotalPages || 1;
+    const totalItems = Number(reportData.TotalItems) || 0;
+    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+    const endItem =
+      totalItems > 0
+        ? Math.min(startItem + reportData.Items.length - 1, totalItems)
+        : 0;
 
     return (
       <>
@@ -59,21 +84,43 @@ export default async function Page(props: {
                 {categoryTitle}
                 <span className="nhsuk-caption-xl">{formatDate(date)}</span>
               </h1>
-              {report ? (
-                <div className="nhsuk-card">
-                  <div className="nhsuk-card__content">
-                    {report.Items?.length ? (
-                      <ReportsInformationTable
-                        category={categoryId}
-                        items={report.Items as readonly ExceptionAPIDetails[]}
-                      />
-                    ) : (
-                      <p>No report available for {formatDate(date)}</p>
-                    )}
-                  </div>
-                </div>
-              ) : (
+              {totalItems === 0 ? (
                 <p>No report available for {formatDate(date)}</p>
+              ) : (
+                <>
+                  <p
+                    className="app-results-text nhsuk-u-margin-bottom-4"
+                    data-testid="report-count"
+                  >
+                    Showing {startItem} to {endItem} of {totalItems} results
+                  </p>
+
+                  <div className="nhsuk-card nhsuk-u-margin-bottom-5">
+                    <div className="nhsuk-card__content">
+                      {reportData.Items?.length ? (
+                        <ReportsInformationTable
+                          category={categoryId}
+                          items={
+                            reportData.Items as readonly ExceptionAPIDetails[]
+                          }
+                        />
+                      ) : (
+                        <p>No report available for {formatDate(date)}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {totalPages > 1 && (
+                    <Pagination
+                      linkHeader={linkHeader}
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      buildUrl={(page) =>
+                        `/reports/${date}?category=${categoryId}&page=${page}`
+                      }
+                    />
+                  )}
+                </>
               )}
             </div>
           </div>

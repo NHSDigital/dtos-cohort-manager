@@ -90,7 +90,6 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
   test-stage: # Recommended maximum execution time is 5 minutes
     name: "Test stage"
     needs: [metadata, commit-stage]
@@ -105,11 +104,12 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
   analysis-stage: # Recommended maximum execution time is 5 minutes
     name: "Analysis stage"
     needs: [metadata, commit-stage, test-stage]
     uses: ./.github/workflows/stage-2-analyse.yaml
+    secrets:
+      sonar_token: ${{ secrets.SONAR_TOKEN }}
     with:
       unit_test_dir: tests/UnitTests
       build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
@@ -119,11 +119,15 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
   build-image-stage: # Recommended maximum execution time is 3 minutes
     name: "Image build stage"
     needs: [metadata, commit-stage, test-stage, analysis-stage]
     uses: ./.github/workflows/stage-3-build-images.yaml
+    secrets:
+      client_id: ${{ secrets.AZURE_CLIENT_ID }}
+      tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+      subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      acr_name: ${{ secrets.ACR_NAME }}
     if: needs.metadata.outputs.does_pull_request_exist == 'true' || github.ref == 'refs/heads/main' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
     with:
       docker_compose_file: application/CohortManager/compose.yaml
@@ -132,7 +136,6 @@ jobs:
       function_app_source_code_path: application/CohortManager/src
       project_name: cohort-manager
       build_all_images: true
-    secrets: inherit
   acceptance-stage: # Recommended maximum execution time is 10 minutes
     name: "Acceptance stage"
     needs: [metadata, build-image-stage]
@@ -146,7 +149,6 @@ jobs:
       python_version: "${{ needs.metadata.outputs.python_version }}"
       terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
       version: "${{ needs.metadata.outputs.version }}"
-    secrets: inherit
   deploy-stage:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     name: Deploy environments for commit ${{ github.sha }}
@@ -155,10 +157,13 @@ jobs:
       id-token: write
       contents: read
     uses: ./.github/workflows/stage-4-deploy.yaml
+    secrets:
+      client_id: ${{ secrets.AZURE_CLIENT_ID }}
+      tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+      subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
     with:
       environments: "[\"development\",\"nft\",\"integration\"]"
       commit_sha: ${{ github.sha }}
-    secrets: inherit
   validate-title-stage:
     name: Validate PR title
     runs-on: ubuntu-latest
