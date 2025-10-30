@@ -22,6 +22,8 @@ public class DataServicesContext : DbContext
     DbSet<NemsSubscription> nemsSubscriptions { get; set; }
     DbSet<ServicenowCase> servicenowCases { get; set; }
 
+    DbSet<InboundMetric> inboundMetrics { get; set; }
+
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
 
@@ -87,5 +89,9 @@ public class DataServicesContext : DbContext
 
         modelBuilder.Entity<ServicenowCase>()
             .ToTable("SERVICENOW_CASES", "dbo");
+
+        modelBuilder.Entity<InboundMetric>()
+            .ToTable("INBOUND_METRICS", "dbo")
+            .HasIndex(c => new { c.ReceivedDateTime }, "IX_INBOUND_METRICS_RECEIVEDDATETIME");
     }
 }

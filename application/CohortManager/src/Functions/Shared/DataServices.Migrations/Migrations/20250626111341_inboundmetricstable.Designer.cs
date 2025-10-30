@@ -4,6 +4,7 @@ using DataServices.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataServices.Migrations.Migrations
 {
     [DbContext(typeof(DataServicesContext))]
-    partial class DataServicesContextModelSnapshot : ModelSnapshot
+    [Migration("20250626111341_inboundmetricstable")]
+    partial class inboundmetricstable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -498,8 +501,6 @@ namespace DataServices.Migrations.Migrations
 
                     b.HasKey("CohortDistributionId");
 
-                    b.HasIndex(new[] { "IsExtracted", "RequestId" }, "IX_BSCOHORT_IS_EXTACTED_REQUESTID");
-
                     b.HasIndex(new[] { "NHSNumber" }, "IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
 
                     b.ToTable("BS_COHORT_DISTRIBUTION", "dbo");
@@ -714,8 +715,6 @@ namespace DataServices.Migrations.Migrations
 
                     b.HasKey("MetricAuditId");
 
-                    b.HasIndex(new[] { "ReceivedDateTime" }, "IX_INBOUND_METRICS_RECEIVEDDATETIME");
-
                     b.ToTable("INBOUND_METRICS", "dbo");
                 });
 
@@ -737,8 +736,9 @@ namespace DataServices.Migrations.Migrations
 
             modelBuilder.Entity("Model.NemsSubscription", b =>
                 {
-                    b.Property<string>("SubscriptionId")
-                        .HasColumnType("nvarchar(450)")
+                    b.Property<Guid>("SubscriptionId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
                         .HasColumnName("SUBSCRIPTION_ID");
 
                     b.Property<long>("NhsNumber")
@@ -752,10 +752,6 @@ namespace DataServices.Migrations.Migrations
                     b.Property<DateTime?>("RecordUpdateDateTime")
                         .HasColumnType("datetime")
                         .HasColumnName("RECORD_UPDATE_DATETIME");
-
-                    b.Property<int?>("SubscriptionSource")
-                        .HasColumnType("int")
-                        .HasColumnName("SUBSCRIPTION_SOURCE");
 
                     b.HasKey("SubscriptionId");
 
@@ -909,8 +905,7 @@ namespace DataServices.Migrations.Migrations
 
                     b.HasKey("ParticipantId");
 
-                    b.HasIndex(new[] { "NhsNumber" }, "Index_PARTICIPANT_DEMOGRAPHIC_NhsNumber")
-                        .IsUnique();
+                    b.HasIndex(new[] { "NhsNumber" }, "Index_PARTICIPANT_DEMOGRAPHIC_NhsNumber");
 
                     b.ToTable("PARTICIPANT_DEMOGRAPHIC", "dbo");
                 });
@@ -932,6 +927,10 @@ namespace DataServices.Migrations.Migrations
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("BUSINESS_RULE_VERSION");
+
+                    b.Property<short>("CeasedFlag")
+                        .HasColumnType("smallint")
+                        .HasColumnName("CEASED_FLAG");
 
                     b.Property<DateTime?>("DateIrradiated")
                         .HasColumnType("datetime")
@@ -1022,8 +1021,7 @@ namespace DataServices.Migrations.Migrations
 
                     b.HasKey("ParticipantId");
 
-                    b.HasIndex(new[] { "NHSNumber", "ScreeningId" }, "ix_PARTICIPANT_MANAGEMENT_screening_nhs")
-                        .IsUnique();
+                    b.HasIndex(new[] { "NHSNumber", "ScreeningId" }, "ix_PARTICIPANT_MANAGEMENT_screening_nhs");
 
                     b.ToTable("PARTICIPANT_MANAGEMENT", "dbo");
                 });
@@ -1061,7 +1059,7 @@ namespace DataServices.Migrations.Migrations
                     b.ToTable("SCREENING_LKP", "dbo");
                 });
 
-            modelBuilder.Entity("Model.ServicenowCase", b =>
+            modelBuilder.Entity("Model.ServicenowCases", b =>
                 {
                     b.Property<string>("ServicenowId")
                         .HasMaxLength(10)

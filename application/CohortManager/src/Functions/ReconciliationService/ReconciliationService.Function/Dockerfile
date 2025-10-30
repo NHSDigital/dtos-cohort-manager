@@ -12,15 +12,13 @@ RUN mkdir -p /home/site/wwwroot && \
     dotnet publish ./DataServices.Core/DataServices.Core.csproj --output /home/site/wwwroot && \
     dotnet publish ./DataServices.Database/DataServices.Database.csproj --output /home/site/wwwroot
 
-COPY ./ReconciliationService/ReconciliationService.Core /ReconciliationService/ReconciliationService.Core
-
 FROM base AS function
 
-COPY ./CaasIntegration/receiveCaasFile /src/dotnet-function-app
-WORKDIR /src/dotnet-function-app
+COPY ./ReconciliationService /dotnet-function-app
+WORKDIR /dotnet-function-app/ReconciliationService.Function/
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
-    dotnet publish *.csproj --output /home/site/wwwroot
+    dotnet publish ReconciliationService.csproj --output /home/site/wwwroot
 
 # To enable ssh & remote debugging on app service change the base image to the one below
 # FROM mcr.microsoft.com/azure-functions/dotnet-isolated:4-dotnet-isolated8.0-appservice
