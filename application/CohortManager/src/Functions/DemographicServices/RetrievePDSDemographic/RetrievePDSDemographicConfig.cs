@@ -25,7 +25,7 @@ public class RetrievePDSDemographicConfig
 
     [Required]
     public required string ServiceBusConnectionString_client_internal { get; set; }
-
+    [Required]
     public required bool UseFakePDSServices { get; set; } = false;
 
     public string ClientId { get; set; } = string.Empty;
