@@ -116,12 +116,12 @@ export function extractPageFromUrl(url: string): number {
   try {
     const parsed = new URL(url);
     const value = parsed.searchParams.get(PAGE_PARAM);
-    const page = value ? parseInt(value, 10) : 1;
+    const page = value ? Number.parseInt(value, 10) : 1;
     return Number.isNaN(page) ? 1 : Math.max(1, page);
   } catch {
     const pageRegex = new RegExp(`[?&]${PAGE_PARAM}=(\\d+)`);
     const match = pageRegex.exec(url);
-    const page = match ? parseInt(match[1], 10) : 1;
+    const page = match ? Number.parseInt(match[1], 10) : 1;
     return Number.isNaN(page) ? 1 : Math.max(1, page);
   }
 }
