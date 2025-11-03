@@ -258,4 +258,60 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
          Assert.IsTrue(updatedCases.Any(c => c.ServicenowId == "SN2"), "Case SN2 should be updated");
          Assert.IsTrue(updatedCases.All(c => c.Status == ServiceNowStatus.Complete), "All cases should be marked Complete");
      }
+
+     [TestMethod]
+     public async Task Run_WithDuplicateCohortDistributionRecords_UsesLatestRecord()
+     {
+         // Arrange
+         const long testNhsNumber = 123;
+
+         var serviceNowCase = new ServicenowCase
+         {
+             ServicenowId = "SN1",
+             NhsNumber = testNhsNumber,
+             Status = ServiceNowStatus.New
+         };
+
+         _serviceNowCasesClientMock.Setup(x =>
+             x.GetByFilter(It.IsAny<Expression<Func<ServicenowCase, bool>>>()))
+             .ReturnsAsync(new List<ServicenowCase> { serviceNowCase });
+
+         // Multiple CohortDistribution records with same NHS number (duplicates)
+         var olderParticipant = new CohortDistribution
+         {
+             CohortDistributionId = 1,
+             NHSNumber = testNhsNumber,
+             RecordInsertDateTime = DateTime.UtcNow.AddDays(-2),
+             PrimaryCareProvider = "OLD123"
+         };
+
+         var newerParticipant = new CohortDistribution
+         {
+             CohortDistributionId = 2,
+             NHSNumber = testNhsNumber,
+             RecordInsertDateTime = DateTime.UtcNow.AddDays(-1),
+             PrimaryCareProvider = "NEW456"
+         };
+
+         var participants = new List<CohortDistribution> { olderParticipant, newerParticipant };
+
+         _cohortDistributionClientMock.Setup(x =>
+             x.GetByFilter(It.IsAny<Expression<Func<CohortDistribution, bool>>>()))
+             .ReturnsAsync(participants);
+
+         _serviceNowCasesClientMock.Setup(x =>
+             x.Update(It.IsAny<ServicenowCase>()))
+             .ReturnsAsync(true);
+
+         // Act
+         await _service.Run(_timerInfo);
+
+         // Assert - Should not throw "An item with the same key has already been added"
+         _serviceNowCasesClientMock.Verify(x =>
+             x.Update(It.Is<ServicenowCase>(c =>
+                 c.ServicenowId == "SN1" &&
+                 c.Status == ServiceNowStatus.Complete)),
+             Times.Once,
+             "Should successfully process case using the newer cohort distribution record");
+     }
  }

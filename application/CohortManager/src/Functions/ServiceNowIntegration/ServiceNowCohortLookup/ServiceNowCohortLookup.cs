@@ -147,10 +147,15 @@ public class ServiceNowCohortLookup
 
     /// <summary>
     /// Creates a dictionary lookup for participants by NHS number.
+    /// When multiple records exist for the same NHS number, selects the most recent one.
     /// </summary>
     private static Dictionary<long, CohortDistribution> CreateParticipantLookup(List<CohortDistribution> participants)
     {
-        return participants.Where(p => p.NHSNumber != 0).ToDictionary(p => p.NHSNumber,p => p);
+        return participants
+            .Where(p => p.NHSNumber != 0)
+            .GroupBy(p => p.NHSNumber)
+            .Select(g => g.OrderByDescending(p => p.RecordInsertDateTime).First())
+            .ToDictionary(p => p.NHSNumber, p => p);
     }
 
     /// <summary>
