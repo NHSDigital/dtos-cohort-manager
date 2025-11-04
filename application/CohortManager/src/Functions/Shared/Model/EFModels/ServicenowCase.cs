@@ -6,6 +6,10 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class ServicenowCase
 {
     [Key]
+    [Column("ID")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public Guid Id { get; set; }
+
     [MaxLength(10)]
     [Column("SERVICENOW_ID")]
     public required string ServicenowId { get; set; }

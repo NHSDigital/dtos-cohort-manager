@@ -50,6 +50,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
          // Arrange
          var invalidCase = new ServicenowCase
          {
+             Id = Guid.NewGuid(),
              ServicenowId = ServiceNowId,
              NhsNumber = 0, // Invalid NHS number
              Status = ServiceNowStatus.New,
@@ -84,6 +85,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
          var validNhsNumberLong = long.Parse(ValidNhsNumber);
          var newCase = new ServicenowCase
          {
+             Id = Guid.NewGuid(),
              ServicenowId = ServiceNowId,
              NhsNumber = validNhsNumberLong,
              Status = ServiceNowStatus.New,
@@ -118,6 +120,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
          var validNhsNumberLong = long.Parse(ValidNhsNumber);
          var processedCase = new ServicenowCase
          {
+             Id = Guid.NewGuid(),
              ServicenowId = ServiceNowId,
              NhsNumber = validNhsNumberLong,
              Status = ServiceNowStatus.Complete, // Already processed
@@ -143,6 +146,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
          // Arrange
          var validCase1 = new ServicenowCase
          {
+             Id = Guid.NewGuid(),
              ServicenowId = "SN1",
              NhsNumber = 123,
              Status = ServiceNowStatus.New
@@ -150,6 +154,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
 
          var validCase2 = new ServicenowCase
          {
+             Id = Guid.NewGuid(),
              ServicenowId = "SN2",
              NhsNumber = 456,
              Status = ServiceNowStatus.New
@@ -157,6 +162,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
 
          var invalidCase = new ServicenowCase
          {
+             Id = Guid.NewGuid(),
              ServicenowId = "SN3",
              NhsNumber = 0, // Invalid
              Status = ServiceNowStatus.New
@@ -220,6 +226,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
 
          var case1 = new ServicenowCase
          {
+             Id = Guid.NewGuid(),
              ServicenowId = "SN1",
              NhsNumber = testNhsNumber,
              Status = ServiceNowStatus.New
@@ -227,6 +234,7 @@ namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
 
          var case2 = new ServicenowCase
          {
+             Id = Guid.NewGuid(),
              ServicenowId = "SN2",
              NhsNumber = testNhsNumber, // Same NHS number
              Status = ServiceNowStatus.New

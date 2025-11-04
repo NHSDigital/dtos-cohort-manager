@@ -82,6 +82,6 @@ export const config = {
   uniqueKeyParticipantManagement: 'ParticipantId',
   uniqueKeyParticipantDemographic: 'ParticipantId',
   uniqueKeyExceptionManagement: 'ExceptionId',
-  uniqueKeyServiceNowCases: 'ServicenowId',
+  uniqueKeyServiceNowCases: 'Id',
   ignoreValidationKey: 'apiEndpoint'
 }
