@@ -379,53 +379,6 @@ function_apps = {
       }
     }
 
-    ProcessNemsUpdate = {
-      name_suffix                  = "process-nems-update"
-      function_endpoint_name       = "ProcessNemsUpdate"
-      app_service_plan_key         = "NonScaling"
-      key_vault_url                = "KeyVaultConnectionString"
-      storage_account_env_var_name = "nemsmeshfolder_STORAGE"
-      service_bus_connections      = ["internal"]
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "RetrievePdsDemographicURL"
-          function_app_key = "RetrievePDSDemographic"
-        },
-        {
-          env_var_name     = "ManageNemsSubscriptionUnsubscribeURL"
-          function_app_key = "ManageNemsSubscription"
-          endpoint_name    = "Unsubscribe"
-        },
-        {
-          env_var_name     = "ManageNemsSubscriptionSubscribeURL"
-          function_app_key = "ManageNemsSubscription"
-          endpoint_name    = "Subscribe"
-        },
-        {
-          env_var_name     = "DemographicDataServiceURL"
-          function_app_key = "ParticipantDemographicDataService"
-        }
-      ],
-      storage_containers = [
-        {
-          env_var_name   = "NemsMessages"
-          container_name = "nems-updates"
-        },
-        {
-          env_var_name   = "NemsPoisonContainer"
-          container_name = "nems-poison"
-        }
-      ]
-      env_vars_static = {
-        MeshCertName               = "MeshCert"
-        ParticipantManagementTopic = "participant-management"
-      }
-    }
-
     ManageParticipant = {
       name_suffix             = "manage-participant"
       function_endpoint_name  = "ManageParticipant"
@@ -1020,26 +973,6 @@ function_apps = {
       }
     }
 
-    ServiceNowCohortLookup = {
-      name_suffix            = "servicenow-cohort-lookup"
-      function_endpoint_name = "ServiceNowCohortLookup"
-      app_service_plan_key   = "NonScaling"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "ServiceNowCasesDataServiceURL"
-          function_app_key = "ServiceNowCasesDataService"
-        },
-        {
-          env_var_name     = "CohortDistributionDataServiceURL"
-          function_app_key = "CohortDistributionDataService"
-        }
-      ]
-    }
-
     RetrievePDSDemographic = {
       name_suffix             = "retrieve-pds-demographic"
       function_endpoint_name  = "RetrievePDSDemographic"
@@ -1068,30 +1001,6 @@ function_apps = {
         KeyNamePrivateKey          = "PDSPRIVATEKEY"
         ParticipantManagementTopic = "participant-management"
         UseFakePDSServices         = "false"
-      }
-    }
-
-    ManageNemsSubscription = {
-      name_suffix            = "manage-nems-subscription"
-      function_endpoint_name = "ManageNemsSubscription"
-      app_service_plan_key   = "NonScaling"
-      db_connection_string   = "DtOsDatabaseConnectionString"
-      key_vault_url          = "KeyVaultConnectionString"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
-      env_vars_static = {
-        AcceptableLatencyThresholdMs          = "500"
-        NemsFhirEndpoint                      = "https://msg.intspineservices.nhs.uk/STU3"
-        NemsFromAsid                          = "200000002527"
-        NemsToAsid                            = "200000002527"
-        NemsKeyName                           = "nems-client-certificate"
-        NemsSubscriptionProfile               = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
-        NemsSubscriptionCriteria              = "https://fhir.nhs.uk/Id/nhs-number"
-        NemsBypassServerCertificateValidation = "false"
       }
     }
 
@@ -1149,26 +1058,6 @@ function_apps = {
       ]
       env_vars_static = {
         NemsFhirEndpoint = "https://example.com"
-      }
-    }
-
-    NemsMeshRetrieval = {
-      name_suffix                  = "nems-mesh-retrieval"
-      function_endpoint_name       = "NemsMeshRetrieval"
-      app_service_plan_key         = "NonScaling"
-      key_vault_url                = "KeyVaultConnectionString"
-      storage_account_env_var_name = "nemsmeshfolder_STORAGE"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        }
-      ]
-      env_vars_static = {
-        NemsMeshCertName                          = "NemsMeshCert"
-        NemsMeshInboundContainer                  = "nems-updates"
-        NemsMeshConfigContainer                   = "nems-config"
-        NemsMeshBypassServerCertificateValidation = "true"
       }
     }
 
