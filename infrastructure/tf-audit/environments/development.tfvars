@@ -63,7 +63,7 @@ storage_accounts = {
         container_access_type = "private"
         immutability_policy = {
           is_locked                           = false
-          immutability_period_in_days         = 365
+          immutability_period_in_days         = 1
           protected_append_writes_all_enabled = false
           protected_append_writes_enabled     = false
         }
