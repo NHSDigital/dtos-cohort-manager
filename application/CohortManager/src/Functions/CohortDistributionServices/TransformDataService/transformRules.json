@@ -640,9 +640,13 @@
           {
             "Name": "ExistingDateOfBirth",
             "Expression": "string.IsNullOrEmpty(existingParticipant.DateOfBirth) ? null : existingParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
+          },
+          {
+            "Name": "FamilyNameChanged",
+            "Expression": "!string.Equals(participant.FamilyName, existingParticipant.FamilyName, StringComparison.OrdinalIgnoreCase)"
           }
         ],
-        "Expression": "participant.RecordType == Actions.Amended && (existingParticipant.ParticipantId != null || existingParticipant.ParticipantId != \"0\") && ((participant.FamilyName != existingParticipant.FamilyName AND participant.Gender != existingParticipant.Gender) OR (participant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
+        "Expression": "participant.RecordType == Actions.Amended && (existingParticipant.ParticipantId != null || existingParticipant.ParticipantId != \"0\") && ((FamilyNameChanged AND participant.Gender != existingParticipant.Gender) OR (FamilyNameChanged AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
       },
       {
         "RuleName": "00.ValidateLanguageCode",
