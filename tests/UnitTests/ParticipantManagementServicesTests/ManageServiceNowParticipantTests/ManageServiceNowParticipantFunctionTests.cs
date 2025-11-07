@@ -834,4 +834,122 @@ public class ManageServiceNowParticipantFunctionTests
 
         _loggerMock.VerifyLogger(LogLevel.Information, "Existing participant management record found, updating record 123");
     }
+
+    [TestMethod]
+    [DataRow("Samantha", "Bloggs", "Samantha ", "Bloggs", "1970-01-01")]          // Trailing space in first name from PDS
+    [DataRow("Samantha", "Bloggs", "Samantha", "Bloggs ", "1970-01-01")]          // Trailing space in family name from PDS
+    [DataRow("Samantha", "Bloggs", " Samantha", "Bloggs", "1970-01-01")]          // Leading space in first name from PDS
+    [DataRow("Samantha", "Bloggs", "Samantha", " Bloggs", "1970-01-01")]          // Leading space in family name from PDS
+    [DataRow("Samantha", "Bloggs", "Samantha  ", "Bloggs  ", "1970-01-01")]       // Multiple trailing spaces from PDS
+    [DataRow("MaryAnne", "Smith", "Mary-Anne", "Smith", "1970-01-01")]            // ServiceNow has no hyphen, PDS has hyphen
+    [DataRow("Mary-Anne", "Smith", "MaryAnne", "Smith", "1970-01-01")]            // ServiceNow has hyphen, PDS has no hyphen
+    [DataRow("Mary-Anne", "Smith", "Mary Anne", "Smith", "1970-01-01")]           // ServiceNow has hyphen, PDS has space
+    [DataRow("Mary-Anne", "Smith-Jones", "MaryAnne", "SmithJones", "1970-01-01")] // Hyphens in ServiceNow, none in PDS
+    [DataRow("MaryAnne", "SmithJones", "Mary Anne", "Smith Jones", "1970-01-01")] // No hyphens in ServiceNow, spaces in PDS
+    [DataRow("Mary-Anne", "Smith-Jones", "Mary Anne", "Smith Jones", "1970-01-01")] // Hyphens in ServiceNow, spaces in PDS
+    [DataRow("José", "Bloggs", "José ", "Bloggs", "1970-01-01")]                 // Accented character with trailing space
+    [DataRow("François", "Müller", "François ", "Müller ", "1970-01-01")]        // Multiple accented characters with trailing spaces
+    [DataRow("Siobhán", "OBrien", "Siobhán", "O'Brien", "1970-01-01")]           // Accented character, apostrophe removed
+    [DataRow("Samantha", "OBrien", "Samantha", "O'Brien", "1970-01-01")]         // ServiceNow without apostrophe, PDS with apostrophe
+    [DataRow("Samantha", "dArcy", "Samantha", "d'Arcy", "1970-01-01")]           // Lowercase name with apostrophe in PDS
+    public async Task Run_WhenServiceNowParticipantNameHasTrailingSpacesOrHyphensOrSpecialChars_MatchesWithPdsAndAddsParticipant(
+        string serviceNowFirstName, string serviceNowFamilyName, string pdsFirstName, string pdsFamilyName, string dateOfBirth)
+    {
+        // Arrange
+        var testServiceNowParticipant = new ServiceNowParticipant
+        {
+            ScreeningId = _serviceNowParticipant.ScreeningId,
+            NhsNumber = _serviceNowParticipant.NhsNumber,
+            FirstName = serviceNowFirstName,
+            FamilyName = serviceNowFamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth,
+            ServiceNowCaseNumber = _serviceNowParticipant.ServiceNowCaseNumber,
+            BsoCode = _serviceNowParticipant.BsoCode,
+            ReasonForAdding = _serviceNowParticipant.ReasonForAdding,
+            RequiredGpCode = _serviceNowParticipant.RequiredGpCode
+        };
+
+        var testPdsDemographic = new PdsDemographic
+        {
+            NhsNumber = _matchingPdsDemographic.NhsNumber,
+            FirstName = pdsFirstName,
+            FamilyName = pdsFamilyName,
+            DateOfBirth = dateOfBirth,
+            ReasonForRemoval = _matchingPdsDemographic.ReasonForRemoval,
+            RemovalEffectiveFromDate = _matchingPdsDemographic.RemovalEffectiveFromDate
+        };
+
+        var json = JsonSerializer.Serialize(testPdsDemographic);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={testServiceNowParticipant.NhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            }).Verifiable();
+
+        _httpClientFunctionMock.Setup(x => x.SendPost(_configMock.Object.Value.ManageNemsSubscriptionSubscribeURL,
+                It.Is<Dictionary<string, string>>(
+                    x => x.Count == 1 && x.First().Key == "nhsNumber" && x.First().Value == testServiceNowParticipant.NhsNumber.ToString())))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)).Verifiable();
+
+        _dataServiceClientMock.Setup(client => client.GetSingleByFilter(
+            It.Is<Expression<Func<ParticipantManagement, bool>>>(x =>
+                x.Compile().Invoke(new ParticipantManagement { NHSNumber = testServiceNowParticipant.NhsNumber, ScreeningId = testServiceNowParticipant.ScreeningId })
+            ))).ReturnsAsync((ParticipantManagement)null!).Verifiable();
+
+        _dataServiceClientMock.Setup(x => x.Add(It.IsAny<ParticipantManagement>()))
+            .ReturnsAsync(true).Verifiable();
+
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(),
+                _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true).Verifiable();
+
+        // Act
+        await _function.Run(testServiceNowParticipant);
+
+        // Assert
+        _httpClientFunctionMock.Verify();
+        _dataServiceClientMock.Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Once);
+        _queueClientMock.Verify();
+
+        _httpClientFunctionMock.Verify(
+            x => x.SendPut(It.IsAny<string>(), _messageType1Request),
+            Times.Never,
+            "Should not send UnableToAddParticipant message when names match after normalization");
+    }
+
+    [TestMethod]
+    [DataRow("Victoria", "Smith", "1970-01-01")]            // Completely different first name
+    [DataRow("Samantha", "Williams", "1970-01-01")]         // Completely different family name
+    [DataRow("Sam", "Bloggs", "1970-01-01")]                // Shortened first name (not just formatting)
+    [DataRow("Samantha-Jane", "Bloggs", "1970-01-01")]      // Additional name part
+    [DataRow("François", "Bloggs", "1970-01-01")]           // ServiceNow without accent, PDS with accent - should NOT match
+    [DataRow("Siobhán", "Bloggs", "1970-01-01")]            // ServiceNow without accent, PDS with accent - should NOT match
+    public async Task Run_WhenServiceNowParticipantNamesDontMatchPdsAfterNormalization_SendsMessageType1(
+        string pdsFirstName, string pdsFamilyName, string dateOfBirth)
+    {
+        // Arrange
+        _matchingPdsDemographic.FirstName = pdsFirstName;
+        _matchingPdsDemographic.FamilyName = pdsFamilyName;
+        _matchingPdsDemographic.DateOfBirth = dateOfBirth;
+
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            }).Verifiable();
+
+        // Act
+        await _function.Run(_serviceNowParticipant);
+
+        // Assert
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
+
+        _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
+            It.Is<Exception>(e => e.Message == "Participant data from ServiceNow does not match participant data from PDS"),
+            It.IsAny<ServiceNowParticipant>()), Times.Once);
+
+        _dataServiceClientMock.Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never);
+        _queueClientMock.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+    }
 }
