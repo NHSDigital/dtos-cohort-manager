@@ -70,6 +70,7 @@ public class ReceiveServiceNowMessageFunction
 
             var serviceNowCase = new ServicenowCase
             {
+                Id = Guid.NewGuid(),
                 ServicenowId = requestBody.ServiceNowCaseNumber,
                 NhsNumber = nhsNumber,
                 Status = ServiceNowStatus.New,
