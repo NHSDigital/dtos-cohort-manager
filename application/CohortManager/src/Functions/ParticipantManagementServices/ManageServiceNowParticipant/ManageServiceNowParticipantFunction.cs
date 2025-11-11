@@ -3,6 +3,7 @@ namespace NHS.CohortManager.ParticipantManagementServices;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Common;
@@ -13,7 +14,7 @@ using Microsoft.Extensions.Options;
 using Model;
 using Model.Enums;
 
-public partial class ManageServiceNowParticipantFunction
+public class ManageServiceNowParticipantFunction
 {
     private readonly ILogger<ManageServiceNowParticipantFunction> _logger;
     private readonly ManageServiceNowParticipantConfig _config;
@@ -22,7 +23,7 @@ public partial class ManageServiceNowParticipantFunction
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly IQueueClient _queueClient;
 
-    private static readonly Regex NonLetterRegex = MyRegex();
+    private static readonly Regex NonLetterRegex = new(@"[^\p{L}]", RegexOptions.Compiled);
 
     public ManageServiceNowParticipantFunction(ILogger<ManageServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> config,
         IHttpClientFunction httpClientFunction, IExceptionHandler handleException, IDataServiceClient<ParticipantManagement> participantManagementClient,
@@ -249,48 +250,45 @@ public partial class ManageServiceNowParticipantFunction
     }
 
     /// <summary>
-    /// Normalizes and compares two name strings by removing spaces, hyphens, and special characters
-    /// while preserving alphabetic characters including accented letters (É, Ñ, etc.)
+    /// Normalizes and compares two name strings by removing accents, spaces, hyphens, and special characters.
+    /// Converts accented characters to their base forms (É→E, Ñ→N, Ö→O) to match database storage behavior.
     /// </summary>
     /// <param name="name1">First name to compare</param>
     /// <param name="name2">Second name to compare</param>
     /// <returns>True if the normalized names match (case-insensitive), false otherwise</returns>
     private static bool NormalizedNamesMatch(string? name1, string? name2)
     {
-        // Both null/empty/whitespace - considered a match
-        if (string.IsNullOrWhiteSpace(name1) && string.IsNullOrWhiteSpace(name2))
-            return true;
-
-        // One null/empty/whitespace, other has content - no match
-        if (string.IsNullOrWhiteSpace(name1) || string.IsNullOrWhiteSpace(name2))
-            return false;
+        if (string.IsNullOrWhiteSpace(name1) && string.IsNullOrWhiteSpace(name2)) return true;
+        if (string.IsNullOrWhiteSpace(name1) || string.IsNullOrWhiteSpace(name2)) return false;
 
         var normalized1 = NormalizeName(name1);
         var normalized2 = NormalizeName(name2);
 
-        // Additional check: if normalization results in empty strings, consider no match
-        if (string.IsNullOrEmpty(normalized1) || string.IsNullOrEmpty(normalized2))
-            return false;
+        if (string.IsNullOrEmpty(normalized1) || string.IsNullOrEmpty(normalized2)) return false;
 
         return string.Equals(normalized1, normalized2, StringComparison.OrdinalIgnoreCase);
     }
 
     /// <summary>
-    /// Normalizes a name by removing all non-letter characters while preserving Unicode letters.
-    /// This handles spaces, hyphens, apostrophes, and other punctuation while keeping
-    /// accented characters like É, Ñ, Ö, etc.
-    /// Uses regex with \p{L} pattern which matches any Unicode letter category.
+    /// Normalizes a name by removing accents and all non-letter characters.
+    /// This handles spaces, hyphens, apostrophes, and other punctuation.
+    /// Accented characters like É, Ñ, Ö are converted to their base forms (E, N, O).
+    /// Uses Unicode NFD normalization to decompose accents, then removes diacritical marks.
     /// </summary>
     /// <param name="name">The name to normalize</param>
-    /// <returns>Normalized name containing only letters</returns>
-    private static string NormalizeName(string? name)
+    /// <returns>Normalized name containing only unaccented ASCII letters</returns>
+    private static string NormalizeName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
+        {
             return string.Empty;
+        }
 
-        // Use regex to remove all non-letter characters (more efficient than char-by-char)
-        // \p{L} matches any Unicode letter category
-        return NonLetterRegex.Replace(name.Trim(), string.Empty);
+        var trimmedName = name.Trim();
+        var normalizedString = trimmedName.Normalize(NormalizationForm.FormD);
+        var lettersOnlyString = NonLetterRegex.Replace(normalizedString, string.Empty);
+
+        return lettersOnlyString.Normalize(NormalizationForm.FormC);
     }
 
     private async Task SendServiceNowMessage(string serviceNowCaseNumber, ServiceNowMessageType servicenowMessageType)
@@ -323,7 +321,4 @@ public partial class ManageServiceNowParticipantFunction
 
         return nemsSubscribeResponse.IsSuccessStatusCode;
     }
-
-    [GeneratedRegex(@"[^\p{L}]", RegexOptions.Compiled)]
-    private static partial Regex MyRegex();
 }
