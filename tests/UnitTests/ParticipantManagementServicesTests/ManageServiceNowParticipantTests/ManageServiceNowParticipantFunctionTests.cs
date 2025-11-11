@@ -887,21 +887,15 @@ public class ManageServiceNowParticipantFunctionTests
             }).Verifiable();
 
         _httpClientFunctionMock.Setup(x => x.SendPost(_configMock.Object.Value.ManageNemsSubscriptionSubscribeURL,
-                It.Is<Dictionary<string, string>>(
-                    x => x.Count == 1 && x.First().Key == "nhsNumber" && x.First().Value == testServiceNowParticipant.NhsNumber.ToString())))
+                It.Is<Dictionary<string, string>>(x => x.Count == 1 && x.First().Key == "nhsNumber" && x.First().Value == testServiceNowParticipant.NhsNumber.ToString())))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)).Verifiable();
 
         _dataServiceClientMock.Setup(client => client.GetSingleByFilter(
-            It.Is<Expression<Func<ParticipantManagement, bool>>>(x =>
-                x.Compile().Invoke(new ParticipantManagement { NHSNumber = testServiceNowParticipant.NhsNumber, ScreeningId = testServiceNowParticipant.ScreeningId })
+            It.Is<Expression<Func<ParticipantManagement, bool>>>(x => x.Compile().Invoke(new ParticipantManagement { NHSNumber = testServiceNowParticipant.NhsNumber, ScreeningId = testServiceNowParticipant.ScreeningId })
             ))).ReturnsAsync((ParticipantManagement)null!).Verifiable();
 
-        _dataServiceClientMock.Setup(x => x.Add(It.IsAny<ParticipantManagement>()))
-            .ReturnsAsync(true).Verifiable();
-
-        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(),
-                _configMock.Object.Value.CohortDistributionTopic))
-            .ReturnsAsync(true).Verifiable();
+        _dataServiceClientMock.Setup(x => x.Add(It.IsAny<ParticipantManagement>())).ReturnsAsync(true).Verifiable();
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), _configMock.Object.Value.CohortDistributionTopic)).ReturnsAsync(true).Verifiable();
 
         // Act
         await _function.Run(testServiceNowParticipant);
