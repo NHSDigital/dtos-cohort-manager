@@ -23,7 +23,7 @@ public class ManageServiceNowParticipantFunction
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly IQueueClient _queueClient;
 
-    private static readonly Regex NonLetterRegex = new(@"[^\p{L}]", RegexOptions.Compiled);
+    private static readonly Regex NonLetterRegex = new(@"[^\p{L}]", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
 
     public ManageServiceNowParticipantFunction(ILogger<ManageServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> config,
         IHttpClientFunction httpClientFunction, IExceptionHandler handleException, IDataServiceClient<ParticipantManagement> participantManagementClient,
