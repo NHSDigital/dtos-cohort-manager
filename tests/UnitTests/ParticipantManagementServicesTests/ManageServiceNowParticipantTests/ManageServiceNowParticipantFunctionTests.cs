@@ -25,7 +25,6 @@ public class ManageServiceNowParticipantFunctionTests
     private readonly Mock<IQueueClient> _queueClientMock = new();
     private readonly ServiceNowParticipant _serviceNowParticipant;
     private readonly ManageServiceNowParticipantFunction _function;
-
     private readonly string _messageType1Request;
     private readonly string _messageType2Request;
     private readonly PdsDemographic _matchingPdsDemographic;
@@ -921,8 +920,7 @@ public class ManageServiceNowParticipantFunctionTests
     [DataRow("Samantha-Jane", "Bloggs", "1970-01-01")]      // Additional name part
     [DataRow("François", "Bloggs", "1970-01-01")]           // ServiceNow without accent, PDS with accent - should NOT match
     [DataRow("Siobhán", "Bloggs", "1970-01-01")]            // ServiceNow without accent, PDS with accent - should NOT match
-    public async Task Run_WhenServiceNowParticipantNamesDontMatchPdsAfterNormalization_SendsMessageType1(
-        string pdsFirstName, string pdsFamilyName, string dateOfBirth)
+    public async Task Run_WhenServiceNowParticipantNamesDontMatchPdsAfterNormalization_ParticipantDataDoesNotMatchExceptionRaised(string pdsFirstName, string pdsFamilyName, string dateOfBirth)
     {
         // Arrange
         _matchingPdsDemographic.FirstName = pdsFirstName;
@@ -941,12 +939,60 @@ public class ManageServiceNowParticipantFunctionTests
 
         // Assert
         _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
-
-        _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
-            It.Is<Exception>(e => e.Message == "Participant data from ServiceNow does not match participant data from PDS"),
+        _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(It.Is<Exception>(e => e.Message == "Participant data from ServiceNow does not match participant data from PDS"),
             It.IsAny<ServiceNowParticipant>()), Times.Once);
-
         _dataServiceClientMock.Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never);
         _queueClientMock.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    [DataRow("123", "456", "1970-01-01")]      // Numbers only - both normalize to empty strings
+    [DataRow("123", "123", "1970-01-01")]      // Numbers only - Matching
+    [DataRow("---", "@@@", "1970-01-01")]      // Symbols only - both normalize to empty strings
+    [DataRow("123-456", "...", "1970-01-01")]  // Mixed non-letters - both normalize to empty strings
+    [DataRow("   ", "   ", "1970-01-01")]      // Spaces only
+    public async Task Run_WhenNamesContainOnlyNonLetterCharacters_ParticipantDataDoesNotMatchExceptionRaised(string pdsFirstName, string pdsFamilyName, string dateOfBirth)
+    {
+        // Arrange
+        var testServiceNowParticipant = new ServiceNowParticipant
+        {
+            ScreeningId = _serviceNowParticipant.ScreeningId,
+            NhsNumber = _serviceNowParticipant.NhsNumber,
+            FirstName = "123",
+            FamilyName = "456",
+            DateOfBirth = _serviceNowParticipant.DateOfBirth,
+            ServiceNowCaseNumber = _serviceNowParticipant.ServiceNowCaseNumber,
+            BsoCode = _serviceNowParticipant.BsoCode,
+            ReasonForAdding = _serviceNowParticipant.ReasonForAdding,
+            RequiredGpCode = _serviceNowParticipant.RequiredGpCode
+        };
+
+        var testPdsDemographic = new PdsDemographic
+        {
+            NhsNumber = _matchingPdsDemographic.NhsNumber,
+            FirstName = pdsFirstName,
+            FamilyName = pdsFamilyName,
+            DateOfBirth = dateOfBirth,
+            ReasonForRemoval = _matchingPdsDemographic.ReasonForRemoval,
+            RemovalEffectiveFromDate = _matchingPdsDemographic.RemovalEffectiveFromDate
+        };
+
+        var json = JsonSerializer.Serialize(testPdsDemographic);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={testServiceNowParticipant.NhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            }).Verifiable();
+
+        // Act
+        await _function.Run(testServiceNowParticipant);
+
+        // Assert
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{testServiceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once(),
+            "Should send UnableToAddParticipant message when names normalize to empty strings");
+        _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(It.Is<Exception>(e => e.Message == "Participant data from ServiceNow does not match participant data from PDS"),
+            It.IsAny<ServiceNowParticipant>()), Times.Once, "Should create exception log when names containing only non-letter characters don't spuriously match");
+        _dataServiceClientMock.Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never, "Should not add participant when names are invalid (only non-letter characters)");
+        _queueClientMock.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never, "Should not queue participant when names are invalid");
     }
 }
