@@ -554,6 +554,10 @@ variable "sqlserver" {
       start_ip     = string
       end_ip       = string
     })), {})
+
+    # Azure Monitor Alerting
+    enable_alerting = optional(bool, false)
+    action_group_id = optional(string, null)
   })
 }
 
