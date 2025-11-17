@@ -23,37 +23,84 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         _bsSelectRequestAuditDataServiceClient = bsSelectRequestAuditDataServiceClient;
     }
 
-
     public async Task<List<CohortDistributionParticipantDto>> GetUnextractedCohortDistributionParticipants(int rowCount)
     {
-        var participantsList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.IsExtracted.Equals(0) && x.RequestId == Guid.Empty);
+        var participantsToBeExtracted = await GetRegularUnextractedParticipants(rowCount)
+            ?? await GetSupersededParticipants(rowCount);
 
-        var participantsToBeExtracted = participantsList.OrderBy(x => x.RecordUpdateDateTime ?? x.RecordInsertDateTime).Take(rowCount).ToList();
-        //TODO do this filtering on the data services
-        var CohortDistributionParticipantList = participantsToBeExtracted.Select(x => new CohortDistributionParticipant(x)).ToList();
+        return await ProcessAndReturnParticipants(participantsToBeExtracted);
+    }
 
+    private async Task<List<CohortDistribution>?> GetRegularUnextractedParticipants(int rowCount)
+    {
+        var unextractedParticipants = await _cohortDistributionDataServiceClient.GetByFilter(
+            x => x.IsExtracted.Equals(0) && x.RequestId == Guid.Empty && x.SupersededNHSNumber == null);
+
+        return unextractedParticipants.Any()
+            ? OrderAndTakeParticipants(unextractedParticipants, rowCount)
+            : null;
+    }
+
+    private async Task<List<CohortDistribution>> GetSupersededParticipants(int rowCount)
+    {
+        var supersededParticipants = await _cohortDistributionDataServiceClient.GetByFilter(
+            x => x.IsExtracted.Equals(0) && x.RequestId == Guid.Empty && x.SupersededNHSNumber != null);
+
+        // Get distinct non-null superseded NHS numbers
+        var supersededNhsNumbers = supersededParticipants
+            .Select(sp => sp.SupersededNHSNumber)
+            .Where(nhs => nhs.HasValue)
+            .Select(nhs => nhs.Value)
+            .Distinct()
+            .ToList();
+
+        // Find records matching the superseded NHS numbers
+        var matchingParticipants = await _cohortDistributionDataServiceClient.GetByFilter(
+            x => supersededNhsNumbers.Contains(x.NHSNumber) && x.IsExtracted.Equals(1));
+
+        // Filter superseded participants that have matching records
+        var filteredParticipants = supersededParticipants.ToList()
+            .Where(sp => matchingParticipants.Any(mp => mp.NHSNumber == sp.SupersededNHSNumber))
+            .ToList();
+
+        return OrderAndTakeParticipants(filteredParticipants, rowCount);
+    }
+
+    private static List<CohortDistribution> OrderAndTakeParticipants(IEnumerable<CohortDistribution> participants, int rowCount)
+    {
+        return participants
+            .OrderBy(x => (x.RecordUpdateDateTime ?? x.RecordInsertDateTime) ?? DateTime.MinValue)
+            .Take(rowCount)
+            .ToList();
+    }
+
+    private async Task<List<CohortDistributionParticipantDto>> ProcessAndReturnParticipants(List<CohortDistribution> participantsToBeExtracted)
+    {
+        var cohortDistributionParticipantList = participantsToBeExtracted
+            .Select(x => new CohortDistributionParticipant(x))
+            .ToList();
 
         var requestId = Guid.NewGuid();
-        if (await MarkCohortDistributionParticipantsAsExtracted(participantsToBeExtracted, requestId))
-        {
-            await LogRequestAudit(requestId, (int)HttpStatusCode.OK);
+        var success = await MarkCohortDistributionParticipantsAsExtracted(participantsToBeExtracted, requestId);
 
-            return CohortDistributionParticipantDto(CohortDistributionParticipantList, requestId);
-        }
+        var statusCode = success ? (int)HttpStatusCode.OK
+            : (cohortDistributionParticipantList.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError);
 
-        var statusCode = CohortDistributionParticipantList.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError;
         await LogRequestAudit(requestId, statusCode);
 
-        return new List<CohortDistributionParticipantDto>();
+        return success
+            ? CohortDistributionParticipantDto(cohortDistributionParticipantList, requestId)
+            : new List<CohortDistributionParticipantDto>();
     }
 
     public async Task<List<CohortDistributionParticipantDto>> GetCohortDistributionParticipantsByRequestId(Guid requestId)
     {
-        var requestIdString = requestId.ToString();
+
         if (requestId == Guid.Empty)
         {
             CohortDistributionParticipantDto(new List<CohortDistributionParticipant>());
         }
+
         // TODO we should probably tidy this up and make it better.
         var participantsList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.RequestId == requestId);
         return CohortDistributionParticipantDto(participantsList.Select(x => new CohortDistributionParticipant(x)).ToList());
@@ -141,16 +188,14 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
 
         var extractedParticipants = cohortParticipants.Select(x => x.CohortDistributionId);
 
-
-
         foreach (var participantId in extractedParticipants)
         {
-
             var participant = await _cohortDistributionDataServiceClient.GetSingle(participantId.ToString());
             participant.IsExtracted = 1;
             participant.RequestId = requestId;
 
             var updatedRecord = await _cohortDistributionDataServiceClient.Update(participant);
+
             if (!updatedRecord)
             {
                 return false;
@@ -205,8 +250,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         }).OrderBy(x => x.CreatedDateTime).ToList();
     }
 
-
-
     private static Expression<Func<BsSelectRequestAudit, bool>> BuildCohortRequestAuditQuery(string? requestId, string? statusCode, DateTime? dateFrom)
     {
         var conditions = new List<Expression<Func<BsSelectRequestAudit, bool>>>();
@@ -231,7 +274,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
             conditions.Add(predicate);
         }
 
-
         Expression<Func<BsSelectRequestAudit, bool>> finalPredicate;
         if (conditions.Count > 0)
         {
@@ -252,7 +294,6 @@ public class CreateCohortDistributionData : ICreateCohortDistributionData
         {
             return firstExpression;
         }
-
 
         var body = expressions
             .Skip(1)
