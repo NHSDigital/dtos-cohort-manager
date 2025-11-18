@@ -6,7 +6,10 @@ import { ParticipantRecord } from '../../../interface/InputData';
 import { fetchApiResponse } from '../../../api/apiHelper';
 import { config } from '../../../config/env';
 
-test.describe.serial('@DTOSS-11543 @epic4c @api @duplicate-servicenow-id Test duplicate ServiceNow case ID handling', () => {
+// Maintenance regression test for DTOSS-11543 duplicate ServiceNow ID handling
+// Tags include maintenance-regression to allow selective execution
+
+test.describe.serial('@maintenance-regression @DTOSS-11543 @epic4c @api @duplicate-servicenow-id Test duplicate ServiceNow case ID handling', () => {
   let participantData: Record<string, ParticipantRecord>;
   const DUPLICATE_CASE_ID = 'CS9999999';
   const SERVICE_NOW_DATA_SERVICE = config.serviceNowCasesDataService;
@@ -46,7 +49,7 @@ test.describe.serial('@DTOSS-11543 @epic4c @api @duplicate-servicenow-id Test du
       // Wait 10 seconds to simulate the actual scenario described in the bug
       console.info('⏰ Waiting 10 seconds to simulate duplicate ServiceNow request...');
       await new Promise(res => setTimeout(res, 10000));
-      
+
       const response = await receiveParticipantViaServiceNow(request, payload);
       const validators = composeValidators(
         expectStatus(202)
@@ -64,35 +67,35 @@ test.describe.serial('@DTOSS-11543 @epic4c @api @duplicate-servicenow-id Test du
     await test.step('Query ServiceNowCasesDataService to get all records with the duplicate case ID', async () => {
       // Wait a bit for the data to be persisted
       await new Promise(res => setTimeout(res, 2000));
-      
+
       const response = await fetchApiResponse(`api/${SERVICE_NOW_DATA_SERVICE}`, request);
       expect(response.ok()).toBeTruthy();
-      
+
       const allRecords = await response.json();
       expect(Array.isArray(allRecords)).toBeTruthy();
-      
+
       // Filter records by ServicenowId
       const duplicateRecords = allRecords.filter((record: any) => record.ServicenowId === DUPLICATE_CASE_ID);
-      
+
       console.info(`Found ${duplicateRecords.length} records with ServiceNow case ID ${DUPLICATE_CASE_ID}`);
       console.info('Records:', JSON.stringify(duplicateRecords, null, 2));
-      
+
       // Verify we have at least 2 records with the same ServicenowId
       expect(duplicateRecords.length).toBeGreaterThanOrEqual(2);
-      
+
       // Extract the ID (GUID) values
       const ids = duplicateRecords.map((record: any) => record.Id);
-      
+
       // Verify all IDs are unique (no duplicates in the array)
       const uniqueIds = new Set(ids);
       expect(uniqueIds.size).toBe(ids.length);
-      
+
       // Verify all IDs are valid GUIDs (format check)
       const guidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
       for (const id of ids) {
         expect(id).toMatch(guidRegex);
       }
-      
+
       console.info(`✅ Verified ${duplicateRecords.length} records with same ServiceNowId but unique GUIDs`);
       console.info('Unique IDs:', ids);
     });
