@@ -57,6 +57,14 @@ runs:
     - name: Install SonarScanner
       shell: bash
       run: dotnet tool install --global dotnet-sonarscanner
+    - name: Pre-analysis disk and coverage diagnostics
+      shell: bash
+      run: |
+        set -euo pipefail
+        echo "Disk usage (df -h):"; df -h || true
+        echo "Top 25 largest directories (du -sm | head):"; du -sm ./* 2>/dev/null | sort -nr | head -25 || true
+        echo "Listing existing coverage directory (if any):"; [ -d coverage ] && find coverage -maxdepth 2 -type f -print || echo "No pre-existing coverage files"
+        echo "Environment summary:"; echo "SONAR vars set? PROJECT=${{ inputs.sonar_project_key:+yes}} ORG=${{ inputs.sonar_organisation_key:+yes}} TOKEN=${{ inputs.sonar_token:+yes}}"
     - name: SonarCloud analysis
       shell: bash
       env:
@@ -77,6 +85,7 @@ runs:
         GITHUB_SHA_VALUE: ${{ github.sha }}
       run: |
         set -euo pipefail
+        echo "Free space before analysis:"; df -h . || true
         # Make the script executable
         chmod +x "$GITHUB_WORKSPACE/scripts/reports/sonar-analysis.sh"
 
@@ -95,3 +104,5 @@ runs:
           "$GITHUB_REF_VALUE" \
           "$GITHUB_SHA_VALUE" \
           "$UNIT_TEST_DIR"
+        echo "Free space after analysis script run:"; df -h . || true
+        echo "Coverage files present:"; find "$COVERAGE_PATH" -type f -maxdepth 3 -print || true
