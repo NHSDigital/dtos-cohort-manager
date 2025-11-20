@@ -34,8 +34,20 @@ mkdir -p "$COVERAGE_PATH"
 # Store absolute path to coverage directory
 COVERAGE_FULL_PATH="$(pwd)/${COVERAGE_PATH}"
 
-# Restore solution dependencies
-find . -name "*.sln" -exec dotnet restore {} \;
+# Restore dependencies (optimized)
+echo "[Diagnostics] Disk usage before restore:"; df -h . || true
+if [ "${FULL_RESTORE:-false}" = "true" ]; then
+  echo "FULL_RESTORE enabled - restoring all solutions"
+  find . -name "*.sln" -exec dotnet restore {} \;
+else
+  if [ -f "application/CohortManager/src/Functions/Functions.sln" ]; then
+    echo "Restoring primary Functions.sln"
+    dotnet restore application/CohortManager/src/Functions/Functions.sln
+  fi
+  echo "Restoring consolidated test project"
+  dotnet restore "${UNIT_TEST_DIR}/ConsolidatedTests.csproj"
+fi
+echo "[Diagnostics] Disk usage after restore:"; df -h . || true
 
 # Begin SonarScanner with coverage configuration and PR information
 dotnet sonarscanner begin \
@@ -77,8 +89,10 @@ dotnet sonarscanner begin \
   /d:sonar.scanner.scanAll=true \
   ${PR_ARGS}
 
-# Build all solutions
-find . -name "*.sln" -exec dotnet build {} --no-restore \;
+# Build (targeted)
+echo "Building test project for coverage"
+dotnet build "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" --no-restore
+echo "[Diagnostics] Disk usage after build:"; df -h . || true
 
 # Run consolidated tests to generate coverage
 # This is critical - tests must run between SonarScanner begin and end commands
@@ -124,3 +138,11 @@ fi
 
 # End SonarScanner
 dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
+
+# Post-scan optional cleanup (keep if free space < threshold)
+FREE_SPACE_GB=$(df -BG . | awk 'NR==2{gsub("G",""); print $4}') || FREE_SPACE_GB=0
+if [ "$FREE_SPACE_GB" -lt 5 ]; then
+  echo "Low free space (${FREE_SPACE_GB}G) - pruning bin/ and obj/ directories to reclaim space"
+  find . -type d \( -name bin -o -name obj \) -prune -exec rm -rf {} + || true
+  echo "Disk usage after pruning:"; df -h . || true
+fi
