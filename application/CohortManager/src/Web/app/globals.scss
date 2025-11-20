@@ -142,3 +142,24 @@
   margin-right: 0;
   margin-left: 8px;
 }
+
+.nhsuk-action-link {
+  display: flex;
+  align-items: center;
+}
+
+.nhsuk-icon--arrow-right-circle {
+    margin-right: 8px;
+}
+
+.nhsuk-action-link__text {
+      font-size: 20px;
+      font-weight: bold;
+      align-self: center;
+}
+
+.app-feedback-section .nhsuk-action-link svg.nhsuk-icon--arrow-right-circle {
+  fill: #00703c;
+  color: #00703c;
+}
+

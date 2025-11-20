@@ -10,6 +10,7 @@ import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 import Pagination from "@/app/components/pagination";
+import FeedbackComponent from "@/app/components/feedback";
 
 export const metadata: Metadata = {
   title: `Not raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
@@ -145,6 +146,7 @@ export default async function Page({
                       }
                     />
                   )}
+                      <FeedbackComponent />
                 </>
               )}
             </div>
