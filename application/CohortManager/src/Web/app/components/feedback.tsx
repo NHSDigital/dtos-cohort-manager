@@ -1,12 +1,10 @@
-const FeedbackComponent = () => {
+const UserFeedback = () => {
   return (
     <div className="app-feedback-section">
       <hr />
 
       <h2 className="nhsuk-u-padding-top-4">Help us improve</h2>
-
       <p>Your feedback helps us make our service better.</p>
-
       <a
         className="nhsuk-action-link"
         href="https://feedback.digital.nhs.uk/jfe/form/SV_3fSsaWEgsDZ2DJA"
@@ -28,7 +26,6 @@ const FeedbackComponent = () => {
           Let us know about your experience of Cohort Manager
         </span>
       </a>
-
       <p>
         If you need technical support, please continue to use our{' '}
         <a href="/contact-us">contact us</a> page rather than this form.
@@ -37,4 +34,4 @@ const FeedbackComponent = () => {
   );
 };
 
-export default FeedbackComponent;
+export default UserFeedback;
