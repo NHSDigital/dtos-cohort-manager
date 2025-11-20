@@ -1,6 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "SBRK"
+environment           = "SBMM"
 
 tags = {
   Environment = "sandbox"
