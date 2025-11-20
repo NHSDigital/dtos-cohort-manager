@@ -47,6 +47,16 @@ export default async function Header({
           >
             <ul className="nhsuk-header__account-list">
               <li className="nhsuk-header__account-item">
+                <input
+                  className="nhsuk-input nhsuk-u-margin-bottom-0"
+                  id="nhs-number"
+                  name="nhsNumber"
+                  type="text"
+                  placeholder="Search NHS number"
+                  style={{ height: '8px', padding: '8px' }}
+                />
+              </li>
+              <li className="nhsuk-header__account-item">
                 <svg
                   className="nhsuk-icon nhsuk-icon__user"
                   xmlns="http://www.w3.org/2000/svg"
