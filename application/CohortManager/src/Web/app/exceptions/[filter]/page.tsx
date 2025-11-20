@@ -10,7 +10,7 @@ import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 import Pagination from "@/app/components/pagination";
-import UserFeedback from "@/app/components/feedback";
+import UserFeedback from "@/app/components/userFeedback";
 
 export const metadata: Metadata = {
   title: `Raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
