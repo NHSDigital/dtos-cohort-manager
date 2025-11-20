@@ -57,23 +57,6 @@ runs:
     - name: Install SonarScanner
       shell: bash
       run: dotnet tool install --global dotnet-sonarscanner
-    - name: Pre-analysis disk and coverage diagnostics
-      shell: bash
-      run: |
-        set -euo pipefail
-        echo "Disk usage (df -h):"; df -h || true
-        echo "Top 25 largest directories (du -sm | head):"; du -sm ./* 2>/dev/null | sort -nr | head -25 || true
-        echo "Listing existing coverage directory (if any):"; [ -d coverage ] && find coverage -maxdepth 2 -type f -print || echo "No pre-existing coverage files"
-        # Export inputs for this diagnostic step
-        export SONAR_PROJECT_KEY="${{ inputs.sonar_project_key }}"
-        export SONAR_ORGANISATION_KEY="${{ inputs.sonar_organisation_key }}"
-        export SONAR_TOKEN_PRESENT="${{ inputs.sonar_token }}"
-        echo "Environment summary:";
-        # Use bash parameter expansion to show if values are non-empty
-        [ -n "$SONAR_PROJECT_KEY" ] && pstat=yes || pstat=no
-        [ -n "$SONAR_ORGANISATION_KEY" ] && ostat=yes || ostat=no
-        [ -n "$SONAR_TOKEN_PRESENT" ] && tstat=yes || tstat=no
-        echo "SONAR vars set? PROJECT=$pstat ORG=$ostat TOKEN=$tstat"
     - name: SonarCloud analysis
       shell: bash
       env:
