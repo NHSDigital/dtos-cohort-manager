@@ -7,6 +7,7 @@ import ReportsTable from "@/app/components/reportsTable";
 import Unauthorised from "@/app/components/unauthorised";
 import { type ReportDetails } from "@/app/types";
 import { formatDate, formatIsoDate } from "../lib/utils";
+import UserFeedback from "@/app/components/userFeedback";
 
 export const metadata: Metadata = {
   title: `Reports - ${process.env.SERVICE_NAME} - NHS`,
@@ -75,6 +76,7 @@ export default async function Page() {
               </div>
             </div>
           </div>
+            <UserFeedback />
         </main>
       </>
     );
