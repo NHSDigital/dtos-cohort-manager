@@ -60,92 +60,12 @@
     <Compile Include="**\*.cs" Exclude="**/bin/**;**/obj/**;**/*.AssemblyInfo.cs;**/*.GlobalUsings.g.cs;**/*AssemblyAttributes.cs" />
   </ItemGroup>
 
-  <!-- Project References -->
+  <!-- Project References (non-Functions only; Functions are pulled via wildcard above) -->
   <ItemGroup>
-    <!-- Shared Projects -->
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Model\Model.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Data\Data.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\Shared\Utilities\Utilities.csproj" />
     <ProjectReference Include="..\TestUtils\TestUtils.csproj" />
-    <ProjectReference Include="../../application/CohortManager/src/Functions/Shared/DataServices.Client/DataServices.Client.csproj" />
-  </ItemGroup>
-
-  <!-- Screening Data Services -->
-  <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\GetValidationExceptions\GetValidationExceptions.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\ScreeningLkpDataService\ScreeningLkpDataService.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\CohortDistributionDataService\CohortDistributionDataService.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\ExceptionManagementDataService\ExceptionManagementDataService.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\ExcludedSMULookupDataService\ExcludedSMULookupDataServices.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\BsSelectOutCode\BsSelectOutCode.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\BsSelectGpPractice\BsSelectGpPractice.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\CurrentPostingDataService\CurrentPosting.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\screeningDataServices\NemsSubscriptionDataService\NemsSubscriptionDataService.csproj" />
-  </ItemGroup>
-
-  <!-- Screening Validation Services -->
-  <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\RemoveValidationException\RemoveValidationException.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\LookupValidation\LookupValidation.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\StaticValidation\StaticValidation.csproj" />
-  </ItemGroup>
-
-  <!-- Participant Management Services -->
-  <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\UpdateBlockedFlag\UpdateBlockedFlag.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\ManageParticipant\ManageParticipant.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\ManageServiceNowParticipant\ManageServiceNowParticipant.csproj" />
-     <ProjectReference Include="..\..\application\CohortManager\src\Functions\ParticipantManagementServices\DeleteParticipant\DeleteParticipant.csproj" />
-  </ItemGroup>
-
-  <!-- Demographic Services -->
-  <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\DemographicDurableFunction\DemographicDurableFunction.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageNemsSubscription\ManageNemsSubscription.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\ManageCaasSubscription\ManageCaasSubscription.csproj" />
-  </ItemGroup>
-
-  <!-- Cohort Distribution Services -->
-  <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\TransformDataService\TransformDataService.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CohortDistributionServices\DistributeParticipant\DistributeParticipant.csproj" />
-  </ItemGroup>
-
-  <!-- Exception Handling -->
-  <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ExceptionHandling\CreateException\CreateException.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ExceptionHandling\UpdateException\UpdateException.csproj" />
-  </ItemGroup>
-
-  <!-- CAAS Integration -->
-  <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CaasIntegration\receiveCaasFile\receiveCaasFile.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\CaasIntegration\RetrieveMeshFile\RetrieveMeshFile.csproj" />
-  </ItemGroup>
-
-  <!-- NEMS Services -->
-  <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\NemsMeshRetrieval\NemsMeshRetrieval.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\NemsSubscriptionService\ProcessNemsUpdate\ProcessNemsUpdate.csproj" />
-  </ItemGroup>
-
-  <!-- ServiceNow Integration Services -->
-  <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegration\ServiceNowMessageHandler\ServiceNowMessageHandler.csproj" />
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegration\ServiceNowCohortLookup\ServiceNowCohortLookup.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\DemographicServices\RetrievePDSDemographic\RetrievePDSDemographic.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ServiceNowIntegration\ServiceNowMessageHandler\ServiceNowMessageHandler.csproj" />
-  </ItemGroup>
-      <!-- FileValidation Services -->
-  <ItemGroup>
-    <ProjectReference Include="..\..\application\CohortManager\src\Functions\ScreeningValidationService\FileValidation\FileValidation.csproj" />
     <ProjectReference Include="JWTTokenServiceTests\JWTTokenServiceTests.csproj" />
   </ItemGroup>
 
