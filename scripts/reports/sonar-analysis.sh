@@ -35,10 +35,10 @@ mkdir -p "$COVERAGE_PATH"
 COVERAGE_FULL_PATH="$(pwd)/${COVERAGE_PATH}"
 
 # Restore dependencies (targeted to reduce disk usage)
-if [ "${FULL_RESTORE:-false}" = "true" ]; then
+if [[ "${FULL_RESTORE:-false}" == "true" ]]; then
   find . -name "*.sln" -exec dotnet restore {} \;
 else
-  if [ -f "application/CohortManager/src/Functions/Functions.sln" ]; then
+  if [[ -f "application/CohortManager/src/Functions/Functions.sln" ]]; then
     dotnet restore application/CohortManager/src/Functions/Functions.sln
   fi
   dotnet restore "${UNIT_TEST_DIR}/ConsolidatedTests.csproj"
