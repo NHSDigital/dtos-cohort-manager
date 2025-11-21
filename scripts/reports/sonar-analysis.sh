@@ -83,6 +83,7 @@ find . -name "*.sln" -exec dotnet build {} --no-restore \;
 # Run consolidated tests to generate coverage
 # This is critical - tests must run between SonarScanner begin and end commands
 dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
+  --no-restore \
   --results-directory "${COVERAGE_PATH}" \
   --logger "trx;LogFileName=TestResults.trx" \
   --collect:"XPlat Code Coverage;Format=opencover;Include=**/*.cs;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*.cs,**/scripts/**/*.cs,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*.cs,**/obj/**/*.cs,**/Properties/**/*.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
