@@ -84,8 +84,8 @@ dotnet sonarscanner begin \
   /d:sonar.scanner.scanAll=true \
   ${PR_ARGS}
 
-# Build only the consolidated test project for coverage
-dotnet build "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" --no-restore
+# Build all solutions
+find . -name "*.sln" -exec dotnet build {} --no-restore \;
 
 # Run consolidated tests to generate coverage
 # This is critical - tests must run between SonarScanner begin and end commands
