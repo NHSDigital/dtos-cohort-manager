@@ -1,9 +1,9 @@
-# resource "azurerm_resource_group" "monitoring" {
-#   name     = "${module.regions_config[local.primary_region].names.resource-group}-monitoring"
-#   location = local.primary_region
+resource "azurerm_resource_group" "monitoring" {
+  name     = "${module.regions_config[local.primary_region].names.resource-group}-monitoring"
+  location = local.primary_region
 
-#   tags = local.merged_tags
-# }
+  tags = local.merged_tags
+}
 
 # module "monitor_action_group_performance" {
 #   count = var.features.alerts_enabled ? 1 : 0
