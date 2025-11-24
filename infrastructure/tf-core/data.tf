@@ -78,4 +78,8 @@ data "azurerm_key_vault_secret" "monitoring_email_address" {
 
   name         = "monitoring-email-address"
   key_vault_id = data.azurerm_key_vault.infra[each.key].id
+
+  depends_on = [
+    module.key_vault
+  ]
 }
