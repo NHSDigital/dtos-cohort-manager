@@ -71,6 +71,10 @@ data "azurerm_key_vault" "infra" {
 
   name                = module.regions_config[each.key].names.key-vault
   resource_group_name = azurerm_resource_group.core[each.key].name
+
+  depends_on = [
+    module.key_vault
+  ]
 }
 
 data "azurerm_key_vault_secret" "monitoring_email_address" {
