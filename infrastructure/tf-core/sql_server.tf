@@ -26,6 +26,9 @@ module "azure_sql_server" {
 
   sql_server_alert_policy_state = "Enabled"
 
+  # Azure Monitor Alerting
+  enable_alerting = var.features.alerts_enabled
+
   sql_uai_name                         = null # not used - deprecate in module
   sql_admin_group_name                 = var.sqlserver.sql_admin_group_name
   sql_admin_object_id                  = data.azuread_group.sql_admin_group.object_id
