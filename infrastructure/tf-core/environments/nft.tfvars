@@ -759,6 +759,10 @@ function_apps = {
           env_var_name     = "SendServiceNowMessageURL"
           function_app_key = "ServiceNowMessageHandler"
           endpoint_name    = "servicenow/send"
+        },
+        {
+          env_var_name     = "ServiceNowCasesDataServiceURL"
+          function_app_key = "ServiceNowCasesDataService"
         }
       ]
       env_vars_static = {
@@ -1017,26 +1021,6 @@ function_apps = {
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
       }
-    }
-
-    ServiceNowCohortLookup = {
-      name_suffix            = "servicenow-cohort-lookup"
-      function_endpoint_name = "ServiceNowCohortLookup"
-      app_service_plan_key   = "NonScaling"
-      app_urls = [
-        {
-          env_var_name     = "ExceptionFunctionURL"
-          function_app_key = "CreateException"
-        },
-        {
-          env_var_name     = "ServiceNowCasesDataServiceURL"
-          function_app_key = "ServiceNowCasesDataService"
-        },
-        {
-          env_var_name     = "CohortDistributionDataServiceURL"
-          function_app_key = "CohortDistributionDataService"
-        }
-      ]
     }
 
     RetrievePDSDemographic = {
