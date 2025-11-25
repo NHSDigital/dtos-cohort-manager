@@ -34,20 +34,15 @@ mkdir -p "$COVERAGE_PATH"
 # Store absolute path to coverage directory
 COVERAGE_FULL_PATH="$(pwd)/${COVERAGE_PATH}"
 
-# Restore dependencies (optimized)
-echo "[Diagnostics] Disk usage before restore:"; df -h . || true
-if [ "${FULL_RESTORE:-false}" = "true" ]; then
-  echo "FULL_RESTORE enabled - restoring all solutions"
+# Restore dependencies (targeted to reduce disk usage)
+if [[ "${FULL_RESTORE:-false}" == "true" ]]; then
   find . -name "*.sln" -exec dotnet restore {} \;
 else
-  if [ -f "application/CohortManager/src/Functions/Functions.sln" ]; then
-    echo "Restoring primary Functions.sln"
+  if [[ -f "application/CohortManager/src/Functions/Functions.sln" ]]; then
     dotnet restore application/CohortManager/src/Functions/Functions.sln
   fi
-  echo "Restoring consolidated test project"
   dotnet restore "${UNIT_TEST_DIR}/ConsolidatedTests.csproj"
 fi
-echo "[Diagnostics] Disk usage after restore:"; df -h . || true
 
 # Begin SonarScanner with coverage configuration and PR information
 dotnet sonarscanner begin \
@@ -89,14 +84,13 @@ dotnet sonarscanner begin \
   /d:sonar.scanner.scanAll=true \
   ${PR_ARGS}
 
-# Build (targeted)
-echo "Building test project for coverage"
+# Build only the consolidated test project for coverage
 dotnet build "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" --no-restore
-echo "[Diagnostics] Disk usage after build:"; df -h . || true
 
 # Run consolidated tests to generate coverage
 # This is critical - tests must run between SonarScanner begin and end commands
 dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
+  --no-restore \
   --results-directory "${COVERAGE_PATH}" \
   --logger "trx;LogFileName=TestResults.trx" \
   --collect:"XPlat Code Coverage;Format=opencover;Include=**/*.cs;ExcludeByFile=**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*.cs,**/scripts/**/*.cs,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*.cs,**/obj/**/*.cs,**/Properties/**/*.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
