@@ -364,20 +364,6 @@ services:
     ports:
       - 9092:9092
 
-  servicenow-cohort-lookup:
-    container_name: servicenow-cohort-lookup
-    image: cohort-manager-servicenow-cohort-lookup
-    networks: [cohman-network]
-    build:
-      context: ./src/Functions/
-      dockerfile: ServiceNowIntegration/ServiceNowCohortLookup/Dockerfile
-    profiles: [service-now]
-    environment:
-      - ASPNETCORE_URLS=http://*:7180
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
-      - ServiceNowCasesDataServiceURL=http://servicenow-cases-data-service:9996/api/ServiceNowCasesDataService
-      - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService
-
   # UI
   web:
     container_name: web
