@@ -132,11 +132,3 @@ fi
 
 # End SonarScanner
 dotnet sonarscanner end /d:sonar.token="${SONAR_TOKEN}"
-
-# Post-scan optional cleanup (keep if free space < threshold)
-FREE_SPACE_GB=$(df -BG . | awk 'NR==2{gsub("G",""); print $4}') || FREE_SPACE_GB=0
-if [ "$FREE_SPACE_GB" -lt 5 ]; then
-  echo "Low free space (${FREE_SPACE_GB}G) - pruning bin/ and obj/ directories to reclaim space"
-  find . -type d \( -name bin -o -name obj \) -prune -exec rm -rf {} + || true
-  echo "Disk usage after pruning:"; df -h . || true
-fi

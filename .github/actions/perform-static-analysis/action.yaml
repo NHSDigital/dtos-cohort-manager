@@ -77,7 +77,6 @@ runs:
         GITHUB_SHA_VALUE: ${{ github.sha }}
       run: |
         set -euo pipefail
-        echo "Free space before analysis:"; df -h . || true
         # Make the script executable
         chmod +x "$GITHUB_WORKSPACE/scripts/reports/sonar-analysis.sh"
 
@@ -96,5 +95,3 @@ runs:
           "$GITHUB_REF_VALUE" \
           "$GITHUB_SHA_VALUE" \
           "$UNIT_TEST_DIR"
-        echo "Free space after analysis script run:"; df -h . || true
-        echo "Coverage files present:"; find "$COVERAGE_PATH" -type f -maxdepth 3 -print || true
