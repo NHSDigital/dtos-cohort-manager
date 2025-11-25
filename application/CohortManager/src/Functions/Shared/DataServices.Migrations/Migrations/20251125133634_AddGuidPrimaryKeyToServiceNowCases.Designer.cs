@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataServices.Migrations.Migrations
 {
     [DbContext(typeof(DataServicesContext))]
-    [Migration("20251110114435_AddGuidPrimaryKeyToServiceNowCases")]
+    [Migration("20251125133634_AddGuidPrimaryKeyToServiceNowCases")]
     partial class AddGuidPrimaryKeyToServiceNowCases
     {
         /// <inheritdoc />
