@@ -10,7 +10,7 @@ features = {
   private_service_connection_is_manual = false
   public_network_access_enabled        = false
   frontdoor_endpoint_enabled           = false
-  alerts_enabled                       = false
+  alerts_enabled                       = true
 }
 
 # these will be merged with compliance tags in locals.tf
@@ -1323,7 +1323,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 30
       read_scale           = false
-      sku                  = "S1"
+      sku                  = "S0"
       storage_account_type = "Local"
       zone_redundant       = false
     }
