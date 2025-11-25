@@ -23,6 +23,7 @@ services:
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - RemoveOldValidationRecordUrl=http://remove-validation-exception-data:7085/api/RemoveValidationExceptionData
       - SendServiceNowMessageURL=http://servicenow-message-handler:9092/api/servicenow/send
+      - ServiceNowCasesDataServiceURL=http://servicenow-cases-data-service:9996/api/ServiceNowCasesDataService
       - IgnoreParticipantExceptions=false
       - IsExtractedToBSSelect=true
       - MaxLookupValidationRetries=3

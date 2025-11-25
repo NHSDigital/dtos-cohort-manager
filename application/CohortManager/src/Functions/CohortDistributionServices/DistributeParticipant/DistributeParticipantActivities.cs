@@ -14,6 +14,7 @@ public class DistributeParticipantActivities
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly IDataServiceClient<ParticipantDemographic> _participantDemographicClient;
+    private readonly IDataServiceClient<ServicenowCase> _serviceNowCasesClient;
     private readonly DistributeParticipantConfig _config;
     private readonly ILogger<DistributeParticipantActivities> _logger;
     private readonly IHttpClientFunction _httpClientFunction;
@@ -21,6 +22,7 @@ public class DistributeParticipantActivities
     public DistributeParticipantActivities(IDataServiceClient<CohortDistribution> cohortDistributionClient,
                                            IDataServiceClient<ParticipantManagement> participantManagementClient,
                                            IDataServiceClient<ParticipantDemographic> participantDemographicClient,
+                                           IDataServiceClient<ServicenowCase> serviceNowCasesClient,
                                            IOptions<DistributeParticipantConfig> config,
                                            ILogger<DistributeParticipantActivities> logger,
                                            IHttpClientFunction httpClientFunction)
@@ -28,6 +30,7 @@ public class DistributeParticipantActivities
         _cohortDistributionClient = cohortDistributionClient;
         _participantManagementClient = participantManagementClient;
         _participantDemographicClient = participantDemographicClient;
+        _serviceNowCasesClient = serviceNowCasesClient;
         _config = config.Value;
         _logger = logger;
         _httpClientFunction = httpClientFunction;
@@ -135,5 +138,53 @@ public class DistributeParticipantActivities
         var json = JsonSerializer.Serialize(requestBody);
 
         await _httpClientFunction.SendPut(url, json);
+    }
+
+    /// <summary>
+    /// Updates the ServiceNow case status to 'Complete' in the database.
+    /// Handles multiple rows with the same ServiceNowId (when ServiceNowId is not the primary key).
+    /// </summary>
+    /// <param name="serviceNowCaseNumber"></param>
+    [Function(nameof(UpdateServiceNowCaseStatus))]
+    public async Task<bool> UpdateServiceNowCaseStatus([ActivityTrigger] string serviceNowCaseNumber)
+    {
+        try
+        {
+            var serviceNowCases = await _serviceNowCasesClient.GetByFilter(c => c.ServicenowId == serviceNowCaseNumber);
+
+            if (serviceNowCases == null || !serviceNowCases.Any())
+            {
+                _logger.LogWarning("ServiceNow case {ServiceNowId} not found in database", serviceNowCaseNumber);
+                return false;
+            }
+
+            var updateTasks = serviceNowCases.Select(async serviceNowCase =>
+            {
+                serviceNowCase.Status = ServiceNowStatus.Complete;
+                serviceNowCase.RecordUpdateDatetime = DateTime.UtcNow;
+                return await _serviceNowCasesClient.Update(serviceNowCase);
+            });
+
+            var results = await Task.WhenAll(updateTasks);
+            var allUpdated = results.All(r => r);
+
+            if (allUpdated)
+            {
+                _logger.LogInformation("Updated {Count} ServiceNow case record(s) {ServiceNowId} status to {Status}",
+                    serviceNowCases.Count(), serviceNowCaseNumber, ServiceNowStatus.Complete);
+            }
+            else
+            {
+                _logger.LogError("Failed to update some ServiceNow case {ServiceNowId} records. {SuccessCount}/{TotalCount} succeeded",
+                    serviceNowCaseNumber, results.Count(r => r), results.Length);
+            }
+
+            return allUpdated;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating ServiceNow case {ServiceNowId} status", serviceNowCaseNumber);
+            return false;
+        }
     }
 }

@@ -123,6 +123,11 @@ public class DistributeParticipant
             if (serviceNowParticipant)
             {
                 // In this scenario, the FileName property should be holding the ServiceNow Case Number
+
+                // Update the ServiceNow case status in the database
+                await context.CallActivityAsync<bool>(nameof(Activities.UpdateServiceNowCaseStatus), participantRecord.FileName);
+
+                // Send a success message to ServiceNow
                 await context.CallActivityAsync(nameof(Activities.SendServiceNowMessage), participantRecord.FileName);
             }
         }
