@@ -52,7 +52,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "caas_file_not_received" 
 resource "azurerm_monitor_scheduled_query_rules_alert" "db_backup_not_created" {
   count = var.features.alerts_enabled ? 1 : 0
 
-  name                = "${data.terraform_remote_state.audit.outputs.storage_account_audit.sqlbackups.name}-${local.primary_region.name}-db-backup-not-created"
+  name                = "${data.terraform_remote_state.audit.outputs.storage_account_audit["sqlbackups-${local.primary_region}"].name}-db-backup-not-created"
   resource_group_name = azurerm_resource_group.monitoring.name
   location            = azurerm_resource_group.monitoring.location
   description         = "Alert when a DB backup have not been created for 48 hours"
@@ -69,8 +69,8 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "db_backup_not_created" {
   # The Kusto Query Language (KQL) query to run
   query = <<-EOT
     StorageBlobLogs
-    | where AccountName == "${data.terraform_remote_state.audit.outputs.storage_account_audit.sqlbackups.name}-${local.primary_region.name}"
-    | where ObjectKey contains("/${data.terraform_remote_state.audit.outputs.storage_account_audit.sqlbackups.name}-${local.primary_region.name}/sql-backups-immutable/")
+    | where AccountName == "${data.terraform_remote_state.audit.outputs.storage_account_audit["sqlbackups-${local.primary_region}"].name}"
+    | where ObjectKey contains("/${data.terraform_remote_state.audit.outputs.storage_account_audit["sqlbackups-${local.primary_region}"].name}/sql-backups-immutable/")
     | where OperationName == "PutBlockList"
     | summarize Count = count()
     | where Count > 0
