@@ -56,6 +56,7 @@ locals {
         access_tier                             = storage_val.access_tier
         blob_properties_delete_retention_policy = storage_val.blob_properties_delete_retention_policy
         blob_properties_versioning_enabled      = storage_val.blob_properties_versioning_enabled
+        access_tier                             = storage_val.access_tier
         containers                              = storage_val.containers
       }
     ]
