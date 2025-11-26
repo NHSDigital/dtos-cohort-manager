@@ -15,6 +15,7 @@ module "storage" {
 
   account_replication_type = each.value.replication_type
   account_tier             = each.value.account_tier
+  access_tier              = title(lower(each.value.access_tier))
 
   blob_properties_delete_retention_policy = each.value.blob_properties_delete_retention_policy
   blob_properties_versioning_enabled      = each.value.blob_properties_versioning_enabled
@@ -54,6 +55,7 @@ locals {
         public_network_access_enabled           = storage_val.public_network_access_enabled
         blob_properties_delete_retention_policy = storage_val.blob_properties_delete_retention_policy
         blob_properties_versioning_enabled      = storage_val.blob_properties_versioning_enabled
+        access_tier                             = storage_val.access_tier
         containers                              = storage_val.containers
       }
     ]

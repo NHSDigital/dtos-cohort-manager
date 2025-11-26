@@ -61,6 +61,7 @@ storage_accounts = {
     public_network_access_enabled           = false
     blob_properties_delete_retention_policy = 7
     blob_properties_versioning_enabled      = true
+    access_tier                             = "Cold"
     containers = {
       sql-backups-immutable = {
         container_name        = "sql-backups-immutable"
