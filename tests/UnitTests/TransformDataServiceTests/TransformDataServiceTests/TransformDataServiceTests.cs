@@ -11,12 +11,8 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Model;
 using Common;
-using Microsoft.Data.SqlClient;
 using System.Data;
-using Data.Database;
 using Model.Enums;
-using DataServices.Client;
-using System.Linq.Expressions;
 using System.Globalization;
 
 [TestClass]
@@ -198,6 +194,8 @@ public class TransformDataServiceTests
     [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700101")]    // New Gender Only
     [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700102")]  // New Date of Birth Only
     [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700101")]  // No Change
+    [DataRow("Doe", Gender.Female, "19700101", "DOE", Gender.Female, "19700101")]      // Case change only
+    [DataRow("smith", Gender.Male, "19700102", "Smith", Gender.Male, "19700102")]      // Case change only
     public async Task Run_OneFieldChanged_DemographicsRulePasses_NoExceptionLogs(string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName, Gender newGender, string newDateOfBirth)
     {
         // Arrange
