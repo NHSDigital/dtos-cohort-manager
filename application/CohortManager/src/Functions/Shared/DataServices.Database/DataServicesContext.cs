@@ -86,6 +86,7 @@ public class DataServicesContext : DbContext
             .ToTable("NEMS_SUBSCRIPTION", "dbo");
 
         modelBuilder.Entity<ServicenowCase>()
-            .ToTable("SERVICENOW_CASES", "dbo");
+            .ToTable("SERVICENOW_CASES", "dbo")
+            .HasIndex(s => s.ServicenowId, "IX_SERVICENOW_CASES_SERVICENOW_ID");
     }
 }
