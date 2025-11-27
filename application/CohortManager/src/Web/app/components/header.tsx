@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { auth, signOut } from "@/app/lib/auth";
+import { SearchNhsNumber } from "./search-nhs-number";
 
 interface HeaderProps {
   readonly serviceName?: string;
@@ -47,14 +48,7 @@ export default async function Header({
           >
             <ul className="nhsuk-header__account-list">
               <li className="nhsuk-header__account-item">
-                <input
-                  className="nhsuk-input nhsuk-u-margin-bottom-0"
-                  id="nhs-number"
-                  name="nhsNumber"
-                  type="text"
-                  placeholder="Search NHS number"
-                  style={{ height: '8px', padding: '8px' }}
-                />
+                <SearchNhsNumber />
               </li>
               <li className="nhsuk-header__account-item">
                 <svg
