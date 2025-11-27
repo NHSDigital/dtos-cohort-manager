@@ -16,6 +16,7 @@ module "storage" {
   account_replication_type      = each.value.replication_type
   account_tier                  = each.value.account_tier
   public_network_access_enabled = each.value.public_network_access_enabled
+  access_tier                   = title(lower(each.value.access_tier))
 
   rbac_roles = []
 
@@ -47,6 +48,7 @@ locals {
         replication_type              = storage_val.replication_type
         account_tier                  = storage_val.account_tier
         public_network_access_enabled = storage_val.public_network_access_enabled
+        access_tier                   = storage_val.access_tier
         containers                    = storage_val.containers
       }
     ]
