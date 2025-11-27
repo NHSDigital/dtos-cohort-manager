@@ -48,3 +48,50 @@ export async function fetchExceptions(params: FetchExceptionsParams = {}) {
     headers: response.headers,
   };
 }
+
+type FetchExceptionsByNhsNumberParams = {
+  nhsNumber: string;
+  page?: number;
+  pageSize?: number;
+};
+
+export async function fetchExceptionsByNhsNumber(
+  params: FetchExceptionsByNhsNumberParams
+) {
+  const query = new URLSearchParams();
+
+  query.append("nhsNumber", params.nhsNumber);
+  query.append("page", (params.page ?? 1).toString());
+  query.append("pageSize", (params.pageSize ?? 10).toString());
+
+  const apiUrl = `${
+    process.env.EXCEPTIONS_API_URL
+  }/api/GetValidationExceptionsByNhsNumber?${query.toString()}`;
+
+  const response = await fetch(apiUrl);
+
+  // If 404, return empty result structure instead of throwing
+  if (response.status === 404) {
+    return {
+      NhsNumber: params.nhsNumber,
+      Exceptions: {
+        Items: [],
+        TotalCount: 0,
+        Page: params.page ?? 1,
+        PageSize: params.pageSize ?? 10,
+        TotalPages: 0,
+        HasNextPage: false,
+        HasPreviousPage: false,
+      },
+      Reports: [],
+    };
+  }
+
+  if (!response.ok) {
+    throw new Error(`Error fetching data: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+
+  return data;
+}
