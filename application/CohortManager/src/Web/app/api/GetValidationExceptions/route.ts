@@ -146,7 +146,7 @@ export async function GET(request: Request) {
   const isReport = searchParams.get("isReport");
   const exceptionCategory = searchParams.get("exceptionCategory");
   const reportDate = searchParams.get("reportDate");
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const page = Math.max(1, Number.parseInt(searchParams.get("page") || "1", 10));
 
   // Handle single exception requests - get fresh data from store
   if (exceptionId !== null) {
