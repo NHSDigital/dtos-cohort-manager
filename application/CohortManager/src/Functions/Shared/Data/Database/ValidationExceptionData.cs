@@ -133,6 +133,82 @@ public class ValidationExceptionData : IValidationExceptionData
         return results.Where(x => x != null).ToList()!;
     }
 
+    public async Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsByNhsNumber(string nhsNumber, int page, int pageSize)
+    {
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
+
+        if (exceptions == null || !exceptions.Any())
+        {
+            return new ValidationExceptionsByNhsNumberResponse
+            {
+                NhsNumber = nhsNumber,
+                Exceptions = new PaginatedExceptionsResult
+                {
+                    Items = new List<ValidationException>(),
+                    TotalCount = 0,
+                    Page = page,
+                    PageSize = pageSize,
+                    TotalPages = 0,
+                    HasNextPage = false,
+                    HasPreviousPage = false
+                },
+                Reports = new List<ValidationExceptionReport>()
+            };
+        }
+
+        var validationExceptions = exceptions
+            .Select(GetValidationExceptionWithDetails)
+            .Where(x => x != null)
+            .Cast<ValidationException>()
+            .ToList();
+
+        // Sort by date created descending
+        var sortedExceptions = validationExceptions.OrderByDescending(x => x.DateCreated ?? DateTime.MinValue).ToList();
+
+        // Calculate pagination
+        var totalCount = sortedExceptions.Count;
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        var skip = (page - 1) * pageSize;
+        var paginatedItems = sortedExceptions.Skip(skip).Take(pageSize).ToList();
+
+        // Generate report data grouped by date and file
+        var reports = validationExceptions
+            .Where(x => x.ExceptionDate.HasValue && !string.IsNullOrEmpty(x.FileName))
+            .GroupBy(x => new
+            {
+                Date = x.ExceptionDate.HasValue ? x.ExceptionDate.Value.Date : DateTime.MinValue,
+                FileName = x.FileName ?? string.Empty,
+                ScreeningName = x.ScreeningName ?? string.Empty,
+                CohortName = x.CohortName ?? string.Empty
+            })
+            .Select(g => new ValidationExceptionReport
+            {
+                ReportDate = g.Key.Date,
+                FileName = g.Key.FileName,
+                ScreeningName = g.Key.ScreeningName,
+                CohortName = g.Key.CohortName,
+                ExceptionCount = g.Count()
+            })
+            .OrderByDescending(r => r.ReportDate)
+            .ToList();
+
+        return new ValidationExceptionsByNhsNumberResponse
+        {
+            NhsNumber = nhsNumber,
+            Exceptions = new PaginatedExceptionsResult
+            {
+                Items = paginatedItems,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = totalPages,
+                HasNextPage = page < totalPages,
+                HasPreviousPage = page > 1
+            },
+            Reports = reports
+        };
+    }
+
     private ServiceResponseModel CreateSuccessResponse(string message) => CreateResponse(true, HttpStatusCode.OK, message);
     private ServiceResponseModel CreateErrorResponse(string message, HttpStatusCode statusCode) => CreateResponse(false, statusCode, message);
 

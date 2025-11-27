@@ -129,4 +129,63 @@ public class GetValidationExceptions
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
+
+    /// <summary>
+    /// Retrieves validation exceptions and reports for a specific NHS number.
+    /// </summary>
+    /// <param name="req">The HTTP request data containing query parameters.</param>
+    /// <returns>
+    /// HTTP response containing exceptions and reports in JSON format.
+    /// Returns 200 OK with data, 400 Bad Request for validation errors, or 500 Internal Server Error.
+    /// </returns>
+    [Function(nameof(GetValidationExceptionsByNhsNumber))]
+    public async Task<HttpResponseData> GetValidationExceptionsByNhsNumber([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    {
+        var nhsNumber = req.Query["nhsNumber"];
+        var page = _httpParserHelper.GetQueryParameterAsInt(req, "page", 1);
+        var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize", 10);
+
+        // Validate NHS number
+        if (string.IsNullOrWhiteSpace(nhsNumber))
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
+        }
+
+        // Remove spaces and validate format
+        nhsNumber = nhsNumber.Replace(" ", "");
+        if (!IsValidNhsNumber(nhsNumber))
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format. Must be 10 digits.");
+        }
+
+        // Validate pagination parameters
+        if (page < 1)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Page must be greater than 0.");
+        }
+
+        if (pageSize < 1 || pageSize > 100)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "PageSize must be between 1 and 100.");
+        }
+
+        try
+        {
+            var result = await _validationData.GetExceptionsByNhsNumber(nhsNumber, page, pageSize);
+
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(result));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving validation exceptions for NHS number: {NhsNumber}", nhsNumber);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        }
+    }
+
+    private static bool IsValidNhsNumber(string nhsNumber)
+    {
+        return !string.IsNullOrWhiteSpace(nhsNumber)
+               && nhsNumber.Length == 10
+               && nhsNumber.All(char.IsDigit);
+    }
 }

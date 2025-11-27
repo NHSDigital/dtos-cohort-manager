@@ -2,6 +2,7 @@ namespace Data.Database;
 
 using Common;
 using Model;
+using Model.DTO;
 using Model.Enums;
 
 public interface IValidationExceptionData
@@ -12,4 +13,5 @@ public interface IValidationExceptionData
     Task<bool> RemoveOldException(string nhsNumber, string screeningName);
     Task<ServiceResponseModel> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId);
     Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory);
+    Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsByNhsNumber(string nhsNumber, int page, int pageSize);
 }
