@@ -105,6 +105,12 @@ export default async function Page({
     const hasNextPage = response.Exceptions.HasNextPage;
     const hasPreviousPage = response.Exceptions.HasPreviousPage;
     const reports: ValidationExceptionReport[] = response.Reports;
+    const pageSize = 10;
+    const startItem = totalCount > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+    const endItem =
+      totalCount > 0
+        ? Math.min(startItem + response.Exceptions.Items.length - 1, totalCount)
+        : 0;
 
     return (
       <>
@@ -117,16 +123,22 @@ export default async function Page({
               </h1>
 
               {totalCount === 0 ? (
-                <div style={{ backgroundColor: 'white', padding: '24px' }}>
-                  <p>
-                    No results for {nhsNumber}
-                  </p>
+                <div className="app-card">
+                  <p>No results for {nhsNumber}</p>
                 </div>
               ) : (
                 <>
-                  <h2 className="nhsuk-heading-m">
-                    Exceptions ({totalCount})
-                  </h2>
+                  <div className="app-form-results-container">
+                    <h2 className="nhsuk-heading-m nhsuk-u-margin-bottom-0">
+                      Exceptions
+                    </h2>
+                    <p
+                      className="app-results-text nhsuk-u-font-weight-bold"
+                      data-testid="search-exception-count"
+                    >
+                      Showing {startItem} to {endItem} of {totalCount} results
+                    </p>
+                  </div>
 
                   <div className="nhsuk-card nhsuk-u-margin-bottom-5">
                     <div className="nhsuk-card__content">
