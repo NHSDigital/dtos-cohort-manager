@@ -3,7 +3,9 @@ namespace NHS.CohortManager.ParticipantManagementServices;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Common;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
@@ -20,6 +22,8 @@ public class ManageServiceNowParticipantFunction
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly IQueueClient _queueClient;
+
+    private static readonly Regex NonLetterRegex = new(@"[^\p{Lu}\p{Ll}\p{Lt}]", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
 
     public ManageServiceNowParticipantFunction(ILogger<ManageServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> config,
         IHttpClientFunction httpClientFunction, IExceptionHandler handleException, IDataServiceClient<ParticipantManagement> participantManagementClient,
@@ -240,9 +244,51 @@ public class ManageServiceNowParticipantFunction
 
     private static bool CheckParticipantDataMatches(ServiceNowParticipant serviceNowParticipant, PdsDemographic pdsDemographic)
     {
-        return string.Equals(serviceNowParticipant.FirstName, pdsDemographic.FirstName, StringComparison.OrdinalIgnoreCase) &&
-               string.Equals(serviceNowParticipant.FamilyName, pdsDemographic.FamilyName, StringComparison.OrdinalIgnoreCase) &&
+        return NormalizedNamesMatch(serviceNowParticipant.FirstName, pdsDemographic.FirstName) &&
+               NormalizedNamesMatch(serviceNowParticipant.FamilyName, pdsDemographic.FamilyName) &&
                serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd") == pdsDemographic.DateOfBirth;
+    }
+
+    /// <summary>
+    /// Normalizes and compares two name strings by removing accents, spaces, hyphens, and special characters.
+    /// Converts accented characters to their base forms (É→E, Ñ→N, Ö→O) to match database storage behavior.
+    /// </summary>
+    /// <param name="name1">First name to compare</param>
+    /// <param name="name2">Second name to compare</param>
+    /// <returns>True if the normalized names match (case-insensitive), false otherwise</returns>
+    private static bool NormalizedNamesMatch(string? name1, string? name2)
+    {
+        if (string.IsNullOrWhiteSpace(name1) && string.IsNullOrWhiteSpace(name2)) return true;
+        if (string.IsNullOrWhiteSpace(name1) || string.IsNullOrWhiteSpace(name2)) return false;
+
+        var normalized1 = NormalizeName(name1);
+        var normalized2 = NormalizeName(name2);
+
+        if (string.IsNullOrEmpty(normalized1) || string.IsNullOrEmpty(normalized2)) return false;
+
+        return string.Equals(normalized1, normalized2, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Normalizes a name by removing accents and all non-letter characters.
+    /// This handles spaces, hyphens, apostrophes, and other punctuation.
+    /// Accented characters like É, Ñ, Ö are converted to their base forms (E, N, O).
+    /// Uses Unicode NFD normalization to decompose accents, then removes diacritical marks.
+    /// </summary>
+    /// <param name="name">The name to normalize</param>
+    /// <returns>Normalized name containing only unaccented ASCII letters</returns>
+    private static string NormalizeName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return string.Empty;
+        }
+
+        var trimmedName = name.Trim();
+        var normalizedString = trimmedName.Normalize(NormalizationForm.FormD);
+        var lettersOnlyString = NonLetterRegex.Replace(normalizedString, string.Empty);
+
+        return lettersOnlyString.Normalize(NormalizationForm.FormC);
     }
 
     private async Task SendServiceNowMessage(string serviceNowCaseNumber, ServiceNowMessageType servicenowMessageType)

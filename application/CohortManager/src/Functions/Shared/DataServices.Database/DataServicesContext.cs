@@ -68,6 +68,9 @@ public class DataServicesContext : DbContext
             .HasIndex(c => new { c.NHSNumber }, "IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
 
         modelBuilder.Entity<CohortDistribution>()
+            .HasIndex(i => new { i.ParticipantId },"IX_BS_COHORT_DISTRIBUTION_PARTICIPANTID");
+
+        modelBuilder.Entity<CohortDistribution>()
             .HasIndex(c => new { c.IsExtracted, c.RequestId }, "IX_BSCOHORT_IS_EXTACTED_REQUESTID");
 
         modelBuilder.Entity<BsSelectRequestAudit>()
@@ -86,6 +89,7 @@ public class DataServicesContext : DbContext
             .ToTable("NEMS_SUBSCRIPTION", "dbo");
 
         modelBuilder.Entity<ServicenowCase>()
-            .ToTable("SERVICENOW_CASES", "dbo");
+            .ToTable("SERVICENOW_CASES", "dbo")
+            .HasIndex(s => s.ServicenowId, "IX_SERVICENOW_CASES_SERVICENOW_ID");
     }
 }

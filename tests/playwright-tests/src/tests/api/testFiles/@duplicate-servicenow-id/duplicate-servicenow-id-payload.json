@@ -1,0 +1,26 @@
+{
+  "duplicateServiceNowId-first": {
+    "number": "CS9999999",
+    "u_case_variable_data": {
+      "nhs_number": "9990001111",
+      "forename_": "Test",
+      "surname_family_name": "Duplicate",
+      "date_of_birth": "1990-01-01",
+      "enter_dummy_gp_code": "ZZZDUP",
+      "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+      "reason_for_adding": "eligible_for_routine_screening_but_not_registered_with_a_gp_practice"
+    }
+  },
+  "duplicateServiceNowId-second": {
+    "number": "CS9999999",
+    "u_case_variable_data": {
+      "nhs_number": "9990001111",
+      "forename_": "Test",
+      "surname_family_name": "Duplicate",
+      "date_of_birth": "1990-01-01",
+      "enter_dummy_gp_code": "ZZZDUP",
+      "BSO_code": "NORTH NOTTINGHAMSHIRE BREAST SCREENING OFFICE",
+      "reason_for_adding": "eligible_for_routine_screening_but_not_registered_with_a_gp_practice"
+    }
+  }
+}
