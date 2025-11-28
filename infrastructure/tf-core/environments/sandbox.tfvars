@@ -706,6 +706,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        RetrieveSupersededRecordsLast = "false"
       }
     }
 
