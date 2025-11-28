@@ -14,93 +14,59 @@ using NHS.CohortManager.Shared.Utilities;
 public class CreateCohortDistributionData : ICreateCohortDistributionData
 {
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionDataServiceClient;
-
     private readonly IDataServiceClient<BsSelectRequestAudit> _bsSelectRequestAuditDataServiceClient;
+    private readonly IExtractCohortDistributionRecordsStrategy? _extractionStrategy;
 
-    public CreateCohortDistributionData(IDataServiceClient<CohortDistribution> cohortDistributionDataServiceClient, IDataServiceClient<BsSelectRequestAudit> bsSelectRequestAuditDataServiceClient)
+    public CreateCohortDistributionData(
+        IDataServiceClient<CohortDistribution> cohortDistributionDataServiceClient,
+        IDataServiceClient<BsSelectRequestAudit> bsSelectRequestAuditDataServiceClient,
+        IExtractCohortDistributionRecordsStrategy? extractionStrategy = null)
     {
         _cohortDistributionDataServiceClient = cohortDistributionDataServiceClient;
         _bsSelectRequestAuditDataServiceClient = bsSelectRequestAuditDataServiceClient;
+        _extractionStrategy = extractionStrategy;
+
     }
 
-    public async Task<List<CohortDistributionParticipantDto>> GetUnextractedCohortDistributionParticipants(int rowCount)
+
+    public async Task<List<CohortDistributionParticipantDto>> GetUnextractedCohortDistributionParticipants(int rowCount, bool retrieveSupersededRecordsLast)
     {
-        var participantsToBeExtracted = await GetRegularUnextractedParticipants(rowCount)
-            ?? await GetSupersededParticipants(rowCount);
+        List<CohortDistribution> participantsToBeExtracted;
+        // Use new extraction logic if environment variable is set and strategy is injected
+        if (retrieveSupersededRecordsLast && _extractionStrategy != null)
+        {
+            participantsToBeExtracted = await _extractionStrategy.GetUnextractedParticipants(rowCount, retrieveSupersededRecordsLast);
+        }
+        else
+        {
+            var participantsList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.IsExtracted.Equals(0) && x.RequestId == Guid.Empty);
+            participantsToBeExtracted = participantsList.OrderBy(x => x.RecordUpdateDateTime ?? x.RecordInsertDateTime).Take(rowCount).ToList();
+        }
 
-        return await ProcessAndReturnParticipants(participantsToBeExtracted);
-    }
+        //TODO do this filtering on the data services
+        var CohortDistributionParticipantList = participantsToBeExtracted.Select(x => new CohortDistributionParticipant(x)).ToList();
 
-    private async Task<List<CohortDistribution>?> GetRegularUnextractedParticipants(int rowCount)
-    {
-        var unextractedParticipants = await _cohortDistributionDataServiceClient.GetByFilter(
-            x => x.IsExtracted.Equals(0) && x.RequestId == Guid.Empty && x.SupersededNHSNumber == null);
-
-        return unextractedParticipants.Any()
-            ? OrderAndTakeParticipants(unextractedParticipants, rowCount)
-            : null;
-    }
-
-    private async Task<List<CohortDistribution>> GetSupersededParticipants(int rowCount)
-    {
-        var supersededParticipants = await _cohortDistributionDataServiceClient.GetByFilter(
-            x => x.IsExtracted.Equals(0) && x.RequestId == Guid.Empty && x.SupersededNHSNumber != null);
-
-        // Get distinct non-null superseded NHS numbers
-        var supersededNhsNumbers = supersededParticipants
-            .Select(sp => sp.SupersededNHSNumber)
-            .Where(nhs => nhs.HasValue)
-            .Select(nhs => nhs.Value)
-            .Distinct()
-            .ToList();
-
-        // Find records matching the superseded NHS numbers
-        var matchingParticipants = await _cohortDistributionDataServiceClient.GetByFilter(
-            x => supersededNhsNumbers.Contains(x.NHSNumber) && x.IsExtracted.Equals(1));
-
-        // Filter superseded participants that have matching records
-        var filteredParticipants = supersededParticipants.ToList()
-            .Where(sp => matchingParticipants.Any(mp => mp.NHSNumber == sp.SupersededNHSNumber))
-            .ToList();
-
-        return OrderAndTakeParticipants(filteredParticipants, rowCount);
-    }
-
-    private static List<CohortDistribution> OrderAndTakeParticipants(IEnumerable<CohortDistribution> participants, int rowCount)
-    {
-        return participants
-            .OrderBy(x => (x.RecordUpdateDateTime ?? x.RecordInsertDateTime) ?? DateTime.MinValue)
-            .Take(rowCount)
-            .ToList();
-    }
-
-    private async Task<List<CohortDistributionParticipantDto>> ProcessAndReturnParticipants(List<CohortDistribution> participantsToBeExtracted)
-    {
-        var cohortDistributionParticipantList = participantsToBeExtracted
-            .Select(x => new CohortDistributionParticipant(x))
-            .ToList();
 
         var requestId = Guid.NewGuid();
-        var success = await MarkCohortDistributionParticipantsAsExtracted(participantsToBeExtracted, requestId);
+        if (await MarkCohortDistributionParticipantsAsExtracted(participantsToBeExtracted, requestId))
+        {
+            await LogRequestAudit(requestId, (int)HttpStatusCode.OK);
 
-        var statusCode = success ? (int)HttpStatusCode.OK
-            : (cohortDistributionParticipantList.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError);
+            return CohortDistributionParticipantDto(CohortDistributionParticipantList, requestId);
+        }
 
+        var statusCode = CohortDistributionParticipantList.Count == 0 ? (int)HttpStatusCode.NoContent : (int)HttpStatusCode.InternalServerError;
         await LogRequestAudit(requestId, statusCode);
 
-        return success
-            ? CohortDistributionParticipantDto(cohortDistributionParticipantList, requestId)
-            : new List<CohortDistributionParticipantDto>();
+        return new List<CohortDistributionParticipantDto>();
     }
 
     public async Task<List<CohortDistributionParticipantDto>> GetCohortDistributionParticipantsByRequestId(Guid requestId)
     {
-
         if (requestId == Guid.Empty)
         {
             CohortDistributionParticipantDto(new List<CohortDistributionParticipant>());
         }
-
         // TODO we should probably tidy this up and make it better.
         var participantsList = await _cohortDistributionDataServiceClient.GetByFilter(x => x.RequestId == requestId);
         return CohortDistributionParticipantDto(participantsList.Select(x => new CohortDistributionParticipant(x)).ToList());
