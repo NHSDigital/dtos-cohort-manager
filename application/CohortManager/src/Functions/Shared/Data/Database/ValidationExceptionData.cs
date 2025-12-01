@@ -2,6 +2,7 @@ namespace Data.Database;
 
 using System;
 using System.Data;
+using System.Linq.Expressions;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -129,57 +130,30 @@ public class ValidationExceptionData : IValidationExceptionData
         if (filteredExceptions == null || !filteredExceptions.Any())
             return [];
 
-        var results = filteredExceptions.Select(GetValidationExceptionWithDetails);
+        return ProcessExceptions(filteredExceptions);
+    }
+    public async Task<IEnumerable<ExceptionManagement>?> GetByFilter(Expression<Func<ExceptionManagement, bool>> filter)
+    {
+        return await _validationExceptionDataServiceClient.GetByFilter(filter);
+    }
+
+    public List<ValidationException> ProcessExceptions(IEnumerable<ExceptionManagement> exceptions)
+    {
+        var results = exceptions.Select(GetValidationExceptionWithDetails);
         return results.Where(x => x != null).ToList()!;
     }
 
-    public async Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsByNhsNumber(string nhsNumber, int page, int pageSize)
+    public List<ValidationExceptionReport> GenerateReports(List<ValidationException> validationExceptions)
     {
-        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
-
-        if (exceptions == null || !exceptions.Any())
-        {
-            return new ValidationExceptionsByNhsNumberResponse
-            {
-                NhsNumber = nhsNumber,
-                Exceptions = new PaginatedExceptionsResult
-                {
-                    Items = new List<ValidationException>(),
-                    TotalCount = 0,
-                    Page = page,
-                    PageSize = pageSize,
-                    TotalPages = 0,
-                    HasNextPage = false,
-                    HasPreviousPage = false
-                },
-                Reports = new List<ValidationExceptionReport>()
-            };
-        }
-
-        var validationExceptions = exceptions
-            .Select(GetValidationExceptionWithDetails)
-            .Where(x => x != null)
-            .Cast<ValidationException>()
-            .ToList();
-
-        // Sort by date created descending
-        var sortedExceptions = validationExceptions.OrderByDescending(x => x.DateCreated ?? DateTime.MinValue).ToList();
-
-        // Calculate pagination
-        var totalCount = sortedExceptions.Count;
-        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-        var skip = (page - 1) * pageSize;
-        var paginatedItems = sortedExceptions.Skip(skip).Take(pageSize).ToList();
-
-        // Generate report data grouped by date and file
-        var reports = validationExceptions
+        return validationExceptions
             .Where(x => x.ExceptionDate.HasValue && !string.IsNullOrEmpty(x.FileName))
             .GroupBy(x => new
             {
                 Date = x.ExceptionDate.HasValue ? x.ExceptionDate.Value.Date : DateTime.MinValue,
                 FileName = x.FileName ?? string.Empty,
                 ScreeningName = x.ScreeningName ?? string.Empty,
-                CohortName = x.CohortName ?? string.Empty
+                CohortName = x.CohortName ?? string.Empty,
+                Category = x.Category
             })
             .Select(g => new ValidationExceptionReport
             {
@@ -187,26 +161,11 @@ public class ValidationExceptionData : IValidationExceptionData
                 FileName = g.Key.FileName,
                 ScreeningName = g.Key.ScreeningName,
                 CohortName = g.Key.CohortName,
+                Category = g.Key.Category,
                 ExceptionCount = g.Count()
             })
             .OrderByDescending(r => r.ReportDate)
             .ToList();
-
-        return new ValidationExceptionsByNhsNumberResponse
-        {
-            NhsNumber = nhsNumber,
-            Exceptions = new PaginatedExceptionsResult
-            {
-                Items = paginatedItems,
-                TotalCount = totalCount,
-                Page = page,
-                PageSize = pageSize,
-                TotalPages = totalPages,
-                HasNextPage = page < totalPages,
-                HasPreviousPage = page > 1
-            },
-            Reports = reports
-        };
     }
 
     private ServiceResponseModel CreateSuccessResponse(string message) => CreateResponse(true, HttpStatusCode.OK, message);
@@ -386,5 +345,68 @@ public class ValidationExceptionData : IValidationExceptionData
         return sortOrder == SortOrder.Ascending
             ? [.. filteredList.OrderBy(dateProperty)]
             : [.. filteredList.OrderByDescending(dateProperty)];
+    }
+
+    public async Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsByNhsNumber(string nhsNumber, int page, int pageSize)
+    {
+        // Validate NHS number
+        if (string.IsNullOrWhiteSpace(nhsNumber))
+        {
+            throw new ArgumentException("NHS number is required.", nameof(nhsNumber));
+        }
+
+        // Remove spaces and validate format
+        nhsNumber = nhsNumber.Replace(" ", "");
+        if (!IsValidNhsNumber(nhsNumber))
+        {
+            throw new ArgumentException("Invalid NHS number format. Must be 10 digits.", nameof(nhsNumber));
+        }
+
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
+        if (exceptions == null || !exceptions.Any())
+        {
+            return new ValidationExceptionsByNhsNumberResponse
+            {
+                NhsNumber = nhsNumber,
+                Exceptions = new PaginatedExceptionsResult(),
+                Reports = []
+            };
+        }
+
+        // Use the extracted common method
+        var validationExceptions = ProcessExceptions(exceptions);
+        var sortedExceptions = validationExceptions.OrderByDescending(x => x.DateCreated ?? DateTime.MinValue);
+
+        // Manual pagination since we don't have the pagination service in the data layer
+        var totalCount = sortedExceptions.Count();
+        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        var skip = (page - 1) * pageSize;
+        var paginatedItems = sortedExceptions.Skip(skip).Take(pageSize).ToList();
+
+        // Generate reports from the full dataset
+        var reports = GenerateReports(validationExceptions);
+
+        return new ValidationExceptionsByNhsNumberResponse
+        {
+            NhsNumber = nhsNumber,
+            Exceptions = new PaginatedExceptionsResult
+            {
+                Items = paginatedItems,
+                TotalCount = totalCount,
+                Page = page,
+                PageSize = pageSize,
+                TotalPages = totalPages,
+                HasNextPage = page < totalPages,
+                HasPreviousPage = page > 1
+            },
+            Reports = reports
+        };
+    }
+
+    private static bool IsValidNhsNumber(string nhsNumber)
+    {
+        return !string.IsNullOrWhiteSpace(nhsNumber)
+               && nhsNumber.Length == 10
+               && nhsNumber.All(char.IsDigit);
     }
 }

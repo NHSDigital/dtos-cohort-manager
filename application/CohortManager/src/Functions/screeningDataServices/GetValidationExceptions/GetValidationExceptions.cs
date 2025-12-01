@@ -10,6 +10,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.DTO;
 using Model.Enums;
 
 /// <summary>
@@ -145,47 +146,33 @@ public class GetValidationExceptions
         var page = _httpParserHelper.GetQueryParameterAsInt(req, "page", 1);
         var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize", 10);
 
-        // Validate NHS number
-        if (string.IsNullOrWhiteSpace(nhsNumber))
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
-        }
-
-        // Remove spaces and validate format
-        nhsNumber = nhsNumber.Replace(" ", "");
-        if (!IsValidNhsNumber(nhsNumber))
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format. Must be 10 digits.");
-        }
-
-        // Validate pagination parameters
-        if (page < 1)
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Page must be greater than 0.");
-        }
-
-        if (pageSize < 1 || pageSize > 100)
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "PageSize must be between 1 and 100.");
-        }
-
         try
         {
             var result = await _validationData.GetExceptionsByNhsNumber(nhsNumber, page, pageSize);
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(result));
+            // Convert to PaginationResult format for header generation
+            var paginationResult = new PaginationResult<ValidationException>
+            {
+                Items = result.Exceptions.Items,
+                TotalItems = result.Exceptions.TotalCount,
+                CurrentPage = result.Exceptions.Page,
+                TotalPages = result.Exceptions.TotalPages,
+                HasNextPage = result.Exceptions.HasNextPage,
+                HasPreviousPage = result.Exceptions.HasPreviousPage,
+                IsFirstPage = result.Exceptions.Page == 1
+            };
+
+            var headers = _paginationService.AddNavigationHeaders(req, paginationResult);
+            return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(result), headers);
+        }
+        catch (ArgumentException ex)
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, ex.Message);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving validation exceptions for NHS number: {NhsNumber}", nhsNumber);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-    }
-
-    private static bool IsValidNhsNumber(string nhsNumber)
-    {
-        return !string.IsNullOrWhiteSpace(nhsNumber)
-               && nhsNumber.Length == 10
-               && nhsNumber.All(char.IsDigit);
     }
 }

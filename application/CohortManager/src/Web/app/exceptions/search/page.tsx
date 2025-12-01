@@ -7,6 +7,7 @@ import ExceptionsTable from "@/app/components/exceptionsTable";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
 import { ExceptionDetails } from "@/app/types";
+import Pagination from "@/app/components/pagination";
 
 export const metadata: Metadata = {
   title: `Search exceptions by NHS number - ${process.env.SERVICE_NAME} - NHS`,
@@ -27,6 +28,7 @@ interface ValidationExceptionReport {
   FileName: string;
   ScreeningName: string;
   CohortName: string;
+  Category: number | null;
   ExceptionCount: number;
 }
 
@@ -83,7 +85,7 @@ export default async function Page({
     });
 
     const exceptionDetails: ExceptionDetails[] =
-      response.Exceptions.Items.map((exception: ApiException) => {
+      response.data.Exceptions.Items.map((exception: ApiException) => {
         const ruleMapping = getRuleMapping(
           exception.RuleId,
           exception.RuleDescription
@@ -100,16 +102,15 @@ export default async function Page({
         };
       });
 
-    const totalCount = response.Exceptions.TotalCount;
-    const totalPages = response.Exceptions.TotalPages;
-    const hasNextPage = response.Exceptions.HasNextPage;
-    const hasPreviousPage = response.Exceptions.HasPreviousPage;
-    const reports: ValidationExceptionReport[] = response.Reports;
+    const linkHeader = response.headers?.get("Link") || response.linkHeader;
+    const totalPages = response.data.Exceptions.TotalPages || 1;
     const pageSize = 10;
+    const totalCount = response.data.Exceptions.TotalCount || 0;
+    const reports: ValidationExceptionReport[] = response.data.Reports;
     const startItem = totalCount > 0 ? (currentPage - 1) * pageSize + 1 : 0;
     const endItem =
       totalCount > 0
-        ? Math.min(startItem + response.Exceptions.Items.length - 1, totalCount)
+        ? Math.min(startItem + response.data.Exceptions.Items.length - 1, totalCount)
         : 0;
 
     return (
@@ -147,113 +148,87 @@ export default async function Page({
                   </div>
 
                   {totalPages > 1 && (
-                    <nav className="nhsuk-pagination" role="navigation">
-                      <ul className="nhsuk-list nhsuk-pagination__list">
-                        {hasPreviousPage && (
-                          <li className="nhsuk-pagination-item--previous">
-                            <a
-                              className="nhsuk-pagination__link nhsuk-pagination__link--prev"
-                              href={`/exceptions/search?nhsNumber=${nhsNumber}&page=${currentPage - 1}`}
-                            >
-                              <span className="nhsuk-pagination__title">
-                                Previous
-                              </span>
-                            </a>
-                          </li>
-                        )}
-                        {hasNextPage && (
-                          <li className="nhsuk-pagination-item--next">
-                            <a
-                              className="nhsuk-pagination__link nhsuk-pagination__link--next"
-                              href={`/exceptions/search?nhsNumber=${nhsNumber}&page=${currentPage + 1}`}
-                            >
-                              <span className="nhsuk-pagination__title">
-                                Next
-                              </span>
-                            </a>
-                          </li>
-                        )}
-                      </ul>
-                    </nav>
+                    <Pagination
+                      linkHeader={linkHeader}
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      buildUrl={(page) => `/exceptions/search?nhsNumber=${nhsNumber}&page=${page}`}
+                    />
                   )}
 
-                  {reports.length > 0 && (
-                    <>
-                      <h2 className="nhsuk-heading-m nhsuk-u-margin-top-5">
-                        Associated reports
-                      </h2>
+                  <h2 className="nhsuk-heading-m nhsuk-u-margin-top-5">
+                    Reports
+                  </h2>
 
-                      <div className="nhsuk-card">
-                        <div className="nhsuk-card__content">
+                  <div className="nhsuk-card">
+                    <div className="nhsuk-card__content">
+                      {(() => {
+                        const filteredReports = reports.filter(report => report.Category === 12 || report.Category === 13);
+
+                        return filteredReports.length > 0 ? (
                           <table
                             className="nhsuk-table"
                             data-testid="reports-table"
                           >
-                            <thead className="nhsuk-table__head">
-                              <tr className="nhsuk-table__row">
-                                <th
-                                  className="nhsuk-table__header"
-                                  scope="col"
-                                >
-                                  Report date
-                                </th>
-                                <th
-                                  className="nhsuk-table__header"
-                                  scope="col"
-                                >
-                                  File name
-                                </th>
-                                <th
-                                  className="nhsuk-table__header"
-                                  scope="col"
-                                >
-                                  Screening name
-                                </th>
-                                <th
-                                  className="nhsuk-table__header"
-                                  scope="col"
-                                >
-                                  Cohort name
-                                </th>
-                                <th
-                                  className="nhsuk-table__header"
-                                  scope="col"
-                                >
-                                  Exception count
-                                </th>
-                              </tr>
-                            </thead>
-                            <tbody className="nhsuk-table__body">
-                              {reports.map((report, index) => (
-                                <tr
-                                  className="nhsuk-table__row"
-                                  key={`${report.ReportDate}-${report.FileName}-${index}`}
-                                >
-                                  <td className="nhsuk-table__cell">
-                                    {new Date(
-                                      report.ReportDate
-                                    ).toLocaleDateString("en-GB")}
-                                  </td>
-                                  <td className="nhsuk-table__cell">
-                                    {report.FileName}
-                                  </td>
-                                  <td className="nhsuk-table__cell">
-                                    {report.ScreeningName}
-                                  </td>
-                                  <td className="nhsuk-table__cell">
-                                    {report.CohortName}
-                                  </td>
-                                  <td className="nhsuk-table__cell">
-                                    {report.ExceptionCount}
-                                  </td>
+                              <thead className="nhsuk-table__head">
+                                <tr className="nhsuk-table__row">
+                                  <th
+                                    className="nhsuk-table__header"
+                                    scope="col"
+                                  >
+                                    Date
+                                  </th>
+                                  <th
+                                    className="nhsuk-table__header"
+                                    scope="col"
+                                  >
+                                    Demographic change
+                                  </th>
+                                  <th
+                                    className="nhsuk-table__header"
+                                    scope="col"
+                                  >
+                                    Action
+                                  </th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                              </thead>
+                              <tbody className="nhsuk-table__body">
+                                {filteredReports.map((report, index) => {
+                                  const categoryLabel = report.Category === 13 ? "NHS Number Change" : "Possible Confusion";
+                                  const reportDate = new Date(report.ReportDate).toISOString().split('T')[0];
+                                  const reportUrl = `/reports/${reportDate}?category=${report.Category}&nhsNumber=${nhsNumber}`;
+
+                                  return (
+                                    <tr
+                                      className="nhsuk-table__row"
+                                      key={`${report.ReportDate}-${report.Category}-${index}`}
+                                    >
+                                      <td className="nhsuk-table__cell">
+                                        {new Date(
+                                          report.ReportDate
+                                        ).toLocaleDateString("en-GB")}
+                                      </td>
+                                      <td className="nhsuk-table__cell">
+                                        {categoryLabel}
+                                      </td>
+                                      <td className="nhsuk-table__cell">
+                                        <a href={reportUrl} className="nhsuk-link">
+                                          View report
+                                        </a>
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                        ) : (
+                          <p className="nhsuk-body">
+                            No reports for {nhsNumber}.
+                          </p>
+                        );
+                      })()}
+                    </div>
+                  </div>
                 </>
               )}
             </div>

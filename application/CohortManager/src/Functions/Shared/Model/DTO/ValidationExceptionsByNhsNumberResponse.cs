@@ -27,5 +27,6 @@ public class ValidationExceptionReport
     public string? FileName { get; set; }
     public string? ScreeningName { get; set; }
     public string? CohortName { get; set; }
+    public int? Category { get; set; }
     public int ExceptionCount { get; set; }
 }

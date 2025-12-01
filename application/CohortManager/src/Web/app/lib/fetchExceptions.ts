@@ -73,17 +73,21 @@ export async function fetchExceptionsByNhsNumber(
   // If 404, return empty result structure instead of throwing
   if (response.status === 404) {
     return {
-      NhsNumber: params.nhsNumber,
-      Exceptions: {
-        Items: [],
-        TotalCount: 0,
-        Page: params.page ?? 1,
-        PageSize: params.pageSize ?? 10,
-        TotalPages: 0,
-        HasNextPage: false,
-        HasPreviousPage: false,
+      data: {
+        NhsNumber: params.nhsNumber,
+        Exceptions: {
+          Items: [],
+          TotalCount: 0,
+          Page: params.page ?? 1,
+          PageSize: params.pageSize ?? 10,
+          TotalPages: 0,
+          HasNextPage: false,
+          HasPreviousPage: false,
+        },
+        Reports: [],
       },
-      Reports: [],
+      linkHeader: null,
+      headers: response.headers,
     };
   }
 
@@ -92,6 +96,11 @@ export async function fetchExceptionsByNhsNumber(
   }
 
   const data = await response.json();
+  const linkHeader = response.headers.get("Link");
 
-  return data;
+  return {
+    data,
+    linkHeader,
+    headers: response.headers,
+  };
 }
