@@ -3,8 +3,7 @@ namespace Common.Interfaces;
 using Model;
 
 /// <summary>
-/// Strategy interface for extracting unextracted cohort distribution participants.
-/// Allows different implementations to handle nullable type conversions differently.
+/// Strategy interface for extracting cohort distribution participants.
 /// </summary>
 public interface IExtractCohortDistributionRecordsStrategy
 {

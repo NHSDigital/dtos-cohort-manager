@@ -5,8 +5,7 @@ using DataServices.Client;
 using Model;
 
 /// <summary>
-/// Improved participant extraction strategy with proper nullable type handling.
-/// Fixes nullable Int64 conversion errors and improves code maintainability.
+/// Extract Cohort Distribution Records without superseded nhs by nhs number first, if none found, get records with superseded by nhs number
 /// </summary>
 public class ExtractCohortDistributionRecords : IExtractCohortDistributionRecordsStrategy
 {
@@ -14,7 +13,7 @@ public class ExtractCohortDistributionRecords : IExtractCohortDistributionRecord
 
     public async Task<List<CohortDistribution>> GetUnextractedParticipants(int rowCount, bool retrieveSupersededRecordsLast)
     {
-        // Try unextracted participants without supersede by nhs number first, if none found, get records with supersede by nhs number
+        // Try unextracted participants without superseded by nhs number first, if none found, get records with superseded by nhs number
         return await GetRegularUnextractedParticipants(rowCount)
             ?? await GetSupersededParticipants(rowCount);
     }
