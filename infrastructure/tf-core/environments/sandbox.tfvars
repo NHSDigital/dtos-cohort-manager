@@ -148,28 +148,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
           capacity_max = "1"
           capacity_def = "1"
 
-          time_grain       = "PT1M"
-          statistic        = "Average"
-          time_window      = "PT1M"
-          time_aggregation = "Average"
-
-          inc_operator        = "GreaterThanOrEqual"
-          inc_threshold       = 20
-          inc_scale_direction = "Increase"
-          inc_scale_type      = "ExactCount"
-          inc_scale_value     = 1
-          inc_scale_cooldown  = "PT10M"
-
-          dec_operator        = "LessThan"
-          dec_threshold       = 20
-          dec_scale_direction = "Decrease"
-          dec_scale_type      = "ExactCount"
-          dec_scale_value     = 1
-          dec_scale_cooldown  = "PT5M"
+          inc_scale_value = 1
+          dec_scale_value = 1
 
         }
       }
@@ -180,12 +163,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
-          capacity_max = "5"
-          capacity_def = "1"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
+          capacity_max    = "5"
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -199,28 +177,11 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
           capacity_max = "1"
           capacity_def = "1"
 
-          time_grain       = "PT1M"
-          statistic        = "Average"
-          time_window      = "PT1M"
-          time_aggregation = "Average"
-
-          inc_operator        = "GreaterThanOrEqual"
-          inc_threshold       = 20
-          inc_scale_direction = "Increase"
-          inc_scale_type      = "ExactCount"
-          inc_scale_value     = 1
-          inc_scale_cooldown  = "PT10M"
-
-          dec_operator        = "LessThan"
-          dec_threshold       = 20
-          dec_scale_direction = "Decrease"
-          dec_scale_type      = "ExactCount"
-          dec_scale_value     = 1
-          dec_scale_cooldown  = "PT5M"
+          inc_scale_value = 1
+          dec_scale_value = 1
 
         }
       }
@@ -231,12 +192,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
-          capacity_max = "5"
-          capacity_def = "1"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
+          capacity_max    = "5"
           inc_scale_value = 5
 
           dec_scale_type  = "ChangeCount"
@@ -250,12 +206,7 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
-          capacity_max = "3"
-          capacity_def = "1"
-
-          inc_threshold   = 5
-          dec_threshold   = 5
+          capacity_max    = "3"
           inc_scale_value = 3
 
           dec_scale_type  = "ChangeCount"
@@ -269,12 +220,8 @@ app_service_plan = {
         scaling_rule = {
           metric = "CpuPercentage"
 
-          capacity_min = "1"
           capacity_max = "3"
-          capacity_def = "1"
 
-          inc_threshold   = 5
-          dec_threshold   = 5
           inc_scale_value = 3
 
           dec_scale_type  = "ChangeCount"
@@ -289,7 +236,8 @@ app_service_plan = {
 container_app_environments = {
   instances = {
     db-management = {
-      zone_redundancy_enabled = false
+      zone_redundancy_enabled  = false
+      use_custom_infra_rg_name = false
     }
   }
 }
@@ -302,6 +250,23 @@ container_app_jobs = {
       container_registry_use_mi     = true
       db_connection_string_name     = "DtOsDatabaseConnectionString"
       add_user_assigned_identity    = true
+      replica_retry_limit           = 1
+    }
+  }
+}
+
+container_apps = {
+  apps = {
+    wiremock = {
+      container_app_environment_key = "db-management"
+      docker_image                  = "cohort-manager-wiremock"
+      container_registry_use_mi     = true
+      add_user_assigned_identity    = false
+      is_tcp_app                    = false
+      is_web_app                    = true
+      port                          = 8080
+      infra_key_vault_rg            = null
+      infra_key_vault_name          = null
     }
   }
 }
@@ -1079,10 +1044,10 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        RetrievePdsParticipantURL  = "https://int.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
+        RetrievePdsParticipantURL  = "https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient"
         Kid                        = "RetrievePdsDemographic-DEV1"
-        Audience                   = "https://int.api.service.nhs.uk/oauth2/token"
-        AuthTokenURL               = "https://int.api.service.nhs.uk/oauth2/token"
+        Audience                   = "https://sandbox.api.service.nhs.uk/oauth2/token"
+        AuthTokenURL               = "https://sandbox.api.service.nhs.uk/oauth2/token"
         KeyNamePrivateKey          = "PDSPRIVATEKEY"
         UseFakePDSServices         = "true"
         ParticipantManagementTopic = "participant-management"
@@ -1110,6 +1075,7 @@ function_apps = {
         NemsSubscriptionProfile               = "https://fhir.nhs.uk/STU3/StructureDefinition/EMS-Subscription-1"
         NemsSubscriptionCriteria              = "https://fhir.nhs.uk/Id/nhs-number"
         NemsBypassServerCertificateValidation = "true"
+        IsStubbed                             = "true"
       }
     }
 
@@ -1240,6 +1206,7 @@ linux_web_app = {
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort-dev.non-live.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
+          APP_ENV              = "sandbox"
         }
         from_key_vault = {
           # env_var_name           = "key_vault_secret_name"
@@ -1340,7 +1307,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 30
       read_scale           = false
-      sku                  = "S1"
+      sku                  = "S0"
       storage_account_type = "Local"
       zone_redundant       = false
     }
