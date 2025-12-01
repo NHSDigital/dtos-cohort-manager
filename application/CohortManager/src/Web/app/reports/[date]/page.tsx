@@ -8,6 +8,7 @@ import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 import ReportsInformationTable from "@/app/components/reportsInformationTable";
 import Pagination from "@/app/components/pagination";
+import UserFeedback from "@/app/components/userFeedback";
 import { type ExceptionAPIDetails } from "@/app/types/exceptionsApi";
 
 export const metadata: Metadata = {
@@ -126,6 +127,7 @@ export default async function Page(props: {
               )}
             </div>
           </div>
+          <UserFeedback />
         </main>
       </>
     );
