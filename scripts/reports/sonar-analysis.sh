@@ -96,8 +96,9 @@ dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
   --logger "trx;LogFileName=TestResults.trx" \
   /p:CollectCoverage=true \
   /p:CoverletOutputFormat=opencover \
-  /p:CoverletOutput="${COVERAGE_FULL_PATH}/" \
-  /p:ExcludeByFile="**/*Tests.cs;**/Tests/**/*.cs;**/Program.cs;**/Model/**/*.cs;**/Set-up/**/*.cs;**/scripts/**/*.cs;**/HealthCheckFunction.cs;**/*Config.cs;**/bin/**/*.cs;**/obj/**/*.cs;**/Properties/**/*.cs;**/*.generated.cs;**/*.Designer.cs;**/*.g.cs;**/*.GlobalUsings.g.cs;**/*.AssemblyInfo.cs" \
+  /p:CoverletOutput="${COVERAGE_FULL_PATH}/coverage.opencover.xml" \
+  \
+  /p:ExcludeByFile="**/*Tests.cs,**/Tests/**/*.cs,**/Program.cs,**/Model/**/*.cs,**/Set-up/**/*.cs,**/scripts/**/*.cs,**/HealthCheckFunction.cs,**/*Config.cs,**/bin/**/*.cs,**/obj/**/*.cs,**/Properties/**/*.cs,**/*.generated.cs,**/*.Designer.cs,**/*.g.cs,**/*.GlobalUsings.g.cs,**/*.AssemblyInfo.cs" \
   --verbosity normal
 
 # Run frontend tests to generate lcov coverage
