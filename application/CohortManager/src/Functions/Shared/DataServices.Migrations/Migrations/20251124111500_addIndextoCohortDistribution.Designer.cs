@@ -4,6 +4,7 @@ using DataServices.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataServices.Migrations.Migrations
 {
     [DbContext(typeof(DataServicesContext))]
-    partial class DataServicesContextModelSnapshot : ModelSnapshot
+    [Migration("20251124111500_addIndextoCohortDistribution")]
+    partial class addIndextoCohortDistribution
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1033,10 +1036,10 @@ namespace DataServices.Migrations.Migrations
 
             modelBuilder.Entity("Model.ServicenowCase", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("ID");
+                    b.Property<string>("ServicenowId")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("SERVICENOW_ID");
 
                     b.Property<long?>("NhsNumber")
                         .HasColumnType("bigint")
@@ -1050,20 +1053,12 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("RECORD_UPDATE_DATETIME");
 
-                    b.Property<string>("ServicenowId")
-                        .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("SERVICENOW_ID");
-
                     b.Property<string>("Status")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("STATUS");
 
-                    b.HasKey("Id");
-
-                    b.HasIndex(new[] { "ServicenowId" }, "IX_SERVICENOW_CASES_SERVICENOW_ID");
+                    b.HasKey("ServicenowId");
 
                     b.ToTable("SERVICENOW_CASES", "dbo");
                 });
