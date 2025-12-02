@@ -5,11 +5,13 @@ import { formatNhsNumber, formatDate } from "@/app/lib/utils";
 interface ExceptionsTableProps {
   readonly exceptions: readonly ExceptionDetails[];
   readonly caption?: string;
+  readonly showServiceNowColumn?: boolean;
 }
 
 export default function ExceptionsTable({
   exceptions,
   caption,
+  showServiceNowColumn = false,
 }: Readonly<ExceptionsTableProps>) {
   return (
     <table
@@ -23,7 +25,7 @@ export default function ExceptionsTable({
       <thead className="nhsuk-table__head">
         <tr role="row">
           <th role="columnheader" scope="col">
-            Local reference <br /> Exception ID
+            Local reference <br /> (exception ID)
           </th>
           <th role="columnheader" scope="col">
             NHS number
@@ -35,6 +37,11 @@ export default function ExceptionsTable({
           <th role="columnheader" scope="col">
             Short description
           </th>
+          {showServiceNowColumn && (
+            <th role="columnheader" scope="col">
+              SNow Case ID
+            </th>
+          )}
           <th role="columnheader" scope="col">
             Exception status
           </th>
@@ -86,6 +93,17 @@ export default function ExceptionsTable({
               </span>
               {exception.shortDescription}
             </td>
+            {showServiceNowColumn && (
+              <td className="nhsuk-table__cell">
+                <span
+                  className="nhsuk-table-responsive__heading"
+                  aria-hidden="true"
+                >
+                  SNow case ID
+                </span>
+                {exception.serviceNowId}
+              </td>
+            )}
             <td className="nhsuk-table__cell">
               <span
                 className="nhsuk-table-responsive__heading"
