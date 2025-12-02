@@ -39,7 +39,7 @@ export default function ExceptionsTable({
           </th>
           {showServiceNowColumn && (
             <th role="columnheader" scope="col">
-              SNow Case ID
+              ServiceNow Case ID
             </th>
           )}
           <th role="columnheader" scope="col">
