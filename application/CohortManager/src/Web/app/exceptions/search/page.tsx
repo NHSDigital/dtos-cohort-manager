@@ -123,29 +123,32 @@ export default async function Page({
                 Search results for {nhsNumber}
               </h1>
 
-              {totalCount === 0 ? (
-                <div className="app-card">
-                  <p>No results for {nhsNumber}</p>
-                </div>
-              ) : (
-                <>
-                  <div className="app-form-results-container">
-                    <h2 className="nhsuk-heading-m nhsuk-u-margin-bottom-0">
-                      Exceptions
-                    </h2>
-                    <p
-                      className="app-results-text nhsuk-u-font-weight-bold"
-                      data-testid="search-exception-count"
-                    >
-                      Showing {startItem} to {endItem} of {totalCount} results
-                    </p>
-                  </div>
+              <div className="app-form-results-container">
+                <h2 className="nhsuk-heading-m nhsuk-u-margin-bottom-0">
+                  Exceptions
+                </h2>
+                {totalCount > 0 && (
+                  <p
+                    className="app-results-text nhsuk-u-font-weight-bold"
+                    data-testid="search-exception-count"
+                  >
+                    Showing {startItem} to {endItem} of {totalCount} results
+                  </p>
+                )}
+              </div>
 
-                  <div className="nhsuk-card nhsuk-u-margin-bottom-5">
-                    <div className="nhsuk-card__content">
-                      <ExceptionsTable exceptions={exceptionDetails} />
-                    </div>
-                  </div>
+              <div className="nhsuk-card nhsuk-u-margin-bottom-5">
+                <div className="nhsuk-card__content">
+                  {totalCount === 0 ? (
+                    <p>No results for {nhsNumber}</p>
+                  ) : (
+                    <ExceptionsTable exceptions={exceptionDetails} />
+                  )}
+                </div>
+              </div>
+
+              {totalCount > 0 && (
+                <>
 
                   {totalPages > 1 && (
                     <Pagination
@@ -155,17 +158,19 @@ export default async function Page({
                       buildUrl={(page) => `/exceptions/search?nhsNumber=${nhsNumber}&page=${page}`}
                     />
                   )}
+                </>
+              )}
 
-                  <h2 className="nhsuk-heading-m nhsuk-u-margin-top-5">
-                    Reports
-                  </h2>
+              <h2 className="nhsuk-heading-m nhsuk-u-margin-top-5">
+                Reports
+              </h2>
 
-                  <div className="nhsuk-card">
-                    <div className="nhsuk-card__content">
-                      {(() => {
-                        const filteredReports = reports.filter(report => report.Category === 12 || report.Category === 13);
+              <div className="nhsuk-card">
+                <div className="nhsuk-card__content">
+                  {(() => {
+                    const filteredReports = reports.filter(report => report.Category === 12 || report.Category === 13);
 
-                        return filteredReports.length > 0 ? (
+                    return filteredReports.length > 0 ? (
                           <table
                             className="nhsuk-table"
                             data-testid="reports-table"
@@ -222,15 +227,11 @@ export default async function Page({
                               </tbody>
                             </table>
                         ) : (
-                          <p className="nhsuk-body">
-                            No reports for {nhsNumber}.
-                          </p>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                </>
-              )}
+                      <p>No reports available for {nhsNumber}</p>
+                    );
+                  })()}
+                </div>
+              </div>
             </div>
           </div>
         </main>
