@@ -1,32 +1,14 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useState, FormEvent, useRef } from "react";
+import { useState, FormEvent } from "react";
 
 export function SearchNhsNumber() {
   const router = useRouter();
   const [nhsNumber, setNhsNumber] = useState("");
-  const errorSpanRef = useRef<HTMLSpanElement>(null);
 
   const isValidNhsNumber = (value: string): boolean => {
     const cleaned = value.replaceAll(" ", "");
     return cleaned.length === 10 && /^\d+$/.test(cleaned);
-  };
-
-  const showError = (message: string) => {
-    if (errorSpanRef.current) {
-      errorSpanRef.current.textContent = message;
-      errorSpanRef.current.classList.add("visible");
-    }
-  };
-
-  const hideError = () => {
-    if (errorSpanRef.current) {
-      errorSpanRef.current.classList.remove("visible");
-    }
-  };
-
-  const hasError = (): boolean => {
-    return errorSpanRef.current?.classList.contains("visible") || false;
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
@@ -35,21 +17,16 @@ export function SearchNhsNumber() {
     const cleanedNhsNumber = nhsNumber.replaceAll(" ", "");
 
     if (!isValidNhsNumber(nhsNumber)) {
-      showError("Please enter a valid 10-digit NHS number");
+      router.push(`/exceptions/noResults`);
       return;
     }
 
-    hideError();
     router.push(`/exceptions/search?nhsNumber=${cleanedNhsNumber}`);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setNhsNumber(value);
-
-    if (hasError() && value.trim()) {
-      hideError();
-    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -66,7 +43,7 @@ export function SearchNhsNumber() {
     <form onSubmit={handleSubmit} className="app-search-form">
       <div className="search-input-container">
         <input
-          className={`nhsuk-input nhsuk-u-margin-bottom-0 ${hasError() ? "nhsuk-input--error" : ""}`}
+          className="nhsuk-input nhsuk-u-margin-bottom-0"
           id="nhs-number"
           name="nhsNumber"
           type="text"
@@ -74,15 +51,7 @@ export function SearchNhsNumber() {
           value={nhsNumber}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
-          aria-describedby={hasError() ? "nhs-number-error" : undefined}
         />
-        <span
-          ref={errorSpanRef}
-          className="nhsuk-error-message search-error-message"
-          id="nhs-number-error"
-        >
-          <span className="nhsuk-u-visually-hidden">Error:</span>
-        </span>
       </div>
       <button className="nhsuk-header__search-submit" type="submit">
         <svg
