@@ -227,29 +227,30 @@ export default async function Page({
     );
   }
 
-  try {
-    const response = await fetchExceptionsByNhsNumber({
-      nhsNumber,
-      page: currentPage,
-      pageSize: PAGE_SIZE,
-    });
+  const response = await fetchExceptionsByNhsNumber({
+    nhsNumber,
+    page: currentPage,
+    pageSize: PAGE_SIZE,
+  });
 
+  const totalCount = response.data.Exceptions.TotalItems || 0;
+
+  // Redirect to No Results page if no results found
+  if (totalCount === 0) {
+    redirect(`/exceptions/noResults`);
+  }
+
+  try {
     const exceptionDetails = response.data.Exceptions.Items.map(transformApiException);
     const { startItem, endItem } = calculatePaginationInfo(
       currentPage,
       response.data.Exceptions.Items.length,
-      response.data.Exceptions.TotalItems || 0
+      totalCount
     );
 
     const linkHeader = response.headers?.get("Link") || response.linkHeader;
     const totalPages = response.data.Exceptions.TotalPages || 1;
-    const totalCount = response.data.Exceptions.TotalItems || 0;
     const reports = response.data.Reports;
-
-    // Redirect to error page if no results found
-    if (totalCount === 0) {
-      redirect(`/exceptions/searchError?nhsNumber=${nhsNumber}`);
-    }
 
     return (
       <>

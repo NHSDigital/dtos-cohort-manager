@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth, signOut } from "@/app/lib/auth";
 import { SearchNhsNumber } from "./search-nhs-number";
+import { ConditionalHeaderSearch } from "./conditionalHeaderSearch";
 
 interface HeaderProps {
   readonly serviceName?: string;
@@ -43,7 +44,9 @@ export default async function Header({
 
           {session?.user && (
             <div className="nhsuk-header__search">
-              <SearchNhsNumber />
+              <ConditionalHeaderSearch>
+                <SearchNhsNumber />
+              </ConditionalHeaderSearch>
             </div>
           )}
 
