@@ -145,11 +145,11 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public List<ValidationExceptionReport> GenerateReports(List<ValidationException> validationExceptions)
     {
-        return validationExceptions
-            .Where(x => x.ExceptionDate.HasValue && !string.IsNullOrEmpty(x.FileName))
+        return [.. validationExceptions
+            .Where(x => x.Category.HasValue && (x.Category.Value == 12 || x.Category.Value == 13))
             .GroupBy(x => new
             {
-                Date = x.ExceptionDate.HasValue ? x.ExceptionDate.Value.Date : DateTime.MinValue,
+                Date = x.DateCreated.HasValue ? x.DateCreated.Value.Date : DateTime.Now.Date,
                 FileName = x.FileName ?? string.Empty,
                 ScreeningName = x.ScreeningName ?? string.Empty,
                 CohortName = x.CohortName ?? string.Empty,
@@ -164,8 +164,7 @@ public class ValidationExceptionData : IValidationExceptionData
                 Category = g.Key.Category,
                 ExceptionCount = g.Count()
             })
-            .OrderByDescending(r => r.ReportDate)
-            .ToList();
+            .OrderByDescending(r => r.ReportDate)];
     }
 
     private ServiceResponseModel CreateSuccessResponse(string message) => CreateResponse(true, HttpStatusCode.OK, message);
