@@ -163,14 +163,6 @@
 }
 
 // Header layout
-.nhsuk-header__content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 16px;
-}
-
 .nhsuk-header__service {
   flex-shrink: 0;
 }
@@ -211,13 +203,6 @@
 }
 
 // Search form styling
-.app-search-form {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0;
-  width: 100%;
-}
-
 .app-search-form .nhsuk-input {
   min-width: 250px;
   flex: 1;
@@ -263,24 +248,11 @@
   gap: 16px;
 }
 
-.nhsuk-header__search {
-  flex: 1;
-  max-width: 400px;
-  margin: 0 32px;
-}
-
 // Search form
 .app-search-form {
   display: flex;
   align-items: center;
   position: relative;
-}
-
-.app-search-form .nhsuk-input {
-  flex: 1;
-  min-width: 250px;
-  height: 40px;
-  padding-right: 48px;
 }
 
 .nhsuk-header__search-submit {
