@@ -8,7 +8,7 @@ using Model.Pagination;
 public class ValidationExceptionsByNhsNumberResponse
 {
     public string NhsNumber { get; set; } = string.Empty;
-    public PaginationResult<ValidationException> Exceptions { get; set; } = new();
+    public PaginationResult<ValidationException> Exceptions { get; set; } = new() { Items = [] };
     public List<ValidationExceptionReport> Reports { get; set; } = new();
 }
 

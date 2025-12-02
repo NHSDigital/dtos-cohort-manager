@@ -2,7 +2,7 @@ namespace Model.Pagination;
 
 public class PaginationResult<T>
 {
-    public IEnumerable<T> Items { get; set; }
+    public required IEnumerable<T> Items { get; set; }
     public bool IsFirstPage { get; set; }
     public bool HasNextPage { get; set; }
     public bool HasPreviousPage { get; set; }

@@ -144,6 +144,11 @@ public class GetValidationExceptions
 
         try
         {
+            if (string.IsNullOrWhiteSpace(nhsNumber))
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
+            }
+
             var exceptionsQueryable = await _validationData.GetExceptionsByNhsNumber(nhsNumber);
             var paginatedExceptions = _paginationService.GetPaginatedResult(exceptionsQueryable, page, pageSize);
             var reports = await _validationData.GetReportsByNhsNumber(nhsNumber);

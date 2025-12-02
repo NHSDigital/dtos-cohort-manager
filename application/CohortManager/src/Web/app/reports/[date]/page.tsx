@@ -76,8 +76,12 @@ export default async function Page(props: {
 
     const totalPages = reportData.TotalPages || 1;
     const totalItems = nhsNumber ? filteredItems.length : Number(reportData.TotalItems) || 0;
-    const startItem = totalItems > 0 ? (nhsNumber ? 1 : (currentPage - 1) * pageSize + 1) : 0;
-    const endItem = totalItems > 0 ? totalItems : 0;
+    const filteredStartValue = totalItems > 0 ? 1 : 0;
+    const paginatedStartValue = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+    const startItem = nhsNumber
+      ? Math.max(1, filteredStartValue)
+      : Math.max(0, paginatedStartValue);
+    const endItem = Math.max(0, totalItems);
 
     return (
       <>
