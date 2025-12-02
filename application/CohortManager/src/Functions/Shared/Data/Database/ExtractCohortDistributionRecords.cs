@@ -40,9 +40,7 @@ public class ExtractCohortDistributionRecords : IExtractCohortDistributionRecord
 
         // Get distinct non-null superseded NHS numbers
         var supersededNhsNumbers = supersededParticipants
-            .Select(sp => sp.SupersededNHSNumber)
-            .Where(nhs => nhs.HasValue)
-            .Select(nhs => nhs.Value)
+            .Select(sp => sp.SupersededNHSNumber.Value)
             .Distinct()
             .ToList();
 
@@ -56,7 +54,7 @@ public class ExtractCohortDistributionRecords : IExtractCohortDistributionRecord
         }
 
         // Filter superseded participants that have matching records
-        var filteredParticipants = supersededParticipants.ToList()
+        var filteredParticipants = supersededParticipants
             .Where(sp => matchingParticipants.Any(mp => mp.NHSNumber == sp.SupersededNHSNumber))
             .ToList();
 
