@@ -47,7 +47,7 @@ export function SearchNhsNumber() {
           id="nhs-number"
           name="nhsNumber"
           type="text"
-          placeholder="Search NHS number"
+          placeholder="Search by NHS number"
           value={nhsNumber}
           onChange={handleInputChange}
           onKeyDown={handleKeyDown}
