@@ -300,3 +300,17 @@
     border-color: #004080;
   }
 }
+
+.search-input-container {
+  position: relative;
+  flex: 1;
+}
+
+.search-error-message {
+  display: none;
+  margin-top: 4px;
+
+  &.visible {
+    display: block;
+  }
+}
