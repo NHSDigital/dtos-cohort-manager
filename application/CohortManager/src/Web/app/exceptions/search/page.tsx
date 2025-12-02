@@ -105,7 +105,7 @@ export default async function Page({
     const linkHeader = response.headers?.get("Link") || response.linkHeader;
     const totalPages = response.data.Exceptions.TotalPages || 1;
     const pageSize = 10;
-    const totalCount = response.data.Exceptions.TotalCount || 0;
+    const totalCount = response.data.Exceptions.TotalItems || 0;
     const reports: ValidationExceptionReport[] = response.data.Reports;
     const startItem = totalCount > 0 ? (currentPage - 1) * pageSize + 1 : 0;
     const endItem =

@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.DTO;
 using Model.Enums;
+using Model.Pagination;
 
 /// <summary>
 /// Azure Function for retrieving and managing validation exceptions.
@@ -134,11 +135,6 @@ public class GetValidationExceptions
     /// <summary>
     /// Retrieves validation exceptions and reports for a specific NHS number.
     /// </summary>
-    /// <param name="req">The HTTP request data containing query parameters.</param>
-    /// <returns>
-    /// HTTP response containing exceptions and reports in JSON format.
-    /// Returns 200 OK with data, 400 Bad Request for validation errors, or 500 Internal Server Error.
-    /// </returns>
     [Function(nameof(GetValidationExceptionsByNhsNumber))]
     public async Task<HttpResponseData> GetValidationExceptionsByNhsNumber([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
@@ -148,21 +144,18 @@ public class GetValidationExceptions
 
         try
         {
-            var result = await _validationData.GetExceptionsByNhsNumber(nhsNumber, page, pageSize);
-
-            // Convert to PaginationResult format for header generation
-            var paginationResult = new PaginationResult<ValidationException>
+            var exceptionsQueryable = await _validationData.GetExceptionsByNhsNumber(nhsNumber);
+            var paginatedExceptions = _paginationService.GetPaginatedResult(exceptionsQueryable, page, pageSize);
+            var reports = await _validationData.GetReportsByNhsNumber(nhsNumber);
+            var result = new ValidationExceptionsByNhsNumberResponse
             {
-                Items = result.Exceptions.Items,
-                TotalItems = result.Exceptions.TotalCount,
-                CurrentPage = result.Exceptions.Page,
-                TotalPages = result.Exceptions.TotalPages,
-                HasNextPage = result.Exceptions.HasNextPage,
-                HasPreviousPage = result.Exceptions.HasPreviousPage,
-                IsFirstPage = result.Exceptions.Page == 1
+                NhsNumber = nhsNumber,
+                Exceptions = paginatedExceptions,
+                Reports = reports
             };
 
-            var headers = _paginationService.AddNavigationHeaders(req, paginationResult);
+            var headers = _paginationService.AddNavigationHeaders(req, paginatedExceptions);
+
             return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(result), headers);
         }
         catch (ArgumentException ex)

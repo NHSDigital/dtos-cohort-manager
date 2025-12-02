@@ -1,4 +1,4 @@
-namespace Common;
+namespace Model.Pagination;
 
 public class PaginationResult<T>
 {

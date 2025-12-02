@@ -1,6 +1,8 @@
 namespace Data.Database;
 
+using System;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using Common;
 using Model;
 using Model.DTO;
@@ -15,7 +17,8 @@ public interface IValidationExceptionData
     Task<ServiceResponseModel> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId);
     Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory);
     Task<IEnumerable<ExceptionManagement>?> GetByFilter(Expression<Func<ExceptionManagement, bool>> filter);
+    Task<IQueryable<ValidationException>> GetExceptionsByNhsNumber(string nhsNumber);
+    Task<List<ValidationExceptionReport>> GetReportsByNhsNumber(string nhsNumber);
     List<ValidationException> ProcessExceptions(IEnumerable<ExceptionManagement> exceptions);
     List<ValidationExceptionReport> GenerateReports(List<ValidationException> validationExceptions);
-    Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsByNhsNumber(string nhsNumber, int page, int pageSize);
 }

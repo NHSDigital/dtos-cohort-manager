@@ -18,10 +18,10 @@ public class ValidationExceptionData : IValidationExceptionData
 {
     private readonly ILogger<ValidationExceptionData> _logger;
     private readonly IDataServiceClient<ExceptionManagement> _validationExceptionDataServiceClient;
+
     public ValidationExceptionData(
         ILogger<ValidationExceptionData> logger,
-        IDataServiceClient<ExceptionManagement> validationExceptionDataServiceClient,
-        IDataServiceClient<ParticipantDemographic> demographicDataServiceClient
+        IDataServiceClient<ExceptionManagement> validationExceptionDataServiceClient
     )
     {
         _logger = logger;
@@ -50,12 +50,12 @@ public class ValidationExceptionData : IValidationExceptionData
         return GetValidationExceptionWithDetails(exception);
     }
 
-
     public async Task<bool> Create(ValidationException exception)
     {
         var exceptionToUpdate = new ExceptionManagement().FromValidationException(exception);
         return await _validationExceptionDataServiceClient.Add(exceptionToUpdate);
     }
+
     public async Task<bool> RemoveOldException(string nhsNumber, string screeningName)
     {
         var exceptions = await GetExceptionRecords(nhsNumber, screeningName);
@@ -64,7 +64,6 @@ public class ValidationExceptionData : IValidationExceptionData
             return false;
         }
 
-        // we only need to get the last unresolved exception for the nhs number and screening service
         var validationExceptionToUpdate = exceptions.Where(x => DateToString(x.DateResolved) == "9999-12-31")
         .OrderByDescending(x => x.DateCreated).FirstOrDefault();
 
@@ -132,9 +131,50 @@ public class ValidationExceptionData : IValidationExceptionData
 
         return ProcessExceptions(filteredExceptions);
     }
+
     public async Task<IEnumerable<ExceptionManagement>?> GetByFilter(Expression<Func<ExceptionManagement, bool>> filter)
     {
         return await _validationExceptionDataServiceClient.GetByFilter(filter);
+    }
+
+    public async Task<IQueryable<ValidationException>> GetExceptionsByNhsNumber(string nhsNumber)
+    {
+        if (string.IsNullOrWhiteSpace(nhsNumber))
+        {
+            throw new ArgumentException("NHS number is required.", nameof(nhsNumber));
+        }
+
+        nhsNumber = nhsNumber.Replace(" ", "");
+        if (!IsValidNhsNumber(nhsNumber))
+        {
+            throw new ArgumentException("Invalid NHS number format. Must be 10 digits.", nameof(nhsNumber));
+        }
+
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
+        if (exceptions == null || !exceptions.Any())
+        {
+            return new List<ValidationException>().AsQueryable();
+        }
+
+        var validationExceptions = ProcessExceptions(exceptions);
+        return validationExceptions.OrderByDescending(x => x.DateCreated).AsQueryable();
+    }
+
+    public async Task<List<ValidationExceptionReport>> GetReportsByNhsNumber(string nhsNumber)
+    {
+        if (string.IsNullOrWhiteSpace(nhsNumber) || !IsValidNhsNumber(nhsNumber.Replace(" ", "")))
+        {
+            return [];
+        }
+
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
+        if (exceptions == null || !exceptions.Any())
+        {
+            return [];
+        }
+
+        var validationExceptions = ProcessExceptions(exceptions);
+        return GenerateReports(validationExceptions);
     }
 
     public List<ValidationException> ProcessExceptions(IEnumerable<ExceptionManagement> exceptions)
@@ -311,10 +351,8 @@ public class ValidationExceptionData : IValidationExceptionData
 
     private async Task<List<ExceptionManagement>?> GetExceptionRecords(string nhsNumber, string screeningName)
     {
-
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber && x.ScreeningName == screeningName);
         return exceptions?.ToList();
-
     }
 
     private static string DateToString(DateTime? datetime)
@@ -344,62 +382,6 @@ public class ValidationExceptionData : IValidationExceptionData
         return sortOrder == SortOrder.Ascending
             ? [.. filteredList.OrderBy(dateProperty)]
             : [.. filteredList.OrderByDescending(dateProperty)];
-    }
-
-    public async Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsByNhsNumber(string nhsNumber, int page, int pageSize)
-    {
-        // Validate NHS number
-        if (string.IsNullOrWhiteSpace(nhsNumber))
-        {
-            throw new ArgumentException("NHS number is required.", nameof(nhsNumber));
-        }
-
-        // Remove spaces and validate format
-        nhsNumber = nhsNumber.Replace(" ", "");
-        if (!IsValidNhsNumber(nhsNumber))
-        {
-            throw new ArgumentException("Invalid NHS number format. Must be 10 digits.", nameof(nhsNumber));
-        }
-
-        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
-        if (exceptions == null || !exceptions.Any())
-        {
-            return new ValidationExceptionsByNhsNumberResponse
-            {
-                NhsNumber = nhsNumber,
-                Exceptions = new PaginatedExceptionsResult(),
-                Reports = []
-            };
-        }
-
-        // Use the extracted common method
-        var validationExceptions = ProcessExceptions(exceptions);
-        var sortedExceptions = validationExceptions.OrderByDescending(x => x.DateCreated ?? DateTime.MinValue);
-
-        // Manual pagination since we don't have the pagination service in the data layer
-        var totalCount = sortedExceptions.Count();
-        var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
-        var skip = (page - 1) * pageSize;
-        var paginatedItems = sortedExceptions.Skip(skip).Take(pageSize).ToList();
-
-        // Generate reports from the full dataset
-        var reports = GenerateReports(validationExceptions);
-
-        return new ValidationExceptionsByNhsNumberResponse
-        {
-            NhsNumber = nhsNumber,
-            Exceptions = new PaginatedExceptionsResult
-            {
-                Items = paginatedItems,
-                TotalCount = totalCount,
-                Page = page,
-                PageSize = pageSize,
-                TotalPages = totalPages,
-                HasNextPage = page < totalPages,
-                HasPreviousPage = page > 1
-            },
-            Reports = reports
-        };
     }
 
     private static bool IsValidNhsNumber(string nhsNumber)
