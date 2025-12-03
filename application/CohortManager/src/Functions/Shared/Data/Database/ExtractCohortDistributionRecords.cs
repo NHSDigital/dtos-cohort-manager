@@ -26,7 +26,7 @@ public class ExtractCohortDistributionRecords : IExtractCohortDistributionRecord
     private async Task<List<CohortDistribution>?> GetRegularUnextractedParticipants(int rowCount)
     {
         var unextractedParticipants = await _cohortDistributionDataServiceClient.GetByFilter(
-            x => x.IsExtracted.Equals(0) && x.RequestId == Guid.Empty && x.SupersededNHSNumber == null);
+            participant => participant.IsExtracted.Equals(0) && participant.RequestId == Guid.Empty && participant.SupersededNHSNumber == null);
 
         return unextractedParticipants.Any()
             ? OrderAndTakeParticipants(unextractedParticipants, rowCount)
@@ -36,7 +36,7 @@ public class ExtractCohortDistributionRecords : IExtractCohortDistributionRecord
     private async Task<List<CohortDistribution>> GetSupersededParticipants(int rowCount)
     {
         var supersededParticipants = await _cohortDistributionDataServiceClient.GetByFilter(
-            x => x.IsExtracted.Equals(0) && x.RequestId == Guid.Empty && x.SupersededNHSNumber != null);
+            participant => participant.IsExtracted.Equals(0) && participant.RequestId == Guid.Empty && participant.SupersededNHSNumber != null);
 
         // Get distinct non-null superseded NHS numbers
         var supersededNhsNumbers = supersededParticipants
@@ -49,7 +49,7 @@ public class ExtractCohortDistributionRecords : IExtractCohortDistributionRecord
         foreach (var nhsNumber in supersededNhsNumbers)
         {
             var matches = await _cohortDistributionDataServiceClient.GetByFilter(
-                x => x.NHSNumber == nhsNumber && x.IsExtracted.Equals(1));
+                participant => participant.NHSNumber == nhsNumber && participant.IsExtracted.Equals(1));
             matchingParticipants.AddRange(matches);
         }
 
@@ -64,7 +64,7 @@ public class ExtractCohortDistributionRecords : IExtractCohortDistributionRecord
     private static List<CohortDistribution> OrderAndTakeParticipants(IEnumerable<CohortDistribution> participants, int rowCount)
     {
         return participants
-            .OrderBy(x => (x.RecordUpdateDateTime ?? x.RecordInsertDateTime) ?? DateTime.MinValue)
+            .OrderBy(participant => (participant.RecordUpdateDateTime ?? participant.RecordInsertDateTime) ?? DateTime.MinValue)
             .Take(rowCount)
             .ToList();
     }
