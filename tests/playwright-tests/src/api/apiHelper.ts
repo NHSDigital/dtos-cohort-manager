@@ -4,7 +4,7 @@ import { config } from "../config/env";
 
 const apiRetryDefault = Number(config.apiRetry);
 const initialWaitTimeDefault = Number(config.apiWaitTime) || 2000;
-const stepWaitTimeDefault = Number(config.apiStepMs) || 5000;
+const maxWaitTimeDefault = Number(config.apiMaxWaitMs) || 5000;
 const endpointCohortDistributionDataService = config.endpointCohortDistributionDataService;
 const endpointParticipantManagementDataService = config.endpointParticipantManagementDataService;
 const endpointExceptionManagementDataService = config.endpointExceptionManagementDataService;
@@ -26,7 +26,7 @@ let response: APIResponse;
 export async function validateApiResponse(
   validationJson: any,
   request: any,
-  options?: { retries?: number; initialWaitMs?: number; stepMs?: number }
+  options?: { retries?: number; initialWaitMs?: number; maxWaitMs?: number }
 ): Promise<{ status: boolean; errorTrace?: any }> {
   let status = false;
   let endpoint = "";
@@ -34,7 +34,7 @@ export async function validateApiResponse(
 
   const maxAttempts = Math.max(1, options?.retries ?? apiRetryDefault);
   let waitTime = Math.max(0, options?.initialWaitMs ?? initialWaitTimeDefault);
-  const stepMs = Math.max(0, options?.stepMs ?? stepWaitTimeDefault);
+  const maxWaitTime = Math.max(0, options?.maxWaitMs ?? maxWaitTimeDefault);
 
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     if (status) break;
@@ -82,6 +82,19 @@ export async function validateApiResponse(
       if (response?.status?.() === 204) {
         console.info(`ℹ️\t Status 204: No data found in the table using endpoint ${endpoint}`);
       }
+
+      // Fail fast for 5xx server errors - these won't resolve with retries
+      const statusCode = response?.status?.();
+      if (statusCode && statusCode >= 500 && statusCode < 600) {
+        console.error(`❌ Server error ${statusCode} detected - failing fast without retries`);
+        break; // Exit retry loop immediately
+      }
+
+      // Fail fast for 400 Bad Request - indicates a problem with the test data/request
+      if (statusCode === 400) {
+        console.error(`❌ Bad Request (400) detected - failing fast without retries`);
+        break; // Exit retry loop immediately
+      }
     }
 
     if (attempt < maxAttempts && !status) {
@@ -90,7 +103,8 @@ export async function validateApiResponse(
       if (waitTime > 0) {
         await new Promise((resolve) => setTimeout(resolve, waitTime));
       }
-      waitTime += stepMs;
+      // Capped exponential backoff: multiply by 1.5x, max configured wait time
+      waitTime = Math.min(Math.round(waitTime * 1.5), maxWaitTime);
     }
   }
   return { status, errorTrace };
