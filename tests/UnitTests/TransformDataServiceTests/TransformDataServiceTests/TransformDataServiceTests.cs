@@ -701,7 +701,7 @@ public class TransformDataServiceTests
         _handleException
             .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumberNoTransformation", 61, null),
             times: Times.Once);
-                    _handleException
+        _handleException
             .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumber", 60, null),
             times: Times.Never);
     }
