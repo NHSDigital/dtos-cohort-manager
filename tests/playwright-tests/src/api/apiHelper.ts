@@ -36,6 +36,9 @@ export async function validateApiResponse(
   let waitTime = Math.max(0, options?.initialWaitMs ?? initialWaitTimeDefault);
   const maxWaitTime = Math.max(0, options?.maxWaitMs ?? maxWaitTimeDefault);
 
+  // Track timing for better diagnostics
+  const startTime = Date.now();
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     if (status) break;
 
@@ -76,6 +79,17 @@ export async function validateApiResponse(
           status = await validateFields(apiValidation, matchingObject, nhsNumber, matchingObjects);
         }
       }
+
+      // Log success with timing information
+      if (status) {
+        const elapsedSecs = getElapsedSeconds(startTime);
+        if (attempt === 1) {
+          console.info(`✅ Data found on first attempt (${elapsedSecs}s)`);
+        } else {
+          console.info(`✅ Data found on attempt ${attempt}/${maxAttempts} (after ${elapsedSecs}s)`);
+        }
+        break; // Exit retry loop on success, to avoid unnecessary comparisons below
+      }
     } catch (error) {
       const errorMsg = `Endpoint: ${endpoint}, Status: ${response?.status?.()}, Error: ${error instanceof Error ? error.stack || error.message : error}`;
       errorTrace = errorMsg;
@@ -99,7 +113,8 @@ export async function validateApiResponse(
 
     if (attempt < maxAttempts && !status) {
       const secs = waitTime > 0 ? Math.round(waitTime / 1000) : 0;
-      console.info(`🚧 Function processing in progress; will check again using data service ${endpoint} in ${secs} seconds...`);
+      const elapsedSecs = getElapsedSeconds(startTime);
+      console.info(`🚧 Retry ${attempt}/${maxAttempts}: will check again using data service ${endpoint} in ${secs} seconds (elapsed: ${elapsedSecs}s)...`);
       if (waitTime > 0) {
         await new Promise((resolve) => setTimeout(resolve, waitTime));
       }
@@ -107,6 +122,13 @@ export async function validateApiResponse(
       waitTime = Math.min(Math.round(waitTime * 1.5), maxWaitTime);
     }
   }
+
+  // Log final status with total elapsed time
+  const totalElapsedSecs = getElapsedSeconds(startTime);
+  if (!status) {
+    console.error(`❌ Validation failed after ${maxAttempts} attempts (total time: ${totalElapsedSecs}s)`);
+  }
+
   return { status, errorTrace };
 }
 
@@ -180,6 +202,9 @@ async function findMatchingObject(endpoint: string, responseBody: any[], apiVali
   return { matchingObject, nhsNumber, matchingObjects };
 }
 
+function getElapsedSeconds(startTime: number): string {
+  return ((Date.now() - startTime) / 1000).toFixed(1);
+}
 
 async function validateFields(apiValidation: any, matchingObject: any, nhsNumber: any, matchingObjects: any): Promise<boolean> {
   const fieldsToValidate = Object.entries(apiValidation.validations).filter(([key]) => key !== IGNORE_VALIDATION_KEY);
