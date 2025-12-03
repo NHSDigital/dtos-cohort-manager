@@ -4,7 +4,7 @@
     "Rules": [
       {
         "RuleName": "60.Other.SupersededNhsNumber",
-        "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.SupersededByNhsNumber)",
+        "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.SupersededByNhsNumber) && string.IsNullOrEmpty(participant.ReasonForRemoval)",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -29,6 +29,10 @@
             }
           }
         }
+      },
+      {
+        "RuleName": "61.Other.SupersededNhsNumber.NoTransformation",
+        "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.SupersededByNhsNumber) && !string.IsNullOrEmpty(participant.ReasonForRemoval)"
       },
       {
         "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider",
