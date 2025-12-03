@@ -16,12 +16,8 @@
         "RuleName": "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal",
         "LocalParams": [
           {
-            "Name": "EnglishPostingCategory",
-            "Expression": "string.Equals(dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting), \"ENGLAND\", StringComparison.OrdinalIgnoreCase)"
-          },
-          {
             "Name": "InvalidPostingCategory",
-            "Expression": "!(EnglishPostingCategory || string.Equals(newParticipant.CurrentPosting, \"ENG\", StringComparison.OrdinalIgnoreCase) || string.Equals(newParticipant.CurrentPosting, \"IM\", StringComparison.OrdinalIgnoreCase) || string.Equals(newParticipant.CurrentPosting, \"DMS\", StringComparison.OrdinalIgnoreCase))"
+            "Expression": "string.Equals(newParticipant.CurrentPosting, \"CYM\", StringComparison.OrdinalIgnoreCase)"
           },
           {
             "Name": "IsExcluded",
