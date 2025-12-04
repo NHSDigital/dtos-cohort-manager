@@ -80,15 +80,12 @@ export async function validateApiResponse(
         }
       }
 
-      // Log success with timing information
+      // Log success and exit retry loop
       if (status) {
         const elapsedSecs = getElapsedSeconds(startTime);
-        if (attempt === 1) {
-          console.info(`✅ Data found on first attempt (${elapsedSecs}s)`);
-        } else {
-          console.info(`✅ Data found on attempt ${attempt}/${maxAttempts} (after ${elapsedSecs}s)`);
-        }
-        break; // Exit retry loop on success, to avoid unnecessary comparisons below
+        const attemptInfo = attempt === 1 ? 'on first attempt' : `on attempt ${attempt}/${maxAttempts}`;
+        console.info(`✅ Data found ${attemptInfo} (${elapsedSecs}s)`);
+        break;
       }
     } catch (error) {
       const errorMsg = `Endpoint: ${endpoint}, Status: ${response?.status?.()}, Error: ${error instanceof Error ? error.stack || error.message : error}`;
