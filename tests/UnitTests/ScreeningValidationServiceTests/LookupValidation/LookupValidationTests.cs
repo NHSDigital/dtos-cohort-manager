@@ -189,12 +189,19 @@ public class LookupValidationTests
     }
 
     [TestMethod]
-    [DataRow("InvalidCurrentPosting", "InvalidPCP")]
-    [DataRow("ValidCurrentPosting", "ValidPCP")]
-    [DataRow("InvalidCurrentPosting", "ValidPCP")]
-    [DataRow("ValidCurrentPosting", null)]
-    [DataRow("InvalidCurrentPosting", null)]
-    public async Task Run_CurrentPostingAndPrimaryProvider_ReturnNoContent(string currentPosting, string primaryCareProvider)
+    [DataRow("BAA", "InvalidPCP", true)]
+    [DataRow(null, "InvalidPCP", true)]
+    [DataRow("BAA", "ValidPCP", true)]
+    [DataRow(null, "ValidPCP", true)]
+    [DataRow("BAA", "ValidPCP", false)]
+    [DataRow(null, "ValidPCP", false)]
+    [DataRow("BAA", null, false)]
+    [DataRow(null, null, false)]
+    [DataRow("CYM", "InvalidPCP", false)]
+    [DataRow("CYM", "ValidPCP", false)]
+    [DataRow("CYM", "InvalidPCP", true)]
+    [DataRow("CYM", "ValidPCP", true)]
+    public async Task Run_CurrentPostingAndPrimaryProvider_ReturnNoContent(string currentPosting, string primaryCareProvider, bool PCPIsExcluded)
     {
         // Arrange
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
@@ -202,16 +209,37 @@ public class LookupValidationTests
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
-        _lookupValidation.Setup(x => x.ValidatePostingCategories(It.IsAny<string>())).Returns(currentPosting == "ValidCurrentPosting");
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(PCPIsExcluded);
 
         // Act
         var response = await _sut.RunAsync(_request.Object);
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.IsFalse(body.Contains("45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal"));
+        Assert.IsFalse(body.Contains("45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal")); // Rule Not Triggered
     }
+    [TestMethod]
+    [DataRow("BAA", "InvalidPCP",false)]
+    public async Task Run_CurrentPostingAndPrimaryProvider_ReturnsException(string currentPosting, string primaryCareProvider, bool PCPIsExcluded)
+    {
+        // Arrange
+        _requestBody.NewParticipant.CurrentPosting = currentPosting;
+        _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(PCPIsExcluded);
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+
+        // Assert
+        Assert.IsTrue(body.Contains("45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal"));
+    }
+
 
     #region Validate BSO Code (Rule 54)
     [TestMethod]
@@ -267,35 +295,6 @@ public class LookupValidationTests
     #endregion
 
     [TestMethod]
-    [DataRow("DMS", "Z00000")]
-    [DataRow("ENG", "Z00000")]
-    [DataRow("IM", "Z00000")]
-
-    public async Task Run_ParticipantLocationRemainingOutsideOfCohortAndNotInExcludedSMU_ReturnValidationException(string newCurrentPosting, string newPrimaryCareProvider)
-    {
-        // Arrange
-        _requestBody.NewParticipant.RecordType = Actions.New;
-        _requestBody.NewParticipant.CurrentPosting = newCurrentPosting;
-        _requestBody.NewParticipant.PrimaryCareProvider = newPrimaryCareProvider;
-
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-        _lookupValidation.Setup(x => x.RetrievePostingCategory(newCurrentPosting)).Returns(newCurrentPosting);
-        _lookupValidation.Setup(x => x.CheckIfCurrentPostingExists(newCurrentPosting)).Returns(true);
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(newPrimaryCareProvider)).Returns(false);
-        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(newPrimaryCareProvider)).Returns(false);
-
-        // Act
-        var response = await _sut.RunAsync(_request.Object);
-        string body = await AssertionHelper.ReadResponseBodyAsync(response);
-
-        // Assert
-        StringAssert.Contains(body, "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal");
-    }
-
-
-    [TestMethod]
-
     [DataRow(null, null, null, null, null, null, "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields null, New Postcode null, Existing Address fields full.
     [DataRow("", "", "", "", "", "", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields empty, New Postcode empty, Existing Address fields full.
     [DataRow(null, null, null, null, null, "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "ZZ99 6TF")] // All New Address Fields null, All existing address field full, Postcode does not match.

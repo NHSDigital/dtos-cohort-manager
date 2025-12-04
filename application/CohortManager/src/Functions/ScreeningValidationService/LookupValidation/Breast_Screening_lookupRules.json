@@ -3,10 +3,6 @@
     "WorkflowName": "Common",
     "GlobalParams": [
       {
-        "Name": "ValidCurrentPosting",
-        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
-      },
-      {
         "Name": "ValidPrimaryCareProvider",
         "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
       }
