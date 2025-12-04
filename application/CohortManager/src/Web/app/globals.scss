@@ -162,127 +162,29 @@
   color: #00703c;
 }
 
-// Header layout
+.nhsuk-header__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
 .nhsuk-header__service {
+  white-space: nowrap;
   flex-shrink: 0;
 }
 
 .nhsuk-header__search {
   flex: 1;
-  max-width: 400px;
-  margin: 0 32px;
+  margin: 0 100px;
+  min-width: 250px;
+}
 
-  > div {
-    display: contents;
-  }
+.nhsuk-header__search-form {
+  display: flex;
+  fill: currentColor;
 }
 
 .nhsuk-header__account {
   flex-shrink: 0;
-}
-
-.nhsuk-header__account-list {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.nhsuk-header__account-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nhsuk-icon__user {
-  width: 24px;
-  height: 24px;
-  fill: white;
-}
-
-// Search form styling
-.app-search-form .nhsuk-input {
-  min-width: 250px;
-  flex: 1;
-  margin-bottom: 0;
-  margin-right: 8px;
-  height: 40px;
-  padding: 8px 12px;
-}
-
-.app-search-form .nhsuk-header__search-submit {
-  margin-left: 0;
-  flex-shrink: 0;
-  background-color: #005ea5;
-  border: 2px solid #005ea5;
-  color: white;
-  padding: 8px 12px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-
-  &:hover {
-    background-color: #004080;
-    border-color: #004080;
-  }
-
-  &:focus {
-    outline: 3px solid #ffeb3b;
-    outline-offset: 0;
-  }
-}
-
-.app-search-form .nhsuk-icon--search {
-  fill: currentColor;
-}
-
-// Header layout
-.nhsuk-header__content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-}
-
-// Search form
-.app-search-form {
-  display: flex;
-  align-items: center;
-  position: relative;
-}
-
-.nhsuk-header__search-submit {
-  background-color: #005ea5;
-  border: 2px solid #005ea5;
-  color: white;
-  padding: 8px 12px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  margin-left: -2px;
-  border-radius: 0 4px 4px 0;
-
-  &:hover {
-    background-color: #004080;
-    border-color: #004080;
-  }
-}
-
-.search-input-container {
-  position: relative;
-  flex: 1;
-}
-
-.search-error-message {
-  display: none;
-  margin-top: 4px;
-
-  &.visible {
-    display: block;
-  }
 }
