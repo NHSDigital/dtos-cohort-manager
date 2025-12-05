@@ -17,7 +17,7 @@ using System.IO;
 using System.Text;
 using NHS.CohortManager.Tests.TestUtils;
 using FluentAssertions;
-
+using Model.Pagination;
 
 [TestClass]
 public class GetValidationExceptionsTests

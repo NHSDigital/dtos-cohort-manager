@@ -24,7 +24,7 @@ public class ValidationExceptionDataTests
 
     public ValidationExceptionDataTests()
     {
-        validationExceptionData = new ValidationExceptionData(_logger.Object, _validationExceptionDataServiceClient.Object, _demographicDataServiceClient.Object);
+        validationExceptionData = new ValidationExceptionData(_logger.Object, _validationExceptionDataServiceClient.Object);
         _exceptionList = new List<ExceptionManagement>
         {
             new() { ExceptionId = 1, CohortName = "Cohort1", DateCreated = DateTime.UtcNow.Date, NhsNumber = "1111111111", RuleDescription = "RuleA", Category = 3, ServiceNowId = "ServiceNow1", ServiceNowCreatedDate = DateTime.UtcNow.Date },

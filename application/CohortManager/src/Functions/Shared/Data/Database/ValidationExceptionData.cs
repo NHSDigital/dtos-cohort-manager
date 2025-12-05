@@ -2,6 +2,7 @@ namespace Data.Database;
 
 using System;
 using System.Data;
+using System.Linq.Expressions;
 using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -17,10 +18,10 @@ public class ValidationExceptionData : IValidationExceptionData
 {
     private readonly ILogger<ValidationExceptionData> _logger;
     private readonly IDataServiceClient<ExceptionManagement> _validationExceptionDataServiceClient;
+
     public ValidationExceptionData(
         ILogger<ValidationExceptionData> logger,
-        IDataServiceClient<ExceptionManagement> validationExceptionDataServiceClient,
-        IDataServiceClient<ParticipantDemographic> demographicDataServiceClient
+        IDataServiceClient<ExceptionManagement> validationExceptionDataServiceClient
     )
     {
         _logger = logger;
@@ -49,12 +50,12 @@ public class ValidationExceptionData : IValidationExceptionData
         return GetValidationExceptionWithDetails(exception);
     }
 
-
     public async Task<bool> Create(ValidationException exception)
     {
         var exceptionToUpdate = new ExceptionManagement().FromValidationException(exception);
         return await _validationExceptionDataServiceClient.Add(exceptionToUpdate);
     }
+
     public async Task<bool> RemoveOldException(string nhsNumber, string screeningName)
     {
         var exceptions = await GetExceptionRecords(nhsNumber, screeningName);
@@ -63,7 +64,6 @@ public class ValidationExceptionData : IValidationExceptionData
             return false;
         }
 
-        // we only need to get the last unresolved exception for the nhs number and screening service
         var validationExceptionToUpdate = exceptions.Where(x => DateToString(x.DateResolved) == "9999-12-31")
         .OrderByDescending(x => x.DateCreated).FirstOrDefault();
 
@@ -129,8 +129,82 @@ public class ValidationExceptionData : IValidationExceptionData
         if (filteredExceptions == null || !filteredExceptions.Any())
             return [];
 
-        var results = filteredExceptions.Select(GetValidationExceptionWithDetails);
+        return ProcessExceptions(filteredExceptions);
+    }
+
+    public async Task<IEnumerable<ExceptionManagement>?> GetByFilter(Expression<Func<ExceptionManagement, bool>> filter)
+    {
+        return await _validationExceptionDataServiceClient.GetByFilter(filter);
+    }
+
+    public async Task<IQueryable<ValidationException>> GetExceptionsByNhsNumber(string nhsNumber)
+    {
+        if (string.IsNullOrWhiteSpace(nhsNumber))
+        {
+            throw new ArgumentException("NHS number is required.", nameof(nhsNumber));
+        }
+
+        nhsNumber = nhsNumber.Replace(" ", "");
+        if (!IsValidNhsNumber(nhsNumber))
+        {
+            throw new ArgumentException("Invalid NHS number format. Must be 10 digits.", nameof(nhsNumber));
+        }
+
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
+        if (exceptions == null || !exceptions.Any())
+        {
+            return new List<ValidationException>().AsQueryable();
+        }
+
+        var validationExceptions = ProcessExceptions(exceptions);
+        return validationExceptions.OrderByDescending(x => x.DateCreated).AsQueryable();
+    }
+
+    public async Task<List<ValidationExceptionReport>> GetReportsByNhsNumber(string nhsNumber)
+    {
+        if (string.IsNullOrWhiteSpace(nhsNumber) || !IsValidNhsNumber(nhsNumber.Replace(" ", "")))
+        {
+            return [];
+        }
+
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
+        if (exceptions == null || !exceptions.Any())
+        {
+            return [];
+        }
+
+        var validationExceptions = ProcessExceptions(exceptions);
+        return GenerateReports(validationExceptions);
+    }
+
+    public List<ValidationException> ProcessExceptions(IEnumerable<ExceptionManagement> exceptions)
+    {
+        var results = exceptions.Select(GetValidationExceptionWithDetails);
         return results.Where(x => x != null).ToList()!;
+    }
+
+    public List<ValidationExceptionReport> GenerateReports(List<ValidationException> validationExceptions)
+    {
+        return [.. validationExceptions
+            .Where(x => x.Category.HasValue && (x.Category.Value == 12 || x.Category.Value == 13))
+            .GroupBy(x => new
+            {
+                Date = x.DateCreated.HasValue ? x.DateCreated.Value.Date : DateTime.Now.Date,
+                FileName = x.FileName ?? string.Empty,
+                ScreeningName = x.ScreeningName ?? string.Empty,
+                CohortName = x.CohortName ?? string.Empty,
+                Category = x.Category
+            })
+            .Select(g => new ValidationExceptionReport
+            {
+                ReportDate = g.Key.Date,
+                FileName = g.Key.FileName,
+                ScreeningName = g.Key.ScreeningName,
+                CohortName = g.Key.CohortName,
+                Category = g.Key.Category,
+                ExceptionCount = g.Count()
+            })
+            .OrderByDescending(r => r.ReportDate)];
     }
 
     private ServiceResponseModel CreateSuccessResponse(string message) => CreateResponse(true, HttpStatusCode.OK, message);
@@ -277,10 +351,8 @@ public class ValidationExceptionData : IValidationExceptionData
 
     private async Task<List<ExceptionManagement>?> GetExceptionRecords(string nhsNumber, string screeningName)
     {
-
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber && x.ScreeningName == screeningName);
         return exceptions?.ToList();
-
     }
 
     private static string DateToString(DateTime? datetime)
@@ -310,5 +382,12 @@ public class ValidationExceptionData : IValidationExceptionData
         return sortOrder == SortOrder.Ascending
             ? [.. filteredList.OrderBy(dateProperty)]
             : [.. filteredList.OrderByDescending(dateProperty)];
+    }
+
+    private static bool IsValidNhsNumber(string nhsNumber)
+    {
+        return !string.IsNullOrWhiteSpace(nhsNumber)
+               && nhsNumber.Length == 10
+               && nhsNumber.All(char.IsDigit);
     }
 }
