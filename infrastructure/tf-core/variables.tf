@@ -618,10 +618,10 @@ variable "function_app_slots" {
 
 variable "container_registry" {
   description = "Configuration of the Azure Container Registry used for feature testing"
-  type = map(object({
+  type = optional(map(object({
       name_suffix   = optional(string, "")
       admin_enabled = optional(bool, false)
       uai_name      = optional(string, "dtos-cohort-manager-acr-push")
-      sku           = string
-  }))
+      sku           = optional(string, "Premium")
+  })))
 }
