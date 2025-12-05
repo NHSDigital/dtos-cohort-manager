@@ -132,6 +132,7 @@ export default async function Page({
                       <ExceptionsTable
                         exceptions={exceptionDetails}
                         caption="Breast screening exceptions which have been created today"
+                        showServiceNowColumn={true}
                       />
                     </div>
                   </div>
