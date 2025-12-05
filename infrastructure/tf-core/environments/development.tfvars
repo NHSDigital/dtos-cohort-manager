@@ -4,7 +4,7 @@ environment           = "DEV"
 environment_hub       = "dev"
 
 features = {
-  acr_enabled                          = false
+  acr_enabled                          = true
   api_management_enabled               = false
   event_grid_enabled                   = false
   private_endpoints_enabled            = true
@@ -270,6 +270,13 @@ container_apps = {
       infra_key_vault_name          = null
     }
   }
+}
+
+container_registry = {
+  name_suffix   = "devtest"
+  admin_enabled = false
+  uai_name      = "dtos-cohort-manager-acr-push"
+  sku           = "Premium"
 }
 
 diagnostic_settings = {
@@ -867,7 +874,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
-        MaxRetryCount=3
+        MaxRetryCount                = 3
       }
     }
 

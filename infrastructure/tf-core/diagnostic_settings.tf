@@ -1,4 +1,8 @@
 locals {
+  # ACR
+  monitor_diagnostic_setting_acr_enabled_logs = ["ContainerRegistryRepositoryEvents", "ContainerRegistryLoginEvents"]
+  monitor_diagnostic_setting_acr_metrics      = ["AllMetrics"]
+
   # APPSERVICEPLAN
   monitor_diagnostic_setting_appserviceplan_metrics = ["AllMetrics"]
 
