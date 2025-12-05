@@ -5,7 +5,6 @@ module "acr" {
   source = "../../../dtos-devops-templates/infrastructure/modules/container-registry"
 
   name                = "${module.regions_config[each.value.region].names.azure-container-registry}-${lower(each.value.name_suffix)}"
-
   resource_group_name = azurerm_resource_group.core[each.key].name
   location            = each.value.region
 
@@ -28,5 +27,5 @@ module "acr" {
     private_service_connection_is_manual = var.features.private_service_connection_is_manual
   } : null
 
-  tags = each.value.tags
+  tags = var.tags
 }
