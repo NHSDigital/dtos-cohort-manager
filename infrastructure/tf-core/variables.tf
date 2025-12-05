@@ -615,3 +615,13 @@ variable "function_app_slots" {
     function_app_slot_enabled = optional(bool, false)
   }))
 }
+
+variable "container_registry" {
+  description = "Configuration of the Azure Container Registry used for feature testing"
+  type = map(object({
+      name_suffix   = optional(string, "")
+      admin_enabled = optional(bool, false)
+      uai_name      = optional(string, "dtos-cohort-manager-acr-push")
+      sku           = optional(string, "Premium")
+  }))
+}
