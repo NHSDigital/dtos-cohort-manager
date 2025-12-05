@@ -622,6 +622,6 @@ variable "container_registry" {
       name_suffix   = optional(string, "")
       admin_enabled = optional(bool, false)
       uai_name      = optional(string, "dtos-cohort-manager-acr-push")
-      sku           = optional(string, "Premium")
+      sku           = string
   }))
 }
