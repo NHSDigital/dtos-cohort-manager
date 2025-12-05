@@ -20,6 +20,7 @@ var host = new HostBuilder()
     .ConfigureFunctionsWorkerDefaults()
     .ConfigureServices(services =>
     {
+        services.AddTransient<IExtractCohortDistributionRecordsStrategy, ExtractCohortDistributionRecords>();
         services.AddTransient<ICreateCohortDistributionData, CreateCohortDistributionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IDatabaseHelper, DatabaseHelper>();
