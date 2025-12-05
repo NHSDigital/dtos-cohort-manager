@@ -176,8 +176,11 @@
 
 .nhsuk-header__search {
   flex: 1;
-  margin: 0 100px;
   min-width: 250px;
+}
+
+.nhsuk-header .nhsuk-header__search {
+  margin: 0 100px;
 }
 
 .nhsuk-header__search-form {
