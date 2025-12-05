@@ -9,6 +9,7 @@ import Breadcrumb from "@/app/components/breadcrumb";
 import ParticipantInformationPanel from "@/app/components/participantInformationPanel";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
+import UserFeedback from "@/app/components/userFeedback";
 
 export const metadata: Metadata = {
   title: `Exception information - ${process.env.SERVICE_NAME} - NHS`,
@@ -76,11 +77,11 @@ export default async function Page(props: {
       ].filter(isMeaningfulAddressPart),
       address: `${exception.ExceptionDetails.ParticipantAddressLine1}${
         exception.ExceptionDetails.ParticipantAddressLine2
-          ? `, ${exception.ExceptionDetails.ParticipantAddressLine2}`
+          ? `${exception.ExceptionDetails.ParticipantAddressLine2}`
           : ""
       }${
         exception.ExceptionDetails.ParticipantAddressLine3
-          ? `, ${exception.ExceptionDetails.ParticipantAddressLine3}`
+          ? `${exception.ExceptionDetails.ParticipantAddressLine3}`
           : ""
       }${
         exception.ExceptionDetails.ParticipantAddressLine4
@@ -88,7 +89,7 @@ export default async function Page(props: {
           : ""
       }${
         exception.ExceptionDetails.ParticipantAddressLine5
-          ? `, ${exception.ExceptionDetails.ParticipantAddressLine5}`
+          ? `${exception.ExceptionDetails.ParticipantAddressLine5}`
           : ""
       }, ${exception.ExceptionDetails.ParticipantPostCode}`,
       primaryCareProvider: exception.ExceptionDetails.PrimaryCareProvider,
@@ -195,6 +196,7 @@ export default async function Page(props: {
                 searchParams={resolvedSearchParams}
               />
             </div>
+              <UserFeedback />
           </div>
         </main>
       </>

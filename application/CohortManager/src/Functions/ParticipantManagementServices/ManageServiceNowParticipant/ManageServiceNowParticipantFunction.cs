@@ -1,8 +1,11 @@
 namespace NHS.CohortManager.ParticipantManagementServices;
 
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Common;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
@@ -19,6 +22,8 @@ public class ManageServiceNowParticipantFunction
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly IQueueClient _queueClient;
+
+    private static readonly Regex NonLetterRegex = new(@"[^\p{Lu}\p{Ll}\p{Lt}]", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
 
     public ManageServiceNowParticipantFunction(ILogger<ManageServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> config,
         IHttpClientFunction httpClientFunction, IExceptionHandler handleException, IDataServiceClient<ParticipantManagement> participantManagementClient,
@@ -51,7 +56,7 @@ public class ManageServiceNowParticipantFunction
             var participantManagement = await _participantManagementClient.GetSingleByFilter(
                 x => x.NHSNumber == serviceNowParticipant.NhsNumber && x.ScreeningId == serviceNowParticipant.ScreeningId);
 
-            var success = await ProcessParticipantRecord(serviceNowParticipant, participantManagement);
+            var success = await ProcessParticipantRecord(serviceNowParticipant, participantManagement, pdsDemographic);
             if (!success)
             {
                 return;
@@ -133,14 +138,14 @@ public class ManageServiceNowParticipantFunction
         return true;
     }
 
-    private async Task<bool> ProcessParticipantRecord(ServiceNowParticipant serviceNowParticipant, ParticipantManagement? participantManagement)
+    private async Task<bool> ProcessParticipantRecord(ServiceNowParticipant serviceNowParticipant, ParticipantManagement? participantManagement, PdsDemographic pdsDemographic)
     {
         var success = false;
         string? failureDescription;
 
         if (participantManagement is null)
         {
-            success = await AddNewParticipant(serviceNowParticipant);
+            success = await AddNewParticipant(serviceNowParticipant, pdsDemographic);
             failureDescription = "Participant Management Data Service add request failed";
         }
         else if (participantManagement.BlockedFlag == 1)
@@ -149,7 +154,7 @@ public class ManageServiceNowParticipantFunction
         }
         else
         {
-            success = await UpdateExistingParticipant(serviceNowParticipant, participantManagement);
+            success = await UpdateExistingParticipant(serviceNowParticipant, participantManagement, pdsDemographic);
             failureDescription = "Participant Management Data Service update request failed";
         }
 
@@ -161,7 +166,7 @@ public class ManageServiceNowParticipantFunction
         return success;
     }
 
-    private async Task<bool> AddNewParticipant(ServiceNowParticipant serviceNowParticipant)
+    private async Task<bool> AddNewParticipant(ServiceNowParticipant serviceNowParticipant, PdsDemographic pdsDemographic)
     {
         _logger.LogInformation("Participant not in participant management table, adding new record");
 
@@ -175,7 +180,9 @@ public class ManageServiceNowParticipantFunction
             EligibilityFlag = 1,
             ReferralFlag = 1,
             RecordInsertDateTime = DateTime.UtcNow,
-            IsHigherRisk = isVhrParticipant ? 1 : null
+            IsHigherRisk = isVhrParticipant ? 1 : null,
+            ReasonForRemoval = pdsDemographic.ReasonForRemoval,
+            ReasonForRemovalDate = ParseRemovalEffectiveFromDateStringToDateTime(pdsDemographic.RemovalEffectiveFromDate)
         };
 
         if (isVhrParticipant)
@@ -186,7 +193,7 @@ public class ManageServiceNowParticipantFunction
         return await _participantManagementClient.Add(participantToAdd);
     }
 
-    private async Task<bool> UpdateExistingParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantManagement participantManagement)
+    private async Task<bool> UpdateExistingParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantManagement participantManagement, PdsDemographic pdsDemographic)
     {
         _logger.LogInformation("Existing participant management record found, updating record {ParticipantId}", participantManagement.ParticipantId);
 
@@ -194,10 +201,22 @@ public class ManageServiceNowParticipantFunction
         participantManagement.EligibilityFlag = 1;
         participantManagement.ReferralFlag = 1;
         participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
+        participantManagement.ReasonForRemoval = pdsDemographic.ReasonForRemoval;
+        participantManagement.ReasonForRemovalDate = ParseRemovalEffectiveFromDateStringToDateTime(pdsDemographic.RemovalEffectiveFromDate);
 
         HandleVhrFlagForExistingParticipant(serviceNowParticipant, participantManagement);
 
         return await _participantManagementClient.Update(participantManagement);
+    }
+
+    private static DateTime? ParseRemovalEffectiveFromDateStringToDateTime(string? removalEffectiveFromDate)
+    {
+        if (removalEffectiveFromDate == null)
+        {
+            return null;
+        }
+
+        return DateTime.ParseExact(removalEffectiveFromDate, "yyyy'-'MM'-'dd'T'HH':'mm':'ssK", CultureInfo.InvariantCulture);
     }
 
     private void HandleVhrFlagForExistingParticipant(ServiceNowParticipant serviceNowParticipant, ParticipantManagement participantManagement)
@@ -225,9 +244,51 @@ public class ManageServiceNowParticipantFunction
 
     private static bool CheckParticipantDataMatches(ServiceNowParticipant serviceNowParticipant, PdsDemographic pdsDemographic)
     {
-        return serviceNowParticipant.FirstName == pdsDemographic.FirstName &&
-               serviceNowParticipant.FamilyName == pdsDemographic.FamilyName &&
+        return NormalizedNamesMatch(serviceNowParticipant.FirstName, pdsDemographic.FirstName) &&
+               NormalizedNamesMatch(serviceNowParticipant.FamilyName, pdsDemographic.FamilyName) &&
                serviceNowParticipant.DateOfBirth.ToString("yyyy-MM-dd") == pdsDemographic.DateOfBirth;
+    }
+
+    /// <summary>
+    /// Normalizes and compares two name strings by removing accents, spaces, hyphens, and special characters.
+    /// Converts accented characters to their base forms (É→E, Ñ→N, Ö→O) to match database storage behavior.
+    /// </summary>
+    /// <param name="name1">First name to compare</param>
+    /// <param name="name2">Second name to compare</param>
+    /// <returns>True if the normalized names match (case-insensitive), false otherwise</returns>
+    private static bool NormalizedNamesMatch(string? name1, string? name2)
+    {
+        if (string.IsNullOrWhiteSpace(name1) && string.IsNullOrWhiteSpace(name2)) return true;
+        if (string.IsNullOrWhiteSpace(name1) || string.IsNullOrWhiteSpace(name2)) return false;
+
+        var normalized1 = NormalizeName(name1);
+        var normalized2 = NormalizeName(name2);
+
+        if (string.IsNullOrEmpty(normalized1) || string.IsNullOrEmpty(normalized2)) return false;
+
+        return string.Equals(normalized1, normalized2, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Normalizes a name by removing accents and all non-letter characters.
+    /// This handles spaces, hyphens, apostrophes, and other punctuation.
+    /// Accented characters like É, Ñ, Ö are converted to their base forms (E, N, O).
+    /// Uses Unicode NFD normalization to decompose accents, then removes diacritical marks.
+    /// </summary>
+    /// <param name="name">The name to normalize</param>
+    /// <returns>Normalized name containing only unaccented ASCII letters</returns>
+    private static string NormalizeName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return string.Empty;
+        }
+
+        var trimmedName = name.Trim();
+        var normalizedString = trimmedName.Normalize(NormalizationForm.FormD);
+        var lettersOnlyString = NonLetterRegex.Replace(normalizedString, string.Empty);
+
+        return lettersOnlyString.Normalize(NormalizationForm.FormC);
     }
 
     private async Task SendServiceNowMessage(string serviceNowCaseNumber, ServiceNowMessageType servicenowMessageType)

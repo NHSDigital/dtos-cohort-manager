@@ -56,7 +56,7 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
   },
   35: {
     ruleDescription:
-      "Possible confusion. At least 2 of the following have changed: family name, gender or date of birth",
+      "Possible Confusion. At least 2 of the following have changed: family name, gender or date of birth",
     moreDetails:
       "Verify that the changes are correct, and that the NHS number is not involved in a confusion case.",
     reportingId: "CMR38",
@@ -102,7 +102,7 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
     moreDetails:
       "To update a record with a formal death status, ensure that the reason for removal field contains a compatible death-related value.",
     reportingId: "CMR20",
-    portalFormTitle: "Formal death",
+    portalFormTitle: "Confused NHS numbers",
   },
   69: {
     ruleDescription: "NHS number’s invalid flag is set to true.",

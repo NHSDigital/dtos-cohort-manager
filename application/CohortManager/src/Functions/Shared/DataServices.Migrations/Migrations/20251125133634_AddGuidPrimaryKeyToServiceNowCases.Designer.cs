@@ -4,6 +4,7 @@ using DataServices.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataServices.Migrations.Migrations
 {
     [DbContext(typeof(DataServicesContext))]
-    partial class DataServicesContextModelSnapshot : ModelSnapshot
+    [Migration("20251125133634_AddGuidPrimaryKeyToServiceNowCases")]
+    partial class AddGuidPrimaryKeyToServiceNowCases
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -501,8 +504,6 @@ namespace DataServices.Migrations.Migrations
                     b.HasIndex(new[] { "IsExtracted", "RequestId" }, "IX_BSCOHORT_IS_EXTACTED_REQUESTID");
 
                     b.HasIndex(new[] { "NHSNumber" }, "IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
-
-                    b.HasIndex(new[] { "ParticipantId" }, "IX_BS_COHORT_DISTRIBUTION_PARTICIPANTID");
 
                     b.ToTable("BS_COHORT_DISTRIBUTION", "dbo");
                 });

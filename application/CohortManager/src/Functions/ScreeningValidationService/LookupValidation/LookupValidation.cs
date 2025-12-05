@@ -80,16 +80,14 @@ public class LookupValidation
                 new RuleParameter("dbLookup", _dataLookup)
             };
 
-            bool routineParticipant = (requestBody.NewParticipant.ReferralFlag ?? "").ToLower() == "false";
-
             var resultList = new List<RuleResultTree>();
 
-            if (newParticipant.RecordType != Actions.Removed && routineParticipant)
+            if (newParticipant.RecordType != Actions.Removed)
             {
                 resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             }
 
-            if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType) && routineParticipant)
+            if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
             {
                 _logger.LogInformation("Executing workflow {RecordType}", newParticipant.RecordType);
                 var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
