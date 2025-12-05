@@ -67,7 +67,6 @@ export function SearchNhsNumber() {
             width="16"
             height="16"
             focusable="false"
-            role="img"
             aria-label="Search"
           >
             <title>Search</title>

@@ -32,7 +32,6 @@ export default async function Header({
                 height="40"
                 width="100"
                 focusable="false"
-                role="img"
                 aria-hidden="true"
               >
                 <title>NHS</title>
