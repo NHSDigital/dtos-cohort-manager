@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { headers } from "next/headers";
 import { auth, signOut } from "@/app/lib/auth";
 import { SearchNhsNumber } from "./search-nhs-number";
 import { ConditionalHeaderSearch } from "./conditionalHeaderSearch";
@@ -11,6 +12,8 @@ export default async function Header({
   serviceName = process.env.SERVICE_NAME,
 }: Readonly<HeaderProps>) {
   const session = await auth();
+  const headersList = await headers();
+  const pathname = headersList.get("x-invoke-path") || headersList.get("x-url") || "";
 
   return (
     <header className="nhsuk-header" role="banner">
@@ -44,7 +47,7 @@ export default async function Header({
 
           {session?.user && (
             <div className="nhsuk-header__search">
-              <ConditionalHeaderSearch>
+              <ConditionalHeaderSearch pathname={pathname}>
                 <SearchNhsNumber />
               </ConditionalHeaderSearch>
             </div>
