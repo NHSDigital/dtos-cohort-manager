@@ -226,7 +226,7 @@ public class LookupValidationTests
     }
     [TestMethod]
     [DataRow("BAA", "InvalidPCP",false)]
-    [DataRow("HMP", "InvalidPCP",false)]
+    [DataRow("HJ", "InvalidPCP",false)]
     [DataRow("DMS", "InvalidPCP",false)]
     public async Task Run_CurrentPostingAndPrimaryProvider_ReturnsException(string currentPosting, string primaryCareProvider, bool PCPIsExcluded)
     {
