@@ -28,6 +28,8 @@ public class LookupValidationTests
     private readonly Mock<ILogger<LookupValidation>> _mockLogger = new();
     private readonly Mock<IDataLookupFacadeBreastScreening> _lookupValidation = new();
 
+    private readonly List<string> welshPostingCategories = new List<string>{"CLD","CYM","DYF","GWE","SGA","WGA"};
+
     [TestInitialize]
     public void IntialiseTests()
     {
@@ -206,11 +208,14 @@ public class LookupValidationTests
         // Arrange
         _requestBody.NewParticipant.CurrentPosting = currentPosting;
         _requestBody.NewParticipant.PrimaryCareProvider = primaryCareProvider;
+
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(PCPIsExcluded);
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsIn<string>(welshPostingCategories))).Returns("WALES");
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsNotIn<string>(welshPostingCategories))).Returns("ENGLAND");
 
         // Act
         var response = await _sut.RunAsync(_request.Object);
@@ -221,6 +226,8 @@ public class LookupValidationTests
     }
     [TestMethod]
     [DataRow("BAA", "InvalidPCP",false)]
+    [DataRow("HMP", "InvalidPCP",false)]
+    [DataRow("DMS", "InvalidPCP",false)]
     public async Task Run_CurrentPostingAndPrimaryProvider_ReturnsException(string currentPosting, string primaryCareProvider, bool PCPIsExcluded)
     {
         // Arrange
@@ -231,7 +238,8 @@ public class LookupValidationTests
 
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(primaryCareProvider == "ValidPCP");
         _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderInExcludedSmuList(It.IsAny<string>())).Returns(PCPIsExcluded);
-
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsIn<string>(welshPostingCategories))).Returns("WALES");
+        _lookupValidation.Setup(x => x.RetrievePostingCategory(It.IsNotIn<string>(welshPostingCategories))).Returns("ENGLAND");
         // Act
         var response = await _sut.RunAsync(_request.Object);
         string body = await AssertionHelper.ReadResponseBodyAsync(response);

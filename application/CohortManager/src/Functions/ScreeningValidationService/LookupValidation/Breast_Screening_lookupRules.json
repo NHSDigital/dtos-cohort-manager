@@ -12,15 +12,15 @@
         "RuleName": "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal",
         "LocalParams": [
           {
-            "Name": "InvalidPostingCategory",
-            "Expression": "string.Equals(newParticipant.CurrentPosting, \"CYM\", StringComparison.OrdinalIgnoreCase)"
+            "Name": "WelshPostingCategory",
+            "Expression": "string.Equals(dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting), \"WALES\", StringComparison.OrdinalIgnoreCase)"
           },
           {
             "Name": "IsExcluded",
             "Expression": "dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "(InvalidPostingCategory || ValidPrimaryCareProvider || IsExcluded)",
+        "Expression": "(WelshPostingCategory || ValidPrimaryCareProvider  || IsExcluded)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
