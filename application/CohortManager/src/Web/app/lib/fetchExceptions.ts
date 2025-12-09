@@ -70,8 +70,7 @@ export async function fetchExceptionsByNhsNumber(
 
   const response = await fetch(apiUrl);
 
-  // If 404, return empty result structure instead of throwing
-  if (response.status === 404) {
+  if (response.status === 204 || response.status === 404) {
     return {
       data: {
         NhsNumber: params.nhsNumber,

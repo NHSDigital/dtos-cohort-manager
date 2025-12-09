@@ -9,15 +9,12 @@ public class ValidationExceptionsByNhsNumberResponse
 {
     public string NhsNumber { get; set; } = string.Empty;
     public PaginationResult<ValidationException> Exceptions { get; set; } = new() { Items = [] };
-    public List<ValidationExceptionReport> Reports { get; set; } = new();
+    public List<ValidationExceptionReport> Reports { get; set; } = [];
 }
 
 public class ValidationExceptionReport
 {
     public DateTime ReportDate { get; set; }
-    public string? FileName { get; set; }
-    public string? ScreeningName { get; set; }
-    public string? CohortName { get; set; }
     public int? Category { get; set; }
     public int ExceptionCount { get; set; }
 }

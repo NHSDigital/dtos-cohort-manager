@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.DTO;
 using Model.Enums;
+using Model.Pagination;
 using NHS.CohortManager.Shared.Utilities;
 
 public class ValidationExceptionData : IValidationExceptionData
@@ -129,7 +130,7 @@ public class ValidationExceptionData : IValidationExceptionData
         if (filteredExceptions == null || !filteredExceptions.Any())
             return [];
 
-        return ProcessExceptions(filteredExceptions);
+        return MapToValidationExceptions(filteredExceptions);
     }
 
     public async Task<IEnumerable<ExceptionManagement>?> GetByFilter(Expression<Func<ExceptionManagement, bool>> filter)
@@ -137,7 +138,7 @@ public class ValidationExceptionData : IValidationExceptionData
         return await _validationExceptionDataServiceClient.GetByFilter(filter);
     }
 
-    public async Task<IQueryable<ValidationException>> GetExceptionsByNhsNumber(string nhsNumber)
+    public async Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsByNhsNumber(string nhsNumber)
     {
         if (string.IsNullOrWhiteSpace(nhsNumber))
         {
@@ -153,58 +154,61 @@ public class ValidationExceptionData : IValidationExceptionData
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
         if (exceptions == null || !exceptions.Any())
         {
-            return new List<ValidationException>().AsQueryable();
+            return new ValidationExceptionsByNhsNumberResponse
+            {
+                NhsNumber = nhsNumber,
+                Exceptions = new PaginationResult<ValidationException> { Items = [] },
+                Reports = []
+            };
         }
 
-        var validationExceptions = ProcessExceptions(exceptions);
-        return validationExceptions.OrderByDescending(x => x.DateCreated).AsQueryable();
-    }
+        // Map exceptions to validation exceptions with details
+        var validationExceptions = exceptions
+            .Select(GetValidationExceptionWithDetails)
+            .Where(x => x != null)
+            .Cast<ValidationException>()
+            .OrderByDescending(x => x.DateCreated)
+            .ToList();
 
-    public async Task<List<ValidationExceptionReport>> GetReportsByNhsNumber(string nhsNumber)
-    {
-        if (string.IsNullOrWhiteSpace(nhsNumber) || !IsValidNhsNumber(nhsNumber.Replace(" ", "")))
-        {
-            return [];
-        }
-
-        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
-        if (exceptions == null || !exceptions.Any())
-        {
-            return [];
-        }
-
-        var validationExceptions = ProcessExceptions(exceptions);
-        return GenerateReports(validationExceptions);
-    }
-
-    public List<ValidationException> ProcessExceptions(IEnumerable<ExceptionManagement> exceptions)
-    {
-        var results = exceptions.Select(GetValidationExceptionWithDetails);
-        return results.Where(x => x != null).ToList()!;
-    }
-
-    public List<ValidationExceptionReport> GenerateReports(List<ValidationException> validationExceptions)
-    {
-        return [.. validationExceptions
+        // Generate reports from category 12 and 13 exceptions
+        var reports = validationExceptions
             .Where(x => x.Category.HasValue && (x.Category.Value == 12 || x.Category.Value == 13))
             .GroupBy(x => new
             {
-                Date = x.DateCreated.HasValue ? x.DateCreated.Value.Date : DateTime.Now.Date,
-                FileName = x.FileName ?? string.Empty,
-                ScreeningName = x.ScreeningName ?? string.Empty,
-                CohortName = x.CohortName ?? string.Empty,
+                Date = x.DateCreated?.Date ?? DateTime.Now.Date,
                 Category = x.Category
             })
             .Select(g => new ValidationExceptionReport
             {
                 ReportDate = g.Key.Date,
-                FileName = g.Key.FileName,
-                ScreeningName = g.Key.ScreeningName,
-                CohortName = g.Key.CohortName,
                 Category = g.Key.Category,
                 ExceptionCount = g.Count()
             })
-            .OrderByDescending(r => r.ReportDate)];
+            .OrderByDescending(r => r.ReportDate)
+            .ToList();
+
+        var totalItems = validationExceptions.Count;
+
+        return new ValidationExceptionsByNhsNumberResponse
+        {
+            NhsNumber = nhsNumber,
+            Exceptions = new PaginationResult<ValidationException>
+            {
+                Items = validationExceptions,
+                TotalItems = totalItems,
+                TotalPages = 1,
+                CurrentPage = 1,
+                IsFirstPage = true,
+                HasNextPage = false,
+                HasPreviousPage = false
+            },
+            Reports = reports
+        };
+    }
+
+    private List<ValidationException> MapToValidationExceptions(IEnumerable<ExceptionManagement> exceptions)
+    {
+        return exceptions.Select(GetValidationExceptionWithDetails).Where(x => x != null).ToList()!;
     }
 
     private ServiceResponseModel CreateSuccessResponse(string message) => CreateResponse(true, HttpStatusCode.OK, message);

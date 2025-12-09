@@ -139,29 +139,14 @@ public class GetValidationExceptions
     public async Task<HttpResponseData> GetValidationExceptionsByNhsNumber([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
         var nhsNumber = req.Query["nhsNumber"];
-        var page = _httpParserHelper.GetQueryParameterAsInt(req, "page", 1);
-        var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize", 10);
 
         try
         {
-            if (string.IsNullOrWhiteSpace(nhsNumber))
-            {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
-            }
+            var result = await _validationData.GetExceptionsByNhsNumber(nhsNumber!);
 
-            var exceptionsQueryable = await _validationData.GetExceptionsByNhsNumber(nhsNumber);
-            var paginatedExceptions = _paginationService.GetPaginatedResult(exceptionsQueryable, page, pageSize);
-            var reports = await _validationData.GetReportsByNhsNumber(nhsNumber);
-            var result = new ValidationExceptionsByNhsNumberResponse
-            {
-                NhsNumber = nhsNumber,
-                Exceptions = paginatedExceptions,
-                Reports = reports
-            };
-
-            var headers = _paginationService.AddNavigationHeaders(req, paginatedExceptions);
-
-            return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(result), headers);
+            return result.Exceptions.Items.Any()
+                ? _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, JsonSerializer.Serialize(result))
+                : _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
         }
         catch (ArgumentException ex)
         {
