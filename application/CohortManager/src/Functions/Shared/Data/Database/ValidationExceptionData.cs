@@ -139,49 +139,16 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public async Task<(IQueryable<ValidationException> Exceptions, List<ValidationExceptionReport> Reports, string NhsNumber)> GetExceptionsWithReportsByNhsNumber(string nhsNumber)
     {
-        if (string.IsNullOrWhiteSpace(nhsNumber))
+        var validatedNhsNumber = ValidateNhsNumber(nhsNumber);
+        var validationExceptions = await GetValidationExceptionsByNhsNumber(validatedNhsNumber);
+
+        if (validationExceptions.Count == 0)
         {
-            throw new ArgumentException("NHS number is required.", nameof(nhsNumber));
+            return (Enumerable.Empty<ValidationException>().AsQueryable(), [], validatedNhsNumber);
         }
 
-        nhsNumber = nhsNumber.Replace(" ", "");
-        if (!IsValidNhsNumber(nhsNumber))
-        {
-            throw new ArgumentException("Invalid NHS number format. Must be 10 digits.", nameof(nhsNumber));
-        }
-
-        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
-        if (exceptions == null || !exceptions.Any())
-        {
-            return (Enumerable.Empty<ValidationException>().AsQueryable(), [], nhsNumber);
-        }
-
-        // Map exceptions to validation exceptions with details
-        var validationExceptions = exceptions
-            .Select(GetValidationExceptionWithDetails)
-            .Where(x => x != null)
-            .Cast<ValidationException>()
-            .OrderByDescending(x => x.DateCreated)
-            .ToList();
-
-        // Generate reports from category 12 and 13 exceptions
-        var reports = validationExceptions
-            .Where(x => x.Category.HasValue && (x.Category.Value == 12 || x.Category.Value == 13))
-            .GroupBy(x => new
-            {
-                Date = x.DateCreated?.Date ?? DateTime.Now.Date,
-                Category = x.Category
-            })
-            .Select(g => new ValidationExceptionReport
-            {
-                ReportDate = g.Key.Date,
-                Category = g.Key.Category,
-                ExceptionCount = g.Count()
-            })
-            .OrderByDescending(r => r.ReportDate)
-            .ToList();
-
-        return (validationExceptions.AsQueryable(), reports, nhsNumber);
+        var reports = GenerateExceptionReports(validationExceptions);
+        return (validationExceptions.AsQueryable(), reports, validatedNhsNumber);
     }
 
     private List<ValidationException> MapToValidationExceptions(IEnumerable<ExceptionManagement> exceptions)
@@ -366,10 +333,59 @@ public class ValidationExceptionData : IValidationExceptionData
             : [.. filteredList.OrderByDescending(dateProperty)];
     }
 
+    private static string ValidateNhsNumber(string nhsNumber)
+    {
+        if (string.IsNullOrWhiteSpace(nhsNumber))
+        {
+            throw new ArgumentException("NHS number is required.", nameof(nhsNumber));
+        }
+
+        var validNhsNumber = nhsNumber.Replace(" ", "");
+        if (!IsValidNhsNumber(validNhsNumber))
+        {
+            throw new ArgumentException("Invalid NHS number format. Must be 10 digits.", nameof(nhsNumber));
+        }
+
+        return validNhsNumber;
+    }
+
     private static bool IsValidNhsNumber(string nhsNumber)
     {
         return !string.IsNullOrWhiteSpace(nhsNumber)
                && nhsNumber.Length == 10
                && nhsNumber.All(char.IsDigit);
+    }
+
+    private async Task<List<ValidationException>> GetValidationExceptionsByNhsNumber(string nhsNumber)
+    {
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
+        if (exceptions == null || !exceptions.Any())
+        {
+            return [];
+        }
+
+        return [.. exceptions
+            .Select(GetValidationExceptionWithDetails)
+            .Where(x => x != null)
+            .Cast<ValidationException>()
+            .OrderByDescending(x => x.DateCreated)];
+    }
+
+    private static List<ValidationExceptionReport> GenerateExceptionReports(List<ValidationException> validationExceptions)
+    {
+        return [.. validationExceptions
+            .Where(x => x.Category.HasValue && (x.Category.Value == 12 || x.Category.Value == 13))
+            .GroupBy(x => new
+            {
+                Date = x.DateCreated?.Date ?? DateTime.Now.Date,
+                Category = x.Category
+            })
+            .Select(g => new ValidationExceptionReport
+            {
+                ReportDate = g.Key.Date,
+                Category = g.Key.Category,
+                ExceptionCount = g.Count()
+            })
+            .OrderByDescending(r => r.ReportDate)];
     }
 }
