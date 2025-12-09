@@ -31,8 +31,9 @@ public class ValidationExceptionDataTests
             new() { ExceptionId = 2, CohortName = "Cohort2", DateCreated = DateTime.UtcNow.Date.AddDays(-1), NhsNumber = "2222222222", RuleDescription = "RuleB", Category = 3, ServiceNowId = "ServiceNow2", ServiceNowCreatedDate = DateTime.UtcNow.Date.AddDays(-1) },
             new() { ExceptionId = 3, CohortName = "Cohort3", DateCreated = DateTime.UtcNow.Date.AddDays(-2), NhsNumber = "3333333333", RuleDescription = "RuleC", Category = 3, ServiceNowId = null },
             new() { ExceptionId = 4, CohortName = "Cohort4", DateCreated = DateTime.Today.AddDays(-3), NhsNumber = "4444444444", RuleDescription = "RuleD", Category = 3, ServiceNowId = null },
-            new() { ExceptionId = 5, CohortName = "Cohort5", DateCreated = DateTime.UtcNow.Date, NhsNumber = "5555555555", RuleDescription = "Confusion Rule", Category = 12, ServiceNowId = null },
-            new() { ExceptionId = 6, CohortName = "Cohort6", DateCreated = DateTime.UtcNow.Date.AddDays(-1), NhsNumber = "6666666666", RuleDescription = "Superseded Rule", Category = 13, ServiceNowId = null }
+            new() { ExceptionId = 5, CohortName = "Cohort5", DateCreated = DateTime.UtcNow.Date, NhsNumber = "9998136431", RuleDescription = "Confusion Rule", Category = 12, ServiceNowId = null, ErrorRecord = "{\"NhsNumber\":\"9998136431\",\"FirstName\":\"John\",\"FamilyName\":\"Doe\"}" },
+            new() { ExceptionId = 6, CohortName = "Cohort6", DateCreated = DateTime.UtcNow.Date.AddDays(-1), NhsNumber = "9998136431", RuleDescription = "Superseded Rule", Category = 13, ServiceNowId = null, ErrorRecord = "{\"NhsNumber\":\"9998136431\",\"FirstName\":\"Jane\",\"FamilyName\":\"Smith\"}" },
+            new() { ExceptionId = 7, CohortName = "Cohort7", DateCreated = DateTime.UtcNow.Date.AddDays(-2), NhsNumber = "9998136431", RuleDescription = "Other Rule", Category = 5, ServiceNowId = null, ErrorRecord = "{\"NhsNumber\":\"9998136431\",\"FirstName\":\"Bob\",\"FamilyName\":\"Johnson\"}" }
         };
         _exceptionCategory = ExceptionCategory.NBO;
     }
@@ -613,5 +614,86 @@ public class ValidationExceptionDataTests
             e.ServiceNowId == null && e.ServiceNowCreatedDate == null && e.RecordUpdatedDate > DateTime.UtcNow.AddMinutes(-1))), Times.Once);
         _exceptionList[0].ServiceNowId.Should().BeNull();
         _exceptionList[0].ServiceNowCreatedDate.Should().BeNull();
+    }
+
+    [TestMethod]
+    public async Task GetExceptionsWithReportsByNhsNumber_ValidNhsNumber_ReturnsExceptionsAndReports()
+    {
+        var nhsNumber = "9998136431";
+        var testExceptions = _exceptionList.Where(e => e.NhsNumber == nhsNumber).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(testExceptions);
+
+        var (exceptions, reports, resultNhsNumber) = await validationExceptionData.GetExceptionsWithReportsByNhsNumber(nhsNumber);
+
+        exceptions.Should().NotBeNull();
+        exceptions.Should().HaveCount(3);
+        exceptions.Should().BeInDescendingOrder(exceptions => exceptions.DateCreated);
+        reports.Should().NotBeNull();
+        reports.Should().HaveCount(2);
+        reports.Should().Contain(report => report.Category == 12 && report.ExceptionCount == 1);
+        reports.Should().Contain(report => report.Category == 13 && report.ExceptionCount == 1);
+        reports.Should().BeInDescendingOrder(report => report.ReportDate);
+        resultNhsNumber.Should().Be(nhsNumber);
+    }
+
+    [DataRow("999 813 6431 ", "9998136431")]
+    [DataRow("99 98 13 64 31 ", "9998136431")]
+    [DataRow("999 813 6431", "9998136431")]
+    [DataRow("9998 13 6431", "9998136431")]
+    [DataRow(" 9998136431 ", "9998136431")]
+    [TestMethod]
+    public async Task GetExceptionsWithReportsByNhsNumber_NhsNumberWithSpaces_RemovesSpacesAndReturnsData(string inputNhsNumber, string expectedNhsNumber)
+    {
+        var testExceptions = _exceptionList.Where(e => e.NhsNumber == expectedNhsNumber).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(testExceptions);
+
+        var (exceptions, reports, resultNhsNumber) = await validationExceptionData.GetExceptionsWithReportsByNhsNumber(inputNhsNumber);
+
+        exceptions.Should().HaveCount(3);
+        resultNhsNumber.Should().Be(expectedNhsNumber);
+        reports.Should().HaveCount(2);
+    }
+
+    [TestMethod]
+    public async Task GetExceptionsWithReportsByNhsNumber_NoExceptionsFound_ReturnsEmptyResults()
+    {
+        var nhsNumber = "1234567890";
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(new List<ExceptionManagement>());
+
+        var (exceptions, reports, resultNhsNumber) = await validationExceptionData.GetExceptionsWithReportsByNhsNumber(nhsNumber);
+
+        exceptions.Should().NotBeNull();
+        exceptions.Should().BeEmpty();
+        reports.Should().NotBeNull();
+        reports.Should().BeEmpty();
+        resultNhsNumber.Should().Be(nhsNumber);
+    }
+
+    [TestMethod]
+    public async Task GetExceptionsWithReportsByNhsNumber_OnlyNonReportCategories_ReturnsEmptyReports()
+    {
+        var nhsNumber = "3333333333";
+        var testExceptions = _exceptionList.Where(e => e.NhsNumber == nhsNumber).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(testExceptions);
+
+        var (exceptions, reports, resultNhsNumber) = await validationExceptionData.GetExceptionsWithReportsByNhsNumber(nhsNumber);
+
+        exceptions.Should().HaveCount(1);
+        reports.Should().BeEmpty();
+        resultNhsNumber.Should().Be(nhsNumber);
+    }
+
+    [DataRow(null, typeof(ArgumentException))]
+    [DataRow("", typeof(ArgumentException))]
+    [DataRow("   ", typeof(ArgumentException))]
+    [DataRow("123456789", typeof(ArgumentException))]
+    [DataRow("12345678901", typeof(ArgumentException))]
+    [DataRow("123456789A", typeof(ArgumentException))]
+    [TestMethod]
+    public async Task GetExceptionsWithReportsByNhsNumber_InvalidNhsNumber_ThrowsArgumentException(string invalidNhsNumber, Type expectedException)
+    {
+        var act = async () => await validationExceptionData.GetExceptionsWithReportsByNhsNumber(invalidNhsNumber);
+
+        await act.Should().ThrowAsync<ArgumentException>();
     }
 }
