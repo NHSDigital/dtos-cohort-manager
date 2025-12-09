@@ -198,6 +198,7 @@ public class LookupValidationTests
     [DataRow("BAA", "ValidPCP", false)]
     [DataRow(null, "ValidPCP", false)]
     [DataRow("BAA", null, false)]
+    [DataRow("BAA", null, true)]
     [DataRow(null, null, false)]
     [DataRow("CYM", "InvalidPCP", false)]
     [DataRow("CYM", "ValidPCP", false)]
