@@ -20,7 +20,7 @@ export function SearchNhsNumber() {
       return;
     }
 
-    router.push(`/exceptions/search?nhsNumber=${cleanedNhsNumber}`);
+    router.push(`/exceptions/search?nhsNumber=${encodeURIComponent(cleanedNhsNumber)}`);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
