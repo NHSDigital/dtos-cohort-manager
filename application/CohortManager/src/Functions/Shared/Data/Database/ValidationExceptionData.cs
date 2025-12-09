@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.DTO;
 using Model.Enums;
-using Model.Pagination;
 using NHS.CohortManager.Shared.Utilities;
 
 public class ValidationExceptionData : IValidationExceptionData
@@ -138,7 +137,7 @@ public class ValidationExceptionData : IValidationExceptionData
         return await _validationExceptionDataServiceClient.GetByFilter(filter);
     }
 
-    public async Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsByNhsNumber(string nhsNumber)
+    public async Task<(IQueryable<ValidationException> Exceptions, List<ValidationExceptionReport> Reports, string NhsNumber)> GetExceptionsWithReportsByNhsNumber(string nhsNumber)
     {
         if (string.IsNullOrWhiteSpace(nhsNumber))
         {
@@ -154,12 +153,7 @@ public class ValidationExceptionData : IValidationExceptionData
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
         if (exceptions == null || !exceptions.Any())
         {
-            return new ValidationExceptionsByNhsNumberResponse
-            {
-                NhsNumber = nhsNumber,
-                Exceptions = new PaginationResult<ValidationException> { Items = [] },
-                Reports = []
-            };
+            return (Enumerable.Empty<ValidationException>().AsQueryable(), [], nhsNumber);
         }
 
         // Map exceptions to validation exceptions with details
@@ -187,23 +181,7 @@ public class ValidationExceptionData : IValidationExceptionData
             .OrderByDescending(r => r.ReportDate)
             .ToList();
 
-        var totalItems = validationExceptions.Count;
-
-        return new ValidationExceptionsByNhsNumberResponse
-        {
-            NhsNumber = nhsNumber,
-            Exceptions = new PaginationResult<ValidationException>
-            {
-                Items = validationExceptions,
-                TotalItems = totalItems,
-                TotalPages = 1,
-                CurrentPage = 1,
-                IsFirstPage = true,
-                HasNextPage = false,
-                HasPreviousPage = false
-            },
-            Reports = reports
-        };
+        return (validationExceptions.AsQueryable(), reports, nhsNumber);
     }
 
     private List<ValidationException> MapToValidationExceptions(IEnumerable<ExceptionManagement> exceptions)
