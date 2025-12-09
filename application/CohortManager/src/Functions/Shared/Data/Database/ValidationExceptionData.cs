@@ -119,7 +119,7 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public async Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory)
     {
-        if (exceptionCategory is not (ExceptionCategory.Confusion or ExceptionCategory.Superseded))
+        if (exceptionCategory is not (ExceptionCategory.Confusion or ExceptionCategory.Superseded or ExceptionCategory.NBO))
         {
             return [];
         }
