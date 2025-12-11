@@ -169,7 +169,7 @@ public class GetValidationExceptions
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving validation exceptions for NHS number: {NhsNumber}", nhsNumber);
+            _logger.LogError(ex, "Error retrieving validation exceptions");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
