@@ -74,7 +74,7 @@ export async function fetchExceptionsByNhsNumber(
     return {
       data: {
         NhsNumber: params.nhsNumber,
-        Exceptions: {
+        PaginatedExceptions: {
           Items: [],
           TotalItems: 0,
           CurrentPage: params.page ?? 1,

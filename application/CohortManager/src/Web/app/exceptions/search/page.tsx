@@ -233,7 +233,7 @@ export default async function Page({
     pageSize: PAGE_SIZE,
   });
 
-  const totalCount = response.data.Exceptions.TotalItems || 0;
+  const totalCount = response.data.PaginatedExceptions.TotalItems || 0;
 
   // Redirect to No Results page if no results found
   if (totalCount === 0) {
@@ -241,15 +241,15 @@ export default async function Page({
   }
 
   try {
-    const exceptionDetails = response.data.Exceptions.Items.map(transformApiException);
+    const exceptionDetails = response.data.PaginatedExceptions.Items.map(transformApiException);
     const { startItem, endItem } = calculatePaginationInfo(
       currentPage,
-      response.data.Exceptions.Items.length,
+      response.data.PaginatedExceptions.Items.length,
       totalCount
     );
 
     const linkHeader = response.headers?.get("Link") || response.linkHeader;
-    const totalPages = response.data.Exceptions.TotalPages || 1;
+    const totalPages = response.data.PaginatedExceptions.TotalPages || 1;
     const reports = response.data.Reports;
 
     return (
