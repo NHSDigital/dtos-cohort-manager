@@ -28,7 +28,7 @@ public class ValidationExceptionData : IValidationExceptionData
         _validationExceptionDataServiceClient = validationExceptionDataServiceClient;
     }
 
-    public async Task<List<ValidationException>?> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory)
+    public async Task<List<ValidationException>> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory)
     {
         var category = (int)exceptionCategory;
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.Category != null && x.Category.Value == category);
@@ -117,7 +117,7 @@ public class ValidationExceptionData : IValidationExceptionData
         }
     }
 
-    public async Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory)
+    public async Task<List<ValidationException>> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory)
     {
         if (exceptionCategory is not (ExceptionCategory.Confusion or ExceptionCategory.Superseded or ExceptionCategory.NBO))
         {
@@ -132,23 +132,33 @@ public class ValidationExceptionData : IValidationExceptionData
         return MapToValidationExceptions(filteredExceptions);
     }
 
-    public async Task<IEnumerable<ExceptionManagement>?> GetByFilter(Expression<Func<ExceptionManagement, bool>> filter)
+    public async Task<List<ExceptionManagement>> GetByFilter(Expression<Func<ExceptionManagement, bool>> filter)
     {
-        return await _validationExceptionDataServiceClient.GetByFilter(filter);
+        var result = await _validationExceptionDataServiceClient.GetByFilter(filter) ?? Enumerable.Empty<ExceptionManagement>();
+        return result.ToList();
     }
 
-    public async Task<(IQueryable<ValidationException> Exceptions, List<ValidationExceptionReport> Reports, string NhsNumber)> GetExceptionsWithReportsByNhsNumber(string nhsNumber)
+    public async Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsWithReportsByNhsNumber(string nhsNumber)
     {
-        var validatedNhsNumber = ValidateNhsNumber(nhsNumber);
-        var validationExceptions = await GetValidationExceptionsByNhsNumber(validatedNhsNumber);
+        var validationExceptions = await GetValidationExceptionsByNhsNumber(nhsNumber);
 
         if (validationExceptions.Count == 0)
         {
-            return (Enumerable.Empty<ValidationException>().AsQueryable(), [], validatedNhsNumber);
+            return new ValidationExceptionsByNhsNumberResponse
+            {
+                Exceptions = [],
+                Reports = [],
+                NhsNumber = nhsNumber
+            };
         }
 
         var reports = GenerateExceptionReports(validationExceptions);
-        return (validationExceptions.AsQueryable(), reports, validatedNhsNumber);
+        return new ValidationExceptionsByNhsNumberResponse
+        {
+            Exceptions = validationExceptions,
+            Reports = reports,
+            NhsNumber = nhsNumber
+        };
     }
 
     private List<ValidationException> MapToValidationExceptions(IEnumerable<ExceptionManagement> exceptions)
@@ -206,7 +216,7 @@ public class ValidationExceptionData : IValidationExceptionData
                 NhsNumber = long.TryParse(errorRecordData.NhsNumber, out long nhsNumber) ? nhsNumber : 0,
                 GivenName = errorRecordData.FirstName,
                 FamilyName = errorRecordData.FamilyName,
-                DateOfBirth = MappingUtilities.FormatDateTime(MappingUtilities.ParseDates(errorRecordData.DateOfBirth)),
+                DateOfBirth = MappingUtilities.FormatDateTime(MappingUtilities.ParseDates(errorRecordData.DateOfBirth ?? string.Empty)),
                 SupersededByNhsNumber = long.TryParse(errorRecordData.SupersededByNhsNumber, out long superseded) ? superseded : null,
                 Gender = errorRecordData.Gender,
                 AddressLine1 = errorRecordData.AddressLine1,
@@ -333,28 +343,7 @@ public class ValidationExceptionData : IValidationExceptionData
             : [.. filteredList.OrderByDescending(dateProperty)];
     }
 
-    private static string ValidateNhsNumber(string nhsNumber)
-    {
-        if (string.IsNullOrWhiteSpace(nhsNumber))
-        {
-            throw new ArgumentException("NHS number is required.", nameof(nhsNumber));
-        }
 
-        var validNhsNumber = nhsNumber.Replace(" ", "");
-        if (!IsValidNhsNumber(validNhsNumber))
-        {
-            throw new ArgumentException("Invalid NHS number format. Must be 10 digits.", nameof(nhsNumber));
-        }
-
-        return validNhsNumber;
-    }
-
-    private static bool IsValidNhsNumber(string nhsNumber)
-    {
-        return !string.IsNullOrWhiteSpace(nhsNumber)
-               && nhsNumber.Length == 10
-               && nhsNumber.All(char.IsDigit);
-    }
 
     private async Task<List<ValidationException>> GetValidationExceptionsByNhsNumber(string nhsNumber)
     {

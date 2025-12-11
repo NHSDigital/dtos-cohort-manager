@@ -11,11 +11,11 @@ using Model.Enums;
 public interface IValidationExceptionData
 {
     Task<bool> Create(ValidationException exception);
-    Task<List<ValidationException>?> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory);
+    Task<List<ValidationException>> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory);
     Task<ValidationException?> GetExceptionById(int exceptionId);
     Task<bool> RemoveOldException(string nhsNumber, string screeningName);
     Task<ServiceResponseModel> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId);
-    Task<List<ValidationException>?> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory);
-    Task<IEnumerable<ExceptionManagement>?> GetByFilter(Expression<Func<ExceptionManagement, bool>> filter);
-    Task<(IQueryable<ValidationException> Exceptions, List<ValidationExceptionReport> Reports, string NhsNumber)> GetExceptionsWithReportsByNhsNumber(string nhsNumber);
+    Task<List<ValidationException>> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory);
+    Task<List<ExceptionManagement>> GetByFilter(Expression<Func<ExceptionManagement, bool>> filter);
+    Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsWithReportsByNhsNumber(string nhsNumber);
 }
