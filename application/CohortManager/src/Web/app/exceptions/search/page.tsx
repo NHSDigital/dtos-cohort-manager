@@ -76,7 +76,16 @@ const getCategoryLabel = (category: number): string => {
 };
 
 const formatReportDate = (dateString: string): string => {
-  return new Date(dateString).toISOString().split('T')[0];
+  if (new RegExp(/^\d{4}-\d{2}-\d{2}/).exec(dateString)) {
+    return dateString.split('T')[0];
+  }
+
+  const date = new Date(dateString);
+  return [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, '0'),
+    String(date.getDate()).padStart(2, '0')
+  ].join('-');
 };
 
 const buildReportUrl = (reportDate: string, category: number, nhsNumber: string): string => {
