@@ -62,7 +62,7 @@ function get-cmd-to-run() {
       ;;
   esac
   # Include base line file if it exists
-  if [ -f "$dir/scripts/config/.gitleaks-baseline.json" ]; then
+  if [[ -f "$dir/scripts/config/.gitleaks-baseline.json" ]]; then
     cmd="$cmd --baseline-path $dir/scripts/config/.gitleaks-baseline.json"
   fi
   # Include the config file
