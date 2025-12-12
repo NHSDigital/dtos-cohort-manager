@@ -156,6 +156,28 @@ public class DataServiceClient<TEntity> : IDataServiceClient<TEntity> where TEnt
         return true;
     }
 
+    public async Task<bool> Upsert(TEntity entity)
+    {
+        var jsonString = JsonSerializer.Serialize<TEntity>(entity);
+
+        if (string.IsNullOrEmpty(jsonString))
+        {
+            _logger.LogWarning("Unable to serialize upsert request body for entity of type {EntityType}", typeof(TEntity).FullName);
+            return false;
+        }
+
+        // Use POST with a special endpoint or header to indicate upsert
+        // Option 1: Use a dedicated upsert endpoint
+        var upsertUrl = UrlBuilder(_baseUrl, "upsert");
+        var result = await _httpClientFunction.SendPost(upsertUrl, jsonString);
+
+        if (result.StatusCode != HttpStatusCode.OK)
+        {
+            return false;
+        }
+        return true;
+    }
+
     private async Task<string> GetJsonStringByFilter(Expression<Func<TEntity, bool>> predicate, bool returnOneRecord = false)
     {
         try
