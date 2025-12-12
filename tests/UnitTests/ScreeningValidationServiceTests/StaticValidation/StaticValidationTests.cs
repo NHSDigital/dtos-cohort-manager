@@ -27,6 +27,7 @@ public class StaticValidationTests
     private readonly CreateResponse _createResponse = new();
     private readonly ServiceCollection _serviceCollection = new();
     private readonly ParticipantCsvRecord _participantCsvRecord;
+    private readonly IReasonForRemovalLookup _reasonForRemovalLookup;
     private readonly StaticValidation _function;
 
     public StaticValidationTests()
@@ -37,10 +38,13 @@ public class StaticValidationTests
 
         _context.SetupProperty(c => c.InstanceServices, serviceProvider);
 
+        _reasonForRemovalLookup = new ReasonForRemovalLookup();
+
         _function = new StaticValidation(
             _logger.Object,
             _createResponse,
-            new ReadRules(new NullLogger<ReadRules>())
+            new ReadRules(new NullLogger<ReadRules>()),
+            _reasonForRemovalLookup
         );
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
@@ -54,7 +58,7 @@ public class StaticValidationTests
 
         _participantCsvRecord = new ParticipantCsvRecord()
         {
-            FileName = "test",
+            FileName = "test.parquet",
             Participant = new Participant()
             {
                 ScreeningName = "Breast Screening",
@@ -637,7 +641,106 @@ public class StaticValidationTests
         Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
     #endregion
+    #region  Manual add rule 97 Missing GP details (and no accepted reason for removal)
+    [TestMethod]
+    [DataRow("A12345")]
+    [DataRow("ZZZZYZ")]
+    public async Task Run_ManualAddWithGPCode_ReturnsNoContent(string primaryCareProvider)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.CurrentPosting = "BAA";
+        _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
 
+        _participantCsvRecord.Participant.RecordType = Actions.New;
+        _participantCsvRecord.FileName = "CS0573848";
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+
+    }
+    [TestMethod]
+    public async Task Run_ManualAddWithoutGPCode_ReturnValidationException()
+    {
+        // Arrange
+        _participantCsvRecord.Participant.CurrentPosting = "BAA";
+        _participantCsvRecord.Participant.PrimaryCareProvider = null;
+
+        _participantCsvRecord.Participant.RecordType = Actions.New;
+        _participantCsvRecord.FileName = "CS0573848";
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+        Assert.AreEqual(HttpStatusCode.OK,response.StatusCode);
+        StringAssert.Contains(body, "97.NoGPorPCP.BSSelect.NonFatal");
+
+    }
+
+    #endregion
+    #region Rule 98 Participant cannot be sent to BS Select due to reason for removal (RfR)
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("CGA")]
+    [DataRow("NIT")]
+    [DataRow("EMB")]
+    [DataRow("SCT")]
+    [DataRow("OPA")]
+    public async Task Run_ManualAddWithOverridableReasonForRemoval_ReturnsNoContent(string? reasonForRemoval)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.CurrentPosting = "BAA";
+        _participantCsvRecord.Participant.RecordType = Actions.New;
+        _participantCsvRecord.FileName = "CS0573848";
+        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _function.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+    }
+    [TestMethod]
+    [DataRow("AFL")]
+    [DataRow("AFN")]
+    [DataRow("DEA")]
+    [DataRow("LDN")]
+    [DataRow("SDL")]
+    [DataRow("SDN")]
+    [DataRow("TRA")]
+    public async Task Run_ManualAddWithoutOverridableReasonForRemoval_ReturnsValidationException(string? reasonForRemoval)
+    {
+        // Arrange
+        _participantCsvRecord.Participant.CurrentPosting = "BAA";
+        _participantCsvRecord.Participant.RecordType = Actions.New;
+        _participantCsvRecord.FileName = "CS0573848";
+        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
+        var json = JsonSerializer.Serialize(_participantCsvRecord);
+        SetUpRequestBody(json);
+
+        // Act
+        var response = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+        Assert.AreEqual(HttpStatusCode.OK,response.StatusCode);
+        StringAssert.Contains(body, "98.ManualAddWithBlockingRFR.BSSelect.NonFatal");
+
+    }
+
+
+    #endregion
     [TestMethod]
     public async Task Run_ValidParticipantFile_ReturnNoContent()
     {

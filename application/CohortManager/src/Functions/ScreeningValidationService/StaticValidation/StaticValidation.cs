@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.ScreeningValidationService;
 
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -20,15 +21,18 @@ public class StaticValidation
     private readonly ILogger<StaticValidation> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IReadRules _readRules;
+    private readonly IReasonForRemovalLookup _reasonForRemovalLookup;
 
     public StaticValidation(
         ILogger<StaticValidation> logger,
         ICreateResponse createResponse,
-        IReadRules readRules)
+        IReadRules readRules,
+        IReasonForRemovalLookup reasonForRemovalLookup)
     {
         _logger = logger;
         _createResponse = createResponse;
         _readRules = readRules;
+        _reasonForRemovalLookup = reasonForRemovalLookup;
     }
 
     // TODO: refactor to accept a cohort distribution participant
@@ -49,6 +53,7 @@ public class StaticValidation
             _logger.LogInformation("ruleFileName: {RuleFileName}", ruleFileName);
 
             bool routineParticipant = (participantCsvRecord.Participant.ReferralFlag ?? "").ToLower() == "false";
+            bool isManualAdd = CheckManualAddFileName(participantCsvRecord.FileName);
 
             var json = await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
@@ -62,8 +67,12 @@ public class StaticValidation
             var re = new RulesEngine.RulesEngine(rules, reSettings);
 
             var ruleParameters = new[] {
-                new RuleParameter("participant", participantCsvRecord.Participant)
+                new RuleParameter("participant", participantCsvRecord.Participant),
+                new RuleParameter("reasonForRemovalLkp", _reasonForRemovalLookup),
+                new RuleParameter("manualAdd",isManualAdd)
             };
+
+
 
             var resultList = new List<RuleResultTree>();
 
@@ -75,6 +84,12 @@ public class StaticValidation
                 {
                     resultList.AddRange(await re.ExecuteAllRulesAsync("Routine_Common", ruleParameters));
                 }
+            }
+
+            if (isManualAdd)
+            {
+                var manualAddResults = await re.ExecuteAllRulesAsync("Manual_Add", ruleParameters);
+                resultList.AddRange(manualAddResults);
             }
 
             if (re.GetAllRegisteredWorkflowNames().Contains(participantCsvRecord.Participant.RecordType))
@@ -99,5 +114,18 @@ public class StaticValidation
             _logger.LogError(ex, ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
+    }
+
+    private static bool CheckManualAddFileName(string FileName)
+    {
+        if(string.IsNullOrEmpty(FileName))
+        {
+            return false;
+        }
+        if (FileName.ToLower().EndsWith(".parquet"))
+        {
+            return false;
+        }
+        return true;
     }
 }
