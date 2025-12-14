@@ -3,6 +3,10 @@
     "WorkflowName": "Common",
     "Rules": [
       {
+        "RuleName": "61.Other.SupersededNhsNumber.NoTransformation",
+        "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.SupersededByNhsNumber) && !string.IsNullOrEmpty(participant.ReasonForRemoval)"
+      },
+      {
         "RuleName": "60.Other.SupersededNhsNumber",
         "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.SupersededByNhsNumber) && string.IsNullOrEmpty(participant.ReasonForRemoval)",
         "Actions": {
@@ -29,10 +33,6 @@
             }
           }
         }
-      },
-      {
-        "RuleName": "61.Other.SupersededNhsNumber.NoTransformation",
-        "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.SupersededByNhsNumber) && !string.IsNullOrEmpty(participant.ReasonForRemoval)"
       },
       {
         "RuleName": "00.Other.InvalidFlag.TrueAndNoPrimaryCareProvider",
