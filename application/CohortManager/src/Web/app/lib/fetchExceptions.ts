@@ -48,3 +48,58 @@ export async function fetchExceptions(params: FetchExceptionsParams = {}) {
     headers: response.headers,
   };
 }
+
+type FetchExceptionsByNhsNumberParams = {
+  nhsNumber: string;
+  page?: number;
+  pageSize?: number;
+};
+
+export async function fetchExceptionsByNhsNumber(
+  params: FetchExceptionsByNhsNumberParams
+) {
+  const query = new URLSearchParams();
+
+  query.append("nhsNumber", params.nhsNumber);
+  query.append("page", (params.page ?? 1).toString());
+  query.append("pageSize", (params.pageSize ?? 10).toString());
+
+  const apiUrl = `${
+    process.env.EXCEPTIONS_API_URL
+  }/api/GetValidationExceptionsByNhsNumber?${query.toString()}`;
+
+  const response = await fetch(apiUrl);
+
+  if (response.status === 204 || response.status === 404) {
+    return {
+      data: {
+        NhsNumber: params.nhsNumber,
+        PaginatedExceptions: {
+          Items: [],
+          TotalItems: 0,
+          CurrentPage: params.page ?? 1,
+          TotalPages: 0,
+          HasNextPage: false,
+          HasPreviousPage: false,
+          IsFirstPage: true,
+        },
+        Reports: [],
+      },
+      linkHeader: null,
+      headers: response.headers,
+    };
+  }
+
+  if (!response.ok) {
+    throw new Error(`Error fetching data: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  const linkHeader = response.headers.get("Link");
+
+  return {
+    data,
+    linkHeader,
+    headers: response.headers,
+  };
+}
