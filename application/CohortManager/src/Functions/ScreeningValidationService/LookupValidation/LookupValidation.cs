@@ -59,6 +59,8 @@ public class LookupValidation
         {
             newParticipant = requestBody.NewParticipant;
 
+            var isManualAdd = CheckManualAddFileName(requestBody.FileName);
+
             var ruleFileName = $"{newParticipant.ScreeningName}_lookupRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName {RuleFileName}", ruleFileName);
 
@@ -71,6 +73,8 @@ public class LookupValidation
                 UseFastExpressionCompiler = false
             };
             var re = new RulesEngine.RulesEngine(rules, reSettings);
+
+
 
 
 
@@ -94,6 +98,12 @@ public class LookupValidation
                 resultList.AddRange(ActionResults);
             }
 
+            if (isManualAdd)
+            {
+                var ActionResults = await re.ExecuteAllRulesAsync("ManualAdd", ruleParameters);
+                resultList.AddRange(ActionResults);
+            }
+
             // Validation rules are logically reversed
             var validationErrors = resultList.Where(x => !x.IsSuccess).Select(x => new ValidationRuleResult(x));
 
@@ -112,5 +122,17 @@ public class LookupValidation
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
 
         }
+    }
+    private static bool CheckManualAddFileName(string FileName)
+    {
+        if(string.IsNullOrEmpty(FileName))
+        {
+            return false;
+        }
+        if (FileName.ToLower().EndsWith(".parquet"))
+        {
+            return false;
+        }
+        return true;
     }
 }
