@@ -56,8 +56,8 @@ public class RetrieveCohortDistributionData
         List<CohortDistributionParticipantDto> cohortDistributionParticipants;
         try
         {
-
             int rowCount = _config.MaxRowCount;
+            bool retrieveSupersededRecordsLast = _config.RetrieveSupersededRecordsLast;
             if (!string.IsNullOrEmpty(req.Query["rowCount"]) && int.TryParse(req.Query["rowCount"], out int rowCountParam))
             {
                 rowCount = Math.Min(rowCount, rowCountParam);
@@ -67,7 +67,7 @@ public class RetrieveCohortDistributionData
             if (string.IsNullOrEmpty(req.Query["requestId"]))
             {
                 cohortDistributionParticipants = await _createCohortDistributionData
-                    .GetUnextractedCohortDistributionParticipants(rowCount);
+                    .GetUnextractedCohortDistributionParticipants(rowCount, retrieveSupersededRecordsLast);
 
                 return CreateResponse(cohortDistributionParticipants, req);
             }
@@ -87,7 +87,7 @@ public class RetrieveCohortDistributionData
                 return CreateResponse(cohortDistributionParticipants, req);
             }
 
-            cohortDistributionParticipants = await _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount);
+            cohortDistributionParticipants = await _createCohortDistributionData.GetUnextractedCohortDistributionParticipants(rowCount, retrieveSupersededRecordsLast);
 
             return CreateResponse(cohortDistributionParticipants, req);
 

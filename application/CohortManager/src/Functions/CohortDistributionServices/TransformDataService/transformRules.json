@@ -3,8 +3,12 @@
     "WorkflowName": "Common",
     "Rules": [
       {
+        "RuleName": "61.Other.SupersededNhsNumber.NoTransformation",
+        "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.SupersededByNhsNumber) && !string.IsNullOrEmpty(participant.ReasonForRemoval)"
+      },
+      {
         "RuleName": "60.Other.SupersededNhsNumber",
-        "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.SupersededByNhsNumber)",
+        "Expression": "participant.RecordType == Actions.Amended && !string.IsNullOrEmpty(participant.SupersededByNhsNumber) && string.IsNullOrEmpty(participant.ReasonForRemoval)",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -640,9 +644,13 @@
           {
             "Name": "ExistingDateOfBirth",
             "Expression": "string.IsNullOrEmpty(existingParticipant.DateOfBirth) ? null : existingParticipant.DateOfBirth.Replace(\"-\", string.Empty)"
+          },
+          {
+            "Name": "FamilyNameChanged",
+            "Expression": "!string.Equals(participant.FamilyName, existingParticipant.FamilyName, StringComparison.OrdinalIgnoreCase)"
           }
         ],
-        "Expression": "participant.RecordType == Actions.Amended && (existingParticipant.ParticipantId != null || existingParticipant.ParticipantId != \"0\") && ((participant.FamilyName != existingParticipant.FamilyName AND participant.Gender != existingParticipant.Gender) OR (participant.FamilyName != existingParticipant.FamilyName AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
+        "Expression": "participant.RecordType == Actions.Amended && (existingParticipant.ParticipantId != null || existingParticipant.ParticipantId != \"0\") && ((FamilyNameChanged AND participant.Gender != existingParticipant.Gender) OR (FamilyNameChanged AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
       },
       {
         "RuleName": "00.ValidateLanguageCode",

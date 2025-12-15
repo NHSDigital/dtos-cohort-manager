@@ -6,9 +6,10 @@ type FetchExceptionsParams = {
   lastId?: number;
   exceptionStatus?: 0 | 1 | 2;
   sortOrder?: 0 | 1;
-  exceptionCategory?: string;
+  exceptionCategory?: string | number;
   reportDate?: string;
   isReport?: boolean;
+  pageSize?: number;
 };
 
 export async function fetchExceptions(params: FetchExceptionsParams = {}) {
@@ -22,17 +23,73 @@ export async function fetchExceptions(params: FetchExceptionsParams = {}) {
     query.append("exceptionStatus", params.exceptionStatus.toString());
   if (params.sortOrder !== undefined)
     query.append("sortOrder", params.sortOrder.toString());
-  if (params.exceptionCategory)
-    query.append("exceptionCategory", params.exceptionCategory);
+  if (params.exceptionCategory !== undefined)
+    query.append("exceptionCategory", params.exceptionCategory.toString());
   if (params.reportDate) query.append("reportDate", params.reportDate);
   if (params.isReport !== undefined)
     query.append("isReport", params.isReport.toString());
+  query.append("pageSize", (params.pageSize ?? 10).toString());
 
   const apiUrl = `${
     process.env.EXCEPTIONS_API_URL
   }/api/GetValidationExceptions?${query.toString()}`;
 
   const response = await fetch(apiUrl);
+  if (!response.ok) {
+    throw new Error(`Error fetching data: ${response.statusText}`);
+  }
+
+  const data = await response.json();
+  const linkHeader = response.headers.get("Link");
+
+  return {
+    data,
+    linkHeader,
+    headers: response.headers,
+  };
+}
+
+type FetchExceptionsByNhsNumberParams = {
+  nhsNumber: string;
+  page?: number;
+  pageSize?: number;
+};
+
+export async function fetchExceptionsByNhsNumber(
+  params: FetchExceptionsByNhsNumberParams
+) {
+  const query = new URLSearchParams();
+
+  query.append("nhsNumber", params.nhsNumber);
+  query.append("page", (params.page ?? 1).toString());
+  query.append("pageSize", (params.pageSize ?? 10).toString());
+
+  const apiUrl = `${
+    process.env.EXCEPTIONS_API_URL
+  }/api/GetValidationExceptionsByNhsNumber?${query.toString()}`;
+
+  const response = await fetch(apiUrl);
+
+  if (response.status === 204 || response.status === 404) {
+    return {
+      data: {
+        NhsNumber: params.nhsNumber,
+        PaginatedExceptions: {
+          Items: [],
+          TotalItems: 0,
+          CurrentPage: params.page ?? 1,
+          TotalPages: 0,
+          HasNextPage: false,
+          HasPreviousPage: false,
+          IsFirstPage: true,
+        },
+        Reports: [],
+      },
+      linkHeader: null,
+      headers: response.headers,
+    };
+  }
+
   if (!response.ok) {
     throw new Error(`Error fetching data: ${response.statusText}`);
   }

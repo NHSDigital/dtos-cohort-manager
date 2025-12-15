@@ -142,3 +142,52 @@
   margin-right: 0;
   margin-left: 8px;
 }
+
+.nhsuk-action-link {
+  display: flex;
+}
+
+.nhsuk-icon--arrow-right-circle {
+    margin-right: 8px;
+}
+
+.nhsuk-action-link__text {
+      font-size: 20px;
+      font-weight: bold;
+      align-self: center;
+}
+
+.app-feedback-section .nhsuk-action-link svg.nhsuk-icon--arrow-right-circle {
+  fill: #00703c;
+  color: #00703c;
+}
+
+.nhsuk-header__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
+
+.nhsuk-header__service {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nhsuk-header__search {
+  flex: 1;
+  min-width: 250px;
+}
+
+.nhsuk-header .nhsuk-header__search {
+  margin: 0 100px;
+}
+
+.nhsuk-header__search-form {
+  display: flex;
+  fill: currentColor;
+}
+
+.nhsuk-header__account {
+  flex-shrink: 0;
+}

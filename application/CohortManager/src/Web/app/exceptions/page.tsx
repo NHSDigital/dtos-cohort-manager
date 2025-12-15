@@ -10,13 +10,7 @@ import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 import Pagination from "@/app/components/pagination";
-import {
-  parseLinkHeader,
-  extractPageFromUrl,
-  convertToLocalUrl,
-  generatePaginationItems,
-  type LinkBasedPagination,
-} from "@/app/lib/pagination";
+import UserFeedback from "@/app/components/userFeedback";
 
 export const metadata: Metadata = {
   title: `Not raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
@@ -52,7 +46,7 @@ export default async function Page({
   const sortBy = resolvedSearchParams.sortBy === "0" ? 0 : 1;
   const currentPage = Math.max(
     1,
-    parseInt(resolvedSearchParams.page || "1", 10)
+    Number.parseInt(resolvedSearchParams.page || "1", 10)
   );
 
   const sortOptions = [
@@ -93,34 +87,7 @@ export default async function Page({
     );
 
     const linkHeader = response.headers?.get("Link") || response.linkHeader;
-    const paginationLinks = parseLinkHeader(linkHeader || "");
-
-    let totalPages = response.data.TotalPages;
-    let detectedCurrentPage = currentPage;
-
-    if (paginationLinks.last) {
-      totalPages = extractPageFromUrl(paginationLinks.last);
-    }
-
-    if (paginationLinks.next && !paginationLinks.previous) {
-      detectedCurrentPage = 1;
-    } else if (paginationLinks.previous && !paginationLinks.next) {
-      detectedCurrentPage = totalPages;
-    } else if (paginationLinks.next) {
-      detectedCurrentPage = extractPageFromUrl(paginationLinks.next) - 1;
-    }
-
-    const linkBasedPagination: LinkBasedPagination = {
-      links: paginationLinks,
-      currentPage: detectedCurrentPage,
-      totalPages: totalPages,
-    };
-
-    const paginationItems = generatePaginationItems(
-      linkBasedPagination,
-      sortBy
-    );
-
+    const totalPages = response.data.TotalPages || 1;
     const pageSize = 10;
     const totalItems = Number(response.data.TotalItems) || 0;
     const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
@@ -171,29 +138,15 @@ export default async function Page({
 
                   {totalPages > 1 && (
                     <Pagination
-                      items={paginationItems}
-                      previous={
-                        paginationLinks.previous
-                          ? {
-                              href: convertToLocalUrl(
-                                paginationLinks.previous,
-                                sortBy
-                              )!,
-                            }
-                          : undefined
-                      }
-                      next={
-                        paginationLinks.next
-                          ? {
-                              href: convertToLocalUrl(
-                                paginationLinks.next,
-                                sortBy
-                              )!,
-                            }
-                          : undefined
+                      linkHeader={linkHeader}
+                      currentPage={currentPage}
+                      totalPages={totalPages}
+                      buildUrl={(page) =>
+                        `/exceptions?sortBy=${sortBy}&page=${page}`
                       }
                     />
                   )}
+                  <UserFeedback />
                 </>
               )}
             </div>

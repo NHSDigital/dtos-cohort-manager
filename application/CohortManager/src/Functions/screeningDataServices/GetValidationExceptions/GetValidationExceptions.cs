@@ -10,7 +10,9 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.DTO;
 using Model.Enums;
+using Model.Pagination;
 
 /// <summary>
 /// Azure Function for retrieving and managing validation exceptions.
@@ -47,7 +49,7 @@ public class GetValidationExceptions
     {
         var exceptionId = _httpParserHelper.GetQueryParameterAsInt(req, "exceptionId");
         var page = _httpParserHelper.GetQueryParameterAsInt(req, "page");
-        if (page <= 0) page = 1;
+        var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize");
         var exceptionStatus = HttpParserHelper.GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
         var sortOrder = HttpParserHelper.GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
         var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
@@ -72,11 +74,11 @@ public class GetValidationExceptions
                 }
 
                 var reportExceptions = await _validationData.GetReportExceptions(reportDate, exceptionCategory);
-                return CreatePaginatedResponse(req, reportExceptions!.AsQueryable(), page);
+                return CreatePaginatedResponse(req, reportExceptions!.AsQueryable(), page, reportExceptions!.Count);
             }
 
             var filteredExceptions = await _validationData.GetFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
-            return CreatePaginatedResponse(req, filteredExceptions!.AsQueryable(), page);
+            return CreatePaginatedResponse(req, filteredExceptions!.AsQueryable(), page, pageSize);
         }
         catch (Exception ex)
         {
@@ -85,9 +87,9 @@ public class GetValidationExceptions
         }
     }
 
-    private HttpResponseData CreatePaginatedResponse(HttpRequestData request, IQueryable<ValidationException> source, int page)
+    private HttpResponseData CreatePaginatedResponse(HttpRequestData request, IQueryable<ValidationException> source, int page, int pageSize)
     {
-        var paginatedResult = _paginationService.GetPaginatedResult(source, page);
+        var paginatedResult = _paginationService.GetPaginatedResult(source, page, pageSize);
         var headers = _paginationService.AddNavigationHeaders(request, paginatedResult);
 
         return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, request, JsonSerializer.Serialize(paginatedResult), headers);
@@ -126,6 +128,55 @@ public class GetValidationExceptions
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing: {Function} update ServiceNowId request", nameof(UpdateExceptionServiceNowId));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        }
+    }
+
+    /// <summary>
+    /// Retrieves validation exceptions and reports for a specific NHS number.
+    /// </summary>
+    [Function(nameof(GetValidationExceptionsByNhsNumber))]
+    public async Task<HttpResponseData> GetValidationExceptionsByNhsNumber([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    {
+        var nhsNumber = req.Query["nhsNumber"];
+        var page = _httpParserHelper.GetQueryParameterAsInt(req, "page", 1);
+        var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize", 10);
+
+        if (string.IsNullOrWhiteSpace(nhsNumber))
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
+        }
+
+        var cleanedNhsNumber = nhsNumber.Replace(" ", "");
+        if (!ValidationHelper.ValidateNHSNumber(cleanedNhsNumber))
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
+        }
+
+        try
+        {
+            var result = await _validationData.GetExceptionsWithReportsByNhsNumber(cleanedNhsNumber);
+
+            if (result.Exceptions.Count == 0)
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+            }
+
+            var paginatedExceptions = _paginationService.GetPaginatedResult(result.Exceptions.AsQueryable(), page, pageSize);
+            var headers = _paginationService.AddNavigationHeaders(req, paginatedExceptions);
+
+            var response = new ValidationExceptionsByNhsNumberResponse
+            {
+                NhsNumber = result.NhsNumber,
+                PaginatedExceptions = paginatedExceptions,
+                Reports = result.Reports
+            };
+
+            return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(response), headers);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving validation exceptions for provided NHS number");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

@@ -12,5 +12,6 @@ public class RetrieveCohortDistributionConfig
     [Required]
     public string BsSelectRequestAuditDataService { get; set; }
     public int MaxRowCount { get; set; } = 1_000;
+    public bool RetrieveSupersededRecordsLast { get; set; } = false;
 
 }

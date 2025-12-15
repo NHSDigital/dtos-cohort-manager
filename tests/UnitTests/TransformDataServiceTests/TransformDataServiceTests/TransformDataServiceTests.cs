@@ -11,12 +11,8 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Moq;
 using Model;
 using Common;
-using Microsoft.Data.SqlClient;
 using System.Data;
-using Data.Database;
 using Model.Enums;
-using DataServices.Client;
-using System.Linq.Expressions;
 using System.Globalization;
 
 [TestClass]
@@ -198,6 +194,8 @@ public class TransformDataServiceTests
     [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Male, "19700101")]    // New Gender Only
     [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700102")]  // New Date of Birth Only
     [DataRow("Smith", Gender.Female, "19700101", "Smith", Gender.Female, "19700101")]  // No Change
+    [DataRow("Doe", Gender.Female, "19700101", "DOE", Gender.Female, "19700101")]      // Case change only
+    [DataRow("smith", Gender.Male, "19700102", "Smith", Gender.Male, "19700102")]      // Case change only
     public async Task Run_OneFieldChanged_DemographicsRulePasses_NoExceptionLogs(string existingFamilyName, Gender existingGender, string existingDateOfBirth, string newFamilyName, Gender newGender, string newDateOfBirth)
     {
         // Arrange
@@ -632,7 +630,7 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_SupersededNhsNumberNotNull_TransformAndRaiseException()
+    public async Task Run_SupersededNhsNumberNotNullAndRfRIsNull_TransformAndRaiseException()
     {
         // Arrange
         _requestBody.Participant.SupersededByNhsNumber = "1234567890";
@@ -664,6 +662,48 @@ public class TransformDataServiceTests
         _handleException
             .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumber", 60, null),
             times: Times.Once);
+    }
+
+       [TestMethod]
+    public async Task Run_SupersededNhsNumberNotNullAndRfRNotNull_NoTransformAndRaiseException()
+    {
+        // Arrange
+        _requestBody.Participant.SupersededByNhsNumber = "1234567890";
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.Participant.ReasonForRemoval = "SCT";
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd");
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            RecordType = Actions.Amended,
+            NhsNumber = "1",
+            SupersededByNhsNumber = "1234567890",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReferralFlag = false,
+            PrimaryCareProvider = null,
+            ReasonForRemoval = "SCT",
+            ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
+        };
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumberNoTransformation", 61, null),
+            times: Times.Once);
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumber", 60, null),
+            times: Times.Never);
     }
 
     [TestMethod]
