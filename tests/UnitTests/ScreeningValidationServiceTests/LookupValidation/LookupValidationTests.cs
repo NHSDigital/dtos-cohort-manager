@@ -58,7 +58,7 @@ public class LookupValidationTests
             ReferralFlag = "false"
         };
 
-        _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.csv");
+        _requestBody = new LookupValidationRequestBody(existingParticipant, newParticipant, "caas.parquet");
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
             var response = new Mock<HttpResponseData>(_context.Object);
@@ -437,6 +437,56 @@ public class LookupValidationTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+    }
+    [TestMethod]
+    public async Task Run_ManualAddValidPCP_ReturnsNoContent()
+    {
+        // arrange
+
+        _requestBody.FileName = "CS0848402";
+        _requestBody.NewParticipant.RecordType = Actions.New;
+        _requestBody.NewParticipant.PrimaryCareProvider = "ZZZAGA";
+        _requestBody.NewParticipant.AddressLine1 = "123 Test Street";
+        _requestBody.NewParticipant.Postcode = "TE57 1NG";
+        _requestBody.ExistingParticipant = null;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists("ZZZAGA")).Returns(true);
+
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+    }
+     [TestMethod]
+    public async Task Run_ManualAddInvalidPCP_ReturnsValidationException()
+    {
+        // arrange
+
+        _requestBody.FileName = "CS0848402";
+        _requestBody.NewParticipant.RecordType = Actions.New;
+        _requestBody.NewParticipant.PrimaryCareProvider = "ZZZAGA";
+        _requestBody.NewParticipant.AddressLine1 = "123 Test Street";
+        _requestBody.NewParticipant.Postcode = "TE57 1NG";
+        _requestBody.ExistingParticipant = null;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists("ZZZAGA")).Returns(false);
+
+
+        // Act
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+
+        // Assert
+        StringAssert.Contains(body, "3601.ValidatePrimaryCareProvider.BSSelect.NonFatal");
     }
 
     private void SetUpRequestBody(string json)
