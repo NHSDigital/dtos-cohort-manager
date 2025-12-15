@@ -27,6 +27,7 @@ public class TransformDataServiceTests
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<ITransformDataLookupFacade> _transformLookups = new();
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
+    private readonly IReasonForRemovalLookup _reasonForRemovalLookup;
 
     public TransformDataServiceTests()
     {
@@ -55,8 +56,11 @@ public class TransformDataServiceTests
         {
             Participant = requestParticipant,
             ExistingParticipant = databaseParticipant,
-            ServiceProvider = "1"
+            ServiceProvider = "1",
+            FileName = "test.parquet"
         };
+
+        _reasonForRemovalLookup = new ReasonForRemovalLookup();
 
         _transformLookups.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(true);
         _transformLookups.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns("ELD");
@@ -64,7 +68,7 @@ public class TransformDataServiceTests
         _transformLookups.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
 
         _transformReasonForRemoval = new TransformReasonForRemoval(_handleException.Object, _transformLookups.Object);
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval, _transformLookups.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval, _transformLookups.Object, _reasonForRemovalLookup);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -900,6 +904,72 @@ public class TransformDataServiceTests
         var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
 
         Assert.AreEqual("ZZ99 3VZ", actualResponse?.Postcode);
+    }
+    [TestMethod]
+    [DataRow("CGA")]
+    [DataRow("DIS")]
+    [DataRow("EMB")]
+    [DataRow("NIT")]
+    [DataRow("OPA")]
+    [DataRow("ORR")]
+    [DataRow("RDI")]
+    [DataRow("RDR")]
+    [DataRow("RFI")]
+    [DataRow("SCT")]
+    public async Task Run_ManualAddRemovableRfR_RemovesRFR(string ReasonForRemoval)
+    {
+        // Arrange
+        _requestBody.FileName = "CS0848402";
+        _requestBody.Participant.PrimaryCareProvider = "ZZZXYZ";
+        _requestBody.Participant.ReasonForRemoval = ReasonForRemoval;
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.ToString();
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        Assert.IsNull(actualResponse!.ReasonForRemoval);
+        Assert.IsNull(actualResponse!.ReasonForRemovalEffectiveFromDate);
+    }
+    [TestMethod]
+    [DataRow("AFL")]
+    [DataRow("AFN")]
+    [DataRow("DEA")]
+    [DataRow("LDN")]
+    [DataRow("SDL")]
+    [DataRow("SDN")]
+    [DataRow("TRA")]
+    public async Task Run_ManualAddNonRemovableRfR_HasRFR(string ReasonForRemoval)
+    {
+        // Arrange
+        _requestBody.FileName = "CS0848402";
+        _requestBody.Participant.PrimaryCareProvider = "ZZZXYZ";
+        _requestBody.Participant.ReasonForRemoval = ReasonForRemoval;
+        var timestamp = DateTime.UtcNow.ToString();
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = timestamp;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        Assert.AreEqual(ReasonForRemoval,actualResponse!.ReasonForRemoval);
+        Assert.IsNotNull(actualResponse!.ReasonForRemovalEffectiveFromDate);
     }
 
     private void SetUpRequestBody(string json)
