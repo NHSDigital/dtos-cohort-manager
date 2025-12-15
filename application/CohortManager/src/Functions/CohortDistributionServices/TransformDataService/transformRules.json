@@ -775,7 +775,7 @@
                   "isExpression": false
                 },
                 {
-                  "field": "ReasonForRemoval",
+                  "field": "ReasonForRemovalEffectiveFromDate",
                   "value": null,
                   "isExpression": false
                 }
