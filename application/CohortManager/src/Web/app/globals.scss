@@ -165,7 +165,7 @@
 .nhsuk-header__content {
   display: flex;
   align-items: center;
-  gap: clamp(8px, 2vw, 24px); // Responsive gap
+  gap: clamp(8px, 2vw, 24px);
   flex-wrap: wrap;
   justify-content: space-between;
 }
@@ -177,7 +177,7 @@
 
 .nhsuk-header__search {
   flex: 1;
-  min-width: min(240px, 40vw); // Responsive minimum width
+  min-width: min(240px, 40vw);
   max-width: 420px;
 }
 
