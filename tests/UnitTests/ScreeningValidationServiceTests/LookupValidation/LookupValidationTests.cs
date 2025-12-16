@@ -327,7 +327,7 @@ public class LookupValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        StringAssert.Contains(body, "17.AddressLinesNullAndPostcodeDoesNotMatchExisting.NBO.NonFatal");
+        StringAssert.Contains(body, "71.AddressLinesNullAndPostcodeDoesNotMatchExisting.NBO.NonFatal");
     }
 
     [DataRow(null, null, null, null, null, "RG2 5TX", "Existing Address 1", "Existing Address 2", "Existing Address 3", "Existing Address 4", "Existing Address 5", "RG2 5TX")]  // All New Address Fields Blank, Postcode exists, Existing Address fields full
