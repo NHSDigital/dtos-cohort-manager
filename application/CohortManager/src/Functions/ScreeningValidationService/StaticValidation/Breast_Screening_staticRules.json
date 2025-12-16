@@ -179,19 +179,19 @@
     "WorkflowName": "Manual_Add",
     "Rules": [
       {
-        "RuleName": "97.NoGPorPCP.BSSelect.NonFatal",
+        "RuleName": "97.NoDummyGPorPCP.NBO.NonFatal",
         "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
-              "Expression": "\"Missing GP details (and no accepted reason for removal)\""
+              "Expression": "\"Missing GP details\""
             }
           }
         }
       },
       {
-        "RuleName": "98.ManualAddWithBlockingRFR.BSSelect.NonFatal",
+        "RuleName": "98.ManualAddWithBlockingRFR.NBO.NonFatal",
         "Expression": "reasonForRemovalLkp.CanRemovalReasonBeOverridden(participant.ReasonForRemoval)",
         "Actions": {
           "OnFailure": {
