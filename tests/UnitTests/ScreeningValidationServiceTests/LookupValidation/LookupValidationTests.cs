@@ -486,7 +486,7 @@ public class LookupValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        StringAssert.Contains(body, "3601.ValidatePrimaryCareProvider.BSSelect.NonFatal");
+        StringAssert.Contains(body, "3601.ValidatePrimaryCareProvider.NBO.NonFatal");
     }
 
     private void SetUpRequestBody(string json)
