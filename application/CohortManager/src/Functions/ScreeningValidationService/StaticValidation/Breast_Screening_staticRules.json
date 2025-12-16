@@ -180,7 +180,13 @@
     "Rules": [
       {
         "RuleName": "97.NoDummyGPorPCP.NBO.NonFatal",
-        "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider)",
+        "LocalParams" : [
+          {
+            "Name": "ValidReasonForRemoval",
+            "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) || participant.ReasonForRemoval == \"RDR\" || participant.ReasonForRemoval == \"RPR\" || participant.ReasonForRemoval == \"RDI\" "
+          }
+        ],
+        "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider) || ValidReasonForRemoval",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",

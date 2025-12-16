@@ -643,13 +643,19 @@ public class StaticValidationTests
     #endregion
     #region  Manual add rule 97 Missing GP details (and no accepted reason for removal)
     [TestMethod]
-    [DataRow("A12345")]
-    [DataRow("ZZZZYZ")]
-    public async Task Run_ManualAddWithGPCode_ReturnsNoContent(string primaryCareProvider)
+    [DataRow("A12345",null)]
+    [DataRow("ZZZZYZ","RPR")]
+    [DataRow("ZZZZYZ","RDI")]
+    [DataRow("ZZZZYZ","RDR")]
+    [DataRow(null,"RDR")]
+    [DataRow(null,"RDI")]
+    [DataRow(null,"RPR")]
+    public async Task Run_ManualAddWithGPCode_ReturnsNoContent(string? primaryCareProvider,string? reasonForRemoval)
     {
         // Arrange
         _participantCsvRecord.Participant.CurrentPosting = "BAA";
         _participantCsvRecord.Participant.PrimaryCareProvider = primaryCareProvider;
+        _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
 
         _participantCsvRecord.Participant.RecordType = Actions.New;
         _participantCsvRecord.FileName = "CS0573848";
@@ -658,13 +664,17 @@ public class StaticValidationTests
 
         // Act
         var response = await _function.RunAsync(_request.Object);
-
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
         // Assert
         Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
 
     }
     [TestMethod]
-    public async Task Run_ManualAddWithoutGPCode_ReturnValidationException()
+    [DataRow("AFL")]
+    [DataRow("RDI")]
+    [DataRow("NIT")]
+    [DataRow(null)]
+    public async Task Run_ManualAddWithoutGPCode_ReturnValidationException(string? reasonForRemoval)
     {
         // Arrange
         _participantCsvRecord.Participant.CurrentPosting = "BAA";
@@ -681,7 +691,7 @@ public class StaticValidationTests
         // Assert
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
         Assert.AreEqual(HttpStatusCode.OK,response.StatusCode);
-        StringAssert.Contains(body, "97.NoGPorPCP.BSSelect.NonFatal");
+        StringAssert.Contains(body, "97.NoDummyGPorPCP.NBO.NonFatal");
 
     }
 
@@ -700,6 +710,7 @@ public class StaticValidationTests
         _participantCsvRecord.Participant.CurrentPosting = "BAA";
         _participantCsvRecord.Participant.RecordType = Actions.New;
         _participantCsvRecord.FileName = "CS0573848";
+        _participantCsvRecord.Participant.PrimaryCareProvider = "ZZZXYZ";
         _participantCsvRecord.Participant.ReasonForRemoval = reasonForRemoval;
         var json = JsonSerializer.Serialize(_participantCsvRecord);
         SetUpRequestBody(json);
@@ -735,7 +746,7 @@ public class StaticValidationTests
         // Assert
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
         Assert.AreEqual(HttpStatusCode.OK,response.StatusCode);
-        StringAssert.Contains(body, "98.ManualAddWithBlockingRFR.BSSelect.NonFatal");
+        StringAssert.Contains(body, "98.ManualAddWithBlockingRFR.NBO.NonFatal");
 
     }
 

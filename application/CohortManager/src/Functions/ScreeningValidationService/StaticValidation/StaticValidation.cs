@@ -72,8 +72,6 @@ public class StaticValidation
                 new RuleParameter("manualAdd",isManualAdd)
             };
 
-
-
             var resultList = new List<RuleResultTree>();
 
             if (participantCsvRecord.Participant.RecordType != Actions.Removed)
@@ -88,6 +86,8 @@ public class StaticValidation
 
             if (isManualAdd)
             {
+                var validrfr =  string.IsNullOrEmpty(participantCsvRecord.Participant.ReasonForRemoval) || new List<string>{"RDR","RDI","RPR"}.Contains(participantCsvRecord.Participant.ReasonForRemoval);
+                var res = !(string.IsNullOrEmpty(participantCsvRecord.Participant.PrimaryCareProvider) && validrfr);
                 var manualAddResults = await re.ExecuteAllRulesAsync("Manual_Add", ruleParameters);
                 resultList.AddRange(manualAddResults);
             }
