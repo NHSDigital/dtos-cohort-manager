@@ -4,7 +4,6 @@ public class ReasonForRemovalLookup : IReasonForRemovalLookup
 {
 
     private readonly List<string> NonOverridableRFRs;
-    private readonly List<string> OverridableRFRs;
     public ReasonForRemovalLookup()
     {
         NonOverridableRFRs = new List<string>
@@ -29,7 +28,6 @@ public class ReasonForRemovalLookup : IReasonForRemovalLookup
         {
             return false;
         }
-
         return true;
     }
 

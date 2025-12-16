@@ -80,7 +80,7 @@ public class TransformDataService
             participant = await transformString.TransformStringFields(participant);
 
             // Other transformation rules
-            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant,CheckManualAddFileName(requestBody.FileName));
+            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant,ValidationHelper.CheckManualAddFileName(requestBody.FileName));
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
@@ -88,8 +88,6 @@ public class TransformDataService
 
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
-
-
 
             if (participant.NhsNumber == null)
             {
@@ -99,8 +97,6 @@ public class TransformDataService
 
             var response = JsonSerializer.Serialize(participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
-
-
 
         }
         catch (ArgumentException ex)
@@ -232,17 +228,4 @@ public class TransformDataService
             await _exceptionHandler.CreateTransformExecutedExceptions(participant, ruleName, ruleId);
         }
     }
-    private static bool CheckManualAddFileName(string? FileName)
-    {
-        if(string.IsNullOrEmpty(FileName))
-        {
-            return false;
-        }
-        if (FileName.ToLower().EndsWith(".parquet"))
-        {
-            return false;
-        }
-        return true;
-    }
-
 }

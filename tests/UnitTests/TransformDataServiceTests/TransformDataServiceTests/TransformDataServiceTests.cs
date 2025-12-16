@@ -956,6 +956,7 @@ public class TransformDataServiceTests
     [DataRow("ORR")]
     [DataRow("RDI")]
     [DataRow("RDR")]
+    [DataRow("RPR")]
     [DataRow("RFI")]
     [DataRow("SCT")]
     public async Task Run_ManualAddRemovableRfR_RemovesRFR(string ReasonForRemoval)

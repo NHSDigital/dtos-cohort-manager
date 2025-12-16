@@ -53,7 +53,7 @@ public class StaticValidation
             _logger.LogInformation("ruleFileName: {RuleFileName}", ruleFileName);
 
             bool routineParticipant = (participantCsvRecord.Participant.ReferralFlag ?? "").ToLower() == "false";
-            bool isManualAdd = CheckManualAddFileName(participantCsvRecord.FileName);
+            bool isManualAdd = ValidationHelper.CheckManualAddFileName(participantCsvRecord.FileName);
 
             var json = await _readRules.GetRulesFromDirectory(ruleFileName);
             var rules = JsonSerializer.Deserialize<Workflow[]>(json);
@@ -114,18 +114,5 @@ public class StaticValidation
             _logger.LogError(ex, ex.Message);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
-    }
-
-    private static bool CheckManualAddFileName(string FileName)
-    {
-        if(string.IsNullOrEmpty(FileName))
-        {
-            return false;
-        }
-        if (FileName.ToLower().EndsWith(".parquet"))
-        {
-            return false;
-        }
-        return true;
     }
 }
