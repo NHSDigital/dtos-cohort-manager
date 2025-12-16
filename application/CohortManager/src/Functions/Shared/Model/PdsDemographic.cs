@@ -1,6 +1,5 @@
 namespace Model;
 
-using System.Data;
 using System.Text.Json.Serialization;
 using Model.Enums;
 using NHS.CohortManager.Shared.Utilities;
@@ -15,6 +14,7 @@ public class PdsDemographic : Demographic
     public string? RemovalEffectiveToDate { get; set; }
     [JsonPropertyOrder(903)]
     public string? ConfidentialityCode { get; set; } = "";
+    private const string DateFormat = "yyyyMMdd"; 
     public PdsDemographic() { }
 
     public ParticipantDemographic ToParticipantDemographic()
@@ -29,7 +29,7 @@ public class PdsDemographic : Demographic
             OtherGivenName = OtherGivenNames,
             FamilyName = FamilyName,
             PreviousFamilyName = PreviousFamilyName,
-            DateOfBirth = MappingUtilities.ParseDates(DateOfBirth!)?.ToString("yyyyMMdd"),
+            DateOfBirth = MappingUtilities.ParseDates(DateOfBirth!)?.ToString(DateFormat),
             Gender = (short?)(Gender.HasValue ? (Gender?)Gender.Value : null),
             AddressLine1 = AddressLine1,
             AddressLine2 = AddressLine2,
@@ -38,15 +38,15 @@ public class PdsDemographic : Demographic
             AddressLine5 = AddressLine5,
             PostCode = Postcode,
             PafKey = PafKey,
-            UsualAddressFromDate = MappingUtilities.ParseDates(UsualAddressEffectiveFromDate!)?.ToString("yyyyMMdd"),
+            UsualAddressFromDate = MappingUtilities.ParseDates(UsualAddressEffectiveFromDate!)?.ToString(DateFormat),
             DateOfDeath = DateOfDeath,
             DeathStatus = (short?)(DeathStatus.HasValue ? (Status?)DeathStatus.Value : null),
             TelephoneNumberHome = TelephoneNumber,
-            TelephoneNumberHomeFromDate = MappingUtilities.ParseDates(TelephoneNumberEffectiveFromDate!)?.ToString("yyyy-MM-dd"),
+            TelephoneNumberHomeFromDate = MappingUtilities.ParseDates(TelephoneNumberEffectiveFromDate!)?.ToString(DateFormat),
             TelephoneNumberMob = MobileNumber,
-            TelephoneNumberMobFromDate = MappingUtilities.ParseDates(MobileNumberEffectiveFromDate!)?.ToString("yyyyMMdd"),
+            TelephoneNumberMobFromDate = MappingUtilities.ParseDates(MobileNumberEffectiveFromDate!)?.ToString("yyyy-MM-dd"),
             EmailAddressHome = EmailAddress,
-            EmailAddressHomeFromDate = MappingUtilities.ParseDates(EmailAddressEffectiveFromDate!)?.ToString("yyyyMMdd"),
+            EmailAddressHomeFromDate = MappingUtilities.ParseDates(EmailAddressEffectiveFromDate!)?.ToString(DateFormat),
             PreferredLanguage = PreferredLanguage,
             InterpreterRequired = IsInterpreterRequired?.ToLower() switch
             {

@@ -37,17 +37,18 @@ export default async function Page() {
       d.setDate(today.getDate() - i);
       const dateString = formatIsoDate(d);
 
-      reports.push({
-        reportId: `${dateString}?category=13`,
-        dateCreated: dateString,
-        category: 13,
-      });
-
-      reports.push({
-        reportId: `${dateString}?category=12`,
-        dateCreated: dateString,
-        category: 12,
-      });
+      reports.push(
+        {
+          reportId: `${dateString}?category=13`,
+          dateCreated: dateString,
+          category: 13,
+        },
+        {
+          reportId: `${dateString}?category=12`,
+          dateCreated: dateString,
+          category: 12,
+        }
+      );
     }
 
     return (

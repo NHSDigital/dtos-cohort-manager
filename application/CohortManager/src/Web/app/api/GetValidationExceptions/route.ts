@@ -61,7 +61,7 @@ function paginate<T extends { ExceptionId: number }>(
     IsFirstPage: clampedPage === 1,
     HasNextPage: clampedPage < safeTotalPages,
     HasPreviousPage: clampedPage > 1,
-    LastResultId: pageItems[pageItems.length - 1]?.ExceptionId ?? null,
+    LastResultId: pageItems.at(-1)?.ExceptionId ?? null,
     TotalItems: totalItems,
     TotalPages: safeTotalPages,
     CurrentPage: clampedPage,
@@ -146,7 +146,7 @@ export async function GET(request: Request) {
   const isReport = searchParams.get("isReport");
   const exceptionCategory = searchParams.get("exceptionCategory");
   const reportDate = searchParams.get("reportDate");
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const page = Math.max(1, Number.parseInt(searchParams.get("page") || "1", 10));
 
   // Handle single exception requests - get fresh data from store
   if (exceptionId !== null) {

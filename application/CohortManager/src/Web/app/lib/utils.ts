@@ -18,7 +18,7 @@ export const formatCompactDate = (dateString: string): string => {
   if (!dateString) return "";
 
   const date = new Date(dateString);
-  if (isNaN(date.getTime())) return "";
+  if (Number.isNaN(date.getTime())) return "";
 
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -37,7 +37,7 @@ export function getCurrentDate(): string {
 
 export function formatGenderValue(gender?: number | string | null): string {
   if (gender === null || gender === undefined || gender === "") return "";
-  const genderNum = typeof gender === "string" ? parseInt(gender, 10) : gender;
+  const genderNum = typeof gender === "string" ? Number.parseInt(gender, 10) : gender;
   if (genderNum === 1) return "Male";
   if (genderNum === 2) return "Female";
   if (genderNum === 9) return "Unspecified";
