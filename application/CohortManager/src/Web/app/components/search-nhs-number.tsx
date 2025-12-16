@@ -7,13 +7,13 @@ export function SearchNhsNumber() {
   const [nhsNumber, setNhsNumber] = useState("");
 
   const isValidNhsNumber = (value: string): boolean => {
-    const cleaned = value.replaceAll(" ", "");
+    const cleaned = value.trim().replaceAll(" ", "");
     return cleaned.length === 10 && /^\d+$/.test(cleaned);
   };
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const cleanedNhsNumber = nhsNumber.replaceAll(" ", "");
+    const cleanedNhsNumber = nhsNumber.trim().replaceAll(" ", "");
 
     if (!isValidNhsNumber(nhsNumber)) {
       router.push(`/exceptions/noResults`);
