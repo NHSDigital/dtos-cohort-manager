@@ -121,7 +121,7 @@
     ],
     "Rules":[
       {
-        "RuleName": "3601.ValidatePrimaryCareProvider.BSSelect.NonFatal",
+        "RuleName": "3601.ValidatePrimaryCareProvider.NBO.NonFatal",
         "Expression": "ValidPrimaryCareProvider",
         "Actions": {
           "OnFailure": {
