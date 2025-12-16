@@ -1,0 +1,20 @@
+name: CI/CD pull request - devtest
+
+on:
+  push:
+    tags:
+          - 'devtest'
+
+jobs:
+  print-debug-info:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Display Information
+        run: |
+          echo "Workflow triggered by tag!"
+          echo "--------------------------------------"
+          echo "Tag/Ref Name : $GITHUB_REF"
+          echo "Commit Hash  : $GITHUB_SHA"
+          echo "Triggered By : $GITHUB_ACTOR"
+          echo "Event Name   : $GITHUB_EVENT_NAME"
+          echo "--------------------------------------"
