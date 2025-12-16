@@ -183,10 +183,10 @@
         "LocalParams" : [
           {
             "Name": "ValidReasonForRemoval",
-            "Expression": "string.IsNullOrEmpty(participant.ReasonForRemoval) || participant.ReasonForRemoval == \"RDR\" || participant.ReasonForRemoval == \"RPR\" || participant.ReasonForRemoval == \"RDI\" "
+            "Expression": "participant.ReasonForRemoval == \"RDR\" || participant.ReasonForRemoval == \"RPR\" || participant.ReasonForRemoval == \"RDI\" "
           }
         ],
-        "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider) || ValidReasonForRemoval",
+        "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider) || (string.IsNullOrEmpty(participant.PrimaryCareProvider) && ValidReasonForRemoval)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
