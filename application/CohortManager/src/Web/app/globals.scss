@@ -165,8 +165,9 @@
 .nhsuk-header__content {
   display: flex;
   align-items: center;
+  gap: clamp(8px, 2vw, 24px); // Responsive gap
+  flex-wrap: wrap;
   justify-content: space-between;
-  flex-wrap: nowrap;
 }
 
 .nhsuk-header__service {
@@ -176,16 +177,12 @@
 
 .nhsuk-header__search {
   flex: 1;
-  min-width: 250px;
-}
-
-.nhsuk-header .nhsuk-header__search {
-  margin: 0 100px;
+  min-width: min(240px, 40vw); // Responsive minimum width
+  max-width: 420px;
 }
 
 .nhsuk-header__search-form {
   display: flex;
-  fill: currentColor;
 }
 
 .nhsuk-header__account {

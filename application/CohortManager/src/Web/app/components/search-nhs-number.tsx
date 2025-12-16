@@ -39,12 +39,11 @@ export function SearchNhsNumber() {
   };
 
   return (
-    <search className="nhsuk-header__search">
-      <form
-        className="nhsuk-header__search-form"
-        id="search"
-        onSubmit={handleSubmit}
-      >
+    <form
+      className="nhsuk-header__search-form"
+      id="search"
+      onSubmit={handleSubmit}
+    >
         <label className="nhsuk-u-visually-hidden" htmlFor="search-field">
           Search by NHS number
         </label>
@@ -74,6 +73,5 @@ export function SearchNhsNumber() {
           </svg>
         </button>
       </form>
-    </search>
   );
 }
