@@ -102,7 +102,7 @@ public class TransformDataService
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "An error occurred during transformation");
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, requestBody.FileName!, participant.ScreeningName, JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, requestBody.FileName!, participant.ScreeningName!, JsonSerializer.Serialize(participant));
             return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req);
         }
         catch (TransformationException ex)
@@ -112,7 +112,7 @@ public class TransformDataService
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, requestBody.FileName!, participant.ScreeningName, JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, requestBody.FileName!, participant.ScreeningName!, JsonSerializer.Serialize(participant));
             _logger.LogWarning(ex, "exception occurred while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
