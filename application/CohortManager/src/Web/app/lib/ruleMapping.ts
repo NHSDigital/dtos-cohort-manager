@@ -140,17 +140,24 @@ Please contact the Breast Screening Office (BSO) that submitted the referral and
   },
   97: {
     ruleDescription: "Missing GP details.",
-    moreDetails: `National Service Desk (NSD) action: Raise with Breast Screening Select second line, including the following information.
+    moreDetails: `National Service Desk (NSD) action:
+
+Raise with Breast Screening Select second line, including the following information.
+
 A request to manually add a participant could not be sent to BS Select as it does not contain GP details or a dummy GP code.
+
 Please check the record. A valid GP code or a dummy GP code must be entered to send the participant to BS Select. `,
     reportingId: "CMR97",
   },
   3601:{
     ruleDescription: "GP practice not mapped to a breast screening office (BSO).",
     moreDetails: `National Service Desk (NSD) action: Raise with Breast Screening Select second line, including the following information.
+
 A request to manually add a participant could not be processed as the GP practice code is not mapped to a breast screening office (BSO).
+
 If the GP practice code is correct, it may not be mapped to a BSO because it is a new or split practice.
-Check the GP practice code and add it to the organisational table (BSO-GP mapping table) if needed. `,
+
+Check the GP practice code and add it to the organisational table (BSO-GP mapping table) if needed.`,
     reportingId: "CMR40",
   },
 };
