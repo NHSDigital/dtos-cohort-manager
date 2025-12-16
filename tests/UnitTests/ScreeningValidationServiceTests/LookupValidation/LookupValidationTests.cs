@@ -246,7 +246,7 @@ public class LookupValidationTests
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
 
         // Assert
-        Assert.IsTrue(body.Contains("45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal"));
+        Assert.IsTrue(body.Contains("45.GPPracticeCodeDoesNotExist.NBO.NonFatal"));
     }
 
 
