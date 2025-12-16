@@ -162,3 +162,29 @@
   color: #00703c;
 }
 
+.nhsuk-header__content {
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 24px);
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.nhsuk-header__service {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.nhsuk-header__search {
+  flex: 1;
+  min-width: min(240px, 40vw);
+  max-width: 420px;
+}
+
+.nhsuk-header__search-form {
+  display: flex;
+}
+
+.nhsuk-header__account {
+  flex-shrink: 0;
+}

@@ -10,7 +10,9 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.DTO;
 using Model.Enums;
+using Model.Pagination;
 
 /// <summary>
 /// Azure Function for retrieving and managing validation exceptions.
@@ -126,6 +128,55 @@ public class GetValidationExceptions
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing: {Function} update ServiceNowId request", nameof(UpdateExceptionServiceNowId));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        }
+    }
+
+    /// <summary>
+    /// Retrieves validation exceptions and reports for a specific NHS number.
+    /// </summary>
+    [Function(nameof(GetValidationExceptionsByNhsNumber))]
+    public async Task<HttpResponseData> GetValidationExceptionsByNhsNumber([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    {
+        var nhsNumber = req.Query["nhsNumber"];
+        var page = _httpParserHelper.GetQueryParameterAsInt(req, "page", 1);
+        var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize", 10);
+
+        if (string.IsNullOrWhiteSpace(nhsNumber))
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
+        }
+
+        var cleanedNhsNumber = nhsNumber.Replace(" ", "");
+        if (!ValidationHelper.ValidateNHSNumber(cleanedNhsNumber))
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
+        }
+
+        try
+        {
+            var result = await _validationData.GetExceptionsWithReportsByNhsNumber(cleanedNhsNumber);
+
+            if (result.Exceptions.Count == 0)
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+            }
+
+            var paginatedExceptions = _paginationService.GetPaginatedResult(result.Exceptions.AsQueryable(), page, pageSize);
+            var headers = _paginationService.AddNavigationHeaders(req, paginatedExceptions);
+
+            var response = new ValidationExceptionsByNhsNumberResponse
+            {
+                NhsNumber = result.NhsNumber,
+                PaginatedExceptions = paginatedExceptions,
+                Reports = result.Reports
+            };
+
+            return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(response), headers);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving validation exceptions for provided NHS number");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

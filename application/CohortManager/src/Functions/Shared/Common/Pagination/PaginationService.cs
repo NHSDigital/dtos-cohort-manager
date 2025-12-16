@@ -1,6 +1,7 @@
 namespace Common;
 
 using Microsoft.Azure.Functions.Worker.Http;
+using Model.Pagination;
 
 public class PaginationService<T> : IPaginationService<T>
 {

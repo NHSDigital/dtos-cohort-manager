@@ -386,6 +386,7 @@ public class ExceptionHandler : IExceptionHandler
             {
                 35 => ExceptionCategory.Confusion,
                 60 => ExceptionCategory.Superseded,
+                61 => ExceptionCategory.Superseded,
                 _ => ExceptionCategory.TransformExecuted
             };
         }
