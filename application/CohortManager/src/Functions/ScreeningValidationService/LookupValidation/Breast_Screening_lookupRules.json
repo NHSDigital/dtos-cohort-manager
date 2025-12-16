@@ -9,7 +9,7 @@
     ],
     "Rules": [
       {
-        "RuleName": "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal",
+        "RuleName": "45.GPPracticeCodeDoesNotExist.NBO.NonFatal",
         "LocalParams": [
           {
             "Name": "WelshPostingCategory",
