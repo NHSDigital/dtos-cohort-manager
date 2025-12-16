@@ -634,7 +634,7 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_SupersededNhsNumberNotNull_TransformAndRaiseException()
+    public async Task Run_SupersededNhsNumberNotNullAndRfRIsNull_TransformAndRaiseException()
     {
         // Arrange
         _requestBody.Participant.SupersededByNhsNumber = "1234567890";
@@ -666,6 +666,48 @@ public class TransformDataServiceTests
         _handleException
             .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumber", 60, null),
             times: Times.Once);
+    }
+
+       [TestMethod]
+    public async Task Run_SupersededNhsNumberNotNullAndRfRNotNull_NoTransformAndRaiseException()
+    {
+        // Arrange
+        _requestBody.Participant.SupersededByNhsNumber = "1234567890";
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.Participant.ReasonForRemoval = "SCT";
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd");
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            RecordType = Actions.Amended,
+            NhsNumber = "1",
+            SupersededByNhsNumber = "1234567890",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReferralFlag = false,
+            PrimaryCareProvider = null,
+            ReasonForRemoval = "SCT",
+            ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
+        };
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumberNoTransformation", 61, null),
+            times: Times.Once);
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumber", 60, null),
+            times: Times.Never);
     }
 
     [TestMethod]
@@ -914,6 +956,7 @@ public class TransformDataServiceTests
     [DataRow("ORR")]
     [DataRow("RDI")]
     [DataRow("RDR")]
+    [DataRow("RPR")]
     [DataRow("RFI")]
     [DataRow("SCT")]
     public async Task Run_ManualAddRemovableRfR_RemovesRFR(string ReasonForRemoval)
