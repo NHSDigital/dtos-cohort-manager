@@ -181,6 +181,9 @@
   max-width: 420px;
 }
 
+.nhsuk-summary-list__multiline {
+    white-space: pre-wrap;
+}
 .nhsuk-header__search-form {
   display: flex;
 }

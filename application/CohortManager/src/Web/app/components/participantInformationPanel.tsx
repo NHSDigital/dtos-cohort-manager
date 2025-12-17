@@ -169,7 +169,7 @@ export default function ParticipantInformationPanel({
               <dd className="nhsuk-summary-list__value">
                 <p>{exceptionDetails.shortDescription}</p>
                 {exceptionDetails.moreDetails && (
-                  <p>{exceptionDetails.moreDetails}</p>
+                  <p className="nhsuk-summary-list__multiline">{exceptionDetails.moreDetails}</p>
                 )}
                 {exceptionDetails.reportingId && (
                   <p>

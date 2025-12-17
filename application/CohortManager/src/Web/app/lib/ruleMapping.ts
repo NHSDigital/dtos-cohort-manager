@@ -53,7 +53,11 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
   },
   45: {
     ruleDescription: "GP practice code does not exist",
-    moreDetails: "Raise with Breast Screening Select (BSS)",
+    moreDetails: `National Service Desk (NSD) action: Raise with Breast Screening Select second line, including the following information.
+We were unable to process this record as the GP practice is not mapped to a breast screening office (BSO). This may be because it’s a new or split practice.
+To resolve this, please:
+check the GP practice details for errors
+if correct, assign the GP practice to the appropriate BSO in the organisational table (BSO-GP mapping table) `,
     reportingId: "CMR45",
     portalFormTitle: "Raise with Breast Screening Select (BSS)",
   },
@@ -88,6 +92,47 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
     ruleDescription: "Address is blank (postcode may be blank too).",
     moreDetails: "Enter the patient's full address and postcode.",
     reportingId: "CMR17",
+  },
+  98: {
+    ruleDescription: "Participant cannot be sent to BS Select due to reason for removal (RfR).",
+    moreDetails: `National Service Desk (NSD) action: Raise with Breast Screening Select second line, including the following information.
+A request to manually add a participant could not be sent to BS Select.
+We checked the participant’s PDS record and found a reason for removal (RfR) code that BS Select will not accept.
+
+The record contains one of the following RfR codes:
+
+AFL (armed forces enlistment - notified locally)
+AFN (armed forces enlistment – notified by armed forces)
+DEA (death)
+LDN (logical deletion)
+SDL (services dependant – notified locally)
+SDN (service dependant – notified by SMO)
+TRA (temporary resident not returned)
+
+Please contact the Breast Screening Office (BSO) that submitted the referral and explain why we are unable to add the participant to BS Select. `,
+    reportingId: "CMR98",
+  },
+  97: {
+    ruleDescription: "Missing GP details.",
+    moreDetails: `National Service Desk (NSD) action:
+
+Raise with Breast Screening Select second line, including the following information.
+
+A request to manually add a participant could not be sent to BS Select as it does not contain GP details or a dummy GP code.
+
+Please check the record. A valid GP code or a dummy GP code must be entered to send the participant to BS Select. `,
+    reportingId: "CMR97",
+  },
+  3601:{
+    ruleDescription: "GP practice not mapped to a breast screening office (BSO).",
+    moreDetails: `National Service Desk (NSD) action: Raise with Breast Screening Select second line, including the following information.
+
+A request to manually add a participant could not be processed as the GP practice code is not mapped to a breast screening office (BSO).
+
+If the GP practice code is correct, it may not be mapped to a BSO because it is a new or split practice.
+
+Check the GP practice code and add it to the organisational table (BSO-GP mapping table) if needed.`,
+    reportingId: "CMR40",
   },
 };
 
