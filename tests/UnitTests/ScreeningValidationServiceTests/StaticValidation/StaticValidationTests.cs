@@ -704,6 +704,9 @@ public class StaticValidationTests
     [DataRow("EMB")]
     [DataRow("SCT")]
     [DataRow("OPA")]
+    [DataRow("RDR")]
+    [DataRow("RPR")]
+    [DataRow("RPI")]
     public async Task Run_ManualAddWithOverridableReasonForRemoval_ReturnsNoContent(string? reasonForRemoval)
     {
         // Arrange
