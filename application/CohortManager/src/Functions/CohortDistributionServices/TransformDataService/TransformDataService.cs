@@ -28,13 +28,14 @@ public class TransformDataService
     private readonly IExceptionHandler _exceptionHandler;
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
     private readonly ITransformDataLookupFacade _dataLookup;
-
+    private readonly IReasonForRemovalLookup _reasonForRemovalLookup;
     public TransformDataService(
         ICreateResponse createResponse,
         IExceptionHandler exceptionHandler,
         ILogger<TransformDataService> logger,
         ITransformReasonForRemoval transformReasonForRemoval,
-        ITransformDataLookupFacade dataLookup
+        ITransformDataLookupFacade dataLookup,
+        IReasonForRemovalLookup reasonForRemovalLookup
     )
     {
         _createResponse = createResponse;
@@ -42,6 +43,7 @@ public class TransformDataService
         _logger = logger;
         _transformReasonForRemoval = transformReasonForRemoval;
         _dataLookup = dataLookup;
+        _reasonForRemovalLookup = reasonForRemovalLookup;
     }
 
     [Function("TransformDataService")]
@@ -77,7 +79,7 @@ public class TransformDataService
             participant = await transformString.TransformStringFields(participant);
 
             // Other transformation rules
-            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant);
+            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant,ValidationHelper.CheckManualAddFileName(requestBody.FileName));
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
@@ -85,17 +87,20 @@ public class TransformDataService
 
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
-            if (participant.NhsNumber != null)
+
+            if (participant.NhsNumber == null)
             {
-                var response = JsonSerializer.Serialize(participant);
-                return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
+                return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req, "");
             }
-            return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req, "");
+
+            var response = JsonSerializer.Serialize(participant);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
+
         }
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "An error occurred during transformation");
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "", participant.ScreeningName, JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, requestBody.FileName!, participant.ScreeningName!, JsonSerializer.Serialize(participant));
             return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req);
         }
         catch (TransformationException ex)
@@ -105,14 +110,14 @@ public class TransformDataService
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, "", participant.ScreeningName, JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, requestBody.FileName!, participant.ScreeningName!, JsonSerializer.Serialize(participant));
             _logger.LogWarning(ex, "exception occurred while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }
 
     public async Task<CohortDistributionParticipant> TransformParticipantAsync(CohortDistributionParticipant participant,
-                                                                            CohortDistribution databaseParticipant)
+                                                                            CohortDistribution databaseParticipant, bool isManualAdd = false)
     {
         var excludedSMUList = await _dataLookup.GetCachedExcludedSMUValues();
 
@@ -133,7 +138,8 @@ public class TransformDataService
             new RuleParameter("participant", participant),
             new RuleParameter("dbLookup", _dataLookup),
             new RuleParameter("excludedSMUList", excludedSMUList),
-            new RuleParameter("existingParticipant", existingParticipant)
+            new RuleParameter("existingParticipant", existingParticipant),
+            new RuleParameter("reasonForRemovalLkp",_reasonForRemovalLookup)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
@@ -141,6 +147,10 @@ public class TransformDataService
         if (participant.ReferralFlag == true && participant.RecordType == Actions.New)
         {
             resultList.AddRange(await re.ExecuteAllRulesAsync("Referred", ruleParameters));
+        }
+        if (isManualAdd)
+        {
+            resultList.AddRange(await re.ExecuteAllRulesAsync("ManualAdd", ruleParameters));
         }
 
         await HandleExceptions(resultList, participant);
@@ -216,5 +226,4 @@ public class TransformDataService
             await _exceptionHandler.CreateTransformExecutedExceptions(participant, ruleName, ruleId);
         }
     }
-
 }

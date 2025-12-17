@@ -93,7 +93,7 @@
       },
             {
         "RuleName": "3.PrimaryCareProviderAndReasonForRemoval.NBO.NonFatal",
-        "Expression": "(string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR (!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval))",
+        "Expression": "manualAdd OR ((string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR (!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval)))",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
@@ -169,6 +169,41 @@
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"Invalid death status\""
+            }
+          }
+        }
+      }
+    ]
+  },
+  {
+    "WorkflowName": "Manual_Add",
+    "Rules": [
+      {
+        "RuleName": "97.NoDummyGPorPCP.NBO.NonFatal",
+        "LocalParams" : [
+          {
+            "Name": "ValidReasonForRemoval",
+            "Expression": "participant.ReasonForRemoval == \"RDR\" || participant.ReasonForRemoval == \"RPR\" || participant.ReasonForRemoval == \"RDI\" "
+          }
+        ],
+        "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider) || (string.IsNullOrEmpty(participant.PrimaryCareProvider) && ValidReasonForRemoval)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Missing GP details\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "98.ManualAddWithBlockingRFR.NBO.NonFatal",
+        "Expression": "reasonForRemovalLkp.CanRemovalReasonBeOverridden(participant.ReasonForRemoval)",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Participant cannot be sent to BS Select due to reason for removal (RfR)\""
             }
           }
         }

@@ -15,12 +15,6 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
     reportingId: "CMR4",
     portalFormTitle: "Raise with Cohorting as a Service (CaaS)",
   },
-  10: {
-    ruleDescription:
-      "Update received for NHS number with reason for removal of ‘DEA’.",
-    moreDetails: "An update has been received for a record marked as deceased.",
-    reportingId: "CMR36",
-  },
   17: {
     ruleDescription:
       "Date of birth is either missing, in the wrong format, or is in the future.",
@@ -34,20 +28,6 @@ export const ruleIdMappings: Record<number, RuleMapping> = {
     moreDetails:
       "Enter the date of death in the correct format. The date cannot be in the future.",
     reportingId: "CMR22",
-  },
-  21: {
-    ruleDescription:
-      "The 'Superseded by NHS number' field has been populated with an NHS number by NBO.",
-    moreDetails: "",
-    reportingId: "CMR33",
-  },
-  22: {
-    ruleDescription:
-      "Amendment received for an NHS number that is not in this cohort.",
-    moreDetails:
-      "Raise with Cohorting as a Service (CaaS). An amendment cannot be applied as the record has not yet been added to the cohort. There may have been a delay in adding the new record to Cohort Manager.  ",
-    reportingId: "CMR39",
-    portalFormTitle: "Raise with Cohorting as a Service (CaaS)",
   },
   30: {
     ruleDescription: "Postcode is in the wrong format.",
@@ -107,12 +87,6 @@ if correct, assign the GP practice to the appropriate BSO in the organisational 
       "To update a record with a formal death status, ensure that the reason for removal field contains a compatible death-related value.",
     reportingId: "CMR20",
     portalFormTitle: "Confused NHS numbers",
-  },
-  69: {
-    ruleDescription: "NHS number’s invalid flag is set to true.",
-    moreDetails:
-      "An update has been received for the record with the NHS Number now flagged as invalid.",
-    reportingId: "CMR29",
   },
   71: {
     ruleDescription: "Address is blank (postcode may be blank too).",
