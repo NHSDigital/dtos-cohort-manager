@@ -62,7 +62,7 @@
         "Expression": "!(reasonForRemoval AND postcode AND primaryCareProvider)"
       },
       {
-        "RuleName": "17.AddressLinesNullAndPostcodeDoesNotMatchExisting.NBO.NonFatal",
+        "RuleName": "71.AddressLinesNullAndPostcodeDoesNotMatchExisting.NBO.NonFatal",
         "LocalParams": [
           {
             "Name": "addressLines",
