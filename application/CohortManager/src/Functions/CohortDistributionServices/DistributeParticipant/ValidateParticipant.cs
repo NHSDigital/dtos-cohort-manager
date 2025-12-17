@@ -65,7 +65,7 @@ public class ValidateParticipant
             await removeValidationRecordTask;
 
             validationRecord.PreviousParticipantRecord = previousRecord;
-            
+
             // Lookup & Static Validation
             var lookupTaskOptions = TaskOptions.FromRetryPolicy(new RetryPolicy(
                 maxNumberOfAttempts: _config.MaxLookupValidationRetries,
@@ -215,6 +215,7 @@ public class ValidateParticipant
         var transformDataRequestBody = new TransformDataRequestBody()
         {
             Participant = validationRecord.Participant,
+            FileName = validationRecord.FileName,
             // TODO: is this used?
             ServiceProvider = validationRecord.ServiceProvider,
             ExistingParticipant = validationRecord.PreviousParticipantRecord.ToCohortDistribution()

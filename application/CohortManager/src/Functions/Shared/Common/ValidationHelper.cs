@@ -125,6 +125,23 @@ public static class ValidationHelper
         string outcode = match.Groups[1].Value;
         return outcode.ToUpper();
     }
+    /// <summary>
+    /// Checks that a file name is a parquet file to see if a Routine or a manual add
+    /// </summary>
+    /// <param name="FileName"></param>
+    /// <returns> true is its a manualAdd</returns>
+    public static bool CheckManualAddFileName(string? FileName)
+    {
+        if(string.IsNullOrEmpty(FileName))
+        {
+            return false;
+        }
+        if (FileName.ToLower().EndsWith(".parquet"))
+        {
+            return false;
+        }
+        return true;
+    }
 
     private static bool ParseInt32(char value, out int integerValue)
     {

@@ -10,6 +10,7 @@ var host = new HostBuilder()
     {
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IReadRules, ReadRules>();
+        services.AddSingleton<IReasonForRemovalLookup,ReasonForRemovalLookup>();
         // Register health checks
         services.AddBasicHealthCheck("StaticValidation");
     })

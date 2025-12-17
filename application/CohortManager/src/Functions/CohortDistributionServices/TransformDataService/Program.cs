@@ -24,6 +24,7 @@ var host = hostBuilder.ConfigureFunctionsWorkerDefaults()
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<ITransformDataLookupFacade, TransformDataLookupFacade>();
         services.AddSingleton<ITransformReasonForRemoval, TransformReasonForRemoval>();
+        services.AddSingleton<IReasonForRemovalLookup,ReasonForRemovalLookup>();
         services.AddMemoryCache();
 
         // Register health checks

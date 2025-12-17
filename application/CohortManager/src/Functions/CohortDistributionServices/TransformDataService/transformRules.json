@@ -751,5 +751,43 @@
         }
       }
     ]
+  },
+  {
+    "WorkflowName": "ManualAdd",
+    "Rules": [
+      {
+        "RuleName": "96.UpdateRFR.ManualAdd",
+        "LocalParams": [
+          {
+            "Name": "CanTransformRfr",
+            "Expression": "reasonForRemovalLkp.CanRemovalReasonBeOverridden(participant.ReasonForRemoval)"
+          },
+          {
+            "Name": "HasPrimaryCareProvider",
+            "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider)"
+          }
+        ],
+        "Expression": "!string.IsNullOrEmpty(participant.ReasonForRemoval) && CanTransformRfr && HasPrimaryCareProvider",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "ReasonForRemoval",
+                  "value": null,
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": null,
+                  "isExpression": false
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
   }
 ]
