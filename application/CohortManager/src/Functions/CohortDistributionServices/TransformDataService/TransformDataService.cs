@@ -88,7 +88,6 @@ public class TransformDataService
 
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
 
-
             if (participant.NhsNumber == null)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req, "");
@@ -97,12 +96,11 @@ public class TransformDataService
             var response = JsonSerializer.Serialize(participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
 
-
         }
         catch (ArgumentException ex)
         {
             _logger.LogWarning(ex, "An error occurred during transformation");
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, requestBody.FileName!, participant.ScreeningName, JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, requestBody.FileName!, participant.ScreeningName!, JsonSerializer.Serialize(participant));
             return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req);
         }
         catch (TransformationException ex)
@@ -112,7 +110,7 @@ public class TransformDataService
         }
         catch (Exception ex)
         {
-            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, requestBody.FileName!, participant.ScreeningName, JsonSerializer.Serialize(participant));
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, participant.NhsNumber, requestBody.FileName!, participant.ScreeningName!, JsonSerializer.Serialize(participant));
             _logger.LogWarning(ex, "exception occurred while running transform data service");
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
@@ -149,10 +147,6 @@ public class TransformDataService
         if (participant.ReferralFlag == true && participant.RecordType == Actions.New)
         {
             resultList.AddRange(await re.ExecuteAllRulesAsync("Referred", ruleParameters));
-        }
-        if (isManualAdd)
-        {
-            resultList.AddRange(await re.ExecuteAllRulesAsync("ManualAdd", ruleParameters));
         }
         if (isManualAdd)
         {
