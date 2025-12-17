@@ -29,12 +29,15 @@ public class TransformDataService
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
     private readonly ITransformDataLookupFacade _dataLookup;
     private readonly IReasonForRemovalLookup _reasonForRemovalLookup;
+    private readonly IReasonForRemovalLookup _reasonForRemovalLookup;
 
     public TransformDataService(
         ICreateResponse createResponse,
         IExceptionHandler exceptionHandler,
         ILogger<TransformDataService> logger,
         ITransformReasonForRemoval transformReasonForRemoval,
+        ITransformDataLookupFacade dataLookup,
+        IReasonForRemovalLookup reasonForRemovalLookup
         ITransformDataLookupFacade dataLookup,
         IReasonForRemovalLookup reasonForRemovalLookup
     )
@@ -44,6 +47,7 @@ public class TransformDataService
         _logger = logger;
         _transformReasonForRemoval = transformReasonForRemoval;
         _dataLookup = dataLookup;
+        _reasonForRemovalLookup = reasonForRemovalLookup;
         _reasonForRemovalLookup = reasonForRemovalLookup;
     }
 
@@ -81,6 +85,7 @@ public class TransformDataService
 
             // Other transformation rules
             participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant,ValidationHelper.CheckManualAddFileName(requestBody.FileName));
+            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant,ValidationHelper.CheckManualAddFileName(requestBody.FileName));
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
@@ -90,10 +95,18 @@ public class TransformDataService
             participant = await _transformReasonForRemoval.ReasonForRemovalTransformations(participant, requestBody.ExistingParticipant);
 
             if (participant.NhsNumber == null)
+
+            if (participant.NhsNumber == null)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req, "");
 
+                return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req, "");
+
             }
+
+            var response = JsonSerializer.Serialize(participant);
+            return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
+
 
             var response = JsonSerializer.Serialize(participant);
             return _createResponse.CreateHttpResponse(HttpStatusCode.OK, req, response);
@@ -120,6 +133,7 @@ public class TransformDataService
 
     public async Task<CohortDistributionParticipant> TransformParticipantAsync(CohortDistributionParticipant participant,
                                                                             CohortDistribution databaseParticipant, bool isManualAdd = false)
+                                                                            CohortDistribution databaseParticipant, bool isManualAdd = false)
     {
         var excludedSMUList = await _dataLookup.GetCachedExcludedSMUValues();
 
@@ -142,6 +156,8 @@ public class TransformDataService
             new RuleParameter("excludedSMUList", excludedSMUList),
             new RuleParameter("existingParticipant", existingParticipant),
             new RuleParameter("reasonForRemovalLkp",_reasonForRemovalLookup)
+            new RuleParameter("existingParticipant", existingParticipant),
+            new RuleParameter("reasonForRemovalLkp",_reasonForRemovalLookup)
         };
 
         var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
@@ -149,6 +165,10 @@ public class TransformDataService
         if (participant.ReferralFlag == true && participant.RecordType == Actions.New)
         {
             resultList.AddRange(await re.ExecuteAllRulesAsync("Referred", ruleParameters));
+        }
+        if (isManualAdd)
+        {
+            resultList.AddRange(await re.ExecuteAllRulesAsync("ManualAdd", ruleParameters));
         }
         if (isManualAdd)
         {

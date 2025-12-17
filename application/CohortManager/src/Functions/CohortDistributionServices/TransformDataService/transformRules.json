@@ -767,7 +767,7 @@
             "Expression": "!string.IsNullOrEmpty(participant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "CanTransformRfr && HasPrimaryCareProvider",
+        "Expression": "!string.IsNullOrEmpty(participant.ReasonForRemoval) && CanTransformRfr && HasPrimaryCareProvider",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
