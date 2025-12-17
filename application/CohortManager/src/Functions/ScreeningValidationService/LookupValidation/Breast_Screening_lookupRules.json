@@ -3,32 +3,24 @@
     "WorkflowName": "Common",
     "GlobalParams": [
       {
-        "Name": "ValidCurrentPosting",
-        "Expression": "string.IsNullOrEmpty(newParticipant.CurrentPosting) OR dbLookup.CheckIfCurrentPostingExists(newParticipant.CurrentPosting)"
-      },
-      {
         "Name": "ValidPrimaryCareProvider",
         "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
       }
     ],
     "Rules": [
       {
-        "RuleName": "45.GPPracticeCodeDoesNotExist.BSSelect.NonFatal",
+        "RuleName": "45.GPPracticeCodeDoesNotExist.NBO.NonFatal",
         "LocalParams": [
           {
-            "Name": "EnglishPostingCategory",
-            "Expression": "string.Equals(dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting), \"ENGLAND\", StringComparison.OrdinalIgnoreCase)"
-          },
-          {
-            "Name": "InvalidPostingCategory",
-            "Expression": "!(EnglishPostingCategory || string.Equals(newParticipant.CurrentPosting, \"ENG\", StringComparison.OrdinalIgnoreCase) || string.Equals(newParticipant.CurrentPosting, \"IM\", StringComparison.OrdinalIgnoreCase) || string.Equals(newParticipant.CurrentPosting, \"DMS\", StringComparison.OrdinalIgnoreCase))"
+            "Name": "WelshPostingCategory",
+            "Expression": "string.Equals(dbLookup.RetrievePostingCategory(newParticipant.CurrentPosting), \"WALES\", StringComparison.OrdinalIgnoreCase)"
           },
           {
             "Name": "IsExcluded",
             "Expression": "dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "(InvalidPostingCategory || ValidPrimaryCareProvider || IsExcluded)",
+        "Expression": "(WelshPostingCategory || ValidPrimaryCareProvider  || IsExcluded)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
