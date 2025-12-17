@@ -29,7 +29,6 @@ public class TransformDataService
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
     private readonly ITransformDataLookupFacade _dataLookup;
     private readonly IReasonForRemovalLookup _reasonForRemovalLookup;
-
     public TransformDataService(
         ICreateResponse createResponse,
         IExceptionHandler exceptionHandler,
@@ -92,7 +91,6 @@ public class TransformDataService
             if (participant.NhsNumber == null)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req, "");
-
             }
 
             var response = JsonSerializer.Serialize(participant);

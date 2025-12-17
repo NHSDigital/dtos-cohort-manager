@@ -59,6 +59,8 @@ public class LookupValidation
         {
             newParticipant = requestBody.NewParticipant;
 
+            var isManualAdd = ValidationHelper.CheckManualAddFileName(requestBody.FileName);
+
             var ruleFileName = $"{newParticipant.ScreeningName}_lookupRules.json".Replace(" ", "_");
             _logger.LogInformation("ruleFileName {RuleFileName}", ruleFileName);
 
@@ -72,8 +74,6 @@ public class LookupValidation
             };
             var re = new RulesEngine.RulesEngine(rules, reSettings);
 
-
-
             var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", requestBody.ExistingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
@@ -86,11 +86,15 @@ public class LookupValidation
             {
                 resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
             }
-
             if (re.GetAllRegisteredWorkflowNames().Contains(newParticipant.RecordType))
             {
                 _logger.LogInformation("Executing workflow {RecordType}", newParticipant.RecordType);
                 var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
+                resultList.AddRange(ActionResults);
+            }
+            if (isManualAdd)
+            {
+                var ActionResults = await re.ExecuteAllRulesAsync("ManualAdd", ruleParameters);
                 resultList.AddRange(ActionResults);
             }
 

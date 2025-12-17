@@ -102,5 +102,28 @@
         }
       }
     ]
+  },
+  {
+    "WorkflowName":"ManualAdd",
+    "GlobalParams": [
+      {
+        "Name": "ValidPrimaryCareProvider",
+        "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+      }
+    ],
+    "Rules":[
+      {
+        "RuleName": "3601.ValidatePrimaryCareProvider.NBO.NonFatal",
+        "Expression": "ValidPrimaryCareProvider",
+        "Actions": {
+          "OnFailure": {
+            "Name": "OutputExpression",
+            "Context": {
+              "Expression": "\"Invalid primary care provider GP practice code\""
+            }
+          }
+        }
+      }
+    ]
   }
 ]
