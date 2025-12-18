@@ -347,7 +347,7 @@ public class ValidationExceptionData : IValidationExceptionData
 
     private async Task<List<ValidationException>> GetValidationExceptionsByNhsNumber(string nhsNumber)
     {
-        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber);
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber && x.Category == (int)ExceptionCategory.NBO);
         if (exceptions == null || !exceptions.Any())
         {
             return [];
