@@ -41,7 +41,7 @@ public static class ConfigurationExtension
         if(keyVaultUrl != null){
             try
             {
-                configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new DefaultAzureCredential(), new AzureKeyVaultConfigurationOptions());
+                configBuilder.AddAzureKeyVault(new Uri(keyVaultUrl), new ManagedIdentityCredential (), new AzureKeyVaultConfigurationOptions());
             }
             catch (Exception ex)
             {
