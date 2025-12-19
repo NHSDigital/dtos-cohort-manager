@@ -57,7 +57,8 @@ public class DistributeParticipantTests
             CohortDistributionTopic = "cohort-distribution-topic",
             DistributeParticipantSubscription = "distribute-participant-sub",
             RemoveOldValidationRecordUrl = "RemoveOldValidationRecordUrl",
-            SendServiceNowMessageURL = "SendServiceNowMessageURL"
+            SendServiceNowMessageURL = "SendServiceNowMessageURL",
+            ServiceNowCasesDataServiceURL = "ServiceNowCasesDataServiceURL"
         };
 
         _config.Setup(x => x.Value).Returns(config);
@@ -98,6 +99,7 @@ public class DistributeParticipantTests
 
         // Assert
         _mockContext.Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null));
+        _mockContext.Verify(x => x.CallActivityAsync<bool>("UpdateServiceNowCaseStatus", It.IsAny<string>(), null), Times.Never());
         _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowMessage", It.IsAny<string>(), null), Times.Never());
     }
 
@@ -109,12 +111,18 @@ public class DistributeParticipantTests
         _request.Participant.ReferralFlag = "1";
         _request.FileName = caseNumber;
 
+        _mockContext
+            .Setup(x => x.CallActivityAsync<bool>("UpdateServiceNowCaseStatus", It.IsAny<string>(), null))
+            .ReturnsAsync(true);
+
         // Act
         await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
 
         // Assert
         _mockContext
             .Verify(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null));
+        _mockContext
+            .Verify(x => x.CallActivityAsync<bool>("UpdateServiceNowCaseStatus", caseNumber, null), Times.Once());
         _mockContext
             .Verify(x => x.CallActivityAsync("SendServiceNowMessage", caseNumber, null), Times.Once());
     }
