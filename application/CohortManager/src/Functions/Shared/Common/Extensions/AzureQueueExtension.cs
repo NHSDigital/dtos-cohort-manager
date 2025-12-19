@@ -27,7 +27,7 @@ public static class AzureQueueExtension
                 else
                 {
                     builder.AddServiceBusClientWithNamespace(serviceBusConnectionString)
-                        .WithCredential(new DefaultAzureCredential());
+                        .WithCredential(new ManagedIdentityCredential ());
                 }
             });
             _.AddSingleton<IQueueClient, AzureServiceBusClient>();
@@ -68,7 +68,7 @@ public static class AzureQueueExtension
                         else
                         {
                             builder.AddServiceBusClientWithNamespace(serviceBusConnectionString)
-                                .WithCredential(new DefaultAzureCredential());
+                                .WithCredential(new ManagedIdentityCredential ());
                         }
                     });
                     _.AddKeyedSingleton<IQueueClient, AzureServiceBusClient>(keyName);
