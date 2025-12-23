@@ -8,14 +8,14 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Blobs" Version="6.7.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.4" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.2" />
-    <PackageReference Include="Polly" Version="8.5.0" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Storage.Blobs" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <PackageReference Include="Polly" />
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
