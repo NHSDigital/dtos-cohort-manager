@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <FunctionsGenerateWorkerExtensions>false</FunctionsGenerateWorkerExtensions>
     <!-- Disable implicit file inclusion -->
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <UserSecretsId>4ba9d1bc-35b7-4f07-a628-a89bb37cd0aa</UserSecretsId>
