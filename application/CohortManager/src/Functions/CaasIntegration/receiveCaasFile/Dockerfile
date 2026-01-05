@@ -1,19 +1,5 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
+from cohortmanager/function-base AS function
 
-COPY ./Shared /Shared
-WORKDIR /Shared
-
-RUN mkdir -p /home/site/wwwroot && \
-    dotnet publish ./Common/Common.csproj --output /home/site/wwwroot && \
-    dotnet publish ./Model/Model.csproj --output /home/site/wwwroot && \
-    dotnet publish ./Data/Data.csproj --output /home/site/wwwroot && \
-    dotnet publish ./Utilities/Utilities.csproj --output /home/site/wwwroot && \
-    dotnet publish ./DataServices.Client/DataServices.Client.csproj --output /home/site/wwwroot && \
-    dotnet publish ./DataServices.Core/DataServices.Core.csproj --output /home/site/wwwroot && \
-    dotnet publish ./DataServices.Database/DataServices.Database.csproj --output /home/site/wwwroot
-
-FROM base AS function
-    
 COPY ./CaasIntegration/receiveCaasFile /src/dotnet-function-app
 WORKDIR /src/dotnet-function-app
 

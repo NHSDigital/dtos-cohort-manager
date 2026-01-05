@@ -8,3 +8,13 @@ COPY Directory.Packages.props /app/Directory.Packages.props
 
 COPY ./application/CohortManager/src/Functions/Shared/ /app/Shared
 
+WORKDIR /app/Shared
+
+RUN mkdir -p /home/site/wwwroot && \
+    dotnet publish ./Common/Common.csproj --output /home/site/wwwroot && \
+    dotnet publish ./Model/Model.csproj --output /home/site/wwwroot && \
+    dotnet publish ./Data/Data.csproj --output /home/site/wwwroot && \
+    dotnet publish ./Utilities/Utilities.csproj --output /home/site/wwwroot && \
+    dotnet publish ./DataServices.Client/DataServices.Client.csproj --output /home/site/wwwroot && \
+    dotnet publish ./DataServices.Core/DataServices.Core.csproj --output /home/site/wwwroot && \
+    dotnet publish ./DataServices.Database/DataServices.Database.csproj --output /home/site/wwwroot
