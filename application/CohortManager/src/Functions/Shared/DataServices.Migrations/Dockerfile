@@ -1,4 +1,4 @@
-FROM localhost/cohortmanager/dotnet-base:0.1 AS base
+FROM cohortmanager/dotnet-base:0.1 AS base
 
 
 WORKDIR /app/Shared/DataServices.Migrations
