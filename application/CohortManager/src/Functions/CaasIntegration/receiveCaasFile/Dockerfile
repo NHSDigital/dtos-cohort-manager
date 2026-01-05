@@ -1,7 +1,7 @@
 from cohortmanager/function-base AS function
 
-COPY ./CaasIntegration/receiveCaasFile /src/dotnet-function-app
-WORKDIR /src/dotnet-function-app
+COPY ./CaasIntegration/receiveCaasFile /app/src/dotnet-function-app
+WORKDIR /app/src/dotnet-function-app
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
     dotnet publish *.csproj --output /home/site/wwwroot
