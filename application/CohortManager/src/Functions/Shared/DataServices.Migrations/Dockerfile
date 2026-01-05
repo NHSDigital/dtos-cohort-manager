@@ -1,7 +1,7 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
+FROM localhost/cohortmanager/dotnet-base:0.1 AS base
 
-COPY ./Shared /Shared
-WORKDIR /Shared/DataServices.Migrations
+
+WORKDIR /app/Shared/DataServices.Migrations
 RUN dotnet restore \
 && dotnet publish -o /out
 WORKDIR /out

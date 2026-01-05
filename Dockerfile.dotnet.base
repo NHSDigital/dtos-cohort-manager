@@ -1,0 +1,4 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
+COPY Directory.* /app/
+COPY ./application/CohortManager/src/Functions/Shared/ /app/Shared
+

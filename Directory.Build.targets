@@ -1,0 +1,19 @@
+<Project>
+  <!-- Disable WorkerExtensions when Functions projects are built as part of dotnet test -->
+  <!-- <PropertyGroup Condition="
+  '$(IsTestProject)' == 'true'
+  ">
+    <FunctionsGenerateWorkerExtensions>false</FunctionsGenerateWorkerExtensions>
+  </PropertyGroup> -->
+    <!-- <PropertyGroup Condition="
+    '$(UsingMicrosoftNETSdkWorker)' == 'true'
+  ">
+    <FunctionsGenerateWorkerExtensions>false</FunctionsGenerateWorkerExtensions>
+  </PropertyGroup> -->
+    <PropertyGroup Condition="
+    '$(UsingMicrosoftNETSdkWorker)' == 'true'
+    and '$(IsTestProject)' == 'true'
+  ">
+    <FunctionsGenerateWorkerExtensions>false</FunctionsGenerateWorkerExtensions>
+  </PropertyGroup>
+</Project>

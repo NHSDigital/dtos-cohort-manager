@@ -13,7 +13,6 @@
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" />
         <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
-        <PackageReference Include="Microsoft.AspNetCore.App" />
         <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.ServiceBus" />
         <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" />
     </ItemGroup>
