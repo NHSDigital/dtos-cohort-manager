@@ -148,12 +148,12 @@ jobs:
       - name: Build Base Images
         working-directory: ./
         run: |
-          docker build -f Dockerfile.dotnet.base -t dotnet-base
+          docker build -f Dockerfile.dotnet.base -t dotnet-base .
           docker tag dotnet-base:latest "dotnet-base:${COMMIT_HASH_TAG}"
           docker tag dotnet-base:latest "dotnet-base:${PR_NUM_TAG}"
           docker tag dotnet-base:latest "dotnet-base:${ENVIRONMENT_TAG}"
 
-          docker build -f Dockerfile.function.base -t function-base
+          docker build -f Dockerfile.function.base -t function-base .
           docker tag function-base:latest "function-base:${COMMIT_HASH_TAG}"
           docker tag function-base:latest "function-base:${PR_NUM_TAG}"
           docker tag function-base:latest "function-base:${ENVIRONMENT_TAG}"
