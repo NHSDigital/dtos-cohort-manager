@@ -72,7 +72,7 @@ services:
       context: ./src/Functions/
       dockerfile: CaasIntegration/receiveCaasFile/Dockerfile
       args:
-        BASE_IMAGE: ${DOTNET_BASE_IMAGE}
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}

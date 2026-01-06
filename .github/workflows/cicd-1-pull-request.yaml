@@ -121,7 +121,7 @@ jobs:
       version: "${{ needs.metadata.outputs.version }}"
   build-image-stage: # Recommended maximum execution time is 3 minutes
     name: "Image build stage"
-    needs: [metadata, commit-stage, test-stage, analysis-stage]
+    needs: [metadata, commit-stage, test-stage]
     uses: ./.github/workflows/stage-3-build-images.yaml
     secrets:
       client_id: ${{ secrets.AZURE_CLIENT_ID }}
