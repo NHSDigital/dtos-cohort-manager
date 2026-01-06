@@ -181,8 +181,8 @@ jobs:
             exit 0
           fi
 
-          export DOTNET_BASE_IMAGE="cohort-manager-dotnet-base:latest"
-          export FUNCTION_BASE_IMAGE="cohort-manager-function-base:latest"
+          export DOTNET_BASE_IMAGE="localhost:5000/cohort-manager-dotnet-base:latest"
+          export FUNCTION_BASE_IMAGE="localhost:5000/cohort-manager-function-base:latest"
 
           echo DOTNET_BASE_IMAGE: ${DOTNET_BASE_IMAGE}
           echo FUNCTION_BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
