@@ -105,14 +105,14 @@ jobs:
         continue-on-error: false
         run: |
           docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
-          docker tag cohort-manager-dotnet-base:latest "dotnet-base:${COMMIT_HASH_TAG}"
-          docker tag cohort-manager-dotnet-base:latest "dotnet-base:${PR_NUM_TAG}"
-          docker tag cohort-manager-dotnet-base:latest "dotnet-base:${ENVIRONMENT_TAG}"
+          docker tag cohort-manager-dotnet-base:latest "cohort-manager-dotnet-base:${COMMIT_HASH_TAG}"
+          docker tag cohort-manager-dotnet-base:latest "cohort-manager-dotnet-base:${PR_NUM_TAG}"
+          docker tag cohort-manager-dotnet-base:latest "cohort-manager-dotnet-base:${ENVIRONMENT_TAG}"
 
           docker build -f Dockerfile.function.base -t cohort-manager-function-base:latest .
-          docker tag cohort-manager-function-base:latest "function-base:${COMMIT_HASH_TAG}"
-          docker tag cohort-manager-function-base:latest "function-base:${PR_NUM_TAG}"
-          docker tag cohort-manager-function-base:latest "function-base:${ENVIRONMENT_TAG}"
+          docker tag cohort-manager-function-base:latest "cohort-manager-function-base:${COMMIT_HASH_TAG}"
+          docker tag cohort-manager-function-base:latest "cohort-manager-function-base:${PR_NUM_TAG}"
+          docker tag cohort-manager-function-base:latest "cohort-manager-function-base:${ENVIRONMENT_TAG}"
 
 
 
