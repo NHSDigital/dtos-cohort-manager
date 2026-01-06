@@ -88,6 +88,11 @@ jobs:
       DOTNET_BASE_IMAGE: ${{ steps }}
       FUNCTION_BASE_IMAGE:  ${{ steps }}
     steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+          submodules: 'true'
       - name: log in to GHCR
         uses: docker/login-action@v3
         with:
