@@ -7,6 +7,11 @@ services:
       context: ../../
       dockerfile: Dockerfile.dotnet.base
     image: dotnet-base:local
+  function-base:
+    build:
+      context: ../../
+      dockerfile: Dockerfile.function.base
+    image: function-base:local
 
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite

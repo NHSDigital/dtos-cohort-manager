@@ -145,6 +145,20 @@ jobs:
 
           echo "ENVIRONMENT_TAG=${ENVIRONMENT_TAG}" >> ${GITHUB_ENV}
 
+      - name: Build Base Images
+        working-directory: ./
+        run: |
+          docker build -f Dockerfile.dotnet.base -t dotnet-base
+          docker tag dotnet-base:latest "dotnet-base:${COMMIT_HASH_TAG}"
+          docker tag dotnet-base:latest "dotnet-base:${PR_NUM_TAG}"
+          docker tag dotnet-base:latest "dotnet-base:${ENVIRONMENT_TAG}"
+
+          docker build -f Dockerfile.function.base -t function-base
+          docker tag function-base:latest "function-base:${COMMIT_HASH_TAG}"
+          docker tag function-base:latest "function-base:${PR_NUM_TAG}"
+          docker tag function-base:latest "function-base:${ENVIRONMENT_TAG}"
+
+
       - name: Build and Push Image
         working-directory: ${{ steps.get-function-names.outputs.DOCKER_COMPOSE_DIR }}
         continue-on-error: false
@@ -154,6 +168,9 @@ jobs:
           ACR_NAME: ${{ secrets.acr_name }}
         run: |
           function=${{ matrix.function }}
+
+          export DOTNET_BASE_IMAGE=dotnet-base:{COMMIT_HASH_TAG}}
+          export FUNCTION_BASE_IMAGE=function-base:{COMMIT_HASH_TAG}}
 
           echo PROJECT_NAME: ${PROJECT_NAME}
 
