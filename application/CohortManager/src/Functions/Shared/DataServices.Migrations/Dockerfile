@@ -1,4 +1,5 @@
-FROM cohortmanager/dotnet-base:0.1 AS base
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE} AS base
 
 
 WORKDIR /app/Shared/DataServices.Migrations

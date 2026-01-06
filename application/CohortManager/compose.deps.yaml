@@ -1,6 +1,13 @@
 name: cohort-manager-deps
 
 services:
+
+  dotnet-base:
+    build:
+      context: ../../
+      dockerfile: Dockerfile.dotnet.base
+    image: dotnet-base:local
+
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite
     container_name: azurite
@@ -64,8 +71,11 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: Shared/DataServices.Migrations/Dockerfile
+      args:
+        BASE_IMAGE: ${DOTNET_BASE_IMAGE}
     depends_on:
       - db
+      - dotnet-base
     environment:
       - DtOsDatabaseConnectionString=Server=db;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
     cap_add:

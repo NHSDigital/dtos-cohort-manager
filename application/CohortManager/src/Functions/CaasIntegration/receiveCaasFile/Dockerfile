@@ -1,4 +1,5 @@
-from cohortmanager/function-base AS function
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE} AS function
 
 COPY ./CaasIntegration/receiveCaasFile /app/src/dotnet-function-app
 WORKDIR /app/src/dotnet-function-app
