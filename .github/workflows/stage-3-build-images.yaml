@@ -169,8 +169,8 @@ jobs:
         run: |
           function=${{ matrix.function }}
 
-          export DOTNET_BASE_IMAGE=dotnet-base:${COMMIT_HASH_TAG}}
-          export FUNCTION_BASE_IMAGE=function-base:${COMMIT_HASH_TAG}}
+          export DOTNET_BASE_IMAGE="dotnet-base:${COMMIT_HASH_TAG}""
+          export FUNCTION_BASE_IMAGE="function-base:${COMMIT_HASH_TAG}""
 
           echo DOTNET_BASE_IMAGE: ${DOTNET_BASE_IMAGE}
           echo FUNCTION_BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
