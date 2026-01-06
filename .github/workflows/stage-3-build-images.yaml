@@ -77,6 +77,40 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/deployment/get-docker-names.sh
 
+  build-base-functions:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      id-token: write
+      packages: write
+    outputs:
+      DOTNET_BASE_IMAGE: ${{ steps }}
+      FUNCTION_BASE_IMAGE:  ${{ steps }}
+    steps:
+      - name: log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Base Images
+        id: build-base-images
+        working-directory: ./
+        continue-on-error: false
+        run: |
+          docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
+          docker tag cohort-manager-dotnet-base:latest "dotnet-base:${COMMIT_HASH_TAG}"
+          docker tag cohort-manager-dotnet-base:latest "dotnet-base:${PR_NUM_TAG}"
+          docker tag cohort-manager-dotnet-base:latest "dotnet-base:${ENVIRONMENT_TAG}"
+
+          docker build -f Dockerfile.function.base -t cohort-manager-function-base:latest .
+          docker tag cohort-manager-function-base:latest "function-base:${COMMIT_HASH_TAG}"
+          docker tag cohort-manager-function-base:latest "function-base:${PR_NUM_TAG}"
+          docker tag cohort-manager-function-base:latest "function-base:${ENVIRONMENT_TAG}"
+
+
+
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
@@ -144,20 +178,6 @@ jobs:
           echo "COMMIT_HASH_TAG=${SHORT_COMMIT_HASH}" >> ${GITHUB_ENV}
 
           echo "ENVIRONMENT_TAG=${ENVIRONMENT_TAG}" >> ${GITHUB_ENV}
-
-      - name: Build Base Images
-        working-directory: ./
-        continue-on-error: false
-        run: |
-          docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
-          docker tag cohort-manager-dotnet-base:latest "dotnet-base:${COMMIT_HASH_TAG}"
-          docker tag cohort-manager-dotnet-base:latest "dotnet-base:${PR_NUM_TAG}"
-          docker tag cohort-manager-dotnet-base:latest "dotnet-base:${ENVIRONMENT_TAG}"
-
-          docker build -f Dockerfile.function.base -t cohort-manager-function-base:latest .
-          docker tag cohort-manager-function-base:latest "function-base:${COMMIT_HASH_TAG}"
-          docker tag cohort-manager-function-base:latest "function-base:${PR_NUM_TAG}"
-          docker tag cohort-manager-function-base:latest "function-base:${ENVIRONMENT_TAG}"
 
 
 
