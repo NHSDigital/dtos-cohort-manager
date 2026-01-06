@@ -169,11 +169,7 @@ jobs:
         run: |
           function=${{ matrix.function }}
 
-          export DOTNET_BASE_IMAGE="dotnet-base:${COMMIT_HASH_TAG}""
-          export FUNCTION_BASE_IMAGE="function-base:${COMMIT_HASH_TAG}""
 
-          echo DOTNET_BASE_IMAGE: ${DOTNET_BASE_IMAGE}
-          echo FUNCTION_BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
 
           echo PROJECT_NAME: ${PROJECT_NAME}
 
@@ -181,6 +177,12 @@ jobs:
             echo "Function variable is empty. Skipping Docker build."
             exit 0
           fi
+
+          export DOTNET_BASE_IMAGE="dotnet-base:${COMMIT_HASH_TAG}"
+          export FUNCTION_BASE_IMAGE="function-base:${COMMIT_HASH_TAG}"
+
+          echo DOTNET_BASE_IMAGE: ${DOTNET_BASE_IMAGE}
+          echo FUNCTION_BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
 
           # Build the image
           docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --profile "*" build --no-cache --pull ${function}
