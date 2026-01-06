@@ -184,6 +184,8 @@ jobs:
           echo DOTNET_BASE_IMAGE: ${DOTNET_BASE_IMAGE}
           echo FUNCTION_BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
 
+          docker images
+
           # Build the image
           docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --profile "*" build --no-cache --pull ${function}
 
