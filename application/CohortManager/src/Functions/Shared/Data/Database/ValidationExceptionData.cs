@@ -140,9 +140,9 @@ public class ValidationExceptionData : IValidationExceptionData
 
     public async Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsWithReportsByNhsNumber(string nhsNumber)
     {
-        var validationExceptions = await GetValidationExceptionsByNhsNumber(nhsNumber);
+        var allValidationExceptions = await GetValidationExceptionsByNhsNumber(nhsNumber);
 
-        if (validationExceptions.Count == 0)
+        if (allValidationExceptions.Count == 0)
         {
             return new ValidationExceptionsByNhsNumberResponse
             {
@@ -152,13 +152,44 @@ public class ValidationExceptionData : IValidationExceptionData
             };
         }
 
-        var reports = GenerateExceptionReports(validationExceptions);
+        var exceptions = allValidationExceptions
+            .Where(x => x.Category == (int)ExceptionCategory.NBO)
+            .ToList();
+
+        var reportExceptions = allValidationExceptions
+            .Where(x => x.Category == (int)ExceptionCategory.Confusion ||
+                       x.Category == (int)ExceptionCategory.Superseded)
+            .ToList();
+
+        var reports = GenerateExceptionReports(reportExceptions);
+
         return new ValidationExceptionsByNhsNumberResponse
         {
-            Exceptions = validationExceptions,
+            Exceptions = exceptions,
             Reports = reports,
             NhsNumber = nhsNumber
         };
+    }
+
+    private async Task<List<ValidationException>> GetValidationExceptionsByNhsNumber(string nhsNumber)
+    {
+        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x =>
+            x.NhsNumber == nhsNumber &&
+            x.Category.HasValue &&
+            (x.Category.Value == (int)ExceptionCategory.NBO ||
+             x.Category.Value == (int)ExceptionCategory.Confusion ||
+             x.Category.Value == (int)ExceptionCategory.Superseded));
+
+        if (exceptions == null || !exceptions.Any())
+        {
+            return [];
+        }
+
+        return [.. exceptions
+            .Select(GetValidationExceptionWithDetails)
+            .Where(x => x != null)
+            .Cast<ValidationException>()
+            .OrderByDescending(x => x.DateCreated)];
     }
 
     private List<ValidationException> MapToValidationExceptions(IEnumerable<ExceptionManagement> exceptions)
@@ -252,7 +283,6 @@ public class ValidationExceptionData : IValidationExceptionData
         };
     }
 
-
     private static string? ValidateServiceNowId(string serviceNowId)
     {
         if (string.IsNullOrWhiteSpace(serviceNowId))
@@ -343,27 +373,9 @@ public class ValidationExceptionData : IValidationExceptionData
             : [.. filteredList.OrderByDescending(dateProperty)];
     }
 
-
-
-    private async Task<List<ValidationException>> GetValidationExceptionsByNhsNumber(string nhsNumber)
-    {
-        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.NhsNumber == nhsNumber && x.Category.HasValue && x.Category.Value == (int)ExceptionCategory.NBO);
-        if (exceptions == null || !exceptions.Any())
-        {
-            return [];
-        }
-
-        return [.. exceptions
-            .Select(GetValidationExceptionWithDetails)
-            .Where(x => x != null)
-            .Cast<ValidationException>()
-            .OrderByDescending(x => x.DateCreated)];
-    }
-
     private static List<ValidationExceptionReport> GenerateExceptionReports(List<ValidationException> validationExceptions)
     {
         return [.. validationExceptions
-            .Where(x => x.Category.HasValue && (x.Category.Value == 12 || x.Category.Value == 13))
             .GroupBy(x => new
             {
                 Date = x.DateCreated?.Date ?? DateTime.Now.Date,
