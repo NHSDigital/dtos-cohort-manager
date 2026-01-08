@@ -39,7 +39,7 @@ export default async function ExceptionsPage({
   buildUrl,
   showServiceNowColumn = false,
   tableCaption,
-}: ExceptionsPageProps) {
+}: Readonly<ExceptionsPageProps>) {
   const sortOption = getSortOption(sortBy);
 
   try {

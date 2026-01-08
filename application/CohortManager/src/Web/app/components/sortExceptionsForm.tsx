@@ -1,6 +1,3 @@
-"use client";
-
-import { useRouter, useSearchParams } from "next/navigation";
 import { SortOption } from "@/app/lib/sortOptions";
 
 interface SortExceptionsFormProps {
@@ -11,18 +8,7 @@ interface SortExceptionsFormProps {
 export default function SortExceptionsForm({
   sortBy,
   options,
-}: SortExceptionsFormProps) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSortBy = event.target.value;
-    const params = new URLSearchParams(searchParams);
-    params.set("sortBy", newSortBy);
-    params.delete("page"); // Reset to page 1 when sorting changes
-    router.push(`?${params.toString()}`);
-  };
-
+}: Readonly<SortExceptionsFormProps>) {
   return (
     <form className="nhsuk-form">
       <div className="nhsuk-form-group">
@@ -36,8 +22,7 @@ export default function SortExceptionsForm({
           className="nhsuk-select"
           id="sort-exceptions"
           name="sortBy"
-          value={sortBy}
-          onChange={handleSortChange}
+          defaultValue={sortBy}
         >
           {options.map((option) => (
             <option key={option.value} value={option.value}>
