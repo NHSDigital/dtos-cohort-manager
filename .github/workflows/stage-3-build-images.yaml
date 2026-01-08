@@ -134,12 +134,12 @@ jobs:
           IMAGE_TAG="latest"
 
           if [[ ${{steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE}} == 'true' ]]; then
-            IMAGE_TAG=PR_NUM_TAG
+            IMAGE_TAG="${PR_NUM_TAG}"
           fi
           echo "Image Tag = ${IMAGE_TAG}"
 
-          echo "DOTNET_BASE_IMAGE=cohort-manager-dotnet-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
-          echo "FUNCTION_BASE_IMAGE=cohort-manager-function-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "FUNCTION_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-function-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
 
 
 
@@ -233,8 +233,8 @@ jobs:
             exit 0
           fi
 
-          export DOTNET_BASE_IMAGE="localhost:5000/cohort-manager-dotnet-base:latest"
-          export FUNCTION_BASE_IMAGE="localhost:5000/cohort-manager-function-base:latest"
+          export DOTNET_BASE_IMAGE="${{ needs.build-base-functions.outputs.DOTNET_BASE_IMAGE }}"
+          export FUNCTION_BASE_IMAGE="${{ needs.build-base-functions.outputs.FUNCTION_BASE_IMAGE }}"
 
           echo DOTNET_BASE_IMAGE: ${DOTNET_BASE_IMAGE}
           echo FUNCTION_BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
