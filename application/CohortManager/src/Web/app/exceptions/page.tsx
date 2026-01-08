@@ -51,12 +51,20 @@ export default async function Page({
 
   const sortOptions = [
     {
+      value: "0",
+      label: "Date exception created (oldest first)",
+    },
+    {
       value: "1",
       label: "Date exception created (newest first)",
     },
+        {
+      value: "3",
+      label: "NHS Number (Ascending)",
+    },
     {
-      value: "0",
-      label: "Date exception created (oldest first)",
+      value: "4",
+      label: "NHS Number (Descending)",
     },
   ];
 
