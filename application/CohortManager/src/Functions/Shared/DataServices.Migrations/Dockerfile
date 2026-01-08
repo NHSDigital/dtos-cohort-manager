@@ -1,5 +1,5 @@
-ARG BASE_IMAGE
-FROM ${BASE_IMAGE} AS base
+ARG DOTNET_BASE_IMAGE
+FROM ${DOTNET_BASE_IMAGE} AS base
 
 
 WORKDIR /app/Shared/DataServices.Migrations
