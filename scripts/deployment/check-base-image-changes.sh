@@ -33,7 +33,7 @@ else
 
         for changed_path in "${source_changes[@]}"; do
             echo "${changed_path} = ${base_path}"
-            if [[ "${changed_path}" == "${base_path}"* ]]; then
+            if [[ "${changed_path}" == "${base_path}" ]]; then
                 echo "Base image change detected in: ${changed_path}"
                 build_base_image=true
                 break 2
