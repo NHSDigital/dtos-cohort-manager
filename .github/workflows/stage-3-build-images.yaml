@@ -77,7 +77,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/deployment/get-docker-names.sh
 
-  build-base-functions:
+  build-base-images:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -151,7 +151,7 @@ jobs:
       id-token: write
       contents: read
       pull-requests: read
-    needs: [get-functions, build-base-functions]
+    needs: [get-functions, build-base-images]
     strategy:
       matrix:
         function: ${{ fromJSON(needs.get-functions.outputs.FUNC_NAMES) }}
@@ -233,15 +233,14 @@ jobs:
             exit 0
           fi
 
-          export DOTNET_BASE_IMAGE="${{ needs.build-base-functions.outputs.DOTNET_BASE_IMAGE }}"
-          export FUNCTION_BASE_IMAGE="${{ needs.build-base-functions.outputs.FUNCTION_BASE_IMAGE }}"
-
-          echo DOTNET_BASE_IMAGE: ${DOTNET_BASE_IMAGE}
-          echo FUNCTION_BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
-
           docker images
 
           # Build the image
+          export DOTNET_BASE_IMAGE="${{ needs.build-base-images.outputs.DOTNET_BASE_IMAGE }}"
+          export FUNCTION_BASE_IMAGE="${{ needs.build-base-images.outputs.FUNCTION_BASE_IMAGE }}"
+
+          docker compose config | grep BASE_IMAGE
+
           docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --profile "*" build --no-cache --pull ${function}
 
           repo_name="${ACR_NAME}.azurecr.io/${PROJECT_NAME}-${function}"
