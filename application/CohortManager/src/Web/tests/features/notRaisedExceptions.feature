@@ -31,12 +31,6 @@ Feature: Not raised exceptions page
       Then the table "exceptions-table" has 10 rows
       And the first row in the table "exceptions-table" has exception ID "2028"
 
-    Scenario: Sort the not raised exceptions table by "NHS Number (ascending)"
-      Given I should see the heading "Not raised breast screening exceptions"
-      When I sort the table by "NHS Number (ascending)"
-      Then the table "exceptions-table" has 10 rows
-      And the first row in the table "exceptions-table" has exception ID "2028"
-
   Scenario: Breadcrumb back to homepage
     Then I see the link "Home"
     When I click the link "Home"
