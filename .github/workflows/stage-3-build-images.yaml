@@ -85,14 +85,15 @@ jobs:
       id-token: write
       packages: write
     outputs:
-      DOTNET_BASE_IMAGE: ${{ steps }}
-      FUNCTION_BASE_IMAGE:  ${{ steps }}
+      DOTNET_BASE_IMAGE: ${{ steps.detect-base-image-changes.outputs.DOTNET_BASE_IMAGE }}
+      FUNCTION_BASE_IMAGE:  ${{ steps.detect-base-image-changes.outputs.FUNCTION_BASE_IMAGE }}
     steps:
       - uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
           submodules: 'true'
+
       - name: log in to GHCR
         uses: docker/login-action@v3
         continue-on-error: false
@@ -100,16 +101,20 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Detect base image changes
         id: detect-base-image-changes
         continue-on-error: false
         run: bash scripts/deployment/check-base-image-changes.sh
+
       - name: Build Base Images
         id: build-base-images
         working-directory: ./
         if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' }}
         continue-on-error: false
         run: |
+          PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+
           docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
           docker tag cohort-manager-dotnet-base:latest "cohort-manager-dotnet-base:${COMMIT_HASH_TAG}"
           docker tag cohort-manager-dotnet-base:latest "cohort-manager-dotnet-base:${PR_NUM_TAG}"
@@ -119,6 +124,20 @@ jobs:
           docker tag cohort-manager-function-base:latest "cohort-manager-function-base:${COMMIT_HASH_TAG}"
           docker tag cohort-manager-function-base:latest "cohort-manager-function-base:${PR_NUM_TAG}"
           docker tag cohort-manager-function-base:latest "cohort-manager-function-base:${ENVIRONMENT_TAG}"
+      - name: Set Image Tags
+        id: set-image-tags
+        run: |
+
+          PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+          if [[${{steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE}} == 'true']]
+            echo "DOTNET_BASE_IMAGE=cohort-manager-dotnet-base:${PR_NUM_TAG}" >> "${GITHUB_OUTPUT}"
+            echo "FUNCTION_BASE_IMAGE=cohort-manager-function-base:${PR_NUM_TAG}" >> "${GITHUB_OUTPUT}"
+          else
+            echo "DOTNET_BASE_IMAGE=cohort-manager-dotnet-base:latest" >> "${GITHUB_OUTPUT}"
+            echo "FUNCTION_BASE_IMAGE=cohort-manager-function-base:latest" >> "${GITHUB_OUTPUT}"
+          fi
+
+
 
 
 
@@ -128,7 +147,7 @@ jobs:
       id-token: write
       contents: read
       pull-requests: read
-    needs: get-functions
+    needs: [get-functions, build-base-functions]
     strategy:
       matrix:
         function: ${{ fromJSON(needs.get-functions.outputs.FUNC_NAMES) }}
