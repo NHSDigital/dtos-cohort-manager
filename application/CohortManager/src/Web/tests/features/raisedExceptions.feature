@@ -16,17 +16,23 @@ Feature: Raised exceptions page
       And every row in the table "exceptions-table" has status "Raised"
       And the first row in the table "exceptions-table" has exception ID "4001"
 
-    Scenario: Sort the raised exceptions table by "Status last updated (oldest first)"
+    Scenario: Sort the raised exceptions table by "Date exception created (oldest first)"
       Given I should see the heading "Raised breast screening exceptions"
-      When I sort the table by "Status last updated (oldest first)"
+      When I sort the table by "Date exception created (oldest first)"
       Then the table "exceptions-table" has 10 rows
-      And the first row in the table "exceptions-table" has exception ID "2084"
+      And the first row in the table "exceptions-table" has exception ID "4001"
 
-    Scenario: Sort the raised exceptions table by "Status last updated (most recent first)"
+    Scenario: Sort the raised exceptions table by "Exception ID (ascending)"
       Given I should see the heading "Raised breast screening exceptions"
-      When I sort the table by "Status last updated (most recent first)"
+      When I sort the table by "Exception ID (ascending)"
       Then the table "exceptions-table" has 10 rows
-  And the first row in the table "exceptions-table" has exception ID "4001"
+      And the first row in the table "exceptions-table" has exception ID "4001"
+
+    Scenario: Sort the raised exceptions table by "NHS Number (descending)"
+      Given I should see the heading "Raised breast screening exceptions"
+      When I sort the table by "NHS Number (descending)"
+      Then the table "exceptions-table" has 10 rows
+      And the first row in the table "exceptions-table" has exception ID "4001"
 
     Scenario: Check for breadcrumb navigation back to homepage
       When I go to the page "/exceptions"
