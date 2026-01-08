@@ -248,8 +248,8 @@ jobs:
 
           touch .env
 
-          echo DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:1800 >> .env
-          echo FUNCTION_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-function-base:1800 >> .env
+          echo "DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:1800" >> .env
+          echo "FUNCTION_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-function-base:1800" >> .env
 
           echo "Running DockerCompose!"
           docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --env-file .env --profile "*" build --no-cache --pull ${function}
