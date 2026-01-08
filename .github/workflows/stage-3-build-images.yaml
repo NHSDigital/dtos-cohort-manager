@@ -249,8 +249,6 @@ jobs:
           echo "Running DockerCompose!"
           docker compose -f ${COMPOSE_FILE//,/ -f } \
             -p ${PROJECT_NAME} \
-            --build-arg "DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:1800" \
-            --build-arg "FUNCTION_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-function-base:1800" \
             --profile "*" build --no-cache --pull ${function}
 
           repo_name="${ACR_NAME}.azurecr.io/${PROJECT_NAME}-${function}"
