@@ -1,13 +1,5 @@
-export enum SortBy {
-  DateCreated = 0,
-  NhsNumber = 1,
-  ExceptionId = 2,
-}
-
-export enum SortOrder {
-  Ascending = 0,
-  Descending = 1,
-}
+import { SortBy } from "./enums/sortBy";
+import { SortOrder } from "./enums/sortOrder";
 
 export interface SortOption {
   value: string;

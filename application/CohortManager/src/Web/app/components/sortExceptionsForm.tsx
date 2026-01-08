@@ -1,48 +1,50 @@
+"use client";
+
+import { useRouter, useSearchParams } from "next/navigation";
+import { SortOption } from "@/app/lib/sortOptions";
+
 interface SortExceptionsFormProps {
-  readonly sortBy: number;
-  readonly options: readonly {
-    readonly value: string;
-    readonly label: string;
-  }[];
-  readonly hiddenText?: string;
-  readonly testId?: string;
+  sortBy: string;
+  options: SortOption[];
 }
 
 export default function SortExceptionsForm({
   sortBy,
   options,
-  hiddenText = "exceptions",
-  testId,
 }: SortExceptionsFormProps) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handleSortChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newSortBy = event.target.value;
+    const params = new URLSearchParams(searchParams);
+    params.set("sortBy", newSortBy);
+    params.delete("page"); // Reset to page 1 when sorting changes
+    router.push(`?${params.toString()}`);
+  };
+
   return (
-    <form method="GET" data-testid="sort-exceptions-form">
-      <div className="nhsuk-form-group app-form-group--inline">
-        <label className="nhsuk-label" htmlFor="sort-exceptions">
-          Sort <span className="nhsuk-u-visually-hidden">{hiddenText} </span> by
+    <form className="nhsuk-form">
+      <div className="nhsuk-form-group">
+        <label
+          className="nhsuk-label nhsuk-u-visually-hidden"
+          htmlFor="sort-exceptions"
+        >
+          Sort by
         </label>
-        <div className="form-inline-row">
-          <select
-            className="nhsuk-select"
-            id="sort-exceptions"
-            name="sortBy"
-            defaultValue={String(sortBy)}
-            data-testid={testId}
-          >
-            {options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-          <button
-            className="nhsuk-button app-button--small"
-            data-module="nhsuk-button"
-            type="submit"
-            data-testid="apply-button"
-          >
-            Apply
-          </button>
-        </div>
+        <select
+          className="nhsuk-select"
+          id="sort-exceptions"
+          name="sortBy"
+          value={sortBy}
+          onChange={handleSortChange}
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </div>
     </form>
   );
