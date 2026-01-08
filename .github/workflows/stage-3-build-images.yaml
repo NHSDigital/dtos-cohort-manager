@@ -236,8 +236,8 @@ jobs:
           fi
 
 
-          export DOTNET_BASE_IMAGE = ghcr.io/nhsdigital/cohort-manager-dotnet-base:1800
-          export FUNCTION = ghcr.io/nhsdigital/cohort-manager-function-base:1800
+          export DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:1800
+          export FUNCTION=ghcr.io/nhsdigital/cohort-manager-function-base:1800
 
 
           docker compose config | grep BASE_IMAGE
