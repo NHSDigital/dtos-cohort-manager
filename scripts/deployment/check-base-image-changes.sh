@@ -30,6 +30,7 @@ else
         [[ -z "${base_path}" || "${base_path}" =~ ^# ]] && continue
 
         # Ensure trailing slash consistency
+        base_path = (base_path | xargs)
 
         for changed_path in "${source_changes[@]}"; do
             echo "x${changed_path}x==x${base_path}x"
