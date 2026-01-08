@@ -99,6 +99,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Detect base image changes
+        id: detect-base-image-changes
+        run: bash scripts/deployment/check-base-image-changes.sh
       - name: Build Base Images
         id: build-base-images
         working-directory: ./
@@ -129,7 +132,7 @@ jobs:
     if: needs.get-functions.outputs.FUNC_NAMES != '[]'
     outputs:
       pr_num_tag: ${{ env.PR_NUM_TAG }}
-      short_commit_hash: ${{ env.COMMIT_HASH_TAG }}
+      short_orycommit_hash: ${{ env.COMMIT_HASH_TAG }}
     steps:
       - uses: actions/checkout@v4
         with:
