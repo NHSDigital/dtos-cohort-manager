@@ -30,7 +30,6 @@ else
         [[ -z "${base_path}" || "${base_path}" =~ ^# ]] && continue
 
         # Ensure trailing slash consistency
-        base_path="${base_path%/}/"
 
         for changed_path in "${source_changes[@]}"; do
             echo "${changed_path} = ${base_path}"
