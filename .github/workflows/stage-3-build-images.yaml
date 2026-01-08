@@ -237,7 +237,7 @@ jobs:
 
 
           export DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:1800
-          export FUNCTION=ghcr.io/nhsdigital/cohort-manager-function-base:1800
+          export FUNCTION_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-function-base:1800
 
 
           docker compose config | grep BASE_IMAGE
@@ -246,8 +246,13 @@ jobs:
           echo "image pulled"
           docker images
 
+          touch .env
+
+          echo DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:1800 >> .env
+          echo FUNCTION_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-function-base:1800 >> .env
+
           echo "Running DockerCompose!"
-          docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --profile "*" build --no-cache --pull ${function}
+          docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --env-file .env --profile "*" build --no-cache --pull ${function}
 
           repo_name="${ACR_NAME}.azurecr.io/${PROJECT_NAME}-${function}"
           echo $(repo_name)
