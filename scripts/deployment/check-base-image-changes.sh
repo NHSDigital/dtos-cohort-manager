@@ -2,8 +2,8 @@
 
 set -eo pipefail
 
-BASE_PATHS_FILE="base-image-paths.txt"
-build_base_image=true
+BASE_PATHS_FILE="scripts/deployment/shared-files.txt"
+build_base_image=false
 
 
 if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/main" ]]; then
@@ -21,6 +21,27 @@ printf "  - %s\n" "${source_changes[@]}"
 echo
 
 
-#code for base image folders and files set build_base_image to true if output from source_changes are in text file that has a list of folders where the shared code lives
+# --- Detect base image changes ---
+if [[ ! -f "${BASE_PATHS_FILE}" ]]; then
+    echo "WARNING: ${BASE_PATHS_FILE} not found – base image will not be rebuilt"
+else
+    while IFS= read -r base_path; do
+        # Skip empty lines and comments
+        [[ -z "${base_path}" || "${base_path}" =~ ^# ]] && continue
+
+        # Ensure trailing slash consistency
+        base_path="${base_path%/}/"
+
+        for changed_path in "${source_changes[@]}"; do
+            if [[ "${changed_path}" == "${base_path}"* ]]; then
+                echo "Base image change detected in: ${changed_path}"
+                build_base_image=true
+                break 2
+            fi
+        done
+    done < "${BASE_PATHS_FILE}"
+fi
+
+echo "Base image change = ${build_base_image}"
 
 echo "BASE_IMAGE_CHANGE=${build_base_image}" >> "${GITHUB_OUTPUT}"
