@@ -236,7 +236,13 @@ jobs:
           fi
 
           docker compose config | grep BASE_IMAGE
+          echo "pulling image"
+          docker pull "$DOTNET_BASE_IMAGE"
+          echo "image pulled"
+          docker images | grep "$DOTNET_BASE_IMAGE"
 
+
+          echo "Running DockerCompose!"
           docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --profile "*" build --no-cache --pull ${function}
 
           repo_name="${ACR_NAME}.azurecr.io/${PROJECT_NAME}-${function}"
