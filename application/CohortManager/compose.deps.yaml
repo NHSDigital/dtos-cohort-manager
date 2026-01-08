@@ -80,7 +80,6 @@ services:
         BASE_IMAGE: ${DOTNET_BASE_IMAGE}
     depends_on:
       - db
-      - dotnet-base
     environment:
       - DtOsDatabaseConnectionString=Server=db;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
     cap_add:
