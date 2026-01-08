@@ -27,7 +27,7 @@ export default async function Page({
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const selectedSortOption = resolvedSearchParams.sortBy || "0-1";
+  const selectedSortOption = resolvedSearchParams.sortBy || "1";
   const currentPage = Math.max(
     1,
     Number.parseInt(resolvedSearchParams.page || "1", 10)
