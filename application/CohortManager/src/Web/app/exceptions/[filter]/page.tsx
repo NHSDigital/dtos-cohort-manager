@@ -4,6 +4,7 @@ import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
 import { fetchExceptions } from "@/app/lib/fetchExceptions";
 import { getRuleMapping } from "@/app/lib/ruleMapping";
+import { SortOptions, getSortOption } from "@/app/lib/sortOptions";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import SortExceptionsForm from "@/app/components/sortExceptionsForm";
 import Breadcrumb from "@/app/components/breadcrumb";
@@ -33,27 +34,20 @@ export default async function Page({
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const sortBy = resolvedSearchParams.sortBy === "0" ? 0 : 1;
+  const sortOptionValue = resolvedSearchParams.sortBy || "1";
+  const selectedSortOption = getSortOption(sortOptionValue);
   const currentPage = Math.max(
     1,
     Number.parseInt(resolvedSearchParams.page || "1", 10)
   );
 
-  const sortOptions = [
-    {
-      value: "1",
-      label: "Status last updated (most recent first)",
-    },
-    {
-      value: "0",
-      label: "Status last updated (oldest first)",
-    },
-  ];
+  const relevantSortOptions = SortOptions;
 
   try {
     const response = await fetchExceptions({
       exceptionStatus: 1,
-      sortOrder: sortBy,
+      sortOrder: selectedSortOption.sortOrder,
+      sortBy: selectedSortOption.sortBy,
       page: currentPage,
     });
 
@@ -115,8 +109,8 @@ export default async function Page({
                 <>
                   <div className="app-form-results-container">
                     <SortExceptionsForm
-                      sortBy={sortBy}
-                      options={sortOptions}
+                      sortBy={Number.parseInt(sortOptionValue)}
+                      options={relevantSortOptions}
                       hiddenText="raised exceptions"
                       testId="sort-raised-exceptions"
                     />
@@ -142,7 +136,7 @@ export default async function Page({
                       currentPage={currentPage}
                       totalPages={totalPages}
                       buildUrl={(page) =>
-                        `/exceptions/raised?sortBy=${sortBy}&page=${page}`
+                        `/exceptions/raised?sortBy=${sortOptionValue}&page=${page}`
                       }
                     />
                   )}

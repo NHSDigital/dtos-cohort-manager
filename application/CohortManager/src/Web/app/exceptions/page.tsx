@@ -4,6 +4,7 @@ import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
 import { fetchExceptions } from "@/app/lib/fetchExceptions";
 import { getRuleMapping } from "@/app/lib/ruleMapping";
+import { SortOptions, getSortOption } from "@/app/lib/sortOptions";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import SortExceptionsForm from "@/app/components/sortExceptionsForm";
 import Breadcrumb from "@/app/components/breadcrumb";
@@ -43,35 +44,20 @@ export default async function Page({
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const sortBy = resolvedSearchParams.sortBy === "0" ? 0 : 1;
+  const selectedSortOption = resolvedSearchParams.sortBy || "1";
+  const sortOption = getSortOption(selectedSortOption);
   const currentPage = Math.max(
     1,
     Number.parseInt(resolvedSearchParams.page || "1", 10)
   );
 
-  const sortOptions = [
-    {
-      value: "0",
-      label: "Date exception created (oldest first)",
-    },
-    {
-      value: "1",
-      label: "Date exception created (newest first)",
-    },
-        {
-      value: "3",
-      label: "NHS Number (Ascending)",
-    },
-    {
-      value: "4",
-      label: "NHS Number (Descending)",
-    },
-  ];
+  const sortOptions = SortOptions;
 
   try {
     const response = await fetchExceptions({
       exceptionStatus: 2,
-      sortOrder: sortBy,
+      sortOrder: sortOption.sortOrder,
+      sortBy: sortOption.sortBy,
       page: currentPage,
     });
 
@@ -125,7 +111,7 @@ export default async function Page({
                 <>
                   <div className="app-form-results-container">
                     <SortExceptionsForm
-                      sortBy={sortBy}
+                      sortBy={Number.parseInt(selectedSortOption)}
                       options={sortOptions}
                       hiddenText="not raised exceptions"
                       testId="sort-not-raised-exceptions"
@@ -150,7 +136,7 @@ export default async function Page({
                       currentPage={currentPage}
                       totalPages={totalPages}
                       buildUrl={(page) =>
-                        `/exceptions?sortBy=${sortBy}&page=${page}`
+                        `/exceptions?sortBy=${selectedSortOption}&page=${page}`
                       }
                     />
                   )}

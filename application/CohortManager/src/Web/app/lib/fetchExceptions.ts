@@ -6,6 +6,7 @@ type FetchExceptionsParams = {
   lastId?: number;
   exceptionStatus?: 0 | 1 | 2;
   sortOrder?: 0 | 1;
+  sortBy?: 0 | 1 | 2; 
   exceptionCategory?: string | number;
   reportDate?: string;
   isReport?: boolean;
@@ -23,6 +24,8 @@ export async function fetchExceptions(params: FetchExceptionsParams = {}) {
     query.append("exceptionStatus", params.exceptionStatus.toString());
   if (params.sortOrder !== undefined)
     query.append("sortOrder", params.sortOrder.toString());
+  if (params.sortBy !== undefined)
+    query.append("sortBy", params.sortBy.toString());
   if (params.exceptionCategory !== undefined)
     query.append("exceptionCategory", params.exceptionCategory.toString());
   if (params.reportDate) query.append("reportDate", params.reportDate);

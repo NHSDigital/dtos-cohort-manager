@@ -2,24 +2,31 @@ import { NextResponse } from "next/server";
 import mockDataStore from "@/app/data/mockDataStore";
 
 function sortExceptions<
-  T extends { DateCreated: string; ServiceNowCreatedDate?: string }
->(items: T[], sortBy: string | null, dateField: keyof T = "DateCreated"): T[] {
-  if (sortBy === "0") {
-    // Ascending: oldest first
-    return items.sort(
-      (a, b) =>
-        new Date(a[dateField] as string).getTime() -
-        new Date(b[dateField] as string).getTime()
-    );
-  } else if (sortBy === "1") {
-    // Descending: newest first
-    return items.sort(
-      (a, b) =>
-        new Date(b[dateField] as string).getTime() -
-        new Date(a[dateField] as string).getTime()
-    );
+  T extends { DateCreated: string; ServiceNowCreatedDate?: string; ExceptionId?: number; NhsNumber?: string }
+>(items: T[], sortBy: string | null, sortOrder: string | null = null): T[] {
+  const sortValue = sortBy || sortOrder;
+  if (!sortValue) return items;
+
+  switch (sortValue) {
+    case "0":
+      return items.sort((a, b) =>
+        new Date(a.DateCreated).getTime() - new Date(b.DateCreated).getTime()
+      );
+    case "1":
+      return items.sort((a, b) =>
+        new Date(b.DateCreated).getTime() - new Date(a.DateCreated).getTime()
+      );
+    case "2":
+      return items.sort((a, b) => (a.ExceptionId || 0) - (b.ExceptionId || 0));
+    case "3":
+      return items.sort((a, b) => (b.ExceptionId || 0) - (a.ExceptionId || 0));
+    case "4":
+      return items.sort((a, b) => (a.NhsNumber || "").localeCompare(b.NhsNumber || ""));
+    case "5":
+      return items.sort((a, b) => (b.NhsNumber || "").localeCompare(a.NhsNumber || ""));
+    default:
+      return items;
   }
-  return items;
 }
 
 function addExceptionDetails<T extends { ExceptionId: number }>(items: T[]) {
@@ -61,7 +68,7 @@ function paginate<T extends { ExceptionId: number }>(
     IsFirstPage: clampedPage === 1,
     HasNextPage: clampedPage < safeTotalPages,
     HasPreviousPage: clampedPage > 1,
-    LastResultId: pageItems[pageItems.length - 1]?.ExceptionId ?? null,
+    LastResultId: pageItems.at(-1)?.ExceptionId ?? null,
     TotalItems: totalItems,
     TotalPages: safeTotalPages,
     CurrentPage: clampedPage,
@@ -146,7 +153,7 @@ export async function GET(request: Request) {
   const isReport = searchParams.get("isReport");
   const exceptionCategory = searchParams.get("exceptionCategory");
   const reportDate = searchParams.get("reportDate");
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const page = Math.max(1, Number.parseInt(searchParams.get("page") || "1", 10));
 
   // Handle single exception requests - get fresh data from store
   if (exceptionId !== null) {
@@ -174,11 +181,7 @@ export async function GET(request: Request) {
       ? allItems.filter((i) => i.Category === Number(exceptionCategory))
       : allItems;
 
-    const sortedItems = sortExceptions(
-      [...categoryFiltered],
-      usingSort,
-      isRaised ? "ServiceNowCreatedDate" : "DateCreated"
-    );
+    const sortedItems = sortExceptions([...categoryFiltered], usingSort);
 
     const withDetails = addExceptionDetails(sortedItems);
     const paginated = paginate(withDetails, page, PAGE_SIZE);
@@ -209,7 +212,7 @@ export async function GET(request: Request) {
       );
     }
 
-    const sorted = sortExceptions([...dateFiltered], usingSort, "DateCreated");
+    const sorted = sortExceptions([...dateFiltered], usingSort);
     const withDetails = addExceptionDetails(sorted);
     const paginated = paginate(withDetails, page, PAGE_SIZE);
     const json = NextResponse.json(paginated, { status: 200 });

@@ -364,11 +364,9 @@ public class ValidationExceptionData : IValidationExceptionData
             _ => list
         };
 
-        // Determine sort property based on sortBy parameter
         var sortProperty = sortBy switch
         {
-            SortBy.ExceptionId => (Func<ValidationException, object>)(x => x.ExceptionId),
-            SortBy.ServiceNowCreatedDate => x => x.ServiceNowCreatedDate ?? DateTime.MinValue,
+            SortBy.ExceptionId => x => x.ExceptionId,
             SortBy.NhsNumber => x => x.NhsNumber ?? string.Empty,
             SortBy.DateCreated => x => x.DateCreated ?? DateTime.MinValue,
             _ => status == ExceptionStatus.Raised
