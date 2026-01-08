@@ -94,7 +94,10 @@ export default async function ExceptionsPage({
                 sortBy={sortBy}
                 options={SortOptions}
               />
-              <p className="app-results-text">
+              <p 
+                className="app-results-text"
+                data-testid={exceptionStatus === ExceptionStatus.Raised ? "raised-exception-count" : "not-raised-exception-count"}
+              >
                 Showing {startItem} to {endItem} of {totalItems} results
               </p>
             </div>

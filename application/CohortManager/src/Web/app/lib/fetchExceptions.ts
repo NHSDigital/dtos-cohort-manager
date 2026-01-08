@@ -36,10 +36,10 @@ export async function fetchExceptions(params: FetchExceptionsParams = {}) {
   };
 }
 
-function buildQueryString(params: Record<string, any>): string {
+function buildQueryString(params: Record<string, number | string | boolean | undefined>): string {
   return new URLSearchParams(
     Object.entries(params)
-      .filter(([_, value]) => value !== undefined && value !== null)
+      .filter(([, value]) => value !== undefined && value !== null)
       .map(([key, value]) => [key, String(value)])
   ).toString();
 }
