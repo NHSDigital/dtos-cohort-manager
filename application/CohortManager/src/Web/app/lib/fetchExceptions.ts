@@ -20,7 +20,6 @@ export async function fetchExceptions(params: FetchExceptionsParams = {}) {
   });
 
   const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?${query}`;
-
   const response = await fetch(apiUrl);
 
   if (!response.ok) {
