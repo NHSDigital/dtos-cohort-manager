@@ -221,8 +221,8 @@ jobs:
           COMPOSE_FILE: ${{ inputs.docker_compose_file }}
           PROJECT_NAME: ${{ inputs.project_name }}
           ACR_NAME: ${{ secrets.acr_name }}
-          DOTNET_BASE_IMAGE : ${{ needs.build-base-images.outputs.DOTNET_BASE_IMAGE }}
-          FUNCTION_BASE_IMAGE: ${{ needs.build-base-images.outputs.FUNCTION_BASE_IMAGE }}
+          # DOTNET_BASE_IMAGE : ${{ needs.build-base-images.outputs.DOTNET_BASE_IMAGE }}
+          # FUNCTION_BASE_IMAGE: ${{ needs.build-base-images.outputs.FUNCTION_BASE_IMAGE }}
         run: |
           function=${{ matrix.function }}
 
@@ -235,16 +235,16 @@ jobs:
             exit 0
           fi
 
+
+          export DOTNET_BASE_IMAGE = ghcr.io/nhsdigital/cohort-manager-dotnet-base:1800
+          export FUNCTION = ghcr.io/nhsdigital/cohort-manager-function-base:1800
+
+
           docker compose config | grep BASE_IMAGE
           echo "pulling image"
           docker pull "$DOTNET_BASE_IMAGE"
           echo "image pulled"
           docker images
-
-          touch .env
-          echo DOTNET_BASE_IMAGE=${DOTNET_BASE_IMAGE} >> .env
-          echo FUNCTION_BASE_IMAGE=${FUNCTION_BASE_IMAGE} >> .env
-
 
           echo "Running DockerCompose!"
           docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --profile "*" build --no-cache --pull ${function}
