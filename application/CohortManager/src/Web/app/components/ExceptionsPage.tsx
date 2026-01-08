@@ -94,7 +94,7 @@ export default async function ExceptionsPage({
                 sortBy={sortBy}
                 options={SortOptions}
               />
-              <p 
+              <p
                 className="app-results-text"
                 data-testid={exceptionStatus === ExceptionStatus.Raised ? "raised-exception-count" : "not-raised-exception-count"}
               >
