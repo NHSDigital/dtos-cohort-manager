@@ -30,6 +30,13 @@ export default function SortExceptionsForm({
             </option>
           ))}
         </select>
+          <button
+            className="nhsuk-button app-button--small"
+            data-module="nhsuk-button"
+            type="submit"
+          >
+            Apply
+          </button>
       </div>
     </form>
   );
