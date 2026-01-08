@@ -221,6 +221,8 @@ jobs:
           COMPOSE_FILE: ${{ inputs.docker_compose_file }}
           PROJECT_NAME: ${{ inputs.project_name }}
           ACR_NAME: ${{ secrets.acr_name }}
+          DOTNET_BASE_IMAGE : ${{ needs.build-base-images.outputs.DOTNET_BASE_IMAGE }}
+          FUNCTION_BASE_IMAGE: ${{ needs.build-base-images.outputs.FUNCTION_BASE_IMAGE }}
         run: |
           function=${{ matrix.function }}
 
@@ -232,12 +234,6 @@ jobs:
             echo "Function variable is empty. Skipping Docker build."
             exit 0
           fi
-
-          docker images
-
-          # Build the image
-          export DOTNET_BASE_IMAGE="${{ needs.build-base-images.outputs.DOTNET_BASE_IMAGE }}"
-          export FUNCTION_BASE_IMAGE="${{ needs.build-base-images.outputs.FUNCTION_BASE_IMAGE }}"
 
           docker compose config | grep BASE_IMAGE
 
