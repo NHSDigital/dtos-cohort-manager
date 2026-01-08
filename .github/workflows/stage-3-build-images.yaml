@@ -85,8 +85,8 @@ jobs:
       id-token: write
       packages: write
     outputs:
-      DOTNET_BASE_IMAGE: ${{ steps.detect-base-image-changes.outputs.DOTNET_BASE_IMAGE }}
-      FUNCTION_BASE_IMAGE:  ${{ steps.detect-base-image-changes.outputs.FUNCTION_BASE_IMAGE }}
+      DOTNET_BASE_IMAGE: ${{ steps.set-image-tags.outputs.DOTNET_BASE_IMAGE }}
+      FUNCTION_BASE_IMAGE:  ${{ steps.set-image-tags.outputs.FUNCTION_BASE_IMAGE }}
     steps:
       - uses: actions/checkout@v4
         with:
