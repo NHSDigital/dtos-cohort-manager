@@ -129,7 +129,7 @@ jobs:
         run: |
 
           PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
-          if [[${{steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE}} == 'true']]
+          if [[ ${{steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE}} == 'true' ]]; then
             echo "DOTNET_BASE_IMAGE=cohort-manager-dotnet-base:${PR_NUM_TAG}" >> "${GITHUB_OUTPUT}"
             echo "FUNCTION_BASE_IMAGE=cohort-manager-function-base:${PR_NUM_TAG}" >> "${GITHUB_OUTPUT}"
           else
@@ -208,8 +208,6 @@ jobs:
           echo "COMMIT_HASH_TAG=${SHORT_COMMIT_HASH}" >> ${GITHUB_ENV}
 
           echo "ENVIRONMENT_TAG=${ENVIRONMENT_TAG}" >> ${GITHUB_ENV}
-
-
 
 
       - name: Build and Push Image
