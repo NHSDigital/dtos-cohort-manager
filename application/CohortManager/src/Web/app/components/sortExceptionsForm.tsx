@@ -10,7 +10,7 @@ export default function SortExceptionsForm({
   options,
 }: Readonly<SortExceptionsFormProps>) {
   return (
-    <form className="nhsuk-form">
+    <form className="nhsuk-form" data-testid="sort-exceptions-form" method="GET">
       <div className="nhsuk-form-group">
         <label
           className="nhsuk-label nhsuk-u-visually-hidden"
