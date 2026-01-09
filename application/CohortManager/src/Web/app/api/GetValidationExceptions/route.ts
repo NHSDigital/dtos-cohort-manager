@@ -1,32 +1,41 @@
 import { NextResponse } from "next/server";
 import mockDataStore from "@/app/data/mockDataStore";
+import { SortBy } from "@/app/lib/enums/sortBy";
+import { SortOrder } from "@/app/lib/enums/sortOrder";
+import { ExceptionStatus } from "@/app/lib/enums/exceptionStatus";
 
 function sortExceptions<
-  T extends { DateCreated: string; ServiceNowCreatedDate?: string; ExceptionId?: number; NhsNumber?: string }
->(items: T[], sortBy: string | null, sortOrder: string | null = null): T[] {
-  const sortValue = sortBy || sortOrder;
-  if (!sortValue) return items;
-
-  switch (sortValue) {
-    case "0":
-      return items.sort((a, b) =>
-        new Date(a.DateCreated).getTime() - new Date(b.DateCreated).getTime()
-      );
-    case "1":
-      return items.sort((a, b) =>
-        new Date(b.DateCreated).getTime() - new Date(a.DateCreated).getTime()
-      );
-    case "2":
-      return items.sort((a, b) => (a.ExceptionId || 0) - (b.ExceptionId || 0));
-    case "3":
-      return items.sort((a, b) => (b.ExceptionId || 0) - (a.ExceptionId || 0));
-    case "4":
-      return items.sort((a, b) => (a.NhsNumber || "").localeCompare(b.NhsNumber || ""));
-    case "5":
-      return items.sort((a, b) => (b.NhsNumber || "").localeCompare(a.NhsNumber || ""));
-    default:
-      return items;
+  T extends {
+    DateCreated: string;
+    ServiceNowCreatedDate?: string;
+    ExceptionId?: number;
+    NhsNumber?: string
   }
+>(items: T[], sortByParam: string | null, sortOrderParam: string | null = null): T[] {
+  if (!sortByParam || !sortOrderParam) {
+    return items;
+  }
+
+  const field = Number.parseInt(sortByParam) as SortBy;
+  const order = Number.parseInt(sortOrderParam) as SortOrder;
+
+  const sortTypes = {
+    [SortBy.DateCreated]: (a: T, b: T) => {
+      const diff = new Date(a.DateCreated).getTime() - new Date(b.DateCreated).getTime();
+      return order === SortOrder.Descending ? -diff : diff;
+    },
+    [SortBy.NhsNumber]: (a: T, b: T) => {
+      const cmp = (a.NhsNumber || "").localeCompare(b.NhsNumber || "");
+      return order === SortOrder.Descending ? -cmp : cmp;
+    },
+    [SortBy.ExceptionId]: (a: T, b: T) => {
+      const diff = (a.ExceptionId || 0) - (b.ExceptionId || 0);
+      return order === SortOrder.Descending ? -diff : diff;
+    }
+  };
+
+  const compare = sortTypes[field];
+  return compare ? items.sort(compare) : items;
 }
 
 function addExceptionDetails<T extends { ExceptionId: number }>(items: T[]) {
@@ -171,8 +180,7 @@ export async function GET(request: Request) {
   }
 
   if (exceptionStatus !== null) {
-    const usingSort = sortBy ?? sortOrder; // accept either param name
-    const isRaised = exceptionStatus === "1";
+    const isRaised = exceptionStatus === ExceptionStatus.Raised.toString();;
     const allItems = isRaised
       ? mockDataStore.getRaisedExceptions()
       : mockDataStore.getNotRaisedExceptions();
@@ -181,7 +189,7 @@ export async function GET(request: Request) {
       ? allItems.filter((i) => i.Category === Number(exceptionCategory))
       : allItems;
 
-    const sortedItems = sortExceptions([...categoryFiltered], usingSort);
+    const sortedItems = sortExceptions([...categoryFiltered], sortBy, sortOrder);
 
     const withDetails = addExceptionDetails(sortedItems);
     const paginated = paginate(withDetails, page, PAGE_SIZE);
@@ -205,8 +213,7 @@ export async function GET(request: Request) {
 
     let dateFiltered = byCategory;
     if (reportDate) {
-      const prefix = `${reportDate}`; // YYYY-MM-DD
-      // Align with backend: use DateCreated for reportDate filtering
+      const prefix = `${reportDate}`;
       dateFiltered = byCategory.filter((i) =>
         i.DateCreated?.startsWith(prefix)
       );
