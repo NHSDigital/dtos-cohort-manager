@@ -257,7 +257,8 @@ Then(
   "the first row in the table {string} has exception ID {string}",
   async ({ page }, tableId: string, id: string) => {
     const firstRow = tableLocator(page, tableId).locator("tbody tr").first();
-    await test.expect(firstRow).toContainText(id);
+    const exceptionIdLink = firstRow.locator("td").first().locator("a");
+    await test.expect(exceptionIdLink).toContainText(id);
   }
 );
 

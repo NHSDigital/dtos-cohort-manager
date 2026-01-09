@@ -14,11 +14,17 @@ Feature: Raised exceptions page
       Then I see text containing "Showing 1 to 10" in the element "raised-exception-count"
       And the table "exceptions-table" has 10 rows
       And every row in the table "exceptions-table" has status "Raised"
-      And the first row in the table "exceptions-table" has exception ID "4001"
+      And the first row in the table "exceptions-table" has exception ID "2083"
 
     Scenario: Sort the raised exceptions table by "Date exception created (oldest first)"
       Given I should see the heading "Raised breast screening exceptions"
       When I sort the table by "Date exception created (oldest first)"
+      Then the table "exceptions-table" has 10 rows
+      And the first row in the table "exceptions-table" has exception ID "2083"
+
+    Scenario: Sort the raised exceptions table by "Date exception created (newest first)"
+      Given I should see the heading "Raised breast screening exceptions"
+      When I sort the table by "Date exception created (newest first)"
       Then the table "exceptions-table" has 10 rows
       And the first row in the table "exceptions-table" has exception ID "4001"
 
@@ -26,13 +32,13 @@ Feature: Raised exceptions page
       Given I should see the heading "Raised breast screening exceptions"
       When I sort the table by "Exception ID (ascending)"
       Then the table "exceptions-table" has 10 rows
-      And the first row in the table "exceptions-table" has exception ID "4001"
+      And the first row in the table "exceptions-table" has exception ID "2083"
 
     Scenario: Sort the raised exceptions table by "NHS Number (descending)"
       Given I should see the heading "Raised breast screening exceptions"
       When I sort the table by "NHS Number (descending)"
       Then the table "exceptions-table" has 10 rows
-      And the first row in the table "exceptions-table" has exception ID "4001"
+      And the first row in the table "exceptions-table" has exception ID "3001"
 
     Scenario: Check for breadcrumb navigation back to homepage
       When I go to the page "/exceptions"
