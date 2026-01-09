@@ -11,7 +11,7 @@ Feature: Not raised exceptions page
   Scenario: Table shows 10 "Not raised" exceptions with expected columns
     Then the table "exceptions-table" has 10 rows
     And every row in the table "exceptions-table" has status "Not raised"
-    And the first row in the table "exceptions-table" has exception ID "2033"
+    And the first row in the table "exceptions-table" has exception ID "6942"
 
     Scenario: Sort the not raised exceptions table by "Date exception created (oldest first)"
       Given I should see the heading "Not raised breast screening exceptions"

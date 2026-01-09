@@ -14,7 +14,7 @@ Feature: Raised exceptions page
       Then I see text containing "Showing 1 to 10" in the element "raised-exception-count"
       And the table "exceptions-table" has 10 rows
       And every row in the table "exceptions-table" has status "Raised"
-      And the first row in the table "exceptions-table" has exception ID "2083"
+      And the first row in the table "exceptions-table" has exception ID "3001"
 
     Scenario: Sort the raised exceptions table by "Date exception created (oldest first)"
       Given I should see the heading "Raised breast screening exceptions"
