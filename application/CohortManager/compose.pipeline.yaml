@@ -7,6 +7,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: Shared/DataServices.Migrations/Dockerfile
+      args:
+        BASE_IMAGE: ${DOTNET_BASE_IMAGE}
     environment:
       - DtOsDatabaseConnectionString=Server=sql-server;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
     cap_add:
