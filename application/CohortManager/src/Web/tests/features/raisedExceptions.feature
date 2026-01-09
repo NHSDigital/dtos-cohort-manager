@@ -26,7 +26,7 @@ Feature: Raised exceptions page
       Given I should see the heading "Raised breast screening exceptions"
       When I sort the table by "Date exception created (newest first)"
       Then the table "exceptions-table" has 10 rows
-      And the first row in the table "exceptions-table" has exception ID "4001"
+      And the first row in the table "exceptions-table" has exception ID "3010"
 
     Scenario: Sort the raised exceptions table by "Exception ID (ascending)"
       Given I should see the heading "Raised breast screening exceptions"
@@ -38,7 +38,7 @@ Feature: Raised exceptions page
       Given I should see the heading "Raised breast screening exceptions"
       When I sort the table by "NHS Number (descending)"
       Then the table "exceptions-table" has 10 rows
-      And the first row in the table "exceptions-table" has exception ID "3001"
+      And the first row in the table "exceptions-table" has exception ID "3010"
 
     Scenario: Check for breadcrumb navigation back to homepage
       When I go to the page "/exceptions"

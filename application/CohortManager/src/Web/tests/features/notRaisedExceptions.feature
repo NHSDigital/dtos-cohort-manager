@@ -23,7 +23,7 @@ Feature: Not raised exceptions page
       Given I should see the heading "Not raised breast screening exceptions"
       When I sort the table by "Date exception created (newest first)"
       Then the table "exceptions-table" has 10 rows
-      And the first row in the table "exceptions-table" has exception ID "2074"
+      And the first row in the table "exceptions-table" has exception ID "2028"
 
     Scenario: Sort the not raised exceptions table by "NHS Number (ascending)"
       Given I should see the heading "Not raised breast screening exceptions"

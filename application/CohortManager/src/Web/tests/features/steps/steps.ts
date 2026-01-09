@@ -276,11 +276,22 @@ When("I sort the table by {string}", async ({ page }, sortOption: string) => {
   const select = form.locator("select");
   await test.expect(select).toBeVisible();
 
+  const optionLocator = select.locator('option', { hasText: sortOption }).first();
+  const value = await optionLocator.getAttribute('value');
+  test.expect(value).not.toBeNull();
+
   await select.selectOption({ label: sortOption });
 
   const applyButton = page.getByTestId("apply-button");
   await test.expect(applyButton).toBeVisible();
-  await applyButton.click();
+  await Promise.all([
+    page.waitForURL(new RegExp(String.raw`\bsortBy=${value}\b`)),
+    applyButton.click(),
+  ]);
+
+  // Ensure the table has re-rendered
+  const firstLink = tableLocator(page, "exceptions-table").locator("tbody tr").first().locator("td").first().locator("a");
+  await test.expect(firstLink).toBeVisible();
 });
 
 // ---- Accessibility ----
