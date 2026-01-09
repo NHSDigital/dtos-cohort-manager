@@ -1,7 +1,7 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE} AS function
 
-COPY ./ScreeningValidationService/LookupValidation app/src/dotnet-function-app
+COPY ./ScreeningValidationService/LookupValidation /app/src/dotnet-function-app
 WORKDIR /app/src/dotnet-function-app
 
 RUN --mount=type=cache,target=/root/.nuget/packages \

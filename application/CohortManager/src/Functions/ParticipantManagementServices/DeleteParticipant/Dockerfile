@@ -1,8 +1,8 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE} AS function
 
-COPY ./ParticipantManagementServices/DeleteParticipant app/src/dotnet-function-app
-WORKDIR app/src/dotnet-function-app
+COPY ./ParticipantManagementServices/DeleteParticipant /app/src/dotnet-function-app
+WORKDIR /app/src/dotnet-function-app
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
     dotnet publish *.csproj --output /home/site/wwwroot

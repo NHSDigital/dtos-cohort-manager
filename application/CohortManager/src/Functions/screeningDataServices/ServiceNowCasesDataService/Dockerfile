@@ -1,7 +1,7 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE} AS function
 
-COPY ./screeningDataServices/ServiceNowCasesDataService app/src/dotnet-function-app
+COPY ./screeningDataServices/ServiceNowCasesDataService /app/src/dotnet-function-app
 WORKDIR /app/src/dotnet-function-app
 
 RUN dotnet publish ./*.csproj --output /home/site/wwwroot

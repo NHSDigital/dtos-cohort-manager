@@ -1,8 +1,8 @@
 ARG BASE_IMAGE
 FROM ${BASE_IMAGE} AS function
 
-COPY ./DemographicServices/ManageNemsSubscription  app/src/dotnet-function-app
-WORKDIR app/src/dotnet-function-app
+COPY ./DemographicServices/ManageNemsSubscription  /app/src/dotnet-function-app
+WORKDIR /app/src/dotnet-function-app
 
 RUN --mount=type=cache,target=/root/.nuget/packages \
     dotnet publish *.csproj --output /home/site/wwwroot
