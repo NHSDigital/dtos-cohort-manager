@@ -120,11 +120,16 @@ jobs:
           docker tag cohort-manager-dotnet-base:latest "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
           docker build -f Dockerfile.function.base -t cohort-manager-function-base:latest .
           docker tag cohort-manager-function-base:latest "ghcr.io/nhsdigital/cohort-manager-function-base:${PR_NUM_TAG}"
-
-          docker images
+          SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
 
           docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
+          docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${SHORT_COMMIT_HASH}"
           docker push "ghcr.io/nhsdigital/cohort-manager-function-base:${PR_NUM_TAG}"
+          docker push "ghcr.io/nhsdigital/cohort-manager-function-base:${SHORT_COMMIT_HASH}"
+          if [ "${GITHUB_REF}" == 'refs/heads/main' ]; then
+              docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:latest"
+              docker push "ghcr.io/nhsdigital/cohort-manager-function-base:latest"
+          fi
 
       - name: Set Image Tags
         id: set-image-tags
