@@ -66,7 +66,9 @@ public class TransformString
             ParticipantUpdated = true;
             // Special characters that need to be handled separately
             if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
-                throw new ArgumentException($"Participant contains illegal characters");
+            {
+                stringField = stringField.Replace(@"\E\", " ").Replace(@"\T\", " ");
+            }
 
             // The & character is the only illegal character that is transformed to a string instead of a char
             if (stringField.Contains('&'))
