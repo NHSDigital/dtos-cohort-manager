@@ -121,7 +121,7 @@ jobs:
       version: "${{ needs.metadata.outputs.version }}"
   build-image-stage: # Recommended maximum execution time is 3 minutes
     name: "Image build stage"
-    needs: [metadata, commit-stage, test-stage]
+    needs: [metadata, commit-stage, test-stage, analysis-stage]
     uses: ./.github/workflows/stage-3-build-images.yaml
     permissions:
       contents: read
