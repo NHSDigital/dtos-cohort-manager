@@ -109,8 +109,8 @@ resource "azurerm_role_assignment" "function_send_to_topic" {
 
 locals {
   app_settings_common = {
-    DOCKER_ENABLE_CI                    = var.function_apps.docker_CI_enable
-    FUNCTION_WORKER_RUNTIME             = "dotnet-isolated"
+    DOCKER_ENABLE_CI        = var.function_apps.docker_CI_enable
+    FUNCTION_WORKER_RUNTIME = "dotnet-isolated"
 
     REMOTE_DEBUGGING_ENABLED            = var.function_apps.remote_debugging_enabled
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.function_apps.enable_appsrv_storage

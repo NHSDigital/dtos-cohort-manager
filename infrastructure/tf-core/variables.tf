@@ -175,7 +175,7 @@ variable "container_app_environments" {
   type = object({
     instances = optional(map(object({
       infrastructure_resource_group_name = optional(string)
-      workload_profile                   = optional(object({
+      workload_profile = optional(object({
         name                  = optional(string)
         workload_profile_type = optional(string)
         minimum_count         = optional(number, 0)
@@ -613,5 +613,12 @@ variable "function_app_slots" {
   type = list(object({
     function_app_slots_name   = optional(string, "staging")
     function_app_slot_enabled = optional(bool, false)
+  }))
+}
+
+variable "dashboards" {
+  description = "Configuration for dashboards"
+  type = map(object({
+    path = string
   }))
 }
