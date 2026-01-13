@@ -143,15 +143,14 @@ public class ValidationExceptionData : IValidationExceptionData
         var allValidationExceptions = await GetValidationExceptionsByNhsNumber(nhsNumber);
 
         if (allValidationExceptions.Count == 0)
-            if (allValidationExceptions.Count == 0)
+        {
+            return new ValidationExceptionsByNhsNumberResponse
             {
-                return new ValidationExceptionsByNhsNumberResponse
-                {
-                    Exceptions = [],
-                    Reports = [],
-                    NhsNumber = nhsNumber
-                };
-            }
+                Exceptions = [],
+                Reports = [],
+                NhsNumber = nhsNumber
+            };
+        }
 
         var exceptions = allValidationExceptions
             .Where(x => x.Category == (int)ExceptionCategory.NBO)
