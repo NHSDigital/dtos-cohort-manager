@@ -36,6 +36,9 @@ public class ValidationExceptionDataTests
             new() { ExceptionId = 7, CohortName = "Cohort7", DateCreated = DateTime.UtcNow.Date.AddDays(-2), NhsNumber = "9998136431", RuleDescription = "Other Rule", Category = 5, ServiceNowId = null, ErrorRecord = "{\"NhsNumber\":\"9998136431\",\"FirstName\":\"Bob\",\"FamilyName\":\"Johnson\"}" },
             new() { ExceptionId = 8, NhsNumber = "7777777777", Category = 3, DateCreated = DateTime.UtcNow, ErrorRecord = "{\"NhsNumber\":\"7777777777\"}" },
             new() { ExceptionId = 9, NhsNumber = "7777777777", Category = 12, DateCreated = DateTime.UtcNow, ErrorRecord = "{\"NhsNumber\":\"7777777777\"}" }
+            new() { ExceptionId = 7, CohortName = "Cohort7", DateCreated = DateTime.UtcNow.Date.AddDays(-2), NhsNumber = "9998136431", RuleDescription = "Other Rule", Category = 5, ServiceNowId = null, ErrorRecord = "{\"NhsNumber\":\"9998136431\",\"FirstName\":\"Bob\",\"FamilyName\":\"Johnson\"}" },
+            new() { ExceptionId = 8, NhsNumber = "7777777777", Category = 3, DateCreated = DateTime.UtcNow, ErrorRecord = "{\"NhsNumber\":\"7777777777\"}" },
+            new() { ExceptionId = 9, NhsNumber = "7777777777", Category = 12, DateCreated = DateTime.UtcNow, ErrorRecord = "{\"NhsNumber\":\"7777777777\"}" }
         };
         _exceptionCategory = ExceptionCategory.NBO;
     }
@@ -54,8 +57,10 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(5);
+        result.Should().HaveCount(5);
         result.Should().BeInAscendingOrder(o => o.DateCreated);
         result?[0].ExceptionId.Should().Be(4);
+        result?[^1].ExceptionId.Should().Be(8);
         result?[^1].ExceptionId.Should().Be(8);
     }
 
@@ -73,7 +78,9 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(5);
+        result.Should().HaveCount(5);
         result.Should().BeInDescendingOrder(o => o.DateCreated);
+        result?[0].ExceptionId.Should().Be(8);
         result?[0].ExceptionId.Should().Be(8);
         result?[^1].ExceptionId.Should().Be(4);
     }
@@ -136,9 +143,11 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(3);
+        result.Should().HaveCount(3);
         result.Should().BeInAscendingOrder(o => o.DateCreated);
         result.Should().OnlyContain(e => string.IsNullOrEmpty(e.ServiceNowId));
         result?[0].ExceptionId.Should().Be(4);
+        result?[^1].ExceptionId.Should().Be(8);
         result?[^1].ExceptionId.Should().Be(8);
     }
 
@@ -156,8 +165,10 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(3);
+        result.Should().HaveCount(3);
         result.Should().BeInDescendingOrder(o => o.DateCreated);
         result.Should().OnlyContain(e => string.IsNullOrEmpty(e.ServiceNowId));
+        result?[0].ExceptionId.Should().Be(8);
         result?[0].ExceptionId.Should().Be(8);
         result?[^1].ExceptionId.Should().Be(4);
     }
@@ -176,7 +187,9 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(5);
+        result.Should().HaveCount(5);
         result.Should().BeInDescendingOrder(o => o.DateCreated);
+        result?[0].ExceptionId.Should().Be(8);
         result?[0].ExceptionId.Should().Be(8);
         result?[^1].ExceptionId.Should().Be(4);
     }
@@ -621,12 +634,15 @@ public class ValidationExceptionDataTests
     public async Task GetExceptionsWithReportsByNhsNumber_NoExceptionsFound_ReturnsEmptyResults()
     {
         // Arrange
+        // Arrange
         var nhsNumber = "1234567890";
         _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(new List<ExceptionManagement>());
 
         // Act
+        // Act
         var result = await validationExceptionData.GetExceptionsWithReportsByNhsNumber(nhsNumber);
 
+        // Assert
         // Assert
         result.Exceptions.Should().NotBeNull();
         result.Exceptions.Should().BeEmpty();
@@ -639,13 +655,16 @@ public class ValidationExceptionDataTests
     public async Task GetExceptionsWithReportsByNhsNumber_OnlyNonReportCategories_ReturnsEmptyReports()
     {
         // Arrange
+        // Arrange
         var nhsNumber = "3333333333";
         var testExceptions = _exceptionList.Where(e => e.NhsNumber == nhsNumber).ToList();
         _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(testExceptions);
 
         // Act
+        // Act
         var result = await validationExceptionData.GetExceptionsWithReportsByNhsNumber(nhsNumber);
 
+        // Assert
         // Assert
         result.Exceptions.Should().HaveCount(1);
         result.Reports.Should().BeEmpty();
