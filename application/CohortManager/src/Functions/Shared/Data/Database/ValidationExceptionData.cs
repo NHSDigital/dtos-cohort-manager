@@ -141,29 +141,17 @@ public class ValidationExceptionData : IValidationExceptionData
     public async Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsWithReportsByNhsNumber(string nhsNumber)
     {
         var allValidationExceptions = await GetValidationExceptionsByNhsNumber(nhsNumber);
-        var allValidationExceptions = await GetValidationExceptionsByNhsNumber(nhsNumber);
 
         if (allValidationExceptions.Count == 0)
-        if (allValidationExceptions.Count == 0)
-        {
-            return new ValidationExceptionsByNhsNumberResponse
+            if (allValidationExceptions.Count == 0)
             {
-                Exceptions = [],
-                Reports = [],
-                NhsNumber = nhsNumber
-            };
-        }
-
-        var exceptions = allValidationExceptions
-            .Where(x => x.Category == (int)ExceptionCategory.NBO)
-            .ToList();
-
-        var reportExceptions = allValidationExceptions
-            .Where(x => x.Category == (int)ExceptionCategory.Confusion ||
-                       x.Category == (int)ExceptionCategory.Superseded)
-            .ToList();
-
-        var reports = GenerateExceptionReports(reportExceptions);
+                return new ValidationExceptionsByNhsNumberResponse
+                {
+                    Exceptions = [],
+                    Reports = [],
+                    NhsNumber = nhsNumber
+                };
+            }
 
         var exceptions = allValidationExceptions
             .Where(x => x.Category == (int)ExceptionCategory.NBO)
@@ -179,31 +167,9 @@ public class ValidationExceptionData : IValidationExceptionData
         return new ValidationExceptionsByNhsNumberResponse
         {
             Exceptions = exceptions,
-            Exceptions = exceptions,
             Reports = reports,
             NhsNumber = nhsNumber
         };
-    }
-
-    private async Task<List<ValidationException>> GetValidationExceptionsByNhsNumber(string nhsNumber)
-    {
-        var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x =>
-            x.NhsNumber == nhsNumber &&
-            x.Category.HasValue &&
-            (x.Category.Value == (int)ExceptionCategory.NBO ||
-             x.Category.Value == (int)ExceptionCategory.Confusion ||
-             x.Category.Value == (int)ExceptionCategory.Superseded));
-
-        if (exceptions == null || !exceptions.Any())
-        {
-            return [];
-        }
-
-        return [.. exceptions
-            .Select(GetValidationExceptionWithDetails)
-            .Where(x => x != null)
-            .Cast<ValidationException>()
-            .OrderByDescending(x => x.DateCreated)];
     }
 
     private async Task<List<ValidationException>> GetValidationExceptionsByNhsNumber(string nhsNumber)

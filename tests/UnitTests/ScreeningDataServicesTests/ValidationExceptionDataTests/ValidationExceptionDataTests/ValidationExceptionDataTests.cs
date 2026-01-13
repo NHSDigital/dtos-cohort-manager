@@ -36,9 +36,6 @@ public class ValidationExceptionDataTests
             new() { ExceptionId = 7, CohortName = "Cohort7", DateCreated = DateTime.UtcNow.Date.AddDays(-2), NhsNumber = "9998136431", RuleDescription = "Other Rule", Category = 5, ServiceNowId = null, ErrorRecord = "{\"NhsNumber\":\"9998136431\",\"FirstName\":\"Bob\",\"FamilyName\":\"Johnson\"}" },
             new() { ExceptionId = 8, NhsNumber = "7777777777", Category = 3, DateCreated = DateTime.UtcNow, ErrorRecord = "{\"NhsNumber\":\"7777777777\"}" },
             new() { ExceptionId = 9, NhsNumber = "7777777777", Category = 12, DateCreated = DateTime.UtcNow, ErrorRecord = "{\"NhsNumber\":\"7777777777\"}" }
-            new() { ExceptionId = 7, CohortName = "Cohort7", DateCreated = DateTime.UtcNow.Date.AddDays(-2), NhsNumber = "9998136431", RuleDescription = "Other Rule", Category = 5, ServiceNowId = null, ErrorRecord = "{\"NhsNumber\":\"9998136431\",\"FirstName\":\"Bob\",\"FamilyName\":\"Johnson\"}" },
-            new() { ExceptionId = 8, NhsNumber = "7777777777", Category = 3, DateCreated = DateTime.UtcNow, ErrorRecord = "{\"NhsNumber\":\"7777777777\"}" },
-            new() { ExceptionId = 9, NhsNumber = "7777777777", Category = 12, DateCreated = DateTime.UtcNow, ErrorRecord = "{\"NhsNumber\":\"7777777777\"}" }
         };
         _exceptionCategory = ExceptionCategory.NBO;
     }
