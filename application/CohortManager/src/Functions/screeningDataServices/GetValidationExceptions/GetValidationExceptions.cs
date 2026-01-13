@@ -157,7 +157,7 @@ public class GetValidationExceptions
         {
             var result = await _validationData.GetExceptionsWithReportsByNhsNumber(cleanedNhsNumber);
 
-            if (result.Exceptions.Count == 0)
+            if (result.Exceptions.Count == 0 && result.Reports.Count == 0)
             {
                 return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
             }
