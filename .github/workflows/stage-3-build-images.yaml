@@ -114,13 +114,15 @@ jobs:
         continue-on-error: false
         run: |
           PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
-
+          SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
 
           docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
           docker tag cohort-manager-dotnet-base:latest "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
+          docker tag cohort-manager-dotnet-base:latest "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${SHORT_COMMIT_HASH}"
+
           docker build -f Dockerfile.function.base -t cohort-manager-function-base:latest .
           docker tag cohort-manager-function-base:latest "ghcr.io/nhsdigital/cohort-manager-function-base:${PR_NUM_TAG}"
-          SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
+          docker tag cohort-manager-function-base:latest "ghcr.io/nhsdigital/cohort-manager-function-base:${SHORT_COMMIT_HASH}"
 
           docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
           docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${SHORT_COMMIT_HASH}"
