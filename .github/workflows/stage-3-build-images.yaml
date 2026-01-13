@@ -165,7 +165,7 @@ jobs:
     if: needs.get-functions.outputs.FUNC_NAMES != '[]'
     outputs:
       pr_num_tag: ${{ env.PR_NUM_TAG }}
-      short_orycommit_hash: ${{ env.COMMIT_HASH_TAG }}
+      short_commit_hash: ${{ env.COMMIT_HASH_TAG }}
     steps:
       - uses: actions/checkout@v4
         with:
