@@ -6,24 +6,27 @@ A Python script that finds the most recent records for a list of NHS numbers fro
 
 Install the required dependencies:
 
-```
+```sh
 pip install -r requirements.txt
 ```
 
 ## Usage
 
-### Using example NHS numbers:
-```
+### Using example NHS numbers
+
+```sh
 python nhs_record_extractor.py
 ```
 
-### Using NHS numbers from a file:
-```
+### Using NHS numbers from a file
+
+```sh
 python nhs_record_extractor.py nhs_numbers.txt
 ```
 
-### Specifying an output file:
-```
+### Specifying an output file
+
+```sh
 python nhs_record_extractor.py nhs_numbers.txt output_file.parquet
 ```
 
@@ -43,10 +46,14 @@ The input file should contain one NHS number per line.
 ## Expected File Format
 
 ### Parquet Files
+
 The script expects parquet files to have at least this column:
+
 - `nhs_number`: The NHS number
 
 ### Filenames
+
 The script expects parquet filenames to follow this pattern:
+
 - `DATE_other_information.parquet` where DATE is the date received
 - Example: '20251027100135103118_BEFB67_-_CAAS_BREAST_SCREENING_COHORT.parquet'
