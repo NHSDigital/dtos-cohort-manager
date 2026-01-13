@@ -472,15 +472,14 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    [DataRow(@"123 Main\T\Street", "123 Main Street")]
-    [DataRow(@"456\E\Oak Avenue", "456 Oak Avenue")]
-    [DataRow(@"789\T\Elm\E\Road", "789 Elm Road")]
-    [DataRow(@"\T\Start Street", " Start Street")]
-    [DataRow(@"End Road\E\", "End Road ")]
-    public async Task Run_AddressWithTabOrEscapeCharacters_TransformToSpace(string address, string transformedAddress)
+    [DataRow("Test Hair & Beauty Clinic", "Test Hair and Beauty Clinic")]
+    [DataRow("Bath & Testing Lodge Park", "Bath and Testing Lodge Park")]
+    [DataRow(@"Central \T\ Test Housing Trust", "Central and Test Housing Trust")]
+    [DataRow("Central \\T\\ Test Housing Trust", "Central and Test Housing Trust")]
+    public async Task Run_AddressWithAmpersand_TransformedToAnd(string address, string transformedAddress)
     {
         // Arrange
-        _requestBody.Participant.AddressLine1 = address;
+        _requestBody.Participant.AddressLine2 = address;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
         var expectedResponse = new CohortDistributionParticipant
@@ -491,7 +490,7 @@ public class TransformDataServiceTests
             NamePrefix = "MR",
             Gender = Gender.Male,
             ReferralFlag = false,
-            AddressLine1 = transformedAddress
+            AddressLine2 = transformedAddress
         };
 
         // Act
