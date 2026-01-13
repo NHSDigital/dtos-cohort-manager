@@ -146,6 +146,20 @@ function ResultsHeader({ startItem, endItem, totalCount }: {
   );
 }
 
+// Component: No Exceptions State
+function NoExceptionsState({ nhsNumber }: { readonly nhsNumber: string }) {
+  return (
+    <>
+      <h2 className="nhsuk-heading-m nhsuk-u-margin-bottom-5">Exceptions</h2>
+      <div className="nhsuk-card nhsuk-u-margin-bottom-5">
+        <div className="nhsuk-card__content">
+          <p>No exceptions found for NHS Number {nhsNumber}</p>
+        </div>
+      </div>
+    </>
+  );
+}
+
 // Component: Reports Table Row
 function ReportsTableRow({ report, nhsNumber, index }: {
   readonly report: ValidationExceptionReport;
@@ -243,10 +257,10 @@ export default async function Page({
   });
 
   const totalCount = response.data.PaginatedExceptions.TotalItems || 0;
+  const reportsCount = response.data.Reports?.length || 0;
 
-  // Redirect to No Results page if no results found
-  if (totalCount === 0) {
-    redirect(`/exceptions/noResults`);
+  if (totalCount === 0 && reportsCount === 0) {
+      redirect(`/exceptions/noResults`);
   }
 
   try {
@@ -271,16 +285,22 @@ export default async function Page({
                 Search results for {nhsNumber}
               </h1>
 
-              <ResultsHeader
-                startItem={startItem}
-                endItem={endItem}
-                totalCount={totalCount}
-              />
-              <div className="nhsuk-card nhsuk-u-margin-bottom-5">
-                <div className="nhsuk-card__content">
-                  <ExceptionsTable exceptions={exceptionDetails} />
-                </div>
-              </div>
+              {exceptionDetails.length > 0 ? (
+                <>
+                  <ResultsHeader
+                    startItem={startItem}
+                    endItem={endItem}
+                    totalCount={totalCount}
+                  />
+                  <div className="nhsuk-card nhsuk-u-margin-bottom-5">
+                    <div className="nhsuk-card__content">
+                      <ExceptionsTable exceptions={exceptionDetails} />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <NoExceptionsState nhsNumber={nhsNumber} />
+              )}
 
               {totalPages > 1 && (
                 <Pagination
