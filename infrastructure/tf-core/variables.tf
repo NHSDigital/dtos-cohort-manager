@@ -614,3 +614,10 @@ variable "function_app_slots" {
     function_app_slot_enabled = optional(bool, false)
   }))
 }
+
+variable "dashboards" {
+  description = "Configuration for dashboards"
+  type = map(object({
+    path = string
+  }))
+}

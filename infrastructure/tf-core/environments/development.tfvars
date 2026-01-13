@@ -1378,3 +1378,9 @@ storage_accounts = {
     }
   }
 }
+
+dashboards = {
+  observability = {
+    path = "./templates/dashboard-observability-template.tpl"
+  }
+}
