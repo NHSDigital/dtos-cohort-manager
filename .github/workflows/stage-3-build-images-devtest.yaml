@@ -77,13 +77,88 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/deployment/get-docker-names.sh
 
+  build-base-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      id-token: write
+      packages: write
+    outputs:
+      DOTNET_BASE_IMAGE: ${{ steps.set-image-tags.outputs.DOTNET_BASE_IMAGE }}
+      FUNCTION_BASE_IMAGE:  ${{ steps.set-image-tags.outputs.FUNCTION_BASE_IMAGE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+          submodules: 'true'
+
+      - name: log in to GHCR
+        uses: docker/login-action@v3
+        continue-on-error: false
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect base image changes
+        id: detect-base-image-changes
+        continue-on-error: false
+        run: bash scripts/deployment/check-base-image-changes.sh
+
+      - name: Build Base Images
+        id: build-base-images
+        working-directory: ./
+        if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' || github.ref == 'refs/heads/main'  }}
+        continue-on-error: false
+        run: |
+          PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+          SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
+
+          docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
+          docker tag cohort-manager-dotnet-base:latest "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
+          docker tag cohort-manager-dotnet-base:latest "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${SHORT_COMMIT_HASH}"
+
+          docker build -f Dockerfile.function.base -t cohort-manager-function-base:latest .
+          docker tag cohort-manager-function-base:latest "ghcr.io/nhsdigital/cohort-manager-function-base:${PR_NUM_TAG}"
+          docker tag cohort-manager-function-base:latest "ghcr.io/nhsdigital/cohort-manager-function-base:${SHORT_COMMIT_HASH}"
+
+          docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
+          docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${SHORT_COMMIT_HASH}"
+          docker push "ghcr.io/nhsdigital/cohort-manager-function-base:${PR_NUM_TAG}"
+          docker push "ghcr.io/nhsdigital/cohort-manager-function-base:${SHORT_COMMIT_HASH}"
+          if [ "${GITHUB_REF}" == 'refs/heads/main' ]; then
+              docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:latest"
+              docker push "ghcr.io/nhsdigital/cohort-manager-function-base:latest"
+          fi
+
+      - name: Set Image Tags
+        id: set-image-tags
+        run: |
+
+          PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+          IMAGE_TAG="latest"
+
+          if [[ ${{steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE}} == 'true' ]]; then
+            IMAGE_TAG="${PR_NUM_TAG}"
+          fi
+          echo "Image Tag = ${IMAGE_TAG}"
+
+          echo "DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "FUNCTION_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-function-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
+
+
+
+
+
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
       pull-requests: read
-    needs: get-functions
+    needs: [get-functions, build-base-images]
     strategy:
       matrix:
         function: ${{ fromJSON(needs.get-functions.outputs.FUNC_NAMES) }}
@@ -165,8 +240,10 @@ jobs:
             exit 0
           fi
 
-          # Build the image
-          docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --profile "*" build --no-cache --pull ${function}
+
+          docker compose -f ${COMPOSE_FILE//,/ -f } \
+            -p ${PROJECT_NAME} \
+            --profile "*" build --no-cache --pull ${function}
 
           repo_name="${ACR_NAME}.azurecr.io/${PROJECT_NAME}-${function}"
           echo $(repo_name)
