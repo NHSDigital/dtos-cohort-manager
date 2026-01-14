@@ -151,18 +151,3 @@ jobs:
     with:
       environments: "[\"development\"]"
       commit_sha: ${{ github.sha }}
-    name: Validate PR title
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-    env:
-      GITHUB_TOKEN: ${{ github.token }}
-    if: github.event_name == 'push'
-    steps:
-      - uses: amannn/action-semantic-pull-request@v5
-        id: validate
-      - uses: thollander/actions-comment-pull-request@v2
-        if: ${{ failure() && steps.validate.conclusion == 'failure' }}
-        with:
-          message: |
-            Your Pull Request title must meet the conventional commit standards, please see the following documentation - https://www.conventionalcommits.org/en/v1.0.0/#specification
