@@ -110,7 +110,7 @@ jobs:
       - name: Build Base Images
         id: build-base-images
         working-directory: ./
-        if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' }}
+        if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' || github.ref == 'refs/heads/main'  }}
         continue-on-error: false
         run: |
           PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
