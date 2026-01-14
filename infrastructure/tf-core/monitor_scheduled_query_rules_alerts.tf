@@ -42,7 +42,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "caas_file_not_received" 
   # Action to take when the alert fires (e.g., email, webhook, runbook)
   action {
     # List of Action Group resource IDs
-    action_group  = [module.monitor_action_group_performance[0].monitor_action_group.id]
+    action_group  = [module.monitor_action_group_performance.monitor_action_group.id]
     email_subject = "Log Alert Fired: Missing CaaS File Detected"
   }
 }
@@ -92,7 +92,7 @@ resource "azurerm_monitor_scheduled_query_rules_alert" "db_backup_not_created" {
   # Action to take when the alert fires (e.g., email, webhook, runbook)
   action {
     # List of Action Group resource IDs
-    action_group  = [module.monitor_action_group_performance[0].monitor_action_group.id]
+    action_group  = [module.monitor_action_group_performance.monitor_action_group.id]
     email_subject = "Log Alert Fired: No DB backup for the past 48 hours"
   }
 }

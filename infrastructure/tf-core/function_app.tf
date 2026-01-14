@@ -10,7 +10,7 @@ module "functionapp" {
   app_settings = each.value.app_settings
 
   enable_alerting                                      = var.features.alerts_function_errors_enabled
-  action_group_id                                      = var.features.alerts_function_errors_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
+  action_group_id                                      = var.features.alerts_function_errors_enabled ? module.monitor_action_group_performance.monitor_action_group.id : null
   alert_4xx_threshold                                  = var.function_apps.alert_4xx_threshold
   alert_5xx_threshold                                  = var.function_apps.alert_5xx_threshold
   alert_window_size                                    = var.function_apps.alert_window_size

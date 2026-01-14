@@ -6,8 +6,6 @@ resource "azurerm_resource_group" "monitoring" {
 }
 
 module "monitor_action_group_performance" {
-  count = var.features.alerts_enabled ? 1 : 0
-
   source = "../../../dtos-devops-templates/infrastructure/modules/monitor-action-group"
 
   name                = "${module.regions_config[local.primary_region].names.monitor-action-group}-perf"
