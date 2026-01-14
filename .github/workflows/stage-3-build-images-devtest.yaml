@@ -115,6 +115,7 @@ jobs:
         run: |
           PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
           SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
+          echo SHORT_COMMIT_HASH
 
           docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
           docker tag cohort-manager-dotnet-base:latest "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
