@@ -29,8 +29,9 @@ module "dashboard" {
 
   dashboard_properties = templatefile(each.value.dashboard.path,
     {
-      environment = var.environment
-      sub_id      = data.azurerm_client_config.current.subscription_id
+      audit_sub_id                     = var.AUDIT_SUBSCRIPTION_ID
+      audit_resource_group             = var.AUDIT_BACKEND_AZURE_RESOURCE_GROUP_NAME
+      audit_resource_name_app_insights = module.regions_config[each.value.region].names.app-insights
     }
   )
 }
