@@ -150,7 +150,9 @@ jobs:
           echo "DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
           echo "FUNCTION_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-function-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
 
+          echo "The value of FUNCTION_BASE_IMAGE variable"
           echo $FUNCTION_BASE_IMAGE
+          echo "."
 
 
 
