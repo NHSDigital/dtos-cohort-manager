@@ -152,7 +152,7 @@ jobs:
 
           echo "The value of FUNCTION_BASE_IMAGE variable"
           echo $FUNCTION_BASE_IMAGE
-          echo "."
+          echo "ghcr.io/nhsdigital/cohort-manager-function-base:"${IMAGE_TAG}
 
 
 
