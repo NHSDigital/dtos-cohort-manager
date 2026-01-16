@@ -263,9 +263,9 @@ export default async function Page({
   const totalCount = response.data.PaginatedExceptions.TotalItems || 0;
   const reportsCount = response.data.Reports?.length || 0;
 
-  if (totalCount === 0 && reportsCount === 0) {
-      redirect(`/exceptions/noResults`);
-  }
+if (totalCount === 0 && reportsCount === 0) {
+    redirect(`/exceptions/noResults?searchType=${searchType}&searchValue=${encodeURIComponent(searchValue)}`);
+}
 
   try {
     const exceptionDetails = response.data.PaginatedExceptions.Items.map(transformApiException);

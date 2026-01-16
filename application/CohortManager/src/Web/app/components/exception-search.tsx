@@ -29,7 +29,8 @@ export function ExceptionSearch() {
     const cleanedValue = searchValue.trim().replaceAll(" ", "");
 
     if (!isValidInput(searchValue, searchType)) {
-      router.push(`/exceptions/noResults`);
+      const searchTypeName = searchType === SearchType.NhsNumber ? "NhsNumber" : "ExceptionId";
+      router.push(`/exceptions/noResults?searchType=${searchTypeName}&searchValue=${encodeURIComponent(cleanedValue)}`);
       return;
     }
 
