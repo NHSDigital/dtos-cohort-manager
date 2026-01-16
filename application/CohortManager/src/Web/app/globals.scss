@@ -134,6 +134,7 @@
 .nhsuk-summary-list__multiline {
   white-space: pre-wrap;
 }
+
 // Header
 .nhsuk-header__content {
   display: flex;
@@ -142,19 +143,23 @@
   flex-wrap: nowrap;
   justify-content: space-between;
 }
+
 .nhsuk-header__service {
   white-space: nowrap;
   flex-shrink: 0;
 }
+
 .nhsuk-header__search {
   flex: 1;
   min-width: 380px;
   max-width: 550px;
 }
+
 .nhsuk-header__search-form {
   display: flex;
   align-items: stretch;
 }
+
 .nhsuk-header__search-select,
 .nhsuk-header__search-input {
   height: 40px;
@@ -162,27 +167,26 @@
   font-size: 16px;
   border: 1px solid #aeb7bd;
   box-sizing: border-box;
-  border-radius: 4px;
 }
+
 .nhsuk-header__search-select {
   min-width: 130px;
   flex-shrink: 0;
-  border-right: 1px solid #aeb7bd;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
+  border-radius: 4px 0 0 4px;
 
   option {
     background-color: white !important;
     color: #212b32 !important;
   }
 }
+
 .nhsuk-header__search-input {
   flex: 1;
   min-width: 0;
   border-left: none;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
+  border-radius: 0 4px 4px 0;
 }
+
 .nhsuk-header__account {
   flex-shrink: 0;
 }
