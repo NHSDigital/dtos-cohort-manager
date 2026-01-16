@@ -3,7 +3,7 @@ import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
-import { SearchNhsNumber } from "@/app/components/search-nhs-number";
+import { ExceptionSearch } from "@/app/components/exception-search";
 
 export const metadata: Metadata = {
   title: `No results - ${process.env.SERVICE_NAME} - NHS`,
@@ -29,9 +29,6 @@ export default async function NoResultsPage() {
         <div className="nhsuk-grid-row">
           <div className="nhsuk-grid-column-two-thirds">
             <h1>No results</h1>
-
-            <SearchNhsNumber />
-
             <div className="nhsuk-u-margin-top-4">
               <p>Try checking the NHS number:</p>
               <ul className="nhsuk-list nhsuk-list--bullet">

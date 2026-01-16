@@ -17,5 +17,5 @@ public interface IValidationExceptionData
     Task<ServiceResponseModel> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId);
     Task<List<ValidationException>> GetReportExceptions(DateTime? reportDate, ExceptionCategory exceptionCategory);
     Task<List<ExceptionManagement>> GetByFilter(Expression<Func<ExceptionManagement, bool>> filter);
-    Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsWithReportsByNhsNumber(string nhsNumber);
+    Task<ValidationExceptionsResponse> GetExceptionsByNhsNumber(string nhsNumber);
 }
