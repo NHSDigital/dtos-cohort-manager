@@ -67,7 +67,7 @@ module "azure_sql_server" {
   depends_on = [
     module.peering_spoke_hub,
     module.peering_hub_spoke,
-    module.monitor_action_group_performance.monitor_action_group
+    module.monitor_action_group_performance
   ]
 
   tags = var.tags
