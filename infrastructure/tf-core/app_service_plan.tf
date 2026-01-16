@@ -70,4 +70,6 @@ module "app-service-plan" {
   dec_scale_type      = each.value.autoscale_override != null ? coalesce(each.value.autoscale_override.scaling_rule.dec_scale_type, var.app_service_plan.autoscale.scaling_rule.dec_scale_type) : var.app_service_plan.autoscale.scaling_rule.dec_scale_type
   dec_scale_value     = each.value.autoscale_override != null ? coalesce(each.value.autoscale_override.scaling_rule.dec_scale_value, var.app_service_plan.autoscale.scaling_rule.dec_scale_value) : var.app_service_plan.autoscale.scaling_rule.dec_scale_value
   dec_scale_cooldown  = each.value.autoscale_override != null ? coalesce(each.value.autoscale_override.scaling_rule.dec_scale_cooldown, var.app_service_plan.autoscale.scaling_rule.dec_scale_cooldown) : var.app_service_plan.autoscale.scaling_rule.dec_scale_cooldown
+
+  depends_on = [module.monitor_action_group_performance.monitor_action_group]
 }
