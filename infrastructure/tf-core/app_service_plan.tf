@@ -29,7 +29,7 @@ module "app-service-plan" {
   location            = each.value.region
 
   enable_alerting                                   = var.features.alerts_enabled
-  action_group_id                                   = var.features.alerts_enabled ? module.monitor_action_group_performance.monitor_action_group.id : null
+  action_group_id                                   = var.features.alerts_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
   log_analytics_workspace_id                        = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_appserviceplan_metrics = local.monitor_diagnostic_setting_appserviceplan_metrics
   resource_group_name_monitoring                    = var.features.alerts_enabled ? azurerm_resource_group.monitoring.name : null
@@ -70,6 +70,4 @@ module "app-service-plan" {
   dec_scale_type      = each.value.autoscale_override != null ? coalesce(each.value.autoscale_override.scaling_rule.dec_scale_type, var.app_service_plan.autoscale.scaling_rule.dec_scale_type) : var.app_service_plan.autoscale.scaling_rule.dec_scale_type
   dec_scale_value     = each.value.autoscale_override != null ? coalesce(each.value.autoscale_override.scaling_rule.dec_scale_value, var.app_service_plan.autoscale.scaling_rule.dec_scale_value) : var.app_service_plan.autoscale.scaling_rule.dec_scale_value
   dec_scale_cooldown  = each.value.autoscale_override != null ? coalesce(each.value.autoscale_override.scaling_rule.dec_scale_cooldown, var.app_service_plan.autoscale.scaling_rule.dec_scale_cooldown) : var.app_service_plan.autoscale.scaling_rule.dec_scale_cooldown
-
-  depends_on = [module.monitor_action_group_performance]
 }

@@ -28,7 +28,7 @@ module "azure_sql_server" {
 
   # Azure Monitor Alerting
   enable_alerting = var.features.alerts_enabled
-  action_group_id = var.features.alerts_enabled ? module.monitor_action_group_performance.monitor_action_group.id : null
+  action_group_id = var.features.alerts_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
 
   sql_uai_name                         = null # not used - deprecate in module
   sql_admin_group_name                 = var.sqlserver.sql_admin_group_name
@@ -66,8 +66,7 @@ module "azure_sql_server" {
 
   depends_on = [
     module.peering_spoke_hub,
-    module.peering_hub_spoke,
-    module.monitor_action_group_performance
+    module.peering_hub_spoke
   ]
 
   tags = var.tags

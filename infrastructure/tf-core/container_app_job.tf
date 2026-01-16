@@ -49,7 +49,7 @@ module "container-app-job" {
   user_assigned_identity_ids   = each.value.add_user_assigned_identity ? [module.user_assigned_managed_identity_sql["${each.key}"].id] : []
 
   enable_alerting                = var.features.alerts_enabled
-  action_group_id                = var.features.alerts_enabled ? module.monitor_action_group_performance.monitor_action_group.id : null
+  action_group_id                = var.features.alerts_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
   log_analytics_workspace_id     = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   resource_group_name_monitoring = var.features.alerts_enabled ? azurerm_resource_group.monitoring.name : null
 
