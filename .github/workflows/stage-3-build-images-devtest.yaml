@@ -240,9 +240,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           ENVIRONMENT_TAG: ${{ inputs.environment_tag }}
-        continue-on-error: false
-        env:
           PR_NUM_TAG : ${{ needs.get-pr-number.outputs.PR_NUM_TAG }}
+        continue-on-error: false
         run: |
           echo "The branch is: ${GITHUB_REF}"
 
