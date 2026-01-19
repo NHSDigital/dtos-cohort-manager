@@ -32,6 +32,8 @@ module "dashboard" {
       audit_sub_id                     = var.AUDIT_SUBSCRIPTION_ID
       audit_resource_group             = "${module.regions_config[each.value.region].names.resource-group}-audit"
       audit_resource_name_app_insights = module.regions_config[each.value.region].names.app-insights
+      core_sub_id                      = var.TARGET_SUBSCRIPTION_ID
+      core_resource_group              = module.regions_config[each.value.region].names.resource-group
     }
   )
 }
