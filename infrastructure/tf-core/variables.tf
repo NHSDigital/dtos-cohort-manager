@@ -621,4 +621,9 @@ variable "dashboards" {
   type = map(object({
     path = string
   }))
+  default = {
+    observability = {
+      path = "./templates/dashboard-observability-template.tpl"
+    }
+  }
 }
