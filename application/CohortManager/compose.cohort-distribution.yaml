@@ -8,6 +8,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/DistributeParticipant/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - CohortDistributionTopic=cohort-distribution-topic
@@ -34,6 +36,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveCohortDistribution/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [bs-select]
     ports:
       - 7078:7078
@@ -53,6 +57,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/RetrieveCohortRequestAudit/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [bs-select]
     ports:
       - 7086:7086
@@ -70,6 +76,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: CohortDistributionServices/TransformDataService/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7080
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -88,6 +96,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ScreeningValidationService/RemoveValidationException/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7085
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException

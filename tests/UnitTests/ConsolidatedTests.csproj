@@ -7,6 +7,7 @@
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+    <FunctionsGenerateWorkerExtensions>false</FunctionsGenerateWorkerExtensions>
     <!-- Disable implicit file inclusion -->
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <UserSecretsId>4ba9d1bc-35b7-4f07-a628-a89bb37cd0aa</UserSecretsId>
@@ -16,32 +17,23 @@
   <!-- NuGet Package References -->
   <ItemGroup>
     <!-- Testing Packages -->
-    <PackageReference Include="coverlet.collector" Version="6.0.0">
+    <PackageReference Include="coverlet.collector" >
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="Moq" Version="4.20.72" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
-    <PackageReference Include="FluentAssertions" Version="6.12.2" />
-
-    <!-- Azure Functions Packages -->
-    <PackageReference Include="Microsoft.Azure.Functions.Extensions" Version="1.1.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.Http" Version="3.2.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs.Extensions.DurableTask" Version="2.13.0" />
-    <PackageReference Include="Microsoft.Azure.WebJobs" Version="3.0.37" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="FluentAssertions" />
 
     <!-- Other Dependencies -->
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.6" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
 
     <!-- Pin Hl7.Fhir versions to prevent CI version mismatch -->
-    <PackageReference Include="Hl7.Fhir.R4" Version="5.11.4" />
-    <PackageReference Include="Hl7.Fhir.Base" Version="5.11.4" />
+    <PackageReference Include="Hl7.Fhir.R4" />
   </ItemGroup>
 
   <!-- Additional Projects to ensure Sonar analysis coverage -->

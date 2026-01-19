@@ -9,6 +9,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: CaasIntegration/RetrieveMeshFile/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [non-essential]
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -28,6 +30,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: NemsSubscriptionService/NemsMeshRetrieval/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [nems]
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -50,6 +54,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: NemsSubscriptionService/ProcessNemsUpdate/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:9083
@@ -71,6 +77,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: CaasIntegration/receiveCaasFile/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
@@ -98,6 +106,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/ManageParticipant/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
@@ -114,6 +124,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/ManageServiceNowParticipant/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [service-now]
     environment:
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -135,6 +147,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/UpdateBlockedFlag/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [non-essential]
     ports:
       - "7027:7027"
@@ -160,6 +174,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ParticipantManagementServices/DeleteParticipant/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7087
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
@@ -176,6 +192,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ExceptionHandling/CreateException/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7070
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -190,6 +208,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ExceptionHandling/UpdateException/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [non-essential]
     environment:
       - ASPNETCORE_URLS=http://*:7070
@@ -203,6 +223,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/GetValidationExceptions/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [ui]
     environment:
       - ASPNETCORE_URLS=http://*:7071
@@ -220,6 +242,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ScreeningValidationService/StaticValidation/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7074
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -232,6 +256,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ScreeningValidationService/LookupValidation/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7075
       - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
@@ -251,6 +277,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: DemographicServices/RetrievePDSDemographic/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [service-now, nems]
     ports:
       - 8082:8082
@@ -276,6 +304,8 @@ services:
       build:
         context: ./src/Functions/
         dockerfile: DemographicServices/ManageNemsSubscription/Dockerfile
+        args:
+          BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
       environment:
         - ASPNETCORE_URLS=http://*:9081
         - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
@@ -306,6 +336,8 @@ services:
       build:
         context: ./src/Functions/
         dockerfile: DemographicServices/ManageCaasSubscription/Dockerfile
+        args:
+          BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
       environment:
         - ASPNETCORE_URLS=http://*:9084
         - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
@@ -330,6 +362,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: DemographicServices/DemographicDurableFunction/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7079
       - WEBSITE_HOSTNAME=durable-demographic-function:7079
@@ -348,6 +382,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegration/ServiceNowMessageHandler/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:9092
@@ -371,6 +407,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: ServiceNowIntegration/ServiceNowCohortLookup/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:7180
