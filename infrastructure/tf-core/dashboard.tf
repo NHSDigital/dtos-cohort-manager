@@ -30,7 +30,7 @@ module "dashboard" {
   dashboard_properties = templatefile(each.value.dashboard.path,
     {
       audit_sub_id                     = var.AUDIT_SUBSCRIPTION_ID
-      audit_resource_group             = var.AUDIT_BACKEND_AZURE_RESOURCE_GROUP_NAME
+      audit_resource_group             = "${module.regions_config[each.value.region].names.resource-group}-audit"
       audit_resource_name_app_insights = module.regions_config[each.value.region].names.app-insights
     }
   )
