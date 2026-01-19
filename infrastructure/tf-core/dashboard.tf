@@ -14,7 +14,7 @@ locals {
 
   # ...then project the list of objects into a map with unique keys (combining the iterators), for consumption by a for_each meta argument
   dashboard_maps = {
-    for object in local.dashboard_object_list : "${object.dashboard.path}-${object.region}" => object
+    for object in local.dashboard_object_list : "${object.dashboard.name}-${object.region}" => object
   }
 }
 
@@ -23,7 +23,7 @@ module "dashboard" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/dashboard"
 
-  name                = "${module.regions_config[each.value.region].names.dashboard}-${lower(each.value.dashboard)}"
+  name                = "${module.regions_config[each.value.region].names.dashboard}-${lower(each.value.dashboard.name)}"
   resource_group_name = azurerm_resource_group.core[each.value.region].name
   location            = each.value.region
 
