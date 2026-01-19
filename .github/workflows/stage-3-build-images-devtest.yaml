@@ -143,7 +143,7 @@ jobs:
         if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' || github.ref == 'refs/heads/main'  }}
         continue-on-error: false
         run: |
-          PR_NUM_TAG=${PR_NUM_TAG}
+          PR_NUM_TAG=pr${PR_NUM_TAG}
           SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
           echo $SHORT_COMMIT_HASH
           echo $PR_NUM_TAG
@@ -170,7 +170,7 @@ jobs:
         id: set-image-tags
         run: |
 
-          PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+          PR_NUM_TAG=pr${PR_NUM_TAG}
           IMAGE_TAG="latest"
 
           # if [[ ${{steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE}} == 'true' ]]; then
@@ -201,7 +201,7 @@ jobs:
         function: ${{ fromJSON(needs.get-functions.outputs.FUNC_NAMES) }}
     if: needs.get-functions.outputs.FUNC_NAMES != '[]'
     outputs:
-      pr_num_tag: ${{ env.PR_NUM_TAG }}
+      # pr_num_tag: ${{ env.PR_NUM_TAG }}
       short_commit_hash: ${{ env.COMMIT_HASH_TAG }}
       devtest_commit_hash: ${{ env.DEVTEST_HASH_TAG }}
       devtest_pr_num_tag: ${{ env.DEVTEST_PR_NUM_TAG }}
@@ -239,17 +239,17 @@ jobs:
         run: |
           echo "The branch is: ${GITHUB_REF}"
 
-          if [[ "${GITHUB_REF}" == refs/pull/*/merge ]]; then
-            PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
-          else
-            PULLS_JSON=$(gh api /repos/{owner}/{repo}/commits/${GITHUB_SHA}/pulls)
-            ORIGINATING_BRANCH=$(echo ${PULLS_JSON} | jq -r '.[].head.ref' | python3 -c "import sys, urllib.parse; print(urllib.parse.quote_plus(sys.stdin.read().strip()))")
-            echo "ORIGINATING_BRANCH: ${ORIGINATING_BRANCH}"
-            PR_NUM_TAG=$(echo ${PULLS_JSON} | jq -r '.[].number')
-          fi
+          # if [[ "${GITHUB_REF}" == refs/pull/*/merge ]]; then
+          #   PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+          # else
+          #   PULLS_JSON=$(gh api /repos/{owner}/{repo}/commits/${GITHUB_SHA}/pulls)
+          #   ORIGINATING_BRANCH=$(echo ${PULLS_JSON} | jq -r '.[].head.ref' | python3 -c "import sys, urllib.parse; print(urllib.parse.quote_plus(sys.stdin.read().strip()))")
+          #   echo "ORIGINATING_BRANCH: ${ORIGINATING_BRANCH}"
+          #   PR_NUM_TAG=$(echo ${PULLS_JSON} | jq -r '.[].number')
+          # fi
 
           echo "PR_NUM_TAG: pr${PR_NUM_TAG}"
-          echo "PR_NUM_TAG=pr${PR_NUM_TAG}" >> ${GITHUB_ENV}
+          # echo "PR_NUM_TAG=pr${PR_NUM_TAG}" >> ${GITHUB_ENV}
 
           DEVTEST_PR_NUM_TAG="devtest_${PR_NUM_TAG}"
           echo "Devtest Pr Num tag: ${DEVTEST_PR_NUM_TAG}"
@@ -300,8 +300,8 @@ jobs:
           export CHECK_DOCKER_IMAGE=${PROJECT_NAME}-${function}:latest
           export FORCE_USE_DOCKER=true
 
-          export PR_NUM_TAG=${PR_NUM_TAG}
-          echo "PR_NUM_TAG=${PR_NUM_TAG}" >> ${GITHUB_ENV}
+          # export PR_NUM_TAG=${PR_NUM_TAG}
+          # echo "PR_NUM_TAG=${PR_NUM_TAG}" >> ${GITHUB_ENV}
 
           # Push the image to the repository
           docker push "${repo_name}:${DEVTEST_PR_NUM_TAG}"
