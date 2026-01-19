@@ -52,7 +52,7 @@ jobs:
       pull-requests: read
       contents: read
     outputs:
-      GET_PR_NUM: ${{ steps.get_pr_num.outputs.PR_NUM_TAG }}
+      GET_PR_NUM: ${{ env.PR_NUM_TAG }}
     steps:
       - uses: actions/checkout@v4
         with:
