@@ -619,6 +619,7 @@ variable "function_app_slots" {
 variable "dashboards" {
   description = "Configuration for dashboards"
   type = map(object({
+    name = string
     path = string
   }))
   default = {
