@@ -14,7 +14,7 @@ locals {
 
   # ...then project the list of objects into a map with unique keys (combining the iterators), for consumption by a for_each meta argument
   dashboard_maps = {
-    for object in local.dashboard_object_list : "${object.dashboard}-${object.region}" => object
+    for object in local.dashboard_object_list : "${object.dashboard.path}-${object.region}" => object
   }
 }
 
