@@ -100,8 +100,12 @@ jobs:
           git_short_sha=$(git rev-parse --short "$COMMIT_SHA")
           devtest_short_sha="devtest_${git_short_sha}"
 
+          # Get the number of the current Pull request
+          pr_num_tag=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+          devtest_pr_num_tag="devtest_${PR_NUM_TAG}"
+
           # Prepare parameters as separate key=value tokens
-          param_image="dockerImageTag=${devtest_short_sha}"
+          param_image="dockerImageTag=${devtest_pr_num_tag}"
           param_tests="testTypes=[${test_types[$ENVIRONMENT_NAME]}]"
 
           echo "Starting Azure devops pipeline \"Deploy to Azure - Core ${ENVIRONMENT_NAME}\"..."
