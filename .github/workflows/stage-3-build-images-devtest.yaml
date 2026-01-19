@@ -45,6 +45,36 @@ on:
         required: true
 
 jobs:
+
+  get-pr-number:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+      contents: read
+    outputs:
+      GET_PR_NUM: ${{ steps.get_pr_num.outputs.PR_NUM_TAG }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Fetch PR Number
+        id: get_pr_num
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # Find the PR associated with the current commit SHA
+          PR_NUM_TAG=$(gh pr list --sha ${{ github.sha }} --state all --json number --jq '.[0].number')
+
+          if [ -z "$PR_NUM_TAG" ]; then
+            echo "No PR found for this tag push."
+            echo "PR_NUM_TAG=null" >> $GITHUB_OUTPUT
+          else
+            echo "Found PR: $PR_NUM_TAG"
+            echo "PR_NUM_TAG=$PR_NUM_TAG" >> $GITHUB_OUTPUT
+          fi
+
   get-functions:
     runs-on: ubuntu-latest
     permissions:
@@ -113,7 +143,7 @@ jobs:
         if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' || github.ref == 'refs/heads/main'  }}
         continue-on-error: false
         run: |
-          PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+          PR_NUM_TAG=${PR_NUM_TAG}
           SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
           echo $SHORT_COMMIT_HASH
           echo $PR_NUM_TAG
