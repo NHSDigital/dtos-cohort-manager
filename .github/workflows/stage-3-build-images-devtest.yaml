@@ -146,6 +146,8 @@ jobs:
         working-directory: ./
         if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' || github.ref == 'refs/heads/main'  }}
         continue-on-error: false
+        env:
+          PR_NUM_TAG : ${{ needs.get-pr-number.outputs.PR_NUM_TAG }}
         run: |
           SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
           echo $SHORT_COMMIT_HASH
@@ -171,6 +173,8 @@ jobs:
 
       - name: Set Image Tags
         id: set-image-tags
+        env:
+          PR_NUM_TAG : ${{ needs.get-pr-number.outputs.PR_NUM_TAG }}
         run: |
 
           IMAGE_TAG="latest"
@@ -197,7 +201,7 @@ jobs:
       id-token: write
       contents: read
       pull-requests: read
-    needs: [get-functions, build-base-images]
+    needs: [get-functions, build-base-images, get-pr-number]
     strategy:
       matrix:
         function: ${{ fromJSON(needs.get-functions.outputs.FUNC_NAMES) }}
@@ -237,6 +241,8 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           ENVIRONMENT_TAG: ${{ inputs.environment_tag }}
         continue-on-error: false
+        env:
+          PR_NUM_TAG : ${{ needs.get-pr-number.outputs.PR_NUM_TAG }}
         run: |
           echo "The branch is: ${GITHUB_REF}"
 
@@ -270,6 +276,7 @@ jobs:
           COMPOSE_FILE: ${{ inputs.docker_compose_file }}
           PROJECT_NAME: ${{ inputs.project_name }}
           ACR_NAME: ${{ secrets.acr_name }}
+          PR_NUM_TAG : ${{ needs.get-pr-number.outputs.PR_NUM_TAG }}
         run: |
           function=${{ matrix.function }}
 
@@ -308,6 +315,7 @@ jobs:
         env:
           PROJECT_NAME: ${{ inputs.project_name }}
           ACR_NAME: ${{ secrets.acr_name }}
+          PR_NUM_TAG : ${{ needs.get-pr-number.outputs.PR_NUM_TAG }}
         run: |
           function=${{ matrix.function }}
           repo_name="${ACR_NAME}.azurecr.io/${PROJECT_NAME}-${function}"
