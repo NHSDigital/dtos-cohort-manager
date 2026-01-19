@@ -32,7 +32,6 @@ export default async function NoResultsPage({
 
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const searchType = resolvedSearchParams.searchType ?? "NhsNumber";
-  const searchValue = resolvedSearchParams.searchValue;
   const isExceptionIdSearch = searchType === "ExceptionId";
 
   return (
