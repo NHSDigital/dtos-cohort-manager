@@ -114,6 +114,8 @@ jobs:
         id: build-base-images
         working-directory: ./
         if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' || github.ref == 'refs/heads/main'  }}
+        env:
+          GH_TOKEN: ${{ github.token }}
         continue-on-error: false
         run: |
           SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
