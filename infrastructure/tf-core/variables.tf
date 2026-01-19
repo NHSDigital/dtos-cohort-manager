@@ -622,6 +622,7 @@ variable "dashboards" {
   }))
   default = {
     observability = {
+      name = "observability"
       path = "./templates/dashboard-observability-template.tpl"
     }
   }
