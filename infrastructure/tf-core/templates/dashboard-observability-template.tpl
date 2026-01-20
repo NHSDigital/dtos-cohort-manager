@@ -375,6 +375,111 @@
                     }
                 }
             }
+        },
+        "1": {
+            "order": 0,
+            "parts": {
+                "0": {
+                    "position": {
+                        "x": 0,
+                        "y": 0,
+                        "colSpan": 2,
+                        "rowSpan": 2
+                    },
+                    "metadata": {
+                        "inputs": [],
+                        "type": "Extension/HubsExtension/PartType/MarkdownPart",
+                        "settings": {
+                            "content": {
+                                "settings": {
+                                    "content": "App Service Plan",
+                                    "title": "Avg CPU and Memory Percentage",
+                                    "subtitle": "",
+                                    "markdownSource": 1,
+                                    "markdownUri": null
+                                }
+                            }
+                        }
+                    }
+                },
+                "1": {
+                    "position": {
+                        "x": 2,
+                        "y": 0,
+                        "colSpan": 3,
+                        "rowSpan": 2
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "options",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "sharedTimeRange",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                        "settings": {
+                            "content": {
+                                "options": {
+                                    "chart": {
+                                        "metrics": [
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-cohortdistributionorchplan"
+                                                },
+                                                "name": "CpuPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "CPU Percentage",
+                                                    "resourceDisplayName": "${core_app_service_plan}-cohortdistributionorchplan"
+                                                }
+                                            },
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-cohortdistributionorchplan"
+                                                },
+                                                "name": "MemoryPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "Memory Percentage",
+                                                    "resourceDisplayName": "asp-sbrk-uks-cohman-cohortdistributionorchplan"
+                                                }
+                                            }
+                                        ],
+                                        "title": "${core_app_service_plan}-cohortdistributionorchplan",
+                                        "titleKind": 1,
+                                        "visualization": {
+                                            "chartType": 2,
+                                            "legendVisualization": {
+                                                "isVisible": true,
+                                                "position": 2,
+                                                "hideHoverCard": false,
+                                                "hideLabelNames": true
+                                            },
+                                            "axisVisualization": {
+                                                "x": {
+                                                    "isVisible": true,
+                                                    "axisType": 2
+                                                },
+                                                "y": {
+                                                    "isVisible": true,
+                                                    "axisType": 1
+                                                }
+                                            },
+                                            "disablePinning": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
