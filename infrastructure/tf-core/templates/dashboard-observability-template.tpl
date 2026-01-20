@@ -17,22 +17,19 @@
                         "rowSpan": 2
                     },
                     "metadata": {
-                        "inputs": [
-                            {
-                                "name": "id",
-                                "value": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/microsoft.insights/components/${audit_resource_name_app_insights}"
-                            },
-                            {
-                                "name": "Version",
-                                "value": "1.0"
+                        "inputs": [],
+                        "type": "Extension/HubsExtension/PartType/MarkdownPart",
+                        "settings": {
+                            "content": {
+                                "settings": {
+                                    "title": "Application Insights",
+                                    "subtitle": "",
+                                    "content": "Applications availabillity and performance",
+                                    "markdownSource": 1,
+                                    "markdownUri": null
+                                }
                             }
-                        ],
-                        "type": "Extension/AppInsightsExtension/PartType/AspNetOverviewPinnedPart",
-                        "asset": {
-                            "idInputName": "id",
-                            "type": "ApplicationInsights"
-                        },
-                        "defaultMenuItemId": "overview"
+                        }
                     }
                 },
                 "1": {
@@ -446,7 +443,7 @@
                                                 }
                                             }
                                         ],
-                                        "title": "${core_app_service_plan}-cohortdistributionorchplan",
+                                        "title": "cohortdistributionorchplan",
                                         "titleKind": 1,
                                         "visualization": {
                                             "chartType": 2,
@@ -523,7 +520,7 @@
                                                 }
                                             }
                                         ],
-                                        "title": "${core_app_service_plan}-cohortdistributionplan",
+                                        "title": "cohortdistributionplan",
                                         "titleKind": 1,
                                         "visualization": {
                                             "chartType": 2,
@@ -600,7 +597,7 @@
                                                 }
                                             }
                                         ],
-                                        "title": "${core_app_service_plan}-nonscaling",
+                                        "title": "nonscaling",
                                         "titleKind": 1,
                                         "visualization": {
                                             "chartType": 2,
@@ -677,7 +674,7 @@
                                                 }
                                             }
                                         ],
-                                        "title": "${core_app_service_plan}-participantmanagementorchplan",
+                                        "title": "participantmanagementorchplan",
                                         "titleKind": 1,
                                         "visualization": {
                                             "chartType": 2,
@@ -754,7 +751,7 @@
                                                 }
                                             }
                                         ],
-                                        "title": "${core_app_service_plan}-participantmanagementplan",
+                                        "title": "participantmanagementplan",
                                         "titleKind": 1,
                                         "visualization": {
                                             "chartType": 2,
@@ -831,7 +828,7 @@
                                                 }
                                             }
                                         ],
-                                        "title": "${core_app_service_plan}-tarpitplan",
+                                        "title": "tarpitplan",
                                         "titleKind": 1,
                                         "visualization": {
                                             "chartType": 2,
