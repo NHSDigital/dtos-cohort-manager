@@ -379,7 +379,7 @@
                         "x": 0,
                         "y": 2,
                         "colSpan": 2,
-                        "rowSpan": 2
+                        "rowSpan": 4
                     },
                     "metadata": {
                         "inputs": [],
@@ -387,9 +387,9 @@
                         "settings": {
                             "content": {
                                 "settings": {
-                                    "content": "Avg CPU and Memory Percentage",
                                     "title": "App Service Plan",
                                     "subtitle": "",
+                                    "content": "Avg CPU and Memory Percentage",
                                     "markdownSource": 1,
                                     "markdownUri": null
                                 }
@@ -630,8 +630,8 @@
                 },
                 "8": {
                     "position": {
-                        "x": 11,
-                        "y": 2,
+                        "x": 2,
+                        "y": 4,
                         "colSpan": 3,
                         "rowSpan": 2
                     },
@@ -707,8 +707,8 @@
                 },
                 "9": {
                     "position": {
-                        "x": 14,
-                        "y": 2,
+                        "x": 5,
+                        "y": 4,
                         "colSpan": 3,
                         "rowSpan": 2
                     },
@@ -784,8 +784,8 @@
                 },
                 "10": {
                     "position": {
-                        "x": 17,
-                        "y": 2,
+                        "x": 8,
+                        "y": 4,
                         "colSpan": 3,
                         "rowSpan": 2
                     },
