@@ -653,7 +653,7 @@ public class ValidationExceptionDataTests
     }
 
     [TestMethod]
-    public async Task GetExceptionsByNhsNumber_ReturnsOnlyReports()
+    public async Task GetExceptionsByNhsNumber_NhsNumberHasReportsOnly_ReturnsOnlyReports()
     {
         // Arrange
         var nhsNumber = "9998136431";
@@ -672,7 +672,7 @@ public class ValidationExceptionDataTests
     }
 
     [TestMethod]
-    public async Task GetExceptionsByNhsNumber_ReturnsOnlyExceptions()
+    public async Task GetExceptionsByNhsNumber_NhsNumberHasExceptionOnly_ReturnsOnlyExceptions()
     {
         // Arrange
         var nhsNumber = "1111111111";
@@ -690,7 +690,7 @@ public class ValidationExceptionDataTests
     }
 
     [TestMethod]
-    public async Task GetExceptionsByNhsNumber_ReturnsBothExceptionsAndReports()
+    public async Task GetExceptionsByNhsNumber_NhsNumberHasExceptionAndReport_ReturnsBothExceptionsAndReports()
     {
         // Arrange
         var nhsNumber = "7777777777";
