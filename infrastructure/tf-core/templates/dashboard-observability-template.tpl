@@ -17,29 +17,6 @@
                         "rowSpan": 2
                     },
                     "metadata": {
-                        "inputs": [],
-                        "type": "Extension/HubsExtension/PartType/MarkdownPart",
-                        "settings": {
-                            "content": {
-                                "settings": {
-                                    "content": "### Application Performance",
-                                    "title": "",
-                                    "subtitle": "",
-                                    "markdownSource": 1,
-                                    "markdownUri": null
-                                }
-                            }
-                        }
-                    }
-                },
-                "1": {
-                    "position": {
-                        "x": 2,
-                        "y": 0,
-                        "colSpan": 2,
-                        "rowSpan": 2
-                    },
-                    "metadata": {
                         "inputs": [
                             {
                                 "name": "id",
@@ -58,261 +35,135 @@
                         "defaultMenuItemId": "overview"
                     }
                 },
+                "1": {
+                    "position": {
+                        "x": 2,
+                        "y": 0,
+                        "colSpan": 3,
+                        "rowSpan": 2
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "options",
+                                "value": {
+                                    "chart": {
+                                        "metrics": [
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}"
+                                                },
+                                                "name": "availabilityResults/availabilityPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.insights/components",
+                                                "metricVisualization": {
+                                                    "resourceDisplayName": "${audit_resource_name_app_insights}",
+                                                    "color": "#54A300"
+                                                }
+                                            }
+                                        ],
+                                        "title": "Availability",
+                                        "titleKind": 2,
+                                        "visualization": {
+                                            "chartType": 2,
+                                            "axisVisualization": {
+                                                "y": {
+                                                    "isVisible": true,
+                                                    "min": 0,
+                                                    "max": 100
+                                                },
+                                                "x": {
+                                                    "isVisible": true
+                                                }
+                                            }
+                                        },
+                                        "openBladeOnClick": {
+                                            "openBlade": true,
+                                            "destinationBlade": {
+                                                "bladeName": "ResourceMenuBlade",
+                                                "parameters": {
+                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
+                                                    "menuid": "availability"
+                                                },
+                                                "extensionName": "HubsExtension",
+                                                "options": {
+                                                    "parameters": {
+                                                        "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
+                                                        "menuid": "availability"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "isOptional": true
+                            },
+                            {
+                                "name": "sharedTimeRange",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                        "settings": {
+                            "content": {
+                                "options": {
+                                    "chart": {
+                                        "metrics": [
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}"
+                                                },
+                                                "name": "availabilityResults/availabilityPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.insights/components",
+                                                "metricVisualization": {
+                                                    "resourceDisplayName": "${audit_resource_name_app_insights}",
+                                                    "color": "#54A300"
+                                                }
+                                            }
+                                        ],
+                                        "title": "Availability",
+                                        "titleKind": 2,
+                                        "visualization": {
+                                            "chartType": 2,
+                                            "axisVisualization": {
+                                                "y": {
+                                                    "isVisible": true,
+                                                    "min": 0,
+                                                    "max": 100
+                                                },
+                                                "x": {
+                                                    "isVisible": true
+                                                }
+                                            },
+                                            "disablePinning": true
+                                        },
+                                        "openBladeOnClick": {
+                                            "openBlade": true,
+                                            "destinationBlade": {
+                                                "bladeName": "ResourceMenuBlade",
+                                                "parameters": {
+                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
+                                                    "menuid": "availability"
+                                                },
+                                                "extensionName": "HubsExtension",
+                                                "options": {
+                                                    "parameters": {
+                                                        "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
+                                                        "menuid": "availability"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "2": {
                     "position": {
-                        "x": 4,
-                        "y": 0,
-                        "colSpan": 3,
-                        "rowSpan": 2
-                    },
-                    "metadata": {
-                        "inputs": [
-                            {
-                                "name": "options",
-                                "value": {
-                                    "chart": {
-                                        "metrics": [
-                                            {
-                                                "resourceMetadata": {
-                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}"
-                                                },
-                                                "name": "availabilityResults/availabilityPercentage",
-                                                "aggregationType": 4,
-                                                "namespace": "microsoft.insights/components",
-                                                "metricVisualization": {
-                                                    "resourceDisplayName": "${audit_resource_name_app_insights}",
-                                                    "color": "#54A300"
-                                                }
-                                            }
-                                        ],
-                                        "title": "Availability",
-                                        "titleKind": 2,
-                                        "visualization": {
-                                            "chartType": 2,
-                                            "axisVisualization": {
-                                                "y": {
-                                                    "isVisible": true,
-                                                    "min": 0,
-                                                    "max": 100
-                                                },
-                                                "x": {
-                                                    "isVisible": true
-                                                }
-                                            }
-                                        },
-                                        "openBladeOnClick": {
-                                            "openBlade": true,
-                                            "destinationBlade": {
-                                                "bladeName": "ResourceMenuBlade",
-                                                "parameters": {
-                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                    "menuid": "availability"
-                                                },
-                                                "extensionName": "HubsExtension",
-                                                "options": {
-                                                    "parameters": {
-                                                        "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                        "menuid": "availability"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "isOptional": true
-                            },
-                            {
-                                "name": "sharedTimeRange",
-                                "isOptional": true
-                            }
-                        ],
-                        "type": "Extension/HubsExtension/PartType/MonitorChartPart",
-                        "settings": {
-                            "content": {
-                                "options": {
-                                    "chart": {
-                                        "metrics": [
-                                            {
-                                                "resourceMetadata": {
-                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}"
-                                                },
-                                                "name": "availabilityResults/availabilityPercentage",
-                                                "aggregationType": 4,
-                                                "namespace": "microsoft.insights/components",
-                                                "metricVisualization": {
-                                                    "resourceDisplayName": "${audit_resource_name_app_insights}",
-                                                    "color": "#54A300"
-                                                }
-                                            }
-                                        ],
-                                        "title": "Availability",
-                                        "titleKind": 2,
-                                        "visualization": {
-                                            "chartType": 2,
-                                            "axisVisualization": {
-                                                "y": {
-                                                    "isVisible": true,
-                                                    "min": 0,
-                                                    "max": 100
-                                                },
-                                                "x": {
-                                                    "isVisible": true
-                                                }
-                                            },
-                                            "disablePinning": true
-                                        },
-                                        "openBladeOnClick": {
-                                            "openBlade": true,
-                                            "destinationBlade": {
-                                                "bladeName": "ResourceMenuBlade",
-                                                "parameters": {
-                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                    "menuid": "availability"
-                                                },
-                                                "extensionName": "HubsExtension",
-                                                "options": {
-                                                    "parameters": {
-                                                        "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                        "menuid": "availability"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "3": {
-                    "position": {
-                        "x": 7,
-                        "y": 0,
-                        "colSpan": 3,
-                        "rowSpan": 2
-                    },
-                    "metadata": {
-                        "inputs": [
-                            {
-                                "name": "options",
-                                "value": {
-                                    "chart": {
-                                        "metrics": [
-                                            {
-                                                "resourceMetadata": {
-                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}"
-                                                },
-                                                "name": "availabilityResults/availabilityPercentage",
-                                                "aggregationType": 4,
-                                                "namespace": "microsoft.insights/components",
-                                                "metricVisualization": {
-                                                    "resourceDisplayName": "${audit_resource_name_app_insights}",
-                                                    "color": "#54A300"
-                                                }
-                                            }
-                                        ],
-                                        "title": "Availability",
-                                        "titleKind": 2,
-                                        "visualization": {
-                                            "chartType": 2,
-                                            "axisVisualization": {
-                                                "y": {
-                                                    "isVisible": true,
-                                                    "min": 0,
-                                                    "max": 100
-                                                },
-                                                "x": {
-                                                    "isVisible": true
-                                                }
-                                            }
-                                        },
-                                        "openBladeOnClick": {
-                                            "openBlade": true,
-                                            "destinationBlade": {
-                                                "bladeName": "ResourceMenuBlade",
-                                                "parameters": {
-                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                    "menuid": "availability"
-                                                },
-                                                "extensionName": "HubsExtension",
-                                                "options": {
-                                                    "parameters": {
-                                                        "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                        "menuid": "availability"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                },
-                                "isOptional": true
-                            },
-                            {
-                                "name": "sharedTimeRange",
-                                "isOptional": true
-                            }
-                        ],
-                        "type": "Extension/HubsExtension/PartType/MonitorChartPart",
-                        "settings": {
-                            "content": {
-                                "options": {
-                                    "chart": {
-                                        "metrics": [
-                                            {
-                                                "resourceMetadata": {
-                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}"
-                                                },
-                                                "name": "availabilityResults/availabilityPercentage",
-                                                "aggregationType": 4,
-                                                "namespace": "microsoft.insights/components",
-                                                "metricVisualization": {
-                                                    "resourceDisplayName": "${audit_resource_name_app_insights}",
-                                                    "color": "#54A300"
-                                                }
-                                            }
-                                        ],
-                                        "title": "Availability",
-                                        "titleKind": 2,
-                                        "visualization": {
-                                            "chartType": 2,
-                                            "axisVisualization": {
-                                                "y": {
-                                                    "isVisible": true,
-                                                    "min": 0,
-                                                    "max": 100
-                                                },
-                                                "x": {
-                                                    "isVisible": true
-                                                }
-                                            },
-                                            "disablePinning": true
-                                        },
-                                        "openBladeOnClick": {
-                                            "openBlade": true,
-                                            "destinationBlade": {
-                                                "bladeName": "ResourceMenuBlade",
-                                                "parameters": {
-                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                    "menuid": "availability"
-                                                },
-                                                "extensionName": "HubsExtension",
-                                                "options": {
-                                                    "parameters": {
-                                                        "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                        "menuid": "availability"
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "4": {
-                    "position": {
-                        "x": 10,
+                        "x": 5,
                         "y": 0,
                         "colSpan": 3,
                         "rowSpan": 2
@@ -417,9 +268,9 @@
                         }
                     }
                 },
-                "5": {
+                "3": {
                     "position": {
-                        "x": 13,
+                        "x": 8,
                         "y": 0,
                         "colSpan": 3,
                         "rowSpan": 2
@@ -435,16 +286,16 @@
                                                 "resourceMetadata": {
                                                     "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}"
                                                 },
-                                                "name": "requests/count",
+                                                "name": "requests/failed",
                                                 "aggregationType": 7,
                                                 "namespace": "microsoft.insights/components",
                                                 "metricVisualization": {
                                                     "resourceDisplayName": "${audit_resource_name_app_insights}",
-                                                    "color": "#0078D4"
+                                                    "color": "#EC008C"
                                                 }
                                             }
                                         ],
-                                        "title": "Server requests",
+                                        "title": "Failed requests",
                                         "titleKind": 2,
                                         "visualization": {
                                             "chartType": 3
@@ -455,13 +306,13 @@
                                                 "bladeName": "ResourceMenuBlade",
                                                 "parameters": {
                                                     "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                    "menuid": "performance"
+                                                    "menuid": "failures"
                                                 },
                                                 "extensionName": "HubsExtension",
                                                 "options": {
                                                     "parameters": {
                                                         "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                        "menuid": "performance"
+                                                        "menuid": "failures"
                                                     }
                                                 }
                                             }
@@ -485,16 +336,16 @@
                                                 "resourceMetadata": {
                                                     "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}"
                                                 },
-                                                "name": "requests/count",
+                                                "name": "requests/failed",
                                                 "aggregationType": 7,
                                                 "namespace": "microsoft.insights/components",
                                                 "metricVisualization": {
                                                     "resourceDisplayName": "${audit_resource_name_app_insights}",
-                                                    "color": "#0078D4"
+                                                    "color": "#EC008C"
                                                 }
                                             }
                                         ],
-                                        "title": "Server requests",
+                                        "title": "Failed requests",
                                         "titleKind": 2,
                                         "visualization": {
                                             "chartType": 3,
@@ -506,13 +357,13 @@
                                                 "bladeName": "ResourceMenuBlade",
                                                 "parameters": {
                                                     "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                    "menuid": "performance"
+                                                    "menuid": "failures"
                                                 },
                                                 "extensionName": "HubsExtension",
                                                 "options": {
                                                     "parameters": {
                                                         "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
-                                                        "menuid": "performance"
+                                                        "menuid": "failures"
                                                     }
                                                 }
                                             }
