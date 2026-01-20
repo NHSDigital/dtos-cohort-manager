@@ -377,7 +377,7 @@
                 "4": {
                     "position": {
                         "x": 0,
-                        "y": 1,
+                        "y": 2,
                         "colSpan": 2,
                         "rowSpan": 2
                     },
@@ -387,8 +387,8 @@
                         "settings": {
                             "content": {
                                 "settings": {
-                                    "content": "App Service Plan",
-                                    "title": "Avg CPU and Memory Percentage",
+                                    "content": "Avg CPU and Memory Percentage",
+                                    "title": "App Service Plan",
                                     "subtitle": "",
                                     "markdownSource": 1,
                                     "markdownUri": null
@@ -400,7 +400,7 @@
                 "5": {
                     "position": {
                         "x": 2,
-                        "y": 1,
+                        "y": 2,
                         "colSpan": 3,
                         "rowSpan": 2
                     },
@@ -447,6 +447,391 @@
                                             }
                                         ],
                                         "title": "${core_app_service_plan}-cohortdistributionorchplan",
+                                        "titleKind": 1,
+                                        "visualization": {
+                                            "chartType": 2,
+                                            "legendVisualization": {
+                                                "isVisible": true,
+                                                "position": 2,
+                                                "hideHoverCard": false,
+                                                "hideLabelNames": true
+                                            },
+                                            "axisVisualization": {
+                                                "x": {
+                                                    "isVisible": true,
+                                                    "axisType": 2
+                                                },
+                                                "y": {
+                                                    "isVisible": true,
+                                                    "axisType": 1
+                                                }
+                                            },
+                                            "disablePinning": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "6": {
+                    "position": {
+                        "x": 5,
+                        "y": 2,
+                        "colSpan": 3,
+                        "rowSpan": 2
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "options",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "sharedTimeRange",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                        "settings": {
+                            "content": {
+                                "options": {
+                                    "chart": {
+                                        "metrics": [
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-cohortdistributionplan"
+                                                },
+                                                "name": "CpuPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "CPU Percentage",
+                                                    "resourceDisplayName": "${core_app_service_plan}-cohortdistributionplan"
+                                                }
+                                            },
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-cohortdistributionplan"
+                                                },
+                                                "name": "MemoryPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "Memory Percentage",
+                                                    "resourceDisplayName": "${core_app_service_plan}-cohortdistributionplan"
+                                                }
+                                            }
+                                        ],
+                                        "title": "${core_app_service_plan}-cohortdistributionplan",
+                                        "titleKind": 1,
+                                        "visualization": {
+                                            "chartType": 2,
+                                            "legendVisualization": {
+                                                "isVisible": true,
+                                                "position": 2,
+                                                "hideHoverCard": false,
+                                                "hideLabelNames": true
+                                            },
+                                            "axisVisualization": {
+                                                "x": {
+                                                    "isVisible": true,
+                                                    "axisType": 2
+                                                },
+                                                "y": {
+                                                    "isVisible": true,
+                                                    "axisType": 1
+                                                }
+                                            },
+                                            "disablePinning": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "7": {
+                    "position": {
+                        "x": 8,
+                        "y": 2,
+                        "colSpan": 3,
+                        "rowSpan": 2
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "options",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "sharedTimeRange",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                        "settings": {
+                            "content": {
+                                "options": {
+                                    "chart": {
+                                        "metrics": [
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-nonscaling"
+                                                },
+                                                "name": "CpuPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "CPU Percentage",
+                                                    "resourceDisplayName": "${core_app_service_plan}-nonscaling"
+                                                }
+                                            },
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-nonscaling"
+                                                },
+                                                "name": "MemoryPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "Memory Percentage",
+                                                    "resourceDisplayName": "${core_app_service_plan}-nonscaling"
+                                                }
+                                            }
+                                        ],
+                                        "title": "${core_app_service_plan}-nonscaling",
+                                        "titleKind": 1,
+                                        "visualization": {
+                                            "chartType": 2,
+                                            "legendVisualization": {
+                                                "isVisible": true,
+                                                "position": 2,
+                                                "hideHoverCard": false,
+                                                "hideLabelNames": true
+                                            },
+                                            "axisVisualization": {
+                                                "x": {
+                                                    "isVisible": true,
+                                                    "axisType": 2
+                                                },
+                                                "y": {
+                                                    "isVisible": true,
+                                                    "axisType": 1
+                                                }
+                                            },
+                                            "disablePinning": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "8": {
+                    "position": {
+                        "x": 11,
+                        "y": 2,
+                        "colSpan": 3,
+                        "rowSpan": 2
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "options",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "sharedTimeRange",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                        "settings": {
+                            "content": {
+                                "options": {
+                                    "chart": {
+                                        "metrics": [
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-participantmanagementorchplan"
+                                                },
+                                                "name": "CpuPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "CPU Percentage",
+                                                    "resourceDisplayName": "${core_app_service_plan}-participantmanagementorchplan"
+                                                }
+                                            },
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-participantmanagementorchplan"
+                                                },
+                                                "name": "MemoryPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "Memory Percentage",
+                                                    "resourceDisplayName": "${core_app_service_plan}-participantmanagementorchplan"
+                                                }
+                                            }
+                                        ],
+                                        "title": "${core_app_service_plan}-participantmanagementorchplan",
+                                        "titleKind": 1,
+                                        "visualization": {
+                                            "chartType": 2,
+                                            "legendVisualization": {
+                                                "isVisible": true,
+                                                "position": 2,
+                                                "hideHoverCard": false,
+                                                "hideLabelNames": true
+                                            },
+                                            "axisVisualization": {
+                                                "x": {
+                                                    "isVisible": true,
+                                                    "axisType": 2
+                                                },
+                                                "y": {
+                                                    "isVisible": true,
+                                                    "axisType": 1
+                                                }
+                                            },
+                                            "disablePinning": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "9": {
+                    "position": {
+                        "x": 14,
+                        "y": 2,
+                        "colSpan": 3,
+                        "rowSpan": 2
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "options",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "sharedTimeRange",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                        "settings": {
+                            "content": {
+                                "options": {
+                                    "chart": {
+                                        "metrics": [
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-participantmanagementplan"
+                                                },
+                                                "name": "CpuPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "CPU Percentage",
+                                                    "resourceDisplayName": "${core_app_service_plan}-participantmanagementplan"
+                                                }
+                                            },
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-participantmanagementplan"
+                                                },
+                                                "name": "MemoryPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "Memory Percentage",
+                                                    "resourceDisplayName": "${core_app_service_plan}-participantmanagementplan"
+                                                }
+                                            }
+                                        ],
+                                        "title": "${core_app_service_plan}-participantmanagementplan",
+                                        "titleKind": 1,
+                                        "visualization": {
+                                            "chartType": 2,
+                                            "legendVisualization": {
+                                                "isVisible": true,
+                                                "position": 2,
+                                                "hideHoverCard": false,
+                                                "hideLabelNames": true
+                                            },
+                                            "axisVisualization": {
+                                                "x": {
+                                                    "isVisible": true,
+                                                    "axisType": 2
+                                                },
+                                                "y": {
+                                                    "isVisible": true,
+                                                    "axisType": 1
+                                                }
+                                            },
+                                            "disablePinning": true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "10": {
+                    "position": {
+                        "x": 17,
+                        "y": 2,
+                        "colSpan": 3,
+                        "rowSpan": 2
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "options",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "sharedTimeRange",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                        "settings": {
+                            "content": {
+                                "options": {
+                                    "chart": {
+                                        "metrics": [
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-tarpitplan"
+                                                },
+                                                "name": "CpuPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "CPU Percentage",
+                                                    "resourceDisplayName": "${core_app_service_plan}-tarpitplan"
+                                                }
+                                            },
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${core_sub_id}/resourceGroups/${core_resource_group}/providers/Microsoft.Web/serverFarms/${core_app_service_plan}-tarpitplan"
+                                                },
+                                                "name": "MemoryPercentage",
+                                                "aggregationType": 4,
+                                                "namespace": "microsoft.web/serverfarms",
+                                                "metricVisualization": {
+                                                    "displayName": "Memory Percentage",
+                                                    "resourceDisplayName": "${core_app_service_plan}-tarpitplan"
+                                                }
+                                            }
+                                        ],
+                                        "title": "${core_app_service_plan}-tarpitplan",
                                         "titleKind": 1,
                                         "visualization": {
                                             "chartType": 2,
