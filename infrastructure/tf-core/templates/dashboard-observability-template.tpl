@@ -373,16 +373,11 @@
                             }
                         }
                     }
-                }
-            }
-        },
-        "1": {
-            "order": 0,
-            "parts": {
-                "0": {
+                },
+                "4": {
                     "position": {
                         "x": 0,
-                        "y": 0,
+                        "y": 1,
                         "colSpan": 2,
                         "rowSpan": 2
                     },
@@ -402,10 +397,10 @@
                         }
                     }
                 },
-                "1": {
+                "5": {
                     "position": {
                         "x": 2,
-                        "y": 0,
+                        "y": 1,
                         "colSpan": 3,
                         "rowSpan": 2
                     },
@@ -447,7 +442,7 @@
                                                 "namespace": "microsoft.web/serverfarms",
                                                 "metricVisualization": {
                                                     "displayName": "Memory Percentage",
-                                                    "resourceDisplayName": "asp-sbrk-uks-cohman-cohortdistributionorchplan"
+                                                    "resourceDisplayName": "${core_app_service_plan}-cohortdistributionorchplan"
                                                 }
                                             }
                                         ],
