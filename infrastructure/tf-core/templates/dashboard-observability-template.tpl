@@ -376,7 +376,7 @@
                         "x": 0,
                         "y": 2,
                         "colSpan": 2,
-                        "rowSpan": 4
+                        "rowSpan": 6
                     },
                     "metadata": {
                         "inputs": [],
@@ -386,7 +386,7 @@
                                 "settings": {
                                     "title": "App Service Plan",
                                     "subtitle": "",
-                                    "content": "Avg CPU and Memory Percentage",
+                                    "content": "Avg CPU and memory percentage, instance Counts for each plan.",
                                     "markdownSource": 1,
                                     "markdownUri": null
                                 }
