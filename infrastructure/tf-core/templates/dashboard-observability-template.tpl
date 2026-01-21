@@ -373,10 +373,10 @@
                 },
                 "4": {
                     "position": {
-                        "x": 12,
+                        "x": 11,
                         "y": 0,
-                        "colSpan": 4,
-                        "rowSpan": 3
+                        "colSpan": 3,
+                        "rowSpan": 2
                     },
                     "metadata": {
                         "inputs": [
@@ -398,7 +398,7 @@
                                                 }
                                             }
                                         ],
-                                        "title": "Server requests",
+                                        "title": "Function App requests",
                                         "titleKind": 2,
                                         "visualization": {
                                             "chartType": 3
@@ -448,7 +448,7 @@
                                                 }
                                             }
                                         ],
-                                        "title": "Server requests",
+                                        "title": "Function App requests",
                                         "titleKind": 2,
                                         "visualization": {
                                             "chartType": 3,
