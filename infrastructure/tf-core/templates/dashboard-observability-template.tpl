@@ -627,8 +627,8 @@
                 },
                 "8": {
                     "position": {
-                        "x": 11,
-                        "y": 2,
+                        "x": 2,
+                        "y": 4,
                         "colSpan": 3,
                         "rowSpan": 1
                     },
@@ -665,7 +665,7 @@
                             },
                             {
                                 "name": "query",
-                                "value": "Resources\n| where type == \"microsoft.web/serverfarms\" and resourceGroup == \"${core_resource_group}\" and name == \"${core_app_service_plan}-cohortdistributionorchplan\"\n| extend InstanceCount = toint(sku.capacity)\n| summarize TotalInstances = sum(InstanceCount) by name\n| project [\"cohortdistributionorchplan\"] = TotalInstances",
+                                "value": "Resources\n| where type == \"microsoft.web/serverfarms\" and resourceGroup == \"${core_resource_group}\" and name == \"${core_app_service_plan}-cohortdistributionorchplan\"\n| extend InstanceCount = toint(sku.capacity)\n| summarize TotalInstances = sum(InstanceCount) by name\n| project [\"Instance Count\"] = TotalInstances",
                                 "isOptional": true
                             }
                         ],
@@ -675,8 +675,104 @@
                 },
                 "9": {
                     "position": {
-                        "x": 2,
+                        "x": 5,
                         "y": 4,
+                        "colSpan": 3,
+                        "rowSpan": 1
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "chartType",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "isShared",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryId",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "formatResults",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "partTitle",
+                                "value": "Query 1",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryScope",
+                                "value": {
+                                    "scope": 0,
+                                    "values": []
+                                },
+                                "isOptional": true
+                            },
+                            {
+                                "name": "query",
+                                "value": "Resources\n| where type == \"microsoft.web/serverfarms\" and resourceGroup == \"${core_resource_group}\" and name == \"${core_app_service_plan}-cohortdistributionplan\"\n| extend InstanceCount = toint(sku.capacity)\n| summarize TotalInstances = sum(InstanceCount) by name\n| project [\"Instance Count\"] = TotalInstances",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/ArgQuerySingleValueTile",
+                        "settings": {}
+                    }
+                },
+                "10": {
+                    "position": {
+                        "x": 8,
+                        "y": 4,
+                        "colSpan": 3,
+                        "rowSpan": 1
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "chartType",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "isShared",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryId",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "formatResults",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "partTitle",
+                                "value": "Query 1",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryScope",
+                                "value": {
+                                    "scope": 0,
+                                    "values": []
+                                },
+                                "isOptional": true
+                            },
+                            {
+                                "name": "query",
+                                "value": "Resources\n| where type == \"microsoft.web/serverfarms\" and resourceGroup == \"${core_resource_group}\" and name == \"${core_app_service_plan}-nonscaling\"\n| extend InstanceCount = toint(sku.capacity)\n| summarize TotalInstances = sum(InstanceCount) by name\n| project [\"Instance Count\"] = TotalInstances",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/ArgQuerySingleValueTile",
+                        "settings": {}
+                    }
+                },
+                "11": {
+                    "position": {
+                        "x": 2,
+                        "y": 5,
                         "colSpan": 3,
                         "rowSpan": 2
                     },
@@ -750,10 +846,10 @@
                         }
                     }
                 },
-                "10": {
+                "12": {
                     "position": {
                         "x": 5,
-                        "y": 4,
+                        "y": 5,
                         "colSpan": 3,
                         "rowSpan": 2
                     },
@@ -827,10 +923,10 @@
                         }
                     }
                 },
-                "11": {
+                "13": {
                     "position": {
                         "x": 8,
-                        "y": 4,
+                        "y": 5,
                         "colSpan": 3,
                         "rowSpan": 2
                     },
@@ -902,6 +998,150 @@
                                 }
                             }
                         }
+                    }
+                },
+                "14": {
+                    "position": {
+                        "x": 2,
+                        "y": 7,
+                        "colSpan": 3,
+                        "rowSpan": 1
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "chartType",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "isShared",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryId",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "formatResults",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "partTitle",
+                                "value": "Query 1",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryScope",
+                                "value": {
+                                    "scope": 0,
+                                    "values": []
+                                },
+                                "isOptional": true
+                            },
+                            {
+                                "name": "query",
+                                "value": "Resources\n| where type == \"microsoft.web/serverfarms\" and resourceGroup == \"${core_resource_group}\" and name == \"${core_app_service_plan}-participantmanagementorchplan\"\n| extend InstanceCount = toint(sku.capacity)\n| summarize TotalInstances = sum(InstanceCount) by name\n| project [\"Instance Count\"] = TotalInstances",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/ArgQuerySingleValueTile",
+                        "settings": {}
+                    }
+                },
+                "15": {
+                    "position": {
+                        "x": 5,
+                        "y": 7,
+                        "colSpan": 3,
+                        "rowSpan": 1
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "chartType",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "isShared",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryId",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "formatResults",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "partTitle",
+                                "value": "Query 1",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryScope",
+                                "value": {
+                                    "scope": 0,
+                                    "values": []
+                                },
+                                "isOptional": true
+                            },
+                            {
+                                "name": "query",
+                                "value": "Resources\n| where type == \"microsoft.web/serverfarms\" and resourceGroup == \"${core_resource_group}\" and name == \"${core_app_service_plan}-participantmanagementplan\"\n| extend InstanceCount = toint(sku.capacity)\n| summarize TotalInstances = sum(InstanceCount) by name\n| project [\"Instance Count\"] = TotalInstances",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/ArgQuerySingleValueTile",
+                        "settings": {}
+                    }
+                },
+                "16": {
+                    "position": {
+                        "x": 8,
+                        "y": 7,
+                        "colSpan": 3,
+                        "rowSpan": 1
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "chartType",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "isShared",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryId",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "formatResults",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "partTitle",
+                                "value": "Query 1",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryScope",
+                                "value": {
+                                    "scope": 0,
+                                    "values": []
+                                },
+                                "isOptional": true
+                            },
+                            {
+                                "name": "query",
+                                "value": "Resources\n| where type == \"microsoft.web/serverfarms\" and resourceGroup == \"${core_resource_group}\" and name == \"${core_app_service_plan}-tarpitplan\"\n| extend InstanceCount = toint(sku.capacity)\n| summarize TotalInstances = sum(InstanceCount) by name\n| project [\"Instance Count\"] = TotalInstances",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/ArgQuerySingleValueTile",
+                        "settings": {}
                     }
                 }
             }
