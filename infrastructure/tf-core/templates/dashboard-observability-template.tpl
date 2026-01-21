@@ -373,6 +373,122 @@
                 },
                 "4": {
                     "position": {
+                        "x": 12,
+                        "y": 0,
+                        "colSpan": 4,
+                        "rowSpan": 3
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "options",
+                                "value": {
+                                    "chart": {
+                                        "metrics": [
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}"
+                                                },
+                                                "name": "requests/count",
+                                                "aggregationType": 7,
+                                                "namespace": "microsoft.insights/components",
+                                                "metricVisualization": {
+                                                    "resourceDisplayName": "${audit_resource_name_app_insights}",
+                                                    "color": "#0078D4"
+                                                }
+                                            }
+                                        ],
+                                        "title": "Server requests",
+                                        "titleKind": 2,
+                                        "visualization": {
+                                            "chartType": 3
+                                        },
+                                        "openBladeOnClick": {
+                                            "openBlade": true,
+                                            "destinationBlade": {
+                                                "bladeName": "ResourceMenuBlade",
+                                                "parameters": {
+                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
+                                                    "menuid": "performance"
+                                                },
+                                                "extensionName": "HubsExtension",
+                                                "options": {
+                                                    "parameters": {
+                                                        "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
+                                                        "menuid": "performance"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                },
+                                "isOptional": true
+                            },
+                            {
+                                "name": "sharedTimeRange",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/MonitorChartPart",
+                        "settings": {
+                            "content": {
+                                "options": {
+                                    "chart": {
+                                        "metrics": [
+                                            {
+                                                "resourceMetadata": {
+                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}"
+                                                },
+                                                "name": "requests/count",
+                                                "aggregationType": 7,
+                                                "namespace": "microsoft.insights/components",
+                                                "metricVisualization": {
+                                                    "resourceDisplayName": "${audit_resource_name_app_insights}",
+                                                    "color": "#0078D4"
+                                                }
+                                            }
+                                        ],
+                                        "title": "Server requests",
+                                        "titleKind": 2,
+                                        "visualization": {
+                                            "chartType": 3,
+                                            "disablePinning": true
+                                        },
+                                        "openBladeOnClick": {
+                                            "openBlade": true,
+                                            "destinationBlade": {
+                                                "bladeName": "ResourceMenuBlade",
+                                                "parameters": {
+                                                    "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
+                                                    "menuid": "performance"
+                                                },
+                                                "extensionName": "HubsExtension",
+                                                "options": {
+                                                    "parameters": {
+                                                        "id": "/subscriptions/${audit_sub_id}/resourceGroups/${audit_resource_group}/providers/Microsoft.Insights/components/${audit_resource_name_app_insights}",
+                                                        "menuid": "performance"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        },
+                        "filters": {
+                            "cloud/roleName": {
+                                "model": {
+                                    "operator": "notEquals",
+                                    "values": [
+                                        "${linux_web_app}-${linux_web_app_name_suffix}"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                "5": {
+                    "position": {
                         "x": 0,
                         "y": 2,
                         "colSpan": 2,
@@ -386,7 +502,7 @@
                                 "settings": {
                                     "title": "App Service Plan",
                                     "subtitle": "",
-                                    "content": "Avg CPU and memory percentage, instance Counts for each plan.",
+                                    "content": "Avg CPU and memory percentage, instance count for each plan.",
                                     "markdownSource": 1,
                                     "markdownUri": null
                                 }
@@ -394,7 +510,7 @@
                         }
                     }
                 },
-                "5": {
+                "6": {
                     "position": {
                         "x": 2,
                         "y": 2,
@@ -471,7 +587,7 @@
                         }
                     }
                 },
-                "6": {
+                "7": {
                     "position": {
                         "x": 5,
                         "y": 2,
@@ -548,7 +664,7 @@
                         }
                     }
                 },
-                "7": {
+                "8": {
                     "position": {
                         "x": 8,
                         "y": 2,
@@ -625,7 +741,7 @@
                         }
                     }
                 },
-                "8": {
+                "9": {
                     "position": {
                         "x": 2,
                         "y": 4,
@@ -673,7 +789,7 @@
                         "settings": {}
                     }
                 },
-                "9": {
+                "10": {
                     "position": {
                         "x": 5,
                         "y": 4,
@@ -721,7 +837,7 @@
                         "settings": {}
                     }
                 },
-                "10": {
+                "11": {
                     "position": {
                         "x": 8,
                         "y": 4,
@@ -769,7 +885,7 @@
                         "settings": {}
                     }
                 },
-                "11": {
+                "12": {
                     "position": {
                         "x": 2,
                         "y": 5,
@@ -846,7 +962,7 @@
                         }
                     }
                 },
-                "12": {
+                "13": {
                     "position": {
                         "x": 5,
                         "y": 5,
@@ -923,7 +1039,7 @@
                         }
                     }
                 },
-                "13": {
+                "14": {
                     "position": {
                         "x": 8,
                         "y": 5,
@@ -1000,7 +1116,7 @@
                         }
                     }
                 },
-                "14": {
+                "15": {
                     "position": {
                         "x": 2,
                         "y": 7,
@@ -1048,7 +1164,7 @@
                         "settings": {}
                     }
                 },
-                "15": {
+                "16": {
                     "position": {
                         "x": 5,
                         "y": 7,
@@ -1096,7 +1212,7 @@
                         "settings": {}
                     }
                 },
-                "16": {
+                "17": {
                     "position": {
                         "x": 8,
                         "y": 7,
