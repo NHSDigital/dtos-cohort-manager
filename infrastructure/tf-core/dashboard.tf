@@ -35,6 +35,8 @@ module "dashboard" {
       core_sub_id                      = var.TARGET_SUBSCRIPTION_ID
       core_resource_group              = module.regions_config[each.value.region].names.resource-group
       core_app_service_plan            = module.regions_config[each.value.region].names.app-service-plan
+      linux_web_app                    = module.regions_config[each.value.region].names.linux-web-app
+      linux_web_app_name_suffix        = var.linux_web_app.linux_web_app_config.FrontEndUi.name_suffix
     }
   )
 }
