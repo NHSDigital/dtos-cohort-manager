@@ -627,6 +627,54 @@
                 },
                 "8": {
                     "position": {
+                        "x": 11,
+                        "y": 2,
+                        "colSpan": 3,
+                        "rowSpan": 1
+                    },
+                    "metadata": {
+                        "inputs": [
+                            {
+                                "name": "chartType",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "isShared",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryId",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "formatResults",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "partTitle",
+                                "value": "Query 1",
+                                "isOptional": true
+                            },
+                            {
+                                "name": "queryScope",
+                                "value": {
+                                    "scope": 0,
+                                    "values": []
+                                },
+                                "isOptional": true
+                            },
+                            {
+                                "name": "query",
+                                "value": "Resources\n| where type == \"microsoft.web/serverfarms\" and resourceGroup == \"${core_resource_group}\" and name == \"${core_app_service_plan}-cohortdistributionorchplan\"\n| extend InstanceCount = toint(sku.capacity)\n| summarize TotalInstances = sum(InstanceCount) by name\n| project [\"cohortdistributionorchplan\"] = TotalInstances",
+                                "isOptional": true
+                            }
+                        ],
+                        "type": "Extension/HubsExtension/PartType/ArgQuerySingleValueTile",
+                        "settings": {}
+                    }
+                },
+                "9": {
+                    "position": {
                         "x": 2,
                         "y": 4,
                         "colSpan": 3,
@@ -702,7 +750,7 @@
                         }
                     }
                 },
-                "9": {
+                "10": {
                     "position": {
                         "x": 5,
                         "y": 4,
@@ -779,7 +827,7 @@
                         }
                     }
                 },
-                "10": {
+                "11": {
                     "position": {
                         "x": 8,
                         "y": 4,
