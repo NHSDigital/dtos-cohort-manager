@@ -58,6 +58,7 @@ public class ReceiveServiceNowMessageFunctionTests
     [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
     [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-12-31", "ABC", ServiceNowReasonsForAdding.RequiresCeasing, "")]
     [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.RoutineScreening, "ZZZ")]
+    [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1985-06-15", "ABC", ServiceNowReasonsForAdding.OverAgeSelfReferral, "ZZZ")]
     public async Task Run_WhenRequestIsValidAndCaseSuccessfullySavedToDbAndMessageSuccessfullySentToServiceBus_ReturnsAccepted(
         string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string dummyGpCode)
     {
@@ -207,7 +208,7 @@ public class ReceiveServiceNowMessageFunctionTests
             u_case_variable_data = new
             {
                 nhs_number = nhsNumber,
-                forename_ = forename,
+                forename = forename,
                 surname_family_name = familyName,
                 date_of_birth = dateOfBirth,
                 BSO_code = bsoCode,
