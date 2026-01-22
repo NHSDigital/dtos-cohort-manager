@@ -123,6 +123,11 @@ jobs:
     name: "Image build stage"
     needs: [metadata, commit-stage, test-stage, analysis-stage]
     uses: ./.github/workflows/stage-3-build-images.yaml
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+      packages: write
     secrets:
       client_id: ${{ secrets.AZURE_CLIENT_ID }}
       tenant_id: ${{ secrets.AZURE_TENANT_ID }}
