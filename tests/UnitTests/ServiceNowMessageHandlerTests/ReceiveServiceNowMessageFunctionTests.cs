@@ -12,6 +12,7 @@ using System.Text;
 using Model;
 using Microsoft.Extensions.Options;
 using DataServices.Client;
+using Model.Constants;
 
 [TestClass]
 public class ReceiveServiceNowMessageFunctionTests
@@ -148,11 +149,11 @@ public class ReceiveServiceNowMessageFunctionTests
         var requestBodyJson = CreateRequestBodyJson(caseNumber, nhsNumber, forename, familyName, dateOfBirth, bsoCode, reasonForAdding, dummyGpCode);
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
-                _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
-                c.ServicenowId == caseNumber &&
-                c.NhsNumber == long.Parse(nhsNumber) &&
-                c.Status == ServiceNowStatus.New
-            ))).ReturnsAsync(false);
+        _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
+        c.ServicenowId == caseNumber &&
+        c.NhsNumber == long.Parse(nhsNumber) &&
+        c.Status == ServiceNowStatus.New
+    ))).ReturnsAsync(false);
 
         // Act
         var result = await _function.Run(_mockHttpRequest.Object);
@@ -171,11 +172,11 @@ public class ReceiveServiceNowMessageFunctionTests
         var requestBodyJson = CreateRequestBodyJson(caseNumber, nhsNumber, forename, familyName, dateOfBirth, bsoCode, reasonForAdding, dummyGpCode);
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
-                _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
-                c.ServicenowId == caseNumber &&
-                c.NhsNumber == long.Parse(nhsNumber) &&
-                c.Status == ServiceNowStatus.New
-            ))).ReturnsAsync(true);
+        _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
+        c.ServicenowId == caseNumber &&
+        c.NhsNumber == long.Parse(nhsNumber) &&
+        c.Status == ServiceNowStatus.New
+    ))).ReturnsAsync(true);
         _mockQueueClient.Setup(x => x.AddAsync(It.Is<ServiceNowParticipant>(p =>
                 p.ScreeningId == 1 &&
                 p.ServiceNowCaseNumber == caseNumber &&

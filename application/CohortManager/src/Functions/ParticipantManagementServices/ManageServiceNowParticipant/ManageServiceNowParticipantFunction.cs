@@ -12,6 +12,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.Constants;
 using Model.Enums;
 
 public class ManageServiceNowParticipantFunction
