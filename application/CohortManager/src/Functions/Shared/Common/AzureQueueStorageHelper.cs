@@ -31,7 +31,7 @@ public class AzureStorageQueueClient : IQueueClient
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "There was an error while putting item on queue for queue: {queueName}", queueName);
+            _logger.LogError(ex, "There was an error while putting item on queue for queue: {QueueName}", queueName);
             return false;
         }
     }
