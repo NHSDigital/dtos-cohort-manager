@@ -208,7 +208,7 @@ public class ReceiveServiceNowMessageFunctionTests
             u_case_variable_data = new
             {
                 nhs_number = nhsNumber,
-                forename = forename,
+                forename,
                 surname_family_name = familyName,
                 date_of_birth = dateOfBirth,
                 BSO_code = bsoCode,
