@@ -100,10 +100,17 @@ jobs:
           # Derive the short SHA from the provided commit
           git_short_sha=$(git rev-parse --short "$COMMIT_SHA")
 
-          # Get the PR Number tag
-          PR_NUM=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls --jq '.[0].number')
+          # Get the PR Info
+
+          PR_INFO=$(gh api repos/${{ github.repository }}/commits/${COMMIT_SHA}/pulls --jq '.[0] | {number: .number, branch: .head.ref}')
+
+          PR_NUM=$(echo "$PR_INFO" | jq -r '.number')
           DEVTEST_PR_NUM_TAG="devtest_pr${PR_NUM}"
-          echo "Devtest_PR_Num_tag: ${DEVTEST_PR_NUM_TAG}"
+
+          BRANCH_NAME=$(echo "$PR_INFO" | jq -r '.branch')
+
+          echo "Name of the branch to use in ADO: ${BRANCH_NAME}"
+          echo "Name of the image to be used for Function Apps configuration: ${DEVTEST_PR_NUM_TAG}"
 
           # Prepare parameters as separate key=value tokens
           param_image="dockerImageTag=${DEVTEST_PR_NUM_TAG}"
@@ -111,6 +118,7 @@ jobs:
 
           echo "Starting Azure devops pipeline \"Deploy to Azure - Core ${ENVIRONMENT_NAME}\"..."
           RUN_ID=$(az pipelines run \
+            --branch "${BRANCH_NAME}" \
             --commit-id "$COMMIT_SHA" \
             --name "Deploy to Azure - Core ${ENVIRONMENT_NAME}" \
             --org "${organisation}" \
