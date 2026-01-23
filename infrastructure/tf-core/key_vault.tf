@@ -7,6 +7,12 @@ module "key_vault" {
   resource_group_name = azurerm_resource_group.core[each.key].name
   location            = each.key
 
+  enable_alerting                                  = var.features.alerts_enabled
+  action_group_id                                  = var.features.alerts_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
+  secret_near_expiry_alert                         = var.key_vault.secret_near_expiry_alert
+  secret_expired_alert                             = var.key_vault.secret_expired_alert
+  certificate_near_expiry_alert                    = var.key_vault.certificate_near_expiry_alert
+  certificate_expired_alert                        = var.key_vault.certificate_expired_alert
   log_analytics_workspace_id                       = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_keyvault_enabled_logs = local.monitor_diagnostic_setting_keyvault_enabled_logs
   monitor_diagnostic_setting_keyvault_metrics      = local.monitor_diagnostic_setting_keyvault_metrics

@@ -18,11 +18,7 @@ module "monitor_action_group_performance" {
   email_receiver = {
     email = {
       name          = "email"
-      email_address = data.azurerm_key_vault_secret.monitoring_email_address[local.primary_region].value
+      email_address = var.MONITORING_EMAIL_ADDRESS
     }
   }
-
-  depends_on = [
-    module.key_vault
-  ]
 }
