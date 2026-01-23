@@ -54,8 +54,10 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(5);
+        result.Should().HaveCount(5);
         result.Should().BeInAscendingOrder(o => o.DateCreated);
         result?[0].ExceptionId.Should().Be(4);
+        result?[^1].ExceptionId.Should().Be(8);
         result?[^1].ExceptionId.Should().Be(8);
     }
 
@@ -73,7 +75,9 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(5);
+        result.Should().HaveCount(5);
         result.Should().BeInDescendingOrder(o => o.DateCreated);
+        result?[0].ExceptionId.Should().Be(8);
         result?[0].ExceptionId.Should().Be(8);
         result?[^1].ExceptionId.Should().Be(4);
     }
@@ -136,9 +140,11 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(3);
+        result.Should().HaveCount(3);
         result.Should().BeInAscendingOrder(o => o.DateCreated);
         result.Should().OnlyContain(e => string.IsNullOrEmpty(e.ServiceNowId));
         result?[0].ExceptionId.Should().Be(4);
+        result?[^1].ExceptionId.Should().Be(8);
         result?[^1].ExceptionId.Should().Be(8);
     }
 
@@ -156,8 +162,10 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(3);
+        result.Should().HaveCount(3);
         result.Should().BeInDescendingOrder(o => o.DateCreated);
         result.Should().OnlyContain(e => string.IsNullOrEmpty(e.ServiceNowId));
+        result?[0].ExceptionId.Should().Be(8);
         result?[0].ExceptionId.Should().Be(8);
         result?[^1].ExceptionId.Should().Be(4);
     }
@@ -176,7 +184,9 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().BeOfType<List<ValidationException>>();
         result.Should().HaveCount(5);
+        result.Should().HaveCount(5);
         result.Should().BeInDescendingOrder(o => o.DateCreated);
+        result?[0].ExceptionId.Should().Be(8);
         result?[0].ExceptionId.Should().Be(8);
         result?[^1].ExceptionId.Should().Be(4);
     }
@@ -463,7 +473,7 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().HaveCount(1);
         result![0].ExceptionId.Should().Be(5);
-        result[0].Category.Should().Be(12);
+        result[0].Category.Should().Be((int)ExceptionCategory.Confusion);
         result[0].DateCreated.Should().Be(reportDate);
     }
 
@@ -488,7 +498,7 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().HaveCount(1);
         result![0].ExceptionId.Should().Be(6);
-        result[0].Category.Should().Be(13);
+        result[0].Category.Should().Be((int)ExceptionCategory.Superseded);
         result[0].DateCreated.Should().Be(reportDate);
     }
 
@@ -497,7 +507,7 @@ public class ValidationExceptionDataTests
     {
         // Arrange
         var exceptionCategory = ExceptionCategory.NBO;
-        var confusionAndSupersededExceptions = _exceptionList.Where(e => e.Category == 12 || e.Category == 13).ToList();
+        var confusionAndSupersededExceptions = _exceptionList.Where(e => e.Category == (int)ExceptionCategory.Confusion || e.Category == (int)ExceptionCategory.Superseded).ToList();
         _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(confusionAndSupersededExceptions);
 
         // Act
@@ -506,8 +516,8 @@ public class ValidationExceptionDataTests
         // Assert
         result.Should().NotBeNull();
         result.Should().HaveCount(3);
-        result.Should().Contain(e => e.ExceptionId == 5 && e.Category == 12);
-        result.Should().Contain(e => e.ExceptionId == 6 && e.Category == 13);
+        result.Should().Contain(e => e.ExceptionId == 5 && e.Category == (int)ExceptionCategory.Confusion);
+        result.Should().Contain(e => e.ExceptionId == 6 && e.Category == (int)ExceptionCategory.Superseded);
     }
 
     [TestMethod]
@@ -529,7 +539,7 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().HaveCount(1);
         result![0].ExceptionId.Should().Be(5);
-        result[0].Category.Should().Be(12);
+        result[0].Category.Should().Be((int)ExceptionCategory.Confusion);
     }
 
     [TestMethod]
@@ -538,7 +548,7 @@ public class ValidationExceptionDataTests
         // Arrange
         var reportDate = DateTime.UtcNow.Date;
         var exceptionCategory = ExceptionCategory.NBO;
-        var confusionAndSupersededExceptions = _exceptionList.Where(e => (e.Category == 12 || e.Category == 13) && e.DateCreated?.Date == reportDate).ToList();
+        var confusionAndSupersededExceptions = _exceptionList.Where(e => (e.Category == (int)ExceptionCategory.Confusion || e.Category == (int)ExceptionCategory.Superseded) && e.DateCreated?.Date == reportDate).ToList();
         _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(confusionAndSupersededExceptions);
 
         // Act
@@ -547,8 +557,8 @@ public class ValidationExceptionDataTests
         // Assert
         result.Should().NotBeNull();
         result.Should().HaveCount(2);
-        result.Should().Contain(e => e.ExceptionId == 5 && e.Category == 12);
-        result.Should().Contain(e => e.ExceptionId == 9 && e.Category == 12);
+        result.Should().Contain(e => e.ExceptionId == 5 && e.Category == (int)ExceptionCategory.Confusion);
+        result.Should().Contain(e => e.ExceptionId == 9 && e.Category == (int)ExceptionCategory.Confusion);
     }
 
     [TestMethod]
@@ -571,7 +581,7 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.Should().HaveCount(1);
         result?[0].ExceptionId.Should().Be(6);
-        result?[0].Category.Should().Be(13);
+        result?[0].Category.Should().Be((int)ExceptionCategory.Superseded);
     }
 
     [TestMethod]
@@ -666,8 +676,8 @@ public class ValidationExceptionDataTests
         // Assert
         result.Exceptions.Should().HaveCount(0);
         result.Reports.Should().HaveCount(2);
-        result.Reports.Should().Contain(report => report.Category == 12 && report.ExceptionCount == 1);
-        result.Reports.Should().Contain(report => report.Category == 13 && report.ExceptionCount == 1);
+        result.Reports.Should().Contain(report => report.Category == (int)ExceptionCategory.Confusion && report.ExceptionCount == 1);
+        result.Reports.Should().Contain(report => report.Category == (int)ExceptionCategory.Superseded && report.ExceptionCount == 1);
         result.SearchValue.Should().Be(nhsNumber);
     }
 
@@ -684,7 +694,7 @@ public class ValidationExceptionDataTests
 
         // Assert
         result.Exceptions.Should().HaveCount(1);
-        result.Exceptions.Should().OnlyContain(e => e.Category == 3);
+        result.Exceptions.Should().OnlyContain(e => e.Category == (int)ExceptionCategory.NBO);
         result.Reports.Should().BeEmpty();
         result.SearchValue.Should().Be(nhsNumber);
     }
@@ -702,9 +712,9 @@ public class ValidationExceptionDataTests
 
         // Assert
         result.Exceptions.Should().HaveCount(1);
-        result.Exceptions.Should().OnlyContain(e => e.Category == 3);
+        result.Exceptions.Should().OnlyContain(e => e.Category == (int)ExceptionCategory.NBO);
         result.Reports.Should().HaveCount(1);
-        result.Reports.Should().Contain(report => report.Category == 12);
+        result.Reports.Should().Contain(report => report.Category == (int)ExceptionCategory.Confusion);
         result.SearchValue.Should().Be(nhsNumber);
     }
 }

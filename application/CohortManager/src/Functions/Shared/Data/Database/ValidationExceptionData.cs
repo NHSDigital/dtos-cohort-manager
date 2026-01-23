@@ -28,13 +28,13 @@ public class ValidationExceptionData : IValidationExceptionData
         _validationExceptionDataServiceClient = validationExceptionDataServiceClient;
     }
 
-    public async Task<List<ValidationException>> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory)
+    public async Task<List<ValidationException>> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory, SortBy? sortBy = null)
     {
         var category = (int)exceptionCategory;
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.Category != null && x.Category.Value == category);
         var exceptionList = exceptions.Select(s => s.ToValidationException());
 
-        return SortExceptions(sortOrder, exceptionList, exceptionStatus);
+        return SortExceptions(sortOrder, exceptionList, exceptionStatus, sortBy);
     }
 
     public async Task<ValidationException?> GetExceptionById(int exceptionId)
@@ -357,7 +357,7 @@ public class ValidationExceptionData : IValidationExceptionData
         throw new ArgumentNullException(nameof(datetime), "Failed to parse null datetime");
     }
 
-    private static List<ValidationException> SortExceptions(SortOrder? sortOrder, IEnumerable<ValidationException> list, ExceptionStatus? status)
+    private static List<ValidationException> SortExceptions(SortOrder? sortOrder, IEnumerable<ValidationException> list, ExceptionStatus? status, SortBy? sortBy = null)
     {
         var filteredList = status switch
         {
@@ -366,13 +366,19 @@ public class ValidationExceptionData : IValidationExceptionData
             _ => list
         };
 
-        Func<ValidationException, DateTime?> dateProperty = status == ExceptionStatus.Raised
-            ? x => x.ServiceNowCreatedDate
-            : x => x.DateCreated;
+        var sortProperty = sortBy switch
+        {
+            SortBy.ExceptionId => x => x.ExceptionId,
+            SortBy.NhsNumber => x => x.NhsNumber ?? string.Empty,
+            SortBy.DateCreated => x => x.DateCreated ?? DateTime.MinValue,
+            _ => status == ExceptionStatus.Raised
+                ? x => x.ServiceNowCreatedDate ?? DateTime.MinValue
+                : (Func<ValidationException, object>)(x => x.DateCreated ?? DateTime.MinValue)
+        };
 
         return sortOrder == SortOrder.Ascending
-            ? [.. filteredList.OrderBy(dateProperty)]
-            : [.. filteredList.OrderByDescending(dateProperty)];
+            ? [.. filteredList.OrderBy(sortProperty)]
+            : [.. filteredList.OrderByDescending(sortProperty)];
     }
 
     private static List<ValidationExceptionReport> GenerateExceptionReports(List<ValidationException> validationExceptions)
