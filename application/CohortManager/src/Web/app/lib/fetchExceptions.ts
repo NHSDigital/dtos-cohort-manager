@@ -44,31 +44,34 @@ function buildQueryString(params: Record<string, number | string | boolean | und
   ).toString();
 }
 
-type FetchExceptionsByNhsNumberParams = {
-  nhsNumber: string;
+type FetchExceptionsByTypeParams = {
+  searchType: "NhsNumber" | "ExceptionId";
+  searchValue: string;
   page?: number;
   pageSize?: number;
 };
 
-export async function fetchExceptionsByNhsNumber(
-  params: FetchExceptionsByNhsNumberParams
+export async function fetchExceptionsByType(
+  params: FetchExceptionsByTypeParams
 ) {
   const query = new URLSearchParams();
 
-  query.append("nhsNumber", params.nhsNumber);
+  query.append("searchType", params.searchType);
+  query.append("searchValue", params.searchValue);
   query.append("page", (params.page ?? 1).toString());
   query.append("pageSize", (params.pageSize ?? 10).toString());
 
   const apiUrl = `${
     process.env.EXCEPTIONS_API_URL
-  }/api/GetValidationExceptionsByNhsNumber?${query.toString()}`;
+  }/api/GetValidationExceptionsByType?${query.toString()}`;
 
   const response = await fetch(apiUrl);
 
   if (response.status === 204 || response.status === 404) {
     return {
       data: {
-        NhsNumber: params.nhsNumber,
+        SearchType: params.searchType === "NhsNumber" ? 0 : 1,
+        SearchValue: params.searchValue,
         PaginatedExceptions: {
           Items: [],
           TotalItems: 0,

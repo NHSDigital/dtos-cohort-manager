@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
-import { fetchExceptionsByNhsNumber } from "@/app/lib/fetchExceptions";
+import { fetchExceptionsByType } from "@/app/lib/fetchExceptions";
 import { getRuleMapping } from "@/app/lib/ruleMapping";
 import ExceptionsTable from "@/app/components/exceptionsTable";
 import Breadcrumb from "@/app/components/breadcrumb";
@@ -11,7 +11,7 @@ import { ExceptionDetails } from "@/app/types";
 import Pagination from "@/app/components/pagination";
 
 export const metadata: Metadata = {
-  title: `Search exceptions by NHS number - ${process.env.SERVICE_NAME} - NHS`,
+  title: `Search exceptions - ${process.env.SERVICE_NAME} - NHS`,
 };
 
 interface ApiException {
@@ -34,7 +34,8 @@ interface ValidationExceptionReport {
 }
 
 interface SearchParams {
-  nhsNumber?: string;
+  searchType?: "NhsNumber" | "ExceptionId";
+  searchValue?: string;
   page?: string;
 }
 
@@ -88,19 +89,19 @@ const formatReportDate = (dateString: string): string => {
   ].join('-');
 };
 
-const buildReportUrl = (reportDate: string, category: number, nhsNumber: string): string => {
-  return `/reports/${formatReportDate(reportDate)}?category=${category}&nhsNumber=${nhsNumber}`;
+const buildReportUrl = (reportDate: string, category: number, searchValue: string): string => {
+  return `/reports/${formatReportDate(reportDate)}?category=${category}&nhsNumber=${searchValue}`;
 };
 
-// Component: No NHS Number State
-function NoNhsNumberState() {
+// Component: No Search Value State
+function NoSearchValueState() {
   return (
     <main className="nhsuk-main-wrapper" id="maincontent" role="main">
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-two-thirds">
-          <h1>Search exceptions by NHS number</h1>
+          <h1>Search exceptions</h1>
           <p className="nhsuk-body">
-            Please enter an NHS number in the search box in the header.
+            Please enter a search value in the search box in the header.
           </p>
         </div>
       </div>
@@ -118,7 +119,7 @@ function ErrorState({ error }: { readonly error: unknown }) {
     <main className="nhsuk-main-wrapper" id="maincontent" role="main">
       <div className="nhsuk-grid-row">
         <div className="nhsuk-grid-column-full">
-          <h1>Search exceptions by NHS number</h1>
+          <h1>Search exceptions</h1>
           <div className="nhsuk-error-summary">
             <div className="nhsuk-error-summary__body">
               <p>{errorMessage}</p>
@@ -147,13 +148,14 @@ function ResultsHeader({ startItem, endItem, totalCount }: {
 }
 
 // Component: No Exceptions State
-function NoExceptionsState({ nhsNumber }: { readonly nhsNumber: string }) {
+function NoExceptionsState({ searchValue, searchType }: { readonly searchValue: string; readonly searchType: string }) {
+  const label = searchType === "NhsNumber" ? "NHS Number" : "Exception ID";
   return (
     <>
       <h2 className="nhsuk-heading-m nhsuk-u-margin-bottom-5">Exceptions</h2>
       <div className="nhsuk-card nhsuk-u-margin-bottom-5">
         <div className="nhsuk-card__content">
-          <p>No exceptions found for NHS Number {nhsNumber}</p>
+          <p>No exceptions found for {label} {searchValue}</p>
         </div>
       </div>
     </>
@@ -161,13 +163,13 @@ function NoExceptionsState({ nhsNumber }: { readonly nhsNumber: string }) {
 }
 
 // Component: Reports Table Row
-function ReportsTableRow({ report, nhsNumber, index }: {
+function ReportsTableRow({ report, searchValue, index }: {
   readonly report: ValidationExceptionReport;
-  readonly nhsNumber: string;
+  readonly searchValue: string;
   readonly index: number;
 }) {
   const categoryLabel = getCategoryLabel(report.Category!);
-  const reportUrl = buildReportUrl(report.ReportDate, report.Category!, nhsNumber);
+  const reportUrl = buildReportUrl(report.ReportDate, report.Category!, searchValue);
   const formattedDate = new Date(report.ReportDate).toLocaleDateString("en-GB");
 
   return (
@@ -182,9 +184,9 @@ function ReportsTableRow({ report, nhsNumber, index }: {
 }
 
 // Component: Reports Section
-function ReportsSection({ reports, nhsNumber }: {
+function ReportsSection({ reports, searchValue }: {
   readonly reports: ValidationExceptionReport[];
-  readonly nhsNumber: string;
+  readonly searchValue: string;
 }) {
   const filteredReports = reports.filter(report =>
     RELEVANT_REPORT_CATEGORIES.has(report.Category!)
@@ -209,14 +211,14 @@ function ReportsSection({ reports, nhsNumber }: {
                   <ReportsTableRow
                     key={`${report.ReportDate}-${report.Category}-${index}`}
                     report={report}
-                    nhsNumber={nhsNumber}
+                    searchValue={searchValue}
                     index={index}
                   />
                 ))}
               </tbody>
             </table>
           ) : (
-            <p>No reports available for {nhsNumber}</p>
+            <p>No reports available for {searchValue}</p>
           )}
         </div>
       </div>
@@ -238,20 +240,22 @@ export default async function Page({
   }
 
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const nhsNumber = resolvedSearchParams.nhsNumber;
+  const searchType = resolvedSearchParams.searchType ?? "NhsNumber";
+  const searchValue = resolvedSearchParams.searchValue;
   const currentPage = parseCurrentPage(resolvedSearchParams.page);
 
-  if (!nhsNumber) {
+  if (!searchValue) {
     return (
       <>
         <Breadcrumb items={BREADCRUMB_ITEMS} />
-        <NoNhsNumberState />
+        <NoSearchValueState />
       </>
     );
   }
 
-  const response = await fetchExceptionsByNhsNumber({
-    nhsNumber,
+  const response = await fetchExceptionsByType({
+    searchType,
+    searchValue,
     page: currentPage,
     pageSize: PAGE_SIZE,
   });
@@ -259,9 +263,9 @@ export default async function Page({
   const totalCount = response.data.PaginatedExceptions.TotalItems || 0;
   const reportsCount = response.data.Reports?.length || 0;
 
-  if (totalCount === 0 && reportsCount === 0) {
-      redirect(`/exceptions/noResults`);
-  }
+if (totalCount === 0 && reportsCount === 0) {
+    redirect(`/exceptions/noResults?searchType=${searchType}&searchValue=${encodeURIComponent(searchValue)}`);
+}
 
   try {
     const exceptionDetails = response.data.PaginatedExceptions.Items.map(transformApiException);
@@ -274,6 +278,7 @@ export default async function Page({
     const linkHeader = response.headers?.get("Link") || response.linkHeader;
     const totalPages = response.data.PaginatedExceptions.TotalPages || 1;
     const reports = response.data.Reports;
+    const searchLabel = searchType === "NhsNumber" ? "NHS Number" : "Exception ID";
 
     return (
       <>
@@ -282,7 +287,7 @@ export default async function Page({
           <div className="nhsuk-grid-row">
             <div className="nhsuk-grid-column-full">
               <h1 data-testid="heading-search-exceptions">
-                Search results for {nhsNumber}
+                Search results for {searchLabel} {searchValue}
               </h1>
 
               {exceptionDetails.length > 0 ? (
@@ -299,7 +304,7 @@ export default async function Page({
                   </div>
                 </>
               ) : (
-                <NoExceptionsState nhsNumber={nhsNumber} />
+                <NoExceptionsState searchValue={searchValue} searchType={searchType} />
               )}
 
               {totalPages > 1 && (
@@ -307,11 +312,13 @@ export default async function Page({
                   linkHeader={linkHeader}
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  buildUrl={(page) => `/exceptions/search?nhsNumber=${nhsNumber}&page=${page}`}
+                  buildUrl={(page) => `/exceptions/search?searchType=${searchType}&searchValue=${searchValue}&page=${page}`}
                 />
               )}
 
-              <ReportsSection reports={reports} nhsNumber={nhsNumber} />
+              {searchType === "NhsNumber" && (
+                <ReportsSection reports={reports} searchValue={searchValue} />
+              )}
             </div>
           </div>
         </main>

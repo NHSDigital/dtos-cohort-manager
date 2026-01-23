@@ -138,17 +138,18 @@ public class ValidationExceptionData : IValidationExceptionData
         return result.ToList();
     }
 
-    public async Task<ValidationExceptionsByNhsNumberResponse> GetExceptionsWithReportsByNhsNumber(string nhsNumber)
+    public async Task<ValidationExceptionsResponse> GetExceptionsByNhsNumber(string nhsNumber)
     {
         var allValidationExceptions = await GetValidationExceptionsByNhsNumber(nhsNumber);
 
         if (allValidationExceptions.Count == 0)
         {
-            return new ValidationExceptionsByNhsNumberResponse
+            return new ValidationExceptionsResponse
             {
+                SearchType = SearchType.NhsNumber,
+                SearchValue = nhsNumber,
                 Exceptions = [],
-                Reports = [],
-                NhsNumber = nhsNumber
+                Reports = []
             };
         }
 
@@ -163,11 +164,12 @@ public class ValidationExceptionData : IValidationExceptionData
 
         var reports = GenerateExceptionReports(reportExceptions);
 
-        return new ValidationExceptionsByNhsNumberResponse
+        return new ValidationExceptionsResponse
         {
+            SearchType = SearchType.NhsNumber,
+            SearchValue = nhsNumber,
             Exceptions = exceptions,
-            Reports = reports,
-            NhsNumber = nhsNumber
+            Reports = reports
         };
     }
 

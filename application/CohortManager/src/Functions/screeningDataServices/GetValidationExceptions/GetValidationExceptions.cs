@@ -134,29 +134,56 @@ public class GetValidationExceptions
     }
 
     /// <summary>
-    /// Retrieves validation exceptions and reports for a specific NHS number.
+    /// Retrieves validation exceptions and reports by search type (NHS Number or Exception ID).
     /// </summary>
-    [Function(nameof(GetValidationExceptionsByNhsNumber))]
-    public async Task<HttpResponseData> GetValidationExceptionsByNhsNumber([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    [Function(nameof(GetValidationExceptionsByType))]
+    public async Task<HttpResponseData> GetValidationExceptionsByType([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
     {
-        var nhsNumber = req.Query["nhsNumber"];
+        var searchType = HttpParserHelper.GetEnumQueryParameter(req, "searchType", SearchType.NhsNumber);
+        var searchValue = req.Query["searchValue"];
         var page = _httpParserHelper.GetQueryParameterAsInt(req, "page", 1);
         var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize", 10);
 
-        if (string.IsNullOrWhiteSpace(nhsNumber))
+        if (string.IsNullOrWhiteSpace(searchValue))
         {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "NHS number is required.");
-        }
-
-        var cleanedNhsNumber = nhsNumber.Replace(" ", "");
-        if (!ValidationHelper.ValidateNHSNumber(cleanedNhsNumber))
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Search value is required.");
         }
 
         try
         {
-            var result = await _validationData.GetExceptionsWithReportsByNhsNumber(cleanedNhsNumber);
+            ValidationExceptionsResponse result = new()
+            {
+                SearchType = searchType,
+                SearchValue = searchValue,
+                Exceptions = [],
+                Reports = []
+            };
+
+            if (searchType == SearchType.ExceptionId)
+            {
+                if (!int.TryParse(searchValue.Trim(), out var exceptionId))
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Exception ID must be a valid number.");
+                }
+                var exception = await _validationData.GetExceptionById(exceptionId);
+                result = new ValidationExceptionsResponse
+                {
+                    SearchType = SearchType.ExceptionId,
+                    SearchValue = searchValue.Trim(),
+                    Exceptions = exception != null ? [exception] : [],
+                    Reports = []
+                };
+            }
+
+            if (searchType == SearchType.NhsNumber)
+            {
+                var cleanedNhsNumber = searchValue.Replace(" ", "");
+                if (!ValidationHelper.ValidateNHSNumber(cleanedNhsNumber))
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
+                }
+                result = await _validationData.GetExceptionsByNhsNumber(cleanedNhsNumber);
+            }
 
             if (result.Exceptions.Count == 0 && result.Reports.Count == 0)
             {
@@ -165,19 +192,18 @@ public class GetValidationExceptions
 
             var paginatedExceptions = _paginationService.GetPaginatedResult(result.Exceptions.AsQueryable(), page, pageSize);
             var headers = _paginationService.AddNavigationHeaders(req, paginatedExceptions);
-
-            var response = new ValidationExceptionsByNhsNumberResponse
+            var response = new ValidationExceptionsResponse
             {
-                NhsNumber = result.NhsNumber,
+                SearchType = result.SearchType,
+                SearchValue = result.SearchValue,
                 PaginatedExceptions = paginatedExceptions,
                 Reports = result.Reports
             };
-
             return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(response), headers);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving validation exceptions for provided NHS number");
+            _logger.LogError(ex, "Error retrieving validation exceptions for search type {SearchType}", searchType);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

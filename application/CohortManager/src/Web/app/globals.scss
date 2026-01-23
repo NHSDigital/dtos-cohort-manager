@@ -1,35 +1,26 @@
 @use "~nhsuk-frontend/packages/nhsuk";
-
 // Utilities
-
 .app-u-no-wrap {
   white-space: nowrap;
 }
-
 // Fixes
-
 .app-card {
   padding: 24px;
 }
-
 .app-card > :last-child {
   margin-bottom: 0;
 }
-
 @media (min-width: 40.0625em) {
   .app-card {
     padding: 32px;
   }
 }
-
 // Add support for including icon in login button
 // https://github.com/nhsuk/nhsuk-frontend/pull/1305
-
 .nhsuk-button--login {
   align-items: center;
   display: inline-flex;
 }
-
 .nhsuk-button__login-icon {
   align-self: center;
   flex-shrink: 0;
@@ -39,44 +30,35 @@
   // (https://github.com/w3c/csswg-drafts/issues/6310)
   forced-color-adjust: auto;
 }
-
 // Add support for smaller button
-
 .app-button--small {
   padding: 4px 16px;
   font-size: 16px;
   margin-bottom: 0;
   margin-left: 8px;
 }
-
 // Form and results layout
-
 .app-form-results-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 }
-
 .app-results-text {
   margin: 0;
 }
-
 // Pagination
-
 .app-pagination {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
 }
-
 .app-pagination__prev,
 .app-pagination__next {
   display: flex;
   align-items: center;
 }
-
 .app-pagination__list {
   display: flex;
   align-items: center;
@@ -85,11 +67,9 @@
   margin: 0;
   padding: 0;
 }
-
 .app-pagination__item {
   margin: 0;
 }
-
 .app-pagination__link {
   display: inline-flex;
   align-items: center;
@@ -101,72 +81,66 @@
   color: #005ea5;
   border: 2px solid transparent;
   font-weight: 400;
-
   &:hover,
   &:focus {
     text-decoration: none;
   }
 }
-
 .app-pagination__item--current .app-pagination__link {
   background-color: #005ea5;
   color: white;
   border-color: #005ea5;
-
   &:hover {
     color: white;
   }
-
   &:active {
     color: black;
   }
 }
-
 .app-pagination__link-title {
   font-weight: 400;
   font-size: 18px;
   text-decoration: underline;
-
   &:hover,
   &:focus {
     text-decoration: none;
   }
 }
-
 .app-pagination__icon {
   margin-right: 8px;
   fill: currentColor;
 }
-
 .app-pagination__icon--next {
   margin-right: 0;
   margin-left: 8px;
 }
-
+// Action links
 .nhsuk-action-link {
   display: flex;
 }
-
 .nhsuk-icon--arrow-right-circle {
-    margin-right: 8px;
+  margin-right: 8px;
 }
-
 .nhsuk-action-link__text {
-      font-size: 20px;
-      font-weight: bold;
-      align-self: center;
+  font-size: 20px;
+  font-weight: bold;
+  align-self: center;
 }
-
 .app-feedback-section .nhsuk-action-link svg.nhsuk-icon--arrow-right-circle {
   fill: #00703c;
   color: #00703c;
 }
+// Summary list
+.nhsuk-summary-list__multiline {
+  white-space: pre-wrap;
+}
 
+// Header
 .nhsuk-header__content {
   display: flex;
   align-items: center;
-  gap: clamp(8px, 2vw, 24px);
-  flex-wrap: wrap;
+  gap: 24px;
+  flex-wrap: nowrap;
   justify-content: space-between;
 }
 
@@ -177,15 +151,40 @@
 
 .nhsuk-header__search {
   flex: 1;
-  min-width: min(240px, 40vw);
-  max-width: 420px;
+  min-width: 380px;
+  max-width: 550px;
 }
 
-.nhsuk-summary-list__multiline {
-    white-space: pre-wrap;
-}
 .nhsuk-header__search-form {
   display: flex;
+  align-items: stretch;
+}
+
+.nhsuk-header__search-select,
+.nhsuk-header__search-input {
+  height: 40px;
+  padding: 8px 12px;
+  font-size: 16px;
+  border: 1px solid #aeb7bd;
+  box-sizing: border-box;
+}
+
+.nhsuk-header__search-select {
+  min-width: 130px;
+  flex-shrink: 0;
+  border-radius: 4px 0 0 4px;
+
+  option {
+    background-color: white !important;
+    color: #212b32 !important;
+  }
+}
+
+.nhsuk-header__search-input {
+  flex: 1;
+  min-width: 0;
+  border-left: none;
+  border-radius: 0 4px 4px 0;
 }
 
 .nhsuk-header__account {
