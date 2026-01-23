@@ -48,6 +48,11 @@ variable "HUB_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "MONITORING_EMAIL_ADDRESS" {
+  description = "The email address for monitoring alerts"
+  type        = string
+}
+
 variable "TARGET_SUBSCRIPTION_ID" {
   description = "ID of a subscription to deploy infrastructure"
   type        = string
@@ -355,10 +360,12 @@ variable "frontdoor_endpoint" {
 variable "key_vault" {
   description = "Configuration for the key vault"
   type = object({
-    disk_encryption   = optional(bool, true)
-    soft_del_ret_days = optional(number, 7)
-    purge_prot        = optional(bool, false)
-    sku_name          = optional(string, "standard")
+    disk_encryption               = optional(bool, true)
+    soft_del_ret_days             = optional(number, 7)
+    purge_prot                    = optional(bool, false)
+    sku_name                      = optional(string, "standard")
+    alert_window_size             = optional(string, "PT5M") # Check every 5 minutes
+    alert_secret_expiry_threshold = optional(number, 1)
   })
 }
 
