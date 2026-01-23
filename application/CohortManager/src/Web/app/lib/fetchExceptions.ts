@@ -67,7 +67,7 @@ export async function fetchExceptionsByType(
 
   const response = await fetch(apiUrl);
 
-  if (response.status === 204 || response.status === 404) {
+  if (response.status === 204 || response.status === 400 || response.status === 404) {
     return {
       data: {
         SearchType: params.searchType === "NhsNumber" ? 0 : 1,
