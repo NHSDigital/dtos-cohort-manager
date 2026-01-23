@@ -367,7 +367,19 @@ variable "key_vault" {
 
     secret_expired_alert = optional(object({
       evaluation_frequency = optional(string, "PT15M") # every 15 mins
-      window_duration      = optional(string, "PT1H") # last 1 hour
+      window_duration      = optional(string, "PT1H")  # last 1 hour
+      threshold            = optional(number, 1)
+    }), {})
+
+    certificate_near_expiry_alert = optional(object({
+      evaluation_frequency = optional(string, "P1D") # every 24 hours
+      window_duration      = optional(string, "P1D") # last 24 hours
+      threshold            = optional(number, 1)
+    }), {})
+
+    certificate_expired_alert = optional(object({
+      evaluation_frequency = optional(string, "PT15M") # every 15 mins
+      window_duration      = optional(string, "PT1H")  # last 1 hour
       threshold            = optional(number, 1)
     }), {})
   })
