@@ -471,6 +471,38 @@ public class TransformDataServiceTests
 
     }
 
+    [TestMethod]
+    [DataRow("Test Hair & Beauty Clinic", "Test Hair and Beauty Clinic")]
+    [DataRow("Bath & Testing Lodge Park", "Bath and Testing Lodge Park")]
+    [DataRow(@"Central \T\ Test Housing Trust", "Central and Test Housing Trust")]
+    [DataRow("Central \\T\\ Test Housing Trust", "Central and Test Housing Trust")]
+    public async Task Run_AddressWithAmpersand_TransformedToAnd(string address, string transformedAddress)
+    {
+        // Arrange
+        _requestBody.Participant.AddressLine2 = address;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReferralFlag = false,
+            AddressLine2 = transformedAddress
+        };
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "CharacterRules", 71, null), times: Times.Once);
+    }
+
 
     [TestMethod]
     public async Task Run_RfrIsDeaAndDateOfDeathIsNull_SetDateOfDeathToRfrDate()
@@ -668,7 +700,7 @@ public class TransformDataServiceTests
             times: Times.Once);
     }
 
-       [TestMethod]
+    [TestMethod]
     public async Task Run_SupersededNhsNumberNotNullAndRfRNotNull_NoTransformAndRaiseException()
     {
         // Arrange
@@ -1011,7 +1043,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
 
-        Assert.AreEqual(ReasonForRemoval,actualResponse!.ReasonForRemoval);
+        Assert.AreEqual(ReasonForRemoval, actualResponse!.ReasonForRemoval);
         Assert.IsNotNull(actualResponse!.ReasonForRemovalEffectiveFromDate);
     }
 

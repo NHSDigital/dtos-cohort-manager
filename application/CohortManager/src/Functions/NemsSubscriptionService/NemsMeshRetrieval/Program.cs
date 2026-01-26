@@ -29,12 +29,12 @@ try
     {
         // Get CohortManager private key
         logger.LogInformation("Pulling Mesh Certificate from KeyVault");
-        var certClient = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
+        var certClient = new CertificateClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new ManagedIdentityCredential ());
         var certificate = await certClient.DownloadCertificateAsync(config.NemsMeshKeyName);
         cohortManagerPrivateKey = certificate.Value;
 
         // Get MESH public certificates (CA chain)
-        var secretClient = new SecretClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new DefaultAzureCredential());
+        var secretClient = new SecretClient(vaultUri: new Uri(config.KeyVaultConnectionString), credential: new ManagedIdentityCredential ());
         string base64Cert = (await secretClient.GetSecretAsync(config.NemsMeshCertName)).Value.Value;
         meshCerts = CertificateHelper.GetCertificatesFromString(base64Cert);
     }

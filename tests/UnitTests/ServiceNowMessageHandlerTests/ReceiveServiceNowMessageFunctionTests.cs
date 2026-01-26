@@ -12,6 +12,7 @@ using System.Text;
 using Model;
 using Microsoft.Extensions.Options;
 using DataServices.Client;
+using Model.Constants;
 
 [TestClass]
 public class ReceiveServiceNowMessageFunctionTests
@@ -57,6 +58,7 @@ public class ReceiveServiceNowMessageFunctionTests
     [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
     [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-12-31", "ABC", ServiceNowReasonsForAdding.RequiresCeasing, "")]
     [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.RoutineScreening, "ZZZ")]
+    [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1985-06-15", "ABC", ServiceNowReasonsForAdding.OverAgeSelfReferral, "ZZZ")]
     public async Task Run_WhenRequestIsValidAndCaseSuccessfullySavedToDbAndMessageSuccessfullySentToServiceBus_ReturnsAccepted(
         string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string dummyGpCode)
     {
@@ -148,11 +150,11 @@ public class ReceiveServiceNowMessageFunctionTests
         var requestBodyJson = CreateRequestBodyJson(caseNumber, nhsNumber, forename, familyName, dateOfBirth, bsoCode, reasonForAdding, dummyGpCode);
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
-                _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
-                c.ServicenowId == caseNumber &&
-                c.NhsNumber == long.Parse(nhsNumber) &&
-                c.Status == ServiceNowStatus.New
-            ))).ReturnsAsync(false);
+        _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
+        c.ServicenowId == caseNumber &&
+        c.NhsNumber == long.Parse(nhsNumber) &&
+        c.Status == ServiceNowStatus.New
+    ))).ReturnsAsync(false);
 
         // Act
         var result = await _function.Run(_mockHttpRequest.Object);
@@ -171,11 +173,11 @@ public class ReceiveServiceNowMessageFunctionTests
         var requestBodyJson = CreateRequestBodyJson(caseNumber, nhsNumber, forename, familyName, dateOfBirth, bsoCode, reasonForAdding, dummyGpCode);
         var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
         _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
-                _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
-                c.ServicenowId == caseNumber &&
-                c.NhsNumber == long.Parse(nhsNumber) &&
-                c.Status == ServiceNowStatus.New
-            ))).ReturnsAsync(true);
+        _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
+        c.ServicenowId == caseNumber &&
+        c.NhsNumber == long.Parse(nhsNumber) &&
+        c.Status == ServiceNowStatus.New
+    ))).ReturnsAsync(true);
         _mockQueueClient.Setup(x => x.AddAsync(It.Is<ServiceNowParticipant>(p =>
                 p.ScreeningId == 1 &&
                 p.ServiceNowCaseNumber == caseNumber &&
@@ -206,7 +208,7 @@ public class ReceiveServiceNowMessageFunctionTests
             u_case_variable_data = new
             {
                 nhs_number = nhsNumber,
-                forename_ = forename,
+                forename,
                 surname_family_name = familyName,
                 date_of_birth = dateOfBirth,
                 BSO_code = bsoCode,

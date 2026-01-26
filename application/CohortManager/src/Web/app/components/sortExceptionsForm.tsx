@@ -1,48 +1,43 @@
+import { SortOption } from "@/app/lib/sortOptions";
+
 interface SortExceptionsFormProps {
-  readonly sortBy: number;
-  readonly options: readonly {
-    readonly value: string;
-    readonly label: string;
-  }[];
-  readonly hiddenText?: string;
-  readonly testId?: string;
+  sortBy: string;
+  options: SortOption[];
 }
 
 export default function SortExceptionsForm({
   sortBy,
   options,
-  hiddenText = "exceptions",
-  testId,
-}: SortExceptionsFormProps) {
+}: Readonly<SortExceptionsFormProps>) {
   return (
-    <form method="GET" data-testid="sort-exceptions-form">
-      <div className="nhsuk-form-group app-form-group--inline">
-        <label className="nhsuk-label" htmlFor="sort-exceptions">
-          Sort <span className="nhsuk-u-visually-hidden">{hiddenText} </span> by
+    <form className="nhsuk-form" data-testid="sort-exceptions-form" method="GET">
+      <div className="nhsuk-form-group">
+        <label
+          className="nhsuk-label nhsuk-u-visually-hidden"
+          htmlFor="sort-exceptions"
+        >
+          Sort by
         </label>
-        <div className="form-inline-row">
-          <select
-            className="nhsuk-select"
-            id="sort-exceptions"
-            name="sortBy"
-            defaultValue={String(sortBy)}
-            data-testid={testId}
-          >
-            {options.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+        <select
+          className="nhsuk-select"
+          id="sort-exceptions"
+          name="sortBy"
+          defaultValue={sortBy}
+        >
+          {options.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
           <button
             className="nhsuk-button app-button--small"
             data-module="nhsuk-button"
-            type="submit"
             data-testid="apply-button"
+            type="submit"
           >
             Apply
           </button>
-        </div>
       </div>
     </form>
   );

@@ -1,13 +1,15 @@
 namespace Model.DTO;
 
+using Model.Enums;
 using Model.Pagination;
 
 /// <summary>
-/// Response model for NHS number search containing paginated exceptions and associated reports
+/// Response model for exception search containing paginated exceptions and associated reports
 /// </summary>
-public class ValidationExceptionsByNhsNumberResponse
+public class ValidationExceptionsResponse
 {
-    public string NhsNumber { get; set; } = string.Empty;
+    public SearchType SearchType { get; set; }
+    public string SearchValue { get; set; } = string.Empty;
     public List<ValidationException> Exceptions { get; set; } = [];
     public List<ValidationExceptionReport> Reports { get; set; } = [];
     public PaginationResult<ValidationException> PaginatedExceptions { get; set; } = new() { Items = [] };
