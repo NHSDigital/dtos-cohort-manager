@@ -365,7 +365,7 @@ variable "key_vault" {
     purge_prot                    = optional(bool, false)
     sku_name                      = optional(string, "standard")
     window_duration               = optional(string, "PT5M") # Check every 5 minutes
-    alert_secret_expiry_threshold = optional(number, 5)
+    alert_secret_expiry_threshold = optional(number, 1)
   })
 }
 
