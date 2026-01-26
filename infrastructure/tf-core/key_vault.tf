@@ -9,7 +9,7 @@ module "key_vault" {
 
   enable_alerting                                  = var.features.alerts_enabled
   action_group_id                                  = var.features.alerts_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
-  alert_window_size                                = var.key_vault.alert_window_size
+  window_duration                                  = var.key_vault.window_duration
   alert_secret_expiry_threshold                    = var.key_vault.alert_secret_expiry_threshold
   log_analytics_workspace_id                       = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_keyvault_enabled_logs = local.monitor_diagnostic_setting_keyvault_enabled_logs

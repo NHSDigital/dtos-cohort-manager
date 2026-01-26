@@ -364,7 +364,7 @@ variable "key_vault" {
     soft_del_ret_days             = optional(number, 7)
     purge_prot                    = optional(bool, false)
     sku_name                      = optional(string, "standard")
-    alert_window_size             = optional(string, "PT5M") # Check every 5 minutes
+    window_duration               = optional(string, "PT5M") # Check every 5 minutes
     alert_secret_expiry_threshold = optional(number, 1)
   })
 }
