@@ -78,7 +78,13 @@ public class ValidationHelperTests
     [DataRow("B33 8TH")]                 // Valid postcode format
     [DataRow("SW1A 1AA")]                // Valid postcode format
     [DataRow("SM1 1AA")]                 // Valid postcode format
-    [DataRow("ZZ99 3CZ")]                // dummy postcode format
+    [DataRow("ZZ99 3CZ")]                // dummy postcode format with suffix
+    [DataRow("ZZ993CZ")]                 // dummy postcode format with suffix (no space)
+    [DataRow("ZZ99")]                    // dummy postcode format without suffix
+    [DataRow("NFA")]                     // placeholder postcode - No Fixed Abode
+    [DataRow("nfa")]                     // placeholder postcode - lowercase
+    [DataRow("ANK")]                     // placeholder postcode - Address Not Known
+    [DataRow("ank")]                     // placeholder postcode - lowercase
     public void ValidatePostcode_ValidPostcode_ReturnsTrue(string postCode)
     {
         var result = ValidationHelper.ValidatePostcode(postCode);

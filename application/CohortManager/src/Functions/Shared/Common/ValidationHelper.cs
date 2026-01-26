@@ -91,7 +91,7 @@ public static class ValidationHelper
     public static bool ValidatePostcode(string postcode)
     {
         string validPostcodePattern = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$";
-        string dummyPostcodePattern = "^ZZ99 ?[0-9][A-Z]{2}$";
+        string dummyPostcodePattern = "^(NFA|ANK|ZZ99( ?[0-9][A-Z]{2})?)$";
 
         Match validPostcodeMatch = Regex.Match(postcode, validPostcodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
         Match dummyPostcodeMatch = Regex.Match(postcode, dummyPostcodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
@@ -132,7 +132,7 @@ public static class ValidationHelper
     /// <returns> true is its a manualAdd</returns>
     public static bool CheckManualAddFileName(string? FileName)
     {
-        if(string.IsNullOrEmpty(FileName))
+        if (string.IsNullOrEmpty(FileName))
         {
             return false;
         }
