@@ -7,12 +7,8 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.DurableTask;
 using Model;
 using System.Net;
-using Model.Enums;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
-using RulesEngine.Models;
-using Azure.Core;
 
 public class ValidateParticipant
 {
@@ -55,7 +51,7 @@ public class ValidateParticipant
             var previousRecordTask = context.CallActivityAsync<CohortDistributionParticipant>(nameof(GetCohortDistributionRecord), validationRecord.Participant.ParticipantId);
 
             // Remove Previous Validation Errors from DB
-            var removeValidationRecordTask = context.CallActivityAsync( nameof(RemoveOldValidationExceptions), new OldExceptionRecord()
+            var removeValidationRecordTask = context.CallActivityAsync(nameof(RemoveOldValidationExceptions), new OldExceptionRecord()
             {
                 NhsNumber = validationRecord.Participant.NhsNumber,
                 ScreeningName = validationRecord.Participant.ScreeningName
