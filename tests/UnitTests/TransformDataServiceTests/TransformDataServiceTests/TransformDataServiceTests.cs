@@ -960,10 +960,14 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_ZZZSECURPostcode_TransformPostcode()
+    [DataRow("ZZ993VZ", DisplayName = "No Space Dummy Postcode")]
+    [DataRow("ZZ99", DisplayName = "Incomplete Dummy Postcode")]
+    [DataRow("NFA", DisplayName = "No Fixed Abode")]
+    [DataRow("ANK", DisplayName = "Address Not Known")]
+    public async Task Run_DummyPostcodes_TransformsToStandardDummyPostcode(string postcode)
     {
         // Arrange
-        _requestBody.Participant.Postcode = "ZZZSECUR";
+        _requestBody.Participant.Postcode = postcode;
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
@@ -979,6 +983,7 @@ public class TransformDataServiceTests
 
         Assert.AreEqual("ZZ99 3VZ", actualResponse?.Postcode);
     }
+
     [TestMethod]
     [DataRow("CGA")]
     [DataRow("DIS")]
