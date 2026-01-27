@@ -1047,6 +1047,50 @@ public class TransformDataServiceTests
         Assert.IsNotNull(actualResponse!.ReasonForRemovalEffectiveFromDate);
     }
 
+    [TestMethod]
+    public async Task Run_AmendWithoutExistingNHSNumber_ConvertsToAdd()
+    {
+        // Arrange
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.Participant.NhsNumber = "1234567890";
+        _requestBody.Participant.ParticipantId = "123456";
+        _requestBody.ExistingParticipant = null;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var transformedParticipant = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(Actions.New, transformedParticipant?.RecordType);
+    }
+
+    [TestMethod]
+    public async Task Run_AmendRecordWithExistingNHSNumber_KeepsAmendType()
+    {
+        // Arrange
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.Participant.NhsNumber = "1234567890";
+        _requestBody.Participant.ParticipantId = "123456";
+        _requestBody.ExistingParticipant = new CohortDistribution { NHSNumber = 1234567890, ParticipantId = 123456 };
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var transformedParticipant = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(Actions.Amended, transformedParticipant?.RecordType);
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
