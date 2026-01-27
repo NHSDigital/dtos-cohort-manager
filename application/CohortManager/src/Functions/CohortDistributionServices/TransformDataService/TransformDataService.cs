@@ -79,7 +79,7 @@ public class TransformDataService
             participant = await transformString.TransformStringFields(participant);
 
             // Other transformation rules
-            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant,ValidationHelper.CheckManualAddFileName(requestBody.FileName));
+            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant, ValidationHelper.CheckManualAddFileName(requestBody.FileName));
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
@@ -119,6 +119,14 @@ public class TransformDataService
     public async Task<CohortDistributionParticipant> TransformParticipantAsync(CohortDistributionParticipant participant,
                                                                             CohortDistribution databaseParticipant, bool isManualAdd = false)
     {
+        // Convert AMEND to ADD if no existing record exists to avoid validation issues
+        if (participant.RecordType == Actions.Amended &&
+            (databaseParticipant == null || (databaseParticipant.NHSNumber == 0 && databaseParticipant.ParticipantId == 0)))
+        {
+            _logger.LogInformation("AMEND record received with no existing participant (ParticipantId: {ParticipantId}). Converting to ADD.", participant.ParticipantId);
+            participant.RecordType = Actions.New;
+        }
+
         var excludedSMUList = await _dataLookup.GetCachedExcludedSMUValues();
 
         string json = await File.ReadAllTextAsync("transformRules.json");
@@ -132,7 +140,7 @@ public class TransformDataService
         };
 
         var re = new RulesEngine.RulesEngine(rules, reSettings);
-        var existingParticipant = new CohortDistributionParticipant(databaseParticipant); // for Rule which are of NoTransform type like Rule 35
+        var existingParticipant = databaseParticipant != null ? new CohortDistributionParticipant(databaseParticipant) : new CohortDistributionParticipant(); // for Rule which are of NoTransform type like Rule 35
         var ruleParameters = new[] {
             new RuleParameter("databaseParticipant", databaseParticipant),
             new RuleParameter("participant", participant),
