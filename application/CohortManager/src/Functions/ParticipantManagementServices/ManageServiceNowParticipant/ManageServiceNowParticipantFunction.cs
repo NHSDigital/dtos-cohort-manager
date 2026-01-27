@@ -198,10 +198,9 @@ public class ManageServiceNowParticipantFunction
     {
         _logger.LogInformation("Existing participant management record found, updating record {ParticipantId}", participantManagement.ParticipantId);
 
-        participantManagement.RecordType = Actions.New;
+        participantManagement.RecordType = Actions.Amended;
         participantManagement.EligibilityFlag = 1;
         participantManagement.ReferralFlag = 1;
-        participantManagement.ExceptionFlag = 0;
         participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
         participantManagement.ReasonForRemoval = pdsDemographic.ReasonForRemoval;
         participantManagement.ReasonForRemovalDate = ParseRemovalEffectiveFromDateStringToDateTime(pdsDemographic.RemovalEffectiveFromDate);

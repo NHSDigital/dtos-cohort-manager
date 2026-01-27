@@ -382,7 +382,7 @@ public class ManageServiceNowParticipantFunctionTests
                 p.ParticipantId == 123 &&
                 p.ScreeningId == _serviceNowParticipant.ScreeningId &&
                 p.NHSNumber == _serviceNowParticipant.NhsNumber &&
-                p.RecordType == Actions.New &&
+                p.RecordType == Actions.Amended &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
                 p.RecordUpdateDateTime != null &&
@@ -394,7 +394,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.New &&
+                    x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
@@ -443,7 +443,7 @@ public class ManageServiceNowParticipantFunctionTests
                 p.ParticipantId == 123 &&
                 p.ScreeningId == _serviceNowParticipant.ScreeningId &&
                 p.NHSNumber == _serviceNowParticipant.NhsNumber &&
-                p.RecordType == Actions.New &&
+                p.RecordType == Actions.Amended &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
                 p.RecordUpdateDateTime != null)))
@@ -453,7 +453,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.New &&
+                    x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
@@ -658,7 +658,7 @@ public class ManageServiceNowParticipantFunctionTests
                 p.ParticipantId == 123 &&
                 p.ScreeningId == vhrParticipant.ScreeningId &&
                 p.NHSNumber == vhrParticipant.NhsNumber &&
-                p.RecordType == Actions.New &&
+                p.RecordType == Actions.Amended &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
                 p.IsHigherRisk == 1 &&
@@ -669,7 +669,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.FileName == vhrParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == vhrParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == vhrParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.New &&
+                    x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == vhrParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
@@ -729,7 +729,7 @@ public class ManageServiceNowParticipantFunctionTests
                 p.ParticipantId == 123 &&
                 p.ScreeningId == _serviceNowParticipant.ScreeningId &&
                 p.NHSNumber == _serviceNowParticipant.NhsNumber &&
-                p.RecordType == Actions.New &&
+                p.RecordType == Actions.Amended &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
                 p.IsHigherRisk == 1 &&
@@ -740,7 +740,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.New &&
+                    x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
@@ -799,7 +799,7 @@ public class ManageServiceNowParticipantFunctionTests
                 p.ParticipantId == 123 &&
                 p.ScreeningId == _serviceNowParticipant.ScreeningId &&
                 p.NHSNumber == _serviceNowParticipant.NhsNumber &&
-                p.RecordType == Actions.New &&
+                p.RecordType == Actions.Amended &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
                 p.IsHigherRisk == null &&
@@ -810,7 +810,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.New &&
+                    x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS"),
