@@ -360,12 +360,22 @@ variable "frontdoor_endpoint" {
 variable "key_vault" {
   description = "Configuration for the key vault"
   type = object({
-    disk_encryption               = optional(bool, true)
-    soft_del_ret_days             = optional(number, 7)
-    purge_prot                    = optional(bool, false)
-    sku_name                      = optional(string, "standard")
-    window_duration               = optional(string, "PT5M") # Check every 5 minutes
-    alert_secret_expiry_threshold = optional(number, 1)
+    disk_encryption   = optional(bool, true)
+    soft_del_ret_days = optional(number, 7)
+    purge_prot        = optional(bool, false)
+    sku_name          = optional(string, "standard")
+
+    secret_near_expiry_alert = optional(object({
+      evaluation_frequency = optional(string, "PT24H")
+      window_duration      = optional(string, "PT24H")
+      threshold            = optional(number, 1)
+    }), null)
+
+    secret_expired_alert = optional(object({
+      evaluation_frequency = optional(string, "PT15M")
+      window_duration      = optional(string, "PT1H")
+      threshold            = optional(number, 1)
+    }), null)
   })
 }
 
