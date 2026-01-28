@@ -199,6 +199,9 @@ public class StaticValidationTests
     [DataRow("ZZ999FZ")]
     [DataRow("ZZ99 3WZ")]
     [DataRow("ZZZSECUR")]
+    [DataRow("ANK")]
+    [DataRow("ZZ99")]
+    [DataRow("NFA")]
     public async Task Run_ValidPostcode_ReturnNoContent(string postcode)
     {
         // Arrange
@@ -643,14 +646,14 @@ public class StaticValidationTests
     #endregion
     #region  Manual add rule 97 Missing GP details (and no accepted reason for removal)
     [TestMethod]
-    [DataRow("A12345",null)]
-    [DataRow("ZZZZYZ","RPR")]
-    [DataRow("ZZZZYZ","RDI")]
-    [DataRow("ZZZZYZ","RDR")]
-    [DataRow(null,"RDR")]
-    [DataRow(null,"RDI")]
-    [DataRow(null,"RPR")]
-    public async Task Run_ManualAddWithGPCode_ReturnsNoContent(string? primaryCareProvider,string? reasonForRemoval)
+    [DataRow("A12345", null)]
+    [DataRow("ZZZZYZ", "RPR")]
+    [DataRow("ZZZZYZ", "RDI")]
+    [DataRow("ZZZZYZ", "RDR")]
+    [DataRow(null, "RDR")]
+    [DataRow(null, "RDI")]
+    [DataRow(null, "RPR")]
+    public async Task Run_ManualAddWithGPCode_ReturnsNoContent(string? primaryCareProvider, string? reasonForRemoval)
     {
         // Arrange
         _participantCsvRecord.Participant.CurrentPosting = "BAA";
@@ -690,7 +693,7 @@ public class StaticValidationTests
 
         // Assert
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
-        Assert.AreEqual(HttpStatusCode.OK,response.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         StringAssert.Contains(body, "97.NoDummyGPorPCP.NBO.NonFatal");
 
     }
@@ -748,7 +751,7 @@ public class StaticValidationTests
 
         // Assert
         string body = await AssertionHelper.ReadResponseBodyAsync(response);
-        Assert.AreEqual(HttpStatusCode.OK,response.StatusCode);
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
         StringAssert.Contains(body, "98.ManualAddWithBlockingRFR.NBO.NonFatal");
 
     }
