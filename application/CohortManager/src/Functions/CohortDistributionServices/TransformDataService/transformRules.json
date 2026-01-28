@@ -700,7 +700,7 @@
         }
       },
       {
-        "RuleName": "10.TransformZZZSECUR",
+        "RuleName": "10.TransformDummyPostcodes",
   "Expression": "!string.IsNullOrEmpty(participant.Postcode) && (participant.Postcode == \"ZZZSECUR\" || participant.Postcode == \"ANK\" || participant.Postcode == \"ZZ99\" || participant.Postcode == \"NFA\")",
         "Actions": {
           "OnSuccess": {
