@@ -12,6 +12,7 @@ var host = new HostBuilder()
         .AddDataService<ParticipantManagement>(config.ParticipantManagementUrl)
         .AddDataService<ParticipantDemographic>(config.ParticipantDemographicDataServiceUrl)
         .AddDataService<CohortDistribution>(config.CohortDistributionDataServiceUrl)
+        .AddDataService<ServicenowCase>(config.ServiceNowCasesDataServiceURL)
         .Build()
     .ConfigureFunctionsWebApplication()
     .ConfigureServices(services =>
