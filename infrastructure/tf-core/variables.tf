@@ -366,8 +366,10 @@ variable "key_vault" {
     sku_name          = optional(string, "standard")
 
     secret_near_expiry_alert = optional(object({
-      evaluation_frequency = optional(string, "P1D")
-      window_duration      = optional(string, "P1D")
+      # evaluation_frequency = optional(string, "P1D")
+      # window_duration      = optional(string, "P1D")
+      evaluation_frequency = optional(string, "PT15M")
+      window_duration      = optional(string, "PT1H")
       threshold            = optional(number, 1)
     }), {})
 
