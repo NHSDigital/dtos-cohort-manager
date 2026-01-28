@@ -369,7 +369,7 @@ variable "key_vault" {
       # evaluation_frequency = optional(string, "P1D")
       # window_duration      = optional(string, "P1D")
       evaluation_frequency = optional(string, "PT5M")
-      window_duration      = optional(string, "PT10M")
+      window_duration      = optional(string, "PT15M")
       threshold            = optional(number, 1)
     }), {})
 
