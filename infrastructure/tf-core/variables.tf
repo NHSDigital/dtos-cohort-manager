@@ -374,8 +374,10 @@ variable "key_vault" {
     }), {})
 
     secret_expired_alert = optional(object({
-      evaluation_frequency = optional(string, "PT15M")
-      window_duration      = optional(string, "PT1H")
+      # evaluation_frequency = optional(string, "PT15M")
+      # window_duration      = optional(string, "PT1H")
+      evaluation_frequency = optional(string, "PT5M")
+      window_duration      = optional(string, "PT15M")
       threshold            = optional(number, 1)
     }), {})
   })
