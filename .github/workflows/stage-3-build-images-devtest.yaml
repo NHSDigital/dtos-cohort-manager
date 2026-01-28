@@ -113,7 +113,9 @@ jobs:
         if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' || github.ref == 'refs/heads/main'  }}
         continue-on-error: false
         run: |
-          PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
+          PR_INFO=$(gh api repos/${{ github.repository }}/commits/${COMMIT_SHA}/pulls --jq '.[0] | {number: .number, branch: .head.ref}')
+
+          PR_NUM_TAG=$(echo "$PR_INFO" | jq -r '.number')
           SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
 
           docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
