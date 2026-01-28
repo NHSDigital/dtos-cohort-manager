@@ -1,20 +1,173 @@
-name: CI/CD pull request - devtest
+name: 'CI/CD pull request - devtest'
 
 on:
   push:
     tags:
           - 'devtest'
 
+permissions:
+  contents: read
+
 jobs:
-  print-debug-info:
+  metadata:
+    name: "Set CI/CD metadata"
     runs-on: ubuntu-latest
+    timeout-minutes: 1
+    permissions:
+      pull-requests: read
+    outputs:
+      build_datetime_london: ${{ steps.variables.outputs.build_datetime_london }}
+      build_datetime: ${{ steps.variables.outputs.build_datetime }}
+      build_timestamp: ${{ steps.variables.outputs.build_timestamp }}
+      build_epoch: ${{ steps.variables.outputs.build_epoch }}
+      nodejs_version: ${{ steps.variables.outputs.nodejs_version }}
+      python_version: ${{ steps.variables.outputs.python_version }}
+      terraform_version: ${{ steps.variables.outputs.terraform_version }}
+      environment_tag: ${{ steps.variables.outputs.environment_tag }}
+      version: ${{ steps.variables.outputs.version }}
+      does_pull_request_exist: ${{ steps.pr_exists.outputs.does_pull_request_exist }}
     steps:
-      - name: Display Information
+      - name: "Checkout code"
+        uses: actions/checkout@v4
+        with:
+          submodules: 'true'
+      - name: "Set CI/CD variables"
+        id: variables
         run: |
-          echo "Workflow triggered by tag!"
-          echo "--------------------------------------"
-          echo "Tag/Ref Name : $GITHUB_REF"
-          echo "Commit Hash  : $GITHUB_SHA"
-          echo "Triggered By : $GITHUB_ACTOR"
-          echo "Event Name   : $GITHUB_EVENT_NAME"
-          echo "--------------------------------------"
+          datetime=$(date -u +'%Y-%m-%dT%H:%M:%S%z')
+          BUILD_DATETIME=$datetime make version-create-effective-file
+          echo "build_datetime_london=$(TZ=Europe/London date --date=$datetime +'%Y-%m-%dT%H:%M:%S%z')" >> $GITHUB_OUTPUT
+          echo "build_datetime=$datetime" >> $GITHUB_OUTPUT
+          echo "build_timestamp=$(date --date=$datetime -u +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+          echo "build_epoch=$(date --date=$datetime -u +'%s')" >> $GITHUB_OUTPUT
+          echo "nodejs_version=$(grep "^nodejs" .tool-versions | cut -f2 -d' ')" >> $GITHUB_OUTPUT
+          echo "python_version=$(grep "^nodejs" .tool-versions | cut -f2 -d' ')" >> $GITHUB_OUTPUT
+          echo "terraform_version=$(grep "^terraform" .tool-versions | cut -f2 -d' ')" >> $GITHUB_OUTPUT
+          echo "version=$(head -n 1 .version 2> /dev/null || echo unknown)" >> $GITHUB_OUTPUT
+          echo "environment_tag=development" >> $GITHUB_OUTPUT
+      - name: "Check if pull request exists for this branch"
+        id: pr_exists
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch_name=${GITHUB_HEAD_REF:-$(echo $GITHUB_REF | sed 's#refs/heads/##')}
+          echo "Current branch is '$branch_name'"
+          if gh pr list --head $branch_name | grep -q .; then
+            echo "Pull request exists"
+            echo "does_pull_request_exist=true" >> $GITHUB_OUTPUT
+          else
+            echo "Pull request doesn't exist"
+            echo "does_pull_request_exist=false" >> $GITHUB_OUTPUT
+          fi
+      - name: "List variables"
+        run: |
+          export BUILD_DATETIME_LONDON="${{ steps.variables.outputs.build_datetime_london }}"
+          export BUILD_DATETIME="${{ steps.variables.outputs.build_datetime }}"
+          export BUILD_TIMESTAMP="${{ steps.variables.outputs.build_timestamp }}"
+          export BUILD_EPOCH="${{ steps.variables.outputs.build_epoch }}"
+          export NODEJS_VERSION="${{ steps.variables.outputs.nodejs_version }}"
+          export PYTHON_VERSION="${{ steps.variables.outputs.python_version }}"
+          export TERRAFORM_VERSION="${{ steps.variables.outputs.terraform_version }}"
+          export ENVIRONMENT_TAG="${{ steps.variables.outputs.environment_tag }}"
+          export VERSION="${{ steps.variables.outputs.version }}"
+          export DOES_PULL_REQUEST_EXIST="${{ steps.pr_exists.outputs.does_pull_request_exist }}"
+          make list-variables
+  commit-stage: # Recommended maximum execution time is 2 minutes
+    name: "Commit stage"
+    needs: [metadata]
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/stage-1-commit.yaml
+    with:
+      build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
+      build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
+      build_epoch: "${{ needs.metadata.outputs.build_epoch }}"
+      nodejs_version: "${{ needs.metadata.outputs.nodejs_version }}"
+      python_version: "${{ needs.metadata.outputs.python_version }}"
+      terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
+      version: "${{ needs.metadata.outputs.version }}"
+  # test-stage: # Recommended maximum execution time is 5 minutes
+  #   name: 'Test stage'
+  #   needs: [metadata]
+  #   permissions:
+  #     pull-requests: write
+  #   uses: ./.github/workflows/stage-2-test.yaml
+  #   with:
+  #     unit_test_dir: tests/UnitTests
+  #     app_dir: application/CohortManager
+  #     build_datetime: '${{ needs.metadata.outputs.build_datetime }}'
+  #     build_timestamp: '${{ needs.metadata.outputs.build_timestamp }}'
+  #     build_epoch: '${{ needs.metadata.outputs.build_epoch }}'
+  #     nodejs_version: '${{ needs.metadata.outputs.nodejs_version }}'
+  #     python_version: '${{ needs.metadata.outputs.python_version }}'
+  #     terraform_version: '${{ needs.metadata.outputs.terraform_version }}'
+  #     version: '${{ needs.metadata.outputs.version }}'
+  # analysis-stage: # Recommended maximum execution time is 5 minutes
+  #   name: "Analysis stage"
+  #   needs: [metadata, commit-stage, test-stage]
+  #   uses: ./.github/workflows/stage-2-analyse.yaml
+  #   permissions:
+  #     contents: read
+  #     id-token: write
+  #     pull-requests: read
+  #   secrets:
+  #     sonar_token: ${{ secrets.SONAR_TOKEN }}
+  #   with:
+  #     unit_test_dir: tests/UnitTests
+  #     build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
+  #     build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
+  #     build_epoch: "${{ needs.metadata.outputs.build_epoch }}"
+  #     nodejs_version: "${{ needs.metadata.outputs.nodejs_version }}"
+  #     python_version: "${{ needs.metadata.outputs.python_version }}"
+  #     terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
+  #     version: "${{ needs.metadata.outputs.version }}"
+  build-image-stage: # Recommended maximum execution time is 3 minutes
+    name: "Image build stage"
+    needs: [metadata] #, test-stage, analysis-stage]
+    uses: ./.github/workflows/stage-3-build-images-devtest.yaml
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: write
+      packages: write
+    secrets:
+      client_id: ${{ secrets.AZURE_CLIENT_ID }}
+      tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+      subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      acr_name: ${{ secrets.ACR_NAME }}
+    with:
+      docker_compose_file: application/CohortManager/compose.yaml
+      excluded_containers_csv_list: azurite,azurite-setup,sql-server
+      environment_tag: ${{ needs.metadata.outputs.environment_tag }}
+      function_app_source_code_path: application/CohortManager/src
+      project_name: cohort-manager
+      build_all_images: true
+  # acceptance-stage: # Recommended maximum execution time is 10 minutes
+  #   name: "Acceptance stage"
+  #   needs: [metadata, build-image-stage]
+  #   uses: ./.github/workflows/stage-4-acceptance.yaml
+  #   if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
+  #   with:
+  #     build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
+  #     build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
+  #     build_epoch: "${{ needs.metadata.outputs.build_epoch }}"
+  #     nodejs_version: "${{ needs.metadata.outputs.nodejs_version }}"
+  #     python_version: "${{ needs.metadata.outputs.python_version }}"
+  #     terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
+  #     version: "${{ needs.metadata.outputs.version }}"
+  deploy-stage:
+    if: github.event_name == 'push'
+    name: Deploy DevTest environment for commit ${{ github.sha }}
+    needs: [metadata, build-image-stage]
+    permissions:
+      id-token: write
+      contents: read
+    uses: ./.github/workflows/stage-4-deploy-devtest.yaml
+    secrets:
+      client_id: ${{ secrets.AZURE_CLIENT_ID }}
+      tenant_id: ${{ secrets.AZURE_TENANT_ID }}
+      subscription_id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+    with:
+      environments: "[\"development\"]"
+      commit_sha: ${{ github.sha }}
