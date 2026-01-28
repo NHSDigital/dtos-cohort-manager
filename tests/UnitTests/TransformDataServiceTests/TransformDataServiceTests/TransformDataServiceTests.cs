@@ -964,6 +964,7 @@ public class TransformDataServiceTests
     [DataRow("ZZ99", DisplayName = "Incomplete Dummy Postcode")]
     [DataRow("NFA", DisplayName = "No Fixed Abode")]
     [DataRow("ANK", DisplayName = "Address Not Known")]
+    [DataRow("ZZZSECUR", DisplayName = "Secure Address")]
     public async Task Run_DummyPostcodes_TransformsToStandardDummyPostcode(string postcode)
     {
         // Arrange
