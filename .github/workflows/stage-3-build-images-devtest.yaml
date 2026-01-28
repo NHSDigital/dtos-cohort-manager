@@ -115,9 +115,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          PR_INFO=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls --jq '.[0].number')
 
-          PR_NUM_TAG=$(echo "$PR_INFO" | jq -r '.number')
+          echo "The branch is: ${GITHUB_REF}"
+          PR_NUM=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls --jq '.[0].number')
+          PR_NUM_TAG="pr${PR_NUM}"
           SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
 
           docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
