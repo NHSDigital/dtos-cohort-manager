@@ -112,6 +112,8 @@ jobs:
         working-directory: ./
         if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' || github.ref == 'refs/heads/main'  }}
         continue-on-error: false
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           PR_INFO=$(gh api repos/${{ github.repository }}/commits/${COMMIT_SHA}/pulls --jq '.[0] | {number: .number, branch: .head.ref}')
 
