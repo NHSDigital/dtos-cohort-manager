@@ -28,11 +28,11 @@ module "app-service-plan" {
   resource_group_name = azurerm_resource_group.core[each.value.region].name
   location            = each.value.region
 
-  enable_alerting                                   = var.features.alerts_enabled
-  action_group_id                                   = var.features.alerts_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
-  log_analytics_workspace_id                        = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
-  monitor_diagnostic_setting_appserviceplan_metrics = local.monitor_diagnostic_setting_appserviceplan_metrics
-  resource_group_name_monitoring                    = var.features.alerts_enabled ? azurerm_resource_group.monitoring.name : null
+  enable_alerting                                           = var.features.alerts_enabled
+  action_group_id                                           = var.features.alerts_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
+  log_analytics_workspace_id                                = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_appserviceplan_enabled_metrics = local.monitor_diagnostic_setting_appserviceplan_enabled_metrics
+  resource_group_name_monitoring                            = var.features.alerts_enabled ? azurerm_resource_group.monitoring.name : null
 
   os_type                                          = lookup(each.value, "os_type", var.app_service_plan.os_type)
   sku_name                                         = each.value.sku_name

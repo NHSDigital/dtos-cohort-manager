@@ -9,14 +9,14 @@ module "functionapp" {
 
   app_settings = each.value.app_settings
 
-  enable_alerting                                      = var.features.alerts_function_errors_enabled
-  action_group_id                                      = var.features.alerts_function_errors_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
-  alert_4xx_threshold                                  = var.function_apps.alert_4xx_threshold
-  alert_5xx_threshold                                  = var.function_apps.alert_5xx_threshold
-  alert_window_size                                    = var.function_apps.alert_window_size
-  log_analytics_workspace_id                           = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
-  monitor_diagnostic_setting_function_app_enabled_logs = local.monitor_diagnostic_setting_function_app_enabled_logs
-  monitor_diagnostic_setting_function_app_metrics      = local.monitor_diagnostic_setting_function_app_metrics
+  enable_alerting                                         = var.features.alerts_function_errors_enabled
+  action_group_id                                         = var.features.alerts_function_errors_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
+  alert_4xx_threshold                                     = var.function_apps.alert_4xx_threshold
+  alert_5xx_threshold                                     = var.function_apps.alert_5xx_threshold
+  alert_window_size                                       = var.function_apps.alert_window_size
+  log_analytics_workspace_id                              = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_function_app_enabled_logs    = local.monitor_diagnostic_setting_function_app_enabled_logs
+  monitor_diagnostic_setting_function_app_enabled_metrics = local.monitor_diagnostic_setting_function_app_enabled_metrics
 
   public_network_access_enabled = var.features.public_network_access_enabled
   vnet_integration_subnet_id    = module.subnets["${module.regions_config[each.value.region].names.subnet}-apps"].id

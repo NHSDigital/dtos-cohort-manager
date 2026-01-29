@@ -21,9 +21,9 @@ module "vnet" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/vnet"
 
-  log_analytics_workspace_id                   = module.log_analytics_workspace_audit[local.primary_region].id
-  monitor_diagnostic_setting_vnet_enabled_logs = local.monitor_diagnostic_setting_vnet_enabled_logs
-  monitor_diagnostic_setting_vnet_metrics      = local.monitor_diagnostic_setting_vnet_metrics
+  log_analytics_workspace_id                      = module.log_analytics_workspace_audit[local.primary_region].id
+  monitor_diagnostic_setting_vnet_enabled_logs    = local.monitor_diagnostic_setting_vnet_enabled_logs
+  monitor_diagnostic_setting_vnet_enabled_metrics = local.monitor_diagnostic_setting_vnet_enabled_metrics
 
   name                = module.regions_config[each.key].names.virtual-network
   resource_group_name = azurerm_resource_group.rg_vnet[each.key].name
