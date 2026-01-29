@@ -12,10 +12,10 @@ public class ValidationHelperTests
     [DataRow("9876543210")]
     public void ValidateNhsNumber_ValidNHNumbers_ReturnsTrue(string nhsNumber)
     {
-        //act
+        //Act
         var result = ValidationHelper.ValidateNHSNumber(nhsNumber);
 
-        //assert
+        //Assert
         Assert.IsTrue(result);
     }
 
@@ -31,10 +31,10 @@ public class ValidationHelperTests
     [DataRow("0000000000")]
     public void ValidateNhsNumber_InvalidNHNumbers_ReturnsFalse(string nhsNumber)
     {
-        //act
+        //Act
         var result = ValidationHelper.ValidateNHSNumber(nhsNumber);
 
-        //assert
+        //Assert
         Assert.IsFalse(result);
     }
 
@@ -52,10 +52,10 @@ public class ValidationHelperTests
     [DataRow("2000-01-01T10:30:00-05:00", DisplayName = "ISO 8601 with negative timezone offset")]
     public void ValidatePastDate_ValidPastDate_ReturnsTrue(string pastDate)
     {
-        //act
+        //Act
         var result = ValidationHelper.ValidatePastDate(pastDate);
 
-        //assert
+        //Assert
         Assert.IsTrue(result);
     }
 
@@ -72,31 +72,31 @@ public class ValidationHelperTests
     [DataRow("9999-12-31T23:59:59.999+00:00", DisplayName = "Future ISO 8601 with milliseconds")]
     public void ValidatePastDate_InvalidPastDate_ReturnsFalse(string pastDate)
     {
-        //act
+        //Act
         var result = ValidationHelper.ValidatePastDate(pastDate);
 
-        //assert
+        //Assert
         Assert.IsFalse(result);
     }
 
     [TestMethod]
     public void ValidatePastDate_InvalidPastDateAlwaysFuture_ReturnsFalse()
     {
-        //act
+        //Act
         var result = ValidationHelper.ValidatePastDate(DateTime.UtcNow.AddDays(1).ToString("dd/MM/yyyy HH:mm:ss"));
 
-        //assert
+        //Assert
         Assert.IsFalse(result);
     }
 
     [TestMethod]
     public void ValidatePastDate_FutureISO8601Date_ReturnsFalse()
     {
-        //act
+        //Act
         var futureDate = DateTime.UtcNow.AddDays(1).ToString("yyyy-MM-ddTHH:mm:ssK");
         var result = ValidationHelper.ValidatePastDate(futureDate);
 
-        //assert
+        //Assert
         Assert.IsFalse(result);
     }
 
@@ -107,10 +107,10 @@ public class ValidationHelperTests
     [DataRow("ZZ99 3CZ", DisplayName = "Dummy postcode format")]
     public void ValidatePostcode_ValidPostcode_ReturnsTrue(string postCode)
     {
-        //act
+        //Act
         var result = ValidationHelper.ValidatePostcode(postCode);
 
-        //assert
+        //Assert
         Assert.IsTrue(result);
     }
 
@@ -122,10 +122,10 @@ public class ValidationHelperTests
     [DataRow("SW1A1AAA", DisplayName = "Too long no space")]
     public void ValidatePostcode_InvalidPostcode_ReturnsFalse(string postCode)
     {
-        //act
+        //Act
         var result = ValidationHelper.ValidatePostcode(postCode);
 
-        //assert
+        //Assert
         Assert.IsFalse(result);
     }
 }
