@@ -12,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Model;
 using Model.DTO;
 using Model.Enums;
-using Model.Pagination;
 
 /// <summary>
 /// Azure Function for retrieving and managing validation exceptions.
