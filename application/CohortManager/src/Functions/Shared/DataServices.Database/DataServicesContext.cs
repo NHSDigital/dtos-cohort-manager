@@ -7,7 +7,7 @@ public class DataServicesContext : DbContext
     DbSet<BsSelectGpPractice> bsSelectGpPractices { get; set; }
     DbSet<BsSelectOutCode> bsSelectOutcodes { get; set; }
     DbSet<LanguageCode> languageCodes { get; set; }
-    DbSet<CurrentPosting> currentPostings { get; set; }
+    public DbSet<CurrentPosting> currentPostings { get; set; }
     DbSet<ExcludedSMULookup> excludedSMULookups { get; set; }
     DbSet<ParticipantManagement> participantManagements { get; set; }
     DbSet<ParticipantDemographic> participantDemographics { get; set; }
@@ -27,6 +27,22 @@ public class DataServicesContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+                //Only used for component tests
+        if (Database.IsSqlite())
+        {
+            foreach (var entity in modelBuilder.Model.GetEntityTypes())
+            {
+                var pk = entity.FindPrimaryKey();
+                if (pk == null) continue;
+
+                foreach (var property in pk.Properties)
+                {
+                    property.ValueGenerated = Microsoft.EntityFrameworkCore.Metadata.ValueGenerated.Never;
+                }
+            }
+        }
+
+
         modelBuilder.Entity<BsSelectGpPractice>()
             .ToTable("BS_SELECT_GP_PRACTICE_LKP", "dbo");
 
@@ -91,5 +107,9 @@ public class DataServicesContext : DbContext
         modelBuilder.Entity<ServicenowCase>()
             .ToTable("SERVICENOW_CASES", "dbo")
             .HasIndex(s => s.ServicenowId, "IX_SERVICENOW_CASES_SERVICENOW_ID");
+
+
+
+
     }
 }

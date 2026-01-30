@@ -243,6 +243,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeshCaaSSubscribeIntegratio
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DemographicServicesTests", "DemographicServicesTests", "{3F84AC12-B761-25DE-181D-4BFB8336C214}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComponentTests", "..\..\..\..\tests\component-tests\ComponentTests\ComponentTests.csproj", "{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -1441,6 +1443,18 @@ Global
 		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Release|x64.Build.0 = Release|Any CPU
 		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Release|x86.ActiveCfg = Release|Any CPU
 		{2ACD4ADF-2769-4D68-8DB4-5094F384C4BC}.Release|x86.Build.0 = Release|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Debug|x64.Build.0 = Debug|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Debug|x86.Build.0 = Debug|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Release|x64.ActiveCfg = Release|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Release|x64.Build.0 = Release|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Release|x86.ActiveCfg = Release|Any CPU
+		{E02C198A-01A8-4DF7-B25B-13FE8A1D83A8}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
