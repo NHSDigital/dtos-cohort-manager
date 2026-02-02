@@ -11,8 +11,6 @@ on:
 
 permissions:
   contents: read
-  id-token: write
-  pull-requests: write
 
 jobs:
   metadata:
@@ -81,6 +79,9 @@ jobs:
   commit-stage: # Recommended maximum execution time is 2 minutes
     name: "Commit stage"
     needs: [metadata]
+    permissions:
+      contents: read
+      id-token: write
     uses: ./.github/workflows/stage-1-commit.yaml
     with:
       build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
@@ -93,6 +94,8 @@ jobs:
   test-stage: # Recommended maximum execution time is 5 minutes
     name: "Test stage"
     needs: [metadata, commit-stage]
+    permissions:
+      pull-requests: write
     uses: ./.github/workflows/stage-2-test.yaml
     with:
       unit_test_dir: tests/UnitTests
@@ -108,6 +111,10 @@ jobs:
     name: "Analysis stage"
     needs: [metadata, commit-stage, test-stage]
     uses: ./.github/workflows/stage-2-analyse.yaml
+    permissions:
+      contents: read
+      id-token: write
+      pull-requests: read
     secrets:
       sonar_token: ${{ secrets.SONAR_TOKEN }}
     with:

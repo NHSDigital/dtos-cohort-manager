@@ -12,6 +12,7 @@ features = {
   public_network_access_enabled        = false
   frontdoor_endpoint_enabled           = true
   alerts_enabled                       = true
+  alerts_function_errors_enabled       = true
 }
 
 # these will be merged with compliance tags in locals.tf

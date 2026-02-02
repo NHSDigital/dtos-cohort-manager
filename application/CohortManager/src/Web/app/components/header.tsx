@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { headers } from "next/headers";
 import { auth, signOut } from "@/app/lib/auth";
-import { SearchNhsNumber } from "./search-nhs-number";
+import { ExceptionSearch } from "./exception-search";
 import { ConditionalHeaderSearch } from "./conditionalHeaderSearch";
 
 interface HeaderProps {
@@ -47,7 +47,7 @@ export default async function Header({
           {session?.user && (
             <div className="nhsuk-header__search">
               <ConditionalHeaderSearch pathname={pathname}>
-                <SearchNhsNumber />
+                <ExceptionSearch />
               </ConditionalHeaderSearch>
             </div>
           )}

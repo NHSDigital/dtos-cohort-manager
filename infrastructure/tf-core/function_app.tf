@@ -9,6 +9,11 @@ module "functionapp" {
 
   app_settings = each.value.app_settings
 
+  enable_alerting                                      = var.features.alerts_function_errors_enabled
+  action_group_id                                      = var.features.alerts_function_errors_enabled ? module.monitor_action_group_performance[0].monitor_action_group.id : null
+  alert_4xx_threshold                                  = var.function_apps.alert_4xx_threshold
+  alert_5xx_threshold                                  = var.function_apps.alert_5xx_threshold
+  alert_window_size                                    = var.function_apps.alert_window_size
   log_analytics_workspace_id                           = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
   monitor_diagnostic_setting_function_app_enabled_logs = local.monitor_diagnostic_setting_function_app_enabled_logs
   monitor_diagnostic_setting_function_app_metrics      = local.monitor_diagnostic_setting_function_app_metrics
@@ -109,8 +114,8 @@ resource "azurerm_role_assignment" "function_send_to_topic" {
 
 locals {
   app_settings_common = {
-    DOCKER_ENABLE_CI                    = var.function_apps.docker_CI_enable
-    FUNCTION_WORKER_RUNTIME             = "dotnet-isolated"
+    DOCKER_ENABLE_CI        = var.function_apps.docker_CI_enable
+    FUNCTION_WORKER_RUNTIME = "dotnet-isolated"
 
     REMOTE_DEBUGGING_ENABLED            = var.function_apps.remote_debugging_enabled
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = var.function_apps.enable_appsrv_storage

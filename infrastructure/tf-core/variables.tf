@@ -175,7 +175,7 @@ variable "container_app_environments" {
   type = object({
     instances = optional(map(object({
       infrastructure_resource_group_name = optional(string)
-      workload_profile                   = optional(object({
+      workload_profile = optional(object({
         name                  = optional(string)
         workload_profile_type = optional(string)
         minimum_count         = optional(number, 0)
@@ -258,6 +258,9 @@ variable "function_apps" {
     remote_debugging_enabled               = bool
     storage_uses_managed_identity          = bool
     worker_32bit                           = bool
+    alert_4xx_threshold                    = optional(number, 1)
+    alert_5xx_threshold                    = optional(number, 1)
+    alert_window_size                      = optional(string, "PT5M") # Check every 5 minutes
     slots = optional(map(object({
       name         = string
       slot_enabled = optional(bool, false)
@@ -554,10 +557,6 @@ variable "sqlserver" {
       start_ip     = string
       end_ip       = string
     })), {})
-
-    # Azure Monitor Alerting
-    enable_alerting = optional(bool, false)
-    action_group_id = optional(string, null)
   })
 }
 
