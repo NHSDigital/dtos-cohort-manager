@@ -30,7 +30,7 @@ public class BasicParticipantCsvRecord
         {
             ReferralFlag = "1",
             PrimaryCareProvider = serviceNowParticipant.RequiredGpCode,
-            PrimaryCareProviderEffectiveFromDate = DateTime.UtcNow.ToString("yyyy-MM-dd"),
+            PrimaryCareProviderEffectiveFromDate = string.IsNullOrEmpty(serviceNowParticipant.RequiredGpCode) ? null : DateTime.UtcNow.ToString("yyyy-MM-dd"),
             ScreeningAcronym = "BSS" // TODO: Remove hardcoding when adding support for additional screening programs
         };
     }

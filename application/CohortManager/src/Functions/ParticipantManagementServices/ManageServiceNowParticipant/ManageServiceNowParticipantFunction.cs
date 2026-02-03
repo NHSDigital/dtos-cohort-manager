@@ -69,7 +69,10 @@ public class ManageServiceNowParticipantFunction
             {
                 _logger.LogError("Failed to subscribe participant for updates. Case Number: {CaseNumber}", serviceNowParticipant.ServiceNowCaseNumber);
             }
-            await _exceptionHandler.CreateTransformExecutedExceptions(new CohortDistributionParticipant{NhsNumber = serviceNowParticipant.NhsNumber.ToString()},"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98);
+            if(serviceNowParticipant.RequiredGpCode != null)
+            {
+                await _exceptionHandler.CreateTransformExecutedExceptions(new CohortDistributionParticipant{NhsNumber = serviceNowParticipant.NhsNumber.ToString()},"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98);
+            }
             var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantManagement);
 
             var sendToQueueSuccess = await _queueClient.AddAsync(participantForDistribution, _config.CohortDistributionTopic);
