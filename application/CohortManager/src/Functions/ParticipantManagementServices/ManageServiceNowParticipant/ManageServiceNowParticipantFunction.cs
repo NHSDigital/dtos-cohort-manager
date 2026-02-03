@@ -70,7 +70,7 @@ public class ManageServiceNowParticipantFunction
                 _logger.LogError("Failed to subscribe participant for updates. Case Number: {CaseNumber}", serviceNowParticipant.ServiceNowCaseNumber);
             }
 
-            if(serviceNowParticipant.RequiredGpCode != null)
+            if(!string.IsNullOrEmpty(serviceNowParticipant.RequiredGpCode))
             {
                 await _exceptionHandler.CreateTransformExecutedExceptions(new CohortDistributionParticipant{NhsNumber = serviceNowParticipant.NhsNumber.ToString()},"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98);
             }
