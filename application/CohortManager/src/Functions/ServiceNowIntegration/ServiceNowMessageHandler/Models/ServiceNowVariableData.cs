@@ -2,12 +2,12 @@ namespace NHS.CohortManager.ServiceNowIntegrationService.Models;
 
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
-using Model;
+using Model.Constants;
 
 public class ServiceNowVariableData
 {
     [Required]
-    [JsonPropertyName("forename_")]
+    [JsonPropertyName("forename")]
     public required string FirstName { get; set; }
     [Required]
     [JsonPropertyName("surname_family_name")]
@@ -21,7 +21,7 @@ public class ServiceNowVariableData
     [JsonPropertyName("BSO_code")]
     public required string BsoCode { get; set; }
     [JsonPropertyName("reason_for_adding")]
-    [AllowedValues([ServiceNowReasonsForAdding.VeryHighRisk, ServiceNowReasonsForAdding.RequiresCeasing, ServiceNowReasonsForAdding.RoutineScreening])]
+    [AllowedValues([ServiceNowReasonsForAdding.VeryHighRisk, ServiceNowReasonsForAdding.RequiresCeasing, ServiceNowReasonsForAdding.RoutineScreening, ServiceNowReasonsForAdding.OverAgeSelfReferral])]
     public required string ReasonForAdding { get; set; }
     [JsonPropertyName("enter_dummy_gp_code")]
     public string? RequiredGpCode { get; set; }

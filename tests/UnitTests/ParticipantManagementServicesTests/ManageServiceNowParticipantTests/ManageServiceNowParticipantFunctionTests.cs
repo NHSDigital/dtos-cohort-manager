@@ -9,6 +9,7 @@ using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.Constants;
 using Model.Enums;
 using Moq;
 using NHS.CohortManager.ParticipantManagementServices;
