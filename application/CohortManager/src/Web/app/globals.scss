@@ -46,6 +46,18 @@
 }
 .app-results-text {
   margin: 0;
+  text-align: right;
+  margin-top: -3rem;
+  margin-bottom: 1rem;
+}
+.app-date-results-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+.app-date-results-row .app-results-text {
+  margin-left: auto;
 }
 // Pagination
 .app-pagination {
