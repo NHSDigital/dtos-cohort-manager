@@ -41,7 +41,7 @@ export default async function ExceptionsPage({
   showServiceNowColumn = false,
   tableCaption,
   ruleId,
-  dateCreated,
+  dateCreated: dateCreated,
 }: Readonly<ExceptionsPageProps>) {
   const sortOption = getSortOption(sortBy);
 
@@ -52,7 +52,7 @@ export default async function ExceptionsPage({
       sortBy: sortOption.sortBy,
       page: currentPage,
       ruleIds: ruleId ? [ruleId] : undefined,
-      date: dateCreated,
+      dateCreated: dateCreated,
     });
 
     const exceptionDetails: ExceptionDetails[] = response.data.Items.map(

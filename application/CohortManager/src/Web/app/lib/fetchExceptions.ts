@@ -12,7 +12,7 @@ type FetchExceptionsParams = {
   isReport?: boolean;
   pageSize?: number;
   ruleIds?: string[];
-  date?: string;
+  dateCreated?: string;
 };
 
 function buildQueryString(params: FetchExceptionsParams): string {
