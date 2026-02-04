@@ -34,7 +34,7 @@ public class ValidationExceptionData : IValidationExceptionData
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.Category != null && x.Category.Value == category);
         var exceptionList = exceptions.Select(s => s.ToValidationException());
 
-        if (ruleId.HasValue && ruleId.Value > 0)
+        if (ruleId.HasValue)
         {
             exceptionList = exceptionList.Where(x => x.RuleId == ruleId.Value);
         }
