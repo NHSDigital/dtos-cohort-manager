@@ -11,16 +11,38 @@ type FetchExceptionsParams = {
   reportDate?: string;
   isReport?: boolean;
   pageSize?: number;
+  ruleIds?: string[];
+  date?: string;
 };
 
-export async function fetchExceptions(params: FetchExceptionsParams = {}) {
-  const query = buildQueryString({
-    ...params,
-    pageSize: params.pageSize ?? 10
+function buildQueryString(params: FetchExceptionsParams): string {
+  const queryParams: Record<string, string> = {};
+
+  Object.entries(params).forEach(([key, value]) => {
+    if (key !== 'ruleIds' && value !== undefined && value !== null) {
+      queryParams[key] = String(value);
+    }
   });
 
+  if (!queryParams.pageSize) {
+    queryParams.pageSize = '10';
+  }
+
+  const searchParams = new URLSearchParams(queryParams);
+
+  if (params.ruleIds && params.ruleIds.length > 0) {
+    params.ruleIds.forEach(ruleId => {
+      searchParams.append('ruleId', ruleId);
+    });
+  }
+
+  return searchParams.toString();
+}
+
+export async function fetchExceptions(params: FetchExceptionsParams = {}) {
+  const query = buildQueryString(params);
   const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?${query}`;
-  const response = await fetch(apiUrl);
+  const response = await fetch(apiUrl, { cache: 'no-store' });
 
   if (!response.ok) {
     throw new Error(`Error fetching data: ${response.statusText}`);
@@ -34,14 +56,6 @@ export async function fetchExceptions(params: FetchExceptionsParams = {}) {
     linkHeader,
     headers: response.headers,
   };
-}
-
-function buildQueryString(params: Record<string, number | string | boolean | undefined>): string {
-  return new URLSearchParams(
-    Object.entries(params)
-      .filter(([, value]) => value !== undefined && value !== null)
-      .map(([key, value]) => [key, String(value)])
-  ).toString();
 }
 
 type FetchExceptionsByTypeParams = {
