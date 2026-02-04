@@ -177,10 +177,9 @@ public class ValidationExceptionData : IValidationExceptionData
     {
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x =>
             x.NhsNumber == nhsNumber &&
-            x.Category.HasValue &&
-            (x.Category.Value == (int)ExceptionCategory.NBO ||
-             x.Category.Value == (int)ExceptionCategory.Confusion ||
-             x.Category.Value == (int)ExceptionCategory.Superseded));
+            (x.Category == (int)ExceptionCategory.NBO ||
+             x.Category == (int)ExceptionCategory.Confusion ||
+             x.Category == (int)ExceptionCategory.Superseded));
 
         if (exceptions == null || !exceptions.Any())
         {
