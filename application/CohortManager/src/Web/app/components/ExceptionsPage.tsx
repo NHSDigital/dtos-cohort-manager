@@ -2,9 +2,8 @@ import { ExceptionDetails } from "@/app/types";
 import { ExceptionStatus } from "@/app/lib/enums/exceptionStatus";
 import { fetchExceptions } from "@/app/lib/fetchExceptions";
 import { getRuleMapping } from "@/app/lib/ruleMapping";
-import { SortOptions, getSortOption } from "@/app/lib/sortOptions";
+import { getSortOption } from "@/app/lib/sortOptions";
 import ExceptionsTable from "@/app/components/exceptionsTable";
-import SortExceptionsForm from "@/app/components/sortExceptionsForm";
 import DataError from "@/app/components/dataError";
 import Pagination from "@/app/components/pagination";
 import UserFeedback from "@/app/components/userFeedback";
@@ -28,6 +27,8 @@ interface ExceptionsPageProps {
   buildUrl: (page: number) => string;
   showServiceNowColumn?: boolean;
   tableCaption?: string;
+  ruleId?: string;
+  dateCreated?: string;
 }
 
 export default async function ExceptionsPage({
@@ -39,6 +40,8 @@ export default async function ExceptionsPage({
   buildUrl,
   showServiceNowColumn = false,
   tableCaption,
+  ruleId,
+  dateCreated,
 }: Readonly<ExceptionsPageProps>) {
   const sortOption = getSortOption(sortBy);
 
@@ -48,6 +51,8 @@ export default async function ExceptionsPage({
       sortOrder: sortOption.sortOrder,
       sortBy: sortOption.sortBy,
       page: currentPage,
+      ruleIds: ruleId ? [ruleId] : undefined,
+      date: dateCreated,
     });
 
     const exceptionDetails: ExceptionDetails[] = response.data.Items.map(
@@ -81,7 +86,7 @@ export default async function ExceptionsPage({
 
     return (
       <div className="nhsuk-grid-column-full">
-        <h1>{title}</h1>
+        {title && <h1>{title}</h1>}
 
         {totalItems === 0 ? (
           <p className="nhsuk-body">
@@ -89,18 +94,12 @@ export default async function ExceptionsPage({
           </p>
         ) : (
           <>
-            <div className="app-form-results-container">
-              <SortExceptionsForm
-                sortBy={sortBy}
-                options={SortOptions}
-              />
-              <p
-                className="app-results-text"
-                data-testid={exceptionStatus === ExceptionStatus.Raised ? "raised-exception-count" : "not-raised-exception-count"}
-              >
-                Showing {startItem} to {endItem} of {totalItems} results
-              </p>
-            </div>
+            <p
+              className="app-results-text"
+              data-testid={exceptionStatus === ExceptionStatus.Raised ? "raised-exception-count" : "not-raised-exception-count"}
+            >
+              Showing {startItem} to {endItem} of {totalItems} results
+            </p>
 
             <div className="nhsuk-card nhsuk-u-margin-bottom-5">
               <div className="nhsuk-card__content">
