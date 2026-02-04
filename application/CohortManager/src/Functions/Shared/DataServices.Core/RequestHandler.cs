@@ -28,6 +28,8 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         };
 
     private const string UnauthorizedErrorMessage = "Action was either Unauthorized or not enabled";
+    private const string SuccessMessage = "Success";
+    private const string DeserializationErrorMessage = "Failed to deserialize Record";
 
     public RequestHandler(IDataServiceAccessor<TEntity> dataServiceAccessor, ILogger<RequestHandler<TEntity>> logger, AuthenticationConfiguration authenticationConfiguration)
     {
@@ -63,6 +65,11 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
                     return CreateErrorResponse(req,"No Key Provided for Deletion",HttpStatusCode.BadRequest);
                 }
             case "POST":
+                // Check if this is an upsert request (special key "upsert")
+                if (key != null && key.Equals("upsert", StringComparison.OrdinalIgnoreCase))
+                {
+                    return await Upsert(req);
+                }
                 return await Post(req);
             case "PUT":
                 if (key != null)
@@ -195,13 +202,13 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             }
             return CreateHttpResponse(req,new DataServiceResponse<string>
             {
-                JsonData = "Success"
+                JsonData = SuccessMessage
             });
         }
         catch(JsonException je)
         {
             _logger.LogError(je, "Failed to get deserialize Data, This is due to a badly formed request");
-            return CreateErrorResponse(req,"Failed to deserialize Record",HttpStatusCode.BadRequest);
+            return CreateErrorResponse(req, DeserializationErrorMessage, HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
@@ -210,6 +217,64 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
 
 
+    }
+
+    private async Task<HttpResponseData> Upsert(HttpRequestData req)
+    {
+        if(!_authConfig.CanPost(req)) // Reuse Post authorization for Upsert
+        {
+            return CreateErrorResponse(req,UnauthorizedErrorMessage,HttpStatusCode.Unauthorized);
+        }
+        try
+        {
+            string jsonData;
+            using (StreamReader reader = new StreamReader(req.Body, Encoding.UTF8))
+            {
+                jsonData = await reader.ReadToEndAsync();
+            }
+
+            var entityData = JsonSerializer.Deserialize<TEntity>(jsonData,jsonSerializerOptions);
+            if (entityData == null)
+            {
+                return CreateErrorResponse(req, DeserializationErrorMessage, HttpStatusCode.BadRequest);
+            }
+
+            // Get the key value from the entity to create the predicate
+            var keyValue = _keyInfo.GetValue(entityData);
+            if (keyValue == null)
+            {
+                return CreateErrorResponse(req, "Entity key is null", HttpStatusCode.BadRequest);
+            }
+
+            var keyValueString = keyValue.ToString();
+            if (string.IsNullOrEmpty(keyValueString))
+            {
+                return CreateErrorResponse(req, "Entity key string representation is invalid", HttpStatusCode.BadRequest);
+            }
+
+            var keyPredicate = CreateGetByKeyExpression(keyValueString);
+            var result = await _dataServiceAccessor.Upsert(entityData, keyPredicate);
+
+            if (!result)
+            {
+                return CreateErrorResponse(req,"Failed to Upsert Record",HttpStatusCode.InternalServerError);
+            }
+
+            return CreateHttpResponse(req,new DataServiceResponse<string>
+            {
+                JsonData = SuccessMessage
+            });
+        }
+        catch(JsonException je)
+        {
+            _logger.LogError(je, "Failed to deserialize Data, This is due to a badly formed request");
+            return CreateErrorResponse(req, DeserializationErrorMessage, HttpStatusCode.BadRequest);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An unexpected error occurred while trying to upsert data");
+            return CreateErrorResponse(req,"Failed to Upsert Record",HttpStatusCode.InternalServerError);
+        }
     }
 
     private async Task<HttpResponseData> UpdateById(HttpRequestData req, string key)
@@ -238,13 +303,13 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
             }
             return CreateHttpResponse(req,new DataServiceResponse<string>
             {
-                JsonData = "Success"
+                JsonData = SuccessMessage
             });
         }
         catch(JsonException je)
         {
             _logger.LogError(je, "Failed to get deserialize Data, This is due to a badly formed request");
-            return CreateErrorResponse(req,"Failed to deserialize Record",HttpStatusCode.BadRequest);
+            return CreateErrorResponse(req, DeserializationErrorMessage, HttpStatusCode.BadRequest);
         }
         catch (Exception ex)
         {
@@ -267,7 +332,7 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         }
         return CreateHttpResponse(req,new DataServiceResponse<string>
         {
-            JsonData = "Success"
+            JsonData = SuccessMessage
         });
 
     }
@@ -280,6 +345,11 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
 
     private Expression<Func<TEntity, bool>> CreateGetByKeyExpression(string filter)
     {
+        if (filter == null)
+        {
+            throw new ArgumentNullException(nameof(filter), "Filter parameter cannot be null");
+        }
+
         var entityParameter = Expression.Parameter(typeof(TEntity));
         var entityKey = Expression.Property(entityParameter, _keyInfo.Name);
         var keyType = ReflectionUtilities.GetPropertyType(typeof(TEntity), _keyInfo.Name);
