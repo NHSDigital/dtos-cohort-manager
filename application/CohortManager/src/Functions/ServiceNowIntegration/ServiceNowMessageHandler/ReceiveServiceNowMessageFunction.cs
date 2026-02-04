@@ -44,8 +44,7 @@ public class ReceiveServiceNowMessageFunction
     /// - Returns a 400 status code if the request is a bad request.
     /// </returns>
     [Function("ReceiveServiceNowMessage")]
-    public async Task<HttpResponseData> Run(
-        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "servicenow/receive")] HttpRequestData req)
+    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "servicenow/receive")] HttpRequestData req)
     {
         ReceiveServiceNowMessageRequestBody? requestBody;
 
@@ -69,7 +68,6 @@ public class ReceiveServiceNowMessageFunction
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
-            // Validate NHS number checksum before proceeding
             if (!ValidationHelper.ValidateNHSNumber(requestBody.VariableData.NhsNumber))
             {
                 _logger.LogWarning("Invalid NHS Number checksum for ServiceNow case {ServiceNowCaseId}. NHS Number failed validation.", requestBody.ServiceNowCaseNumber);
