@@ -28,11 +28,22 @@ public class ValidationExceptionData : IValidationExceptionData
         _validationExceptionDataServiceClient = validationExceptionDataServiceClient;
     }
 
-    public async Task<List<ValidationException>> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory, SortBy? sortBy = null)
+    public async Task<List<ValidationException>> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory, SortBy? sortBy = null, int? ruleId = null, DateTime? dateCreated = null)
     {
         var category = (int)exceptionCategory;
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.Category != null && x.Category.Value == category);
         var exceptionList = exceptions.Select(s => s.ToValidationException());
+
+        if (ruleId.HasValue && ruleId.Value > 0)
+        {
+            exceptionList = exceptionList.Where(x => x.RuleId == ruleId.Value);
+        }
+
+        if (dateCreated.HasValue)
+        {
+            var filterDate = dateCreated.Value.Date;
+            exceptionList = exceptionList.Where(x => x.DateCreated?.Date == filterDate);
+        }
 
         return SortExceptions(sortOrder, exceptionList, exceptionStatus, sortBy);
     }
