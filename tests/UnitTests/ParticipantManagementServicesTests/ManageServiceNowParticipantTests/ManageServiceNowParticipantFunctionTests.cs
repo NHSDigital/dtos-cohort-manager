@@ -1033,4 +1033,35 @@ public class ManageServiceNowParticipantFunctionTests
         _dataServiceClientMock.Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never, "Should not add participant when names are invalid (only non-letter characters)");
         _queueClientMock.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never, "Should not queue participant when names are invalid");
     }
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    public async Task Run_WhenRequestHasNoRequiredGPCode_DoesntRaiseRule98Exception(string requiredGpCode)
+    {
+        // Arrange
+        _serviceNowParticipant.RequiredGpCode = requiredGpCode;
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound)).Verifiable();
+
+        // Act
+        await _function.Run(_serviceNowParticipant);
+
+        // Assert
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
+        _httpClientFunctionMock.Verify();
+        _httpClientFunctionMock.VerifyNoOtherCalls();
+
+        _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
+                It.IsAny<Exception>(),
+                It.Is<ServiceNowParticipant>(p => p.NhsNumber == _serviceNowParticipant.NhsNumber
+                && p.FirstName == _serviceNowParticipant.FirstName
+                && p.FamilyName == _serviceNowParticipant.FamilyName
+                && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
+                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
+        _handleExceptionMock.Verify(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null),Times.Never);
+        _handleExceptionMock.VerifyNoOtherCalls();
+
+        _dataServiceClientMock.VerifyNoOtherCalls();
+
+    }
 }
