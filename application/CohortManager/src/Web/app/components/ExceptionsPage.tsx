@@ -1,3 +1,4 @@
+import React from "react";
 import { ExceptionDetails } from "@/app/types";
 import { ExceptionStatus } from "@/app/lib/enums/exceptionStatus";
 import { fetchExceptions } from "@/app/lib/fetchExceptions";
@@ -85,7 +86,7 @@ export default async function ExceptionsPage({
         : 0;
 
     return (
-      <div className="nhsuk-grid-column-full">
+      <>
         {title && <h1>{title}</h1>}
 
         {totalItems === 0 ? (
@@ -122,7 +123,7 @@ export default async function ExceptionsPage({
             <UserFeedback />
           </>
         )}
-      </div>
+      </>
     );
   } catch {
     return <DataError />;

@@ -84,8 +84,8 @@ export default function FilterExceptionsForm({
               {dateError}
             </span>
           )}
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: '1rem', flexWrap: 'wrap' }}>
-            <div className="nhsuk-date-input" id="date-created" style={{ display: 'flex', flexWrap: 'wrap' }}>
+          <div className="app-date-results-row">
+            <div className="nhsuk-date-input" id="date-created">
               <div className="nhsuk-date-input__item">
                 <div className="nhsuk-form-group">
                   <label
@@ -149,10 +149,10 @@ export default function FilterExceptionsForm({
               data-module="nhsuk-button"
               data-testid="apply-filters-button"
               type="submit"
-              style={{ marginBottom: 0 }}
             >
               Apply
             </button>
+
             {hasActiveFilters && (
               <a
                 href={`?sortBy=${sortBy}&page=1`}
