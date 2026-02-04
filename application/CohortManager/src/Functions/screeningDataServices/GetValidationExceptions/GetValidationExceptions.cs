@@ -56,7 +56,7 @@ public class GetValidationExceptions
         var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
         var reportDate = _httpParserHelper.GetQueryParameterAsDateTime(req, "reportDate");
         var isReport = _httpParserHelper.GetQueryParameterAsBool(req, "isReport");
-        var ruleId = _httpParserHelper.GetQueryParameterAsInt(req, "ruleId");
+        var ruleId = _httpParserHelper.GetQueryParameterAsNullableInt(req, "ruleId");
         var dateCreated = _httpParserHelper.GetQueryParameterAsDateTime(req, "dateCreated");
 
         try
