@@ -20,6 +20,12 @@ public class HttpParserHelper : IHttpParserHelper
         var queryString = req.Query[key];
         return int.TryParse(queryString, out int value) ? value : defaultValue;
     }
+
+    public int? GetQueryParameterAsNullableInt(HttpRequestData req, string key)
+    {
+        var queryString = req.Query[key];
+        return !string.IsNullOrEmpty(queryString) && int.TryParse(queryString, out int value) ? value : null;
+    }
     public HttpResponseData LogErrorResponse(HttpRequestData req, string errorMessage)
     {
         _logger.LogError(errorMessage);
