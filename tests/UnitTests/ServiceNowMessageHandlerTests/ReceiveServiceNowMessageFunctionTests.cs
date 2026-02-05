@@ -228,7 +228,7 @@ public class ReceiveServiceNowMessageFunctionTests
     }
 
     [TestMethod]
-    [DataRow("CS123", "9434765919", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]  // Valid NHS number
+    [DataRow("CS123", "9434765919", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null, DisplayName = "Valid NHS number")]
     public async Task Run_WhenNhsNumberPassesChecksumValidation_ProceedsWithNormalFlow(
         string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string? dummyGpCode)
     {
