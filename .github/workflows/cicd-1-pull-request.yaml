@@ -133,7 +133,8 @@ jobs:
     permissions:
       contents: read
       id-token: write
-      pull-requests: read
+      pull-requests: write
+      packages: write
     secrets:
       client_id: ${{ secrets.AZURE_CLIENT_ID }}
       tenant_id: ${{ secrets.AZURE_TENANT_ID }}

@@ -10,6 +10,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ExceptionManagementDataService/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7911
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -22,6 +24,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/BsSelectRequestAudit/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [bs-select]
     ports:
       - 7989:7989
@@ -37,6 +41,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ScreeningLkpDataService/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:8996
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -50,6 +56,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/GeneCodeLkpDataService/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7991
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -62,6 +70,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/HigherRiskReferralReasonLkpDataService/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [not-implemented]
     environment:
       - ASPNETCORE_URLS=http://*:7992
@@ -77,6 +87,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ParticipantDemographicDataService/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7993
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -91,6 +103,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ParticipantManagementDataService/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7994
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -105,6 +119,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/CohortDistributionDataService/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7992
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -118,6 +134,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/NemsSubscriptionDataService/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7990
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -130,6 +148,8 @@ services:
     build:
       context: ./src/Functions/
       dockerfile: screeningDataServices/ReferenceDataService/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7988
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -141,8 +161,10 @@ services:
      networks: [cohman-network]
      profiles: [service-now]
      build:
-       context: ./src/Functions/
-       dockerfile: screeningDataServices/ServiceNowCasesDataService/Dockerfile
+      context: ./src/Functions/
+      dockerfile: screeningDataServices/ServiceNowCasesDataService/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
      environment:
        - ASPNETCORE_URLS=http://*:9996
        - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
