@@ -7,15 +7,11 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Common;
-using System.Collections.Specialized;
 using System.Text;
 using DataServices.Core;
 using Model;
-using NHS.CohortManager.DemographicServices;
-using Common.Interfaces;
 using System.Text.Json;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
 
 /// <summary>
 /// Azure Functions endpoints for managing CaaS subscriptions via MESH and data services.
@@ -30,6 +26,7 @@ public class ManageCaasSubscription
     private readonly IDataServiceAccessor<NemsSubscription> _nemsSubscriptionAccessor;
     private readonly IMeshPoller _meshPoller;
     private readonly IExceptionHandler _exceptionHandler;
+    private const string? nhsNum = "nhsNumber";
 
     public ManageCaasSubscription(
         ILogger<ManageCaasSubscription> logger,
@@ -60,9 +57,9 @@ public class ManageCaasSubscription
     [Function("Subscribe")]
     public async Task<HttpResponseData> Subscribe([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
+        string? nhsNumber = req.Query[nhsNum];
         try
         {
-            var nhsNumber = req.Query["nhsNumber"];
             if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
             {
                 return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
@@ -117,7 +114,7 @@ public class ManageCaasSubscription
             _logger.LogError(ex, "Error sending CAAS subscribe request");
             try
             {
-                string? rawNhs = req.Query["nhsNumber"];
+                string? rawNhs = req.Query[nhsNum];
                 var nhsForLog = ValidationHelper.ValidateNHSNumber(rawNhs!) ? rawNhs! : string.Empty;
                 await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsForLog, nameof(ManageCaasSubscription), "", string.Empty);
             }
@@ -242,7 +239,7 @@ public class ManageCaasSubscription
     [Function("Unsubscribe")]
     public async Task<HttpResponseData> Unsubscribe([HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req)
     {
-        var nhsNumber = req.Query["nhsNumber"];
+        var nhsNumber = req.Query[nhsNum];
         if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
         {
             return await _createResponse.CreateHttpResponseWithBodyAsync(HttpStatusCode.BadRequest, req, "NHS number is required and must be valid format.");
@@ -264,7 +261,7 @@ public class ManageCaasSubscription
         {
             _logger.LogInformation("Received check subscription request");
 
-            string? nhsNumber = req.Query["nhsNumber"];
+            string? nhsNumber = req.Query[nhsNum];
 
             if (!ValidationHelper.ValidateNHSNumber(nhsNumber!))
             {
@@ -287,7 +284,7 @@ public class ManageCaasSubscription
             _logger.LogError(ex, "Error checking subscription status");
             try
             {
-                string? rawNhs = req.Query["nhsNumber"];
+                string? rawNhs = req.Query[nhsNum];
                 var nhsForLog = ValidationHelper.ValidateNHSNumber(rawNhs!) ? rawNhs! : string.Empty;
                 await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, nhsForLog, nameof(ManageCaasSubscription), "", string.Empty);
             }

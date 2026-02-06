@@ -108,7 +108,7 @@ public class ReceiveServiceNowMessageFunction
         }
         catch (JsonException ex)
         {
-            _logger.LogError(ex, "Failed to deserialize json request body to type {type}", nameof(ReceiveServiceNowMessageRequestBody));
+            _logger.LogError(ex, "Failed to deserialize json request body to type {Type}", nameof(ReceiveServiceNowMessageRequestBody));
             return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
