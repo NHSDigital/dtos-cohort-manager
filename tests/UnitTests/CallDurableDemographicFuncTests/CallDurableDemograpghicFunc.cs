@@ -29,8 +29,17 @@ public class CallDurableDemographicFuncTests
     {
         var testConfig = new ReceiveCaasFileConfig
         {
-            GetOrchestrationStatusURL = "http://testURL.com",
-            maxNumberOfChecks = 50
+            DemographicDataServiceURL = "DemographicDataServiceURL",
+            ScreeningLkpDataServiceURL = "ScreeningLkpDataServiceURL",
+            DemographicURI = "DemographicURI",
+            BatchSize = 2000,
+            AllowDeleteRecords = true,
+            caasfolder_STORAGE = "caasfolder_STORAGE",
+            ServiceBusConnectionString_client_internal = "ServiceBusConnectionString_client_internal",
+            GetOrchestrationStatusURL = "GetOrchestrationStatusURL",
+            inboundBlobName = "inbound",
+            ParticipantManagementTopic = "ParticipantManagementTopic",
+            maxNumberOfChecks = 50,
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);

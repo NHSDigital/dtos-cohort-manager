@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 public class RemoveValidationExceptionConfig
 {
     [Required]
-    public string ExceptionManagementDataServiceURL {get; set;}
+    public required string ExceptionManagementDataServiceURL {get; set;}
     [Required]
-    public string DemographicDataServiceURL {get; set;}
+    public required string DemographicDataServiceURL {get; set;}
 }
