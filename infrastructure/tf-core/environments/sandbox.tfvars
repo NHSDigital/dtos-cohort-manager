@@ -19,6 +19,11 @@ tags = {
   Environment = "sandbox"
 }
 
+availability_test = {
+  name_suffix = "retrieve-cohort-request-audit-webtest"
+  target_url  = "https://api.non-live.nationalscreening.nhs.uk/dev-uks-retrieve-cohort-request-audit/health"
+}
+
 regions = {
   uksouth = {
     is_primary_region = true
@@ -667,7 +672,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        AcceptableLatencyThresholdMs = "500"
+        AcceptableLatencyThresholdMs  = "500"
         RetrieveSupersededRecordsLast = "true"
       }
     }
@@ -864,7 +869,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
-        MaxRetryCount=3
+        MaxRetryCount                = 3
       }
     }
 
