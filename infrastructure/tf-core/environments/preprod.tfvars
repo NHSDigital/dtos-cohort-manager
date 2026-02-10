@@ -1336,7 +1336,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 100
       read_scale           = false
-      sku                  = "S12"
+      sku                  = "S2"
       storage_account_type = "GeoZone"
       zone_redundant       = false
 
