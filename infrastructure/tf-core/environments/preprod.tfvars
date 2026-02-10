@@ -261,6 +261,25 @@ container_app_jobs = {
       add_user_assigned_identity    = true
       replica_retry_limit           = 1
     }
+    db-restore = {
+      container_app_environment_key = "db-management"
+      docker_image                  = "db-immutable-backup-restore"
+      docker_env_tag                = "latest"
+      container_registry_use_mi     = true
+      add_user_assigned_identity    = true
+      memory_in_gb                  = 2
+      replica_retry_limit           = 1
+      replica_timeout_in_seconds    = 3600
+      env_vars_static = {
+        SQL_SERVER_NAME        = "sqlsvr-cohman-pre-uks"
+        SQL_DATABASE_NAME      = "DToSDB_RESTORE"
+        SQL_MAX_SIZE_GB        = "100"
+        SQL_SERVICE_OBJECTIVE  = "S9"
+        STORAGE_ACCOUNT_NAME   = "stcohmanpreuksfilexptns"
+        STORAGE_CONTAINER_NAME = "sql-backups-temp"
+        BACKUP_FILE_NAME       = "filename.bacpac"
+      }
+    }
   }
 }
 
@@ -1299,7 +1318,8 @@ sqlserver = {
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
   user_assigned_identities = [
-    "db-management"
+    "db-management",
+    "db-restore"
   ]
 
   server = {
