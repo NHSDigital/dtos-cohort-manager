@@ -260,6 +260,7 @@ variable "function_apps" {
     worker_32bit                           = bool
     alert_4xx_threshold                    = optional(number, 1)
     alert_5xx_threshold                    = optional(number, 1)
+    alert_auto_mitigate                    = optional(bool, false)
     alert_window_size                      = optional(string, "PT5M") # Check every 5 minutes
     slots = optional(map(object({
       name         = string
