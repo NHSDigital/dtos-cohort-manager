@@ -273,10 +273,6 @@ container_apps = {
   }
 }
 
-diagnostic_settings = {
-  metric_enabled = true
-}
-
 function_apps = {
   acr_mi_name = "dtos-cohort-manager-acr-push"
   acr_name    = "acrukshubdevcohman"
