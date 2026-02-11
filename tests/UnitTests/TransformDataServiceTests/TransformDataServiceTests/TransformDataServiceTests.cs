@@ -960,12 +960,12 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    [DataRow("ZZ993VZ", DisplayName = "No Space Dummy Postcode")]
-    [DataRow("ZZ99", DisplayName = "Incomplete Dummy Postcode")]
-    [DataRow("NFA", DisplayName = "No Fixed Abode")]
-    [DataRow("ANK", DisplayName = "Address Not Known")]
-    [DataRow("ZZZSECUR", DisplayName = "Secure Address")]
-    public async Task Run_DummyPostcodes_TransformsToStandardDummyPostcode(string postcode)
+    [DataRow("ZZ993VZ", "ZZ99 3VZ", DisplayName = "No Space Dummy Postcode")]
+    [DataRow("NFA", "ZZ99 3VZ", DisplayName = "No Fixed Abode")]
+    [DataRow("ZZZSECUR", "ZZ99 3VZ", DisplayName = "Secure Address")]
+    [DataRow("ZZ99", "ZZ99 3WZ", DisplayName = "Incomplete Dummy Postcode")]
+    [DataRow("ANK", "ZZ99 3WZ", DisplayName = "Address Not Known")]
+    public async Task Run_DummyPostcodes_TransformsToStandardDummyPostcode(string postcode, string expectedDummyPostcode)
     {
         // Arrange
         _requestBody.Participant.Postcode = postcode;
@@ -982,7 +982,7 @@ public class TransformDataServiceTests
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
 
-        Assert.AreEqual("ZZ99 3VZ", actualResponse?.Postcode);
+        Assert.AreEqual(expectedDummyPostcode, actualResponse?.Postcode);
     }
 
     [TestMethod]

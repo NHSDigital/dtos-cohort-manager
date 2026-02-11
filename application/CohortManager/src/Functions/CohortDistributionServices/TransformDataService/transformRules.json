@@ -682,6 +682,24 @@
         }
       },
       {
+       "RuleName": "08.NormalizePostcode.RemoveMultipleWhiteSpaces",
+       "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode.Contains(\"  \")",
+       "Actions": {
+         "OnSuccess": {
+           "Name": "TransformAction",
+           "Context": {
+             "transformFields": [
+               {
+                 "isExpression": true,
+                 "field": "Postcode",
+                 "value": "participant.Postcode.Replace(\"  \", \" \")"
+               }
+             ]
+           }
+         }
+       }
+     },
+      {
         "RuleName": "09.AddSeparatorToPostcode",
         "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode.Length >= 4 && participant.Postcode != \"ZZZSECUR\" && !Char.IsWhiteSpace(participant.Postcode, participant.Postcode.Length - 4)",
         "Actions": {
@@ -701,7 +719,7 @@
       },
       {
         "RuleName": "10.TransformDummyPostcodes",
-  "Expression": "!string.IsNullOrEmpty(participant.Postcode) && (participant.Postcode == \"ZZZSECUR\" || participant.Postcode == \"ANK\" || participant.Postcode == \"ZZ99\" || participant.Postcode == \"NFA\")",
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && (participant.Postcode == \"ZZZSECUR\" || participant.Postcode == \"NFA\" || participant.Postcode == \"ZZ993VZ\")",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -711,6 +729,24 @@
                   "isExpression": false,
                   "field": "Postcode",
                   "value": "ZZ99 3VZ"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "11.TransformDummyPostcodes.UnknownDummyPostcode",
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && (participant.Postcode == \"ANK\" || participant.Postcode == \"ZZ99\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "Postcode",
+                  "value": "ZZ99 3WZ"
                 }
               ]
             }
