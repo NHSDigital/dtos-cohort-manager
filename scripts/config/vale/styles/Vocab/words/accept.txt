@@ -26,4 +26,5 @@ npm
 cmd
 ctrl
 ui
+UI
 Entra
