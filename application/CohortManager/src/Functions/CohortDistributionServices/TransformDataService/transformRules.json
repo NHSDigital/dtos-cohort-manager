@@ -701,7 +701,7 @@
      },
       {
         "RuleName": "09.AddSeparatorToPostcode",
-        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode.Length >= 4 && participant.Postcode != \"ZZZSECUR\" && !Char.IsWhiteSpace(participant.Postcode, participant.Postcode.Length - 4)",
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode.Length >= 4 && participant.Postcode != \"ZZZSECUR\" && participant.Postcode != \"NFA\" && participant.Postcode != \"ANK\" && participant.Postcode != \"ZZ99\" && !Char.IsWhiteSpace(participant.Postcode, participant.Postcode.Length - 4)",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
