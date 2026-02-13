@@ -682,26 +682,8 @@
         }
       },
       {
-       "RuleName": "08.NormalizePostcode.RemoveMultipleWhiteSpaces",
-       "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode.Contains(\"  \")",
-       "Actions": {
-         "OnSuccess": {
-           "Name": "TransformAction",
-           "Context": {
-             "transformFields": [
-               {
-                 "isExpression": true,
-                 "field": "Postcode",
-                 "value": "participant.Postcode.Replace(\"  \", \" \")"
-               }
-             ]
-           }
-         }
-       }
-     },
-      {
-        "RuleName": "09.AddSeparatorToPostcode",
-        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode.Length >= 4 && participant.Postcode != \"ZZZSECUR\" && participant.Postcode != \"NFA\" && participant.Postcode != \"ANK\" && participant.Postcode != \"ZZ99\" && !Char.IsWhiteSpace(participant.Postcode, participant.Postcode.Length - 4)",
+        "RuleName": "08.NormalizePostcode.WhitespaceFormatting",
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode.Replace(\" \", \"\").Length >= 5 && participant.Postcode != \"ZZZSECUR\" && participant.Postcode != \"NFA\" && participant.Postcode != \"ANK\" && participant.Postcode != \"ZZ99\" && (participant.Postcode.IndexOf(\" \") != participant.Postcode.Length - 4 || participant.Postcode.IndexOf(\" \") != participant.Postcode.LastIndexOf(\" \"))",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -710,7 +692,7 @@
                 {
                   "isExpression": true,
                   "field": "Postcode",
-                  "value": "participant.Postcode.Insert(participant.Postcode.Length - 3, \" \")"
+                  "value": "participant.Postcode.Replace(\" \", \"\").Insert(participant.Postcode.Replace(\" \", \"\").Length - 3, \" \")"
                 }
               ]
             }

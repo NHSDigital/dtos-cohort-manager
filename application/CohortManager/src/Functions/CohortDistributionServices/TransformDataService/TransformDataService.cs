@@ -79,7 +79,7 @@ public class TransformDataService
             participant = await transformString.TransformStringFields(participant);
 
             // Other transformation rules
-            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant,ValidationHelper.CheckManualAddFileName(requestBody.FileName));
+            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant, ValidationHelper.CheckManualAddFileName(requestBody.FileName));
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
