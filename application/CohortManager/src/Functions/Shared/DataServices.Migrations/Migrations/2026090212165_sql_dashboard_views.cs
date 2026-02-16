@@ -15,7 +15,7 @@ public partial class SqlDashboardViews : Migration
         // Aggregated exception counts by Date, RuleId, Category, RuleDescription
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE VIEW vw_ExceptionManagement AS
+                CREATE OR ALTER VIEW vw_ExceptionManagement AS
                 SELECT
                     CAST(DATE_CREATED AS DATE) AS DATE,
                     RULE_ID AS RULE_ID,
@@ -36,7 +36,7 @@ public partial class SqlDashboardViews : Migration
         // Daily ServiceNow manual ADD counts split by High Risk / Standard
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE VIEW vw_ServiceNowParticipants AS
+                CREATE OR ALTER VIEW vw_ServiceNowParticipants AS
                 SELECT
                     CAST(RECORD_INSERT_DATETIME AS DATE) AS DATE,
                     IIF(IS_HIGHER_RISK = 1, 'High Risk Participant', 'Standard Risk Participant') AS CATEGORY,
@@ -59,7 +59,7 @@ public partial class SqlDashboardViews : Migration
         // Daily unique NHS number count from PARTICIPANT_MANAGEMENT
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE VIEW vw_ParticipantManagementRecords AS
+                CREATE OR ALTER VIEW vw_ParticipantManagementRecords AS
                 SELECT
                     DATE,
                     COUNT(*) AS PARTICIPANT_MANAGEMENT_RECORDS
@@ -79,7 +79,7 @@ public partial class SqlDashboardViews : Migration
         // Daily unique NHS number count from PARTICIPANT_DEMOGRAPHIC (CaaS intake)
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE VIEW vw_ParticipantDemographic AS
+                CREATE OR ALTER VIEW vw_ParticipantDemographic AS
                 SELECT
                     DATE,
                     COUNT(*) AS PARTICIPANT_DEMOGRAPHIC_RECORDS
@@ -99,7 +99,7 @@ public partial class SqlDashboardViews : Migration
         // Consolidated: covers extraction counts AND superseded records
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE VIEW vw_CohortDistribution AS
+                CREATE OR ALTER VIEW vw_CohortDistribution AS
                 SELECT
                     CAST(RECORD_INSERT_DATETIME AS DATE) AS DATE,
                     IS_EXTRACTED AS IS_EXTRACTED,
@@ -119,7 +119,7 @@ public partial class SqlDashboardViews : Migration
         // exists for the superseding NHS number
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE VIEW vw_SupersededWithoutSupersedingRecord AS
+                CREATE OR ALTER VIEW vw_SupersededWithoutSupersedingRecord AS
                 SELECT
                     cd1.NHS_NUMBER AS NHS_NUMBER,
                     cd1.SUPERSEDED_NHS_NUMBER AS SUPERSEDED_NHS_NUMBER,
@@ -137,7 +137,7 @@ public partial class SqlDashboardViews : Migration
         // Row-level: all unresolved exceptions with DaysOpen calc
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE VIEW vw_UnresolvedExceptions AS
+                CREATE OR ALTER VIEW vw_UnresolvedExceptions AS
                 SELECT
                     EXCEPTION_ID AS EXCEPTION_ID,
                     NHS_NUMBER AS NHS_NUMBER,
@@ -159,7 +159,7 @@ public partial class SqlDashboardViews : Migration
         // and participant exception proportions
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE VIEW vw_ParticipantRecordTypes AS
+                CREATE OR ALTER VIEW vw_ParticipantRecordTypes AS
                 SELECT
                     CAST(RECORD_INSERT_DATETIME AS DATE) AS DATE,
                     RECORD_TYPE AS RECORD_TYPE,
@@ -179,7 +179,7 @@ public partial class SqlDashboardViews : Migration
         // Detailed manual ADD breakdown with VHR referral reasons
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE VIEW vw_ServiceNowCasesDetailed AS
+                CREATE OR ALTER VIEW vw_ServiceNowCasesDetailed AS
                 SELECT
                     CAST(pm.RECORD_INSERT_DATETIME AS DATE) AS DATE,
                     pm.NHS_NUMBER AS NHS_NUMBER,
