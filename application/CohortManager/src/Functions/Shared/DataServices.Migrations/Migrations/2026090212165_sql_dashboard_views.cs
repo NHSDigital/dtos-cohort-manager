@@ -13,18 +13,15 @@ public partial class SqlDashboardViews : Migration
         // =====================================================
         // VIEW 1: vw_ExceptionManagement
         // Aggregated exception counts by Date, RuleId, Category, RuleDescription
-        // Covers: NSD, NBO, BSS 2nd Line, CaaS exceptions,
-        //         Transformations (Category=11), Superseded (13), Confusion (12),
-        //         Monitored rules 51/53/54
         // =====================================================
         migrationBuilder.Sql(@"
                 CREATE VIEW vw_ExceptionManagement AS
                 SELECT
-                    CAST(DATE_CREATED AS DATE) AS Date,
-                    RULE_ID AS RuleId,
-                    CATEGORY AS Category,
-                    COUNT(*) AS Number_Of_Exceptions,
-                    RULE_DESCRIPTION AS RuleDescription
+                    CAST(DATE_CREATED AS DATE) AS DATE,
+                    RULE_ID AS RULE_ID,
+                    CATEGORY AS CATEGORY,
+                    COUNT(*) AS NUMBER_OF_EXCEPTIONS,
+                    RULE_DESCRIPTION AS RULE_DESCRIPTION
                 FROM EXCEPTION_MANAGEMENT
                 WHERE RULE_ID >= 0
                 GROUP BY
@@ -41,9 +38,9 @@ public partial class SqlDashboardViews : Migration
         migrationBuilder.Sql(@"
                 CREATE VIEW vw_ServiceNowParticipants AS
                 SELECT
-                    CAST(RECORD_INSERT_DATETIME AS DATE) AS Date,
-                    IIF(IS_HIGHER_RISK = 1, 'High Risk Participant', 'Standard Risk Participant') AS Category,
-                    COUNT(*) AS ServiceNow_Participants
+                    CAST(RECORD_INSERT_DATETIME AS DATE) AS DATE,
+                    IIF(IS_HIGHER_RISK = 1, 'High Risk Participant', 'Standard Risk Participant') AS CATEGORY,
+                    COUNT(*) AS SERVICENOW_PARTICIPANTS
                 FROM (
                     SELECT
                         RECORD_INSERT_DATETIME,
@@ -51,7 +48,7 @@ public partial class SqlDashboardViews : Migration
                     FROM PARTICIPANT_MANAGEMENT
                     WHERE REFERRAL_FLAG = 1
                         AND RECORD_TYPE = 'ADD'
-                ) AS DateSelection
+                ) AS DATE_SELECTION
                 GROUP BY
                     CAST(RECORD_INSERT_DATETIME AS DATE),
                     IS_HIGHER_RISK;
@@ -64,17 +61,17 @@ public partial class SqlDashboardViews : Migration
         migrationBuilder.Sql(@"
                 CREATE VIEW vw_ParticipantManagementRecords AS
                 SELECT
-                    Date,
-                    COUNT(*) AS Participant_Management_Records
+                    DATE,
+                    COUNT(*) AS PARTICIPANT_MANAGEMENT_RECORDS
                 FROM (
                     SELECT DISTINCT
                         NHS_NUMBER,
-                        CAST(COALESCE(RECORD_UPDATE_DATETIME, RECORD_INSERT_DATETIME) AS DATE) AS Date
+                        CAST(COALESCE(RECORD_UPDATE_DATETIME, RECORD_INSERT_DATETIME) AS DATE) AS DATE
                     FROM PARTICIPANT_MANAGEMENT
                     WHERE RECORD_INSERT_DATETIME IS NOT NULL
                         OR RECORD_UPDATE_DATETIME IS NOT NULL
-                ) unique_records
-                GROUP BY Date;
+                ) AS UNIQUE_RECORDS
+                GROUP BY DATE;
             ");
 
         // =====================================================
@@ -84,31 +81,30 @@ public partial class SqlDashboardViews : Migration
         migrationBuilder.Sql(@"
                 CREATE VIEW vw_ParticipantDemographic AS
                 SELECT
-                    Date,
-                    COUNT(*) AS Participant_Demographic_Records
+                    DATE,
+                    COUNT(*) AS PARTICIPANT_DEMOGRAPHIC_RECORDS
                 FROM (
                     SELECT DISTINCT
                         NHS_NUMBER,
-                        CAST(COALESCE(RECORD_UPDATE_DATETIME, RECORD_INSERT_DATETIME) AS DATE) AS Date
+                        CAST(COALESCE(RECORD_UPDATE_DATETIME, RECORD_INSERT_DATETIME) AS DATE) AS DATE
                     FROM PARTICIPANT_DEMOGRAPHIC
                     WHERE RECORD_INSERT_DATETIME IS NOT NULL
                         OR RECORD_UPDATE_DATETIME IS NOT NULL
-                ) unique_records
-                GROUP BY Date;
+                ) AS UNIQUE_RECORDS
+                GROUP BY DATE;
             ");
 
         // =====================================================
         // VIEW 5: vw_CohortDistribution
         // Consolidated: covers extraction counts AND superseded records
-        // Grouped by IS_EXTRACTED and HasSupersededNhsNumber
         // =====================================================
         migrationBuilder.Sql(@"
                 CREATE VIEW vw_CohortDistribution AS
                 SELECT
-                    CAST(RECORD_INSERT_DATETIME AS DATE) AS Date,
-                    IS_EXTRACTED,
-                    IIF(SUPERSEDED_NHS_NUMBER IS NOT NULL, 1, 0) AS HasSupersededNhsNumber,
-                    COUNT(DISTINCT NHS_NUMBER) AS Record_Count
+                    CAST(RECORD_INSERT_DATETIME AS DATE) AS DATE,
+                    IS_EXTRACTED AS IS_EXTRACTED,
+                    IIF(SUPERSEDED_NHS_NUMBER IS NOT NULL, 1, 0) AS HAS_SUPERSEDED_NHS_NUMBER,
+                    COUNT(DISTINCT NHS_NUMBER) AS RECORD_COUNT
                 FROM BS_COHORT_DISTRIBUTION
                 WHERE RECORD_INSERT_DATETIME IS NOT NULL
                 GROUP BY
@@ -125,10 +121,10 @@ public partial class SqlDashboardViews : Migration
         migrationBuilder.Sql(@"
                 CREATE VIEW vw_SupersededWithoutSupersedingRecord AS
                 SELECT
-                    cd1.NHS_NUMBER,
-                    cd1.SUPERSEDED_NHS_NUMBER,
-                    cd1.RECORD_INSERT_DATETIME,
-                    cd1.IS_EXTRACTED
+                    cd1.NHS_NUMBER AS NHS_NUMBER,
+                    cd1.SUPERSEDED_NHS_NUMBER AS SUPERSEDED_NHS_NUMBER,
+                    cd1.RECORD_INSERT_DATETIME AS RECORD_INSERT_DATETIME,
+                    cd1.IS_EXTRACTED AS IS_EXTRACTED
                 FROM BS_COHORT_DISTRIBUTION cd1
                 LEFT JOIN BS_COHORT_DISTRIBUTION cd2
                     ON cd1.SUPERSEDED_NHS_NUMBER = cd2.NHS_NUMBER
@@ -139,20 +135,19 @@ public partial class SqlDashboardViews : Migration
         // =====================================================
         // VIEW 7: vw_UnresolvedExceptions
         // Row-level: all unresolved exceptions with DaysOpen calc
-        // Supports Rule 53 >30 days, time-based alerts, monitoring
         // =====================================================
         migrationBuilder.Sql(@"
                 CREATE VIEW vw_UnresolvedExceptions AS
                 SELECT
-                    EXCEPTION_ID,
-                    NHS_NUMBER,
-                    CAST(DATE_CREATED AS DATE) AS DateCreated,
-                    RULE_ID,
-                    CATEGORY,
-                    RULE_DESCRIPTION,
-                    IS_FATAL,
-                    SERVICENOW_ID,
-                    DATEDIFF(DAY, DATE_CREATED, GETDATE()) AS DaysOpen
+                    EXCEPTION_ID AS EXCEPTION_ID,
+                    NHS_NUMBER AS NHS_NUMBER,
+                    CAST(DATE_CREATED AS DATE) AS DATE_CREATED,
+                    RULE_ID AS RULE_ID,
+                    CATEGORY AS CATEGORY,
+                    RULE_DESCRIPTION AS RULE_DESCRIPTION,
+                    IS_FATAL AS IS_FATAL,
+                    SERVICENOW_ID AS SERVICENOW_ID,
+                    DATEDIFF(DAY, DATE_CREATED, GETDATE()) AS DAYS_OPEN
                 FROM EXCEPTION_MANAGEMENT
                 WHERE DATE_RESOLVED = '9999-12-31'
                     AND RULE_ID >= 0;
@@ -166,12 +161,12 @@ public partial class SqlDashboardViews : Migration
         migrationBuilder.Sql(@"
                 CREATE VIEW vw_ParticipantRecordTypes AS
                 SELECT
-                    CAST(RECORD_INSERT_DATETIME AS DATE) AS Date,
-                    RECORD_TYPE,
-                    COUNT(*) AS Record_Count,
-                    COUNT(DISTINCT NHS_NUMBER) AS Unique_Nhs_Numbers,
-                    SUM(CASE WHEN EXCEPTION_FLAG = 1 THEN 1 ELSE 0 END) AS Exception_Count,
-                    COUNT(DISTINCT CASE WHEN EXCEPTION_FLAG = 1 THEN NHS_NUMBER END) AS Unique_Nhs_Numbers_With_Exceptions
+                    CAST(RECORD_INSERT_DATETIME AS DATE) AS DATE,
+                    RECORD_TYPE AS RECORD_TYPE,
+                    COUNT(*) AS RECORD_COUNT,
+                    COUNT(DISTINCT NHS_NUMBER) AS UNIQUE_NHS_NUMBERS,
+                    SUM(CASE WHEN EXCEPTION_FLAG = 1 THEN 1 ELSE 0 END) AS EXCEPTION_COUNT,
+                    COUNT(DISTINCT CASE WHEN EXCEPTION_FLAG = 1 THEN NHS_NUMBER END) AS UNIQUE_NHS_NUMBERS_WITH_EXCEPTIONS
                 FROM PARTICIPANT_MANAGEMENT
                 WHERE RECORD_INSERT_DATETIME IS NOT NULL
                 GROUP BY
@@ -182,20 +177,19 @@ public partial class SqlDashboardViews : Migration
         // =====================================================
         // VIEW 9: vw_ServiceNowCasesDetailed
         // Detailed manual ADD breakdown with VHR referral reasons
-        // For SLT Dashboard form option breakdown
         // =====================================================
         migrationBuilder.Sql(@"
                 CREATE VIEW vw_ServiceNowCasesDetailed AS
                 SELECT
-                    CAST(pm.RECORD_INSERT_DATETIME AS DATE) AS Date,
-                    pm.NHS_NUMBER,
-                    IIF(pm.IS_HIGHER_RISK = 1, 'VHR', 'Non-VHR') AS RiskCategory,
-                    pm.IS_HIGHER_RISK_ACTIVE,
-                    pm.HIGHER_RISK_REFERRAL_REASON_ID,
-                    hr.HIGHER_RISK_REFERRAL_REASON_CODE,
-                    hr.HIGHER_RISK_REFERRAL_REASON_CODE_DESCRIPTION,
-                    pm.EXCEPTION_FLAG,
-                    pm.ELIGIBILITY_FLAG
+                    CAST(pm.RECORD_INSERT_DATETIME AS DATE) AS DATE,
+                    pm.NHS_NUMBER AS NHS_NUMBER,
+                    IIF(pm.IS_HIGHER_RISK = 1, 'VHR', 'Non-VHR') AS RISK_CATEGORY,
+                    pm.IS_HIGHER_RISK_ACTIVE AS IS_HIGHER_RISK_ACTIVE,
+                    pm.HIGHER_RISK_REFERRAL_REASON_ID AS HIGHER_RISK_REFERRAL_REASON_ID,
+                    hr.HIGHER_RISK_REFERRAL_REASON_CODE AS HIGHER_RISK_REFERRAL_REASON_CODE,
+                    hr.HIGHER_RISK_REFERRAL_REASON_CODE_DESCRIPTION AS HIGHER_RISK_REFERRAL_REASON_CODE_DESCRIPTION,
+                    pm.EXCEPTION_FLAG AS EXCEPTION_FLAG,
+                    pm.ELIGIBILITY_FLAG AS ELIGIBILITY_FLAG
                 FROM PARTICIPANT_MANAGEMENT pm
                 LEFT JOIN HIGHER_RISK_REFERRAL_REASON_LKP hr
                     ON pm.HIGHER_RISK_REFERRAL_REASON_ID = hr.HIGHER_RISK_REFERRAL_REASON_ID
