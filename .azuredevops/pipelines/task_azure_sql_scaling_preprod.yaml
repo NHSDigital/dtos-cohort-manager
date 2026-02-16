@@ -42,11 +42,11 @@ parameters:
   - name: Sku_Peak
     displayName: Peak SKU
     type: string
-    default: 'S12'
+    default: 'S2'
   - name: Sku_OffPeak
     displayName: Off-Peak SKU
     type: string
-    default: 'S9'
+    default: 'S2'
 
 variables:
   - group: PRE_core_backend
