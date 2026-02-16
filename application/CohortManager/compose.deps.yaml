@@ -55,7 +55,7 @@ services:
   db:
     container_name: db
     networks: [cohman-network]
-    image: mcr.microsoft.com/mssql/server
+    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_SA_PASSWORD=${PASSWORD}
