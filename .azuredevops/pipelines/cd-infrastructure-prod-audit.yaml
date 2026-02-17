@@ -22,7 +22,7 @@ variables:
   - name: TF_DIRECTORY
     value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
   - name: TF_VERSION
-    value: 1.11.4
+    value: 1.14.4
   - name: TF_PLAN_ARTIFACT
     value: tf_plan_audit_PROD
   - name: ENVIRONMENT
