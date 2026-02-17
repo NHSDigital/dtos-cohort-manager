@@ -1,146 +1,69 @@
----
+parameters:
+  - name: serviceConnection
+    type: string
 
-name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
-trigger: none
-pr: none
+  - name: subscriptionId
+    type: string
 
-resources:
-  repositories:
-    - repository: dtos-devops-templates
-      type: github
-      name: NHSDigital/dtos-devops-templates
-      ref: 51ab3ef022f53cd62e8fb6d3eee84872a150e6a3
-      endpoint: NHSDigital
+  - name: resourceGroup
+    type: string
+    default: ''
 
-# https://crontab.guru/#0_0_*_*_*
-schedules:
-  - cron: "0 0 * * Sun"
-    displayName: Run every Sunday at 0:00
-    branches:
-      include:
-        - main
-    always: true
+stages:
+- stage: ZAP_Security_Scan
+  displayName: "ZAP DAST Security Scan"
+  jobs:
+  - job: Discover_And_Scan
+    displayName: "Discover Azure Function Apps and Run ZAP"
+    pool:
+      vmImage: 'ubuntu-latest'
 
-variables:
-  - name: hostPoolName
-    value: private-pool-dev-uks
-  - group: SBRK_core_backend
-
-variables:
-  - group: DEV_core_backend
-  - name: dev_rg
-    value: rg-cohman-dev-uks
-
-jobs:
-  - job: owasp_zap_report
-    displayName: Generate OWASP ZAP report
     steps:
-    - checkout: self
+
+    # =============================
+    # Login and discover apps
+    # =============================
     - task: AzureCLI@2
-      name: owasp_zap_report_create
-      displayName: owasp zap report create
+      displayName: "Discover Function Apps"
       inputs:
-        azureSubscription: sc-cohort-manager-dev
-        scriptType: 'bash'
-        scriptLocation: 'inlineScript'
+        azureSubscription: ${{ parameters.serviceConnection }}
+        scriptType: bash
+        scriptLocation: inlineScript
         inlineScript: |
-          echo "generating report"
+          az account set --subscription ${{ parameters.subscriptionId }}
 
-          az account set --subscription $(TF_VAR_TARGET_SUBSCRIPTION_ID)
+          if [ -z "${{ parameters.resourceGroup }}" ]; then
+            apps=$(az functionapp list --query "[].defaultHostName" -o tsv)
+          else
+            apps=$(az functionapp list -g ${{ parameters.resourceGroup }} --query "[].defaultHostName" -o tsv)
+          fi
 
-          function_list=$(az resource list --resource-group $(dev_rg) --resource-type Microsoft.Web/sites --query "[?kind=='functionapp,linux,container'].name" | sed 's/[][]//g; s/[",]//g' | sed '/^$/d')
-          for function in $function_list; do
+          echo "$apps" > functionapps.txt
 
-            function_url=$(az functionapp show --resource-group $(dev_rg) --name $function --query "defaultHostName" --output tsv  )
-            echo https://$function_url
+    # =============================
+    # Run ZAP and generate SARIF
+    # =============================
+    - script: |
+        mkdir zap-reports
 
-            docker run -t ghcr.io/zaproxy/zaproxy:stable zap-baseline.py -t https://$function_url > zap_report_$function
+        while read app; do
+          echo "Scanning https://$app"
 
-            pip install python-hcl2
-            export SLACK_WEBHOOK_URL=$(SLACK_WEBHOOK_URL)
-            chmod 755 scripts/azure/GetImageTagsByManifest.sh
-            python3 scripts/azure/SlackWebhookController.py -v -f $function -r zap_report_$function
+          docker run --rm \
+            -v $(pwd)/zap-reports:/zap/wrk \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
+              -t https://$app \
+              -J ${app}.sarif.json
 
-          done
+        done < functionapps.txt
+      displayName: "Run ZAP Baseline (SARIF Output)"
 
-          for function in $function_list; do
-            cat zap_report_$function
-          done
-
-  - job: set_status_job
-    displayName: Set Status Output
-    steps:
-      - bash: |
-          # Construct the JSON string
-          JSON_INPUT=$(cat <<EOF
-          {
-            "Retag Images": "$(retag_images_status)",
-            "Terraform Deploy": "$(terraform_deploy_status)"
-            "DB Changes": "$(db_changes_status)",
-            "Restart Functions": "$(restart_functions_status)"
-          }
-          EOF
-          )
-
-          bash $(System.DefaultWorkingDirectory)/scripts/bash/ado_set_stage_status.sh "$JSON_INPUT"
-        name: set_status
-        displayName: Set Slack Message Status
-
-  - job: send_message_job
-    displayName: Send Slack Message
-    dependsOn: set_status_job
-    variables:
-      final_status: $[ dependencies.set_status_job.outputs['set_status.status'] ]
-      failed_stages: $[ dependencies.set_status_job.outputs['set_status.failedStages'] ]
-      skipped_stages: $[ dependencies.set_status_job.outputs['set_status.skippedStages'] ]
-      slackSuccessMessage: |
-        *✅ Infrastructure Deployment Complete*
-
-        *Environment:* _${{ parameters.environment }}_
-        *Requested By:* $(Build.RequestedFor)
-        *Branch:* $(Build.SourceBranchName)
-        *Docker Image Tag:* ${{ parameters.dockerImageTag }}
-
-        *Skipped Stage(s):* $(skipped_stages)
-
-        • *<$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)|View ADO Pipeline Run $(Build.BuildId) here>*
-        • *<https://github.com/Digital/manager/actions?query=branch%3Amain|Approve GitHub Actions to promote to next environment here>*
-
-        *📊 Note:* End-to-end tests may still be running. Please check the <#C08U1DTP6CQ|manager-tests> Slack channel for completed test results.
-      slackFailureMessage: |
-        *❌ Infrastructure Deployment _Failed_*
-
-        *Environment:* _${{ parameters.environment }}_
-        *Requested By:* $(Build.RequestedFor)
-        *Branch:* $(Build.SourceBranchName)
-        *Docker Image Tag:* ${{ parameters.dockerImageTag }}
-
-        *Failed Stage(s):* $(failed_stages)
-        *Skipped Stage(s):* $(skipped_stages)
-
-        • *<$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)|View ADO Pipeline Run $(Build.BuildId) here>*
-    steps:
-      - checkout: dtos-devops-templates
-        sparseCheckoutDirectories: scripts
-        path: templates
-        displayName: 'Checkout Templates Repo'
-
-      - task: PythonScript@0
-        displayName: 'Send Slack Success Notification'
-        condition: eq(variables.final_status, 'succeeded')
-        inputs:
-          scriptSource: 'filePath'
-          scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
-          arguments: >
-            --webhook "${{ parameters.slackWebHook }}"
-            --markdown "$(slackSuccessMessage)"
-
-      - task: PythonScript@0
-        displayName: 'Send Slack Failure Notification'
-        condition: eq(variables.final_status, 'failed')
-        inputs:
-          scriptSource: 'filePath'
-          scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
-          arguments: >
-            --webhook "${{ parameters.slackWebHook }}"
-            --markdown "$(slackFailureMessage)"
+    # =============================
+    # Publish SARIF to Security Tab
+    # =============================
+    - task: PublishSecurityAnalysisLogs@3
+      displayName: "Publish ZAP Results to Security Tab"
+      inputs:
+        ArtifactName: 'CodeAnalysisLogs'
+        SarifFile: 'zap-reports/*.sarif.json'
