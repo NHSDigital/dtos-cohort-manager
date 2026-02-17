@@ -72,36 +72,36 @@ stages:
 
     - script: |
         python3 <<EOF
-import json
-import glob
-import xml.etree.ElementTree as ET
+    import json
+    import glob
+    import xml.etree.ElementTree as ET
 
-for file in glob.glob("zap-reports/*.json"):
-    with open(file) as f:
-        data = json.load(f)
+    for file in glob.glob("zap-reports/*.json"):
+        with open(file) as f:
+            data = json.load(f)
 
-    testsuite = ET.Element("testsuite", name="ZAP Scan")
-    total = 0
-    failures = 0
+        testsuite = ET.Element("testsuite", name="ZAP Scan")
+        total = 0
+        failures = 0
 
-    for site in data.get("site", []):
-        for alert in site.get("alerts", []):
-            total += 1
-            testcase = ET.SubElement(testsuite, "testcase",
-                                    classname=site.get("name"),
-                                    name=alert.get("alert"))
-            severity = alert.get("riskdesc", "")
-            if "High" in severity or "Medium" in severity:
-                failures += 1
-                failure = ET.SubElement(testcase, "failure",
-                                        message=severity)
-                failure.text = alert.get("desc", "")
+        for site in data.get("site", []):
+            for alert in site.get("alerts", []):
+                total += 1
+                testcase = ET.SubElement(testsuite, "testcase",
+                                        classname=site.get("name"),
+                                        name=alert.get("alert"))
+                severity = alert.get("riskdesc", "")
+                if "High" in severity or "Medium" in severity:
+                    failures += 1
+                    failure = ET.SubElement(testcase, "failure",
+                                            message=severity)
+                    failure.text = alert.get("desc", "")
 
-    testsuite.set("tests", str(total))
-    testsuite.set("failures", str(failures))
+        testsuite.set("tests", str(total))
+        testsuite.set("failures", str(failures))
 
-    tree = ET.ElementTree(testsuite)
-    tree.write(file.replace(".json", ".xml"))
+        tree = ET.ElementTree(testsuite)
+        tree.write(file.replace(".json", ".xml"))
         EOF
       displayName: "Convert ZAP JSON to JUnit"
 
