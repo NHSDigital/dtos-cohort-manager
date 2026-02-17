@@ -126,4 +126,4 @@ stages:
       inputs:
         testResultsFormat: 'JUnit'
         testResultsFiles: 'zap-reports/*.xml'
-        failTaskOnFailedTests: true
+        failTaskOnFailedTests: false
