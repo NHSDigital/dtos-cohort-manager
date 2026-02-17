@@ -106,8 +106,7 @@ Additionally, if pull requests are not reviewed and merged in a timely manner (f
 
 ## Git Flow
 
-Git Flow is a more structured branching strategy that defines specific branches for different purposes, such as development, releases, and hotfixes. It provides a clear workflow paticularly suited to teams with multiple developers working on different features in parallel and with fixed release cycles. 
-
+Git Flow is a more structured branching strategy that defines specific branches for different purposes, such as development, releases, and hotfixes. It provides a clear workflow particularly suited to teams with multiple developers working on different features in parallel and with fixed release cycles.
 
 ### Example Git Flow Workflow
 
@@ -171,7 +170,7 @@ gitGraph
 
 Due to its branch complexity, Git Flow can be more difficult to manage and may require more overhead in terms of branch management and merging.
 
-In Cohort Manager, we would also need to consider how Git Flow would fit in with our current CI/CD pipeline, particularly on how container images are built annd the ability to push unmerged changes to Azure via the DevTest workflow, and whether accomodating these factors would require significant changes to our existing processes.
+In Cohort Manager, we would also need to consider how Git Flow would fit in with our current CI/CD pipeline, particularly on how container images are built and the ability to push un-merged changes to Azure via the DevTest workflow, and whether accommodating these factors would require significant changes to our existing processes.
 
 ## Potential Alternative: GitHub Flow with Release Branches
 
@@ -179,7 +178,7 @@ An alternative approach that combines elements of both GitHub Flow and Git Flow 
 
 ### Example GitHub Flow with Release Branches Workflow
 
-In the example below, developers create **feature branches** off the `main` branch, work on their changes, and then open pull requests to merge their changes back into the `main` branch. When one or more PRs are ready for release, a `release` branch is created from `main` to act as a backstop incase changes need to be pulled out of the release, or hotfixes are needed while the release is in progress. The release branch does ot need to be merged back into `main` as the release branch is created from `main` and only contains changes that have already been merged into `main`.
+In the example below, developers create **feature branches** off the `main` branch, work on their changes, and then open pull requests to merge their changes back into the `main` branch. When one or more PRs are ready for release, a `release` branch is created from `main` to act as a backstop in case changes need to be pulled out of the release, or hotfixes are needed while the release is in progress. The release branch does not need to be merged back into `main` as the release branch is created from `main` and only contains changes that have already been merged into `main`.
 
 ```mermaid
 %%{init: {'theme':'base', 'themeVariables': { 'git0':'#3b82f6','git1':'#10b981','git2':'#f59e0b','git3':'#10b981','git4':'#fe45be','git5':'#fe45be'}}}%%
@@ -222,9 +221,11 @@ gitGraph
     
 ```
 
-### Applying a Hotfix to a Release Branch
+### Applying Hotfixes to Main or a Release Branch
 
-If a hotfix is needed while a release is in progress, a hotfix branch can be created from the release branch, the fix can be made, and then the hotfix branch can be merged back into the release branch to ensure the fix is included in the release.
+If a hotfix is required before the next release, a `hotfix` branch can be created from `main`, the fix can be made, and then the hotfix branch can be merged back into `main` to ensure the fix is included in future releases.
+
+If, however, a hotfix/bugfix is needed while a release is in progress, a hotfix branch can be created from the release branch, the fix can be made, and then the hotfix branch can be merged back into the release branch to ensure the fix is included in the release. Once the release is complete, the hotfix branch can then be merged back into `main` to ensure the fix is included in future releases.
 
 Imagine the case where the following sequence of events occurs:
 
@@ -236,10 +237,11 @@ flowchart TD
     C1 --> B2[Developer A completes Feature A, which is merged into main]
     B2 --> D1[Developer A starts Feature C]
     D1 --> D2[Developer A completes Feature C, which is merged into main but not released]
-    C1 --> E1[Hotfix-1 is required to resolve a critical issue in the release]
+    C1 --> E1[Hotfix-1 is required to resolve a critical issue in main branch before next release]
     E1 --> E2[Commit hotfix changes to release-1.0 branch]
     E2 --> E3[Rebuild and deploy release-1.0 with hotfix to production]
-    D2 --> E4[Merge hotfix-1 into main branch to ensure fix is included in future releases]
+    E3 --> E4[Merge hotfix-1 into main branch to ensure fix is included in future releases]
+    D2 --> E4
     E4 --> F1[Release-1.1 branch created from main to include new features and hotfix-1 for next release]
     F1 --> F2[Release-1.1 built and released to production]
     F2 --> G1[Hotfix-2 is required to resolve a critical issue in release-1.1]
@@ -283,13 +285,15 @@ gitGraph
     commit id: "Hotfix 1 for main"
     checkout release-1.0
     merge hotfix-1 id: "Hotfix 1 for release-1.0"
+    
+    checkout main
+    merge hotfix-1 id: "PR-04 Hotfix for main"
 
     checkout main
     commit
 
     branch devA-Feature-1
     checkout devA-Feature-1
-    commit
     commit
     commit
     checkout main
@@ -302,7 +306,6 @@ gitGraph
     checkout main
     merge devA-Feature-1 id: "PR-01: Feature A"
 
-
     checkout main
     branch devA-Feature-3
     checkout devA-Feature-3
@@ -311,10 +314,6 @@ gitGraph
 
     checkout main
     merge devA-Feature-3  id: "PR-02: Feature C"
-    
-    checkout main
-    merge hotfix-1 id: "PR-04 Hotfix for main"
-    commit
 
     branch release-1.1
     checkout release-1.1
