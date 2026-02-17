@@ -16,4 +16,3 @@ stages:
     serviceConnection: $(SERVICE_CONNECTION)
     subscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
     resourceGroup: $(FUNCTION_RESOURCE_GROUP)
-    nameFilter: 'create-exception'
