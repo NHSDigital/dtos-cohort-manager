@@ -40,26 +40,27 @@ stages:
 
           echo "$apps" > functionapps.txt
 
-    # =============================
-    # Run ZAP and generate SARIF
-    # =============================
+    # =========================================
+    # Run ZAP Baseline Scan and generate XML
+    # =========================================
     - script: |
-        mkdir zap-reports
+        mkdir -p zap-reports
+        chmod 777 zap-reports
 
         while read app; do
           echo "Scanning https://$app"
 
           docker run --rm \
+            --user root \
             -v $(pwd)/zap-reports:/zap/wrk \
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
               -t https://$app \
               -j \
-              -w ${app}.md \
               -x ${app}.xml
 
         done < functionapps.txt
-      displayName: "Run ZAP Baseline (JUnit Output)"
+      displayName: "Run ZAP Baseline Scan"
 
     # =============================
     # Publish test results
