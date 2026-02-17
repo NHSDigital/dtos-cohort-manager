@@ -9,6 +9,10 @@ parameters:
     type: string
     default: ''
 
+  - name: nameFilter
+    type: string
+    default: ''
+
 stages:
 - stage: ZAP_Security_Scan
   displayName: "ZAP DAST Security Scan"
@@ -36,6 +40,10 @@ stages:
             apps=$(az functionapp list --query "[].defaultHostName" -o tsv)
           else
             apps=$(az functionapp list -g ${{ parameters.resourceGroup }} --query "[].defaultHostName" -o tsv)
+          fi
+
+          if [ ! -z "${{ parameters.nameFilter }}" ]; then
+            apps=$(echo "$apps" | grep "${{ parameters.nameFilter }}")
           fi
 
           echo "$apps" > functionapps.txt
