@@ -54,14 +54,18 @@ stages:
             ghcr.io/zaproxy/zaproxy:stable \
             zap-baseline.py \
               -t https://$app \
-              -J ${app}.sarif.json
+              -j \
+              -w ${app}.md \
+              -x ${app}.xml
 
         done < functionapps.txt
-      displayName: "Run ZAP Baseline (SARIF Output)"
+      displayName: "Run ZAP Baseline (JUnit Output)"
 
     # =============================
-    # Publish SARIF to Security Tab
+    # Publish test results
     # =============================
-    - task: AdvancedSecurity-Publish@1
+    - task: PublishTestResults@2
       inputs:
-        SarifFile: 'zap-reports/*.sarif.json'
+        testResultsFormat: 'JUnit'
+        testResultsFiles: 'zap-reports/*.xml'
+        failTaskOnFailedTests: true
