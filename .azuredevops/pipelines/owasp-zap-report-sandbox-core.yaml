@@ -11,7 +11,7 @@ variables:
 
 stages:
 
-- template: templates/owasp-zap-report-core-common.yml
+- template: ../templates/owasp-zap-report-core-common.yml
   parameters:
     azureServiceConnection: $(SERVICE_CONNECTION)
     subscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
