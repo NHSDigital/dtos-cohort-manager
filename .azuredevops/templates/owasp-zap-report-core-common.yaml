@@ -96,7 +96,7 @@ stages:
                     )
 
                     severity = alert.get("riskdesc", "")
-                    if "High" in severity:
+                    if "High" in severity or "Medium" in severity:
                         failures += 1
                         failure = ET.SubElement(
                             testcase,
