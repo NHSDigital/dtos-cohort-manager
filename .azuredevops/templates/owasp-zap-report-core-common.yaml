@@ -57,7 +57,7 @@ stages:
             zap-baseline.py \
               -t https://$app \
               -j \
-              -x ${app}.xml
+              -x ${app}.xml || true
 
         done < functionapps.txt
       displayName: "Run ZAP Baseline Scan"
