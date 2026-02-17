@@ -13,6 +13,6 @@ stages:
 
 - template: ../templates/owasp-zap-report-core-common.yaml
   parameters:
-    azureServiceConnection: $(SERVICE_CONNECTION)
+    serviceConnection: $(SERVICE_CONNECTION)
     subscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID)
     resourceGroup: $(FUNCTION_RESOURCE_GROUP)
