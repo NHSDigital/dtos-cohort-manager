@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DataServices.Migrations.Migrations
 {
     [DbContext(typeof(DataServicesContext))]
-    [Migration("20251203173828_AddPowerBIViews")]
-    partial class AddPowerBIViews
+    [Migration("20260218105311_AddSqlDashboardViews")]
+    partial class AddSqlDashboardViews
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
