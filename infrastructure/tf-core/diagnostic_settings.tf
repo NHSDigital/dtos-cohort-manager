@@ -21,9 +21,10 @@ locals {
   monitor_diagnostic_setting_sql_server_enabled_logs = ["SQLSecurityAuditEvents"]
   monitor_diagnostic_setting_sql_server_metrics      = ["Basic", "InstanceAndAppAdvanced", "WorkloadManagement"]
 
-  # STORAGE ACCOUNT
-  monitor_diagnostic_setting_storage_account_enabled_logs = ["StorageWrite", "StorageRead", "StorageDelete"]
-  monitor_diagnostic_setting_storage_account_metrics      = ["Capacity", "Transaction"]
+  # STORAGE ACCOUNT_SERVICES
+  monitor_diagnostic_setting_storage_account_enabled_logs     = ["StorageWrite", "StorageRead", "StorageDelete"]
+  monitor_diagnostic_setting_storage_account_metrics          = ["Capacity", "Transaction"]
+  monitor_diagnostic_setting_storage_account_resource_metrics = ["Transaction"]
 
   # SUBNET
   monitor_diagnostic_setting_network_security_group_enabled_logs = ["NetworkSecurityGroupEvent", "NetworkSecurityGroupRuleCounter"]

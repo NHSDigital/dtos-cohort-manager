@@ -27,7 +27,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: 51ab3ef022f53cd62e8fb6d3eee84872a150e6a3
+      ref: aa5e5fa9f2e4c95a72993af0ac6bef51142463bd
       endpoint: NHSDigital
 
 parameters:
@@ -42,11 +42,11 @@ parameters:
   - name: Sku_Peak
     displayName: Peak SKU
     type: string
-    default: 'S12'
+    default: 'S2'
   - name: Sku_OffPeak
     displayName: Off-Peak SKU
     type: string
-    default: 'S9'
+    default: 'S2'
 
 variables:
   - group: PRE_core_backend
