@@ -683,7 +683,29 @@
       },
       {
         "RuleName": "08.NormalizePostcode.WhitespaceFormatting",
-        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode.Replace(\" \", \"\").Length >= 5 && participant.Postcode != \"ZZZSECUR\" && participant.Postcode != \"NFA\" && participant.Postcode != \"ANK\" && participant.Postcode != \"ZZ99\" && (participant.Postcode.IndexOf(\" \") != participant.Postcode.Length - 4 || participant.Postcode.IndexOf(\" \") != participant.Postcode.LastIndexOf(\" \"))",
+        "LocalParams": [
+          {
+            "Name": "HasPostcode",
+            "Expression": "!string.IsNullOrEmpty(participant.Postcode)"
+          },
+          {
+            "Name": "HasMinimumLength",
+            "Expression": "HasPostcode && participant.Postcode.Replace(\" \", \"\").Length >= 5"
+          },
+          {
+            "Name": "IsDummyPostcode",
+            "Expression": "HasPostcode && (participant.Postcode == \"ZZZSECUR\" || participant.Postcode == \"NFA\" || participant.Postcode == \"ANK\" || participant.Postcode == \"ZZ99\")"
+          },
+          {
+            "Name": "HasIncorrectSpacePosition",
+            "Expression": "HasPostcode && participant.Postcode.IndexOf(\" \") != participant.Postcode.Length - 4"
+          },
+          {
+            "Name": "HasMultipleSpaces",
+            "Expression": "HasPostcode && participant.Postcode.IndexOf(\" \") != participant.Postcode.LastIndexOf(\" \")"
+          }
+        ],
+        "Expression": "HasPostcode && HasMinimumLength && !IsDummyPostcode && (HasIncorrectSpacePosition || HasMultipleSpaces)",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
