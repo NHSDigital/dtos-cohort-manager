@@ -65,7 +65,7 @@ variables:
   - group: SBRK_automation_testing_pipeline
   - group: DEV_hub_backend_remote_state
   - name: TF_VERSION
-    value: 1.11.4
+    value: 1.14.4
   - name: TF_PLAN_ARTIFACT
     value: tf_plan_core_SANDBOX
   - name: TF_DIRECTORY
