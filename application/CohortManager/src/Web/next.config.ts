@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-import { resolve } from "path";
+import { resolve } from "node:path";
 
 const nextConfig: NextConfig = {
   output: "standalone",
