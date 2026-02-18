@@ -11,11 +11,33 @@ public partial class SqlDashboardViews : Migration
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         // =====================================================
+        // Create the dashboard_reporting schema so we can assign
+        // read-only permissions at the schema level.
+        // =====================================================
+        migrationBuilder.Sql(@"
+                IF NOT EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'dashboard_reporting')
+                BEGIN
+                    EXEC('CREATE SCHEMA dashboard_reporting');
+                END
+            ");
+
+        // =====================================================
+        // Drop the previous dbo views created by the earlier
+        // AddPowerBIViews migration – they are superseded by
+        // the dashboard_reporting schema views below.
+        // =====================================================
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dbo.vw_ServiceNowParticipants;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dbo.vw_ParticipantManagementRecords;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dbo.vw_ParticipantDemographic;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dbo.vw_ExceptionManagement;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dbo.vw_CohortDistribution;");
+
+        // =====================================================
         // VIEW 1: vw_ExceptionManagement
         // Aggregated exception counts by Date, RuleId, Category, RuleDescription
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE OR ALTER VIEW vw_ExceptionManagement AS
+                CREATE OR ALTER VIEW dashboard_reporting.vw_ExceptionManagement AS
                 SELECT
                     CAST(DATE_CREATED AS DATE) AS DATE,
                     RULE_ID AS RULE_ID,
@@ -36,7 +58,7 @@ public partial class SqlDashboardViews : Migration
         // Daily ServiceNow manual ADD counts split by High Risk / Standard
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE OR ALTER VIEW vw_ServiceNowParticipants AS
+                CREATE OR ALTER VIEW dashboard_reporting.vw_ServiceNowParticipants AS
                 SELECT
                     CAST(RECORD_INSERT_DATETIME AS DATE) AS DATE,
                     IIF(IS_HIGHER_RISK = 1, 'High Risk Participant', 'Standard Risk Participant') AS CATEGORY,
@@ -56,10 +78,10 @@ public partial class SqlDashboardViews : Migration
 
         // =====================================================
         // VIEW 3: vw_ParticipantManagementRecords
-        // Daily unique NHS number count from PARTICIPANT_MANAGEMENT
+        // Daily unique participant count from PARTICIPANT_MANAGEMENT
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE OR ALTER VIEW vw_ParticipantManagementRecords AS
+                CREATE OR ALTER VIEW dashboard_reporting.vw_ParticipantManagementRecords AS
                 SELECT
                     DATE,
                     COUNT(*) AS PARTICIPANT_MANAGEMENT_RECORDS
@@ -76,10 +98,10 @@ public partial class SqlDashboardViews : Migration
 
         // =====================================================
         // VIEW 4: vw_ParticipantDemographic
-        // Daily unique NHS number count from PARTICIPANT_DEMOGRAPHIC (CaaS intake)
+        // Daily unique participant count from PARTICIPANT_DEMOGRAPHIC (CaaS intake)
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE OR ALTER VIEW vw_ParticipantDemographic AS
+                CREATE OR ALTER VIEW dashboard_reporting.vw_ParticipantDemographic AS
                 SELECT
                     DATE,
                     COUNT(*) AS PARTICIPANT_DEMOGRAPHIC_RECORDS
@@ -99,7 +121,7 @@ public partial class SqlDashboardViews : Migration
         // Consolidated: covers extraction counts AND superseded records
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE OR ALTER VIEW vw_CohortDistribution AS
+                CREATE OR ALTER VIEW dashboard_reporting.vw_CohortDistribution AS
                 SELECT
                     CAST(RECORD_INSERT_DATETIME AS DATE) AS DATE,
                     IS_EXTRACTED AS IS_EXTRACTED,
@@ -115,42 +137,52 @@ public partial class SqlDashboardViews : Migration
 
         // =====================================================
         // VIEW 6: vw_SupersededWithoutSupersedingRecord
-        // Row-level: orphaned superseded records where no record
-        // exists for the superseding NHS number
+        // Aggregated: count of orphaned superseded records where
+        // no record exists for the superseding NHS number,
+        // grouped by date and extraction status (no PII returned)
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE OR ALTER VIEW vw_SupersededWithoutSupersedingRecord AS
+                CREATE OR ALTER VIEW dashboard_reporting.vw_SupersededWithoutSupersedingRecord AS
                 SELECT
-                    cd1.NHS_NUMBER AS NHS_NUMBER,
-                    cd1.SUPERSEDED_NHS_NUMBER AS SUPERSEDED_NHS_NUMBER,
-                    cd1.RECORD_INSERT_DATETIME AS RECORD_INSERT_DATETIME,
-                    cd1.IS_EXTRACTED AS IS_EXTRACTED
+                    CAST(cd1.RECORD_INSERT_DATETIME AS DATE) AS DATE,
+                    cd1.IS_EXTRACTED AS IS_EXTRACTED,
+                    COUNT(*) AS ORPHANED_SUPERSEDED_COUNT
                 FROM BS_COHORT_DISTRIBUTION cd1
                 LEFT JOIN BS_COHORT_DISTRIBUTION cd2
                     ON cd1.SUPERSEDED_NHS_NUMBER = cd2.NHS_NUMBER
                 WHERE cd1.SUPERSEDED_NHS_NUMBER IS NOT NULL
-                    AND cd2.NHS_NUMBER IS NULL;
+                    AND cd2.NHS_NUMBER IS NULL
+                GROUP BY
+                    CAST(cd1.RECORD_INSERT_DATETIME AS DATE),
+                    cd1.IS_EXTRACTED;
             ");
 
         // =====================================================
         // VIEW 7: vw_UnresolvedExceptions
-        // Row-level: all unresolved exceptions with DaysOpen calc
+        // Aggregated: unresolved exception counts by rule, category
+        // and age bucket (no PII returned)
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE OR ALTER VIEW vw_UnresolvedExceptions AS
+                CREATE OR ALTER VIEW dashboard_reporting.vw_UnresolvedExceptions AS
                 SELECT
-                    EXCEPTION_ID AS EXCEPTION_ID,
-                    NHS_NUMBER AS NHS_NUMBER,
                     CAST(DATE_CREATED AS DATE) AS DATE_CREATED,
                     RULE_ID AS RULE_ID,
                     CATEGORY AS CATEGORY,
                     RULE_DESCRIPTION AS RULE_DESCRIPTION,
                     IS_FATAL AS IS_FATAL,
-                    SERVICENOW_ID AS SERVICENOW_ID,
-                    DATEDIFF(DAY, DATE_CREATED, GETDATE()) AS DAYS_OPEN
+                    COUNT(*) AS EXCEPTION_COUNT,
+                    MIN(DATEDIFF(DAY, DATE_CREATED, GETDATE())) AS MIN_DAYS_OPEN,
+                    MAX(DATEDIFF(DAY, DATE_CREATED, GETDATE())) AS MAX_DAYS_OPEN,
+                    AVG(DATEDIFF(DAY, DATE_CREATED, GETDATE())) AS AVG_DAYS_OPEN
                 FROM EXCEPTION_MANAGEMENT
                 WHERE DATE_RESOLVED = '9999-12-31'
-                    AND RULE_ID >= 0;
+                    AND RULE_ID >= 0
+                GROUP BY
+                    CAST(DATE_CREATED AS DATE),
+                    RULE_ID,
+                    CATEGORY,
+                    RULE_DESCRIPTION,
+                    IS_FATAL;
             ");
 
         // =====================================================
@@ -159,14 +191,14 @@ public partial class SqlDashboardViews : Migration
         // and participant exception proportions
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE OR ALTER VIEW vw_ParticipantRecordTypes AS
+                CREATE OR ALTER VIEW dashboard_reporting.vw_ParticipantRecordTypes AS
                 SELECT
                     CAST(RECORD_INSERT_DATETIME AS DATE) AS DATE,
                     RECORD_TYPE AS RECORD_TYPE,
                     COUNT(*) AS RECORD_COUNT,
-                    COUNT(DISTINCT NHS_NUMBER) AS UNIQUE_NHS_NUMBERS,
+                    COUNT(DISTINCT NHS_NUMBER) AS UNIQUE_PARTICIPANT_COUNT,
                     SUM(CASE WHEN EXCEPTION_FLAG = 1 THEN 1 ELSE 0 END) AS EXCEPTION_COUNT,
-                    COUNT(DISTINCT CASE WHEN EXCEPTION_FLAG = 1 THEN NHS_NUMBER END) AS UNIQUE_NHS_NUMBERS_WITH_EXCEPTIONS
+                    COUNT(DISTINCT CASE WHEN EXCEPTION_FLAG = 1 THEN NHS_NUMBER END) AS UNIQUE_PARTICIPANTS_WITH_EXCEPTIONS
                 FROM PARTICIPANT_MANAGEMENT
                 WHERE RECORD_INSERT_DATETIME IS NOT NULL
                 GROUP BY
@@ -176,39 +208,52 @@ public partial class SqlDashboardViews : Migration
 
         // =====================================================
         // VIEW 9: vw_ServiceNowCasesDetailed
-        // Detailed manual ADD breakdown with VHR referral reasons
+        // Aggregated manual ADD breakdown with VHR referral reasons
+        // (no PII returned – counts replace row-level NHS numbers)
         // =====================================================
         migrationBuilder.Sql(@"
-                CREATE OR ALTER VIEW vw_ServiceNowCasesDetailed AS
+                CREATE OR ALTER VIEW dashboard_reporting.vw_ServiceNowCasesDetailed AS
                 SELECT
                     CAST(pm.RECORD_INSERT_DATETIME AS DATE) AS DATE,
-                    pm.NHS_NUMBER AS NHS_NUMBER,
                     IIF(pm.IS_HIGHER_RISK = 1, 'VHR', 'Non-VHR') AS RISK_CATEGORY,
                     pm.IS_HIGHER_RISK_ACTIVE AS IS_HIGHER_RISK_ACTIVE,
-                    pm.HIGHER_RISK_REFERRAL_REASON_ID AS HIGHER_RISK_REFERRAL_REASON_ID,
                     hr.HIGHER_RISK_REFERRAL_REASON_CODE AS HIGHER_RISK_REFERRAL_REASON_CODE,
                     hr.HIGHER_RISK_REFERRAL_REASON_CODE_DESCRIPTION AS HIGHER_RISK_REFERRAL_REASON_CODE_DESCRIPTION,
-                    pm.EXCEPTION_FLAG AS EXCEPTION_FLAG,
-                    pm.ELIGIBILITY_FLAG AS ELIGIBILITY_FLAG
+                    COUNT(*) AS RECORD_COUNT,
+                    SUM(CASE WHEN pm.EXCEPTION_FLAG = 1 THEN 1 ELSE 0 END) AS EXCEPTION_COUNT,
+                    SUM(CASE WHEN pm.ELIGIBILITY_FLAG = 1 THEN 1 ELSE 0 END) AS ELIGIBLE_COUNT
                 FROM PARTICIPANT_MANAGEMENT pm
                 LEFT JOIN HIGHER_RISK_REFERRAL_REASON_LKP hr
                     ON pm.HIGHER_RISK_REFERRAL_REASON_ID = hr.HIGHER_RISK_REFERRAL_REASON_ID
                 WHERE pm.RECORD_TYPE = 'ADD'
-                    AND pm.RECORD_INSERT_DATETIME IS NOT NULL;
+                    AND pm.RECORD_INSERT_DATETIME IS NOT NULL
+                GROUP BY
+                    CAST(pm.RECORD_INSERT_DATETIME AS DATE),
+                    IIF(pm.IS_HIGHER_RISK = 1, 'VHR', 'Non-VHR'),
+                    pm.IS_HIGHER_RISK_ACTIVE,
+                    hr.HIGHER_RISK_REFERRAL_REASON_CODE,
+                    hr.HIGHER_RISK_REFERRAL_REASON_CODE_DESCRIPTION;
             ");
     }
 
     /// <inheritdoc />
     protected override void Down(MigrationBuilder migrationBuilder)
     {
-        migrationBuilder.Sql("DROP VIEW IF EXISTS vw_ServiceNowCasesDetailed;");
-        migrationBuilder.Sql("DROP VIEW IF EXISTS vw_ParticipantRecordTypes;");
-        migrationBuilder.Sql("DROP VIEW IF EXISTS vw_UnresolvedExceptions;");
-        migrationBuilder.Sql("DROP VIEW IF EXISTS vw_SupersededWithoutSupersedingRecord;");
-        migrationBuilder.Sql("DROP VIEW IF EXISTS vw_CohortDistribution;");
-        migrationBuilder.Sql("DROP VIEW IF EXISTS vw_ParticipantDemographic;");
-        migrationBuilder.Sql("DROP VIEW IF EXISTS vw_ParticipantManagementRecords;");
-        migrationBuilder.Sql("DROP VIEW IF EXISTS vw_ServiceNowParticipants;");
-        migrationBuilder.Sql("DROP VIEW IF EXISTS vw_ExceptionManagement;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dashboard_reporting.vw_ServiceNowCasesDetailed;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dashboard_reporting.vw_ParticipantRecordTypes;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dashboard_reporting.vw_UnresolvedExceptions;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dashboard_reporting.vw_SupersededWithoutSupersedingRecord;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dashboard_reporting.vw_CohortDistribution;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dashboard_reporting.vw_ParticipantDemographic;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dashboard_reporting.vw_ParticipantManagementRecords;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dashboard_reporting.vw_ServiceNowParticipants;");
+        migrationBuilder.Sql("DROP VIEW IF EXISTS dashboard_reporting.vw_ExceptionManagement;");
+
+        migrationBuilder.Sql(@"
+                IF EXISTS (SELECT 1 FROM sys.schemas WHERE name = 'dashboard_reporting')
+                BEGIN
+                    EXEC('DROP SCHEMA dashboard_reporting');
+                END
+            ");
     }
 }
