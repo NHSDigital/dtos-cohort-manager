@@ -56,7 +56,7 @@ stages:
     # Run the script with required parameters (no fallbacks)
     - script: |
         chmod +x ./scripts/zap/run-zap-scan.sh
-        ./scripts/zap/run-zap-scan.sh inputs/functionapps.txt zap-reports
+        ./scripts/zap/run-zap-scan.sh functionapps.txt zap-reports
       displayName: "Run ZAP Baseline Scans"
 
     - script: |
