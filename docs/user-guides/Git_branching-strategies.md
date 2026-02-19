@@ -172,9 +172,11 @@ Due to its branch complexity, Git Flow can be more difficult to manage and may r
 
 In Cohort Manager, we would also need to consider how Git Flow would fit in with our current CI/CD pipeline, particularly on how container images are built and the ability to push un-merged changes to Azure via the DevTest workflow, and whether accommodating these factors would require significant changes to our existing processes.
 
-## Potential Alternative: GitHub Flow with Release Branches
+## Recommended Alternative: GitHub Flow with Release Branches
 
 An alternative approach that combines elements of both GitHub Flow and Git Flow is to use GitHub Flow for feature development and pull requests, but also incorporate release branches to provide a backstop for releases and allow for hotfixes if needed. This approach allows for the simplicity and collaboration of GitHub Flow while also providing the structure and stability of release branches.
+
+Adopting it would require the least amount of change from exiting merging patterns, and also allow us to maintain our existing CI/CD pipeline with minimal changes, while still providing the benefits of release branches for managing releases and hotfixes.
 
 ### Example GitHub Flow with Release Branches Workflow
 
@@ -332,3 +334,14 @@ gitGraph
     merge devB-Feature-2 id: "PR-03: Feature B"
     
 ```
+
+## Applying GitHub Flow with Release Branches in Cohort Manager
+
+The model described above would be used as follows within the Cohort Manager project:
+
+1. Developers create **feature** branches off the `main` branch for their work and open pull requests to merge their changes back into `main` when conditions allow.
+1. As and when a given PR is approved for inclusion in the next release, it is merged into `main`.
+1. When one or more PRs are ready for release, the build at that point in time can be completed and pushed through to production.
+1. A `release` branch is then created from `main` before any other changes are merged into it in case hotfixes are needed once further PRs have been merged to `main`. The release branch would not need to be merged back into `main` as the release branch is created from `main` and only contains changes that have already been merged into `main`.
+1. If a hotfix is required ***before*** new changes have been merged to `main`, a `hotfix` **feature** branch can be created from `main`, the fix can be made, and the hotfix branch can be merged back into `main` via a regular PR to ensure the fix is included in future releases. The build can then be completed and pushed through to production using the standard CI/CD workflow.
+1. If a hotfix is required ***after*** new changes have been merged to `main` since the last release, a `hotfix` branch can be created from the latest **release** branch, the fix can be made, and then the hotfix branch can be merged back into the **release** branch via a PR. The build can then be completed and pushed through to production using the **DevTest** CI/CD workflow. Once the release is complete, the hotfix changes can then be merged back into `main` to ensure the fix is included in future releases.
