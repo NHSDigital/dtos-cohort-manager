@@ -9,27 +9,27 @@
 
 
     <ItemGroup>
-        <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.4.0" />
-        <PackageReference Include="Azure.Identity" Version="1.14.1" />
-        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
-        <PackageReference Include="Azure.Security.KeyVault.Certificates" Version="4.6.0" />
-        <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
-        <PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
-        <PackageReference Include="Azure.Storage.Queues" Version="12.20.1" />
-        <PackageReference Include="Azure.Messaging.EventGrid" Version="4.28.0" />
-        <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" Version="2.23.0" />
-        <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.23.0" />
-        <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.0.7" />
-        <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
-        <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Azure" Version="1.12.0" />
-        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.6" />
-        <PackageReference Include="Microsoft.Identity.Client" Version="4.74.0" />
-        <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.12.1" />
-        <PackageReference Include="RulesEngine" Version="5.0.3" />
-        <PackageReference Include="Polly" Version="8.5.0" />
-        <PackageReference Include="Hl7.Fhir.R4" Version="5.11.4" />
-        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+        <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" />
+        <PackageReference Include="Azure.Identity" />
+        <PackageReference Include="Azure.Messaging.ServiceBus" />
+        <PackageReference Include="Azure.Security.KeyVault.Certificates" />
+        <PackageReference Include="Azure.Security.KeyVault.Secrets" />
+        <PackageReference Include="Azure.Storage.Blobs" />
+        <PackageReference Include="Azure.Storage.Queues" />
+        <PackageReference Include="Azure.Messaging.EventGrid" />
+        <PackageReference Include="Microsoft.ApplicationInsights.DependencyCollector" />
+        <PackageReference Include="Microsoft.ApplicationInsights.WorkerService" />
+        <PackageReference Include="Microsoft.AspNetCore.WebUtilities" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker" />
+        <PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" />
+        <PackageReference Include="Microsoft.Extensions.Azure" />
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
+        <PackageReference Include="Microsoft.Identity.Client" />
+        <PackageReference Include="Microsoft.IdentityModel.Tokens" />
+        <PackageReference Include="RulesEngine" />
+        <PackageReference Include="Polly" />
+        <PackageReference Include="Hl7.Fhir.R4" />
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     </ItemGroup>
 
     <ItemGroup>

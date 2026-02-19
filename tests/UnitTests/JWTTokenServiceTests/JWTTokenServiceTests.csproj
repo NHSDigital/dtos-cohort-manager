@@ -11,15 +11,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.collector" Version="6.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="Moq" Version="4.20.70" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
-    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.4.0" />
-    <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="8.12.1" />
-    <PackageReference Include="Hl7.Fhir.R4" Version="5.11.4" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.12.1" />
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq"  />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" />
+    <PackageReference Include="Microsoft.IdentityModel.Tokens"  />
+    <PackageReference Include="Hl7.Fhir.R4" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,9 +27,9 @@
   </ItemGroup>
 
   <ItemGroup>
-   
+
     <ProjectReference Include="..\..\..\TestUtils\TestUtils.csproj" />
-   
+
     <ProjectReference Include="..\..\..\application\CohortManager\src\Functions\Shared\Common\Common.csproj" />
   </ItemGroup>
 

@@ -77,18 +77,102 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: bash scripts/deployment/get-docker-names.sh
 
+  build-base-images:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+      id-token: write
+      packages: write
+    outputs:
+      DOTNET_BASE_IMAGE: ${{ steps.set-image-tags.outputs.DOTNET_BASE_IMAGE }}
+      FUNCTION_BASE_IMAGE:  ${{ steps.set-image-tags.outputs.FUNCTION_BASE_IMAGE }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+          submodules: 'true'
+
+      - name: log in to GHCR
+        uses: docker/login-action@v3
+        continue-on-error: false
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Detect base image changes
+        id: detect-base-image-changes
+        continue-on-error: false
+        run: bash scripts/deployment/check-base-image-changes.sh
+
+      - name: Build Base Images
+        id: build-base-images
+        working-directory: ./
+        if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' || github.ref == 'refs/heads/main'  }}
+        continue-on-error: false
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+
+          echo "The branch is: ${GITHUB_REF}"
+          PR_NUM=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls --jq '.[0].number')
+          PR_NUM_TAG="pr${PR_NUM}"
+          SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
+
+          docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
+          docker tag cohort-manager-dotnet-base:latest "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
+          docker tag cohort-manager-dotnet-base:latest "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${SHORT_COMMIT_HASH}"
+
+          docker build -f Dockerfile.function.base -t cohort-manager-function-base:latest .
+          docker tag cohort-manager-function-base:latest "ghcr.io/nhsdigital/cohort-manager-function-base:${PR_NUM_TAG}"
+          docker tag cohort-manager-function-base:latest "ghcr.io/nhsdigital/cohort-manager-function-base:${SHORT_COMMIT_HASH}"
+
+          docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
+          docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${SHORT_COMMIT_HASH}"
+          docker push "ghcr.io/nhsdigital/cohort-manager-function-base:${PR_NUM_TAG}"
+          docker push "ghcr.io/nhsdigital/cohort-manager-function-base:${SHORT_COMMIT_HASH}"
+          if [ "${GITHUB_REF}" == 'refs/heads/main' ]; then
+              docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:latest"
+              docker push "ghcr.io/nhsdigital/cohort-manager-function-base:latest"
+          fi
+
+      - name: Set Image Tags
+        id: set-image-tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+
+          PR_NUM=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls --jq '.[0].number')
+          PR_NUM_TAG="pr${PR_NUM}"
+          IMAGE_TAG="latest"
+
+          if [[ ${{steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE}} == 'true' ]]; then
+            IMAGE_TAG="${PR_NUM_TAG}"
+          fi
+          echo "Image Tag: ${IMAGE_TAG}"
+
+          echo "DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
+          echo "FUNCTION_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-function-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
+
+
+
+
+
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
       pull-requests: read
-    needs: get-functions
+    needs: [get-functions, build-base-images]
     strategy:
       matrix:
         function: ${{ fromJSON(needs.get-functions.outputs.FUNC_NAMES) }}
     if: needs.get-functions.outputs.FUNC_NAMES != '[]'
     outputs:
+      pr_num_tag: ${{ env.PR_NUM_TAG }}
       short_commit_hash: ${{ env.COMMIT_HASH_TAG }}
       devtest_pr_num_tag: ${{ env.DEVTEST_PR_NUM_TAG }}
     steps:
@@ -132,6 +216,7 @@ jobs:
           echo "DEVTEST_PR_NUM_TAG=${DEVTEST_PR_NUM_TAG}" >> ${GITHUB_ENV}
 
           SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
+          echo "Commit hash tag: ${SHORT_COMMIT_HASH}"
           echo "COMMIT_HASH_TAG=${SHORT_COMMIT_HASH}" >> ${GITHUB_ENV}
 
           echo "ENVIRONMENT_TAG=${ENVIRONMENT_TAG}" >> ${GITHUB_ENV}
@@ -143,6 +228,8 @@ jobs:
           COMPOSE_FILE: ${{ inputs.docker_compose_file }}
           PROJECT_NAME: ${{ inputs.project_name }}
           ACR_NAME: ${{ secrets.acr_name }}
+          DOTNET_BASE_IMAGE : ${{ needs.build-base-images.outputs.DOTNET_BASE_IMAGE }}
+          FUNCTION_BASE_IMAGE: ${{ needs.build-base-images.outputs.FUNCTION_BASE_IMAGE }}
         run: |
           function=${{ matrix.function }}
 
@@ -153,8 +240,10 @@ jobs:
             exit 0
           fi
 
-          # Build the image
-          docker compose -f ${COMPOSE_FILE//,/ -f } -p ${PROJECT_NAME} --profile "*" build --no-cache --pull ${function}
+
+          docker compose -f ${COMPOSE_FILE//,/ -f } \
+            -p ${PROJECT_NAME} \
+            --profile "*" build --no-cache --pull ${function}
 
           repo_name="${ACR_NAME}.azurecr.io/${PROJECT_NAME}-${function}"
           echo $(repo_name)
