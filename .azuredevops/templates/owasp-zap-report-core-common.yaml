@@ -15,7 +15,7 @@ parameters:
 
 stages:
 - stage: ZAP_Security_Scan
-  displayName: "ZAP DAST Security Scan"
+  displayName: "ZAP Security Scan"
   jobs:
   - job: Discover_And_Scan
     displayName: "Discover Azure Function Apps and Run ZAP"
@@ -48,27 +48,16 @@ stages:
 
           echo "$apps" > functionapps.txt
 
-    # =========================================
-    # Run ZAP Baseline Scan and generate XML
-    # =========================================
+    # # Ensure script is executable
+    # - script: |
+    #     chmod +x ./scripts/zap/run-zap-scan.sh
+    #   displayName: "Make ZAP scan script executable"
+
+    # Run the script with required parameters (no fallbacks)
     - script: |
-        mkdir -p zap-reports
-        chmod 777 zap-reports
-
-        while read app; do
-          echo "Scanning https://$app"
-
-          docker run --rm \
-            --user root \
-            -v $(pwd)/zap-reports:/zap/wrk \
-            ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py \
-              -t https://$app \
-              -j \
-              -J ${app}.json || true
-
-        done < functionapps.txt
-      displayName: "Run ZAP Baseline Scan"
+        chmod +x ./scripts/zap/run-zap-scan.sh
+        ./scripts/zap/run-zap-scan.sh inputs/functionapps.txt zap-reports
+      displayName: "Run ZAP Baseline Scans"
 
     - script: |
         python3 <<EOF
