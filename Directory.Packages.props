@@ -2,7 +2,7 @@
   <PropertyGroup>
     <!-- Enable central package management,
     https://learn.microsoft.com/en-us/nuget/consume-packages/Central-Package-Management -->
-    <!--Trigger Rebuild -->
+    <!--Trigger Rebuild  2-->
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup>
