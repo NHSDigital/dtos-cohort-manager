@@ -1,0 +1,8 @@
+<Project>
+    <PropertyGroup Condition="
+    '$(UsingMicrosoftNETSdkWorker)' == 'true'
+    and '$(IsTestProject)' == 'true'
+  ">
+    <FunctionsGenerateWorkerExtensions>false</FunctionsGenerateWorkerExtensions>
+  </PropertyGroup>
+</Project>

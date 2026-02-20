@@ -26,7 +26,7 @@ variables:
   - group: PROD_core_backend
   - group: PROD_image_pipelines
   - name: TF_VERSION
-    value: 1.11.4
+    value: 1.14.4
   - name: TF_PLAN_ARTIFACT
     value: tf_plan_core_PROD
   - name: TF_DIRECTORY
