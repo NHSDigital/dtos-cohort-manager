@@ -859,6 +859,9 @@ public class GetValidationExceptionsTests
     [DataRow("12345678901", DisplayName = "Too long (11 digits)")]
     [DataRow("943476591A", DisplayName = "Contains letter")]
     [DataRow("94347659!9", DisplayName = "Contains special character")]
+    [DataRow("9434765`19", DisplayName = "Contains backtick")]
+    [DataRow("9434765'19", DisplayName = "Contains apostrophe")]
+    [DataRow("`", DisplayName = "Just a backtick")]
     public async Task GetValidationExceptionsByType_NhsNumberInvalidFormat_ReturnsBadRequest(string invalidNhsNumber)
     {
         // Arrange
