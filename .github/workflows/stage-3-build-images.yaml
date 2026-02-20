@@ -113,8 +113,15 @@ jobs:
         if: ${{ steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE == 'true' || github.ref == 'refs/heads/main'  }}
         continue-on-error: false
         run: |
+
+          echo "The branch is: ${GITHUB_REF}"
+
           PR_NUM_TAG=$(echo "${GITHUB_REF}" | sed 's/refs\/pull\/\([0-9]*\)\/merge/\1/')
           SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
+
+          if [ "${GITHUB_REF}" == 'refs/heads/main' ]; then
+              PR_NUM_TAG="main"
+          fi
 
           docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
           docker tag cohort-manager-dotnet-base:latest "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
@@ -126,8 +133,10 @@ jobs:
 
           docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
           docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${SHORT_COMMIT_HASH}"
+
           docker push "ghcr.io/nhsdigital/cohort-manager-function-base:${PR_NUM_TAG}"
           docker push "ghcr.io/nhsdigital/cohort-manager-function-base:${SHORT_COMMIT_HASH}"
+
           if [ "${GITHUB_REF}" == 'refs/heads/main' ]; then
               docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:latest"
               docker push "ghcr.io/nhsdigital/cohort-manager-function-base:latest"
@@ -143,6 +152,11 @@ jobs:
           if [[ ${{steps.detect-base-image-changes.outputs.BASE_IMAGE_CHANGE}} == 'true' ]]; then
             IMAGE_TAG="${PR_NUM_TAG}"
           fi
+
+          if [ "${GITHUB_REF}" == 'refs/heads/main' ]; then
+              IMAGE_TAG="latest"
+          fi
+
           echo "Image Tag = ${IMAGE_TAG}"
 
           echo "DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
