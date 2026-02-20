@@ -1,4 +1,4 @@
-@use "~nhsuk-frontend/packages/nhsuk";
+@import "nhsuk-frontend/dist/nhsuk/nhsuk-frontend.min.css";
 // Utilities
 .app-u-no-wrap {
   white-space: nowrap;
