@@ -138,6 +138,8 @@ jobs:
           docker push "ghcr.io/nhsdigital/cohort-manager-function-base:${SHORT_COMMIT_HASH}"
 
           if [ "${GITHUB_REF}" == 'refs/heads/main' ]; then
+              docker tag cohort-manager-dotnet-base:latest "ghcr.io/nhsdigital/cohort-manager-dotnet-base:latest"
+              docker tag cohort-manager-function-base:latest "ghcr.io/nhsdigital/cohort-manager-function-base:latest"
               docker push "ghcr.io/nhsdigital/cohort-manager-dotnet-base:latest"
               docker push "ghcr.io/nhsdigital/cohort-manager-function-base:latest"
           fi
