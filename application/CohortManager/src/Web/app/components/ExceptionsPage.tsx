@@ -42,7 +42,7 @@ export default async function ExceptionsPage({
   showServiceNowColumn = false,
   tableCaption,
   ruleId,
-  dateCreated: dateCreated,
+  dateCreated,
 }: Readonly<ExceptionsPageProps>) {
   const sortOption = getSortOption(sortBy);
 
