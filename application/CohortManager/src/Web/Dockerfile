@@ -21,8 +21,8 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY tsconfig.json .
 COPY app/ ./app/
 COPY public/ ./public/
-COPY middleware.ts .
-COPY next.config.mjs .
+COPY proxy.ts .
+COPY next.config.ts .
 COPY package.json .
 COPY package-lock.json .
 
