@@ -694,7 +694,7 @@
           },
           {
             "Name": "IsDummyPostcode",
-            "Expression": "HasPostcode && (participant.Postcode == \"ZZZSECUR\" || participant.Postcode == \"NFA\" || participant.Postcode == \"ANK\" || participant.Postcode == \"ZZ99\")"
+            "Expression": "HasPostcode && (participant.Postcode == \"ZZZSECUR\")"
           },
           {
             "Name": "HasIncorrectSpacePosition",
