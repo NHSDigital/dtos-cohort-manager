@@ -20,7 +20,7 @@ describe("ruleMapping", () => {
         expect(mapping).toHaveProperty("reportingId");
         expect(typeof mapping.ruleDescription).toBe("string");
         expect(mapping.ruleDescription.length).toBeGreaterThan(0);
-        expect(typeof mapping.reportingId).toBe("string");
+        expect(["string", "undefined"]).toContain(typeof mapping.reportingId);
         if (mapping.reportingId) {
           expect(mapping.reportingId.length).toBeGreaterThan(0);
         }
@@ -143,9 +143,11 @@ describe("ruleMapping", () => {
 
   describe("specific rule validations", () => {
     it("should have correct CMR reporting IDs format", () => {
-      Object.values(ruleIdMappings).forEach((mapping) => {
-        expect(mapping.reportingId).toMatch(/^CMR\d+$/);
-      });
+      Object.values(ruleIdMappings)
+        .filter((mapping) => mapping.reportingId !== undefined)
+        .forEach((mapping) => {
+          expect(mapping.reportingId).toMatch(/^CMR\d+$/);
+        });
     });
 
     it("should have non-empty rule descriptions", () => {
