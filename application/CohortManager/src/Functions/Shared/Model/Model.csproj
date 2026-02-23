@@ -8,8 +8,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ParquetSharp" Version="17.0.0-beta1" />
-    <PackageReference Include="RulesEngine" Version="5.0.3" />
+    <PackageReference Include="ParquetSharp" />
+    <PackageReference Include="RulesEngine" />
   </ItemGroup>
 
   <ItemGroup>

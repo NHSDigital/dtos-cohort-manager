@@ -11,15 +11,15 @@
     <IsTestProject>true</IsTestProject>
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>    
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
   </PropertyGroup>
 
   <ItemGroup>
-  <PackageReference Include="coverlet.collector" Version="6.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="Moq" Version="4.20.70" />
-    <PackageReference Include="MSTest.TestAdapter" Version="3.1.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="3.1.1" />
+  <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Moq" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
   </ItemGroup>
 
   <ItemGroup>

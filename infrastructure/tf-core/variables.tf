@@ -48,6 +48,11 @@ variable "HUB_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "MONITORING_EMAIL_ADDRESS" {
+  description = "The email address for monitoring alerts"
+  type        = string
+}
+
 variable "TARGET_SUBSCRIPTION_ID" {
   description = "ID of a subscription to deploy infrastructure"
   type        = string
@@ -353,6 +358,30 @@ variable "key_vault" {
     soft_del_ret_days = optional(number, 7)
     purge_prot        = optional(bool, false)
     sku_name          = optional(string, "standard")
+
+    secret_near_expiry_alert = optional(object({
+      evaluation_frequency = optional(string, "P1D") # every 24 hours
+      window_duration      = optional(string, "P1D") # last 24 hours
+      threshold            = optional(number, 1)
+    }), {})
+
+    secret_expired_alert = optional(object({
+      evaluation_frequency = optional(string, "PT15M") # every 15 mins
+      window_duration      = optional(string, "PT1H")  # last 1 hour
+      threshold            = optional(number, 1)
+    }), {})
+
+    certificate_near_expiry_alert = optional(object({
+      evaluation_frequency = optional(string, "P1D") # every 24 hours
+      window_duration      = optional(string, "P1D") # last 24 hours
+      threshold            = optional(number, 1)
+    }), {})
+
+    certificate_expired_alert = optional(object({
+      evaluation_frequency = optional(string, "PT15M") # every 15 mins
+      window_duration      = optional(string, "PT1H")  # last 1 hour
+      threshold            = optional(number, 1)
+    }), {})
   })
 }
 
