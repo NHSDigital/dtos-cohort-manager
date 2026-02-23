@@ -113,7 +113,7 @@ if [ -d "application/CohortManager/src/Web" ]; then
     n=0
     until [ "$n" -ge 3 ]
     do
-      npm ci && break
+      npm ci --ignore-scripts && break
       n=$((n+1))
       sleep $((n*15))
     done
