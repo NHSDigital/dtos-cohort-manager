@@ -24,7 +24,6 @@ public class ReceiveServiceNowMessageFunctionTests
     private readonly Mock<FunctionContext> _mockContext = new();
     private readonly Mock<HttpRequestData> _mockHttpRequest;
     private Mock<IDataServiceClient<ServicenowCase>> _mockServiceNowCasesClient = new();
-    private readonly Mock<IServiceNowClient> _mockServiceNowClient = new();
     private readonly ReceiveServiceNowMessageFunction _function;
 
     public ReceiveServiceNowMessageFunctionTests()
@@ -42,7 +41,7 @@ public class ReceiveServiceNowMessageFunctionTests
             ServiceBusConnectionString_client_internal = "Endpoint=",
             ServiceNowParticipantManagementTopic = "servicenow-participant-management-topic"
         });
-        _function = new ReceiveServiceNowMessageFunction(_mockLogger.Object, _createResponse, _mockQueueClient.Object, _mockConfig.Object, _mockServiceNowCasesClient.Object, _mockServiceNowClient.Object);
+        _function = new ReceiveServiceNowMessageFunction(_mockLogger.Object, _createResponse, _mockQueueClient.Object, _mockConfig.Object, _mockServiceNowCasesClient.Object);
         _mockHttpRequest = new Mock<HttpRequestData>(_mockContext.Object);
 
         _mockHttpRequest.Setup(r => r.CreateResponse()).Returns(() =>
@@ -56,10 +55,10 @@ public class ReceiveServiceNowMessageFunctionTests
     }
 
     [TestMethod]
-    [DataRow("CS123", "9434765919", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
-    [DataRow("CS123", "9434765919", "Charlie", "Bloggs", "1970-12-31", "ABC", ServiceNowReasonsForAdding.RequiresCeasing, "")]
-    [DataRow("CS123", "9434765919", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.RoutineScreening, "ZZZ")]
-    [DataRow("CS123", "9434765919", "Charlie", "Bloggs", "1985-06-15", "ABC", ServiceNowReasonsForAdding.OverAgeSelfReferral, "ZZZ")]
+    [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
+    [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-12-31", "ABC", ServiceNowReasonsForAdding.RequiresCeasing, "")]
+    [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.RoutineScreening, "ZZZ")]
+    [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1985-06-15", "ABC", ServiceNowReasonsForAdding.OverAgeSelfReferral, "ZZZ")]
     public async Task Run_WhenRequestIsValidAndCaseSuccessfullySavedToDbAndMessageSuccessfullySentToServiceBus_ReturnsAccepted(
         string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string dummyGpCode)
     {
@@ -143,7 +142,7 @@ public class ReceiveServiceNowMessageFunctionTests
     }
 
     [TestMethod]
-    [DataRow("CS123", "9434765919", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
+    [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
     public async Task Run_WhenRequestIsValidButMessageFailsToSaveToDb_ReturnsInternalServiceError(
         string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string dummyGpCode)
     {
@@ -166,7 +165,7 @@ public class ReceiveServiceNowMessageFunctionTests
     }
 
     [TestMethod]
-    [DataRow("CS123", "9434765919", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
+    [DataRow("CS123", "1234567890", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
     public async Task Run_WhenRequestIsValidButMessageFailsToSendToServiceBus_ReturnsInternalServiceError(
         string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string dummyGpCode)
     {
@@ -198,69 +197,6 @@ public class ReceiveServiceNowMessageFunctionTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
-    }
-
-    [TestMethod]
-    [DataRow("CS123", "1234567891", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null, DisplayName = "Invalid checksum")]
-    [DataRow("CS123", "0000000000", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null, DisplayName = "Nil return file NHS number")]
-    [DataRow("CS123", "1234567892", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null, DisplayName = "Invalid checksum")]
-    public async Task Run_WhenNhsNumberFailsChecksumValidation_ReturnsBadRequestAndResolvesServiceNowTicket(
-        string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string? dummyGpCode)
-    {
-        // Arrange
-        var requestBodyJson = CreateRequestBodyJson(caseNumber, nhsNumber, forename, familyName, dateOfBirth, bsoCode, reasonForAdding, dummyGpCode);
-        var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
-        _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
-
-        _mockServiceNowClient
-            .Setup(x => x.SendResolution(caseNumber, It.Is<string>(msg => msg.Contains("could not be added"))))
-            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
-            .Verifiable();
-
-        // Act
-        var result = await _function.Run(_mockHttpRequest.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
-        _mockServiceNowClient.Verify();
-        _mockServiceNowCasesClient.VerifyNoOtherCalls();
-        _mockQueueClient.VerifyNoOtherCalls();
-    }
-
-    [TestMethod]
-    [DataRow("CS123", "9434765919", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null, DisplayName = "Valid NHS number")]
-    public async Task Run_WhenNhsNumberPassesChecksumValidation_ProceedsWithNormalFlow(
-        string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string? dummyGpCode)
-    {
-        // Arrange
-        var requestBodyJson = CreateRequestBodyJson(caseNumber, nhsNumber, forename, familyName, dateOfBirth, bsoCode, reasonForAdding, dummyGpCode);
-        var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
-        _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
-        _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
-                c.ServicenowId == caseNumber &&
-                c.NhsNumber == long.Parse(nhsNumber) &&
-                c.Status == ServiceNowStatus.New
-            ))).ReturnsAsync(true);
-        _mockQueueClient.Setup(x => x.AddAsync(It.Is<ServiceNowParticipant>(p =>
-                p.ScreeningId == 1 &&
-                p.ServiceNowCaseNumber == caseNumber &&
-                p.NhsNumber == long.Parse(nhsNumber) &&
-                p.FirstName == forename &&
-                p.FamilyName == familyName &&
-                p.DateOfBirth.ToString("yyyy-MM-dd") == dateOfBirth &&
-                p.BsoCode == bsoCode &&
-                p.ReasonForAdding == reasonForAdding &&
-                p.RequiredGpCode == dummyGpCode
-            ),
-            _mockConfig.Object.Value.ServiceNowParticipantManagementTopic))
-            .ReturnsAsync(true);
-
-        // Act
-        var result = await _function.Run(_mockHttpRequest.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.Accepted, result.StatusCode);
-        _mockServiceNowClient.VerifyNoOtherCalls();
     }
 
     private static string CreateRequestBodyJson(

@@ -20,18 +20,15 @@ public class ReceiveServiceNowMessageFunction
     private readonly IQueueClient _queueClient;
     private readonly ServiceNowMessageHandlerConfig _config;
     private readonly IDataServiceClient<ServicenowCase> _serviceNowCaseClient;
-    private readonly IServiceNowClient _serviceNowClient;
 
     public ReceiveServiceNowMessageFunction(ILogger<ReceiveServiceNowMessageFunction> logger, ICreateResponse createResponse,
-        IQueueClient queueClient, IOptions<ServiceNowMessageHandlerConfig> config, IDataServiceClient<ServicenowCase> serviceNowCaseClient,
-        IServiceNowClient serviceNowClient)
+        IQueueClient queueClient, IOptions<ServiceNowMessageHandlerConfig> config, IDataServiceClient<ServicenowCase> serviceNowCaseClient)
     {
         _logger = logger;
         _createResponse = createResponse;
         _queueClient = queueClient;
         _config = config.Value;
         _serviceNowCaseClient = serviceNowCaseClient;
-        _serviceNowClient = serviceNowClient;
     }
 
     /// <summary>
@@ -44,7 +41,8 @@ public class ReceiveServiceNowMessageFunction
     /// - Returns a 400 status code if the request is a bad request.
     /// </returns>
     [Function("ReceiveServiceNowMessage")]
-    public async Task<HttpResponseData> Run([HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "servicenow/receive")] HttpRequestData req)
+    public async Task<HttpResponseData> Run(
+        [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "servicenow/receive")] HttpRequestData req)
     {
         ReceiveServiceNowMessageRequestBody? requestBody;
 
@@ -65,21 +63,6 @@ public class ReceiveServiceNowMessageFunction
             if (string.IsNullOrWhiteSpace(requestBody.ServiceNowCaseNumber) || !isVariableDataValid)
             {
                 _logger.LogError("Request body failed validation");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
-            }
-
-            if (!ValidationHelper.ValidateNHSNumber(requestBody.VariableData.NhsNumber))
-            {
-                _logger.LogWarning("Invalid NHS Number checksum for ServiceNow case {ServiceNowCaseId}. NHS Number failed validation.", requestBody.ServiceNowCaseNumber);
-
-                var invalidNhsNumberMessage = string.Format(ServiceNowMessageTemplates.UnableToAddParticipantMessageTemplate, requestBody.ServiceNowCaseNumber);
-                var resolutionResponse = await _serviceNowClient.SendResolution(requestBody.ServiceNowCaseNumber, invalidNhsNumberMessage);
-
-                if (resolutionResponse == null || !resolutionResponse.IsSuccessStatusCode)
-                {
-                    _logger.LogError("Failed to send resolution to ServiceNow for invalid NHS Number. CaseNumber: {ServiceNowCaseId}}", requestBody.ServiceNowCaseNumber);
-                }
-
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
