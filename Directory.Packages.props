@@ -36,7 +36,6 @@
     <PackageVersion Include="ParquetSharp" Version="17.0.0-beta1" />
     <PackageVersion Include="RulesEngine" Version="5.0.5" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.1" />
-    <PackageVersion Include="Microsoft.Extensions.HealthChecks.AzureStorage" Version="1.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="9.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="9.0.3" />
     <PackageVersion Include="System.Runtime.Caching" Version="8.0.1" />

@@ -55,6 +55,8 @@ public class GetValidationExceptions
         var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
         var reportDate = _httpParserHelper.GetQueryParameterAsDateTime(req, "reportDate");
         var isReport = _httpParserHelper.GetQueryParameterAsBool(req, "isReport");
+        var ruleId = _httpParserHelper.GetQueryParameterAsNullableInt(req, "ruleId");
+        var dateCreated = _httpParserHelper.GetQueryParameterAsDateTime(req, "dateCreated");
 
         try
         {
@@ -77,7 +79,7 @@ public class GetValidationExceptions
                 return CreatePaginatedResponse(req, reportExceptions!.AsQueryable(), page, reportExceptions!.Count);
             }
 
-            var filteredExceptions = await _validationData.GetFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory, sortBy);
+            var filteredExceptions = await _validationData.GetFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory, sortBy, ruleId, dateCreated);
             return CreatePaginatedResponse(req, filteredExceptions!.AsQueryable(), page, pageSize);
         }
         catch (Exception ex)
