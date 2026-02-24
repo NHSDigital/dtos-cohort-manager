@@ -25,10 +25,10 @@ jobs:
           version: latest
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --ignore-scripts
 
       - name: Install Playwright Browsers
-        run: pnpm exec playwright install --with-deps
+        run: pnpm exec playwright install --with-deps --ignore-scripts
 
       - name: Run Playwright tests
         run: pnpm exec playwright test

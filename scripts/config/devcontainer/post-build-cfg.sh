@@ -37,7 +37,7 @@ git config --global --add safe.directory "$PWD"
 
 # --- Install Azure CLI ---
 echo "⚙️ Installing Azure CLI..."
-curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+curl -sL https://aka.ms/InstallAzureCLIDeb --proto "=https" | sudo bash
 
 # --- Project Setup ---
 echo "⚙️ Running project-specific configuration..."

@@ -28,11 +28,22 @@ public class ValidationExceptionData : IValidationExceptionData
         _validationExceptionDataServiceClient = validationExceptionDataServiceClient;
     }
 
-    public async Task<List<ValidationException>> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory, SortBy? sortBy = null)
+    public async Task<List<ValidationException>> GetFilteredExceptions(ExceptionStatus? exceptionStatus, SortOrder? sortOrder, ExceptionCategory exceptionCategory, SortBy? sortBy = null, int? ruleId = null, DateTime? dateCreated = null)
     {
         var category = (int)exceptionCategory;
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x => x.Category != null && x.Category.Value == category);
         var exceptionList = exceptions.Select(s => s.ToValidationException());
+
+        if (ruleId.HasValue)
+        {
+            exceptionList = exceptionList.Where(x => x.RuleId == ruleId.Value);
+        }
+
+        if (dateCreated.HasValue)
+        {
+            var filterDate = dateCreated.Value.Date;
+            exceptionList = exceptionList.Where(x => x.DateCreated?.Date == filterDate);
+        }
 
         return SortExceptions(sortOrder, exceptionList, exceptionStatus, sortBy);
     }
@@ -177,10 +188,9 @@ public class ValidationExceptionData : IValidationExceptionData
     {
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x =>
             x.NhsNumber == nhsNumber &&
-            x.Category.HasValue &&
-            (x.Category.Value == (int)ExceptionCategory.NBO ||
-             x.Category.Value == (int)ExceptionCategory.Confusion ||
-             x.Category.Value == (int)ExceptionCategory.Superseded));
+            (x.Category == (int)ExceptionCategory.NBO ||
+             x.Category == (int)ExceptionCategory.Confusion ||
+             x.Category == (int)ExceptionCategory.Superseded));
 
         if (exceptions == null || !exceptions.Any())
         {
