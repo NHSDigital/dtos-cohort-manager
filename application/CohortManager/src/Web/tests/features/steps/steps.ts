@@ -272,8 +272,7 @@ Then(
 );
 
 When("I sort the table by {string}", async ({ page }, sortOption: string) => {
-  const form = page.getByTestId("sort-exceptions-form");
-  const select = form.locator("select");
+  const select = page.locator("select#sort-exceptions");
   await test.expect(select).toBeVisible();
 
   const optionLocator = select.locator('option', { hasText: sortOption }).first();
@@ -282,7 +281,7 @@ When("I sort the table by {string}", async ({ page }, sortOption: string) => {
 
   await select.selectOption({ label: sortOption });
 
-  const applyButton = page.getByTestId("apply-button");
+  const applyButton = page.getByRole('button', { name: 'Apply' });
   await test.expect(applyButton).toBeVisible();
   await Promise.all([
     page.waitForURL(new RegExp(String.raw`\bsortBy=${value}\b`)),

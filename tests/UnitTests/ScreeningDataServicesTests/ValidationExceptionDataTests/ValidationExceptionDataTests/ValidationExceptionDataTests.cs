@@ -717,4 +717,41 @@ public class ValidationExceptionDataTests
         result.Reports.Should().Contain(report => report.Category == (int)ExceptionCategory.Confusion);
         result.SearchValue.Should().Be(nhsNumber);
     }
+
+    [TestMethod]
+    public async Task GetExceptionsByNhsNumber_NullCategory_FiltersOutNullCategories()
+    {
+        // Arrange
+        var nhsNumber = "8888888888";
+        var testExceptions = new List<ExceptionManagement>
+        {
+            new() { ExceptionId = 10, NhsNumber = nhsNumber, Category = null, DateCreated = DateTime.UtcNow },
+            new() { ExceptionId = 11, NhsNumber = nhsNumber, Category = (int)ExceptionCategory.NBO, DateCreated = DateTime.UtcNow }
+        };
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(testExceptions);
+
+        // Act
+        var result = await validationExceptionData.GetExceptionsByNhsNumber(nhsNumber);
+
+        // Assert
+        result.Exceptions.Should().HaveCount(1);
+        result.Exceptions.Should().OnlyContain(e => e.Category == (int)ExceptionCategory.NBO);
+        result.SearchValue.Should().Be(nhsNumber);
+    }
+
+    [TestMethod]
+    public async Task GetExceptionsByNhsNumber_WithSpecialCharactersInNhsNumber_HandlesCorrectly()
+    {
+        // Arrange
+        var nhsNumber = "9999999999";
+        var testExceptions = _exceptionList.Where(e => e.NhsNumber == nhsNumber).ToList();
+        _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(testExceptions);
+
+        // Act
+        var result = await validationExceptionData.GetExceptionsByNhsNumber(nhsNumber);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.SearchValue.Should().Be(nhsNumber);
+    }
 }
