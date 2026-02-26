@@ -650,7 +650,7 @@
             "Expression": "!string.Equals(participant.FamilyName, existingParticipant.FamilyName, StringComparison.OrdinalIgnoreCase)"
           }
         ],
-        "Expression": "participant.RecordType == Actions.Amended && (existingParticipant.ParticipantId != null || existingParticipant.ParticipantId != \"0\") && ((FamilyNameChanged AND participant.Gender != existingParticipant.Gender) OR (FamilyNameChanged AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
+        "Expression": "participant.RecordType == Actions.Amended AND (existingParticipant.ParticipantId != null AND existingParticipant.ParticipantId != \"0\") AND ((FamilyNameChanged AND participant.Gender != existingParticipant.Gender) OR (FamilyNameChanged AND NewDateOfBirth != ExistingDateOfBirth) OR (participant.Gender != existingParticipant.Gender AND NewDateOfBirth != ExistingDateOfBirth))"
       },
       {
         "RuleName": "00.ValidateLanguageCode",
