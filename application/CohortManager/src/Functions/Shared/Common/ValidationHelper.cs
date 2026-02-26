@@ -1,15 +1,24 @@
 namespace Common;
 
 using System.Globalization;
-using System.Linq.Expressions;
 using System.Text.RegularExpressions;
-using Hl7.Fhir.Validation;
-using Model;
 
 public static class ValidationHelper
 {
 
-    private static readonly string[] DateFormats = ["yyyyMMdd", "yyyyMM", "yyyy", "yyyy-MM-dd", "dd/MM/yyyy HH:mm:ss", "d/MM/yyyy hh:mm:ss tt", "dd/MM/yyyy HH:mm:ss tt"];
+    private static readonly string[] DateFormats = [
+    "yyyyMMdd",
+    "yyyyMM",
+    "yyyy",
+    "yyyy-MM-dd",
+    "dd/MM/yyyy HH:mm:ss",
+    "d/MM/yyyy hh:mm:ss tt",
+    "dd/MM/yyyy HH:mm:ss tt",
+    "yyyy-MM-ddTHH:mm:ssK",
+    "yyyy-MM-ddTHH:mm:ss",
+    "yyyy-MM-ddTHH:mm:ss.fffK",
+    "yyyy-MM-ddTHH:mm:ss.fff"
+    ];
     private static readonly string NilReturnFileNhsNumber = "0000000000";
 
     /// <summary>

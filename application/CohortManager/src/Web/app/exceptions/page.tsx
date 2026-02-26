@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
 import { ExceptionStatus } from "@/app/lib/enums/exceptionStatus";
+import { SortOptions } from "@/app/lib/sortOptions";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
 import ExceptionsPage from "@/app/components/ExceptionsPage";
+import SortExceptionsForm from "@/app/components/sortExceptionsForm";
 
 export const metadata: Metadata = {
   title: `Not raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
@@ -38,14 +40,21 @@ export default async function Page({
       <Breadcrumb items={breadcrumbItems} />
       <main className="nhsuk-main-wrapper" id="maincontent" role="main">
         <div className="nhsuk-grid-row">
-          <ExceptionsPage
-            exceptionStatus={ExceptionStatus.NotRaised}
-            title="Not raised breast screening exceptions"
-            noResultsMessage="There are currently no not raised breast screening exceptions."
-            sortBy={selectedSortOption}
-            currentPage={currentPage}
-            buildUrl={(page) => `/exceptions?sortBy=${selectedSortOption}&page=${page}`}
-          />
+          <div className="nhsuk-grid-column-full">
+            <h1>Not raised breast screening exceptions</h1>
+            <SortExceptionsForm
+              sortBy={selectedSortOption}
+              options={SortOptions}
+            />
+            <ExceptionsPage
+              exceptionStatus={ExceptionStatus.NotRaised}
+              title=""
+              noResultsMessage="There are currently no not raised breast screening exceptions."
+              sortBy={selectedSortOption}
+              currentPage={currentPage}
+              buildUrl={(page) => `/exceptions?sortBy=${selectedSortOption}&page=${page}`}
+            />
+          </div>
         </div>
       </main>
     </>

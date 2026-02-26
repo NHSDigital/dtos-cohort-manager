@@ -15,14 +15,13 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Azure.Storage.Blobs" Version="12.24.1" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.2" />
-      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.2">
+      <PackageReference Include="Azure.Storage.Blobs" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" />
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" >
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         <PrivateAssets>all</PrivateAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.2" />
-      <PackageReference Include="Microsoft.Extensions.HealthChecks.AzureStorage" Version="1.0.0" />
+      <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
     </ItemGroup>
 
 </Project>

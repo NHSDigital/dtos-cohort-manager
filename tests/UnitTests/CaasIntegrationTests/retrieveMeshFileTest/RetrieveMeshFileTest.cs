@@ -11,6 +11,7 @@ using Model;
 using Microsoft.Extensions.Options;
 using System.Text.Json;
 using System.Text;
+using System.Globalization;
 
 [TestClass]
 public class RetrieveMeshFileTest
@@ -400,7 +401,7 @@ public class RetrieveMeshFileTest
         // arrange
         Dictionary<string, string> configValues = new Dictionary<string, string>
         {
-            { NextHandShakeTimeConfigKey, DateTime.UtcNow.AddHours(-1).ToString() }
+            { NextHandShakeTimeConfigKey, DateTime.UtcNow.AddHours(-1).ToString(CultureInfo.InvariantCulture) }
         };
         string json = JsonSerializer.Serialize(configValues);
         byte[] bytes = Encoding.UTF8.GetBytes(json);
