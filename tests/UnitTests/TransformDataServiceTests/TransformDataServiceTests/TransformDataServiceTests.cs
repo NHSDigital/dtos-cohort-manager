@@ -994,6 +994,35 @@ public class TransformDataServiceTests
         Assert.IsNotNull(actualResponse!.ReasonForRemovalEffectiveFromDate);
     }
 
+    [TestMethod]
+    [DataRow("Jones", Gender.Male, "19700101", DisplayName = "Different Family Name & Gender")]
+    [DataRow("Jones", Gender.Female, "19700102", DisplayName = "Different Family Name & Date of Birth")]
+    [DataRow("Smith", Gender.Male, "19700102", DisplayName = "Different Gender & Date of Birth")]
+    [DataRow("Jones", Gender.Male, "19700102", DisplayName = "All three different")]
+    public async Task Run_NoExistingParticipant_ConfusionRuleDoesNotFire(string newFamilyName, Gender newGender, string newDateOfBirth)
+    {
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.ExistingParticipant.ParticipantId = 0;
+        _requestBody.ExistingParticipant.FamilyName = null;
+        _requestBody.ExistingParticipant.Gender = 0;
+        _requestBody.ExistingParticipant.DateOfBirth = null;
+        _requestBody.Participant.FamilyName = newFamilyName;
+        _requestBody.Participant.Gender = newGender;
+        _requestBody.Participant.DateOfBirth = newDateOfBirth;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        var ruleId = 35;
+        var ruleName = "TooManyDemographicsFieldsChangedConfusionNoTransformation";
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId, null), times: Times.Never);
+    }
+
     private void SetUpRequestBody(string json)
     {
         var byteArray = Encoding.ASCII.GetBytes(json);
