@@ -24,12 +24,13 @@ public class BasicParticipantCsvRecord
         {
             ScreeningId = serviceNowParticipant.ScreeningId.ToString(),
             NhsNumber = serviceNowParticipant.NhsNumber.ToString(),
-            RecordType = participantManagement is null ? Actions.New : Actions.Amended,
+            RecordType = Actions.New,
         };
         Participant = new Participant
         {
             ReferralFlag = "1",
             PrimaryCareProvider = serviceNowParticipant.RequiredGpCode,
+            PrimaryCareProviderEffectiveFromDate = string.IsNullOrEmpty(serviceNowParticipant.RequiredGpCode) ? null : DateTime.UtcNow.ToString("yyyy-MM-dd"),
             ScreeningAcronym = "BSS" // TODO: Remove hardcoding when adding support for additional screening programs
         };
     }

@@ -70,6 +70,11 @@ public class ManageServiceNowParticipantFunction
                 _logger.LogError("Failed to subscribe participant for updates. Case Number: {CaseNumber}", serviceNowParticipant.ServiceNowCaseNumber);
             }
 
+            if(!string.IsNullOrEmpty(serviceNowParticipant.RequiredGpCode))
+            {
+                await _exceptionHandler.CreateTransformExecutedExceptions(new CohortDistributionParticipant{NhsNumber = serviceNowParticipant.NhsNumber.ToString()},"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98);
+            }
+
             var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantManagement);
 
             var sendToQueueSuccess = await _queueClient.AddAsync(participantForDistribution, _config.CohortDistributionTopic);
@@ -198,9 +203,10 @@ public class ManageServiceNowParticipantFunction
     {
         _logger.LogInformation("Existing participant management record found, updating record {ParticipantId}", participantManagement.ParticipantId);
 
-        participantManagement.RecordType = Actions.Amended;
+        participantManagement.RecordType = Actions.New;
         participantManagement.EligibilityFlag = 1;
         participantManagement.ReferralFlag = 1;
+        participantManagement.ExceptionFlag = 0;
         participantManagement.RecordUpdateDateTime = DateTime.UtcNow;
         participantManagement.ReasonForRemoval = pdsDemographic.ReasonForRemoval;
         participantManagement.ReasonForRemovalDate = ParseRemovalEffectiveFromDateStringToDateTime(pdsDemographic.RemovalEffectiveFromDate);
