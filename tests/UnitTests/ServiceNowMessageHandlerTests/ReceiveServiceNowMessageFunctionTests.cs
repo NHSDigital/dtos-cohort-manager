@@ -213,7 +213,7 @@ public class ReceiveServiceNowMessageFunctionTests
         _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
 
         _mockServiceNowClient
-            .Setup(x => x.SendResolution(caseNumber, It.Is<string>(msg => msg.Contains("could not be added"))))
+            .Setup(x => x.SendResolution(caseNumber, It.Is<string>(msg => msg.Contains("could not add"))))
             .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK))
             .Verifiable();
 

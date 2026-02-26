@@ -77,7 +77,7 @@ public class ReceiveServiceNowMessageFunction
 
                 if (resolutionResponse == null || !resolutionResponse.IsSuccessStatusCode)
                 {
-                    _logger.LogError("Failed to send resolution to ServiceNow for invalid NHS Number. CaseNumber: {ServiceNowCaseId}}", requestBody.ServiceNowCaseNumber);
+                    _logger.LogError("Failed to send resolution to ServiceNow for invalid NHS Number. CaseNumber: {ServiceNowCaseId}", requestBody.ServiceNowCaseNumber);
                 }
 
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
