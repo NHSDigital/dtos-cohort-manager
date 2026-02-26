@@ -98,7 +98,7 @@ dotnet test "${UNIT_TEST_DIR}/ConsolidatedTests.csproj" \
 
 # Run frontend tests to generate lcov coverage
 echo "Running frontend tests to generate coverage"
-if [ -d "application/CohortManager/src/Web" ]; then
+if [[ -d "application/CohortManager/src/Web" ]]; then
   (
     cd application/CohortManager/src/Web || exit 1
     # Configure npm to better handle transient 429s and avoid extra work
@@ -111,13 +111,13 @@ if [ -d "application/CohortManager/src/Web" ]; then
     export npm_config_prefer_offline=true
     # Retry npm ci with simple backoff to survive registry rate limits
     n=0
-    until [ "$n" -ge 3 ]
+    until [[ "$n" -ge 3 ]]
     do
       npm ci --ignore-scripts && break
       n=$((n+1))
       sleep $((n*15))
     done
-    if [ "$n" -ge 3 ]; then
+    if [[ "$n" -ge 3 ]]; then
       echo "npm ci failed after retries" >&2
       exit 1
     fi

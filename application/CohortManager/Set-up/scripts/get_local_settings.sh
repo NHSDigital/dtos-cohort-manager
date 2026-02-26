@@ -35,7 +35,7 @@ process_files() {
         # Read the content of the found local.settings.json file and echo it into the target file
         cat "$file" >> $OUTPUT_SCRIPT
         # Check if this is the last file and add EOF accordingly
-        if [ $index -lt $file_count ]; then
+        if [[ $index -lt $file_count ]]; then
             echo -e "\nEOF" >> $OUTPUT_SCRIPT
         fi
     done

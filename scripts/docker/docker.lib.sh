@@ -127,7 +127,7 @@ function version-create-effective-file() {
   local version_file="$dir/VERSION"
   local build_datetime=${BUILD_DATETIME:-$(date -u +'%Y-%m-%dT%H:%M:%S%z')}
 
-  if [ -f "$version_file" ]; then
+  if [[ -f "$version_file" ]]; then
     # shellcheck disable=SC2002
     cat "$version_file" | \
       sed "s/\(\${yyyy}\|\$yyyy\)/$(date --date="${build_datetime}" -u +"%Y")/g" | \
@@ -167,9 +167,9 @@ function docker-get-image-version-and-pull() {
   # match it by name and version regex, if given.
   local versions_file="${TOOL_VERSIONS:=$(git rev-parse --show-toplevel)/.tool-versions}"
   local version="latest"
-  if [ -f "$versions_file" ]; then
+  if [[ -f "$versions_file" ]]; then
     line=$(grep "docker/${name} " "$versions_file" | sed "s/^#\s*//; s/\s*#.*$//" | grep "${match_version:-".*"}")
-    [ -n "$line" ] && version=$(echo "$line" | awk '{print $2}')
+    [[ -n "$line" ]] && version=$(echo "$line" | awk '{print $2}')
   fi
 
   # Split the image version into two, tag name and digest sha256.
@@ -178,7 +178,7 @@ function docker-get-image-version-and-pull() {
 
   # Check if the image exists locally already
   if ! docker images | awk '{ print $1 ":" $2 }' | grep -q "^${name}:${tag}$"; then
-    if [ "$digest" != "latest" ]; then
+    if [[ "$digest" != "latest" ]]; then
       # Pull image by the digest sha256 and tag it
       docker pull \
         --platform linux/amd64 \
@@ -222,11 +222,11 @@ function _replace-image-latest-by-specific-version() {
   local dockerfile="${dir}/Dockerfile.effective"
   local build_datetime=${BUILD_DATETIME:-$(date -u +'%Y-%m-%dT%H:%M:%S%z')}
 
-  if [ -f "$versions_file" ]; then
+  if [[ -f "$versions_file" ]]; then
     # First, list the entries specific for Docker to take precedence, then the rest but exclude comments
     content=$(grep " docker/" "$versions_file"; grep -v " docker/" "$versions_file" ||: | grep -v "^#")
     echo "$content" | while IFS= read -r line; do
-      [ -z "$line" ] && continue
+      [[ -z "$line" ]] && continue
       line=$(echo "$line" | sed "s/^#\s*//; s/\s*#.*$//" | sed "s;docker/;;")
       name=$(echo "$line" | awk '{print $1}')
       version=$(echo "$line" | awk '{print $2}')
@@ -234,7 +234,7 @@ function _replace-image-latest-by-specific-version() {
     done
   fi
 
-  if [ -f "$dockerfile" ]; then
+  if [[ -f "$dockerfile" ]]; then
     # shellcheck disable=SC2002
     cat "$dockerfile" | \
       sed "s/\(\${yyyy}\|\$yyyy\)/$(date --date="${build_datetime}" -u +"%Y")/g" | \
@@ -292,9 +292,9 @@ function _get-git-branch-name() {
 
   local branch_name=$(git rev-parse --abbrev-ref HEAD)
 
-  if [ -n "${GITHUB_HEAD_REF:-}" ]; then
+  if [[ -n "${GITHUB_HEAD_REF:-}" ]]; then
     branch_name=$GITHUB_HEAD_REF
-  elif [ -n "${GITHUB_REF:-}" ]; then
+  elif [[ -n "${GITHUB_REF:-}" ]]; then
     # shellcheck disable=SC2001
     branch_name=$(echo "$GITHUB_REF" | sed "s#refs/heads/##")
   fi
