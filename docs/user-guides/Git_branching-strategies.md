@@ -339,9 +339,39 @@ gitGraph
 
 The model described above would be used as follows within the Cohort Manager project:
 
-1. Developers create **feature** branches off the `main` branch for their work and open pull requests to merge their changes back into `main` when conditions allow.
+1. Developers create **feature** branches off the `main` branch for their work and open pull requests to merge their changes back into `main` when the code is complete and tested (see [Testing with DevTest Environment](#testing-with-devtest-environment) below).
 1. As and when a given PR is approved for inclusion in the next release, it is merged into `main`.
 1. When one or more PRs are ready for release, the build at that point in time can be completed and pushed through to production.
 1. A `release` branch is then created from `main` before any other changes are merged into it in case hotfixes are needed once further PRs have been merged to `main`. The release branch would not need to be merged back into `main` as the release branch is created from `main` and only contains changes that have already been merged into `main`.
 1. If a hotfix is required ***before*** new changes have been merged to `main`, a `hotfix` **feature** branch can be created from `main`, the fix can be made, and the hotfix branch can be merged back into `main` via a regular PR to ensure the fix is included in future releases. The build can then be completed and pushed through to production using the standard CI/CD workflow.
 1. If a hotfix is required ***after*** new changes have been merged to `main` since the last release, a `hotfix` branch can be created from the latest **release** branch, the fix can be made, and then the hotfix branch can be merged back into the **release** branch via a PR. The build can then be completed and pushed through to production using the **DevTest** CI/CD workflow. Once the release is complete, the hotfix changes can then be merged back into `main` to ensure the fix is included in future releases.
+
+## Testing with DevTest Environment
+
+In the current workflow, developers can push changes to Azure via the DevTest environment for testing before merging their changes into `main`. This allows for testing of changes in an environment that closely resembles production before they are merged into the main branch.
+
+The DevTest solution is a new set of CICD workflows responsible for implementing PR-based changes into working Function Apps images in Development environment.
+This feature is here to help with testing the code before merging it to the main branch of the repository.
+
+New workflows are triggered with a `devtest` tag.
+For example, running the commands below will trigger the devtest workflow:
+
+**When committing changes:**
+
+```bash
+git add .
+git commit -m "commit-message"
+git tag -f devtest
+git push origin HEAD +devtest
+```
+
+**Without committing changes:**
+
+```bash
+git tag -f devtest
+git push origin HEAD +devtest
+```
+
+The end result is a new set of ACR images (called `devtest_pr*`) uploaded into non-live ACR and set as current images in the Development environment by the default ADO CI Pipeline.
+
+There might be many `devtest_pr*` images in the ACR, but we're able to only test one PR (each run of the workflows will result in overwriting the Function Apps configuration).
