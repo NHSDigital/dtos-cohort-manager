@@ -771,33 +771,6 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_ParticipantReferred_RunReferredRules()
-    {
-        // Arrange - Set up participant to trigger referred rules
-        _requestBody.Participant.ReferralFlag = true;
-        _requestBody.Participant.PrimaryCareProvider = "G82650";
-        _requestBody.Participant.RecordType = Actions.New;
-        _requestBody.Participant.InvalidFlag = "0";
-
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-
-        _handleException
-            .Verify(i => i.CreateTransformExecutedExceptions(
-                It.IsAny<CohortDistributionParticipant>(),
-                "UpdateServiceNowDataReferralWithPrimaryCareProvider",
-                It.IsAny<int>(),
-                It.IsAny<ExceptionCategory?>()),
-            times: Times.Once);
-    }
-
-    [TestMethod]
     public async Task Run_ParticipantReferredWithoutPrimaryCareProvider_DoNotRunReferredRules()
     {
         // Arrange

@@ -144,10 +144,6 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-        if (participant.ReferralFlag == true && participant.RecordType == Actions.New)
-        {
-            resultList.AddRange(await re.ExecuteAllRulesAsync("Referred", ruleParameters));
-        }
         if (isManualAdd)
         {
             resultList.AddRange(await re.ExecuteAllRulesAsync("ManualAdd", ruleParameters));
