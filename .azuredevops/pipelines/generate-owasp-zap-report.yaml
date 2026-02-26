@@ -17,9 +17,9 @@ schedules:
     always: true
 
 variables:
-  - group: global_variable_group
+  - group: DEV_core_backend
   - name: dev_rg
-    value: rg-cohort-manager-dev-uks
+    value: rg-cohman-dev-uks
 
 jobs:
   - job: owasp_zap_report
@@ -35,7 +35,8 @@ jobs:
         scriptLocation: 'inlineScript'
         inlineScript: |
           echo "generating report"
-          az account set --subscription $(DEV_SUBSCRIPTION_ID)
+
+          az account set --subscription $(TF_VAR_TARGET_SUBSCRIPTION_ID)
 
           function_list=$(az resource list --resource-group $(dev_rg) --resource-type Microsoft.Web/sites --query "[?kind=='functionapp,linux,container'].name" | sed 's/[][]//g; s/[",]//g' | sed '/^$/d')
           for function in $function_list; do
@@ -55,5 +56,3 @@ jobs:
           for function in $function_list; do
             cat zap_report_$function
           done
-
-
