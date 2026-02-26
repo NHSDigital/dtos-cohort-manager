@@ -682,8 +682,30 @@
         }
       },
       {
-        "RuleName": "09.AddSeparatorToPostcode",
-        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode != \"ZZZSECUR\" && !Char.IsWhiteSpace(participant.Postcode, participant.Postcode.Length - 4)",
+        "RuleName": "08.NormalizePostcode.WhitespaceFormatting",
+        "LocalParams": [
+          {
+            "Name": "HasPostcode",
+            "Expression": "!string.IsNullOrEmpty(participant.Postcode)"
+          },
+          {
+            "Name": "HasMinimumLength",
+            "Expression": "HasPostcode && participant.Postcode.Replace(\" \", \"\").Length >= 5"
+          },
+          {
+            "Name": "IsDummyPostcode",
+            "Expression": "HasPostcode && (participant.Postcode == \"ZZZSECUR\")"
+          },
+          {
+            "Name": "HasIncorrectSpacePosition",
+            "Expression": "HasPostcode && participant.Postcode.IndexOf(\" \") != participant.Postcode.Length - 4"
+          },
+          {
+            "Name": "HasMultipleSpaces",
+            "Expression": "HasPostcode && participant.Postcode.IndexOf(\" \") != participant.Postcode.LastIndexOf(\" \")"
+          }
+        ],
+        "Expression": "HasPostcode && HasMinimumLength && !IsDummyPostcode && (HasIncorrectSpacePosition || HasMultipleSpaces)",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -692,7 +714,7 @@
                 {
                   "isExpression": true,
                   "field": "Postcode",
-                  "value": "participant.Postcode.Insert(participant.Postcode.Length - 3, \" \")"
+                  "value": "participant.Postcode.Replace(\" \", \"\").Insert(participant.Postcode.Replace(\" \", \"\").Length - 3, \" \")"
                 }
               ]
             }
@@ -700,8 +722,8 @@
         }
       },
       {
-        "RuleName": "10.TransformZZZSECUR",
-        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && participant.Postcode == \"ZZZSECUR\"",
+        "RuleName": "10.TransformDummyPostcodes",
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && (participant.Postcode == \"ZZZSECUR\" || participant.Postcode == \"NFA\" || participant.Postcode == \"ZZ993VZ\")",
         "Actions": {
           "OnSuccess": {
             "Name": "TransformAction",
@@ -711,6 +733,24 @@
                   "isExpression": false,
                   "field": "Postcode",
                   "value": "ZZ99 3VZ"
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "11.TransformDummyPostcodes.UnknownDummyPostcode",
+        "Expression": "!string.IsNullOrEmpty(participant.Postcode) && (participant.Postcode == \"ANK\" || participant.Postcode == \"ZZ99\")",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "isExpression": false,
+                  "field": "Postcode",
+                  "value": "ZZ99 3WZ"
                 }
               ]
             }
