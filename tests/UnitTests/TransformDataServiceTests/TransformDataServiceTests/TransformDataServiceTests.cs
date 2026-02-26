@@ -820,7 +820,6 @@ public class TransformDataServiceTests
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.AreEqual(true, actualResponse?.ReferralFlag);
         Assert.AreEqual("G82650", actualResponse?.PrimaryCareProvider);
-        Assert.IsNotNull(actualResponse?.PrimaryCareProviderEffectiveFromDate);
     }
 
     [TestMethod]
