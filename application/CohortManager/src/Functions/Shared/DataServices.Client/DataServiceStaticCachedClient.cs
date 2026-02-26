@@ -97,6 +97,11 @@ public class DataServiceStaticCachedClient<TEntity> : IDataServiceClient<TEntity
         throw new NotImplementedException();
     }
 
+    public Task<bool> Upsert(TEntity entity)
+    {
+        throw new NotImplementedException();
+    }
+
     private Expression<Func<TEntity, bool>> CreateGetByKeyExpression(string filter)
     {
         var entityParameter = Expression.Parameter(typeof(TEntity));

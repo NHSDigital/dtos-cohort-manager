@@ -25,7 +25,6 @@ public class ProcessCaasFileTests
 
 
     private readonly Mock<IHttpClientFunction> _mockHttpClientFunction = new();
-    private readonly Mock<ICallDurableDemographicFunc> _callDurableFunc = new();
     private readonly ProcessCaasFile _processCaasFile;
 
     private readonly Mock<IOptions<ReceiveCaasFileConfig>> _config = new();
@@ -43,7 +42,6 @@ public class ProcessCaasFileTests
             _databaseClientParticipantMock.Object,
             _recordsProcessedTrackerMock.Object,
             _validateDates.Object,
-            _callDurableFunc.Object,
             _config.Object
         );
     }
@@ -80,7 +78,7 @@ public class ProcessCaasFileTests
             It.IsAny<string>()))
             .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
 
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+        _databaseClientParticipantMock.Setup(db => db.Upsert(It.IsAny<ParticipantDemographic>())).ReturnsAsync(true);
 
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
@@ -114,8 +112,7 @@ public class ProcessCaasFileTests
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(It.IsAny<ParticipantsParquetMap>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
             .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended });
 
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(true);
+        _databaseClientParticipantMock.Setup(db => db.Upsert(It.IsAny<ParticipantDemographic>())).ReturnsAsync(true);
 
         // Act
         await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
@@ -195,8 +192,7 @@ public class ProcessCaasFileTests
     {
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(true);
+        _databaseClientParticipantMock.Setup(db => db.Upsert(It.IsAny<ParticipantDemographic>())).ReturnsAsync(true);
 
         var updateParticipant = processCaasFile.GetType().GetMethod("UpdateOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord()
@@ -214,9 +210,9 @@ public class ProcessCaasFileTests
 
         _databaseClientParticipantMock.Verify(x => x.Update(It.IsAny<ParticipantDemographic>()), Times.Never);
 
-        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Warning),
+        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
                It.IsAny<EventId>(),
-               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("The participant could not be found")),
+               It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Upsert of Demographic record was successful")),
                It.IsAny<Exception>(),
                It.IsAny<Func<It.IsAnyType, Exception, string>>()),
            Times.Once);
@@ -231,8 +227,7 @@ public class ProcessCaasFileTests
         var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.New };
         var currentBatch = new Batch();
 
-        _callDurableFunc.Setup(m => m.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
-            .ReturnsAsync(true);
+        _databaseClientParticipantMock.Setup(db => db.Upsert(It.IsAny<ParticipantDemographic>())).ReturnsAsync(true);
 
         var arguments = new object[] { participant, currentBatch, "testFile" };
 
@@ -263,7 +258,7 @@ public class ProcessCaasFileTests
 
         _databaseClientParticipantMock.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).Returns(Task.FromResult(response));
 
-        _databaseClientParticipantMock.Setup(x => x.Update(It.IsAny<ParticipantDemographic>()))
+        _databaseClientParticipantMock.Setup(x => x.Upsert(It.IsAny<ParticipantDemographic>()))
             .ThrowsAsync(new Exception("some exception"));
 
         var updateParticipant = processCaasFile.GetType().GetMethod("UpdateOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -277,7 +272,7 @@ public class ProcessCaasFileTests
         _loggerMock.Verify(x => x.Log(
             It.Is<LogLevel>(l => l == LogLevel.Error),
                 It.IsAny<EventId>(),
-                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Update participant function failed")),
+                It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Upsert participant function failed")),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
                 Times.Once);

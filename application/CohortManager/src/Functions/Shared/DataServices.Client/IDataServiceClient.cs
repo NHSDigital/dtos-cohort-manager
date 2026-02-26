@@ -51,4 +51,10 @@ public interface IDataServiceClient<TEntity>
     /// <param name="entity">the object that is being updated/param>
     /// <returns>a boolean representing if the record was updated successfully</returns>
     Task<bool> Update(TEntity entity);
+    /// <summary>
+    /// Upserts (Inserts or Updates) a single record atomically
+    /// </summary>
+    /// <param name="entity">the object to be upserted</param>
+    /// <returns>a boolean representing if the record was upserted successfully</returns>
+    Task<bool> Upsert(TEntity entity);
 }
