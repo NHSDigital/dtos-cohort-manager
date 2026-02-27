@@ -19,6 +19,11 @@ module "storage" {
   public_network_access_enabled = each.value.public_network_access_enabled
   access_tier                   = title(lower(each.value.access_tier))
 
+  container_delete_retention_policy_days = each.value.container_delete_retention_policy_days
+  blob_properties_change_feed_enabled    = each.value.blob_properties_change_feed_enabled
+  blob_properties_restore_policy_days    = each.value.blob_properties_restore_policy_days
+  share_properties_retention_policy_days = each.value.share_properties_retention_policy_days
+
   rbac_roles = []
 
   # Private Endpoint Configuration if enabled
@@ -43,14 +48,18 @@ locals {
   storage_accounts_flatlist = flatten([
     for region_key, region_val in var.regions : [
       for storage_key, storage_val in var.storage_accounts : {
-        name                          = "${storage_key}-${region_key}"
-        region_key                    = region_key
-        name_suffix                   = storage_val.name_suffix
-        replication_type              = storage_val.replication_type
-        account_tier                  = storage_val.account_tier
-        public_network_access_enabled = storage_val.public_network_access_enabled
-        access_tier                   = storage_val.access_tier
-        containers                    = storage_val.containers
+        name                                   = "${storage_key}-${region_key}"
+        region_key                             = region_key
+        name_suffix                            = storage_val.name_suffix
+        replication_type                       = storage_val.replication_type
+        account_tier                           = storage_val.account_tier
+        public_network_access_enabled          = storage_val.public_network_access_enabled
+        access_tier                            = storage_val.access_tier
+        containers                             = storage_val.containers
+        container_delete_retention_policy_days = storage_val.container_delete_retention_policy_days
+        blob_properties_change_feed_enabled    = storage_val.blob_properties_change_feed_enabled
+        blob_properties_restore_policy_days    = storage_val.blob_properties_restore_policy_days
+        share_properties_retention_policy_days = storage_val.share_properties_retention_policy_days
       }
     ]
   ])

@@ -111,6 +111,11 @@ variable "storage_accounts" {
     replication_type              = optional(string, "LRS")
     public_network_access_enabled = optional(bool, false)
     access_tier                   = optional(string, "Hot")
+    container_delete_retention_policy_days  = optional(number, 7)
+    blob_properties_change_feed_enabled     = optional(bool, false)
+    blob_properties_restore_policy_days     = optional(number)
+    blob_properties_delete_retention_policy = optional(number, 7)
+    share_properties_retention_policy_days  = optional(number)
     containers = optional(map(object({
       container_name        = string
       container_access_type = optional(string, "private")
@@ -122,6 +127,7 @@ variable "storage_accounts" {
       }), null)
     })), {})
   }))
+
 }
 
 variable "tags" {
