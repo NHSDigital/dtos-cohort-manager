@@ -7,6 +7,27 @@
 
 <!-- Why is this change required? What problem does it solve? -->
 
+## Assurances
+
+### Clinical assurance-friendly description of the change
+
+<!-- A description of the change that is suitable for a clinical audience -->
+
+### Test Evidence to support the change
+
+- [ ] Unit tests (screenshot of test results or link to test results)
+- [ ] End2End tests (screenshot of test results or link to test results)
+- [ ] UI before/after screenshots
+- [ ] Other manual testing (description of manual testing performed and results)
+
+### Risks associated with the change
+
+<!-- A description of the risks associated with the change -->
+
+### Mittigations to the risks associated with the change
+
+<!-- A description of the mitigations to the risks associated with the change -->
+
 ## Type of changes
 
 <!-- What types of changes does your code introduce? Put an `x` in all the boxes that apply. -->
