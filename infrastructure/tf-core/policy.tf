@@ -3,7 +3,7 @@ module "nic_diagnostic_policy" {
 
   source = "../../../dtos-devops-templates/infrastructure/modules/policy/policy-definition"
 
-  name         = "${module.regions_config[each.value.region].names.policy-definition}-nic-diag"
+  name         = "${module.regions_config[each.key].names.policy-definition}-nic-diag"
   display_name = "Deploy NIC Diagnostic Settings"
 
   parameters = {
