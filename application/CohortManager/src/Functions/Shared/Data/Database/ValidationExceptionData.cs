@@ -165,12 +165,12 @@ public class ValidationExceptionData : IValidationExceptionData
         }
 
         var exceptions = allValidationExceptions
-            .Where(x => x.Category == (int)ExceptionCategory.NBO)
+            .Where(x => x.Category.Value == (int)ExceptionCategory.NBO)
             .ToList();
 
         var reportExceptions = allValidationExceptions
-            .Where(x => x.Category == (int)ExceptionCategory.Confusion ||
-                       x.Category == (int)ExceptionCategory.Superseded)
+            .Where(x => x.Category.Value == (int)ExceptionCategory.Confusion ||
+                       x.Category.Value == (int)ExceptionCategory.Superseded)
             .ToList();
 
         var reports = GenerateExceptionReports(reportExceptions);
@@ -188,9 +188,9 @@ public class ValidationExceptionData : IValidationExceptionData
     {
         var exceptions = await _validationExceptionDataServiceClient.GetByFilter(x =>
             x.NhsNumber == nhsNumber &&
-            (x.Category == (int)ExceptionCategory.NBO ||
-             x.Category == (int)ExceptionCategory.Confusion ||
-             x.Category == (int)ExceptionCategory.Superseded));
+            (x.Category.Value == (int)ExceptionCategory.NBO ||
+             x.Category.Value == (int)ExceptionCategory.Confusion ||
+             x.Category.Value == (int)ExceptionCategory.Superseded));
 
         if (exceptions == null || !exceptions.Any())
         {
