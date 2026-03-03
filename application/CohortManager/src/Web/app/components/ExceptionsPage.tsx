@@ -96,7 +96,7 @@ export default async function ExceptionsPage({
         ) : (
           <>
             <p
-              className="app-results-text"
+              className={exceptionStatus === ExceptionStatus.Raised ? "app-body" : "app-results-text_not_raised"}
               data-testid={exceptionStatus === ExceptionStatus.Raised ? "raised-exception-count" : "not-raised-exception-count"}
             >
               Showing {startItem} to {endItem} of {totalItems} results

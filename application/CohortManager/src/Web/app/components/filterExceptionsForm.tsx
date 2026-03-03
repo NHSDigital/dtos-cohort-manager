@@ -33,7 +33,7 @@ export default function FilterExceptionsForm({
 
   return (
     <form className="nhsuk-form" data-testid="filter-exceptions-form" method="GET">
-      <div className="nhsuk-form-group">
+      <div className="nhsuk-form-group_exceptions">
         <label
           className="nhsuk-label"
           htmlFor="sort-exceptions"
