@@ -21,7 +21,7 @@
     "Rules": [
       {
         "RuleName": "30.Postcode.NBO.NonFatal",
-        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR ValidationHelper.ValidatePostcode(participant.Postcode) OR participant.Postcode == \"ZZZSECUR\"",
+        "Expression": "string.IsNullOrEmpty(participant.Postcode) OR ValidationHelper.ValidatePostcode(participant.Postcode) OR participant.Postcode == \"ZZZSECUR\" OR participant.Postcode == \"ANK\" OR participant.Postcode == \"ZZ99\" OR participant.Postcode == \"NFA\"",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
