@@ -1,0 +1,189 @@
+parameters:
+  - name: hostPoolName
+    type: string
+  - name: environment
+    type: string
+  - name: slackWebHook
+    type: string
+    default: ''
+  - name: apiKey
+    type: string
+    default: ''
+  - name: apiUrl
+    type: string
+    default: ''
+  - name: webUrl
+    type: string
+    default: ''
+
+stages:
+- stage: zap_security_scan
+  displayName: "ZAP Security Scan"
+  jobs:
+    - job: discover_scan_publish
+      displayName: "Discover Azure Function Apps and Run ZAP"
+      pool:
+        name: ${{ parameters.hostPoolName }}
+      steps:
+        - script: |
+            chmod +x ./scripts/zap/run-zap-scan-api.sh
+            ./scripts/zap/run-zap-scan-api.sh ${{ parameters.apiUrl }} zap-reports ${{ parameters.apiKey }}
+          name: run_zap_scan_api
+          displayName: "Change permissions and run ZAP API Scan"
+
+        - script: |
+            chmod +x ./scripts/zap/run-zap-scan-web.sh
+            ./scripts/zap/run-zap-scan-web.sh ${{ parameters.webUrl }} zap-reports
+          name: run_zap_scan_web
+          displayName: "Change permissions and run ZAP Web Scan"
+
+        - script: |
+            python3 scripts/zap/generate-junit-reports.py --input zap-reports --output junit-reports --summary $(Pipeline.Workspace)/zap_summary.txt
+          name: generate_junit_reports
+          displayName: "Generate JUnit XML Reports from ZAP JSON"
+
+        - task: PublishTestResults@2
+          inputs:
+            testResultsFormat: 'JUnit'
+            testResultsFiles: 'junit-reports/*.xml'
+            failTaskOnFailedTests: false
+          name: publish_test_results
+          displayName: "Publish test results"
+
+    - job: read_summary_job
+      displayName: "Read ZAP Summary"
+      dependsOn:
+        - discover_scan_publish
+      pool:
+        name: ${{ parameters.hostPoolName }}
+      steps:
+        - bash: |
+            SUMMARY_FILE="$(Pipeline.Workspace)/zap_summary.txt"
+
+            echo "Looking for: $SUMMARY_FILE"
+
+            if [[ -f "$SUMMARY_FILE" ]]; then
+              summary_content="$(cat "$SUMMARY_FILE")"
+              echo "Summary loaded:"
+              echo "$summary_content"
+              echo "##vso[task.setvariable variable=zap_summary;isOutput=true]$summary_content"
+            else
+              echo "summary.txt not found at $SUMMARY_FILE"
+              echo "##vso[task.setvariable variable=zap_summary;isOutput=true]No summary available."
+            fi
+          name: read_summary
+          displayName: "Read summary.txt and export as variable"
+
+    - job: set_stage_status
+      displayName: Set Stage Status
+      dependsOn:
+        - read_summary_job
+      condition: always()
+      variables:
+        discover_scan_publish_result: $[ dependencies.discover_scan_publish.result ]
+      steps:
+        - bash: |
+            status="failed"
+            # Access the variables that were set at the job level
+            if [[ "$(discover_scan_publish_result)" == "Succeeded" || "$(discover_scan_publish_result)" == "Skipped" ]]; then
+              status="succeeded"
+            fi
+            echo "The final status of the ZAP Security Scan stage is: $status"
+            echo "##vso[task.setvariable variable=stage_status;isOutput=true]$status"
+          name: set_status
+          displayName: Set Stage Status
+
+
+- stage: notify_stage
+  displayName: Send Slack Notification
+  dependsOn:
+    - zap_security_scan
+  condition: |
+    and(
+      always(),
+      ne('${{ parameters.slackWebHook }}', '')
+    )
+  pool:
+    name: ${{ parameters.hostPoolName }}
+  variables:
+    zap_security_scan_status: $[ stageDependencies.zap_security_scan.set_stage_status.outputs['set_status.stage_status'] ]
+    zap_summary: $[ stageDependencies.zap_security_scan.read_summary_job.outputs['read_summary.zap_summary'] ]
+  jobs:
+    - job: set_status_job
+      displayName: Set Status Output
+      steps:
+        - bash: |
+            # Construct the JSON string
+            JSON_INPUT=$(cat <<EOF
+            {
+              "ZAP Security Scan": "$(zap_security_scan_status)"
+            }
+            EOF
+            )
+
+            bash $(System.DefaultWorkingDirectory)/scripts/bash/ado_set_stage_status.sh "$JSON_INPUT"
+          name: set_status
+          displayName: Set Slack Message Status
+
+    - job: send_message_job
+      displayName: Send Slack Message
+      dependsOn: set_status_job
+      variables:
+        final_status: $[ dependencies.set_status_job.outputs['set_status.status'] ]
+        failed_stages: $[ dependencies.set_status_job.outputs['set_status.failedStages'] ]
+        skipped_stages: $[ dependencies.set_status_job.outputs['set_status.skippedStages'] ]
+        slackSuccessMessage: |
+          *✅ ZAP Scan Complete*
+
+          *Environment:* _${{ parameters.environment }}_
+          *Requested By:* $(Build.RequestedFor)
+          *Branch:* $(Build.SourceBranchName)
+
+          *ZAP Summary:*
+          ```$(zap_summary)```
+
+          *Skipped Stage(s):* $(skipped_stages)
+
+          • *<$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)|View ADO Pipeline Run $(Build.BuildId) here>*
+          • *<https://github.com/Digital/manager/actions?query=branch%3Amain|Approve GitHub Actions to promote to next environment here>*
+
+          *📊 Note:* End-to-end tests may still be running. Please check the <#C08U1DTP6CQ|manager-tests> Slack channel for completed test results.
+        slackFailureMessage: |
+          *❌ ZAP Scan _Failed_*
+
+          *Environment:* _${{ parameters.environment }}_
+          *Requested By:* $(Build.RequestedFor)
+          *Branch:* $(Build.SourceBranchName)
+
+          *ZAP Summary:*
+          ```$(zap_summary)```
+
+          *Failed Stage(s):* $(failed_stages)
+          *Skipped Stage(s):* $(skipped_stages)
+
+          • *<$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)|View ADO Pipeline Run $(Build.BuildId) here>*
+      steps:
+        - checkout: dtos-devops-templates
+          sparseCheckoutDirectories: scripts
+          path: templates
+          displayName: 'Checkout Templates Repo'
+
+        - task: PythonScript@0
+          displayName: 'Send Slack Success Notification'
+          condition: eq(variables.final_status, 'succeeded')
+          inputs:
+            scriptSource: 'filePath'
+            scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
+            arguments: >
+              --webhook "${{ parameters.slackWebHook }}"
+              --markdown "$(slackSuccessMessage)"
+
+        - task: PythonScript@0
+          displayName: 'Send Slack Failure Notification'
+          condition: eq(variables.final_status, 'failed')
+          inputs:
+            scriptSource: 'filePath'
+            scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
+            arguments: >
+              --webhook "${{ parameters.slackWebHook }}"
+              --markdown "$(slackFailureMessage)"
