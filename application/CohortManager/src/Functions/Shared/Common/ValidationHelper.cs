@@ -1,15 +1,24 @@
 namespace Common;
 
 using System.Globalization;
-using System.Linq.Expressions;
 using System.Text.RegularExpressions;
-using Hl7.Fhir.Validation;
-using Model;
 
 public static class ValidationHelper
 {
 
-    private static readonly string[] DateFormats = ["yyyyMMdd", "yyyyMM", "yyyy", "yyyy-MM-dd", "dd/MM/yyyy HH:mm:ss", "d/MM/yyyy hh:mm:ss tt", "dd/MM/yyyy HH:mm:ss tt"];
+    private static readonly string[] DateFormats = [
+    "yyyyMMdd",
+    "yyyyMM",
+    "yyyy",
+    "yyyy-MM-dd",
+    "dd/MM/yyyy HH:mm:ss",
+    "d/MM/yyyy hh:mm:ss tt",
+    "dd/MM/yyyy HH:mm:ss tt",
+    "yyyy-MM-ddTHH:mm:ssK",
+    "yyyy-MM-ddTHH:mm:ss",
+    "yyyy-MM-ddTHH:mm:ss.fffK",
+    "yyyy-MM-ddTHH:mm:ss.fff"
+    ];
     private static readonly string NilReturnFileNhsNumber = "0000000000";
 
     /// <summary>
@@ -92,7 +101,6 @@ public static class ValidationHelper
     {
         string validPostcodePattern = "^([A-Za-z][A-Ha-hJ-Yj-y]?[0-9][A-Za-z0-9]? ?[0-9][A-Za-z]{2}|[Gg][Ii][Rr] ?0[Aa]{2})$";
         string dummyPostcodePattern = "^ZZ99 ?[0-9][A-Z]{2}$";
-
         Match validPostcodeMatch = Regex.Match(postcode, validPostcodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
         Match dummyPostcodeMatch = Regex.Match(postcode, dummyPostcodePattern, RegexOptions.IgnoreCase, TimeSpan.FromSeconds(2));
 
@@ -132,7 +140,7 @@ public static class ValidationHelper
     /// <returns> true is its a manualAdd</returns>
     public static bool CheckManualAddFileName(string? FileName)
     {
-        if(string.IsNullOrEmpty(FileName))
+        if (string.IsNullOrEmpty(FileName))
         {
             return false;
         }

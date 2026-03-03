@@ -2,7 +2,7 @@ namespace NHS.CohortManager.ServiceNowIntegrationService;
 
 public static class ServiceNowMessageTemplates
 {
-    public const string UnableToAddParticipantMessageTemplate = "Action needed {0}: the breast screening participant could not be added because either the details do not match Personal Demographics Service (PDS) records or they are not able to be added into Cohort Manager. Verify the participant's information and reason for adding and submit a new form with corrected details.";
-    public const string AddRequestInProgressMessageTemplate = "The request to add a participant to the breast screening programme has been received for {0}. There may be a slight delay while we verify some information. No action is needed from you during this process.";
-    public const string SuccessMessageTemplate = "The request to add a participant to the breast screening programme was successful for {0}. The participant has now been added to Cohort Manager. No further action is needed.";
+    public const string UnableToAddParticipantMessageTemplate = "Action needed for {0}: We could not add this participant. This may be because the details entered do not match NHS records. Please check the participant's information and the reason for adding, then submit a new request if appropriate.";
+    public const string AddRequestInProgressMessageTemplate = "Update on {0}: Thank you for your request to add a participant to the breast screening programme. There may be a slight delay while the information continues to be validated. Please allow time for this process to complete before following up on your request.";
+    public const string SuccessMessageTemplate = "Update on {0}: Validation checks are complete and your request has been sent to BS Select for processing. Please note that it may take up to 24 hours before it’s visible in BS Select.";
 }
