@@ -725,7 +725,7 @@ public class ValidationExceptionDataTests
         var nhsNumber = "8888888888";
         var testExceptions = new List<ExceptionManagement>
         {
-            new() { ExceptionId = 10, NhsNumber = nhsNumber, Category = null, DateCreated = DateTime.UtcNow },
+            new() { ExceptionId = 10, NhsNumber = nhsNumber, Category = (int)ExceptionCategory.BSSelect, DateCreated = DateTime.UtcNow },
             new() { ExceptionId = 11, NhsNumber = nhsNumber, Category = (int)ExceptionCategory.NBO, DateCreated = DateTime.UtcNow }
         };
         _validationExceptionDataServiceClient.Setup(x => x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>())).ReturnsAsync(testExceptions);
