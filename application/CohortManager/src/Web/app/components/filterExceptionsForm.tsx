@@ -33,6 +33,24 @@ export default function FilterExceptionsForm({
 
   return (
     <form className="nhsuk-form" data-testid="filter-exceptions-form" method="GET">
+      <div className="nhsuk-form-group">
+        <label className="nhsuk-label" htmlFor="filter-rule">
+          Filter by exception type
+        </label>
+        <select
+          className="nhsuk-select"
+          id="filter-rule"
+          name="ruleId"
+          defaultValue={selectedRuleId || ""}
+        >
+          <option value="">All exception types</option>
+          {ruleOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className="nhsuk-form-group_exceptions">
         <label
           className="nhsuk-label"
@@ -47,25 +65,6 @@ export default function FilterExceptionsForm({
           defaultValue={sortBy}
         >
           {sortOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="nhsuk-form-group">
-        <label className="nhsuk-label" htmlFor="filter-rule">
-          Filter by exception type
-        </label>
-        <select
-          className="nhsuk-select"
-          id="filter-rule"
-          name="ruleId"
-          defaultValue={selectedRuleId || ""}
-        >
-          <option value="">All exception types</option>
-          {ruleOptions.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>
