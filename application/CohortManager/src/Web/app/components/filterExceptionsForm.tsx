@@ -51,27 +51,6 @@ export default function FilterExceptionsForm({
           ))}
         </select>
       </div>
-      <div className="nhsuk-form-group_exceptions">
-        <label
-          className="nhsuk-label"
-          htmlFor="sort-exceptions"
-        >
-          Sort by
-        </label>
-        <select
-          className="nhsuk-select"
-          id="sort-exceptions"
-          name="sortBy"
-          defaultValue={sortBy}
-        >
-          {sortOptions.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
       <div
         className={`nhsuk-form-group ${dateError ? "nhsuk-form-group--error" : ""}`}
       >
@@ -164,6 +143,26 @@ export default function FilterExceptionsForm({
             )}
           </div>
         </fieldset>
+      </div>
+        <div className="nhsuk-form-group_exceptions">
+        <label
+          className="nhsuk-label"
+          htmlFor="sort-exceptions"
+        >
+          Sort by
+        </label>
+        <select
+          className="nhsuk-select"
+          id="sort-exceptions"
+          name="sortBy"
+          defaultValue={sortBy}
+        >
+          {sortOptions.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
       </div>
     </form>
   );
