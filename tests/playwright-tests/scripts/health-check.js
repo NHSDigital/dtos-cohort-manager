@@ -15,16 +15,16 @@ function parseArgs() {
     if (skipNext) { skipNext = false; continue; }
     const a = args[i];
     if (a === '--max-attempts' && args[i + 1]) {
-      const parsed = parseInt(args[i + 1], 10);
-      if (isNaN(parsed) || parsed < 1) {
+      const parsed = Number.parseInt(args[i + 1], 10);
+      if (Number.isNaN(parsed) || parsed < 1) {
         console.error('Error: --max-attempts must be a positive number');
         process.exit(1);
       }
       maxAttempts = parsed;
       skipNext = true;
     } else if (a === '--interval' && args[i + 1]) {
-      const parsed = parseInt(args[i + 1], 10);
-      if (isNaN(parsed) || parsed < 100) {
+      const parsed = Number.parseInt(args[i + 1], 10);
+      if (Number.isNaN(parsed) || parsed < 100) {
         console.error('Error: --interval must be at least 100ms');
         process.exit(1);
       }
