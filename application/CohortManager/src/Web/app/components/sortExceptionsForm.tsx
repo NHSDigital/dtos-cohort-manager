@@ -11,7 +11,7 @@ export default function SortExceptionsForm({
 }: Readonly<SortExceptionsFormProps>) {
   return (
     <form className="nhsuk-form" data-testid="sort-exceptions-form" method="GET">
-      <div className="nhsuk-form-group">
+      <div className="nhsuk-form-group_exceptions">
         <label
           className="nhsuk-label nhsuk-u-visually-hidden"
           htmlFor="sort-exceptions"

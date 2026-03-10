@@ -90,13 +90,13 @@ export default async function ExceptionsPage({
         {title && <h1>{title}</h1>}
 
         {totalItems === 0 ? (
-          <p className="nhsuk-body">
+          <p className="nhsuk-body nhsuk-u-margin-top-5">
             {noResultsMessage}
           </p>
         ) : (
           <>
             <p
-              className="app-results-text"
+              className={"app-results-text_exceptions"}
               data-testid={exceptionStatus === ExceptionStatus.Raised ? "raised-exception-count" : "not-raised-exception-count"}
             >
               Showing {startItem} to {endItem} of {totalItems} results
