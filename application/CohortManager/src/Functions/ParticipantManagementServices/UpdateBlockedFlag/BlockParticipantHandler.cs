@@ -53,7 +53,19 @@ public class BlockParticipantHandler : IBlockParticipantHandler
             return new BlockParticipantResult(false, "Participant Already Blocked");
         }
 
+        var pdsParticipant = await GetPDSParticipant(blockParticipantRequest.NhsNumber);
+
+        if (pdsParticipant == null )
+        {
+            return new BlockParticipantResult(false, "Participant details do not match a record in PDS");
+        }
+
         var participantDemographic = await _participantDemographicDataService.GetSingleByFilter(x => x.NhsNumber == blockParticipantRequest.NhsNumber);
+
+        if (participantDemographic == null)
+        {
+            return new BlockParticipantResult(false, "Can not retrieve record from demographic");
+        }
 
         if (!ValidateRecordsMatch(participantDemographic, blockParticipantRequest))
         {
