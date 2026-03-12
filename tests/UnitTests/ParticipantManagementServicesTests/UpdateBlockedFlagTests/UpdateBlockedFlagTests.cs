@@ -95,13 +95,24 @@ public class UpdateBlockedFlagTests
             });
 
 
+        _mockParticipantDemographicClient.Setup(x => x.Update(It.IsAny<ParticipantDemographic>()))
+            .ReturnsAsync(true);
+        _mockHttpClient.Setup(x => x.SendPost("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(new HttpResponseMessage
+            {
+                StatusCode = HttpStatusCode.OK
+            });
+
+
         //act
         var result = await _sut.BlockParticipant(_request.Object);
 
         //asset
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _mockHttpClient.Verify(x => x.SendPost("NemsUnsubscribeUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockHttpClient.Verify(x => x.SendPost("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
         _mockParticipantManagementClient.Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Once);
+        _mockParticipantManagementClient.Verify(x => x.Update(It.IsAny<ParticipantDemographic>()), Times.Once);
         _mockHttpClient.VerifyNoOtherCalls();
     }
     [TestMethod]
