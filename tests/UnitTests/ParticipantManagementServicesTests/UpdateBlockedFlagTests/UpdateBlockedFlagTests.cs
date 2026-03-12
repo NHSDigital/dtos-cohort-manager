@@ -86,6 +86,18 @@ public class UpdateBlockedFlagTests
                 DateOfBirth = "19231012"
             });
 
+        var pdsDemoResponse = JsonSerializer.Serialize(
+            new PdsDemographic
+            {
+                NhsNumber = "6427635034",
+                FamilyName = "Jones",
+                DateOfBirth = "1923-10-12"
+            });
+
+        _mockHttpClient.Setup(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(pdsDemoResponse);
+
+
         _mockParticipantManagementClient.Setup(x => x.Update(It.IsAny<ParticipantManagement>()))
             .ReturnsAsync(true);
         _mockHttpClient.Setup(x => x.SendPost("NemsUnsubscribeUrl", It.IsAny<Dictionary<string, string>>()))
@@ -93,16 +105,6 @@ public class UpdateBlockedFlagTests
             {
                 StatusCode = HttpStatusCode.OK
             });
-
-
-        _mockParticipantDemographicClient.Setup(x => x.Update(It.IsAny<ParticipantDemographic>()))
-            .ReturnsAsync(true);
-        _mockHttpClient.Setup(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))
-            .ReturnsAsync(new HttpResponseMessage
-            {
-                StatusCode = HttpStatusCode.OK
-            });
-
 
         //act
         var result = await _sut.BlockParticipant(_request.Object);
@@ -112,8 +114,6 @@ public class UpdateBlockedFlagTests
         _mockHttpClient.Verify(x => x.SendPost("NemsUnsubscribeUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
         _mockHttpClient.Verify(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
         _mockParticipantManagementClient.Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Once);
-        _mockParticipantDemographicClient.Verify(x => x.Update(It.IsAny<ParticipantDemographic>()), Times.Once);
-
         _mockHttpClient.VerifyNoOtherCalls();
     }
     [TestMethod]
