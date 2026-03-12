@@ -97,7 +97,7 @@ public class UpdateBlockedFlagTests
 
         _mockParticipantDemographicClient.Setup(x => x.Update(It.IsAny<ParticipantDemographic>()))
             .ReturnsAsync(true);
-        _mockHttpClient.Setup(x => x.SendPost("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))
+        _mockHttpClient.Setup(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()))
             .ReturnsAsync(new HttpResponseMessage
             {
                 StatusCode = HttpStatusCode.OK
@@ -110,9 +110,10 @@ public class UpdateBlockedFlagTests
         //asset
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _mockHttpClient.Verify(x => x.SendPost("NemsUnsubscribeUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
-        _mockHttpClient.Verify(x => x.SendPost("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
+        _mockHttpClient.Verify(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
         _mockParticipantManagementClient.Verify(x => x.Update(It.IsAny<ParticipantManagement>()), Times.Once);
-        _mockParticipantManagementClient.Verify(x => x.Update(It.IsAny<ParticipantDemographic>()), Times.Once);
+        _mockParticipantDemographicClient.Verify(x => x.Update(It.IsAny<ParticipantDemographic>()), Times.Once);
+
         _mockHttpClient.VerifyNoOtherCalls();
     }
     [TestMethod]
@@ -243,10 +244,11 @@ public class UpdateBlockedFlagTests
         //asset
         Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
         _mockHttpClient.Verify(x => x.SendPost("NemsUnsubscribeUrl", It.IsAny<Dictionary<string, string>>()), Times.Never);
+        _mockHttpClient.Verify(x => x.SendGet("RetrievePdsDemographicUrl", It.IsAny<Dictionary<string, string>>()), Times.Once);
         _mockHttpClient.VerifyNoOtherCalls();
         _mockParticipantManagementClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantManagement, bool>>>()), Times.Once);
         _mockParticipantManagementClient.VerifyNoOtherCalls();
-        _mockParticipantDemographicClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()), Times.Once);
+        _mockParticipantDemographicClient.Verify(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>()), Times.Never);
         _mockParticipantDemographicClient.VerifyNoOtherCalls();
     }
     [TestMethod]
