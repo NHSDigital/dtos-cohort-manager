@@ -1,0 +1,50 @@
+parameters:
+  - name: pipelineAction
+    displayName: 'Pipeline Action'
+    type: string
+    values:
+      - 'PlanOnly'
+      - 'Apply'
+    default: 'Apply'
+  - name: terraformActions
+    type: string
+    default: 'Apply'
+  - name: environment
+    type: string
+
+stages:
+- stage: terraform_plan
+  displayName: "Audit: Terraform Plan"
+  condition: and(in('${{ parameters.pipelineAction }}', 'Apply', 'PlanOnly'), eq(variables['Build.Reason'], 'Manual'))
+  variables:
+    tfVarsFile: environments/$(ENVIRONMENT).tfvars
+    BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME_AUDIT)
+    TF_VAR_TARGET_SUBSCRIPTION_ID: $(TF_VAR_TARGET_SUBSCRIPTION_ID_AUDIT)
+    TF_DIRECTORY: $(TF_DIRECTORY_AUDIT)
+  jobs:
+    - job: init_and_plan
+      displayName: Init, plan, store artifact
+      steps:
+        - checkout: self
+        - checkout: dtos-devops-templates
+        - template: .azuredevops/templates/steps/tf_plan.yaml@dtos-devops-templates
+
+- stage: terraform_apply
+  displayName: "Audit: Terraform Apply"
+  dependsOn: [terraform_plan]
+  condition: and(eq('${{ parameters.pipelineAction }}', 'Apply'), eq(dependencies.terraform_plan.outputs['init_and_plan.TerraformPlan.changesPresent'], 'true'), eq(variables['Build.Reason'], 'Manual'))
+  variables:
+    BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME_AUDIT)
+    TF_VAR_TARGET_SUBSCRIPTION_ID: $(TF_VAR_TARGET_SUBSCRIPTION_ID_AUDIT)
+    TF_DIRECTORY: $(TF_DIRECTORY_AUDIT)
+  jobs:
+    - deployment: terraform_apply
+      displayName: Init, get plan artifact, apply
+      environment: $(ENVIRONMENT)
+      strategy:
+        runOnce:
+          deploy:
+            steps:
+              - checkout: self
+              - checkout: dtos-devops-templates
+              - template: .azuredevops/templates/steps/tf_apply.yaml@dtos-devops-templates
