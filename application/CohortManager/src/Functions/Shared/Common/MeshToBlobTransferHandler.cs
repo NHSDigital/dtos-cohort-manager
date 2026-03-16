@@ -63,7 +63,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
 
             messageCount = checkForMessages.Response.Messages.Count();
 
-            _logger.LogInformation("{messageCount} Messages were found within mailbox {mailboxId}",messageCount,mailboxId);
+            _logger.LogInformation("{MessageCount} Messages were found within mailbox {MailboxId}",messageCount,mailboxId);
 
             if(messageCount == 0)
             {
@@ -72,7 +72,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
 
             var messagesMoved = await MoveAllMessagesToBlobStorage(checkForMessages.Response.Messages,predicate);
 
-            _logger.LogInformation("{messagesMoved} out of {messageCount} Messages were moved mailbox: {mailboxId} to Blob Storage",messagesMoved,messageCount,mailboxId);
+            _logger.LogInformation("{MessagesMoved} out of {MessageCount} Messages were moved mailbox: {MailboxId} to Blob Storage",messagesMoved,messageCount,mailboxId);
 
             if(messagesMoved == 0 && messageCount == 500)
             {
@@ -150,7 +150,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
         var result = await _meshInboxService.GetChunkedMessageByIdAsync(_mailboxId,messageId);
         if(!result.IsSuccessful)
         {
-            _logger.LogError("Failed to download chunked message from MESH MessageId: {messageId}",messageId);
+            _logger.LogError("Failed to download chunked message from MESH MessageId: {MessageId}",messageId);
             return null;
         }
 
@@ -165,7 +165,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
         var result = await _meshInboxService.GetMessageByIdAsync(_mailboxId,messageId);
         if(!result.IsSuccessful)
         {
-            _logger.LogError("Failed to download chunked message from MESH MessageId: {messageId}",messageId);
+            _logger.LogError("Failed to download chunked message from MESH MessageId: {MessageId}",messageId);
             return null;
         }
 

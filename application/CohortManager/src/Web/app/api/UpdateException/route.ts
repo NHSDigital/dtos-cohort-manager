@@ -48,8 +48,8 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const exceptionId = parseInt(updateRequest.ExceptionId, 10);
-    if (isNaN(exceptionId) || exceptionId === 0) {
+    const exceptionId = Number.parseInt(updateRequest.ExceptionId, 10);
+    if (Number.isNaN(exceptionId) || exceptionId === 0) {
       console.warn("Invalid ExceptionId provided:", updateRequest.ExceptionId);
       return NextResponse.json(
         { error: "Invalid ExceptionId provided" },
