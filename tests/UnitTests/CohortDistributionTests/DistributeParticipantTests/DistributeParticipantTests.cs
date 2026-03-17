@@ -2,7 +2,6 @@ using Model.Enums;
 
 namespace NHS.CohortManager.Tests.CohortDistributionServiceTests;
 
-using CohortDistributionServices;
 using Common;
 using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -10,7 +9,8 @@ using Microsoft.Extensions.Options;
 using Model;
 using Model.Constants;
 using Moq;
-using Shared.Utilities;
+using NHS.CohortManager.CohortDistributionServices;
+using NHS.CohortManager.Shared.Utilities;
 
 [TestClass]
 public class DistributeParticipantTests
