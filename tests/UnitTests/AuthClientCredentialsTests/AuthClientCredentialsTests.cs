@@ -1,16 +1,13 @@
 
 namespace NHS.CohortManager.Tests.UnitTests.JwtTokenServiceTests;
 
-using System.IdentityModel.Tokens.Jwt;
 using System.Numerics;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Common;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
 using Moq;
 using Moq.Protected;
 

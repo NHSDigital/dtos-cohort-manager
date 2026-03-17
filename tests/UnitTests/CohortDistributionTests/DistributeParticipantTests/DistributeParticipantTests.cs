@@ -1,13 +1,16 @@
+using Model.Enums;
+
 namespace NHS.CohortManager.Tests.CohortDistributionServiceTests;
 
+using CohortDistributionServices;
 using Common;
 using Microsoft.DurableTask;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.Constants;
 using Moq;
-using NHS.CohortManager.CohortDistributionServices;
-using NHS.CohortManager.Shared.Utilities;
+using Shared.Utilities;
 
 [TestClass]
 public class DistributeParticipantTests
@@ -219,5 +222,82 @@ public class DistributeParticipantTests
                 It.IsAny<BasicParticipantData>(),
                 It.IsAny<string>()
             ));
+    }
+
+    [TestMethod]
+    public async Task DistributeParticipantOrchestrator_ServiceNowParticipant_ValidationReturnsNull_SendsServiceNowFailureMessage()
+    {
+        // Arrange
+        _request.ReasonForAdding = ReasonForAdding.RoutineScreening;
+        _mockContext
+            .Setup(x => x.CallSubOrchestratorAsync<CohortDistributionParticipant?>("ValidationOrchestrator", It.IsAny<ValidationRecord>(), null))
+            .ReturnsAsync((CohortDistributionParticipant)null);
+
+        // Act
+        await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
+
+        // Assert
+        _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowFailureMessage", It.IsAny<ServiceNowFailureNotification>(), null), Times.Once());
+    }
+
+    [TestMethod]
+    public async Task DistributeParticipantOrchestrator_NonServiceNowParticipant_ValidationReturnsNull_DoesNotSendServiceNowFailureMessage()
+    {
+        // Arrange — ReasonForAdding is null by default (non-ServiceNow participant)
+        _mockContext
+            .Setup(x => x.CallSubOrchestratorAsync<CohortDistributionParticipant?>("ValidationOrchestrator", It.IsAny<ValidationRecord>(), null))
+            .ReturnsAsync((CohortDistributionParticipant)null);
+
+        // Act
+        await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
+
+        // Assert
+        _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowFailureMessage", It.IsAny<ServiceNowFailureNotification>(), null), Times.Never());
+    }
+
+    [TestMethod]
+    public async Task DistributeParticipantOrchestrator_ServiceNowParticipant_ExceptionFlag_SendsServiceNowFailureMessage()
+    {
+        // Arrange
+        _request.ReasonForAdding = ReasonForAdding.RoutineScreening;
+        _cohortDistributionRecord.ExceptionFlag = 1;
+
+        // Act
+        await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
+
+        // Assert
+        _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowFailureMessage", It.IsAny<ServiceNowFailureNotification>(), null), Times.Once());
+    }
+
+    [TestMethod]
+    public async Task DistributeParticipantOrchestrator_ServiceNowParticipant_AddFails_SendsServiceNowFailureMessage()
+    {
+        // Arrange
+        _request.ReasonForAdding = ReasonForAdding.RoutineScreening;
+        _mockContext
+            .Setup(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null))
+            .ReturnsAsync(false);
+
+        // Act
+        await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
+
+        // Assert
+        _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowFailureMessage", It.IsAny<ServiceNowFailureNotification>(), null), Times.Once());
+    }
+
+    [TestMethod]
+    public async Task DistributeParticipantOrchestrator_ServiceNowParticipant_ActivityThrows_SendsServiceNowFailureMessage()
+    {
+        // Arrange
+        _request.ReasonForAdding = ReasonForAdding.RoutineScreening;
+        _mockContext
+            .Setup(x => x.CallActivityAsync<bool>("AddParticipant", It.IsAny<CohortDistributionParticipant>(), null))
+            .ThrowsAsync(new InvalidOperationException());
+
+        // Act
+        await _sut.DistributeParticipantOrchestrator(_mockContext.Object);
+
+        // Assert
+        _mockContext.Verify(x => x.CallActivityAsync("SendServiceNowFailureMessage", It.IsAny<ServiceNowFailureNotification>(), null), Times.Once());
     }
 }
