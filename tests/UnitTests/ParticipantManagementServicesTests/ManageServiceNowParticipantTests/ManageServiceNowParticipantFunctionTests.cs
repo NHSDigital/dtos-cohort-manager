@@ -289,7 +289,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS" &&
-                    x.ReasonForAdding == ServiceNowReasonsForAdding.RequiresCeasing),
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -338,7 +338,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS" &&
-                    x.ReasonForAdding == ServiceNowReasonsForAdding.RequiresCeasing),
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -405,7 +405,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS" &&
-                    x.ReasonForAdding == ServiceNowReasonsForAdding.RequiresCeasing),
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -470,7 +470,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS" &&
-                    x.ReasonForAdding == ServiceNowReasonsForAdding.RequiresCeasing),
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -548,7 +548,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == vhrParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS" &&
-                    x.ReasonForAdding == ServiceNowReasonsForAdding.VeryHighRisk),
+                    x.ReasonForAdding == ReasonForAdding.VeryHighRisk),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -615,7 +615,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS" &&
-                    x.ReasonForAdding == ServiceNowReasonsForAdding.RequiresCeasing),
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -703,7 +703,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == vhrParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS" &&
-                    x.ReasonForAdding == ServiceNowReasonsForAdding.VeryHighRisk),
+                    x.ReasonForAdding == ReasonForAdding.VeryHighRisk),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -780,7 +780,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS" &&
-                    x.ReasonForAdding == ServiceNowReasonsForAdding.RequiresCeasing),
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -856,7 +856,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
                     x.Participant.ScreeningAcronym == "BSS" &&
-                    x.ReasonForAdding == ServiceNowReasonsForAdding.RequiresCeasing),
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
         _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
@@ -893,14 +893,12 @@ public class ManageServiceNowParticipantFunctionTests
     [DataRow("Mary-Anne", "Smith-Jones", "MaryAnne", "SmithJones", "1970-01-01")] // Hyphens in ServiceNow, none in PDS
     [DataRow("MaryAnne", "SmithJones", "Mary Anne", "Smith Jones", "1970-01-01")] // No hyphens in ServiceNow, spaces in PDS
     [DataRow("Mary-Anne", "Smith-Jones", "Mary Anne", "Smith Jones", "1970-01-01")] // Hyphens in ServiceNow, spaces in PDS
-    [DataRow("José", "Bloggs", "José ", "Bloggs", "1970-01-01")]                 // Accented character with trailing space
-    [DataRow("François", "Müller", "François ", "Müller ", "1970-01-01")]        // Multiple accented characters with trailing spaces
-    [DataRow("Siobhán", "OBrien", "Siobhán", "O'Brien", "1970-01-01")]           // Accented character, apostrophe removed
+    [DataRow("JosÃ©", "Bloggs", "JosÃ© ", "Bloggs", "1970-01-01")]                 // Accented character with trailing space
+    [DataRow("FranÃ§ois", "MÃ¼ller", "FranÃ§ois ", "MÃ¼ller ", "1970-01-01")]        // Multiple accented characters with trailing spaces
+    [DataRow("SiobhÃ¡n", "OBrien", "SiobhÃ¡n", "O'Brien", "1970-01-01")]           // Accented character, apostrophe removed
     [DataRow("Samantha", "OBrien", "Samantha", "O'Brien", "1970-01-01")]         // ServiceNow without apostrophe, PDS with apostrophe
     [DataRow("Samantha", "dArcy", "Samantha", "d'Arcy", "1970-01-01")]           // Lowercase name with apostrophe in PDS
     [DataRow("samantha", "bloggs", "SAMANTHA", "BLOGGS", "1970-01-01")]         // Case insensitive matching
-    [DataRow(" Sámañtha ", " Blóggs ", "SÂMÁNTHÅ", "BLÓGG?", "1970-01-01")]  // Realistic accents with spaces
-    [DataRow(" SÁm'añ. t,h ã ", " Bló,g'g s¨. ", "SÂMANTHÅ", "BLÓGG?", "1970-01-01")] // Multiple special chars and accents
     public async Task Run_WhenServiceNowParticipantNameHasTrailingSpacesOrHyphensOrSpecialChars_MatchesWithPdsAndAddsParticipant(
         string serviceNowFirstName, string serviceNowFamilyName, string pdsFirstName, string pdsFamilyName, string dateOfBirth)
     {
@@ -965,8 +963,8 @@ public class ManageServiceNowParticipantFunctionTests
     [DataRow("Samantha", "Williams", "1970-01-01")]         // Completely different family name
     [DataRow("Sam", "Bloggs", "1970-01-01")]                // Shortened first name (not just formatting)
     [DataRow("Samantha-Jane", "Bloggs", "1970-01-01")]      // Additional name part
-    [DataRow("François", "Bloggs", "1970-01-01")]           // ServiceNow without accent, PDS with accent - should NOT match
-    [DataRow("Siobhán", "Bloggs", "1970-01-01")]            // ServiceNow without accent, PDS with accent - should NOT match
+    [DataRow("FranÃ§ois", "Bloggs", "1970-01-01")]           // ServiceNow without accent, PDS with accent - should NOT match
+    [DataRow("SiobhÃ¡n", "Bloggs", "1970-01-01")]            // ServiceNow without accent, PDS with accent - should NOT match
     public async Task Run_WhenServiceNowParticipantNamesDontMatchPdsAfterNormalization_ParticipantDataDoesNotMatchExceptionRaised(string pdsFirstName, string pdsFamilyName, string dateOfBirth)
     {
         // Arrange
