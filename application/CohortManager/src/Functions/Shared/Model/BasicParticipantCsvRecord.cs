@@ -43,7 +43,7 @@ public class BasicParticipantCsvRecord
         ReasonForAdding = MapReasonForAdding(serviceNowParticipant.ReasonForAdding);
     }
 
-    private ReasonForAdding? MapReasonForAdding(string reasonForAdding)
+    private static ReasonForAdding? MapReasonForAdding(string reasonForAdding)
     {
         return reasonForAdding switch
         {
