@@ -8,8 +8,6 @@ public class BasicParticipantCsvRecord
     /// <value>
     /// A string representing either the CaaS file name or the ServiceNow Case Number from where this participant originated.
     /// </value>
-    ///
-    /// Test ForceRebuild
     public string FileName { get; set; }
     public BasicParticipantData BasicParticipantData { get; set; }
     public Participant Participant { get; set; }
