@@ -78,7 +78,7 @@ public class ValidationExceptionData : IValidationExceptionData
         var validationExceptionsToUpdate = exceptions.Where(x => DateToString(x.DateResolved) == "9999-12-31")
         .OrderByDescending(x => x.DateCreated).ToList();
 
-        if(!validationExceptionsToUpdate.Any())
+        if(validationExceptionsToUpdate.Count == 0)
         {
             return false;
         }
