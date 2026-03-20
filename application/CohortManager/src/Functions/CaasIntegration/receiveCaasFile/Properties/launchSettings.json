@@ -2,7 +2,7 @@
   "profiles": {
     "receiveCaasFile": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7211",
+      "commandLineArgs": "--port 7060",
       "launchBrowser": false
     }
   }

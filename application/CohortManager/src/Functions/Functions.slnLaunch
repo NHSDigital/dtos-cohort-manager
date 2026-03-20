@@ -1,0 +1,87 @@
+[
+  {
+    "Name": "Multi-Start",
+    "Projects": [
+      {
+        "Path": "CohortDistributionServices\\TransformDataService\\TransformDataService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ScreeningValidationService\\RemoveValidationException\\RemoveValidationException.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ScreeningValidationService\\StaticValidation\\StaticValidation.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ScreeningValidationService\\LookupValidation\\LookupValidation.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "screeningDataServices\\ExceptionManagementDataService\\ExceptionManagementDataService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "screeningDataServices\\CohortDistributionDataService\\CohortDistributionDataService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "screeningDataServices\\ScreeningLkpDataService\\ScreeningLkpDataService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "screeningDataServices\\ParticipantManagementDataService\\ParticipantManagement.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "screeningDataServices\\ParticipantDemographicDataService\\ParticipantDemographicDataService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "screeningDataServices\\BsSelectRequestAudit\\BsSelectRequestAuditDataService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ExceptionHandling\\CreateException\\CreateException.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "DemographicServices\\DemographicDurableFunction\\DemographicDurableFunction.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "DemographicServices\\RetrievePDSDemographic\\RetrievePDSDemographic.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "DemographicServices\\ManageCaasSubscription\\ManageCaasSubscription.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "screeningDataServices\\ReferenceDataService\\ReferenceDataService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ServiceNowIntegration\\ServiceNowMessageHandler\\ServiceNowMessageHandler.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ParticipantManagementServices\\ManageParticipant\\ManageParticipant.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "CohortDistributionServices\\DistributeParticipant\\DistributeParticipant.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "screeningDataServices\\ServiceNowCasesDataService\\ServiceNowCasesDataService.csproj",
+        "Action": "Start"
+      },
+      {
+        "Path": "ParticipantManagementServices\\ManageServiceNowParticipant\\ManageServiceNowParticipant.csproj",
+        "Action": "Start"
+      }
+    ]
+  }
+]
