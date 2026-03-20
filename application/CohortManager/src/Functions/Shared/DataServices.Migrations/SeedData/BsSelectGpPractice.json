@@ -72952,5 +72952,23 @@
     "AuditCreatedTimeStamp": "2025-09-22T14:21:06.033",
     "AuditLastUpdatedTimeStamp": "2025-09-22T14:21:06.033",
     "AuditText": "From PostgreSQL"
+  },
+  {
+    "GpPracticeCode": "Y05535",
+    "BsoCode": "JSW",
+    "CountryCategory": "ENGLAND",
+    "AuditId": 1.00,
+    "AuditCreatedTimeStamp": "2025-09-22T14:21:06.033",
+    "AuditLastUpdatedTimeStamp": "2025-09-22T14:21:06.033",
+    "AuditText": "From PostgreSQL"
+  },
+  {
+    "GpPracticeCode": "Y03223",
+    "BsoCode": "KRG",
+    "CountryCategory": "ENGLAND",
+    "AuditId": 1.00,
+    "AuditCreatedTimeStamp": "2025-09-22T14:21:06.033",
+    "AuditLastUpdatedTimeStamp": "2025-09-22T14:21:06.033",
+    "AuditText": "From PostgreSQL"
   }
 ]
