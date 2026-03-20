@@ -55,13 +55,13 @@ jobs:
       FUNC_NAMES: ${{ steps.get-function-names.outputs.FUNC_NAMES }}
       DOCKER_COMPOSE_DIR: ${{ steps.get-function-names.outputs.DOCKER_COMPOSE_DIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout dtos-devops-templates repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: NHSDigital/dtos-devops-templates
           path: templates
@@ -88,7 +88,7 @@ jobs:
       DOTNET_BASE_IMAGE: ${{ steps.set-image-tags.outputs.DOTNET_BASE_IMAGE }}
       FUNCTION_BASE_IMAGE:  ${{ steps.set-image-tags.outputs.FUNCTION_BASE_IMAGE }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
@@ -125,7 +125,6 @@ jobs:
           if [ "${GITHUB_REF}" == 'refs/heads/main' ]; then
               PR_NUM_TAG="main"
           fi
-
 
           docker build -f Dockerfile.dotnet.base -t cohort-manager-dotnet-base:latest .
           docker tag cohort-manager-dotnet-base:latest "ghcr.io/nhsdigital/cohort-manager-dotnet-base:${PR_NUM_TAG}"
@@ -167,10 +166,6 @@ jobs:
           echo "DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
           echo "FUNCTION_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-function-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
 
-
-
-
-
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
@@ -187,14 +182,14 @@ jobs:
       short_commit_hash: ${{ env.COMMIT_HASH_TAG }}
       devtest_pr_num_tag: ${{ env.DEVTEST_PR_NUM_TAG }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
           submodules: 'true'
 
       - name: Checkout dtos-devops-templates repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: NHSDigital/dtos-devops-templates
           path: templates
@@ -218,18 +213,17 @@ jobs:
           ENVIRONMENT_TAG: ${{ inputs.environment_tag }}
         continue-on-error: false
         run: |
-          echo "The branch is: ${GITHUB_REF}"
-
           PR_NUM=$(gh api repos/${{ github.repository }}/commits/${{ github.sha }}/pulls --jq '.[0].number')
           PR_NUM_TAG="pr${PR_NUM}"
-
           DEVTEST_PR_NUM_TAG="devtest_${PR_NUM_TAG}"
+
+          echo "The branch is: ${GITHUB_REF}"
           echo "DEVTEST_PR_NUM_TAG=${DEVTEST_PR_NUM_TAG}" >> ${GITHUB_ENV}
 
           SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
+
           echo "Commit hash tag: ${SHORT_COMMIT_HASH}"
           echo "COMMIT_HASH_TAG=${SHORT_COMMIT_HASH}" >> ${GITHUB_ENV}
-
           echo "ENVIRONMENT_TAG=${ENVIRONMENT_TAG}" >> ${GITHUB_ENV}
 
       - name: Build and Push Image
@@ -250,7 +244,6 @@ jobs:
             echo "Function variable is empty. Skipping Docker build."
             exit 0
           fi
-
 
           docker compose -f ${COMPOSE_FILE//,/ -f } \
             -p ${PROJECT_NAME} \
