@@ -82,6 +82,7 @@ storage_accounts = {
           protected_append_writes_all_enabled = false
           protected_append_writes_enabled     = false
         }
+      }
     }
   }
 }
