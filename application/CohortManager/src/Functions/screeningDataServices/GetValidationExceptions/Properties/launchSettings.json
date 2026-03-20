@@ -2,7 +2,7 @@
   "profiles": {
     "GetValidationExceptions": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7024",
+      "commandLineArgs": "--port 7070",
       "launchBrowser": false
     }
   }

@@ -2,7 +2,7 @@
   "profiles": {
     "ReferenceDataService": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7248",
+      "commandLineArgs": "--port 7123",
       "launchBrowser": false
     }
   }
