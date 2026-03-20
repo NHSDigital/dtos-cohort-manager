@@ -73,17 +73,6 @@ storage_accounts = {
           protected_append_writes_enabled     = false
         }
       }
-    }
-  }
-  inbound-caas = {
-    name_suffix                             = "inbound-caas"
-    account_tier                            = "Standard"
-    replication_type                        = "LRS"
-    public_network_access_enabled           = false
-    blob_properties_delete_retention_policy = 7
-    blob_properties_versioning_enabled      = true
-    access_tier                             = "Cold"
-    containers = {
       inbound-caas-immutable = {
         container_name        = "inbound-caas-immutable"
         container_access_type = "private"
@@ -93,7 +82,6 @@ storage_accounts = {
           protected_append_writes_all_enabled = false
           protected_append_writes_enabled     = false
         }
-      }
     }
   }
 }

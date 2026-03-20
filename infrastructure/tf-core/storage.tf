@@ -66,7 +66,7 @@ locals {
             object_replication = (
               c.object_replication == null ? null : {
                 source_container_name          = c.container_name
-                destination_storage_account_id = data.terraform_remote_state.audit.outputs.storage_account_audit["inbound-caas-${local.primary_region}"].id
+                destination_storage_account_id = data.terraform_remote_state.audit.outputs.storage_account_audit["sqlbackups-${local.primary_region}"].id
                 destination_container_name     = c.object_replication.audit_container_name
               }
             )
