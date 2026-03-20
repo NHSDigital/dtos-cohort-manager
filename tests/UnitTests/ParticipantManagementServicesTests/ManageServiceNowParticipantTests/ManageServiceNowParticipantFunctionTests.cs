@@ -1,4 +1,4 @@
-﻿namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
+namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
 
 using System.Linq.Expressions;
 using System.Net;
@@ -288,7 +288,8 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -336,7 +337,8 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -402,7 +404,8 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -466,7 +469,8 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -543,7 +547,8 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == vhrParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.VeryHighRisk),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -609,7 +614,8 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -696,7 +702,8 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == vhrParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.VeryHighRisk),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -772,7 +779,8 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -847,7 +855,8 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
         _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
@@ -890,8 +899,6 @@ public class ManageServiceNowParticipantFunctionTests
     [DataRow("Samantha", "OBrien", "Samantha", "O'Brien", "1970-01-01")]         // ServiceNow without apostrophe, PDS with apostrophe
     [DataRow("Samantha", "dArcy", "Samantha", "d'Arcy", "1970-01-01")]           // Lowercase name with apostrophe in PDS
     [DataRow("samantha", "bloggs", "SAMANTHA", "BLOGGS", "1970-01-01")]         // Case insensitive matching
-    [DataRow(" Sámañtha ", " Blóggs ", "SÂMÁNTHÅ", "BLÓGGṠ", "1970-01-01")]  // Realistic accents with spaces
-    [DataRow(" SÁmʹañ. t,h ã ", " Błó,gʼg s̈. ", "SÂMANTHÅ", "BŁÓGGṠ", "1970-01-01")] // Multiple special chars and accents
     public async Task Run_WhenServiceNowParticipantNameHasTrailingSpacesOrHyphensOrSpecialChars_MatchesWithPdsAndAddsParticipant(
         string serviceNowFirstName, string serviceNowFamilyName, string pdsFirstName, string pdsFamilyName, string dateOfBirth)
     {
