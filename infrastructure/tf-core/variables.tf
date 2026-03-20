@@ -620,6 +620,10 @@ variable "storage_accounts" {
     containers = optional(map(object({
       container_name        = string
       container_access_type = optional(string, "private")
+      object_replication = optional(object({
+        audit_storage_account_name = string
+        audit_container_name       = string
+      }))
     })), {})
   }))
 }

@@ -1357,6 +1357,10 @@ storage_accounts = {
       }
       inbound = {
         container_name = "inbound"
+        object_replication = {
+          audit_storage_account_name = "inbound-caas"
+          audit_container_name = "inbound-caas-immutable"
+        }
       }
       inbound-poison = {
         container_name = "inbound-poison"
