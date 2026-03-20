@@ -11,7 +11,7 @@ public static class ExceptionHandlerServiceExtension
     public static IHostBuilder AddExceptionHandler(this IHostBuilder hostBuilder)
     {
         bool useServiceBus = false;
-        if (!bool.TryParse(Environment.GetEnvironmentVariable("UseServiceBus"), out useServiceBus))
+        if (!bool.TryParse(Environment.GetEnvironmentVariable("ExceptionUseServiceBus"), out useServiceBus))
         {
             useServiceBus = false;
         }
@@ -19,7 +19,7 @@ public static class ExceptionHandlerServiceExtension
         if (useServiceBus)
         {
             hostBuilder.AddConfiguration<ExceptionServiceBusConfig>(out ExceptionServiceBusConfig config);
-            hostBuilder.AddKeyedAzureQueues(config.UseServiceBus, config.ServiceBusConnectionString, "Exception");
+            hostBuilder.AddKeyedAzureQueues(config.ExceptionUseServiceBus, config.ServiceBusConnectionString_client_internal, "Exception");
             return hostBuilder.ConfigureServices(_ =>
             {
                 _.AddSingleton<IExceptionHandler, ExceptionHandler>();
