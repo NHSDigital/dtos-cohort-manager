@@ -19,6 +19,9 @@ module "storage" {
   public_network_access_enabled = each.value.public_network_access_enabled
   access_tier                   = title(lower(each.value.access_tier))
 
+  blob_properties_delete_retention_policy = each.value.blob_properties_delete_retention_policy
+  blob_properties_versioning_enabled      = each.value.blob_properties_versioning_enabled
+
   rbac_roles = []
 
   # Private Endpoint Configuration if enabled
@@ -50,9 +53,9 @@ locals {
         account_tier                            = storage_val.account_tier
         public_network_access_enabled           = storage_val.public_network_access_enabled
         access_tier                             = storage_val.access_tier
-        containers                              = storage_val.containers
         blob_properties_delete_retention_policy = storage_val.blob_properties_delete_retention_policy
         blob_properties_versioning_enabled      = storage_val.blob_properties_versioning_enabled
+        containers                              = storage_val.containers
       }
     ]
   ])
