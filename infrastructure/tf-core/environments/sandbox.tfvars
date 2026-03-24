@@ -667,7 +667,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        AcceptableLatencyThresholdMs = "500"
+        AcceptableLatencyThresholdMs  = "500"
         RetrieveSupersededRecordsLast = "true"
       }
     }
@@ -864,7 +864,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
-        MaxRetryCount=3
+        MaxRetryCount                = 3
       }
     }
 
@@ -1341,12 +1341,14 @@ storage_accounts = {
     containers                              = {}
   }
   file_exceptions = {
-    name_suffix                             = "filexptns"
-    account_tier                            = "Standard"
-    replication_type                        = "LRS"
-    public_network_access_enabled           = false
-    blob_properties_delete_retention_policy = 7
-    blob_properties_versioning_enabled      = false
+    name_suffix                                   = "filexptns"
+    account_tier                                  = "Standard"
+    replication_type                              = "LRS"
+    public_network_access_enabled                 = false
+    blob_properties_delete_retention_policy       = 7
+    blob_properties_versioning_enabled            = true
+    blob_properties_change_feed_enabled           = true
+    blob_properties_change_feed_retention_in_days = 1
     containers = {
       file-exceptions = {
         container_name        = "file-exceptions"
@@ -1359,7 +1361,7 @@ storage_accounts = {
         container_name = "inbound"
         object_replication = {
           audit_storage_account_name = "inbound-caas"
-          audit_container_name = "inbound-caas-immutable"
+          audit_container_name       = "inbound-caas-immutable"
         }
       }
       inbound-poison = {
