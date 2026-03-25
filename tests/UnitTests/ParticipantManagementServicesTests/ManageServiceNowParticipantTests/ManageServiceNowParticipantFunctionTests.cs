@@ -41,7 +41,7 @@ public class ManageServiceNowParticipantFunctionTests
             DateOfBirth = new DateOnly(1970, 1, 1),
             ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
-            ReasonForAdding = ServiceNowReasonsForAdding.RequiresCeasing,
+            ReasonForAdding = ReasonForAdding.RequiresCeasing,
             RequiredGpCode = "ZZZ123"
         };
 
@@ -509,7 +509,7 @@ public class ManageServiceNowParticipantFunctionTests
             DateOfBirth = new DateOnly(1970, 1, 1),
             ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
-            ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk,
+            ReasonForAdding = ReasonForAdding.VeryHighRisk,
             RequiredGpCode = "T35 7ING"
         };
 
@@ -655,7 +655,7 @@ public class ManageServiceNowParticipantFunctionTests
             DateOfBirth = new DateOnly(1970, 1, 1),
             ServiceNowCaseNumber = "CS123",
             BsoCode = "ABC",
-            ReasonForAdding = ServiceNowReasonsForAdding.VeryHighRisk,
+            ReasonForAdding = ReasonForAdding.VeryHighRisk,
             RequiredGpCode = "T35 7ING"
         };
 

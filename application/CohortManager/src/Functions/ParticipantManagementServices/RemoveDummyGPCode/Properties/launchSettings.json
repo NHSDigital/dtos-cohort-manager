@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ManageServiceNowParticipant": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 9092",
+      "launchBrowser": false
+    }
+  }
+}
