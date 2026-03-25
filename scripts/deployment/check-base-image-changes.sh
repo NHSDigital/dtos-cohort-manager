@@ -31,10 +31,21 @@ else
 
         # Remove spaces
         base_path="$(printf '%s' "$base_path" | xargs)"
+        base_path="${base_path#./}"
 
 
         for changed_path in "${source_changes[@]}"; do
-            if [[ "${changed_path}" == "${base_path}" ]]; then
+            changed_path="${changed_path#./}"
+
+            if [[ "${base_path}" == */ ]]; then
+                matches=false
+                [[ "${changed_path}" == "${base_path}"* ]] && matches=true
+            else
+                matches=false
+                [[ "${changed_path}" == "${base_path}" || "${changed_path}" == "${base_path}/"* ]] && matches=true
+            fi
+
+            if [[ "${matches}" == true ]]; then
                 echo "Base image change detected in: ${changed_path}"
                 build_base_image=true
                 break 2

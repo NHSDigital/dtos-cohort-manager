@@ -1,15 +1,16 @@
 namespace NHS.CohortManager.CohortDistributionServices;
 
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using Microsoft.DurableTask.Client;
-using Microsoft.DurableTask;
-using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Threading.Tasks;
+using Common;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.DurableTask;
+using Microsoft.DurableTask.Client;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
-using System.Text.Json;
-using Common;
+using Model.Enums;
 using Activities = DistributeParticipantActivities;
 
 public class DistributeParticipant
@@ -45,7 +46,7 @@ public class DistributeParticipant
 
             if (string.IsNullOrWhiteSpace(participantRecord.BasicParticipantData.ScreeningId) || string.IsNullOrWhiteSpace(participantRecord.BasicParticipantData.NhsNumber))
             {
-                await HandleExceptionAsync(new ArgumentException("One or more of the required parameters is missing"), participantRecord);
+                await HandleExceptionAsync(new ArgumentException("One or more of the required parameters is missing"), participantRecord, null!);
                 return;
             }
 
@@ -74,7 +75,7 @@ public class DistributeParticipant
             var participantData = await context.CallActivityAsync<CohortDistributionParticipant>(nameof(Activities.RetrieveParticipantData), participantRecord.BasicParticipantData);
             if (participantData is null)
             {
-                await HandleExceptionAsync(new KeyNotFoundException("Could not find participant data"), participantRecord);
+                await HandleExceptionAsync(new KeyNotFoundException("Could not find participant data"), participantRecord, context);
                 return;
             }
 
@@ -82,7 +83,7 @@ public class DistributeParticipant
             _logger.LogInformation("Environment variable IgnoreParticipantExceptions is set to {IgnoreParticipantExceptions}", _config.IgnoreParticipantExceptions);
             if (participantData.ExceptionFlag == 1 && !_config.IgnoreParticipantExceptions)
             {
-                await HandleExceptionAsync(new ArgumentException("Participant has an unresolved exception, will not add to cohort distribution"), participantRecord);
+                await HandleExceptionAsync(new ArgumentException("Participant has an unresolved exception, will not add to cohort distribution"), participantRecord, context);
                 return;
             }
 
@@ -102,6 +103,7 @@ public class DistributeParticipant
             if (transformedParticipant is null)
             {
                 _logger.LogError("Failed to transform participant");
+                await SendServiceNowFailureMessage(context, participantRecord);
                 return;
             }
 
@@ -111,7 +113,7 @@ public class DistributeParticipant
             var participantAdded = await context.CallActivityAsync<bool>(nameof(Activities.AddParticipant), transformedParticipant);
             if (!participantAdded)
             {
-                await HandleExceptionAsync(new InvalidOperationException("Failed to add participant to the table"), participantRecord);
+                await HandleExceptionAsync(new InvalidOperationException("Failed to add participant to the table"), participantRecord, context);
                 return;
             }
 
@@ -128,14 +130,32 @@ public class DistributeParticipant
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(ex, participantRecord);
+            await HandleExceptionAsync(ex, participantRecord, context);
         }
     }
 
-    private async Task HandleExceptionAsync(Exception ex, BasicParticipantCsvRecord participantRecord)
+    private async Task HandleExceptionAsync(Exception ex, BasicParticipantCsvRecord participantRecord, TaskOrchestrationContext? context)
     {
         _logger.LogError(ex, "Distribute Participant failed");
         await _exceptionHandler.CreateSystemExceptionLog(ex, participantRecord.BasicParticipantData, participantRecord.FileName);
+        await SendServiceNowFailureMessage(context, participantRecord);
+
+    }
+
+    private static async Task SendServiceNowFailureMessage(TaskOrchestrationContext? context, BasicParticipantCsvRecord participantRecord)
+    {
+        if (participantRecord.ReasonForAdding is null || context is null)
+        {
+            return;
+        }
+
+        var notification = new ServiceNowFailureNotification
+        {
+            ServiceNowCaseNumber = participantRecord.FileName,
+            MessageType = ServiceNowMessageType.UnableToAddParticipant
+        };
+
+        await context.CallActivityAsync(nameof(Activities.SendServiceNowFailureMessage), notification);
     }
 }
 

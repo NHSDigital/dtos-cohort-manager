@@ -7,7 +7,7 @@ If it doesn’t already exist, create a file named `appsettings.json` in the roo
 
 ```json
 {
-  "DtOsDatabaseConnectionString": "Server=localhost,1433;Database=DToSDB;User Id=SA;Password=<your-password>;TrustServerCertificate=True"
+  "DtOsDatabaseConnectionString": "Server=127.0.0.1,1433;Database=DToSDB;User Id=SA;Password=<your-password>;TrustServerCertificate=True"
 }
 ```
 

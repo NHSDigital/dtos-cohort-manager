@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.Tests.UnitTests.ServiceNowCohortLookupTests;
 
  using Microsoft.Extensions.Logging;
- using Microsoft.Extensions.Options;
  using Model;
  using Moq;
  using DataServices.Client;
