@@ -40,7 +40,6 @@ public class DurableDemographicTests
         {
             MaxRetryCount = 3,
             DemographicDataServiceURL = "http://test-demographic-service"
-
         };
         _demographicDurableFunctionConfig.Setup(c => c.Value).Returns(demographicDurableFunctionConfig);
 
