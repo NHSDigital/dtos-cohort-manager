@@ -26,7 +26,7 @@ var host = new HostBuilder()
     })
     .AddTelemetry()
     .AddHttpClient()
-    .AddDatabaseConnection()
+    .AddDatabaseConnection() // TODO: This should be removed?
     .AddExceptionHandler()
     .Build();
 
