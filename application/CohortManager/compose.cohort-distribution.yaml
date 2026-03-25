@@ -16,7 +16,6 @@ services:
       - DistributeParticipantSubscription=distribute-participant-sub
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - WEBSITE_HOSTNAME=distribute-participant:80
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - TransformDataServiceURL=http://transform-data-service:7080/api/TransformDataService
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - CohortDistributionDataServiceUrl=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
@@ -28,6 +27,9 @@ services:
       - IgnoreParticipantExceptions=false
       - IsExtractedToBSSelect=true
       - MaxLookupValidationRetries=3
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
   retrieve-cohort-distribution-data:
     container_name: retrieve-cohort-distribution-data
@@ -44,11 +46,14 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7078
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - BsSelectRequestAuditDataService=http://bs-request-audit-data-service:7989/api/BsSelectRequestAuditDataService/
       - AcceptableLatencyThresholdMs=500
       - RetrieveSupersededRecordsLast=false
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
+
 
   retrieve-cohort-request-audit:
     container_name: retrieve-cohort-request-audit
@@ -67,7 +72,9 @@ services:
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - BsSelectRequestAuditDataService=http://bs-request-audit-data-service:7989/api/BsSelectRequestAuditDataService/
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
   transform-data-service:
     container_name: transform-data-service
@@ -80,7 +87,6 @@ services:
         BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7080
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - BsSelectOutCodeUrl=http://reference-data-service:7988/api/BsSelectOutCode
       - BsSelectGpPracticeUrl=http://reference-data-service:7988/api/BsSelectGpPractice
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
@@ -88,6 +94,9 @@ services:
       - CurrentPostingUrl=http://reference-data-service:7988/api/CurrentPosting
       - ExcludedSMULookupUrl=http://reference-data-service:7988/api/ExcludedSMU
       - AcceptableLatencyThresholdMs=500
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
   remove-validation-exception-data:
     container_name: remove-validation-exception-data
@@ -100,11 +109,13 @@ services:
         BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7085
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - GPPracticeDataServiceURL=http://gppractice-data-service:7999/api/GPPracticeDataService/
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
 
 networks:
