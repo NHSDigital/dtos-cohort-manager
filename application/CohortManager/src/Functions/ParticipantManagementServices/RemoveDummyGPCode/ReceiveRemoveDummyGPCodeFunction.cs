@@ -1,6 +1,7 @@
 namespace NHS.CohortManager.ParticipantManagementServices;
 
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
 using System.Text;
@@ -94,7 +95,7 @@ public class ReceiveRemoveDummyGpCodeFunction
                 return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
-            if (!DateOnly.TryParse(pdsDemographic.DateOfBirth, out var pdsDateOfBirth))
+            if (!DateOnly.TryParseExact(pdsDemographic.DateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var pdsDateOfBirth))
             {
                 _logger.LogError("PDS demographic date of birth was missing or invalid for NHS Number {NhsNumber}", requestBody.NhsNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
