@@ -12,8 +12,6 @@
 
   <ItemGroup>
     <PackageReference Include="coverlet.collector" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker"/>
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Moq" />
     <PackageReference Include="MSTest.TestAdapter" />
@@ -26,9 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../../application/CohortManager/src/Functions/ServiceNowIntegration/ServiceNowCohortLookup/ServiceNowCohortLookup.csproj" />
-    <ProjectReference Include="../../../application/CohortManager/src/Functions/Shared/Common/Common.csproj" />
     <ProjectReference Include="../../../application/CohortManager/src/Functions/Shared/Model/Model.csproj" />
-    <ProjectReference Include="../../TestUtils/TestUtils.csproj" />
   </ItemGroup>
 
 </Project>
