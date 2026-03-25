@@ -38,7 +38,9 @@ public class DurableDemographicTests
         Environment.SetEnvironmentVariable("ExceptionFunctionURL", "ExceptionFunctionURL");
         demographicDurableFunctionConfig = new DemographicDurableFunctionConfig
         {
-            MaxRetryCount = 3
+            MaxRetryCount = 3,
+            DemographicDataServiceURL = "http://test-demographic-service"
+
         };
         _demographicDurableFunctionConfig.Setup(c => c.Value).Returns(demographicDurableFunctionConfig);
 
