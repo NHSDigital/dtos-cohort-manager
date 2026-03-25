@@ -53,7 +53,7 @@ public class CreateException
 
     [Function("RunCreateException")]
     public async Task Run(
-      [ServiceBusTrigger(topicName: "%CreateExceptionTopic%", subscriptionName: "%ExceptionSubscription%", Connection = "ServiceBusConnectionString_internal", AutoCompleteMessages = false)]
+      [ServiceBusTrigger(topicName: "%CreateExceptionTopic%", subscriptionName: "%CreateExceptionSubscription%", Connection = "ServiceBusConnectionString_internal", AutoCompleteMessages = false)]
         ServiceBusReceivedMessage message,
        ServiceBusMessageActions messageActions)
     {
