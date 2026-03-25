@@ -51,7 +51,7 @@ public class ReceiveRemoveDummyGpCodeFunction
             if (requestBody == null)
             {
                 _logger.LogError("Request body deserialised to null");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Patient not found");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
             var validationContext = new ValidationContext(requestBody);
@@ -61,19 +61,19 @@ public class ReceiveRemoveDummyGpCodeFunction
             if (!isRequestValid)
             {
                 _logger.LogError("Request body failed validation");
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Patient not found");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
             if (!ValidationHelper.ValidateNHSNumber(requestBody.NhsNumber))
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS Number");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
             var pdsResponse = await _httpClientFunction.SendGetResponse($"{_config.RetrievePdsDemographicURL}?nhsNumber={requestBody.NhsNumber}");
 
             if (pdsResponse.StatusCode == HttpStatusCode.NotFound)
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Patient not found");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
             if (pdsResponse.StatusCode != HttpStatusCode.OK)
@@ -91,7 +91,7 @@ public class ReceiveRemoveDummyGpCodeFunction
 
             if (!CheckParticipantDataMatches(requestBody, pdsDemographic))
             {
-                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Patient not found");
+                return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
             }
 
             if (!DateOnly.TryParse(pdsDemographic.DateOfBirth, out var pdsDateOfBirth))
@@ -120,12 +120,12 @@ public class ReceiveRemoveDummyGpCodeFunction
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
-            return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req, "Manual GP Code Removal Enqueued");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.Accepted, req);
         }
         catch (JsonException ex)
         {
             _logger.LogError(ex, "Failed to deserialize request body");
-            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Patient not found");
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req);
         }
         catch (Exception ex)
         {
