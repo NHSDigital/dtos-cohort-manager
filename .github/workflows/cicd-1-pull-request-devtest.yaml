@@ -25,10 +25,10 @@ jobs:
       terraform_version: ${{ steps.variables.outputs.terraform_version }}
       environment_tag: ${{ steps.variables.outputs.environment_tag }}
       version: ${{ steps.variables.outputs.version }}
-      does_pull_request_exist: ${{ steps.pr_exists.outputs.does_pull_request_exist }}
+      does_pull_request_exist: ${{ steps.pr.outputs.does_pull_request_exist }}
     steps:
       - name: "Checkout code"
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: 'true'
       - name: "Set CI/CD variables"
@@ -46,7 +46,7 @@ jobs:
           echo "version=$(head -n 1 .version 2> /dev/null || echo unknown)" >> $GITHUB_OUTPUT
           echo "environment_tag=development" >> $GITHUB_OUTPUT
       - name: "Check if pull request exists for this branch"
-        id: pr_exists
+        id: pr
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -70,7 +70,7 @@ jobs:
           export TERRAFORM_VERSION="${{ steps.variables.outputs.terraform_version }}"
           export ENVIRONMENT_TAG="${{ steps.variables.outputs.environment_tag }}"
           export VERSION="${{ steps.variables.outputs.version }}"
-          export DOES_PULL_REQUEST_EXIST="${{ steps.pr_exists.outputs.does_pull_request_exist }}"
+          export DOES_PULL_REQUEST_EXIST="${{ steps.pr.outputs.does_pull_request_exist }}"
           make list-variables
   commit-stage: # Recommended maximum execution time is 2 minutes
     name: "Commit stage"
@@ -143,19 +143,6 @@ jobs:
       function_app_source_code_path: application/CohortManager/src
       project_name: cohort-manager
       build_all_images: true
-  acceptance-stage: # Recommended maximum execution time is 10 minutes
-    name: "Acceptance stage"
-    needs: [metadata, build-image-stage]
-    uses: ./.github/workflows/stage-4-acceptance.yaml
-    if: needs.metadata.outputs.does_pull_request_exist == 'true' || (github.event_name == 'pull_request' && (github.event.action == 'opened' || github.event.action == 'reopened'))
-    with:
-      build_datetime: "${{ needs.metadata.outputs.build_datetime }}"
-      build_timestamp: "${{ needs.metadata.outputs.build_timestamp }}"
-      build_epoch: "${{ needs.metadata.outputs.build_epoch }}"
-      nodejs_version: "${{ needs.metadata.outputs.nodejs_version }}"
-      python_version: "${{ needs.metadata.outputs.python_version }}"
-      terraform_version: "${{ needs.metadata.outputs.terraform_version }}"
-      version: "${{ needs.metadata.outputs.version }}"
   deploy-stage:
     if: github.event_name == 'push'
     name: Deploy DevTest environment for commit ${{ github.sha }}

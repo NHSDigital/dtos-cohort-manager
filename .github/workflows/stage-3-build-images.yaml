@@ -55,13 +55,13 @@ jobs:
       FUNC_NAMES: ${{ steps.get-function-names.outputs.FUNC_NAMES }}
       DOCKER_COMPOSE_DIR: ${{ steps.get-function-names.outputs.DOCKER_COMPOSE_DIR }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Checkout dtos-devops-templates repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: NHSDigital/dtos-devops-templates
           path: templates
@@ -88,7 +88,7 @@ jobs:
       DOTNET_BASE_IMAGE: ${{ steps.set-image-tags.outputs.DOTNET_BASE_IMAGE }}
       FUNCTION_BASE_IMAGE:  ${{ steps.set-image-tags.outputs.FUNCTION_BASE_IMAGE }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
@@ -164,10 +164,6 @@ jobs:
           echo "DOTNET_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-dotnet-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
           echo "FUNCTION_BASE_IMAGE=ghcr.io/nhsdigital/cohort-manager-function-base:${IMAGE_TAG}" >> "${GITHUB_OUTPUT}"
 
-
-
-
-
   build-and-push:
     runs-on: ubuntu-latest
     permissions:
@@ -183,14 +179,14 @@ jobs:
       pr_num_tag: ${{ env.PR_NUM_TAG }}
       short_commit_hash: ${{ env.COMMIT_HASH_TAG }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 1
           submodules: 'true'
 
       - name: Checkout dtos-devops-templates repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: NHSDigital/dtos-devops-templates
           path: templates
@@ -223,19 +219,17 @@ jobs:
           else
             PULLS_JSON=$(gh api /repos/{owner}/{repo}/commits/${GITHUB_SHA}/pulls)
             ORIGINATING_BRANCH=$(echo ${PULLS_JSON} | jq -r '.[].head.ref' | python3 -c "import sys, urllib.parse; print(urllib.parse.quote_plus(sys.stdin.read().strip()))")
-            echo "ORIGINATING_BRANCH: ${ORIGINATING_BRANCH}"
             PR_NUM_TAG=$(echo ${PULLS_JSON} | jq -r '.[].number')
+            echo "ORIGINATING_BRANCH: ${ORIGINATING_BRANCH}"
           fi
+
+          SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
 
           echo "PR_NUM_TAG: pr${PR_NUM_TAG}"
           echo "PR_NUM_TAG=pr${PR_NUM_TAG}" >> ${GITHUB_ENV}
-
-          SHORT_COMMIT_HASH=$(git rev-parse --short ${GITHUB_SHA})
           echo "Commit hash tag: ${SHORT_COMMIT_HASH}"
           echo "COMMIT_HASH_TAG=${SHORT_COMMIT_HASH}" >> ${GITHUB_ENV}
-
           echo "ENVIRONMENT_TAG=${ENVIRONMENT_TAG}" >> ${GITHUB_ENV}
-
 
       - name: Build and Push Image
         working-directory: ${{ steps.get-function-names.outputs.DOCKER_COMPOSE_DIR }}
@@ -249,15 +243,12 @@ jobs:
         run: |
           function=${{ matrix.function }}
 
-
-
           echo PROJECT_NAME: ${PROJECT_NAME}
 
           if [ -z "${function}" ]; then
             echo "Function variable is empty. Skipping Docker build."
             exit 0
           fi
-
 
           docker compose -f ${COMPOSE_FILE//,/ -f } \
             -p ${PROJECT_NAME} \

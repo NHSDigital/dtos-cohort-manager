@@ -78,7 +78,9 @@ jobs:
           subscription-id: ${{ secrets.subscription_id }}
 
       - name: Make script executable
-        run: chmod +x scripts/bash/wait_ado_pipeline.sh
+        run: |
+          chmod +x scripts/bash/call_ado_pipeline.sh
+          chmod +x scripts/bash/wait_ado_pipeline.sh
 
       - name: Call deployment pipeline
         shell: bash
@@ -86,46 +88,25 @@ jobs:
           COMMIT_SHA: ${{ inputs.commit_sha }}
           ENVIRONMENT_NAME: ${{ matrix.environment }}
           GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
         run: |
           set -euo pipefail
-          # Define common variables
-          organisation='https://dev.azure.com/nhse-dtos'
-          project_name='dtos-cohort-manager'
+
+          # PR info
+          PR_INFO=$(gh api repos/${GITHUB_REPOSITORY}/commits/${COMMIT_SHA}/pulls --jq '.[0]')
+          PR_NUM=$(echo "$PR_INFO" | jq -r '.number')
+          BRANCH_NAME=$(echo "$PR_INFO" | jq -r '.branch')
+          DOCKER_TAG="devtest_pr${PR_NUM}"
 
           # Define which tests to run based on the environment
           declare -A test_types=(
             ["development"]="smoke_e2e"
           )
+          TEST_TYPES_VALUE="${test_types[${ENVIRONMENT_NAME}]}"
 
-          # Derive the short SHA from the provided commit
-          git_short_sha=$(git rev-parse --short "$COMMIT_SHA")
-
-          # Get the PR Info
-
-          PR_INFO=$(gh api repos/${{ github.repository }}/commits/${COMMIT_SHA}/pulls --jq '.[0] | {number: .number, branch: .head.ref}')
-
-          PR_NUM=$(echo "$PR_INFO" | jq -r '.number')
-          DEVTEST_PR_NUM_TAG="devtest_pr${PR_NUM}"
-
-          BRANCH_NAME=$(echo "$PR_INFO" | jq -r '.branch')
-
-          echo "Name of the branch to use in ADO: ${BRANCH_NAME}"
-          echo "Name of the image to be used for Function Apps configuration: ${DEVTEST_PR_NUM_TAG}"
-
-          # Prepare parameters as separate key=value tokens
-          param_image="dockerImageTag=${DEVTEST_PR_NUM_TAG}"
-          param_tests="testTypes=[${test_types[$ENVIRONMENT_NAME]}]"
-
-          echo "Starting Azure devops pipeline \"Deploy to Azure - Core ${ENVIRONMENT_NAME}\"..."
-          RUN_ID=$(az pipelines run \
-            --branch "${BRANCH_NAME}" \
-            --commit-id "$COMMIT_SHA" \
-            --name "Deploy to Azure - Core ${ENVIRONMENT_NAME}" \
-            --org "${organisation}" \
-            --project "${project_name}" \
-            --parameters "$param_image" "$param_tests" \
-            --output tsv --query id)
-
-          echo "Click here to view the ADO pipeline: ${organisation}/${project_name}/_build/results?buildId=${RUN_ID}"
-
-          scripts/bash/wait_ado_pipeline.sh "$RUN_ID" "${organisation}" "${project_name}" 1800
+          scripts/bash/call_ado_pipeline.sh \
+            "${COMMIT_SHA}" \
+            "${ENVIRONMENT_NAME}" \
+            "${DOCKER_TAG}" \
+            "${TEST_TYPES_VALUE}" \
+            "${BRANCH_NAME}"
