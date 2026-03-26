@@ -517,6 +517,22 @@ function_apps = {
       ]
     }
 
+    RemoveDummyGPCode = {
+      name_suffix             = "remove-dummy-gp-code"
+      function_endpoint_name  = "RemoveDummyGPCode"
+      app_service_plan_key    = "NonScaling"
+      service_bus_connections = ["internal"]
+      app_urls = [
+        {
+          env_var_name     = "RetrievePdsDemographicURL"
+          function_app_key = "RetrievePDSDemographic"
+        }
+      ]
+      env_vars_static = {
+        ServiceNowParticipantManagementTopic = "servicenow-participant-management"
+      }
+    }
+
     DeleteParticipant = {
       name_suffix            = "delete-participant"
       function_endpoint_name = "DeleteParticipant"
