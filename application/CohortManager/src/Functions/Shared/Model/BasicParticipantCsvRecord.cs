@@ -51,6 +51,7 @@ public class BasicParticipantCsvRecord
             Constants.ServiceNowReasonsForAdding.RequiresCeasing => Enums.ReasonForAdding.RequiresCeasing,
             Constants.ServiceNowReasonsForAdding.RoutineScreening => Enums.ReasonForAdding.RoutineScreening,
             Constants.ServiceNowReasonsForAdding.OverAgeSelfReferral => Enums.ReasonForAdding.OverAgeSelfReferral,
+            Constants.ServiceNowReasonsForAdding.DummyGpCodeRemoval => Enums.ReasonForAdding.DummyGpCodeRemoval,
             _ => null
         };
     }
