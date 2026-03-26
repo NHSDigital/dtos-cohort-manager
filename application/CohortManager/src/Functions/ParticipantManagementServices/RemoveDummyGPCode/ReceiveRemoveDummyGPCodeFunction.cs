@@ -97,7 +97,7 @@ public class ReceiveRemoveDummyGpCodeFunction
 
             if (!DateOnly.TryParseExact(pdsDemographic.DateOfBirth, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out var pdsDateOfBirth))
             {
-                _logger.LogError("PDS demographic date of birth was missing or invalid for NHS Number {NhsNumber}", requestBody.NhsNumber);
+                _logger.LogError("PDS demographic date of birth was missing or invalid for RequestId {RequestId}", requestBody.RequestId);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
@@ -117,7 +117,7 @@ public class ReceiveRemoveDummyGpCodeFunction
             var enqueueResult = await _queueClient.AddAsync(participant, _config.ServiceNowParticipantManagementTopic);
             if (!enqueueResult)
             {
-                _logger.LogError("Failed to enqueue remove dummy GP code request for NHS Number {NhsNumber}", requestBody.NhsNumber);
+                _logger.LogError("Failed to enqueue remove dummy GP code request for RequestId {RequestId}", requestBody.RequestId);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
