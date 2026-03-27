@@ -65,13 +65,15 @@ public class TransformString
         {
             ParticipantUpdated = true;
             // Special characters that need to be handled separately
-            if (stringField.Contains(@"\E\") || stringField.Contains(@"\T\"))
-                throw new ArgumentException($"Participant contains illegal characters");
+            if (stringField.Contains(@"\E\"))
+            {
+                stringField = stringField.Replace(@"\E\", " ");
+            }
 
             // The & character is the only illegal character that is transformed to a string instead of a char
-            if (stringField.Contains('&'))
+            if (stringField.Contains('&') || stringField.Contains(@"\T\"))
             {
-                stringField = stringField.Replace("&", " and ");
+                stringField = stringField.Replace("&", "and").Replace(@"\T\", "and");
             }
 
             var transformedField = await TransformCharactersAsync(stringField);

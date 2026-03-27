@@ -9,6 +9,7 @@ import Breadcrumb from "@/app/components/breadcrumb";
 import ParticipantInformationPanel from "@/app/components/participantInformationPanel";
 import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
+import UserFeedback from "@/app/components/userFeedback";
 
 export const metadata: Metadata = {
   title: `Exception information - ${process.env.SERVICE_NAME} - NHS`,
@@ -195,6 +196,7 @@ export default async function Page(props: {
                 searchParams={resolvedSearchParams}
               />
             </div>
+              <UserFeedback />
           </div>
         </main>
       </>

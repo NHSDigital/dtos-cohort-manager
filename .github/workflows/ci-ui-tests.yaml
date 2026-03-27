@@ -16,7 +16,7 @@ jobs:
         working-directory: application/CohortManager/src/Web
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -27,7 +27,7 @@ jobs:
           cache-dependency-path: application/CohortManager/src/Web/package-lock.json
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Run Unit tests
         run: npm run test:unit

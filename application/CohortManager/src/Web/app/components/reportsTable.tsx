@@ -7,6 +7,11 @@ interface ReportTableProps {
   readonly caption?: string;
 }
 
+const categoryTitles: Record<number, string> = {
+  12: "Possible Confusion",
+  13: "NHS Number Change",
+};
+
 export default function ExceptionsTable({
   reports,
   caption,
@@ -36,11 +41,7 @@ export default function ExceptionsTable({
       <tbody className="nhsuk-table__body">
         {reports.map((exception) => {
           const categoryTitle =
-            exception.category === 12
-              ? "Possible confusion"
-              : exception.category === 13
-              ? "NHS number change"
-              : String(exception.category);
+          categoryTitles[exception.category] ?? String(exception.category);
           return (
             <tr
               role="row"

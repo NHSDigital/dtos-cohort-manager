@@ -71,11 +71,20 @@ data "azurerm_key_vault" "infra" {
 
   name                = module.regions_config[each.key].names.key-vault
   resource_group_name = azurerm_resource_group.core[each.key].name
+
+  depends_on = [
+    module.key_vault
+  ]
 }
 
 data "azurerm_key_vault_secret" "monitoring_email_address" {
-  for_each = var.features.alerts_enabled && var.key_vault != {} ? var.regions : {}
+  # Iterate over regions only when alerting is enabled and a key vault is defined; otherwise use an empty map.
+  for_each = (var.features.alerts_enabled || var.features.alerts_function_errors_enabled) && var.key_vault != {} ? var.regions : {}
 
   name         = "monitoring-email-address"
   key_vault_id = data.azurerm_key_vault.infra[each.key].id
+
+  depends_on = [
+    module.key_vault
+  ]
 }

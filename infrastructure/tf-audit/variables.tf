@@ -110,6 +110,7 @@ variable "storage_accounts" {
     account_tier                  = optional(string, "Standard")
     replication_type              = optional(string, "LRS")
     public_network_access_enabled = optional(bool, false)
+    access_tier                   = optional(string, "Hot")
     containers = optional(map(object({
       container_name        = string
       container_access_type = optional(string, "private")

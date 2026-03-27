@@ -9,13 +9,15 @@ module "storage" {
 
   containers = each.value.containers
 
-  log_analytics_workspace_id                              = module.log_analytics_workspace_audit[local.primary_region].id
-  monitor_diagnostic_setting_storage_account_enabled_logs = local.monitor_diagnostic_setting_storage_account_enabled_logs
-  monitor_diagnostic_setting_storage_account_metrics      = local.monitor_diagnostic_setting_storage_account_metrics
+  log_analytics_workspace_id                                  = module.log_analytics_workspace_audit[local.primary_region].id
+  monitor_diagnostic_setting_storage_account_enabled_logs     = local.monitor_diagnostic_setting_storage_account_enabled_logs
+  monitor_diagnostic_setting_storage_account_metrics          = local.monitor_diagnostic_setting_storage_account_metrics
+  monitor_diagnostic_setting_storage_account_resource_metrics = local.monitor_diagnostic_setting_storage_account_resource_metrics
 
   account_replication_type      = each.value.replication_type
   account_tier                  = each.value.account_tier
   public_network_access_enabled = each.value.public_network_access_enabled
+  access_tier                   = title(lower(each.value.access_tier))
 
   rbac_roles = []
 
@@ -47,6 +49,7 @@ locals {
         replication_type              = storage_val.replication_type
         account_tier                  = storage_val.account_tier
         public_network_access_enabled = storage_val.public_network_access_enabled
+        access_tier                   = storage_val.access_tier
         containers                    = storage_val.containers
       }
     ]

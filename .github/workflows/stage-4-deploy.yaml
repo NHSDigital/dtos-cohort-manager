@@ -78,7 +78,9 @@ jobs:
           subscription-id: ${{ secrets.subscription_id }}
 
       - name: Make script executable
-        run: chmod +x scripts/bash/wait_ado_pipeline.sh
+        run: |
+          chmod +x scripts/bash/call_ado_pipeline.sh
+          chmod +x scripts/bash/wait_ado_pipeline.sh
 
       - name: Call deployment pipeline
         shell: bash
@@ -87,9 +89,8 @@ jobs:
           ENVIRONMENT_NAME: ${{ matrix.environment }}
         run: |
           set -euo pipefail
-          # Define common variables
-          organisation='https://dev.azure.com/nhse-dtos'
-          project_name='dtos-cohort-manager'
+
+          SHORT_SHA=$(git rev-parse --short "${COMMIT_SHA}")
 
           # Define which tests to run based on the environment
           declare -A test_types=(
@@ -100,23 +101,10 @@ jobs:
             ["preprod"]=""
             ["production"]=""
           )
+          TEST_TYPES_VALUE="${test_types[${ENVIRONMENT_NAME}]}"
 
-          # Derive the short SHA from the provided commit
-          git_short_sha=$(git rev-parse --short "$COMMIT_SHA")
-
-          # Prepare parameters as separate key=value tokens
-          param_image="dockerImageTag=${git_short_sha}"
-          param_tests="testTypes=[${test_types[$ENVIRONMENT_NAME]}]"
-
-          echo "Starting Azure devops pipeline \"Deploy to Azure - Core ${ENVIRONMENT_NAME}\"..."
-          RUN_ID=$(az pipelines run \
-            --commit-id "$COMMIT_SHA" \
-            --name "Deploy to Azure - Core ${ENVIRONMENT_NAME}" \
-            --org "${organisation}" \
-            --project "${project_name}" \
-            --parameters "$param_image" "$param_tests" \
-            --output tsv --query id)
-
-          echo "Click here to view the ADO pipeline: ${organisation}/${project_name}/_build/results?buildId=${RUN_ID}"
-
-          scripts/bash/wait_ado_pipeline.sh "$RUN_ID" "${organisation}" "${project_name}" 1800
+          scripts/bash/call_ado_pipeline.sh \
+            "${COMMIT_SHA}" \
+            "${ENVIRONMENT_NAME}" \
+            "${SHORT_SHA}" \
+            "${TEST_TYPES_VALUE}"

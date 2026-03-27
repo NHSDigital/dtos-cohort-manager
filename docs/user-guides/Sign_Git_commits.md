@@ -335,3 +335,4 @@ After completing these steps, your new signing key will be listed in the "**SSH 
 ## Testing
 
 To ensure your configuration works as expected, make a commit to a branch locally and push it to GitHub. When you view the commit history of the branch on GitHub, [your latest commit](https://docs.github.com/en/authentication/managing-commit-signature-verification/about-commit-signature-verification#about-commit-signature-verification) should now display a `Verified` tag, which indicates successful signing with your GPG or SSH key.
+
