@@ -1,25 +1,41 @@
 import { NextResponse } from "next/server";
 import mockDataStore from "@/app/data/mockDataStore";
+import { SortBy } from "@/app/lib/enums/sortBy";
+import { SortOrder } from "@/app/lib/enums/sortOrder";
+import { ExceptionStatus } from "@/app/lib/enums/exceptionStatus";
 
 function sortExceptions<
-  T extends { DateCreated: string; ServiceNowCreatedDate?: string }
->(items: T[], sortBy: string | null, dateField: keyof T = "DateCreated"): T[] {
-  if (sortBy === "0") {
-    // Ascending: oldest first
-    return items.sort(
-      (a, b) =>
-        new Date(a[dateField] as string).getTime() -
-        new Date(b[dateField] as string).getTime()
-    );
-  } else if (sortBy === "1") {
-    // Descending: newest first
-    return items.sort(
-      (a, b) =>
-        new Date(b[dateField] as string).getTime() -
-        new Date(a[dateField] as string).getTime()
-    );
+  T extends {
+    DateCreated: string;
+    ServiceNowCreatedDate?: string;
+    ExceptionId?: number;
+    NhsNumber?: string
   }
-  return items;
+>(items: T[], sortByParam: string | null, sortOrderParam: string | null = null): T[] {
+  if (!sortByParam || !sortOrderParam) {
+    return items;
+  }
+
+  const field = Number.parseInt(sortByParam) as SortBy;
+  const order = Number.parseInt(sortOrderParam) as SortOrder;
+
+  const sortTypes = {
+    [SortBy.DateCreated]: (a: T, b: T) => {
+      const diff = new Date(a.DateCreated).getTime() - new Date(b.DateCreated).getTime();
+      return order === SortOrder.Descending ? -diff : diff;
+    },
+    [SortBy.NhsNumber]: (a: T, b: T) => {
+      const cmp = (a.NhsNumber || "").localeCompare(b.NhsNumber || "");
+      return order === SortOrder.Descending ? -cmp : cmp;
+    },
+    [SortBy.ExceptionId]: (a: T, b: T) => {
+      const diff = (a.ExceptionId || 0) - (b.ExceptionId || 0);
+      return order === SortOrder.Descending ? -diff : diff;
+    }
+  };
+
+  const compare = sortTypes[field];
+  return compare ? items.sort(compare) : items;
 }
 
 function addExceptionDetails<T extends { ExceptionId: number }>(items: T[]) {
@@ -61,7 +77,7 @@ function paginate<T extends { ExceptionId: number }>(
     IsFirstPage: clampedPage === 1,
     HasNextPage: clampedPage < safeTotalPages,
     HasPreviousPage: clampedPage > 1,
-    LastResultId: pageItems[pageItems.length - 1]?.ExceptionId ?? null,
+    LastResultId: pageItems.at(-1)?.ExceptionId ?? null,
     TotalItems: totalItems,
     TotalPages: safeTotalPages,
     CurrentPage: clampedPage,
@@ -146,7 +162,7 @@ export async function GET(request: Request) {
   const isReport = searchParams.get("isReport");
   const exceptionCategory = searchParams.get("exceptionCategory");
   const reportDate = searchParams.get("reportDate");
-  const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+  const page = Math.max(1, Number.parseInt(searchParams.get("page") || "1", 10));
 
   // Handle single exception requests - get fresh data from store
   if (exceptionId !== null) {
@@ -164,8 +180,7 @@ export async function GET(request: Request) {
   }
 
   if (exceptionStatus !== null) {
-    const usingSort = sortBy ?? sortOrder; // accept either param name
-    const isRaised = exceptionStatus === "1";
+    const isRaised = exceptionStatus === ExceptionStatus.Raised.toString();;
     const allItems = isRaised
       ? mockDataStore.getRaisedExceptions()
       : mockDataStore.getNotRaisedExceptions();
@@ -174,11 +189,7 @@ export async function GET(request: Request) {
       ? allItems.filter((i) => i.Category === Number(exceptionCategory))
       : allItems;
 
-    const sortedItems = sortExceptions(
-      [...categoryFiltered],
-      usingSort,
-      isRaised ? "ServiceNowCreatedDate" : "DateCreated"
-    );
+    const sortedItems = sortExceptions([...categoryFiltered], sortBy, sortOrder);
 
     const withDetails = addExceptionDetails(sortedItems);
     const paginated = paginate(withDetails, page, PAGE_SIZE);
@@ -202,14 +213,13 @@ export async function GET(request: Request) {
 
     let dateFiltered = byCategory;
     if (reportDate) {
-      const prefix = `${reportDate}`; // YYYY-MM-DD
-      // Align with backend: use DateCreated for reportDate filtering
+      const prefix = `${reportDate}`;
       dateFiltered = byCategory.filter((i) =>
         i.DateCreated?.startsWith(prefix)
       );
     }
 
-    const sorted = sortExceptions([...dateFiltered], usingSort, "DateCreated");
+    const sorted = sortExceptions([...dateFiltered], usingSort);
     const withDetails = addExceptionDetails(sorted);
     const paginated = paginate(withDetails, page, PAGE_SIZE);
     const json = NextResponse.json(paginated, { status: 200 });

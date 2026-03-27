@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
-import { ExceptionDetails } from "@/app/types";
 import { auth } from "@/app/lib/auth";
 import { canAccessCohortManager } from "@/app/lib/access";
-import { fetchExceptions } from "@/app/lib/fetchExceptions";
-import { getRuleMapping } from "@/app/lib/ruleMapping";
-import ExceptionsTable from "@/app/components/exceptionsTable";
-import SortExceptionsForm from "@/app/components/sortExceptionsForm";
+import { ExceptionStatus } from "@/app/lib/enums/exceptionStatus";
 import Breadcrumb from "@/app/components/breadcrumb";
 import Unauthorised from "@/app/components/unauthorised";
-import DataError from "@/app/components/dataError";
-import Pagination from "@/app/components/pagination";
+import ExceptionsPage from "@/app/components/ExceptionsPage";
+import FilterExceptionsForm from "@/app/components/filterExceptionsForm";
+import { getRuleFilterOptions, validateDateFilter } from "@/app/lib/filterOptions";
+import { SortOptions } from "@/app/lib/sortOptions";
 
 export const metadata: Metadata = {
   title: `Raised breast screening exceptions - ${process.env.SERVICE_NAME} - NHS`,
@@ -21,6 +19,10 @@ export default async function Page({
   readonly searchParams?: Promise<{
     readonly sortBy?: string;
     readonly page?: string;
+    readonly ruleId?: string;
+    readonly dateDay?: string;
+    readonly dateMonth?: string;
+    readonly dateYear?: string;
   }>;
 }) {
   const session = await auth();
@@ -32,131 +34,75 @@ export default async function Page({
 
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const resolvedSearchParams = searchParams ? await searchParams : {};
-  const sortBy = resolvedSearchParams.sortBy === "0" ? 0 : 1;
+  const selectedSortOption = resolvedSearchParams.sortBy || "1";
   const currentPage = Math.max(
     1,
     Number.parseInt(resolvedSearchParams.page || "1", 10)
   );
 
-  const sortOptions = [
-    {
-      value: "1",
-      label: "Status last updated (most recent first)",
-    },
-    {
-      value: "0",
-      label: "Status last updated (oldest first)",
-    },
-  ];
+  // Handle filter parameters
+  const ruleId = resolvedSearchParams.ruleId;
+  const dateDay = resolvedSearchParams.dateDay;
+  const dateMonth = resolvedSearchParams.dateMonth;
+  const dateYear = resolvedSearchParams.dateYear;
 
-  try {
-    const response = await fetchExceptions({
-      exceptionStatus: 1,
-      sortOrder: sortBy,
-      page: currentPage,
-    });
+  // Validate date if provided
+  const dateValidation = validateDateFilter(dateDay, dateMonth, dateYear);
 
-    const exceptionDetails: ExceptionDetails[] = response.data.Items.map(
-      (exception: {
-        ExceptionId: number | string;
-        DateCreated: string | Date;
-        RuleDescription: string;
-        RuleId: number;
-        NhsNumber: string | number;
-        ServiceNowId?: string | null;
-        ServiceNowCreatedDate?: string | Date | null;
-      }) => {
-        const ruleMapping = getRuleMapping(
-          exception.RuleId,
-          exception.RuleDescription
-        );
-        return {
-          exceptionId: exception.ExceptionId.toString(),
-          dateCreated:
-            exception.DateCreated instanceof Date
-              ? exception.DateCreated
-              : new Date(exception.DateCreated),
-          shortDescription: ruleMapping.ruleDescription,
-          nhsNumber: exception.NhsNumber,
-          serviceNowId: exception.ServiceNowId ?? "",
-          serviceNowCreatedDate: exception.ServiceNowCreatedDate
-            ? new Date(exception.ServiceNowCreatedDate)
-            : undefined,
-        };
-      }
-    );
+  // Build URL with filters
+  const buildUrl = (page: number) => {
+    const params = new URLSearchParams();
+    params.set("sortBy", selectedSortOption);
+    params.set("page", page.toString());
 
-    const linkHeader = response.headers?.get("Link") || response.linkHeader;
-    const totalPages = response.data.TotalPages || 1;
-    const pageSize = 10;
-    const totalItems = Number(response.data.TotalItems) || 0;
-    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
-    const endItem =
-      totalItems > 0
-        ? Math.min(startItem + response.data.Items.length - 1, totalItems)
-        : 0;
+    if (ruleId) {
+      params.set("ruleId", ruleId);
+    }
 
-    return (
-      <>
-        <Breadcrumb items={breadcrumbItems} />
-        <main className="nhsuk-main-wrapper" id="maincontent" role="main">
-          <div className="nhsuk-grid-row">
-            <div className="nhsuk-grid-column-full">
-              <h1 data-testid="heading-raised">
-                Raised breast screening exceptions
-              </h1>
+    if (dateValidation.isValid && dateDay && dateMonth && dateYear) {
+      params.set("dateDay", dateDay);
+      params.set("dateMonth", dateMonth);
+      params.set("dateYear", dateYear);
+    }
 
-              {totalItems === 0 ? (
-                <p className="nhsuk-body" data-testid="no-raised-exceptions">
-                  There are currently no raised breast screening exceptions.
-                </p>
-              ) : (
-                <>
-                  <div className="app-form-results-container">
-                    <SortExceptionsForm
-                      sortBy={sortBy}
-                      options={sortOptions}
-                      hiddenText="raised exceptions"
-                      testId="sort-raised-exceptions"
-                    />
-                    <p
-                      className="app-results-text"
-                      data-testid="raised-exception-count"
-                    >
-                      Showing {startItem} to {endItem} of {totalItems} results
-                    </p>
-                  </div>
-                  <div className="nhsuk-card nhsuk-u-margin-bottom-5">
-                    <div className="nhsuk-card__content">
-                      <ExceptionsTable
-                        exceptions={exceptionDetails}
-                        caption="Breast screening exceptions which have been created today"
-                      />
-                    </div>
-                  </div>
-                  {totalPages > 1 && (
-                    <Pagination
-                      linkHeader={linkHeader}
-                      currentPage={currentPage}
-                      totalPages={totalPages}
-                      buildUrl={(page) =>
-                        `/exceptions/raised?sortBy=${sortBy}&page=${page}`
-                      }
-                    />
-                  )}
-                </>
-              )}
-            </div>
+    return `/exceptions/raised?${params.toString()}`;
+  };
+
+  return (
+    <>
+      <Breadcrumb items={breadcrumbItems} />
+      <main className="nhsuk-main-wrapper" id="maincontent" role="main">
+        <div className="nhsuk-grid-row">
+          <div className="nhsuk-grid-column-full">
+            <h1>Raised breast screening exceptions</h1>
+
+            <FilterExceptionsForm
+              ruleOptions={getRuleFilterOptions()}
+              selectedRuleId={ruleId}
+              dateDay={dateDay}
+              dateMonth={dateMonth}
+              dateYear={dateYear}
+              sortBy={selectedSortOption}
+              sortOptions={SortOptions}
+              page="1"
+              dateError={dateValidation.isValid ? undefined : dateValidation.error}
+            />
+
+            <ExceptionsPage
+              exceptionStatus={ExceptionStatus.Raised}
+              title=""
+              noResultsMessage="There are currently no raised breast screening exceptions matching the selected filters."
+              sortBy={selectedSortOption}
+              currentPage={currentPage}
+              buildUrl={buildUrl}
+              showServiceNowColumn={true}
+              tableCaption="Breast screening exceptions which have been created today"
+              ruleId={ruleId}
+              dateCreated={dateValidation.isValid ? dateValidation.formattedDate : undefined}
+            />
           </div>
-        </main>
-      </>
-    );
-  } catch {
-    return (
-      <>
-        <Breadcrumb items={breadcrumbItems} />
-        <DataError />
-      </>
-    );
-  }
+        </div>
+      </main>
+    </>
+  );
 }

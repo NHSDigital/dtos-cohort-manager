@@ -1,4 +1,4 @@
-﻿namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
+namespace NHS.CohortManager.Tests.ParticipantManagementServiceTests;
 
 using System.Linq.Expressions;
 using System.Net;
@@ -9,6 +9,7 @@ using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Model;
+using Model.Constants;
 using Model.Enums;
 using Moq;
 using NHS.CohortManager.ParticipantManagementServices;
@@ -25,7 +26,6 @@ public class ManageServiceNowParticipantFunctionTests
     private readonly Mock<IQueueClient> _queueClientMock = new();
     private readonly ServiceNowParticipant _serviceNowParticipant;
     private readonly ManageServiceNowParticipantFunction _function;
-
     private readonly string _messageType1Request;
     private readonly string _messageType2Request;
     private readonly PdsDemographic _matchingPdsDemographic;
@@ -288,9 +288,14 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
+
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+            .Returns(Task.FromResult(default(object))).Verifiable();
+
 
         // Act
         await _function.Run(_serviceNowParticipant);
@@ -299,6 +304,7 @@ public class ManageServiceNowParticipantFunctionTests
         _httpClientFunctionMock.Verify();
         _httpClientFunctionMock.VerifyNoOtherCalls();
 
+        _handleExceptionMock.Verify();
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
@@ -331,7 +337,8 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.Amended &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
@@ -382,7 +389,7 @@ public class ManageServiceNowParticipantFunctionTests
                 p.ParticipantId == 123 &&
                 p.ScreeningId == _serviceNowParticipant.ScreeningId &&
                 p.NHSNumber == _serviceNowParticipant.NhsNumber &&
-                p.RecordType == Actions.Amended &&
+                p.RecordType == Actions.New &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
                 p.RecordUpdateDateTime != null &&
@@ -394,12 +401,17 @@ public class ManageServiceNowParticipantFunctionTests
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
+
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+            .Returns(Task.FromResult(default(object))).Verifiable();
+
 
         // Act
         await _function.Run(_serviceNowParticipant);
@@ -408,6 +420,7 @@ public class ManageServiceNowParticipantFunctionTests
         _httpClientFunctionMock.Verify();
         _httpClientFunctionMock.VerifyNoOtherCalls();
 
+        _handleExceptionMock.Verify();
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
@@ -443,7 +456,7 @@ public class ManageServiceNowParticipantFunctionTests
                 p.ParticipantId == 123 &&
                 p.ScreeningId == _serviceNowParticipant.ScreeningId &&
                 p.NHSNumber == _serviceNowParticipant.NhsNumber &&
-                p.RecordType == Actions.Amended &&
+                p.RecordType == Actions.New &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
                 p.RecordUpdateDateTime != null)))
@@ -453,12 +466,16 @@ public class ManageServiceNowParticipantFunctionTests
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
+
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+            .Returns(Task.FromResult(default(object))).Verifiable();
 
         // Act
         await _function.Run(_serviceNowParticipant);
@@ -467,6 +484,7 @@ public class ManageServiceNowParticipantFunctionTests
         _httpClientFunctionMock.Verify();
         _httpClientFunctionMock.VerifyNoOtherCalls();
 
+        _handleExceptionMock.Verify();
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
@@ -529,9 +547,14 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == vhrParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.VeryHighRisk),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
+
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+            .Returns(Task.FromResult(default(object))).Verifiable();
+
 
         // Act
         await _function.Run(vhrParticipant);
@@ -540,6 +563,7 @@ public class ManageServiceNowParticipantFunctionTests
         _httpClientFunctionMock.Verify();
         _httpClientFunctionMock.VerifyNoOtherCalls();
 
+        _handleExceptionMock.Verify();
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
@@ -590,9 +614,14 @@ public class ManageServiceNowParticipantFunctionTests
                     x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
+
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+            .Returns(Task.FromResult(default(object))).Verifiable();
+
 
         // Act
         await _function.Run(_serviceNowParticipant);
@@ -601,6 +630,7 @@ public class ManageServiceNowParticipantFunctionTests
         _httpClientFunctionMock.Verify();
         _httpClientFunctionMock.VerifyNoOtherCalls();
 
+        _handleExceptionMock.Verify();
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
@@ -658,7 +688,7 @@ public class ManageServiceNowParticipantFunctionTests
                 p.ParticipantId == 123 &&
                 p.ScreeningId == vhrParticipant.ScreeningId &&
                 p.NHSNumber == vhrParticipant.NhsNumber &&
-                p.RecordType == Actions.Amended &&
+                p.RecordType == Actions.New &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
                 p.IsHigherRisk == 1 &&
@@ -669,12 +699,17 @@ public class ManageServiceNowParticipantFunctionTests
                     x.FileName == vhrParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == vhrParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == vhrParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == vhrParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.VeryHighRisk),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
+
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+            .Returns(Task.FromResult(default(object))).Verifiable();
+
 
         // Act
         await _function.Run(vhrParticipant);
@@ -683,6 +718,7 @@ public class ManageServiceNowParticipantFunctionTests
         _httpClientFunctionMock.Verify();
         _httpClientFunctionMock.VerifyNoOtherCalls();
 
+        _handleExceptionMock.Verify();
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
@@ -729,7 +765,7 @@ public class ManageServiceNowParticipantFunctionTests
                 p.ParticipantId == 123 &&
                 p.ScreeningId == _serviceNowParticipant.ScreeningId &&
                 p.NHSNumber == _serviceNowParticipant.NhsNumber &&
-                p.RecordType == Actions.Amended &&
+                p.RecordType == Actions.New &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
                 p.IsHigherRisk == 1 &&
@@ -740,12 +776,17 @@ public class ManageServiceNowParticipantFunctionTests
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
+
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+            .Returns(Task.FromResult(default(object))).Verifiable();
+
 
         // Act
         await _function.Run(_serviceNowParticipant);
@@ -754,6 +795,7 @@ public class ManageServiceNowParticipantFunctionTests
         _httpClientFunctionMock.Verify();
         _httpClientFunctionMock.VerifyNoOtherCalls();
 
+        _handleExceptionMock.Verify();
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
@@ -799,7 +841,7 @@ public class ManageServiceNowParticipantFunctionTests
                 p.ParticipantId == 123 &&
                 p.ScreeningId == _serviceNowParticipant.ScreeningId &&
                 p.NHSNumber == _serviceNowParticipant.NhsNumber &&
-                p.RecordType == Actions.Amended &&
+                p.RecordType == Actions.New &&
                 p.EligibilityFlag == 1 &&
                 p.ReferralFlag == 1 &&
                 p.IsHigherRisk == null &&
@@ -810,12 +852,15 @@ public class ManageServiceNowParticipantFunctionTests
                     x.FileName == _serviceNowParticipant.ServiceNowCaseNumber &&
                     x.BasicParticipantData.ScreeningId == _serviceNowParticipant.ScreeningId.ToString() &&
                     x.BasicParticipantData.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
-                    x.BasicParticipantData.RecordType == Actions.Amended &&
+                    x.BasicParticipantData.RecordType == Actions.New &&
                     x.Participant.ReferralFlag == "1" &&
                     x.Participant.PrimaryCareProvider == _serviceNowParticipant.RequiredGpCode &&
-                    x.Participant.ScreeningAcronym == "BSS"),
+                    x.Participant.ScreeningAcronym == "BSS" &&
+                    x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+            .Returns(Task.FromResult(default(object))).Verifiable();
 
         // Act
         await _function.Run(_serviceNowParticipant);
@@ -824,6 +869,7 @@ public class ManageServiceNowParticipantFunctionTests
         _httpClientFunctionMock.Verify();
         _httpClientFunctionMock.VerifyNoOtherCalls();
 
+        _handleExceptionMock.Verify();
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.Verify();
@@ -833,5 +879,196 @@ public class ManageServiceNowParticipantFunctionTests
         _queueClientMock.VerifyNoOtherCalls();
 
         _loggerMock.VerifyLogger(LogLevel.Information, "Existing participant management record found, updating record 123");
+    }
+
+    [TestMethod]
+    [DataRow("Samantha", "Bloggs", "Samantha ", "Bloggs", "1970-01-01")]          // Trailing space in first name from PDS
+    [DataRow("Samantha", "Bloggs", "Samantha", "Bloggs ", "1970-01-01")]          // Trailing space in family name from PDS
+    [DataRow("Samantha", "Bloggs", " Samantha", "Bloggs", "1970-01-01")]          // Leading space in first name from PDS
+    [DataRow("Samantha", "Bloggs", "Samantha", " Bloggs", "1970-01-01")]          // Leading space in family name from PDS
+    [DataRow("Samantha", "Bloggs", "Samantha  ", "Bloggs  ", "1970-01-01")]       // Multiple trailing spaces from PDS
+    [DataRow("MaryAnne", "Smith", "Mary-Anne", "Smith", "1970-01-01")]            // ServiceNow has no hyphen, PDS has hyphen
+    [DataRow("Mary-Anne", "Smith", "MaryAnne", "Smith", "1970-01-01")]            // ServiceNow has hyphen, PDS has no hyphen
+    [DataRow("Mary-Anne", "Smith", "Mary Anne", "Smith", "1970-01-01")]           // ServiceNow has hyphen, PDS has space
+    [DataRow("Mary-Anne", "Smith-Jones", "MaryAnne", "SmithJones", "1970-01-01")] // Hyphens in ServiceNow, none in PDS
+    [DataRow("MaryAnne", "SmithJones", "Mary Anne", "Smith Jones", "1970-01-01")] // No hyphens in ServiceNow, spaces in PDS
+    [DataRow("Mary-Anne", "Smith-Jones", "Mary Anne", "Smith Jones", "1970-01-01")] // Hyphens in ServiceNow, spaces in PDS
+    [DataRow("José", "Bloggs", "José ", "Bloggs", "1970-01-01")]                 // Accented character with trailing space
+    [DataRow("François", "Müller", "François ", "Müller ", "1970-01-01")]        // Multiple accented characters with trailing spaces
+    [DataRow("Siobhán", "OBrien", "Siobhán", "O'Brien", "1970-01-01")]           // Accented character, apostrophe removed
+    [DataRow("Samantha", "OBrien", "Samantha", "O'Brien", "1970-01-01")]         // ServiceNow without apostrophe, PDS with apostrophe
+    [DataRow("Samantha", "dArcy", "Samantha", "d'Arcy", "1970-01-01")]           // Lowercase name with apostrophe in PDS
+    [DataRow("samantha", "bloggs", "SAMANTHA", "BLOGGS", "1970-01-01")]         // Case insensitive matching
+    public async Task Run_WhenServiceNowParticipantNameHasTrailingSpacesOrHyphensOrSpecialChars_MatchesWithPdsAndAddsParticipant(
+        string serviceNowFirstName, string serviceNowFamilyName, string pdsFirstName, string pdsFamilyName, string dateOfBirth)
+    {
+        // Arrange
+        var testServiceNowParticipant = new ServiceNowParticipant
+        {
+            ScreeningId = _serviceNowParticipant.ScreeningId,
+            NhsNumber = _serviceNowParticipant.NhsNumber,
+            FirstName = serviceNowFirstName,
+            FamilyName = serviceNowFamilyName,
+            DateOfBirth = _serviceNowParticipant.DateOfBirth,
+            ServiceNowCaseNumber = _serviceNowParticipant.ServiceNowCaseNumber,
+            BsoCode = _serviceNowParticipant.BsoCode,
+            ReasonForAdding = _serviceNowParticipant.ReasonForAdding,
+            RequiredGpCode = _serviceNowParticipant.RequiredGpCode
+        };
+
+        var testPdsDemographic = new PdsDemographic
+        {
+            NhsNumber = _matchingPdsDemographic.NhsNumber,
+            FirstName = pdsFirstName,
+            FamilyName = pdsFamilyName,
+            DateOfBirth = dateOfBirth,
+            ReasonForRemoval = _matchingPdsDemographic.ReasonForRemoval,
+            RemovalEffectiveFromDate = _matchingPdsDemographic.RemovalEffectiveFromDate
+        };
+
+        var json = JsonSerializer.Serialize(testPdsDemographic);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={testServiceNowParticipant.NhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            }).Verifiable();
+
+        _httpClientFunctionMock.Setup(x => x.SendPost(_configMock.Object.Value.ManageNemsSubscriptionSubscribeURL,
+                It.Is<Dictionary<string, string>>(x => x.Count == 1 && x.First().Key == "nhsNumber" && x.First().Value == testServiceNowParticipant.NhsNumber.ToString())))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)).Verifiable();
+
+        _dataServiceClientMock.Setup(client => client.GetSingleByFilter(
+            It.Is<Expression<Func<ParticipantManagement, bool>>>(x => x.Compile().Invoke(new ParticipantManagement { NHSNumber = testServiceNowParticipant.NhsNumber, ScreeningId = testServiceNowParticipant.ScreeningId })
+            ))).ReturnsAsync((ParticipantManagement)null!).Verifiable();
+
+        _dataServiceClientMock.Setup(x => x.Add(It.IsAny<ParticipantManagement>())).ReturnsAsync(true).Verifiable();
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), _configMock.Object.Value.CohortDistributionTopic)).ReturnsAsync(true).Verifiable();
+
+        // Act
+        await _function.Run(testServiceNowParticipant);
+
+        // Assert
+        _httpClientFunctionMock.Verify();
+        _dataServiceClientMock.Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Once);
+        _queueClientMock.Verify();
+
+        _httpClientFunctionMock.Verify(
+            x => x.SendPut(It.IsAny<string>(), _messageType1Request),
+            Times.Never,
+            "Should not send UnableToAddParticipant message when names match after normalization");
+    }
+
+    [TestMethod]
+    [DataRow("Victoria", "Smith", "1970-01-01")]            // Completely different first name
+    [DataRow("Samantha", "Williams", "1970-01-01")]         // Completely different family name
+    [DataRow("Sam", "Bloggs", "1970-01-01")]                // Shortened first name (not just formatting)
+    [DataRow("Samantha-Jane", "Bloggs", "1970-01-01")]      // Additional name part
+    [DataRow("François", "Bloggs", "1970-01-01")]           // ServiceNow without accent, PDS with accent - should NOT match
+    [DataRow("Siobhán", "Bloggs", "1970-01-01")]            // ServiceNow without accent, PDS with accent - should NOT match
+    public async Task Run_WhenServiceNowParticipantNamesDontMatchPdsAfterNormalization_ParticipantDataDoesNotMatchExceptionRaised(string pdsFirstName, string pdsFamilyName, string dateOfBirth)
+    {
+        // Arrange
+        _matchingPdsDemographic.FirstName = pdsFirstName;
+        _matchingPdsDemographic.FamilyName = pdsFamilyName;
+        _matchingPdsDemographic.DateOfBirth = dateOfBirth;
+
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            }).Verifiable();
+
+        // Act
+        await _function.Run(_serviceNowParticipant);
+
+        // Assert
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
+        _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(It.Is<Exception>(e => e.Message == "Participant data from ServiceNow does not match participant data from PDS"),
+            It.IsAny<ServiceNowParticipant>()), Times.Once);
+        _dataServiceClientMock.Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never);
+        _queueClientMock.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    [DataRow("123", "456", "1970-01-01")]      // Numbers only - both normalize to empty strings
+    [DataRow("123", "123", "1970-01-01")]      // Numbers only - Matching
+    [DataRow("---", "@@@", "1970-01-01")]      // Symbols only - both normalize to empty strings
+    [DataRow("123-456", "...", "1970-01-01")]  // Mixed non-letters - both normalize to empty strings
+    [DataRow("   ", "   ", "1970-01-01")]      // Spaces only
+    public async Task Run_WhenNamesContainOnlyNonLetterCharacters_ParticipantDataDoesNotMatchExceptionRaised(string pdsFirstName, string pdsFamilyName, string dateOfBirth)
+    {
+        // Arrange
+        var testServiceNowParticipant = new ServiceNowParticipant
+        {
+            ScreeningId = _serviceNowParticipant.ScreeningId,
+            NhsNumber = _serviceNowParticipant.NhsNumber,
+            FirstName = "123",
+            FamilyName = "456",
+            DateOfBirth = _serviceNowParticipant.DateOfBirth,
+            ServiceNowCaseNumber = _serviceNowParticipant.ServiceNowCaseNumber,
+            BsoCode = _serviceNowParticipant.BsoCode,
+            ReasonForAdding = _serviceNowParticipant.ReasonForAdding,
+            RequiredGpCode = _serviceNowParticipant.RequiredGpCode
+        };
+
+        var testPdsDemographic = new PdsDemographic
+        {
+            NhsNumber = _matchingPdsDemographic.NhsNumber,
+            FirstName = pdsFirstName,
+            FamilyName = pdsFamilyName,
+            DateOfBirth = dateOfBirth,
+            ReasonForRemoval = _matchingPdsDemographic.ReasonForRemoval,
+            RemovalEffectiveFromDate = _matchingPdsDemographic.RemovalEffectiveFromDate
+        };
+
+        var json = JsonSerializer.Serialize(testPdsDemographic);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={testServiceNowParticipant.NhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            }).Verifiable();
+
+        // Act
+        await _function.Run(testServiceNowParticipant);
+
+        // Assert
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{testServiceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once(),
+            "Should send UnableToAddParticipant message when names normalize to empty strings");
+        _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(It.Is<Exception>(e => e.Message == "Participant data from ServiceNow does not match participant data from PDS"),
+            It.IsAny<ServiceNowParticipant>()), Times.Once, "Should create exception log when names containing only non-letter characters don't spuriously match");
+        _dataServiceClientMock.Verify(x => x.Add(It.IsAny<ParticipantManagement>()), Times.Never, "Should not add participant when names are invalid (only non-letter characters)");
+        _queueClientMock.Verify(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Never, "Should not queue participant when names are invalid");
+    }
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    public async Task Run_WhenRequestHasNoRequiredGPCode_DoesntRaiseRule98Exception(string requiredGpCode)
+    {
+        // Arrange
+        _serviceNowParticipant.RequiredGpCode = requiredGpCode;
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.NotFound)).Verifiable();
+
+        // Act
+        await _function.Run(_serviceNowParticipant);
+
+        // Assert
+        _httpClientFunctionMock.Verify(x => x.SendPut($"{_configMock.Object.Value.SendServiceNowMessageURL}/{_serviceNowParticipant.ServiceNowCaseNumber}", _messageType1Request), Times.Once());
+        _httpClientFunctionMock.Verify();
+        _httpClientFunctionMock.VerifyNoOtherCalls();
+
+        _handleExceptionMock.Verify(x => x.CreateSystemExceptionLog(
+                It.IsAny<Exception>(),
+                It.Is<ServiceNowParticipant>(p => p.NhsNumber == _serviceNowParticipant.NhsNumber
+                && p.FirstName == _serviceNowParticipant.FirstName
+                && p.FamilyName == _serviceNowParticipant.FamilyName
+                && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
+                && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
+        _handleExceptionMock.Verify(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null),Times.Never);
+        _handleExceptionMock.VerifyNoOtherCalls();
+
+        _dataServiceClientMock.VerifyNoOtherCalls();
+
     }
 }

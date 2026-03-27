@@ -16,6 +16,7 @@
     "test:regression_e2e_epic4d": "cross-env TEST_TYPE=RegressionEpic4d npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic4d-",
     "test:regression_e2e_epic4b": "cross-env TEST_TYPE=RegressionEpic4d npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic4b-",
     "test:regression_e2e_epic4f": "cross-env TEST_TYPE=RegressionEpic4f npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=@epic4f-",
+    "test:maintenance_regression": "cross-env TEST_TYPE=Maintenance npx playwright test --project=dev --config=src/config/playwright.config.ts src/tests/e2e/maintenance-regression-tests/",
     "test": "cross-env TEST_TYPE=SMOKE npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@smoke @e2e\"",
     "test:validation-exceptions": "cross-env TEST_TYPE=VALIDATION npx playwright test tests/api/bsselect/validationExceptions/ --project=dev --config=src/config/playwright.config.ts",
     "test:service_now": "npx playwright test --project=dev --config=src/config/playwright.config.ts --grep=\"@service_now\"",
@@ -32,7 +33,7 @@
     "parquetjs": "0.11.2"
   },
   "devDependencies": {
-    "@playwright/test": "^1.52.0",
+    "@playwright/test": "^1.56.1",
     "@types/node": "22.13.14",
     "@types/parquetjs": "0.10.6",
     "cross-env": "^7.0.3"
