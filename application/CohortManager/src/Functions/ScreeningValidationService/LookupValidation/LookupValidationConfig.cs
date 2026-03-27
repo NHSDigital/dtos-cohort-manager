@@ -1,7 +1,6 @@
 namespace NHS.CohortManager.ScreeningValidationService;
-public class LookupValidationConfig
+public class LookupValidationConfig //TODO: Add required keys and data annotations
 {
-    public string ExceptionFunctionUrl {get;set;}
     public string BsSelectGpPracticeUrl {get;set;}
     public string BsSelectOutCodeUrl {get;set;}
     public string CurrentPostingUrl {get;set;}

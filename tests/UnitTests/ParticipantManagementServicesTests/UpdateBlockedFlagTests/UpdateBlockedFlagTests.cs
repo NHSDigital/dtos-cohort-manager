@@ -38,7 +38,6 @@ public class UpdateBlockedFlagTests
         {
             ParticipantDemographicDataServiceURL = "participantManagementUrl",
             ParticipantManagementUrl = "ParticipantManagementUrl",
-            ExceptionFunctionURL = "ExceptionFunctionUrl",
             ManageNemsSubscriptionSubscribeURL = "NemsSubscribeUrl",
             ManageNemsSubscriptionUnsubscribeURL = "NemsUnsubscribeUrl",
             RetrievePdsDemographicURL = "RetrievePdsDemographicUrl"

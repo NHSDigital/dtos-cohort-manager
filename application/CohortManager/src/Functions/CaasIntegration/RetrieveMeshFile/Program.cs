@@ -70,8 +70,7 @@ try
         // Register health checks
         services.AddBlobStorageHealthCheck("RetrieveMeshFile");
     })
-    .AddTelemetry()
-    .AddExceptionHandler();
+    .AddTelemetry();
 
     var app = host.Build();
 

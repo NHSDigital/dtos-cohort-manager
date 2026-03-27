@@ -68,7 +68,10 @@ services:
       - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
       - ParticipantManagementTopic=participant-management-topic
+
 
   receive-caas-file:
     container_name: receive-caas-file
@@ -83,7 +86,6 @@ services:
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - caasfolder_STORAGE=${AZURITE_CONNECTION_STRING}
       - ASPNETCORE_URLS=http://*:7060
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - DemographicURI=http://durable-demographic-function:7079/api/DurableDemographicFunction_HttpStart
       - GetOrchestrationStatusURL=http://durable-demographic-function:7079/api/GetOrchestrationStatus
@@ -97,6 +99,8 @@ services:
       - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - fileExceptions=file-exceptions
       - ParticipantManagementTopic=participant-management-topic
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
   # Participant Management Service
   manage-participant:
@@ -115,7 +119,8 @@ services:
       - ParticipantManagementTopic=participant-management-topic
       - ManageParticipantSubscription=manage-participant-sub
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
   manage-servicenow-participant:
     container_name: manage-servicenow-participant
@@ -128,7 +133,6 @@ services:
         BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     profiles: [service-now]
     environment:
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ServiceNowParticipantManagementTopic=servicenow-participant-management-topic
       - ManageServiceNowParticipantSubscription=manage-servicenow-participant-sub
       - ServiceBusConnectionString_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
@@ -139,6 +143,8 @@ services:
       # - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
       - ManageNemsSubscriptionSubscribeURL=http://manage-caas-subscription:9084/api/Subscribe
       - CohortDistributionTopic=cohort-distribution-topic
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
   update-blocked-flag:
     container_name: update-blocked-flag
@@ -157,12 +163,14 @@ services:
       - AzureWebJobsStorage=UseDevelopmentStorage=true
       - ParticipantManagementUrl=http://participant-management-data-service:7994/api/ParticipantManagementDataService
       - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       # - ManageNemsSubscriptionUnsubscribeURL=http://manage-nems-subscription:9081/api/Unsubscribe
       # - ManageNemsSubscriptionSubscribeURL=http://manage-nems-subscription:9081/api/Subscribe
       - ManageNemsSubscriptionUnsubscribeURL=http://manage-caas-subscription:9084/api/Unsubscribe
       - ManageNemsSubscriptionSubscribeURL=http://manage-caas-subscription:9084/api/Subscribe
-      - RetrievePdsDemographicURL=http://etrieve-pds-demographic:8082/api/RetrievePdsDemographic
+      - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePdsDemographic
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
   delete-participant:
     container_name: delete-participant
@@ -179,9 +187,11 @@ services:
     environment:
       - ASPNETCORE_URLS=http://*:7087
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - AcceptableLatencyThresholdMs=500
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
 
   # Screening Data Service
@@ -200,6 +210,10 @@ services:
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService/
       - ExceptionManagementDataServiceURL=http://exception-management-data-service:7911/api/ExceptionManagementDataService/
       - GPPracticeDataServiceURL=http://localhost:7999/api/GPPracticeDataService/
+      - CreateExceptionTopic=create-exception-topic
+      - CreateExceptionSubscription=create-exception-sub
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+
 
   update-exception:
     container_name: update-exception
@@ -246,8 +260,10 @@ services:
         BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7074
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
   lookup-validation:
     container_name: lookup-validation
@@ -260,7 +276,6 @@ services:
         BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
     environment:
       - ASPNETCORE_URLS=http://*:7075
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - BsSelectGpPracticeUrl=http://reference-data-service:7988/api/BsSelectGpPractice
       - BsSelectOutCodeUrl=http://reference-data-service:7988/api/BsSelectOutCode
       - CurrentPostingUrl=http://reference-data-service:7988/api/CurrentPosting
@@ -268,6 +283,9 @@ services:
       - BlobContainerName=rules
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
   # Demographic Services
   retrieve-pds-demographic:
@@ -284,7 +302,9 @@ services:
       - 8082:8082
     environment:
       - ASPNETCORE_URLS=http://*:8082
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
       - RetrievePdsParticipantURL=https://sandbox.api.service.nhs.uk/personal-demographics/FHIR/R4/Patient
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
       - Kid=RetrievePdsDemographic-DEV1
@@ -292,7 +312,6 @@ services:
       - AuthTokenURL=https://int.api.service.nhs.uk/oauth2/token
       - LocalPrivateKeyFileName=RetrievePdsDemographic-DEV1.pem.key
       - ParticipantManagementTopic=participant-management-topic
-      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
       - ClientId=Get-private-key-from-NHS-dev-portal
       - UseFakePDSServices=true
 
@@ -309,7 +328,6 @@ services:
       environment:
         - ASPNETCORE_URLS=http://*:9081
         - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
-        - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
         - ParticipantDemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
         - RetrievePdsDemographicURL=http://retrieve-pds-demographic:8082/api/RetrievePDSDemographic
         - NemsFhirEndpoint=https://msg.intspineservices.nhs.uk/STU3
@@ -325,6 +343,9 @@ services:
         - NemsBypassServerCertificateValidation=true
         - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
         - IsStubbed=true
+        - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+        - ExceptionUseServiceBus=true
+        - CreateExceptionTopic=create-exception-topic
       ports:
         - "9081:9081"
 
@@ -342,7 +363,6 @@ services:
         - ASPNETCORE_URLS=http://*:9084
         - FUNCTIONS_WORKER_RUNTIME=dotnet-isolated
         - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
-        - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
         - CaasSubscriptionMeshApiBaseUrl=${MESH_API_BASE_URL:-https://localhost:8700/messageexchange}
         - MeshCaasPassword=password
         - MeshCaasSharedKey=TestKey
@@ -352,6 +372,9 @@ services:
         - CaasToMailbox=${CAAS_SUBSCRIBE_TO_MAILBOX:-CAAS_TO}
         - CaasFromMailbox=${CAAS_SUBSCRIBE_FROM_MAILBOX:-CAAS_FROM}
         - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+        - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+        - ExceptionUseServiceBus=true
+        - CreateExceptionTopic=create-exception-topic
       ports:
         - "9084:9084"
 
@@ -369,10 +392,12 @@ services:
       - WEBSITE_HOSTNAME=durable-demographic-function:7079
       - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
       - DemographicDataServiceURL=http://participant-demographic-data-service:7993/api/ParticipantDemographicDataService
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
       - AcceptableLatencyThresholdMs=500
       - MaxRetryCount=3
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
   # Service Now Integration Service
   servicenow-message-handler:
@@ -412,9 +437,11 @@ services:
     profiles: [service-now]
     environment:
       - ASPNETCORE_URLS=http://*:7180
-      - ExceptionFunctionURL=http://create-exception:7070/api/CreateException
       - ServiceNowCasesDataServiceURL=http://servicenow-cases-data-service:9996/api/ServiceNowCasesDataService
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService
+      - ServiceBusConnectionString_client_internal=Endpoint=sb://service-bus;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=SAS_KEY_VALUE;UseDevelopmentEmulator=true;
+      - ExceptionUseServiceBus=true
+      - CreateExceptionTopic=create-exception-topic
 
   # UI
   web:

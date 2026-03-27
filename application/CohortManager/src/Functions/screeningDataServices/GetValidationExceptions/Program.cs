@@ -28,7 +28,6 @@ var host = new HostBuilder()
     .AddTelemetry()
     .AddDatabaseConnection()
     .AddHttpClient()
-    .AddExceptionHandler()
     .Build();
 
 await host.RunAsync();

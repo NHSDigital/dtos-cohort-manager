@@ -53,7 +53,7 @@ public class CreateException
 
     [Function("RunCreateException")]
     public async Task Run(
-      [ServiceBusTrigger(topicName: "%CreateExceptionTopic%", subscriptionName: "%ExceptionSubscription%", Connection = "ServiceBusConnectionString", AutoCompleteMessages = false)]
+      [ServiceBusTrigger(topicName: "%CreateExceptionTopic%", subscriptionName: "%CreateExceptionSubscription%", Connection = "ServiceBusConnectionString_internal", AutoCompleteMessages = false)]
         ServiceBusReceivedMessage message,
        ServiceBusMessageActions messageActions)
     {
@@ -68,7 +68,7 @@ public class CreateException
                 await messageActions.DeadLetterMessageAsync(message);
                 return;
             }
-
+            _logger.LogDebug("Queued Exception has been processed successfully, now completing message");
             await messageActions.CompleteMessageAsync(message);
             _logger.LogInformation("added exception to database and completed message successfully ");
         }
