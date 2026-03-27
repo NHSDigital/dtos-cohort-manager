@@ -53,7 +53,7 @@ public class Program
                     var sqlConnectionBuilder = new SqlConnectionStringBuilder(config.DtOsDatabaseConnectionString);
                     var connection = new SqlConnection(sqlConnectionBuilder.ConnectionString);
 
-                    if (config.SQL_IDENTITY_CLIENT_ID is not null)
+                    if (!string.IsNullOrWhiteSpace(config.SQL_IDENTITY_CLIENT_ID))
                     {
                         var credential = new ManagedIdentityCredential(config.SQL_IDENTITY_CLIENT_ID);
                         var token = credential.GetToken(new Azure.Core.TokenRequestContext(TokenScopes));

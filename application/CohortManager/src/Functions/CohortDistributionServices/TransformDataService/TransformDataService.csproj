@@ -1,46 +1,45 @@
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
+  <PropertyGroup>
     <ProjectGuid>{872FE049-E9E4-4DC1-B0FA-6B1126D7D210}</ProjectGuid>
     <TargetFramework>net8.0</TargetFramework>
     <AzureFunctionsVersion>v4</AzureFunctionsVersion>
     <OutputType>Exe</OutputType>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    </PropertyGroup>
-    <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
-    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.4" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.2" />
-    <PackageReference Include="RulesEngine" Version="5.0.5" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Functions.Worker" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" />
+    <PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" />
+    <PackageReference Include="RulesEngine" />
+
   </ItemGroup>
   <ItemGroup>
     <None Update="host.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="local.settings.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        <CopyToPublishDirectory>Never</CopyToPublishDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>Never</CopyToPublishDirectory>
     </None>
     <None Update="transformRules.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="namePrefixRules.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-        <None Update="characterRules.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="characterRules.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="lookupTransformationRules.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    </ItemGroup>
-    <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
     <Using Include="System.Threading.ExecutionContext" Alias="ExecutionContext" />
-    </ItemGroup>
-    <ItemGroup>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Shared\Common\Common.csproj" />
     <ProjectReference Include="..\..\Shared\Data\Data.csproj" />
     <ProjectReference Include="..\..\Shared\HealthChecks\HealthChecks.csproj" />

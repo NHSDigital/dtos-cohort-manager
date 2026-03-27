@@ -502,6 +502,8 @@ namespace DataServices.Migrations.Migrations
 
                     b.HasIndex(new[] { "NHSNumber" }, "IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
 
+                    b.HasIndex(new[] { "ParticipantId" }, "IX_BS_COHORT_DISTRIBUTION_PARTICIPANTID");
+
                     b.ToTable("BS_COHORT_DISTRIBUTION", "dbo");
                 });
 
@@ -1031,10 +1033,10 @@ namespace DataServices.Migrations.Migrations
 
             modelBuilder.Entity("Model.ServicenowCase", b =>
                 {
-                    b.Property<string>("ServicenowId")
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("SERVICENOW_ID");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("ID");
 
                     b.Property<long?>("NhsNumber")
                         .HasColumnType("bigint")
@@ -1048,12 +1050,20 @@ namespace DataServices.Migrations.Migrations
                         .HasColumnType("datetime")
                         .HasColumnName("RECORD_UPDATE_DATETIME");
 
+                    b.Property<string>("ServicenowId")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)")
+                        .HasColumnName("SERVICENOW_ID");
+
                     b.Property<string>("Status")
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
                         .HasColumnName("STATUS");
 
-                    b.HasKey("ServicenowId");
+                    b.HasKey("Id");
+
+                    b.HasIndex(new[] { "ServicenowId" }, "IX_SERVICENOW_CASES_SERVICENOW_ID");
 
                     b.ToTable("SERVICENOW_CASES", "dbo");
                 });

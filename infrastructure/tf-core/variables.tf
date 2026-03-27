@@ -48,6 +48,11 @@ variable "HUB_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "MONITORING_EMAIL_ADDRESS" {
+  description = "The email address for monitoring alerts"
+  type        = string
+}
+
 variable "TARGET_SUBSCRIPTION_ID" {
   description = "ID of a subscription to deploy infrastructure"
   type        = string
@@ -175,7 +180,7 @@ variable "container_app_environments" {
   type = object({
     instances = optional(map(object({
       infrastructure_resource_group_name = optional(string)
-      workload_profile                   = optional(object({
+      workload_profile = optional(object({
         name                  = optional(string)
         workload_profile_type = optional(string)
         minimum_count         = optional(number, 0)
@@ -229,13 +234,6 @@ variable "container_app_jobs" {
   })
 }
 
-variable "diagnostic_settings" {
-  description = "Configuration for the diagnostic settings"
-  type = object({
-    metric_enabled = optional(bool, false)
-  })
-}
-
 variable "function_apps" {
   description = "Configuration for function apps"
   type = object({
@@ -258,6 +256,10 @@ variable "function_apps" {
     remote_debugging_enabled               = bool
     storage_uses_managed_identity          = bool
     worker_32bit                           = bool
+    alert_4xx_threshold                    = optional(number, 1)
+    alert_5xx_threshold                    = optional(number, 1)
+    alert_auto_mitigate                    = optional(bool, false)
+    alert_window_size                      = optional(string, "PT5M") # Check every 5 minutes
     slots = optional(map(object({
       name         = string
       slot_enabled = optional(bool, false)
@@ -356,6 +358,30 @@ variable "key_vault" {
     soft_del_ret_days = optional(number, 7)
     purge_prot        = optional(bool, false)
     sku_name          = optional(string, "standard")
+
+    secret_near_expiry_alert = optional(object({
+      evaluation_frequency = optional(string, "P1D") # every 24 hours
+      window_duration      = optional(string, "P1D") # last 24 hours
+      threshold            = optional(number, 1)
+    }), {})
+
+    secret_expired_alert = optional(object({
+      evaluation_frequency = optional(string, "PT15M") # every 15 mins
+      window_duration      = optional(string, "PT1H")  # last 1 hour
+      threshold            = optional(number, 1)
+    }), {})
+
+    certificate_near_expiry_alert = optional(object({
+      evaluation_frequency = optional(string, "P1D") # every 24 hours
+      window_duration      = optional(string, "P1D") # last 24 hours
+      threshold            = optional(number, 1)
+    }), {})
+
+    certificate_expired_alert = optional(object({
+      evaluation_frequency = optional(string, "PT15M") # every 15 mins
+      window_duration      = optional(string, "PT1H")  # last 1 hour
+      threshold            = optional(number, 1)
+    }), {})
   })
 }
 
@@ -590,6 +616,7 @@ variable "storage_accounts" {
     blob_properties_versioning_enabled      = optional(bool, false)
     replication_type                        = optional(string, "LRS")
     public_network_access_enabled           = optional(bool, false)
+    access_tier                             = optional(string, "Hot")
     containers = optional(map(object({
       container_name        = string
       container_access_type = optional(string, "private")

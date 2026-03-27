@@ -1,0 +1,7 @@
+<Project>
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'WorkerExtensions'">
+    <ManagePackageVersionsCentrally>false</ManagePackageVersionsCentrally>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <NoWarn>$(NoWarn);NU1605;NU1701;NU1507</NoWarn>
+  </PropertyGroup>
+</Project>

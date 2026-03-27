@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using Moq;
 using NHS.CohortManager.DemographicServices;
+using System.Linq.Expressions;
 
 [TestClass]
 public class PdsProcessorTests
@@ -190,6 +191,44 @@ public class PdsProcessorTests
             Times.Never);
 
         Assert.IsFalse(res);
+    }
+
+    [TestMethod]
+    public async Task UpsertDemographicRecordFromPDS_GetsExistingRecordAndInsertsWithCurrentDateTimes_ReturnsTrue()
+    {
+
+        var ParticipantDemographic = new ParticipantDemographic();
+        _dataServiceClient.Setup(x => x.Add(It.IsAny<ParticipantDemographic>())).ReturnsAsync(true);
+
+        var RecordInsertDateTime = DateTime.UtcNow;
+
+        _dataServiceClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ParticipantDemographic, bool>>>())).ReturnsAsync(new ParticipantDemographic()
+        {
+            RecordInsertDateTime = RecordInsertDateTime
+        });
+        var res = await _pdsProcessor.UpsertDemographicRecordFromPDS(ParticipantDemographic);
+
+        _dataServiceClient.Verify(x => x.Update(It.Is<ParticipantDemographic>(x => x.RecordInsertDateTime == RecordInsertDateTime)),
+         Times.Once);
+        Assert.IsTrue(res);
+    }
+
+
+    [TestMethod]
+    public async Task UpsertDemographicRecordFromPDS_AddsNewRecordWithDateTimeToday_ReturnsTrue()
+    {
+
+        var ParticipantDemographic = new ParticipantDemographic();
+        _dataServiceClient.Setup(x => x.Add(It.IsAny<ParticipantDemographic>())).ReturnsAsync(true);
+
+        var RecordInsertDateTime = DateTime.UtcNow;
+
+        var res = await _pdsProcessor.UpsertDemographicRecordFromPDS(ParticipantDemographic);
+
+
+        _dataServiceClient.Verify(x => x.Add(It.Is<ParticipantDemographic>(x => x.RecordInsertDateTime != null)),
+            Times.Once);
+        Assert.IsTrue(res);
     }
 
     [TestMethod]

@@ -4,17 +4,17 @@ FROM mcr.microsoft.com/powershell:latest
 # Create a non-root user and group
 RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
-# Update package lists and install wget and unzip.
-RUN apt-get update && apt-get --no-install-recommends install -y wget unzip
+# Update package lists, install unzip, and clean up to reduce image size.
+RUN apt-get update && apt-get --no-install-recommends install -y unzip && rm -rf /var/lib/apt/lists/*
 
 # Install the Az PowerShell module for Azure authentication
 RUN pwsh -Command "Install-Module -Name Az.Accounts -RequiredVersion 2.12.0 -Force -Scope AllUsers"
 
 # Install SqlPackage.
-RUN wget -O sqlpackage.zip https://aka.ms/sqlpackage-linux \
-    && mkdir /opt/sqlpackage \
-    && unzip sqlpackage.zip -d /opt/sqlpackage \
-    && rm sqlpackage.zip \
+ADD https://aka.ms/sqlpackage-linux /tmp/sqlpackage.zip
+RUN mkdir /opt/sqlpackage \
+    && unzip /tmp/sqlpackage.zip -d /opt/sqlpackage \
+    && rm /tmp/sqlpackage.zip \
     && chmod +x /opt/sqlpackage/sqlpackage
 
 # Switch to the non-root user

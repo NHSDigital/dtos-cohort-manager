@@ -1,0 +1,112 @@
+name: Deployment stage
+
+on:
+  workflow_call:
+    inputs:
+      environments:
+        description: List of environments to deploy to (String array)
+        required: true
+        type: string
+      commit_sha:
+        description: Commit SHA used to fetch ADO pipeline and docker image
+        required: true
+        type: string
+      pr_number:
+        description: Pull request number when used in a pull request
+        required: false
+        type: string
+
+    secrets:
+      client_id:
+        description: 'The Azure Client ID.'
+        required: true
+      tenant_id:
+        description: 'The Azure Tenant ID.'
+        required: true
+      subscription_id:
+        description: 'The Azure Subscription ID.'
+        required: true
+
+  workflow_dispatch:
+    inputs:
+      environments:
+        description: List of environments to deploy to (String array)
+        required: true
+        type: string
+      commit_sha:
+        description: Commit SHA used to fetch ADO pipeline and docker image
+        required: true
+        type: string
+      pr_number:
+        description: Pull request number when used in a pull request
+        required: false
+        type: string
+
+    secrets:
+      client_id:
+        description: 'The Azure Client ID.'
+        required: true
+      tenant_id:
+        description: 'The Azure Tenant ID.'
+        required: true
+      subscription_id:
+        description: 'The Azure Subscription ID.'
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    strategy:
+      matrix:
+        environment: ${{ fromJson(inputs.environments) }}
+      max-parallel: 1
+    environment: ${{ matrix.environment }}
+    concurrency: deploy-${{ matrix.environment }}-${{ github.ref }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - uses: azure/login@a457da9ea143d694b1b9c7c869ebb04ebe844ef5
+        with:
+          client-id: ${{ secrets.client_id }}
+          tenant-id: ${{ secrets.tenant_id }}
+          subscription-id: ${{ secrets.subscription_id }}
+
+      - name: Make script executable
+        run: |
+          chmod +x scripts/bash/call_ado_pipeline.sh
+          chmod +x scripts/bash/wait_ado_pipeline.sh
+
+      - name: Call deployment pipeline
+        shell: bash
+        env:
+          COMMIT_SHA: ${{ inputs.commit_sha }}
+          ENVIRONMENT_NAME: ${{ matrix.environment }}
+          GH_TOKEN: ${{ github.token }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          # PR info
+          PR_INFO=$(gh api repos/${GITHUB_REPOSITORY}/commits/${COMMIT_SHA}/pulls --jq '.[0]')
+          PR_NUM=$(echo "$PR_INFO" | jq -r '.number')
+          BRANCH_NAME=$(echo "$PR_INFO" | jq -r '.branch')
+          DOCKER_TAG="devtest_pr${PR_NUM}"
+
+          # Define which tests to run based on the environment
+          declare -A test_types=(
+            ["development"]="smoke_e2e"
+          )
+          TEST_TYPES_VALUE="${test_types[${ENVIRONMENT_NAME}]}"
+
+          scripts/bash/call_ado_pipeline.sh \
+            "${COMMIT_SHA}" \
+            "${ENVIRONMENT_NAME}" \
+            "${DOCKER_TAG}" \
+            "${TEST_TYPES_VALUE}" \
+            "${BRANCH_NAME}"

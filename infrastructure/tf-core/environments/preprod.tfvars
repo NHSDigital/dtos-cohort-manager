@@ -12,6 +12,7 @@ features = {
   public_network_access_enabled        = false
   frontdoor_endpoint_enabled           = true
   alerts_enabled                       = false
+  alerts_function_errors_enabled       = false
 }
 
 # these will be merged with compliance tags in locals.tf
@@ -260,11 +261,26 @@ container_app_jobs = {
       add_user_assigned_identity    = true
       replica_retry_limit           = 1
     }
+    db-restore = {
+      container_app_environment_key = "db-management"
+      docker_image                  = "db-immutable-backup-restore"
+      docker_env_tag                = "latest"
+      container_registry_use_mi     = true
+      add_user_assigned_identity    = true
+      memory_in_gb                  = 2
+      replica_retry_limit           = 1
+      replica_timeout_in_seconds    = 3600
+      env_vars_static = {
+        SQL_SERVER_NAME        = "sqlsvr-cohman-pre-uks"
+        SQL_DATABASE_NAME      = "DToSDB_RESTORE"
+        SQL_MAX_SIZE_GB        = "100"
+        SQL_SERVICE_OBJECTIVE  = "S9"
+        STORAGE_ACCOUNT_NAME   = "stcohmanpreuksfilexptns"
+        STORAGE_CONTAINER_NAME = "sql-backups-temp"
+        BACKUP_FILE_NAME       = "filename.bacpac"
+      }
+    }
   }
-}
-
-diagnostic_settings = {
-  metric_enabled = true
 }
 
 function_apps = {
@@ -663,6 +679,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        RetrieveSupersededRecordsLast = "true"
       }
     }
 
@@ -1209,7 +1226,7 @@ linux_web_app = {
       env_vars = {
         static = {
           AUTH_CIS2_ISSUER_URL = "https://am.nhsint.auth-ptl.cis2.spineservices.nhs.uk:443"
-          AUTH_CIS2_CLIENT_ID  = "5780695865.cohort_manager_preprod.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
+          AUTH_CIS2_CLIENT_ID  = "8616441398.cohort-pre.b099494b-7c49-4d78-9e3c-3a801aac691b.apps"
           AUTH_TRUST_HOST      = "true"
           NEXTAUTH_URL         = "https://cohort-pre.screening.nhs.uk/api/auth"
           SERVICE_NAME         = "Cohort Manager"
@@ -1297,7 +1314,8 @@ sqlserver = {
   auditing_policy_retention_in_days    = 30
   security_alert_policy_retention_days = 30
   user_assigned_identities = [
-    "db-management"
+    "db-management",
+    "db-restore"
   ]
 
   server = {
@@ -1314,7 +1332,7 @@ sqlserver = {
       licence_type         = "LicenseIncluded"
       max_gb               = 100
       read_scale           = false
-      sku                  = "S12"
+      sku                  = "S2"
       storage_account_type = "GeoZone"
       zone_redundant       = false
 

@@ -17,7 +17,7 @@ resources:
     - repository: dtos-devops-templates
       type: github
       name: NHSDigital/dtos-devops-templates
-      ref: fc531dfb9946ded92f25895ae450129a9533569e
+      ref: 8d9323116e7e0442e3f89750df39af27a2e1a4a7
       endpoint: NHSDigital
 
 variables:
@@ -26,7 +26,7 @@ variables:
   - group: PROD_core_backend
   - group: PROD_image_pipelines
   - name: TF_VERSION
-    value: 1.11.4
+    value: 1.14.4
   - name: TF_PLAN_ARTIFACT
     value: tf_plan_core_PROD
   - name: TF_DIRECTORY
@@ -40,7 +40,7 @@ stages:
   pool:
     name: $(hostPoolName)
   jobs:
-    - job: db_changes
+    - job: db_backup
       displayName: Create Database Backup and Upload to Storage Account
       steps:
         - checkout: self
@@ -53,3 +53,74 @@ stages:
             jobName: ca-db-backup-uksouth
             maxPollingAttempts: 240
             pollingIntervalSeconds: 15
+
+    - job: set_db_backup_stage_status
+      displayName: Set Database Backup Status
+      pool:
+        name: $(hostPoolName)
+      dependsOn:
+        - db_backup
+      condition: always()
+      variables:
+        db_backup_result: $[ dependencies.db_backup.result ]
+      steps:
+          - bash: |
+              status="failed"
+              # Access the variables that were set at the job level
+              if [[ "$(db_backup_result)" == "Succeeded" || "$(db_backup_result)" == "Skipped" ]]; then
+                status="succeeded"
+              fi
+              echo "The final status of the DB Backup stage is: $status"
+              echo "##vso[task.setvariable variable=stage_status;isOutput=true]$status"
+            name: set_db_backup_status
+            displayName: Set Database Backup Status
+
+- stage: notify_stage
+  displayName: Send Slack Notification
+  dependsOn:
+    - db_backup_stage
+  condition: always()
+  variables:
+    set_db_backup_stage_status: $[ stageDependencies.db_backup_stage.set_db_backup_stage_status.outputs['set_db_backup_status.stage_status'] ]
+    slackWebHook: $(SLACK_WEBHOOK_URL_WORKFLOWS)
+  jobs:
+    - job: set_status_job
+      displayName: Set Status Output
+      steps:
+        - bash: |
+            # Construct the JSON string
+            JSON_INPUT=$(cat <<EOF
+            {
+              "DB Backup": "$(set_db_backup_stage_status)"
+            }
+            EOF
+            )
+
+            bash $(System.DefaultWorkingDirectory)/scripts/bash/ado_set_stage_status.sh "$JSON_INPUT"
+          name: set_status
+          displayName: Set Slack Message Status
+
+    - job: send_message_job
+      displayName: Send Slack Message
+      dependsOn: set_status_job
+      variables:
+        final_status: $[ dependencies.set_status_job.outputs['set_status.status'] ]
+        failed_stages: $[ dependencies.set_status_job.outputs['set_status.failedStages'] ]
+        slackFailureMessage: |
+          *❌ $(ENVIRONMENT_SHORT) Database Backup _Failed_*
+
+          *Failed Action:* $(failed_stages)
+          *<$(System.CollectionUri)$(System.TeamProject)/_build/results?buildId=$(Build.BuildId)|View Pipeline Run for details>*
+      steps:
+        - checkout: dtos-devops-templates
+          sparseCheckoutDirectories: scripts
+          path: templates
+        - task: PythonScript@0
+          displayName: 'Send Slack Failure Notification'
+          condition: eq(variables.final_status, 'failed')
+          inputs:
+            scriptSource: 'filePath'
+            scriptPath: '$(Pipeline.Workspace)/templates/scripts/integrations/slack/SlackIntegrator.py'
+            arguments: >
+              --webhook "$(slackWebHook)"
+              --markdown "$(slackFailureMessage)"

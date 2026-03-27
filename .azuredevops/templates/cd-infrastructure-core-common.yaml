@@ -42,7 +42,7 @@ stages:
         SELECT_IMAGE_TAG: ${{ parameters.retagImagesFrom }}
         ADD_IMAGE_TAG: ${{ parameters.retagImagesTo }}
       steps:
-        - template: .azuredevops/templates/steps/acr-import-retag-no-additional-tags.yaml@dtos-devops-templates
+        - template: .azuredevops/templates/steps/acr-import-retag-verbose.yaml@dtos-devops-templates
           parameters:
             serviceConnection: ${{ parameters.serviceConnection }}
 
@@ -92,7 +92,7 @@ stages:
       dependsOn: init_and_plan
       condition: |
         and(
-          eq(dependencies.init_and_plan.outputs['TerraformPlan.changesPresent'], 'true'), 
+          eq(dependencies.init_and_plan.outputs['TerraformPlan.changesPresent'], 'true'),
           eq('${{ parameters.terraformActions }}', 'Apply')
         )
       strategy:
@@ -124,7 +124,7 @@ stages:
             echo "##vso[task.setvariable variable=stage_status;isOutput=true]$status"
           name: set_status
           displayName: Set Stage Status
-              
+
 - stage: db_changes_stage
   displayName: Database changes
   dependsOn: terraform_deploy_stage
@@ -228,44 +228,18 @@ stages:
       displayName: Set Status Output
       steps:
         - bash: |
-            declare -A stage_statuses=(
-              ["Retag Images"]="$(retag_images_status)"
-              ["Terraform Deploy"]="$(terraform_deploy_status)"
-              ["DB Changes"]="$(db_changes_status)"
-              ["Restart Functions"]="$(restart_functions_status)"
+            # Construct the JSON string
+            JSON_INPUT=$(cat <<EOF
+            {
+              "Retag Images": "$(retag_images_status)",
+              "Terraform Deploy": "$(terraform_deploy_status)"
+              "DB Changes": "$(db_changes_status)",
+              "Restart Functions": "$(restart_functions_status)"
+            }
+            EOF
             )
 
-            failed_stages=""
-            skipped_stages=""
-            for stage in "${!stage_statuses[@]}"; do
-              status="${stage_statuses[$stage]}"
-              echo "$stage status: $status"
-              if [ "$status" == "" ]; then
-                if [ -n "$skipped_stages" ]; then
-                  skipped_stages="$skipped_stages, $stage"
-                else
-                  skipped_stages="$stage"
-                fi
-              elif [ "$status" != "succeeded" ]; then
-                if [ -n "$failed_stages" ]; then
-                  failed_stages="$failed_stages, $stage"
-                else
-                  failed_stages="$stage"
-                fi
-              fi
-            done
-
-            if [ -z "$failed_stages" ]; then
-              echo "##vso[task.setvariable variable=status;isOutput=true]succeeded"
-            else
-              echo "##vso[task.setvariable variable=status;isOutput=true]failed"
-              echo "##vso[task.setvariable variable=failedStages;isOutput=true]$failed_stages"
-            fi
-            if [ -n "$skipped_stages" ]; then
-              echo "##vso[task.setvariable variable=skippedStages;isOutput=true]$skipped_stages"
-            else
-              echo "##vso[task.setvariable variable=skippedStages;isOutput=true]None"
-            fi
+            bash $(System.DefaultWorkingDirectory)/scripts/bash/ado_set_stage_status.sh "$JSON_INPUT"
           name: set_status
           displayName: Set Slack Message Status
 

@@ -1,7 +1,8 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS base
+ARG BASE_IMAGE
+FROM $BASE_IMAGE AS base
 
-COPY ./Shared /Shared
-WORKDIR /Shared/DataServices.Migrations
+
+WORKDIR /app/Shared/DataServices.Migrations
 RUN dotnet restore \
 && dotnet publish -o /out
 WORKDIR /out

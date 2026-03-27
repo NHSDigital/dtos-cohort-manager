@@ -10,7 +10,7 @@ Feature: Reports section
 
   Scenario: User can open the first report in the list
     When I click the first "View report" link
-    Then I should see the heading "NHS number change"
+    Then I should see the heading "NHS Number Change"
     And I see the table heading "Patient name"
     And I see the table heading "Date of birth"
     And I see the table heading "NHS number"
@@ -18,7 +18,7 @@ Feature: Reports section
 
   Scenario: User can open the second report in the list
     When I click the second "View report" link
-    Then I should see the heading "Possible confusion"
+    Then I should see the heading "Possible Confusion"
     And I see the table heading "Patient name"
     And I see the table heading "Date of birth"
     And I see the table heading "NHS number"

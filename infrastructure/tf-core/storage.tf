@@ -9,12 +9,14 @@ module "storage" {
 
   containers = each.value.containers
 
-  log_analytics_workspace_id                              = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
-  monitor_diagnostic_setting_storage_account_enabled_logs = local.monitor_diagnostic_setting_storage_account_enabled_logs
-  monitor_diagnostic_setting_storage_account_metrics      = local.monitor_diagnostic_setting_storage_account_metrics
+  log_analytics_workspace_id                                  = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_storage_account_enabled_logs     = local.monitor_diagnostic_setting_storage_account_enabled_logs
+  monitor_diagnostic_setting_storage_account_metrics          = local.monitor_diagnostic_setting_storage_account_metrics
+  monitor_diagnostic_setting_storage_account_resource_metrics = local.monitor_diagnostic_setting_storage_account_resource_metrics
 
   account_replication_type = each.value.replication_type
   account_tier             = each.value.account_tier
+  access_tier              = title(lower(each.value.access_tier))
 
   blob_properties_delete_retention_policy = each.value.blob_properties_delete_retention_policy
   blob_properties_versioning_enabled      = each.value.blob_properties_versioning_enabled
@@ -52,6 +54,7 @@ locals {
         replication_type                        = storage_val.replication_type
         account_tier                            = storage_val.account_tier
         public_network_access_enabled           = storage_val.public_network_access_enabled
+        access_tier                             = storage_val.access_tier
         blob_properties_delete_retention_policy = storage_val.blob_properties_delete_retention_policy
         blob_properties_versioning_enabled      = storage_val.blob_properties_versioning_enabled
         containers                              = storage_val.containers

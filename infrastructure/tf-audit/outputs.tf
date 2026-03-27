@@ -18,4 +18,5 @@ output "storage_account_audit" {
       containers                 = v.storage_containers
     }
   }
+  sensitive = true
 }

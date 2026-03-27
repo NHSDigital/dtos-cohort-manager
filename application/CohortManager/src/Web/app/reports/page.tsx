@@ -7,6 +7,7 @@ import ReportsTable from "@/app/components/reportsTable";
 import Unauthorised from "@/app/components/unauthorised";
 import { type ReportDetails } from "@/app/types";
 import { formatDate, formatIsoDate } from "../lib/utils";
+import UserFeedback from "@/app/components/userFeedback";
 
 export const metadata: Metadata = {
   title: `Reports - ${process.env.SERVICE_NAME} - NHS`,
@@ -58,7 +59,7 @@ export default async function Page() {
             <div className="nhsuk-grid-column-full">
               <h1 data-testid="heading-report">Reports</h1>
               <p
-                className="app-results-text nhsuk-u-margin-bottom-4"
+                className="nhsuk-body nhsuk-u-margin-bottom-3"
                 data-testid="reports-date-range"
               >
                 Showing reports for {formatDate(formatIsoDate(start))} to{" "}
@@ -76,6 +77,7 @@ export default async function Page() {
               </div>
             </div>
           </div>
+            <UserFeedback />
         </main>
       </>
     );

@@ -257,7 +257,8 @@ Then(
   "the first row in the table {string} has exception ID {string}",
   async ({ page }, tableId: string, id: string) => {
     const firstRow = tableLocator(page, tableId).locator("tbody tr").first();
-    await test.expect(firstRow).toContainText(id);
+    const exceptionIdLink = firstRow.locator("td").first().locator("a");
+    await test.expect(exceptionIdLink).toContainText(id);
   }
 );
 
@@ -271,15 +272,25 @@ Then(
 );
 
 When("I sort the table by {string}", async ({ page }, sortOption: string) => {
-  const form = page.getByTestId("sort-exceptions-form");
-  const select = form.locator("select");
+  const select = page.locator("select#sort-exceptions");
   await test.expect(select).toBeVisible();
+
+  const optionLocator = select.locator('option', { hasText: sortOption }).first();
+  const value = await optionLocator.getAttribute('value');
+  test.expect(value).not.toBeNull();
 
   await select.selectOption({ label: sortOption });
 
-  const applyButton = page.getByTestId("apply-button");
+  const applyButton = page.getByRole('button', { name: 'Apply' });
   await test.expect(applyButton).toBeVisible();
-  await applyButton.click();
+  await Promise.all([
+    page.waitForURL(new RegExp(String.raw`\bsortBy=${value}\b`)),
+    applyButton.click(),
+  ]);
+
+  // Ensure the table has re-rendered
+  const firstLink = tableLocator(page, "exceptions-table").locator("tbody tr").first().locator("td").first().locator("a");
+  await test.expect(firstLink).toBeVisible();
 });
 
 // ---- Accessibility ----

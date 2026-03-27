@@ -29,9 +29,21 @@ describe("formatDate", () => {
 });
 
 describe("formatCompactDate", () => {
-  it("should format the date as 26 February 1993", () => {
+  it("should format the date as DD/MM/YYYY", () => {
     const input = "1993-02-26";
-    const expectedOutput = "26 February 1993";
+    const expectedOutput = "26/02/1993";
+    expect(formatCompactDate(input)).toBe(expectedOutput);
+  });
+
+  it("should handle empty string input", () => {
+    const input = "";
+    const expectedOutput = "";
+    expect(formatCompactDate(input)).toBe(expectedOutput);
+  });
+
+  it("should handle invalid date input", () => {
+    const input = "invalid-date";
+    const expectedOutput = "";
     expect(formatCompactDate(input)).toBe(expectedOutput);
   });
 });
