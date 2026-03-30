@@ -154,7 +154,8 @@ public class ValidateParticipant
         var request = new ParticipantCsvRecord
         {
             Participant = new Participant(validationRecord.Participant),
-            FileName = validationRecord.FileName
+            FileName = validationRecord.FileName,
+            ReasonForAdding = validationRecord.ReasonForAdding
         };
 
         var json = JsonSerializer.Serialize(request);
@@ -185,7 +186,9 @@ public class ValidateParticipant
         {
             NewParticipant = new Participant(validationRecord.Participant),
             ExistingParticipant = new Participant(validationRecord.PreviousParticipantRecord),
-            FileName = validationRecord.FileName
+            FileName = validationRecord.FileName,
+            ReasonForAdding = validationRecord.ReasonForAdding
+
         };
 
         var json = JsonSerializer.Serialize(request);

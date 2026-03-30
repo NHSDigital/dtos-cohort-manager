@@ -69,7 +69,7 @@ public class LookupValidation
 
             var reSettings = new ReSettings
             {
-                CustomTypes = [typeof(Actions)],
+                CustomTypes = [typeof(Actions), typeof(ReasonForAdding)],
                 UseFastExpressionCompiler = false
             };
             var re = new RulesEngine.RulesEngine(rules, reSettings);
@@ -77,7 +77,8 @@ public class LookupValidation
             var ruleParameters = new[] {
                 new RuleParameter("existingParticipant", requestBody.ExistingParticipant),
                 new RuleParameter("newParticipant", newParticipant),
-                new RuleParameter("dbLookup", _dataLookup)
+                new RuleParameter("dbLookup", _dataLookup),
+                new RuleParameter("reasonForAdding", requestBody.ReasonForAdding)
             };
 
             var resultList = new List<RuleResultTree>();
@@ -92,12 +93,12 @@ public class LookupValidation
                 var ActionResults = await re.ExecuteAllRulesAsync(newParticipant.RecordType, ruleParameters);
                 resultList.AddRange(ActionResults);
             }
-            if (isManualAdd)
+            if (isManualAdd && requestBody.ReasonForAdding.HasValue && requestBody.ReasonForAdding != ReasonForAdding.DummyGpCodeRemoval)
             {
                 var ActionResults = await re.ExecuteAllRulesAsync("ManualAdd", ruleParameters);
                 resultList.AddRange(ActionResults);
             }
-
+            var res = requestBody.ReasonForAdding.HasValue && requestBody.ReasonForAdding == ReasonForAdding.DummyGpCodeRemoval;
             // Validation rules are logically reversed
             var validationErrors = resultList.Where(x => !x.IsSuccess).Select(x => new ValidationRuleResult(x));
 
