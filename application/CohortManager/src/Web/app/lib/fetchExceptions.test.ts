@@ -3,7 +3,7 @@ import { auth } from "@/app/lib/auth";
 import type { ExceptionsAPI } from "@/app/types/exceptionsApi";
 import type { Session } from "next-auth";
 
-jest.mock("@/app/lib/auth", () => ({
+jest.mock("./auth", () => ({
   auth: jest.fn(),
 }));
 
