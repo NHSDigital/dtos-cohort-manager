@@ -148,7 +148,7 @@ public class TransformDataService
         {
             resultList.AddRange(await re.ExecuteAllRulesAsync("ManualAdd", ruleParameters));
         }
-        
+
         if (reasonForAdding.HasValue && reasonForAdding == ReasonForAdding.DummyGpCodeRemoval)
         {
             resultList.AddRange(await re.ExecuteAllRulesAsync("DummyGpRemoval", ruleParameters));

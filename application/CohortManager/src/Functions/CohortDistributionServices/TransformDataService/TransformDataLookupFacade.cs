@@ -126,4 +126,18 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
         var result = _currentPostingClient.GetSingle(currentPosting).Result;
         return result.PostingCategory;
     }
+
+
+    /// <summary>
+    /// Used in rule 36 in the lookup rules, and rule 54 in the cohort rules.
+    /// Validates the participants primary care provider (GP practice code)
+    /// </summary>
+    /// <param name="primaryCareProvider">The participant's primary care provider.</param>
+    /// <returns>bool, whether or not the GP practice code exists in the DB.<returns>
+    public bool CheckIfPrimaryCareProviderExists(string primaryCareProvider)
+    {
+        _logger.LogInformation("Checking Primary Care Provider {PrimaryCareProvider} Exists", primaryCareProvider);
+        var result = _bsSelectGPPracticeClient.GetSingle(primaryCareProvider).Result;
+        return result != null;
+    }
 }
