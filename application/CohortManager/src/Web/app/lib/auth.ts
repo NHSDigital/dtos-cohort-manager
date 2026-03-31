@@ -144,7 +144,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
       }
 
-      if (profile) {
+      const sourceProfile = (profile ?? token.profile) as Profile | undefined;
+
+      if (sourceProfile) {
         const {
           uid,
           given_name: firstName,
@@ -152,7 +154,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           sub,
           sid,
           nhsid_nrbac_roles,
-        } = profile;
+        } = sourceProfile;
 
         const workgroups = (nhsid_nrbac_roles as Array<unknown>).flatMap(
           (role) => (role as { workgroups?: unknown[] }).workgroups || []
