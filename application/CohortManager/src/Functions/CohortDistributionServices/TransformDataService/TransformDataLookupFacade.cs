@@ -133,7 +133,7 @@ public class TransformDataLookupFacade : ITransformDataLookupFacade
     /// Validates the participants primary care provider (GP practice code)
     /// </summary>
     /// <param name="primaryCareProvider">The participant's primary care provider.</param>
-    /// <returns>bool, whether or not the GP practice code exists in the DB.<returns>
+    /// <returns>bool, whether or not the GP practice code exists in the DB.</returns>
     public bool CheckIfPrimaryCareProviderExists(string primaryCareProvider)
     {
         _logger.LogInformation("Checking Primary Care Provider {PrimaryCareProvider} Exists", primaryCareProvider);
