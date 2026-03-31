@@ -3,6 +3,7 @@ namespace NHS.Screening.ReceiveCaasFile;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.Enums;
 using System;
 using System.IO;
 using ParquetSharp.RowOriented;
@@ -11,6 +12,7 @@ using Common;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
 using Azure.Messaging.ServiceBus;
+using Common.Interfaces;
 
 public class ReceiveCaasFile
 {
@@ -20,6 +22,7 @@ public class ReceiveCaasFile
     private readonly ReceiveCaasFileConfig _config;
     private readonly IBlobStorageHelper _blobStorageHelper;
     private readonly IExceptionHandler _exceptionHandler;
+    private readonly IAuditQueueSender _auditQueueSender;
 
     public ReceiveCaasFile(
         ILogger<ReceiveCaasFile> logger,
@@ -27,7 +30,8 @@ public class ReceiveCaasFile
         IDataServiceClient<ScreeningLkp> screeningLkpClient,
         IOptions<ReceiveCaasFileConfig> receiveCaasFileConfig,
         IBlobStorageHelper blobStorageHelper,
-        IExceptionHandler exceptionHandler
+        IExceptionHandler exceptionHandler,
+        IAuditQueueSender auditQueueSender
         )
     {
         _logger = logger;
@@ -36,6 +40,7 @@ public class ReceiveCaasFile
         _config = receiveCaasFileConfig.Value;
         _blobStorageHelper = blobStorageHelper;
         _exceptionHandler = exceptionHandler;
+        _auditQueueSender = auditQueueSender;
     }
 
     [Function(nameof(ReceiveCaasFile))]
@@ -57,14 +62,16 @@ public class ReceiveCaasFile
             downloadFilePath = Path.Combine(Path.GetTempPath(), name);
 
             _logger.LogInformation("Downloading file from the blob, file: {Name}.", name);
-            
-            // In order to use the parquet file we need to download it 
+
+            // In order to use the parquet file we need to download it
             await using (var fileStream = File.Create(downloadFilePath))
             {
                 await blobStream.CopyToAsync(fileStream);
             }
 
             var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
+
+            var batchId = Guid.NewGuid();
 
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
@@ -75,6 +82,7 @@ public class ReceiveCaasFile
                     var listOfAllValues = values.ToList();
                     var allTasks = new List<Task>();
 
+                    await EnqueueAuditMessagesAsync(listOfAllValues, name, batchId, (int)screeningService.ScreeningId);
                     //split list of all into N amount of chunks to be processed as batches.
                     var chunks = listOfAllValues.Chunk(BatchSize).ToList();
 
@@ -125,5 +133,27 @@ public class ReceiveCaasFile
             ?? throw new ArgumentException("Could not get screening service data for screening id: " + screeningWorkflowId);
 
         return screeningService;
+    }
+
+    private async Task EnqueueAuditMessagesAsync(
+        List<ParticipantsParquetMap> participants,
+        string fileName,
+        Guid batchId,
+        int screeningId)
+    {
+        foreach (var participant in participants.Where(v => v.NhsNumber.HasValue))
+        {
+            await _auditQueueSender.SendAuditAsync(new ParticipantAuditMessage
+            {
+                NhsNumber = participant.NhsNumber!.Value.ToString(),
+                Source = AuditSource.ParquetFile,
+                BatchId = batchId,
+                RecordSourceDesc = $"Parquet file: {fileName}",
+                CreatedDatetime = DateTime.UtcNow,
+                CreatedBy = nameof(ReceiveCaasFile),
+                ScreeningId = screeningId,
+                RequestSnapshot = participant
+            });
+        }
     }
 }

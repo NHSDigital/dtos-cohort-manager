@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using Common;
+using Common.Interfaces;
 using DataServices.Client;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
@@ -23,12 +24,13 @@ public class ManageServiceNowParticipantFunction
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<ParticipantManagement> _participantManagementClient;
     private readonly IQueueClient _queueClient;
+    private readonly IAuditQueueSender _auditQueueSender;
 
     private static readonly Regex NonLetterRegex = new(@"[^\p{Lu}\p{Ll}\p{Lt}]", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
 
     public ManageServiceNowParticipantFunction(ILogger<ManageServiceNowParticipantFunction> logger, IOptions<ManageServiceNowParticipantConfig> config,
         IHttpClientFunction httpClientFunction, IExceptionHandler handleException, IDataServiceClient<ParticipantManagement> participantManagementClient,
-        IQueueClient queueClient)
+        IQueueClient queueClient, IAuditQueueSender auditQueueSender)
     {
         _logger = logger;
         _config = config.Value;
@@ -36,6 +38,7 @@ public class ManageServiceNowParticipantFunction
         _exceptionHandler = handleException;
         _participantManagementClient = participantManagementClient;
         _queueClient = queueClient;
+        _auditQueueSender = auditQueueSender;
     }
 
     /// <summary>
@@ -70,9 +73,9 @@ public class ManageServiceNowParticipantFunction
                 _logger.LogError("Failed to subscribe participant for updates. Case Number: {CaseNumber}", serviceNowParticipant.ServiceNowCaseNumber);
             }
 
-            if(!string.IsNullOrEmpty(serviceNowParticipant.RequiredGpCode))
+            if (!string.IsNullOrEmpty(serviceNowParticipant.RequiredGpCode))
             {
-                await _exceptionHandler.CreateTransformExecutedExceptions(new CohortDistributionParticipant{NhsNumber = serviceNowParticipant.NhsNumber.ToString()},"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98);
+                await _exceptionHandler.CreateTransformExecutedExceptions(new CohortDistributionParticipant { NhsNumber = serviceNowParticipant.NhsNumber.ToString() }, "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98);
             }
 
             var participantForDistribution = new BasicParticipantCsvRecord(serviceNowParticipant, participantManagement);
@@ -83,6 +86,17 @@ public class ManageServiceNowParticipantFunction
             {
                 await HandleException(new Exception($"Failed to send participant from ServiceNow to topic: {_config.CohortDistributionTopic}"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
             }
+
+            await _auditQueueSender.SendAuditAsync(new ParticipantAuditMessage
+            {
+                NhsNumber = serviceNowParticipant.NhsNumber.ToString(),
+                Source = AuditSource.ManualAdd,
+                RecordSourceDesc = "PDS validated, participant added/updated",
+                CreatedDatetime = DateTime.UtcNow,
+                CreatedBy = nameof(ManageServiceNowParticipantFunction),
+                ScreeningId = (int)serviceNowParticipant.ScreeningId,
+                RequestSnapshot = serviceNowParticipant,
+            });
         }
         catch (Exception ex)
         {

@@ -21,6 +21,7 @@ var host = new HostBuilder()
     .AddExceptionHandler()
     .AddServiceBusClient(config.ServiceBusConnectionString_client_internal)
     .AddHttpClient()
+    .AddAuditQueueSender()
     .Build();
 
 await host.RunAsync();
