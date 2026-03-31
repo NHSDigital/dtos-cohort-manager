@@ -754,4 +754,54 @@ public class ValidationExceptionDataTests
         result.Should().NotBeNull();
         result.SearchValue.Should().Be(nhsNumber);
     }
+
+    [TestMethod]
+    public async Task RemoveOldException_ValidInputSingleException_ReturnsTrue()
+    {
+        // Arrange
+        var nhsNumber = "1234567890";
+        var screeningName = "Screening1";
+
+        _validationExceptionDataServiceClient.Setup(x =>
+            x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>()))
+            .ReturnsAsync(new List<ExceptionManagement>()
+            {
+                new() { ExceptionId = 1, NhsNumber = nhsNumber, CohortName = screeningName, Category = (int)ExceptionCategory.NBO, DateCreated = DateTime.UtcNow, DateResolved = new DateTime(9999, 12, 31)}
+            });
+        _validationExceptionDataServiceClient.Setup(x =>
+            x.Update(It.IsAny<ExceptionManagement>()))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await validationExceptionData.RemoveOldException(nhsNumber, screeningName);
+
+        // Assert
+        result.Should().BeTrue();
+        _validationExceptionDataServiceClient.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Once);
+    }
+    [TestMethod]
+    public async Task RemoveOldException_ValidInputMultipleExceptions_ReturnsTrue()
+    {
+        // Arrange
+        var nhsNumber = "1234567890";
+        var screeningName = "Screening1";
+
+        _validationExceptionDataServiceClient.Setup(x =>
+            x.GetByFilter(It.IsAny<Expression<Func<ExceptionManagement, bool>>>()))
+            .ReturnsAsync(new List<ExceptionManagement>()
+            {
+                new() { ExceptionId = 1, NhsNumber = nhsNumber, CohortName = screeningName, Category = (int)ExceptionCategory.NBO, DateCreated = DateTime.UtcNow, DateResolved = new DateTime(9999, 12, 31)},
+                new() { ExceptionId = 2, NhsNumber = nhsNumber, CohortName = screeningName, Category = (int)ExceptionCategory.NBO, DateCreated = DateTime.UtcNow.AddDays(-1), DateResolved = new DateTime(9999, 12, 31)}
+            });
+        _validationExceptionDataServiceClient.Setup(x =>
+            x.Update(It.IsAny<ExceptionManagement>()))
+            .ReturnsAsync(true);
+
+        // Act
+        var result = await validationExceptionData.RemoveOldException(nhsNumber, screeningName);
+
+        // Assert
+        result.Should().BeTrue();
+        _validationExceptionDataServiceClient.Verify(x => x.Update(It.IsAny<ExceptionManagement>()), Times.Exactly(2));
+    }
 }

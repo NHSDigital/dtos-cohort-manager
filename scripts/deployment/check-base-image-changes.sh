@@ -7,7 +7,7 @@ build_base_image=false
 
 
 if [[ "${GITHUB_EVENT_NAME}" == "push" && "${GITHUB_REF}" == "refs/heads/main" ]]; then
-    # Merge to main - compare merged code with main immediately prior to the merge (HEAD^), needs 'fetch-depth: 2' parameter for actions/checkout@v4
+    # Merge to main - compare merged code with main immediately prior to the merge (HEAD^), needs 'fetch-depth: 2' parameter for actions/checkout@v6
     mapfile -t source_changes < <(git diff --name-only HEAD^ -- "./" | sed -r 's#(^.*/).*$#\1#' | sort -u)
 else
     # PR creation or update - compare feature branch with main, folder paths only, unique list

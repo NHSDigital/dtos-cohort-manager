@@ -75,16 +75,21 @@ public class ValidationExceptionData : IValidationExceptionData
             return false;
         }
 
-        var validationExceptionToUpdate = exceptions.Where(x => DateToString(x.DateResolved) == "9999-12-31")
-        .OrderByDescending(x => x.DateCreated).FirstOrDefault();
+        var validationExceptionsToUpdate = exceptions.Where(x => DateToString(x.DateResolved) == "9999-12-31")
+        .OrderByDescending(x => x.DateCreated).ToList();
 
-        if (validationExceptionToUpdate != null)
+        if(validationExceptionsToUpdate.Count == 0)
         {
-            validationExceptionToUpdate.DateResolved = DateTime.UtcNow.Date;
-            validationExceptionToUpdate.RecordUpdatedDate = DateTime.UtcNow;
-            return await _validationExceptionDataServiceClient.Update(validationExceptionToUpdate);
+            return false;
         }
-        return false;
+
+        foreach (var exception in validationExceptionsToUpdate)
+        {
+            exception.DateResolved = DateTime.UtcNow.Date;
+            exception.RecordUpdatedDate = DateTime.UtcNow;
+            await _validationExceptionDataServiceClient.Update(exception);
+        }
+        return true;
     }
 
     public async Task<ServiceResponseModel> UpdateExceptionServiceNowId(int exceptionId, string serviceNowId)
