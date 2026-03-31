@@ -111,9 +111,13 @@ variables:
     value: $(envShort)
   - name: BACKEND_AZURE_STORAGE_ACCOUNT_NAME
     value: $(backendStorageAccountName)
+  - name: TF_VAR_AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_NAME
+    value: $(backendStorageAccountName)
   - name: BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME_CORE
     value: ${{ parameters.environmentName }}-core
   - name: BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME_AUDIT
+    value: ${{ parameters.environmentName }}-audit
+  - name: TF_VAR_AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
     value: ${{ parameters.environmentName }}-audit
   - name: FUNCTION_RESOURCE_GROUP
     value: rg-cohman-$(envShort)-uks
@@ -135,15 +139,21 @@ variables:
   # 3. GLOBAL CONSTANTS
   - name: BACKEND_AZURE_RESOURCE_GROUP_NAME
     value: rg-dtos-state-files
-  - name: BACKEND_AZURE_STORAGE_ACCOUNT_KEY
+  - name: TF_VAR_HUB_BACKEND_AZURE_RESOURCE_GROUP_NAME
+    value: rg-dtos-state-files
+  - name: TF_VAR_AUDIT_BACKEND_AZURE_RESOURCE_GROUP_NAME
+    value: rg-dtos-state-files
+  - name: TF_VAR_BACKEND_AZURE_STORAGE_ACCOUNT_KEY
+    value: resources.tfstate
+  - name: TF_VAR_AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_KEY
     value: resources.tfstate
   - name: PROJECT_NAME
     value: cohort-manager
   - name: DATABASE_MANAGEMENT_JOB_NAME
     value: ca-db-management-uksouth
-  - name: TF_VAR_HUB_BACKEND_AZURE_RESOURCE_GROUP_NAME
-    value: rg-dtos-state-files
   - name: TF_VAR_HUB_BACKEND_AZURE_STORAGE_ACCOUNT_KEY
     value: resources-hub.tfstate
   - name: hostPoolName
     value: private-pool-dev-uks
+
+AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
