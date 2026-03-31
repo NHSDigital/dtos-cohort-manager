@@ -21,7 +21,7 @@ parameters:
     type: string
     default: 'development'
     values:
-      - sandbox
+      # - sandbox
       - development
       - nft
       - integration
@@ -96,14 +96,12 @@ variables:
 stages:
   # --- STAGE 1: AUDIT ---
   - template: ../templates/cd-infrastructure-audit-common.yaml
-    #displayName: 'Deploy ${{ parameters.targetEnvironment }} Audit'
     parameters:
       terraformActions: ${{ parameters.terraformActionsAudit }}
       environment: $(ENVIRONMENT)
 
   # --- STAGE 2: CORE ---
   - template: ../templates/cd-infrastructure-core-common.yaml
-    #displayName: 'Deploy ${{ parameters.targetEnvironment }} Core'
     parameters:
       hostPoolName: $(hostPoolName)
       serviceConnection: $(SERVICE_CONNECTION)
