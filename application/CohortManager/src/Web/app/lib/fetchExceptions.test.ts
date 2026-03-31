@@ -1,9 +1,20 @@
 import { fetchExceptions } from "@/app/lib/fetchExceptions";
+import { auth } from "@/app/lib/auth";
 import type { ExceptionsAPI } from "@/app/types/exceptionsApi";
+import type { Session } from "next-auth";
+
+jest.mock("@/app/lib/auth", () => ({
+  auth: jest.fn(),
+}));
+
+const mockAuth = auth as unknown as jest.MockedFunction<
+  () => Promise<Session | null>
+>;
 
 describe("fetchExceptions", () => {
   beforeEach(() => {
     jest.resetModules();
+    mockAuth.mockResolvedValue(null);
   });
 
   it("fetches exceptions from the API", async () => {
@@ -60,7 +71,7 @@ describe("fetchExceptions", () => {
         RecordUpdatedDate: "",
       },
     ];
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue(mockResponse),
       headers: { get: jest.fn().mockReturnValue(null) },
@@ -68,6 +79,13 @@ describe("fetchExceptions", () => {
 
     const result = await fetchExceptions();
     expect(result.data).toEqual(mockResponse);
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/api/GetValidationExceptions?"),
+      expect.objectContaining({
+        cache: "no-store",
+        headers: undefined,
+      })
+    );
   });
 
   it("fetches individual exception details from the API", async () => {
@@ -93,7 +111,7 @@ describe("fetchExceptions", () => {
       },
     };
 
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       ok: true,
       json: jest.fn().mockResolvedValue(mockResponse),
       headers: { get: jest.fn().mockReturnValue(null) },
@@ -104,13 +122,44 @@ describe("fetchExceptions", () => {
   });
 
   it("throws an error if the response is not ok", async () => {
-    global.fetch = jest.fn().mockResolvedValue({
+    globalThis.fetch = jest.fn().mockResolvedValue({
       ok: false,
       statusText: "Not found",
     });
 
     await expect(fetchExceptions()).rejects.toThrow(
       "Error fetching data: Not found"
+    );
+  });
+
+  it("adds the JWT token as an authorization header when available", async () => {
+    mockAuth.mockResolvedValue({
+      expires: new Date(Date.now() + 60_000).toISOString(),
+      idToken: "dev-jwt-token",
+      user: {
+        name: "Test User",
+        email: null,
+        image: null,
+        uid: "testuid",
+      },
+    });
+
+    globalThis.fetch = jest.fn().mockResolvedValue({
+      ok: true,
+      json: jest.fn().mockResolvedValue([]),
+      headers: { get: jest.fn().mockReturnValue(null) },
+    });
+
+    await fetchExceptions();
+
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/api/GetValidationExceptions?"),
+      expect.objectContaining({
+        cache: "no-store",
+        headers: {
+          Authorization: "Bearer dev-jwt-token",
+        },
+      })
     );
   });
 });
