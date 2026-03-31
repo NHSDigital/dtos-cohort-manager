@@ -79,7 +79,7 @@ public class TransformDataService
             participant = await transformString.TransformStringFields(participant);
 
             // Other transformation rules
-            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant, ValidationHelper.CheckManualAddFileName(requestBody.FileName));
+            participant = await TransformParticipantAsync(participant, requestBody.ExistingParticipant, requestBody.ReasonForAdding);
 
             // Name prefix transformation
             if (participant.NamePrefix != null)
@@ -117,7 +117,7 @@ public class TransformDataService
     }
 
     public async Task<CohortDistributionParticipant> TransformParticipantAsync(CohortDistributionParticipant participant,
-                                                                            CohortDistribution databaseParticipant, bool isManualAdd = false)
+                                                                            CohortDistribution databaseParticipant, ReasonForAdding? reasonForAdding = null)
     {
         var excludedSMUList = await _dataLookup.GetCachedExcludedSMUValues();
 
@@ -127,7 +127,7 @@ public class TransformDataService
         var reSettings = new ReSettings
         {
             CustomActions = actions,
-            CustomTypes = [typeof(Actions), typeof(CohortDistributionParticipant), typeof(CohortDistribution)],
+            CustomTypes = [typeof(Actions), typeof(CohortDistributionParticipant), typeof(CohortDistribution), typeof(ReasonForAdding)],
             UseFastExpressionCompiler = false
         };
 
@@ -144,9 +144,14 @@ public class TransformDataService
 
         var resultList = await re.ExecuteAllRulesAsync("Common", ruleParameters);
 
-        if (isManualAdd)
+        if (reasonForAdding.HasValue && reasonForAdding != ReasonForAdding.DummyGpCodeRemoval)
         {
             resultList.AddRange(await re.ExecuteAllRulesAsync("ManualAdd", ruleParameters));
+        }
+        
+        if (reasonForAdding.HasValue && reasonForAdding == ReasonForAdding.DummyGpCodeRemoval)
+        {
+            resultList.AddRange(await re.ExecuteAllRulesAsync("DummyGpRemoval", ruleParameters));
         }
 
         await HandleExceptions(resultList, participant);

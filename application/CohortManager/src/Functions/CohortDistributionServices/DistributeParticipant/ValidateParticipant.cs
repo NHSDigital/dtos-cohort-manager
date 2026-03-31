@@ -221,7 +221,8 @@ public class ValidateParticipant
             FileName = validationRecord.FileName,
             // TODO: is this used?
             ServiceProvider = validationRecord.ServiceProvider,
-            ExistingParticipant = validationRecord.PreviousParticipantRecord.ToCohortDistribution()
+            ExistingParticipant = validationRecord.PreviousParticipantRecord.ToCohortDistribution(),
+            ReasonForAdding = validationRecord.ReasonForAdding
         };
 
         var json = JsonSerializer.Serialize(transformDataRequestBody);

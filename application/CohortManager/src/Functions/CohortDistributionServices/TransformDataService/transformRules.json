@@ -796,5 +796,35 @@
         }
       }
     ]
+  },
+  {
+    "WorkflowName": "DummyGpRemoval",
+    "Rules": [
+        {
+        "RuleName": "71.DummyGpCodeRemoval",
+        "Expression": "new string[] { \"RDR\", \"RDI\", \"RPR\" }.Contains(participant.ReasonForRemoval)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "ReasonForRemoval",
+                  "value": "ORR",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": "DateTime.UtcNow.Date.ToString(\"yyyyMMdd\")",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      }
+
+    ]
   }
+
 ]
