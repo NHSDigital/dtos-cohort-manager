@@ -31,6 +31,7 @@ public class ReceiveCaasFileTests
     private readonly Mock<IOptions<ReceiveCaasFileConfig>> _config = new();
     private readonly Mock<IExceptionHandler> _exceptionHandlerMock = new();
     private readonly Mock<IBlobStorageHelper> _blobStorageHelperMock = new();
+    private readonly Mock<IAuditQueueSender> _auditQueueSenderMock = new();
 
     public ReceiveCaasFileTests()
     {
@@ -53,7 +54,8 @@ public class ReceiveCaasFileTests
                                                     _mockScreeningLkpClient.Object,
                                                     _config.Object,
                                                     _blobStorageHelperMock.Object,
-                                                    _exceptionHandlerMock.Object);
+                                                    _exceptionHandlerMock.Object,
+                                                    _auditQueueSenderMock.Object);
 
         _blobName = "add_1_-_CAAS_BREAST_SCREENING_COHORT.parquet";
 

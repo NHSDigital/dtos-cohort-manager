@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
+using Common.Interfaces;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,6 +25,7 @@ public class ManageServiceNowParticipantFunctionTests
     private readonly Mock<IExceptionHandler> _handleExceptionMock = new();
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _dataServiceClientMock = new();
     private readonly Mock<IQueueClient> _queueClientMock = new();
+    private readonly Mock<IAuditQueueSender> _auditQueueSenderMock = new();
     private readonly ServiceNowParticipant _serviceNowParticipant;
     private readonly ManageServiceNowParticipantFunction _function;
     private readonly string _messageType1Request;
@@ -62,7 +64,8 @@ public class ManageServiceNowParticipantFunctionTests
             _httpClientFunctionMock.Object,
             _handleExceptionMock.Object,
             _dataServiceClientMock.Object,
-            _queueClientMock.Object
+            _queueClientMock.Object,
+            _auditQueueSenderMock.Object
         );
 
         _messageType1Request = JsonSerializer.Serialize(new SendServiceNowMessageRequestBody
@@ -293,7 +296,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -409,7 +412,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -474,7 +477,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
         // Act
@@ -552,7 +555,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -619,7 +622,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -707,7 +710,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -784,7 +787,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -859,7 +862,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
         // Act
@@ -1065,7 +1068,7 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
                 && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
-        _handleExceptionMock.Verify(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null),Times.Never);
+        _handleExceptionMock.Verify(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null), Times.Never);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();

@@ -13,6 +13,7 @@ using Model;
 using Microsoft.Extensions.Options;
 using DataServices.Client;
 using Model.Constants;
+using Common.Interfaces;
 
 [TestClass]
 public class ReceiveServiceNowMessageFunctionTests
@@ -25,6 +26,7 @@ public class ReceiveServiceNowMessageFunctionTests
     private readonly Mock<HttpRequestData> _mockHttpRequest;
     private Mock<IDataServiceClient<ServicenowCase>> _mockServiceNowCasesClient = new();
     private readonly Mock<IServiceNowClient> _mockServiceNowClient = new();
+    private readonly Mock<IAuditQueueSender> _mockAuditQueueSender = new();
     private readonly ReceiveServiceNowMessageFunction _function;
 
     public ReceiveServiceNowMessageFunctionTests()
@@ -42,7 +44,7 @@ public class ReceiveServiceNowMessageFunctionTests
             ServiceBusConnectionString_client_internal = "Endpoint=",
             ServiceNowParticipantManagementTopic = "servicenow-participant-management-topic"
         });
-        _function = new ReceiveServiceNowMessageFunction(_mockLogger.Object, _createResponse, _mockQueueClient.Object, _mockConfig.Object, _mockServiceNowCasesClient.Object, _mockServiceNowClient.Object);
+        _function = new ReceiveServiceNowMessageFunction(_mockLogger.Object, _createResponse, _mockQueueClient.Object, _mockConfig.Object, _mockServiceNowCasesClient.Object, _mockServiceNowClient.Object, _mockAuditQueueSender.Object);
         _mockHttpRequest = new Mock<HttpRequestData>(_mockContext.Object);
 
         _mockHttpRequest.Setup(r => r.CreateResponse()).Returns(() =>
