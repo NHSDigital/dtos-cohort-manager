@@ -9,12 +9,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Common;
 using Common.Interfaces;
 using NHS.Screening.ReceiveCaasFile;
-using Data.Database;
 using Model;
 using DataServices.Client;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Options;
 
 [TestClass]
