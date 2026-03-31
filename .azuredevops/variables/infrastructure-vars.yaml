@@ -155,5 +155,3 @@ variables:
     value: resources-hub.tfstate
   - name: hostPoolName
     value: private-pool-dev-uks
-
-AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
