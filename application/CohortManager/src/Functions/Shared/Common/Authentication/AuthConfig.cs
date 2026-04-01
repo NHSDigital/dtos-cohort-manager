@@ -5,9 +5,9 @@ using System.ComponentModel.DataAnnotations;
 public class AuthConfig
 {
     [Required]
-    public required string MetaDataUrl { get; init; }
+    public required string AuthMetaDataUrl { get; init; }
     [Required]
-    public required string ClientId { get; init; }
+    public required string AuthClientId { get; init; }
 
 }
 

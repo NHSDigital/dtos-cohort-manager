@@ -19,7 +19,7 @@ public class JWTAuthentication : IAuthenticationService
         _authConfig = authConfig.Value;
         _logger = logger;
         _configurationManager = new ConfigurationManager<OpenIdConnectConfiguration>(
-            _authConfig.MetaDataUrl,
+            _authConfig.AuthMetaDataUrl,
             new OpenIdConnectConfigurationRetriever(),
             new HttpDocumentRetriever()
         );
@@ -48,7 +48,7 @@ public class JWTAuthentication : IAuthenticationService
                 ValidateIssuer = true,
                 ValidIssuer = oidcConfig.Issuer,
                 ValidateAudience = true,
-                ValidAudience = _authConfig.ClientId,
+                ValidAudience = _authConfig.AuthClientId,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKeys = oidcConfig.SigningKeys,
                 ValidateLifetime = true,
