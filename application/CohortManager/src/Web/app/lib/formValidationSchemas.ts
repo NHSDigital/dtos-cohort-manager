@@ -53,12 +53,12 @@ export const removeDummyGpCodeSchema = z.object({
       if (val === "0000000000") return false;
       let sum = 0;
       for (let i = 0; i < 9; i++) {
-        sum += parseInt(val[i], 10) * (10 - i);
+        sum += Number.parseInt(val[i], 10) * (10 - i);
       }
       const checkDigit = 11 - (sum % 11);
       if (checkDigit === 10) return false;
       const expected = checkDigit === 11 ? 0 : checkDigit;
-      return parseInt(val[9], 10) === expected;
+      return Number.parseInt(val[9], 10) === expected;
     }, "Invalid NHS Number"),
   forename: z
     .string()
@@ -71,7 +71,7 @@ export const removeDummyGpCodeSchema = z.object({
     .min(1, "Date of Birth is required")
     .refine((val) => {
       const date = new Date(val);
-      return !isNaN(date.getTime());
+      return !Number.isNaN(date.getTime());
     }, "Date of Birth must be a valid date"),
   serviceNowTicketNumber: z
     .string()
