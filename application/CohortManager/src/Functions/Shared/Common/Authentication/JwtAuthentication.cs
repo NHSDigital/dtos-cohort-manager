@@ -3,7 +3,6 @@ namespace Common;
 using Microsoft.IdentityModel.Protocols;
 using Microsoft.IdentityModel.Protocols.OpenIdConnect;
 using Microsoft.Extensions.Options;
-using HttpRequestData = Microsoft.Azure.Functions.Worker.Http.HttpRequestData; // Alias to avoid confusion with Microsoft.IdentityModel.Protocols
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Logging;
@@ -28,18 +27,37 @@ public class JWTAuthentication : IAuthenticationService
 
     public async Task<bool> ValidateTokenAsync(string token)
     {
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            _logger.LogWarning("Token is missing");
+            return false;
+        }
+
         try
         {
+            var handler = new JwtSecurityTokenHandler();
+            if (!handler.CanReadToken(token))
+            {
+                _logger.LogWarning("Token is not a valid JWT format");
+                return false;
+            }
+
             var oidcConfig = await _configurationManager.GetConfigurationAsync();
             var validatorParam = new TokenValidationParameters
             {
+                ValidateIssuer = true,
                 ValidIssuer = oidcConfig.Issuer,
+                ValidateAudience = true,
                 ValidAudience = _authConfig.ClientId,
-                IssuerSigningKeys = oidcConfig.SigningKeys
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKeys = oidcConfig.SigningKeys,
+                ValidateLifetime = true,
+                RequireExpirationTime = true,
+                RequireSignedTokens = true,
+                ClockSkew = TimeSpan.FromMinutes(1)
             };
 
-            var handler = new JwtSecurityTokenHandler();
-            handler.ValidateToken(token, validatorParam, out var validatedToken);
+            _ = handler.ValidateToken(token, validatorParam, out _);
             return true;
 
         }

@@ -10,21 +10,13 @@ using NHS.Screening.GetValidationExceptions;
 
 var host = new HostBuilder()
     .AddConfiguration<GetValidationExceptionsConfig>(out GetValidationExceptionsConfig config)
-    .AddConfiguration<AuthConfig>()
-    .ConfigureFunctionsWorkerDefaults(
-            workerOptions =>
-            {
-                workerOptions.UseMiddleware<CIS2AuthMiddleware>();
-            }
-    )
+    .AddAuthentication()
     .AddDataServicesHandler()
     .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
     .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
     .Build()
-    //.AddAuthentication()
     .ConfigureServices(services =>
     {
-        services.AddSingleton<IAuthenticationService, JWTAuthentication>();
         services.AddTransient<IValidationExceptionData, ValidationExceptionData>();
         services.AddSingleton<ICreateResponse, CreateResponse>();
         services.AddSingleton<IHttpParserHelper, HttpParserHelper>();
