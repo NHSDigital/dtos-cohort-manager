@@ -3,23 +3,21 @@
 import { useActionState, useEffect, useState } from "react";
 import { removeDummyGpCode, type RemoveDummyGpCodeState } from "@/app/lib/removeDummyGpCode";
 
-type FormViewProps = {
-  readonly formAction: (payload: FormData) => void;
-  readonly formKey: number;
-  readonly hasError: boolean;
-  readonly errorField?: string;
-  readonly errorMessage?: string;
-  readonly values?: NonNullable<RemoveDummyGpCodeState>["values"];
-};
+export default function RemoveDummyGpCodeForm() {
+  const [state, formAction] = useActionState<RemoveDummyGpCodeState, FormData>(removeDummyGpCode, null);
+  const [formKey, setFormKey] = useState(0);
 
-function RemoveDummyGpCodeFormView({
-  formAction,
-  formKey,
-  hasError,
-  errorField,
-  errorMessage,
-  values,
-}: Readonly<FormViewProps>) {
+  useEffect(() => {
+    if (state?.error) {
+      setFormKey((prev) => prev + 1);
+    }
+  }, [state]);
+
+  const hasError = !!state?.error;
+  const errorField = state?.field;
+  const errorMessage = state?.error;
+  const values = state?.values;
+
   return (
     <>
       {hasError && (
@@ -133,22 +131,4 @@ function RemoveDummyGpCodeFormView({
       </form>
     </>
   );
-}
-
-export default function RemoveDummyGpCodeForm() {
-  const [state, formAction] = useActionState<RemoveDummyGpCodeState, FormData>(removeDummyGpCode, null);
-  const [formKey, setFormKey] = useState(0);
-
-  useEffect(() => {
-    if (state?.error) {
-      setFormKey((prev) => prev + 1);
-    }
-  }, [state]);
-
-  const hasError = !!state?.error;
-  const errorField = state?.field;
-  const errorMessage = state?.error;
-  const values = state?.values;
-
-  return <RemoveDummyGpCodeFormView formAction={formAction} formKey={formKey} hasError={hasError} errorField={errorField} errorMessage={errorMessage} values={values} />;
 }
