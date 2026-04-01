@@ -1,5 +1,23 @@
 import { z } from "zod";
 
+function isValidIsoDateString(value: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    return false;
+  }
+
+  const [yearText, monthText, dayText] = value.split("-");
+  const year = Number.parseInt(yearText, 10);
+  const month = Number.parseInt(monthText, 10);
+  const day = Number.parseInt(dayText, 10);
+  const date = new Date(Date.UTC(year, month - 1, day));
+
+  return (
+    date.getUTCFullYear() === year &&
+    date.getUTCMonth() === month - 1 &&
+    date.getUTCDate() === day
+  );
+}
+
 // This schema validates the ServiceNow case ID for updating exceptions status.
 // In edit mode, empty input is allowed to clear the ServiceNow ID (convert raised to non-raised).
 // In non-edit mode, the ID is required and must start with two letters followed by at least seven digits (e.g. CS0619153).
@@ -69,10 +87,7 @@ export const removeDummyGpCodeSchema = z.object({
   dateOfBirth: z
     .string()
     .min(1, "Date of Birth is required")
-    .refine((val) => {
-      const date = new Date(val);
-      return !Number.isNaN(date.getTime());
-    }, "Date of Birth must be a valid date"),
+    .refine((val) => isValidIsoDateString(val), "Date of Birth must be a valid date"),
   serviceNowTicketNumber: z
     .string()
     .min(1, "Service Now Ticket Number is required")

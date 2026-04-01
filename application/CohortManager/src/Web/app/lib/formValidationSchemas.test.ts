@@ -501,6 +501,36 @@ describe("formValidationSchemas", () => {
           expect(result.error.issues[0].message).toBe("Date of Birth must be a valid date");
         }
       });
+
+      it("should reject impossible calendar dates", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "2024-02-31",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("Date of Birth must be a valid date");
+        }
+      });
+
+      it("should reject dates that are not zero-padded ISO format", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "2024-2-3",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("Date of Birth must be a valid date");
+        }
+      });
     });
 
     describe("Service Now Ticket Number validation", () => {

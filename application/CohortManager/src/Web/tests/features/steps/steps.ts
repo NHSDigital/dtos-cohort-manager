@@ -175,6 +175,15 @@ Then("I see the button {string}", async ({ page }, buttonText: string) => {
 });
 
 Then(
+  "I see the input with label {string}",
+  async ({ page }, labelText: string) => {
+    await test
+      .expect(page.getByLabel(labelText, { exact: true }))
+      .toBeVisible();
+  }
+);
+
+Then(
   "I see the link {string} with the href {string}",
   async ({ page }, linkText: string, expectedHref: string) => {
     const exactName = new RegExp(`^\\s*${escapeRegExp(linkText)}\\s*$`, "i");

@@ -68,7 +68,7 @@ export default function RemoveDummyGpCodeForm() {
               {errorMessage}
             </span>
           )}
-          <input className={`nhsuk-input ${hasError && errorField === "forename" ? "nhsuk-input--error" : ""}`} id="forename" name="forename" type="text" defaultValue={values?.forename} data-testid="forename-input" />
+          <input className={`nhsuk-input ${hasError && errorField === "forename" ? "nhsuk-input--error" : ""}`} id="forename" name="forename" type="text" defaultValue={values?.forename} aria-describedby={hasError && errorField === "forename" ? "forename-error" : undefined} data-testid="forename-input" />
         </div>
 
         <div className={`nhsuk-form-group ${hasError && errorField === "surname" ? "nhsuk-form-group--error" : ""}`}>
@@ -79,11 +79,11 @@ export default function RemoveDummyGpCodeForm() {
               {errorMessage}
             </span>
           )}
-          <input className={`nhsuk-input ${hasError && errorField === "surname" ? "nhsuk-input--error" : ""}`} id="surname" name="surname" type="text" defaultValue={values?.surname} data-testid="surname-input" />
+          <input className={`nhsuk-input ${hasError && errorField === "surname" ? "nhsuk-input--error" : ""}`} id="surname" name="surname" type="text" defaultValue={values?.surname} aria-describedby={hasError && errorField === "surname" ? "surname-error" : undefined} data-testid="surname-input" />
         </div>
 
         <div className={`nhsuk-form-group ${hasError && errorField === "dob-day" ? "nhsuk-form-group--error" : ""}`}>
-          <fieldset className="nhsuk-fieldset" aria-describedby="dob-hint" role="group">
+          <fieldset className="nhsuk-fieldset" aria-describedby={`dob-hint${hasError && errorField === "dob-day" ? " dob-error" : ""}`} role="group">
             <legend className="nhsuk-fieldset__legend nhsuk-label nhsuk-u-font-weight-bold">Date of Birth</legend>
             <div className="nhsuk-hint" id="dob-hint">For example, 15 3 1984</div>
             {hasError && errorField === "dob-day" && (
@@ -124,7 +124,7 @@ export default function RemoveDummyGpCodeForm() {
               {errorMessage}
             </span>
           )}
-          <input className={`nhsuk-input nhsuk-input--width-10 ${hasError && errorField === "serviceNowTicketNumber" ? "nhsuk-input--error" : ""}`} id="serviceNowTicketNumber" name="serviceNowTicketNumber" type="text" defaultValue={values?.serviceNowTicketNumber} aria-describedby="serviceNowTicketNumber-hint" data-testid="service-now-ticket-input"/>
+          <input className={`nhsuk-input nhsuk-input--width-10 ${hasError && errorField === "serviceNowTicketNumber" ? "nhsuk-input--error" : ""}`} id="serviceNowTicketNumber" name="serviceNowTicketNumber" type="text" defaultValue={values?.serviceNowTicketNumber} aria-describedby={`serviceNowTicketNumber-hint${hasError && errorField === "serviceNowTicketNumber" ? " serviceNowTicketNumber-error" : ""}`} data-testid="service-now-ticket-input"/>
         </div>
 
         <button className="nhsuk-button" data-module="nhsuk-button" type="submit" data-testid="submit-button">Submit</button>
