@@ -1,10 +1,11 @@
 import Card from "@/app/components/card";
 
 interface CardProps {
-  readonly value: number;
+  readonly value?: number;
   readonly label: string;
   readonly description?: string;
   readonly url: string;
+  readonly loading?: boolean;
 }
 
 interface CardGroupProps {
@@ -24,6 +25,7 @@ export default function CardGroup({ items }: Readonly<CardGroupProps>) {
             label={card.label}
             description={card.description}
             url={card.url}
+            loading={card.loading}
           />
         </li>
       ))}

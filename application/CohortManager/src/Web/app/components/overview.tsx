@@ -1,50 +1,55 @@
+import { Suspense } from "react";
 import CardGroup from "@/app/components/cardGroup";
-import DataError from "@/app/components/dataError";
-import { fetchExceptions } from "@/app/lib/fetchExceptions";
+import OverviewData from "@/app/components/overviewData";
 
-export default async function Overview() {
-  try {
-    const notRaisedExceptions = await fetchExceptions({ exceptionStatus: 2 });
-    const raisedExceptions = await fetchExceptions({ exceptionStatus: 1 });
+const skeletonExceptionItems = [
+  {
+    label: "Not raised",
+    description: "Exceptions to be raised with teams",
+    url: "/exceptions",
+    loading: true,
+  },
+  {
+    label: "Raised",
+    description: "Access and amend previously raised exceptions",
+    url: "/exceptions/raised",
+    loading: true,
+  },
+];
 
-    const exceptionItems = [
-      {
-        value: notRaisedExceptions.data.TotalItems,
-        label: "Not raised",
-        description: "Exceptions to be raised with teams",
-        url: "/exceptions",
-      },
-      {
-        value: raisedExceptions.data.TotalItems,
-        label: "Raised",
-        description: "Access and amend previously raised exceptions",
-        url: `/exceptions/raised`,
-      },
-    ];
+const reportItems = [
+  {
+    value: 28,
+    label: "Reports",
+    description: "To manage investigations into demographic changes",
+    url: "/reports",
+  },
+];
 
-    const reportItems = [
-      {
-        value: 28, // Showing reports for last 2 weeks
-        label: "Reports",
-        description: "To manage investigations into demographic changes",
-        url: "/reports",
-      },
-    ];
+const dummyGpCodeItems = [
+  {
+    label: "Remove Dummy GP Code",
+    description: "Remove a dummy GP practice code from a participant record",
+    url: "/remove-dummy-gp-code",
+  },
+];
 
-    return (
-      <main className="nhsuk-main-wrapper" id="maincontent" role="main">
-        <div className="nhsuk-grid-row">
-          <div className="nhsuk-grid-column-full">
-            <h1>Breast screening</h1>
-            <h2>Exceptions</h2>
-            <CardGroup items={exceptionItems} />
-            <h2>Reports</h2>
-            <CardGroup items={reportItems} />
-          </div>
+export default function Overview() {
+  return (
+    <main className="nhsuk-main-wrapper" id="maincontent" role="main">
+      <div className="nhsuk-grid-row">
+        <div className="nhsuk-grid-column-full">
+          <h1>Breast screening</h1>
+          <h2>Exceptions</h2>
+          <Suspense fallback={<CardGroup items={skeletonExceptionItems} />}>
+            <OverviewData />
+          </Suspense>
+          <h2>Reports</h2>
+          <CardGroup items={reportItems} />
+          <h2>Dummy GP Code</h2>
+          <CardGroup items={dummyGpCodeItems} />
         </div>
-      </main>
-    );
-  } catch {
-    return <DataError />;
-  }
+      </div>
+    </main>
+  );
 }
