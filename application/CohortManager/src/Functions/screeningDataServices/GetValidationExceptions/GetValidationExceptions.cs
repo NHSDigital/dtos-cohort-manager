@@ -24,15 +24,13 @@ public class GetValidationExceptions
     private readonly IValidationExceptionData _validationData;
     private readonly IHttpParserHelper _httpParserHelper;
     private readonly IPaginationService<ValidationException> _paginationService;
-    private readonly IAuthenticationService _authenticationService;
 
-    public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationExceptionData validationData, IHttpParserHelper httpParserHelper, IPaginationService<ValidationException> paginationService, IAuthenticationService authenticationService)
+    public GetValidationExceptions(ILogger<GetValidationExceptions> logger, ICreateResponse createResponse, IValidationExceptionData validationData, IHttpParserHelper httpParserHelper, IPaginationService<ValidationException> paginationService)
     {
         _logger = logger;
         _createResponse = createResponse;
         _validationData = validationData;
         _httpParserHelper = httpParserHelper;
-        _authenticationService = authenticationService;
         _paginationService = paginationService;
     }
 
@@ -59,14 +57,6 @@ public class GetValidationExceptions
         var isReport = _httpParserHelper.GetQueryParameterAsBool(req, "isReport");
         var ruleId = _httpParserHelper.GetQueryParameterAsNullableInt(req, "ruleId");
         var dateCreated = _httpParserHelper.GetQueryParameterAsDateTime(req, "dateCreated");
-
-        var validated = await _authenticationService.ValidateAccess(req);
-
-        if(!validated)
-        {
-            return _createResponse.CreateHttpResponse(HttpStatusCode.Unauthorized, req, "Unauthorized access.");
-        }
-
         try
         {
             if (exceptionId > 0)

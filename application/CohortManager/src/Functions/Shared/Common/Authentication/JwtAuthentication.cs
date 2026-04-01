@@ -26,17 +26,8 @@ public class JWTAuthentication : IAuthenticationService
         );
     }
 
-    public async Task<bool> ValidateAccess(HttpRequestData request)
+    public async Task<bool> ValidateTokenAsync(string token)
     {
-
-        var authHeader = request.Headers.Single(x => x.Key == "Authorization").Value.FirstOrDefault();
-        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-        {
-            _logger.LogWarning("Authorization header is missing or does not start with 'Bearer '");
-            return false;
-        }
-        var token = authHeader.Substring("Bearer ".Length).Trim();
-
         try
         {
             var oidcConfig = await _configurationManager.GetConfigurationAsync();
@@ -67,8 +58,6 @@ public class JWTAuthentication : IAuthenticationService
             _logger.LogError(ex, "An unexpected error occurred during token validation");
             return false;
         }
-        // Implement JWT validation logic here using _authConfig.MetaDataUrl and _authConfig.ClientId
-        // This is a placeholder implementation and should be replaced with actual JWT validation logic.
     }
 
 }

@@ -9,9 +9,14 @@ public static class AuthenticationExtension
     {
 
         hostBuilder.AddConfiguration<AuthConfig>();
+        hostBuilder.ConfigureFunctionsWorkerDefaults(workerOptions =>
+        {
+            workerOptions.UseMiddleware<CIS2AuthMiddleware>();
+        });
         hostBuilder.ConfigureServices((context, services) =>
         {
-            services.AddSingleton<IAuthenticationService, JWTAuthentication>();
+
+            //services.AddSingleton<IAuthenticationService, JWTAuthentication>();
         });
         return hostBuilder;
      }
