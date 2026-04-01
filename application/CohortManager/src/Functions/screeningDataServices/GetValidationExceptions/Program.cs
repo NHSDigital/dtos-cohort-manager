@@ -14,8 +14,8 @@ var host = new HostBuilder()
     .AddDataServicesHandler()
     .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
     .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
-
     .Build()
+    .AddAuthentication()
     .ConfigureServices(services =>
     {
         services.AddTransient<IValidationExceptionData, ValidationExceptionData>();
