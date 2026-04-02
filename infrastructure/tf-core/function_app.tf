@@ -28,8 +28,7 @@ module "functionapp" {
 
   # Use the storage account assigned identity for the Function Apps:
   storage_account_name          = module.storage["fnapp-${each.value.region}"].storage_account_name
-  storage_account_access_key    = var.function_apps.storage_uses_managed_identity == true ? null : module.storage["fnapp-${each.value.region}"].storage_account_primary_access_key
-  storage_uses_managed_identity = var.function_apps.storage_uses_managed_identity
+  storage_uses_managed_identity = each.value.storage_uses_managed_identity
 
   # Connection string for Application Insights:
   ai_connstring = data.azurerm_application_insights.ai.connection_string
@@ -221,6 +220,7 @@ locals {
             ]
 
           ])
+          storage_uses_managed_identity = config.storage_uses_managed_identity
         }
       )
     ]

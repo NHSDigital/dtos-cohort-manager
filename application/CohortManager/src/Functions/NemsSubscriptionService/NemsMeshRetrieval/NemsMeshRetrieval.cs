@@ -20,7 +20,7 @@ public class NemsMeshRetrieval
 
     private readonly IMeshToBlobTransferHandler _meshToBlobTransferHandler;
     private readonly string _mailboxId;
-    private readonly string _blobConnectionString;
+    private readonly Uri _blobServiceUri;
     private readonly IBlobStorageHelper _blobStorageHelper;
     private readonly NemsMeshRetrievalConfig _config;
     private const string NextHandShakeTimeConfigKey = "NextHandShakeTime";
@@ -33,7 +33,7 @@ public class NemsMeshRetrieval
         _blobStorageHelper = blobStorageHelper;
         _mailboxId = options.Value.NemsMeshMailBox;
         _config = options.Value;
-        _blobConnectionString = _config.nemsmeshfolder_STORAGE;
+        _blobServiceUri = new Uri(_config.nemsmeshfolder_STORAGE__blobServiceUri);
     }
     /// <summary>
     /// This function polls the MESH Mailbox every 5 minutes, if there is a file posted to the mailbox.
@@ -51,7 +51,7 @@ public class NemsMeshRetrieval
         try
         {
             var shouldExecuteHandShake = await ShouldExecuteHandShake();
-            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId, _blobConnectionString, _config.NemsMeshInboundContainer, shouldExecuteHandShake);
+            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId, _blobServiceUri, _config.NemsMeshInboundContainer, shouldExecuteHandShake);
 
             if (!result)
             {
@@ -74,7 +74,7 @@ public class NemsMeshRetrieval
 
         Dictionary<string, string> configValues;
         TimeSpan handShakeInterval = new TimeSpan(0, 23, 54, 0);
-        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobConnectionString, _config.NemsMeshConfigContainer, ConfigFileName);
+        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobServiceUri, _config.NemsMeshConfigContainer, ConfigFileName);
         if (meshState == null)
         {
 
@@ -140,7 +140,7 @@ public class NemsMeshRetrieval
             using (var stream = GenerateStreamFromString(jsonString))
             {
                 var blobFile = new BlobFile(stream, ConfigFileName);
-                var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString, _config.NemsMeshConfigContainer, blobFile, true);
+                var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobServiceUri, _config.NemsMeshConfigContainer, blobFile, true);
                 return result;
             }
         }

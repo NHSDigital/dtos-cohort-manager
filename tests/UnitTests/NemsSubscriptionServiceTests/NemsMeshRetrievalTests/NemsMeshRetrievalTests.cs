@@ -34,7 +34,7 @@ public class NemsMeshRetrievalTests
         var testConfig = new NemsMeshRetrievalConfig
         {
             NemsMeshMailBox = mailboxId,
-            nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
+            nemsmeshfolder_STORAGE__blobServiceUri = "https://localhost:8888",
             NemsMeshPassword = "MeshPassword",
             NemsMeshSharedKey = "MeshSharedKey",
             NemsMeshKeyPassphrase = "MeshKeyPassphrase",
@@ -67,7 +67,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(mailboxId)).ReturnsAsync(inboxResponse);
         _mockMeshInboxService.Setup(i => i.GetHeadMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(headResponse);
         _mockMeshInboxService.Setup(i => i.GetMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(messageResponse);
-        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage("BlobStorage_ConnectionString", TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
+        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage(new Uri("https://localhost:8888"), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
         _mockMeshInboxService.Setup(i => i.AcknowledgeMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(acknowledgeMessageResponse);
         _mockMeshOperationService.Setup(i => i.MeshHandshakeAsync(mailboxId)).ReturnsAsync(handshakeResponse);
 
@@ -80,7 +80,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Verify(i => i.GetMessagesAsync(It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetHeadMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<string>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Once);
+        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<Uri>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.AcknowledgeMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
 
     }
@@ -105,7 +105,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(mailboxId)).ReturnsAsync(inboxResponse);
         _mockMeshInboxService.Setup(i => i.GetHeadMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(headResponse);
         _mockMeshInboxService.Setup(i => i.GetChunkedMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(messageResponse);
-        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage("BlobStorage_ConnectionString", TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
+        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage(new Uri("https://localhost:8888"), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
         _mockMeshInboxService.Setup(i => i.AcknowledgeMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(acknowledgeMessageResponse);
         _mockMeshOperationService.Setup(i => i.MeshHandshakeAsync(mailboxId)).ReturnsAsync(handshakeResponse);
 
@@ -118,7 +118,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Verify(i => i.GetMessagesAsync(It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetHeadMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetChunkedMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<string>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Once);
+        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<Uri>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.AcknowledgeMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
     }
 
@@ -146,7 +146,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(mailboxId)).ReturnsAsync(inboxResponse);
         _mockMeshInboxService.Setup(i => i.GetHeadMessageByIdAsync(mailboxId, It.IsAny<string>())).ReturnsAsync(headResponses.Dequeue());
         _mockMeshInboxService.Setup(i => i.GetMessageByIdAsync(mailboxId, It.IsAny<string>())).ReturnsAsync(messageResponses.Dequeue());
-        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage("BlobStorage_ConnectionString", TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
+        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage(new Uri("https://localhost:8888"), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
         _mockMeshInboxService.Setup(i => i.AcknowledgeMessageByIdAsync(mailboxId, It.IsAny<string>())).ReturnsAsync(acknowledgeMessageResponse);
         _mockMeshOperationService.Setup(i => i.MeshHandshakeAsync(mailboxId)).ReturnsAsync(handshakeResponse);
 
@@ -158,7 +158,7 @@ public class NemsMeshRetrievalTests
 
         _mockMeshInboxService.Verify(i => i.GetHeadMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
         _mockMeshInboxService.Verify(i => i.GetMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
-        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<string>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Exactly(2));
+        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<Uri>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Exactly(2));
         _mockMeshInboxService.Verify(i => i.AcknowledgeMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Exactly(2));
 
     }
@@ -184,7 +184,7 @@ public class NemsMeshRetrievalTests
 
         _mockMeshInboxService.Verify(i => i.GetHeadMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         _mockMeshInboxService.Verify(i => i.GetChunkedMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<string>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Never);
+        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<Uri>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Never);
         _mockMeshInboxService.Verify(i => i.AcknowledgeMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
@@ -204,7 +204,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(mailboxId)).ReturnsAsync(inboxResponse);
         _mockMeshInboxService.Setup(i => i.GetHeadMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(headResponse);
         _mockMeshInboxService.Setup(i => i.GetMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(messageResponse);
-        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage("BlobStorage_ConnectionString", TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(false);
+        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage(new Uri("https://localhost:8888"), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(false);
         _mockMeshInboxService.Setup(i => i.AcknowledgeMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(acknowledgeMessageResponse);
         _mockMeshOperationService.Setup(i => i.MeshHandshakeAsync(mailboxId)).ReturnsAsync(handshakeResponse);
 
@@ -215,7 +215,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Verify(i => i.GetMessagesAsync(It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetHeadMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<string>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Once);
+        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<Uri>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.AcknowledgeMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
@@ -243,7 +243,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(mailboxId)).ReturnsAsync(inboxResponse);
         _mockMeshInboxService.Setup(i => i.GetHeadMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(headResponse);
         _mockMeshInboxService.Setup(i => i.GetMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(messageResponse);
-        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage("BlobStorage_ConnectionString", TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(false);
+        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage(new Uri("https://localhost:8888"), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(false);
         _mockMeshInboxService.Setup(i => i.AcknowledgeMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(acknowledgeMessageResponse);
         _mockMeshOperationService.Setup(i => i.MeshHandshakeAsync(mailboxId)).ReturnsAsync(handshakeResponse);
 
@@ -254,7 +254,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Verify(i => i.GetMessagesAsync(It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetHeadMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<string>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Never);
+        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<Uri>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Never);
         _mockMeshInboxService.Verify(i => i.AcknowledgeMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
@@ -284,7 +284,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(mailboxId)).ReturnsAsync(inboxResponse);
         _mockMeshInboxService.Setup(i => i.GetHeadMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(headResponse);
         _mockMeshInboxService.Setup(i => i.GetMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(messageResponse);
-        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage("BlobStorage_ConnectionString", TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
+        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage(new Uri("https://localhost:8888"), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
         _mockMeshInboxService.Setup(i => i.AcknowledgeMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(acknowledgeMessageResponse);
         _mockMeshOperationService.Setup(i => i.MeshHandshakeAsync(mailboxId)).ReturnsAsync(handshakeResponse);
 
@@ -297,7 +297,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Verify(i => i.GetMessagesAsync(It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetHeadMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<string>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Never);
+        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<Uri>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Never);
         _mockMeshInboxService.Verify(i => i.AcknowledgeMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
 
     }
@@ -320,7 +320,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(mailboxId)).ReturnsAsync(inboxResponse);
         _mockMeshInboxService.Setup(i => i.GetHeadMessageByIdAsync(mailboxId, It.IsAny<string>())).ReturnsAsync(It.IsAny<MeshResponse<HeadMessageResponse>>);
         _mockMeshInboxService.Setup(i => i.GetMessageByIdAsync(mailboxId, It.IsAny<string>())).ReturnsAsync(It.IsAny<MeshResponse<GetMessageResponse>>);
-        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage("BlobStorage_ConnectionString", TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
+        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage(new Uri("https://localhost:8888"), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
         _mockMeshInboxService.Setup(i => i.AcknowledgeMessageByIdAsync(mailboxId, It.IsAny<string>())).ReturnsAsync(It.IsAny<MeshResponse<AcknowledgeMessageResponse>>);
         _mockMeshOperationService.Setup(i => i.MeshHandshakeAsync(mailboxId)).ReturnsAsync(handshakeResponse);
 
@@ -332,7 +332,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Verify(i => i.GetMessagesAsync(It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetHeadMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         _mockMeshInboxService.Verify(i => i.GetMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<string>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Never);
+        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<Uri>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Never);
         _mockMeshInboxService.Verify(i => i.AcknowledgeMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
@@ -361,7 +361,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(mailboxId)).ReturnsAsync(inboxResponse);
         _mockMeshInboxService.Setup(i => i.GetHeadMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(headResponse);
         _mockMeshInboxService.Setup(i => i.GetChunkedMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(messageResponse);
-        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage("BlobStorage_ConnectionString", TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
+        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage(new Uri("https://localhost:8888"), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
         _mockMeshInboxService.Setup(i => i.AcknowledgeMessageByIdAsync(mailboxId, messageId)).ReturnsAsync(acknowledgeMessageResponse);
         _mockMeshOperationService.Setup(i => i.MeshHandshakeAsync(mailboxId)).ReturnsAsync(handshakeResponse);
 
@@ -374,7 +374,7 @@ public class NemsMeshRetrievalTests
         _mockMeshInboxService.Verify(i => i.GetMessagesAsync(It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetHeadMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
         _mockMeshInboxService.Verify(i => i.GetChunkedMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Once);
-        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<string>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Never);
+        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(It.IsAny<Uri>(), TestInboundContainer, It.IsAny<BlobFile>(), It.IsAny<bool>()), Times.Never);
         _mockMeshInboxService.Verify(i => i.AcknowledgeMessageByIdAsync(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
 
     }
@@ -389,7 +389,7 @@ public class NemsMeshRetrievalTests
         var customConfig = new NemsMeshRetrievalConfig
         {
             NemsMeshMailBox = mailboxId,
-            nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
+            nemsmeshfolder_STORAGE__blobServiceUri = "https://localhost:8888",
             NemsMeshPassword = "MeshPassword",
             NemsMeshSharedKey = "MeshSharedKey",
             NemsMeshKeyPassphrase = "MeshKeyPassphrase",
@@ -413,13 +413,13 @@ public class NemsMeshRetrievalTests
         List<string> messages = new List<string>();
         MeshResponse<CheckInboxResponse> inboxResponse = NemsMeshResponseTestHelper.CreateSuccessfulCheckInboxResponse(messages);
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(It.IsAny<string>())).ReturnsAsync(inboxResponse);
-        _mockBlobStorageHelper.Setup(i => i.GetFileFromBlobStorage(It.IsAny<string>(), customConfigContainer, It.IsAny<string>())).ReturnsAsync((BlobFile)null);
+        _mockBlobStorageHelper.Setup(i => i.GetFileFromBlobStorage(It.IsAny<Uri>(), customConfigContainer, It.IsAny<string>())).ReturnsAsync((BlobFile)null);
 
         // Act
         await customNemsMeshRetrieval.RunAsync(new Microsoft.Azure.Functions.Worker.TimerInfo());
 
         // Assert - Verify that the custom config container is used for GetFileFromBlobStorage
-        _mockBlobStorageHelper.Verify(i => i.GetFileFromBlobStorage("BlobStorage_ConnectionString", customConfigContainer, "MeshState.json"), Times.Once);
+        _mockBlobStorageHelper.Verify(i => i.GetFileFromBlobStorage(new Uri("https://localhost:8888"), customConfigContainer, "MeshState.json"), Times.Once);
     }
 
     [TestMethod]
@@ -429,13 +429,13 @@ public class NemsMeshRetrievalTests
         List<string> messages = new List<string>();
         MeshResponse<CheckInboxResponse> inboxResponse = NemsMeshResponseTestHelper.CreateSuccessfulCheckInboxResponse(messages);
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(It.IsAny<string>())).ReturnsAsync(inboxResponse);
-        _mockBlobStorageHelper.Setup(i => i.GetFileFromBlobStorage(It.IsAny<string>(), TestConfigContainer, It.IsAny<string>())).ReturnsAsync((BlobFile)null);
+        _mockBlobStorageHelper.Setup(i => i.GetFileFromBlobStorage(It.IsAny<Uri>(), TestConfigContainer, It.IsAny<string>())).ReturnsAsync((BlobFile)null);
 
         // Act
         await _nemsMeshRetrieval.RunAsync(new Microsoft.Azure.Functions.Worker.TimerInfo());
 
         // Assert - Verify that the default config container is used
-        _mockBlobStorageHelper.Verify(i => i.GetFileFromBlobStorage("BlobStorage_ConnectionString", TestConfigContainer, "MeshState.json"), Times.Once);
+        _mockBlobStorageHelper.Verify(i => i.GetFileFromBlobStorage(new Uri("https://localhost:8888"), TestConfigContainer, "MeshState.json"), Times.Once);
     }
 
     [TestMethod]
@@ -447,7 +447,7 @@ public class NemsMeshRetrievalTests
         var customConfig = new NemsMeshRetrievalConfig
         {
             NemsMeshMailBox = mailboxId,
-            nemsmeshfolder_STORAGE = "BlobStorage_ConnectionString",
+            nemsmeshfolder_STORAGE__blobServiceUri = "https://localhost:8888",
             NemsMeshPassword = "MeshPassword",
             NemsMeshSharedKey = "MeshSharedKey",
             NemsMeshKeyPassphrase = "MeshKeyPassphrase", 
@@ -471,14 +471,14 @@ public class NemsMeshRetrievalTests
         List<string> messages = new List<string>();
         MeshResponse<CheckInboxResponse> inboxResponse = NemsMeshResponseTestHelper.CreateSuccessfulCheckInboxResponse(messages);
         _mockMeshInboxService.Setup(i => i.GetMessagesAsync(It.IsAny<string>())).ReturnsAsync(inboxResponse);
-        _mockBlobStorageHelper.Setup(i => i.GetFileFromBlobStorage(It.IsAny<string>(), customConfigContainer, It.IsAny<string>())).ReturnsAsync((BlobFile)null);
-        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage(It.IsAny<string>(), customConfigContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
+        _mockBlobStorageHelper.Setup(i => i.GetFileFromBlobStorage(It.IsAny<Uri>(), customConfigContainer, It.IsAny<string>())).ReturnsAsync((BlobFile)null);
+        _mockBlobStorageHelper.Setup(i => i.UploadFileToBlobStorage(It.IsAny<Uri>(), customConfigContainer, It.IsAny<BlobFile>(), It.IsAny<bool>())).ReturnsAsync(true);
 
         // Act
         await customNemsMeshRetrieval.RunAsync(new Microsoft.Azure.Functions.Worker.TimerInfo());
 
         // Assert - Verify that the custom config container is used for UploadFileToBlobStorage
-        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage("BlobStorage_ConnectionString", customConfigContainer, It.IsAny<BlobFile>(), true), Times.Once);
+        _mockBlobStorageHelper.Verify(i => i.UploadFileToBlobStorage(new Uri("https://localhost:8888"), customConfigContainer, It.IsAny<BlobFile>(), true), Times.Once);
     }
 
 

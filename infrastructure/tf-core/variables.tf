@@ -287,7 +287,6 @@ variable "function_apps" {
     http2_enabled                          = optional(bool, false)
     pull_image_over_vnet                   = optional(bool, true)
     remote_debugging_enabled               = bool
-    storage_uses_managed_identity          = bool
     worker_32bit                           = bool
     alert_4xx_threshold                    = optional(number, 1)
     alert_5xx_threshold                    = optional(number, 1)
@@ -315,7 +314,8 @@ variable "function_apps" {
         function_app_key = string
         endpoint_name    = optional(string, "")
       })), [])
-      env_vars_static = optional(map(string), {})
+      env_vars_static               = optional(map(string), {})
+      storage_uses_managed_identity = optional(bool, false)
     }))
   })
 }

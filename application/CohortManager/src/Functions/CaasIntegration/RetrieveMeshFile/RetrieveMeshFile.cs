@@ -20,7 +20,7 @@ public class RetrieveMeshFile
 
     private readonly IMeshToBlobTransferHandler _meshToBlobTransferHandler;
     private readonly string _mailboxId;
-    private readonly string _blobConnectionString;
+    private Uri _blobServiceUri;
     private readonly IBlobStorageHelper _blobStorageHelper;
     private readonly RetrieveMeshFileConfig _config;
     private const string NextHandShakeTimeConfigKey = "NextHandShakeTime";
@@ -33,7 +33,7 @@ public class RetrieveMeshFile
         _blobStorageHelper = blobStorageHelper;
         _mailboxId = options.Value.BSSMailBox;
         _config = options.Value;
-        _blobConnectionString = _config.caasfolder_STORAGE;
+        _blobServiceUri = new Uri(_config.nemsmeshfolder_STORAGE__blobServiceUri);
     }
     /// <summary>
     /// This function polls the MESH Mailbox every 5 minutes, if there is a file posted to the mailbox.
@@ -51,7 +51,7 @@ public class RetrieveMeshFile
         try
         {
             var shouldExecuteHandShake = await ShouldExecuteHandShake();
-            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId, _blobConnectionString, "inbound", shouldExecuteHandShake);
+            var result = await _meshToBlobTransferHandler.MoveFilesFromMeshToBlob(messageFilter, fileNameFunction, _mailboxId, _blobServiceUri, "inbound", shouldExecuteHandShake);
 
             if (!result)
             {
@@ -74,7 +74,7 @@ public class RetrieveMeshFile
 
         Dictionary<string, string> configValues;
         TimeSpan handShakeInterval = new TimeSpan(0, 23, 54, 0);
-        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobConnectionString, "config", ConfigFileName);
+        var meshState = await _blobStorageHelper.GetFileFromBlobStorage(_blobServiceUri, "config", ConfigFileName);
         if (meshState == null)
         {
 
@@ -140,7 +140,7 @@ public class RetrieveMeshFile
             using (var stream = GenerateStreamFromString(jsonString))
             {
                 var blobFile = new BlobFile(stream, ConfigFileName);
-                var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString, "config", blobFile, true);
+                var result = await _blobStorageHelper.UploadFileToBlobStorage(_blobServiceUri, "config", blobFile, true);
                 return result;
             }
         }

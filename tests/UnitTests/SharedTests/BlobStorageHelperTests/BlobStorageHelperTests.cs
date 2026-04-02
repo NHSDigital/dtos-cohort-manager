@@ -1,12 +1,13 @@
 namespace NHS.Screening.BlobStorageHelperTests;
 
-using Microsoft.Extensions.Logging;
-using Moq;
-using Common;
-using Model;
+using Azure;
+using Azure.Identity;
 using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
-using Azure;
+using Common;
+using Microsoft.Extensions.Logging;
+using Model;
+using Moq;
 using System.Text;
 
 [TestClass]
@@ -14,7 +15,7 @@ public class BlobStorageHelperTests
 {
     private readonly Mock<ILogger<BlobStorageHelper>> _mockLogger;
     private readonly BlobStorageHelper _blobStorageHelper;
-    private const string TestConnectionString = "UseDevelopmentStorage=true";
+    private const string TestBlobStorageServiceUri = "https://localhost:8888";
     private const string TestFileName = "test-file.json";
     private const string TestFileNameNoExtension = "test-file";
     private const string TestSourceContainer = "source-container";
@@ -166,7 +167,7 @@ public class BlobStorageHelperTests
         // Act & Assert  
         try
         {
-            await _blobStorageHelper.CopyFileToPoisonAsync(TestConnectionString, "", TestSourceContainer, TestPoisonContainer, false);
+            await _blobStorageHelper.CopyFileToPoisonAsync(new Uri(TestBlobStorageServiceUri), "", TestSourceContainer, TestPoisonContainer, false);
             Assert.Fail("Expected exception was not thrown");
         }
         catch (Exception ex)
@@ -182,7 +183,7 @@ public class BlobStorageHelperTests
     public async Task CopyFileToPoisonAsync_WithNullFileName_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await _blobStorageHelper.CopyFileToPoisonAsync(TestConnectionString, null!, TestSourceContainer, TestPoisonContainer, false);
+        await _blobStorageHelper.CopyFileToPoisonAsync(new Uri(TestBlobStorageServiceUri), null!, TestSourceContainer, TestPoisonContainer, false);
     }
 
     [TestMethod]
@@ -190,7 +191,7 @@ public class BlobStorageHelperTests
     {
         // Arrange & Act
         var method = typeof(IBlobStorageHelper).GetMethod("CopyFileToPoisonAsync", 
-            new[] { typeof(string), typeof(string), typeof(string), typeof(string), typeof(bool) });
+            new[] { typeof(Uri), typeof(string), typeof(string), typeof(string), typeof(bool) });
 
         // Assert
         Assert.IsNotNull(method, "Method with 5 parameters should exist");
@@ -206,7 +207,7 @@ public class BlobStorageHelperTests
     {
         // Arrange & Act
         var method = typeof(IBlobStorageHelper).GetMethod("CopyFileToPoisonAsync", 
-            new[] { typeof(string), typeof(string), typeof(string) });
+            new[] { typeof(Uri), typeof(string), typeof(string) });
 
         // Assert
         Assert.IsNotNull(method, "3-parameter overload should exist for backward compatibility");
@@ -255,7 +256,7 @@ public class BlobStorageHelperTests
     public async Task UploadFileToBlobStorage_WithNullBlobFile_ThrowsNullReferenceException()
     {
         // Act & Assert
-        await _blobStorageHelper.UploadFileToBlobStorage(TestConnectionString, TestSourceContainer, null!);
+        await _blobStorageHelper.UploadFileToBlobStorage(new Uri(TestBlobStorageServiceUri), TestSourceContainer, null!);
     }
 
     [TestMethod]
@@ -271,12 +272,12 @@ public class BlobStorageHelperTests
         // We expect this to fail due to invalid connection string, but not throw null reference
         try
         {
-            await _blobStorageHelper.UploadFileToBlobStorage(TestConnectionString, TestSourceContainer, mockBlobFile);
+            await _blobStorageHelper.UploadFileToBlobStorage(new Uri(TestBlobStorageServiceUri), TestSourceContainer, mockBlobFile);
         }
         catch (Exception ex)
         {
             // Should fail due to invalid connection string, not due to null reference
-            Assert.IsTrue(ex is RequestFailedException || ex is FormatException || ex is ArgumentException || ex is AggregateException,
+            Assert.IsTrue(ex is RequestFailedException || ex is FormatException || ex is ArgumentException || ex is AggregateException || ex is CredentialUnavailableException,
                 $"Expected storage-related exception, but got {ex.GetType().Name}: {ex.Message}");
         }
     }
@@ -314,7 +315,7 @@ public class BlobStorageHelperTests
     public async Task GetFileFromBlobStorage_WithNullFileName_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await _blobStorageHelper.GetFileFromBlobStorage(TestConnectionString, TestSourceContainer, null!);
+        await _blobStorageHelper.GetFileFromBlobStorage(new Uri(TestBlobStorageServiceUri), TestSourceContainer, null!);
     }
 
     [TestMethod]
@@ -323,7 +324,7 @@ public class BlobStorageHelperTests
         // Act & Assert  
         try
         {
-            await _blobStorageHelper.GetFileFromBlobStorage(TestConnectionString, TestSourceContainer, "");
+            await _blobStorageHelper.GetFileFromBlobStorage(new Uri(TestBlobStorageServiceUri), TestSourceContainer, "");
             Assert.Fail("Expected exception was not thrown");
         }
         catch (Exception ex)
@@ -343,14 +344,14 @@ public class BlobStorageHelperTests
         // Act & Assert
         try
         {
-            var result = await _blobStorageHelper.GetFileFromBlobStorage(TestConnectionString, TestSourceContainer, TestFileName);
+            var result = await _blobStorageHelper.GetFileFromBlobStorage(new Uri(TestBlobStorageServiceUri), TestSourceContainer, TestFileName);
             // If we get here, the method handled the invalid connection gracefully
             Assert.IsNull(result, "Should return null for non-existent file");
         }
         catch (Exception ex)
         {
             // Should fail due to invalid connection string
-            Assert.IsTrue(ex is RequestFailedException || ex is FormatException || ex is ArgumentException || ex is AggregateException,
+            Assert.IsTrue(ex is RequestFailedException || ex is FormatException || ex is ArgumentException || ex is AggregateException || ex is CredentialUnavailableException,
                 $"Expected storage-related exception, but got {ex.GetType().Name}: {ex.Message}");
         }
     }
