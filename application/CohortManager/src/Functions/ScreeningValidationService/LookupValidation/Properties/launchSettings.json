@@ -2,7 +2,7 @@
   "profiles": {
     "ScreeningValidationService": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7117",
+      "commandLineArgs": "--port 7072",
       "launchBrowser": false
     }
   }

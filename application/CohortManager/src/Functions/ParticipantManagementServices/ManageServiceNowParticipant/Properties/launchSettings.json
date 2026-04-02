@@ -2,7 +2,7 @@
   "profiles": {
     "ManageServiceNowParticipant": {
       "commandName": "Project",
-      "commandLineArgs": "--port 7068",
+      "commandLineArgs": "--port 9092",
       "launchBrowser": false
     }
   }

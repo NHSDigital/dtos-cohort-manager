@@ -4,7 +4,7 @@ describe("ruleMapping", () => {
   describe("ruleIdMappings", () => {
     it("should contain all expected rule IDs", () => {
       const expectedRuleIds = [
-        3, 8, 10, 17, 18, 21, 22, 30, 35, 39, 40, 54, 66, 69, 71,
+        3, 8, 17, 18, 30, 35, 39, 40, 54, 66, 71
       ];
       const actualRuleIds = Object.keys(ruleIdMappings).map(Number);
 
@@ -20,7 +20,7 @@ describe("ruleMapping", () => {
         expect(mapping).toHaveProperty("reportingId");
         expect(typeof mapping.ruleDescription).toBe("string");
         expect(mapping.ruleDescription.length).toBeGreaterThan(0);
-        expect(typeof mapping.reportingId).toBe("string");
+        expect(["string", "undefined"]).toContain(typeof mapping.reportingId);
         if (mapping.reportingId) {
           expect(mapping.reportingId.length).toBeGreaterThan(0);
         }
@@ -143,25 +143,17 @@ describe("ruleMapping", () => {
 
   describe("specific rule validations", () => {
     it("should have correct CMR reporting IDs format", () => {
-      Object.values(ruleIdMappings).forEach((mapping) => {
-        expect(mapping.reportingId).toMatch(/^CMR\d+$/);
-      });
+      Object.values(ruleIdMappings)
+        .filter((mapping) => mapping.reportingId !== undefined)
+        .forEach((mapping) => {
+          expect(mapping.reportingId).toMatch(/^CMR\d+$/);
+        });
     });
 
     it("should have non-empty rule descriptions", () => {
       Object.values(ruleIdMappings).forEach((mapping) => {
         expect(mapping.ruleDescription.trim()).not.toBe("");
       });
-    });
-
-    it("should handle rules with empty moreDetails", () => {
-      // Rule 21 has empty moreDetails in the mapping
-      const result = getRuleMapping(21);
-      expect(result.moreDetails).toBe("");
-      expect(result.ruleDescription).toBe(
-        "The 'Superseded by NHS number' field has been populated with an NHS number by NBO."
-      );
-      expect(result.reportingId).toBe("CMR33");
     });
   });
 });

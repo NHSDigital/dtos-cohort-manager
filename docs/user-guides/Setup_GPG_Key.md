@@ -158,3 +158,31 @@ export GPG_TTY=$(tty)
 ```
 
 This should set the correct local variables and if you try to commit again it should prompt you for your password as it should.
+
+## Troubleshooting
+
+### Error: `gpg: signing failed: No secret key`
+
+Steps to resolve:
+
+  1. Check your secret key:
+  
+      ```shell
+      gpg --list-secret-keys --keyid-format=long
+      ```
+
+      Make sure the key exists and note the GPG key ID.
+  
+  2. Verify Git signing key configuration:
+  
+      ```shell
+      git config --global user.signingkey <your-gpg-key-id>
+      ```
+
+  3. Ensure GPG program is set correctly (especially on Windows):
+
+      ```shell
+      git config --global gpg.program "C:/Program Files (x86)/GnuPG/bin/gpg.exe"
+      ```
+  
+      Adjust the path if GPG is installed elsewhere.

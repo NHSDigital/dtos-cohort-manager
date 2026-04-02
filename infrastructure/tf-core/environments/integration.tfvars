@@ -12,6 +12,7 @@ features = {
   public_network_access_enabled        = false
   frontdoor_endpoint_enabled           = true
   alerts_enabled                       = false
+  alerts_function_errors_enabled       = false
 }
 
 # these will be merged with compliance tags in locals.tf
@@ -270,10 +271,6 @@ container_apps = {
       infra_key_vault_name          = null
     }
   }
-}
-
-diagnostic_settings = {
-  metric_enabled = true
 }
 
 function_apps = {
@@ -672,6 +669,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
+        RetrieveSupersededRecordsLast = "true"
       }
     }
 

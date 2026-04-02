@@ -8,6 +8,7 @@ import Unauthorised from "@/app/components/unauthorised";
 import DataError from "@/app/components/dataError";
 import ReportsInformationTable from "@/app/components/reportsInformationTable";
 import Pagination from "@/app/components/pagination";
+import UserFeedback from "@/app/components/userFeedback";
 import { type ExceptionAPIDetails } from "@/app/types/exceptionsApi";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default async function Page(props: {
   readonly searchParams?: Promise<{
     readonly category?: string;
     readonly page?: string;
+    readonly nhsNumber?: string;
   }>;
 }) {
   const session = await auth();
@@ -41,6 +43,7 @@ export default async function Page(props: {
     ? await props.searchParams
     : {};
   const categoryId = Number(resolvedSearchParams.category);
+  const nhsNumber = resolvedSearchParams.nhsNumber;
   const currentPage = Math.max(
     1,
     Number.parseInt(resolvedSearchParams.page || "1", 10)
@@ -66,13 +69,19 @@ export default async function Page(props: {
     const reportData = response.data;
     const linkHeader = response.headers?.get("Link") || response.linkHeader;
 
+    // Filter items by NHS number if provided
+    const filteredItems = nhsNumber
+      ? reportData.Items.filter((item: ExceptionAPIDetails) => item.NhsNumber === nhsNumber)
+      : reportData.Items;
+
     const totalPages = reportData.TotalPages || 1;
-    const totalItems = Number(reportData.TotalItems) || 0;
-    const startItem = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
-    const endItem =
-      totalItems > 0
-        ? Math.min(startItem + reportData.Items.length - 1, totalItems)
-        : 0;
+    const totalItems = nhsNumber ? filteredItems.length : Number(reportData.TotalItems) || 0;
+    const filteredStartValue = totalItems > 0 ? 1 : 0;
+    const paginatedStartValue = totalItems > 0 ? (currentPage - 1) * pageSize + 1 : 0;
+    const startItem = nhsNumber
+      ? Math.max(1, filteredStartValue)
+      : Math.max(0, paginatedStartValue);
+    const endItem = Math.max(0, totalItems);
 
     return (
       <>
@@ -97,12 +106,10 @@ export default async function Page(props: {
 
                   <div className="nhsuk-card nhsuk-u-margin-bottom-5">
                     <div className="nhsuk-card__content">
-                      {reportData.Items?.length ? (
+                      {filteredItems?.length ? (
                         <ReportsInformationTable
                           category={categoryId}
-                          items={
-                            reportData.Items as readonly ExceptionAPIDetails[]
-                          }
+                          items={filteredItems as readonly ExceptionAPIDetails[]}
                         />
                       ) : (
                         <p>No report available for {formatDate(date)}</p>
@@ -124,6 +131,7 @@ export default async function Page(props: {
               )}
             </div>
           </div>
+          <UserFeedback />
         </main>
       </>
     );

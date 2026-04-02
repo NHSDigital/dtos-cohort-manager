@@ -36,7 +36,7 @@ Feature: Not raised exceptions page
     Scenario: Check for the portal form used for a BSS exception
         When I go to the page "/participant-information/2034"
         Given I see the text "Exception information"
-        Then I see the text "Portal form: Raise with Breast Screening Select (BSS)"
+        Then I see the text "Portal form: Raise with Breast Screening Select second line"
 
     Scenario: Check for breadcrumb navigation back to Not raised breast screening exceptions page
       When I go to the page "/participant-information/2032"

@@ -9,9 +9,10 @@ module "storage" {
 
   containers = each.value.containers
 
-  log_analytics_workspace_id                              = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
-  monitor_diagnostic_setting_storage_account_enabled_logs = local.monitor_diagnostic_setting_storage_account_enabled_logs
-  monitor_diagnostic_setting_storage_account_metrics      = local.monitor_diagnostic_setting_storage_account_metrics
+  log_analytics_workspace_id                                  = data.terraform_remote_state.audit.outputs.log_analytics_workspace_id[local.primary_region]
+  monitor_diagnostic_setting_storage_account_enabled_logs     = local.monitor_diagnostic_setting_storage_account_enabled_logs
+  monitor_diagnostic_setting_storage_account_metrics          = local.monitor_diagnostic_setting_storage_account_metrics
+  monitor_diagnostic_setting_storage_account_resource_metrics = local.monitor_diagnostic_setting_storage_account_resource_metrics
 
   account_replication_type = each.value.replication_type
   account_tier             = each.value.account_tier

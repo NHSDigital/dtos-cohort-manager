@@ -8,6 +8,7 @@ using NHS.CohortManager.ScreeningDataServices;
 using Common;
 using System.Threading.Tasks;
 using Model.Enums;
+using Model.DTO;
 using Common.Interfaces;
 using Microsoft.Extensions.Logging;
 using Microsoft.Azure.Functions.Worker;
@@ -17,7 +18,7 @@ using System.IO;
 using System.Text;
 using NHS.CohortManager.Tests.TestUtils;
 using FluentAssertions;
-
+using Model.Pagination;
 
 [TestClass]
 public class GetValidationExceptionsTests
@@ -146,7 +147,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 0)).Returns(10);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsDateTime(_requestMock.Object, "reportDate")).Returns((DateTime?)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(_requestMock.Object, "isReport", false)).Returns(false);
-        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
+        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory, It.IsAny<SortBy?>(), It.IsAny<int?>(), It.IsAny<DateTime?>())).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Throws(new Exception("Pagination error"));
 
         // Act
@@ -352,7 +353,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 0)).Returns(10);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsDateTime(_requestMock.Object, "reportDate")).Returns((DateTime?)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(_requestMock.Object, "isReport", false)).Returns(false);
-        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, exceptionCategory)).ReturnsAsync(boExceptions);
+        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, exceptionCategory, It.IsAny<SortBy?>(), It.IsAny<int?>(), It.IsAny<DateTime?>())).ReturnsAsync(boExceptions);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Returns(paginatedResult);
         _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
@@ -407,7 +408,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 0)).Returns(10);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsDateTime(_requestMock.Object, "reportDate")).Returns((DateTime?)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(_requestMock.Object, "isReport", false)).Returns(false);
-        _validationDataMock.Setup(s => s.GetFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory)).ReturnsAsync(filteredAndSortedExceptions);
+        _validationDataMock.Setup(s => s.GetFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory, It.IsAny<SortBy?>(), It.IsAny<int?>(), It.IsAny<DateTime?>())).ReturnsAsync(filteredAndSortedExceptions);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Returns(paginatedResult);
         _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
@@ -496,7 +497,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 0)).Returns(10);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsDateTime(_requestMock.Object, "reportDate")).Returns((DateTime?)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(_requestMock.Object, "isReport", false)).Returns(false);
-        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(new List<ValidationException>());
+        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory, It.IsAny<SortBy?>(), It.IsAny<int?>(), It.IsAny<DateTime?>())).ReturnsAsync(new List<ValidationException>());
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Returns(emptyPaginatedResult);
         _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, emptyPaginatedResult)).Returns(expectedHeaders);
 
@@ -525,8 +526,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "page", 0)).Returns(0);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsDateTime(_requestMock.Object, "reportDate")).Returns((DateTime?)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(_requestMock.Object, "isReport", false)).Returns(false);
-        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory))
-            .ThrowsAsync(new Exception(exceptionMessage));
+        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory, It.IsAny<SortBy?>(), It.IsAny<int?>(), It.IsAny<DateTime?>())).ThrowsAsync(new Exception(exceptionMessage));
 
         // Act
         var result = await _service.Run(_requestMock.Object);
@@ -562,7 +562,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 0)).Returns(10);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsDateTime(_requestMock.Object, "reportDate")).Returns((DateTime?)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(_requestMock.Object, "isReport", false)).Returns(false);
-        _validationDataMock.Setup(s => s.GetFilteredExceptions(exceptionStatus, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(filteredExceptions);
+        _validationDataMock.Setup(s => s.GetFilteredExceptions(exceptionStatus, SortOrder.Descending, _exceptionCategory, It.IsAny<SortBy?>(), It.IsAny<int?>(), It.IsAny<DateTime?>())).ReturnsAsync(filteredExceptions);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Returns(paginatedResult);
         _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
@@ -603,7 +603,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 0)).Returns(10);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsDateTime(_requestMock.Object, "reportDate")).Returns((DateTime?)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(_requestMock.Object, "isReport", false)).Returns(false);
-        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Ascending, _exceptionCategory)).ReturnsAsync(sortedExceptions);
+        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Ascending, _exceptionCategory, It.IsAny<SortBy?>(), It.IsAny<int?>(), It.IsAny<DateTime?>())).ReturnsAsync(sortedExceptions);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Returns(paginatedResult);
         _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
@@ -647,7 +647,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 0)).Returns(10);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsDateTime(_requestMock.Object, "reportDate")).Returns((DateTime?)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(_requestMock.Object, "isReport", false)).Returns(false);
-        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
+        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory, It.IsAny<SortBy?>(), It.IsAny<int?>(), It.IsAny<DateTime?>())).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Returns(paginatedResult);
         _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
@@ -691,7 +691,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 0)).Returns(10);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsDateTime(_requestMock.Object, "reportDate")).Returns((DateTime?)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(_requestMock.Object, "isReport", false)).Returns(false);
-        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
+        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory, It.IsAny<SortBy?>(), It.IsAny<int?>(), It.IsAny<DateTime?>())).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Returns(paginatedResult);
         _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
@@ -731,7 +731,7 @@ public class GetValidationExceptionsTests
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 0)).Returns(10);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsDateTime(_requestMock.Object, "reportDate")).Returns((DateTime?)null);
         _httpParserHelperMock.Setup(s => s.GetQueryParameterAsBool(_requestMock.Object, "isReport", false)).Returns(false);
-        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory)).ReturnsAsync(_exceptionList);
+        _validationDataMock.Setup(s => s.GetFilteredExceptions(ExceptionStatus.All, SortOrder.Descending, _exceptionCategory, It.IsAny<SortBy?>(), It.IsAny<int?>(), It.IsAny<DateTime?>())).ReturnsAsync(_exceptionList);
         _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Returns(paginatedResult);
         _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
 
@@ -812,5 +812,301 @@ public class GetValidationExceptionsTests
         Assert.IsFalse(responseData.HasPreviousPage);
         Assert.IsTrue(result.Headers.Contains("X-Total-Count"));
         Assert.AreEqual("2", result.Headers.GetValues("X-Total-Count").First());
+    }
+
+    [TestMethod]
+    [DataRow("NhsNumber", null, DisplayName = "Missing searchValue")]
+    [DataRow("NhsNumber", "", DisplayName = "Empty searchValue")]
+    [DataRow("ExceptionId", "   ", DisplayName = "Whitespace searchValue")]
+    public async Task GetValidationExceptionsByType_InvalidSearchValue_ReturnsBadRequest(string searchType, string? searchValue)
+    {
+        // Arrange
+        var queryParams = new Dictionary<string, string> { { "searchType", searchType } };
+        if (searchValue != null) queryParams.Add("searchValue", searchValue);
+        SetupQueryParameters(queryParams);
+
+        // Act
+        var result = await _service.GetValidationExceptionsByType(_requestMock.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    [DataRow("abc", DisplayName = "Non-numeric ExceptionId")]
+    [DataRow("12.5", DisplayName = "Decimal ExceptionId")]
+    [DataRow("-abc", DisplayName = "Invalid negative format")]
+    public async Task GetValidationExceptionsByType_ExceptionIdInvalidFormat_ReturnsBadRequest(string invalidId)
+    {
+        // Arrange
+        SetupQueryParameters(new Dictionary<string, string> { { "searchType", "ExceptionId" }, { "searchValue", invalidId } });
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "page", 1)).Returns(1);
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 10)).Returns(10);
+
+        // Act
+        var result = await _service.GetValidationExceptionsByType(_requestMock.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    [DataRow("9434765910", DisplayName = "Invalid checksum")]
+    [DataRow("123456789", DisplayName = "Too short (9 digits)")]
+    [DataRow("12345678901", DisplayName = "Too long (11 digits)")]
+    [DataRow("943476591A", DisplayName = "Contains letter")]
+    [DataRow("94347659!9", DisplayName = "Contains special character")]
+    [DataRow("9434765`19", DisplayName = "Contains backtick")]
+    [DataRow("9434765'19", DisplayName = "Contains apostrophe")]
+    [DataRow("`", DisplayName = "Just a backtick")]
+    public async Task GetValidationExceptionsByType_NhsNumberInvalidFormat_ReturnsBadRequest(string invalidNhsNumber)
+    {
+        // Arrange
+        SetupQueryParameters(new Dictionary<string, string> { { "searchType", "NhsNumber" }, { "searchValue", invalidNhsNumber } });
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "page", 1)).Returns(1);
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 10)).Returns(10);
+
+        // Act
+        var result = await _service.GetValidationExceptionsByType(_requestMock.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.BadRequest, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task GetValidationExceptionsByType_ExceptionIdValidId_ReturnsException()
+    {
+        // Arrange
+        var exceptionId = 1;
+        var expectedException = _exceptionList.First(f => f.ExceptionId == exceptionId);
+        SetupQueryParameters(new Dictionary<string, string> { { "searchType", "ExceptionId" }, { "searchValue", exceptionId.ToString() } });
+
+        var paginatedResult = new PaginationResult<ValidationException>
+        {
+            Items = [expectedException],
+            HasNextPage = false,
+            HasPreviousPage = false,
+            CurrentPage = 1,
+            TotalItems = 1,
+            TotalPages = 1,
+        };
+        var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", "1" } };
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "page", 1)).Returns(1);
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 10)).Returns(10);
+        _validationDataMock.Setup(s => s.GetExceptionById(exceptionId)).ReturnsAsync(expectedException);
+        _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Returns(paginatedResult);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+
+        // Act
+        var result = await _service.GetValidationExceptionsByType(_requestMock.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        var responseData = DeserializeResponseBody<ValidationExceptionsResponse>(result);
+        Assert.IsNotNull(responseData);
+        Assert.AreEqual(SearchType.ExceptionId, responseData.SearchType);
+        Assert.AreEqual(exceptionId.ToString(), responseData.SearchValue);
+        Assert.AreEqual(1, responseData.PaginatedExceptions.Items.Count());
+        Assert.AreEqual(0, responseData.Reports.Count);
+    }
+
+    [TestMethod]
+    public async Task GetValidationExceptionsByType_ExceptionIdNotFound_ReturnsNoContent()
+    {
+        // Arrange
+        var exceptionId = 999;
+        SetupQueryParameters(new Dictionary<string, string> { { "searchType", "ExceptionId" }, { "searchValue", exceptionId.ToString() } });
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "page", 1)).Returns(1);
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 10)).Returns(10);
+        _validationDataMock.Setup(s => s.GetExceptionById(exceptionId)).ReturnsAsync((ValidationException?)null);
+
+        // Act
+        var result = await _service.GetValidationExceptionsByType(_requestMock.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
+    }
+
+    [TestMethod]
+    [DataRow("9434765919", null, DisplayName = "Standard format")]
+    [DataRow("943 476 5919", "9434765919", DisplayName = "With spaces")]
+    public async Task GetValidationExceptionsByType_NhsNumberValid_ReturnsResults(string inputNhsNumber, string? expectedCleanedNumber)
+    {
+        // Arrange
+        var cleanedNhsNumber = expectedCleanedNumber ?? inputNhsNumber;
+        var exceptionsResponse = new ValidationExceptionsResponse
+        {
+            SearchType = SearchType.NhsNumber,
+            SearchValue = cleanedNhsNumber,
+            Exceptions = [_exceptionList[0]],
+            Reports = [new ValidationExceptionReport { ReportDate = DateTime.Today, Category = 12, ExceptionCount = 1 }]
+        };
+        SetupQueryParameters(new Dictionary<string, string> { { "searchType", "NhsNumber" }, { "searchValue", inputNhsNumber } });
+
+        var paginatedResult = new PaginationResult<ValidationException>
+        {
+            Items = exceptionsResponse.Exceptions,
+            HasNextPage = false,
+            HasPreviousPage = false,
+            CurrentPage = 1,
+            TotalItems = 1,
+            TotalPages = 1,
+        };
+        var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", "1" } };
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "page", 1)).Returns(1);
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 10)).Returns(10);
+        _validationDataMock.Setup(s => s.GetExceptionsByNhsNumber(cleanedNhsNumber)).ReturnsAsync(exceptionsResponse);
+        _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Returns(paginatedResult);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+
+        // Act
+        var result = await _service.GetValidationExceptionsByType(_requestMock.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _validationDataMock.Verify(s => s.GetExceptionsByNhsNumber(cleanedNhsNumber), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetValidationExceptionsByType_NhsNumber_NoResults_ReturnsNoContent()
+    {
+        // Arrange
+        var nhsNumber = "9434765919";
+        var exceptionsResponse = new ValidationExceptionsResponse
+        {
+            SearchType = SearchType.NhsNumber,
+            SearchValue = nhsNumber,
+            Exceptions = [],
+            Reports = []
+        };
+        SetupQueryParameters(new Dictionary<string, string> { { "searchType", "NhsNumber" }, { "searchValue", nhsNumber } });
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "page", 1)).Returns(1);
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 10)).Returns(10);
+        _validationDataMock.Setup(s => s.GetExceptionsByNhsNumber(nhsNumber)).ReturnsAsync(exceptionsResponse);
+
+        // Act
+        var result = await _service.GetValidationExceptionsByType(_requestMock.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.NoContent, result.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task GetValidationExceptionsByType_WithPagination_ReturnsCorrectPage()
+    {
+        // Arrange
+        var nhsNumber = "9434765919";
+        var exceptions = _exceptionList.Take(5).ToList();
+        var exceptionsResponse = new ValidationExceptionsResponse
+        {
+            SearchType = SearchType.NhsNumber,
+            SearchValue = nhsNumber,
+            Exceptions = exceptions,
+            Reports = []
+        };
+        SetupQueryParameters(new Dictionary<string, string> { { "searchType", "NhsNumber" }, { "searchValue", nhsNumber }, { "page", "2" }, { "pageSize", "2" } });
+
+        var page2Items = exceptions.Skip(2).Take(2).ToList();
+        var paginatedResult = new PaginationResult<ValidationException>
+        {
+            Items = page2Items,
+            HasNextPage = true,
+            HasPreviousPage = true,
+            CurrentPage = 2,
+            TotalItems = 5,
+            TotalPages = 3,
+        };
+        var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", "5" }, { "X-Page", "2" } };
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "page", 1)).Returns(2);
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 10)).Returns(2);
+        _validationDataMock.Setup(s => s.GetExceptionsByNhsNumber(nhsNumber)).ReturnsAsync(exceptionsResponse);
+        _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), 2, 2)).Returns(paginatedResult);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+
+        // Act
+        var result = await _service.GetValidationExceptionsByType(_requestMock.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+
+        var responseData = DeserializeResponseBody<ValidationExceptionsResponse>(result);
+        Assert.IsNotNull(responseData);
+        Assert.AreEqual(2, responseData.PaginatedExceptions.CurrentPage);
+        Assert.AreEqual(2, responseData.PaginatedExceptions.Items.Count());
+        Assert.IsTrue(responseData.PaginatedExceptions.HasNextPage);
+        Assert.IsTrue(responseData.PaginatedExceptions.HasPreviousPage);
+    }
+
+    [TestMethod]
+    public async Task GetValidationExceptionsByType_DefaultSearchType_IsNhsNumber()
+    {
+        // Arrange - no searchType specified, should default to NhsNumber
+        var nhsNumber = "9434765919";
+        var exceptionsResponse = new ValidationExceptionsResponse
+        {
+            SearchType = SearchType.NhsNumber,
+            SearchValue = nhsNumber,
+            Exceptions = [_exceptionList[0]],
+            Reports = []
+        };
+        SetupQueryParameters(new Dictionary<string, string> { { "searchValue", nhsNumber } });
+
+        var paginatedResult = new PaginationResult<ValidationException>
+        {
+            Items = exceptionsResponse.Exceptions,
+            HasNextPage = false,
+            HasPreviousPage = false,
+            CurrentPage = 1,
+            TotalItems = 1,
+            TotalPages = 1,
+        };
+        var expectedHeaders = new Dictionary<string, string> { { "X-Total-Count", "1" } };
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "page", 1)).Returns(1);
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 10)).Returns(10);
+        _validationDataMock.Setup(s => s.GetExceptionsByNhsNumber(nhsNumber)).ReturnsAsync(exceptionsResponse);
+        _paginationServiceMock.Setup(p => p.GetPaginatedResult(It.IsAny<IQueryable<ValidationException>>(), It.IsAny<int>(), It.IsAny<int>())).Returns(paginatedResult);
+        _paginationServiceMock.Setup(p => p.AddNavigationHeaders(_requestMock.Object, paginatedResult)).Returns(expectedHeaders);
+
+        // Act
+        var result = await _service.GetValidationExceptionsByType(_requestMock.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _validationDataMock.Verify(s => s.GetExceptionsByNhsNumber(nhsNumber), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetValidationExceptionsByType_DatabaseError_ReturnsInternalServerError()
+    {
+        // Arrange
+        var nhsNumber = "9434765919";
+        SetupQueryParameters(new Dictionary<string, string> { { "searchType", "NhsNumber" }, { "searchValue", nhsNumber } });
+
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "page", 1)).Returns(1);
+        _httpParserHelperMock.Setup(s => s.GetQueryParameterAsInt(_requestMock.Object, "pageSize", 10)).Returns(10);
+        _validationDataMock.Setup(s => s.GetExceptionsByNhsNumber(nhsNumber)).ThrowsAsync(new Exception("Database connection error"));
+
+        // Act
+        var result = await _service.GetValidationExceptionsByType(_requestMock.Object);
+
+        // Assert
+        Assert.IsNotNull(result);
+        Assert.AreEqual(HttpStatusCode.InternalServerError, result.StatusCode);
     }
 }

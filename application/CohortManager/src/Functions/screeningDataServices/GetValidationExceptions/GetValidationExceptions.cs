@@ -10,6 +10,7 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Extensions.Logging;
 using Model;
+using Model.DTO;
 using Model.Enums;
 
 /// <summary>
@@ -50,9 +51,12 @@ public class GetValidationExceptions
         var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize");
         var exceptionStatus = HttpParserHelper.GetEnumQueryParameter(req, "exceptionStatus", ExceptionStatus.All);
         var sortOrder = HttpParserHelper.GetEnumQueryParameter(req, "sortOrder", SortOrder.Descending);
+        var sortBy = HttpParserHelper.GetEnumQueryParameter(req, "sortBy", SortBy.DateCreated);
         var exceptionCategory = HttpParserHelper.GetEnumQueryParameter(req, "exceptionCategory", ExceptionCategory.NBO);
         var reportDate = _httpParserHelper.GetQueryParameterAsDateTime(req, "reportDate");
         var isReport = _httpParserHelper.GetQueryParameterAsBool(req, "isReport");
+        var ruleId = _httpParserHelper.GetQueryParameterAsNullableInt(req, "ruleId");
+        var dateCreated = _httpParserHelper.GetQueryParameterAsDateTime(req, "dateCreated");
 
         try
         {
@@ -75,7 +79,7 @@ public class GetValidationExceptions
                 return CreatePaginatedResponse(req, reportExceptions!.AsQueryable(), page, reportExceptions!.Count);
             }
 
-            var filteredExceptions = await _validationData.GetFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory);
+            var filteredExceptions = await _validationData.GetFilteredExceptions(exceptionStatus, sortOrder, exceptionCategory, sortBy, ruleId, dateCreated);
             return CreatePaginatedResponse(req, filteredExceptions!.AsQueryable(), page, pageSize);
         }
         catch (Exception ex)
@@ -126,6 +130,81 @@ public class GetValidationExceptions
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing: {Function} update ServiceNowId request", nameof(UpdateExceptionServiceNowId));
+            return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+        }
+    }
+
+    /// <summary>
+    /// Retrieves validation exceptions and reports by search type (NHS Number or Exception ID).
+    /// </summary>
+    [Function(nameof(GetValidationExceptionsByType))]
+    public async Task<HttpResponseData> GetValidationExceptionsByType([HttpTrigger(AuthorizationLevel.Anonymous, "get")] HttpRequestData req)
+    {
+        var searchType = HttpParserHelper.GetEnumQueryParameter(req, "searchType", SearchType.NhsNumber);
+        var searchValue = req.Query["searchValue"];
+        var page = _httpParserHelper.GetQueryParameterAsInt(req, "page", 1);
+        var pageSize = _httpParserHelper.GetQueryParameterAsInt(req, "pageSize", 10);
+
+        if (string.IsNullOrWhiteSpace(searchValue))
+        {
+            return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Search value is required.");
+        }
+
+        try
+        {
+            ValidationExceptionsResponse result = new()
+            {
+                SearchType = searchType,
+                SearchValue = searchValue,
+                Exceptions = [],
+                Reports = []
+            };
+
+            if (searchType == SearchType.ExceptionId)
+            {
+                if (!int.TryParse(searchValue.Trim(), out var exceptionId))
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Exception ID must be a valid number.");
+                }
+                var exception = await _validationData.GetExceptionById(exceptionId);
+                result = new ValidationExceptionsResponse
+                {
+                    SearchType = SearchType.ExceptionId,
+                    SearchValue = searchValue.Trim(),
+                    Exceptions = exception != null ? [exception] : [],
+                    Reports = []
+                };
+            }
+
+            if (searchType == SearchType.NhsNumber)
+            {
+                var cleanedNhsNumber = searchValue.Replace(" ", "");
+                if (!ValidationHelper.ValidateNHSNumber(cleanedNhsNumber))
+                {
+                    return _createResponse.CreateHttpResponse(HttpStatusCode.BadRequest, req, "Invalid NHS number format.");
+                }
+                result = await _validationData.GetExceptionsByNhsNumber(cleanedNhsNumber);
+            }
+
+            if (result.Exceptions.Count == 0 && result.Reports.Count == 0)
+            {
+                return _createResponse.CreateHttpResponse(HttpStatusCode.NoContent, req);
+            }
+
+            var paginatedExceptions = _paginationService.GetPaginatedResult(result.Exceptions.AsQueryable(), page, pageSize);
+            var headers = _paginationService.AddNavigationHeaders(req, paginatedExceptions);
+            var response = new ValidationExceptionsResponse
+            {
+                SearchType = result.SearchType,
+                SearchValue = result.SearchValue,
+                PaginatedExceptions = paginatedExceptions,
+                Reports = result.Reports
+            };
+            return _createResponse.CreateHttpResponseWithHeaders(HttpStatusCode.OK, req, JsonSerializer.Serialize(response), headers);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving validation exceptions for search type {SearchType}", searchType);
             return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
         }
     }

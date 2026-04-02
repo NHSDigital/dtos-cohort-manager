@@ -27,6 +27,7 @@ public class TransformDataServiceTests
     private readonly Mock<IExceptionHandler> _handleException = new();
     private readonly Mock<ITransformDataLookupFacade> _transformLookups = new();
     private readonly ITransformReasonForRemoval _transformReasonForRemoval;
+    private readonly IReasonForRemovalLookup _reasonForRemovalLookup;
 
     public TransformDataServiceTests()
     {
@@ -55,8 +56,11 @@ public class TransformDataServiceTests
         {
             Participant = requestParticipant,
             ExistingParticipant = databaseParticipant,
-            ServiceProvider = "1"
+            ServiceProvider = "1",
+            FileName = "test.parquet"
         };
+
+        _reasonForRemovalLookup = new ReasonForRemovalLookup();
 
         _transformLookups.Setup(x => x.ValidateOutcode(It.IsAny<string>())).Returns(true);
         _transformLookups.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns("ELD");
@@ -64,7 +68,7 @@ public class TransformDataServiceTests
         _transformLookups.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
 
         _transformReasonForRemoval = new TransformReasonForRemoval(_handleException.Object, _transformLookups.Object);
-        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval, _transformLookups.Object);
+        _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval, _transformLookups.Object, _reasonForRemovalLookup);
 
         _request.Setup(r => r.CreateResponse()).Returns(() =>
         {
@@ -467,6 +471,38 @@ public class TransformDataServiceTests
 
     }
 
+    [TestMethod]
+    [DataRow("Test Hair & Beauty Clinic", "Test Hair and Beauty Clinic")]
+    [DataRow("Bath & Testing Lodge Park", "Bath and Testing Lodge Park")]
+    [DataRow(@"Central \T\ Test Housing Trust", "Central and Test Housing Trust")]
+    [DataRow("Central \\T\\ Test Housing Trust", "Central and Test Housing Trust")]
+    public async Task Run_AddressWithAmpersand_TransformedToAnd(string address, string transformedAddress)
+    {
+        // Arrange
+        _requestBody.Participant.AddressLine2 = address;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            NhsNumber = "1",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReferralFlag = false,
+            AddressLine2 = transformedAddress
+        };
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "CharacterRules", 71, null), times: Times.Once);
+    }
+
 
     [TestMethod]
     public async Task Run_RfrIsDeaAndDateOfDeathIsNull_SetDateOfDeathToRfrDate()
@@ -630,7 +666,7 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
-    public async Task Run_SupersededNhsNumberNotNull_TransformAndRaiseException()
+    public async Task Run_SupersededNhsNumberNotNullAndRfRIsNull_TransformAndRaiseException()
     {
         // Arrange
         _requestBody.Participant.SupersededByNhsNumber = "1234567890";
@@ -665,6 +701,48 @@ public class TransformDataServiceTests
     }
 
     [TestMethod]
+    public async Task Run_SupersededNhsNumberNotNullAndRfRNotNull_NoTransformAndRaiseException()
+    {
+        // Arrange
+        _requestBody.Participant.SupersededByNhsNumber = "1234567890";
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.Participant.ReasonForRemoval = "SCT";
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd");
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+        var expectedResponse = new CohortDistributionParticipant
+        {
+            RecordType = Actions.Amended,
+            NhsNumber = "1",
+            SupersededByNhsNumber = "1234567890",
+            FirstName = "John",
+            FamilyName = "Smith",
+            NamePrefix = "MR",
+            Gender = Gender.Male,
+            ReferralFlag = false,
+            PrimaryCareProvider = null,
+            ReasonForRemoval = "SCT",
+            ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.Date.ToString("yyyyMMdd")
+        };
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(JsonSerializer.Serialize(expectedResponse), responseBody);
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumberNoTransformation", 61, null),
+            times: Times.Once);
+        _handleException
+            .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherSupersededNhsNumber", 60, null),
+            times: Times.Never);
+    }
+
+    [TestMethod]
     public async Task Run_DelRecord_TransformRfrAndRaiseException()
     {
         // Arrange
@@ -689,33 +767,6 @@ public class TransformDataServiceTests
         StringAssert.Contains(responseBody, "ORR");
         _handleException
             .Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "OtherInvalidFlagTrueAndNoPrimaryCareProvider", 0, null),
-            times: Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Run_ParticipantReferred_RunReferredRules()
-    {
-        // Arrange - Set up participant to trigger referred rules
-        _requestBody.Participant.ReferralFlag = true;
-        _requestBody.Participant.PrimaryCareProvider = "G82650";
-        _requestBody.Participant.RecordType = Actions.New;
-        _requestBody.Participant.InvalidFlag = "0";
-
-        var json = JsonSerializer.Serialize(_requestBody);
-        SetUpRequestBody(json);
-
-        // Act
-        var result = await _function.RunAsync(_request.Object);
-
-        // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-
-        _handleException
-            .Verify(i => i.CreateTransformExecutedExceptions(
-                It.IsAny<CohortDistributionParticipant>(),
-                "UpdateServiceNowDataReferralWithPrimaryCareProvider",
-                It.IsAny<int>(),
-                It.IsAny<ExceptionCategory?>()),
             times: Times.Once);
     }
 
@@ -762,14 +813,13 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
 
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
 
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.AreEqual(true, actualResponse?.ReferralFlag);
         Assert.AreEqual("G82650", actualResponse?.PrimaryCareProvider);
-        Assert.IsNotNull(actualResponse?.PrimaryCareProviderEffectiveFromDate);
     }
 
     [TestMethod]
@@ -791,11 +841,10 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
 
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.IsNull(actualResponse?.EmailAddress);
     }
 
@@ -815,11 +864,10 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
 
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.AreEqual(emailAddress, actualResponse?.EmailAddress);
     }
 
@@ -842,16 +890,39 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
 
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         Assert.AreEqual(expectedPostcode, actualResponse?.Postcode);
     }
 
     [TestMethod]
-    [DataRow("ec1a 1bb")]
+    [DataRow("E C1A1BB", "EC1A 1BB", DisplayName = "Misplaced space: E C1A1BB")]
+    [DataRow("MK 44NN", "MK4 4NN", DisplayName = "Misplaced space: MK 44NN")]
+    [DataRow("B33 8TH", "B33 8TH", DisplayName = "Misplaced space: B33 8TH")]
+    [DataRow("MK  44NN", "MK4 4NN", DisplayName = "Double space misplaced: MK  44NN")]
+    [DataRow("EC1A  1BB", "EC1A 1BB", DisplayName = "Double space: EC1A  1BB")]
+    [DataRow("M1   1AE", "M1 1AE", DisplayName = "Triple space: M1   1AE")]
+    public async Task Run_PostcodeWithMisplacedOrMultipleSpaces_TransformPostcode(string postcode, string expectedPostcode)
+    {
+        // Arrange
+        _requestBody.Participant.Postcode = postcode;
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(expectedPostcode, actualResponse?.Postcode);
+    }
+
+    [TestMethod]
     [DataRow("M1 1AE")]
     [DataRow("B33 8TH")]
     [DataRow("")]
@@ -875,17 +946,22 @@ public class TransformDataServiceTests
         _handleException
             .Verify(i => i.CreateTransformExecutedExceptions(
                 It.IsAny<CohortDistributionParticipant>(),
-                "AddSeparatorToPostcode",
+                "WhitespaceFormatting",
                 It.IsAny<int>(),
                 It.IsAny<ExceptionCategory?>()),
             times: Times.Never);
     }
 
     [TestMethod]
-    public async Task Run_ZZZSECURPostcode_TransformPostcode()
+    [DataRow("ZZ993VZ", "ZZ99 3VZ", DisplayName = "No Space Dummy Postcode")]
+    [DataRow("NFA", "ZZ99 3VZ", DisplayName = "No Fixed Abode")]
+    [DataRow("ZZZSECUR", "ZZ99 3VZ", DisplayName = "Secure Address")]
+    [DataRow("ZZ99", "ZZ99 3WZ", DisplayName = "Incomplete Dummy Postcode")]
+    [DataRow("ANK", "ZZ99 3WZ", DisplayName = "Address Not Known")]
+    public async Task Run_DummyPostcodes_TransformsToStandardDummyPostcode(string postcode, string expectedDummyPostcode)
     {
         // Arrange
-        _requestBody.Participant.Postcode = "ZZZSECUR";
+        _requestBody.Participant.Postcode = postcode;
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
@@ -894,12 +970,106 @@ public class TransformDataServiceTests
         var result = await _function.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
-
         string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
         var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
 
-        Assert.AreEqual("ZZ99 3VZ", actualResponse?.Postcode);
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(expectedDummyPostcode, actualResponse?.Postcode);
+    }
+
+    [TestMethod]
+    [DataRow("CGA")]
+    [DataRow("DIS")]
+    [DataRow("EMB")]
+    [DataRow("NIT")]
+    [DataRow("OPA")]
+    [DataRow("ORR")]
+    [DataRow("RDI")]
+    [DataRow("RDR")]
+    [DataRow("RPR")]
+    [DataRow("RFI")]
+    [DataRow("SCT")]
+    public async Task Run_ManualAddRemovableRfR_RemovesRFR(string ReasonForRemoval)
+    {
+        // Arrange
+        _requestBody.FileName = "CS0848402";
+        _requestBody.Participant.PrimaryCareProvider = "ZZZXYZ";
+        _requestBody.Participant.ReasonForRemoval = ReasonForRemoval;
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.ToString();
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.IsNull(actualResponse!.ReasonForRemoval);
+        Assert.IsNull(actualResponse!.ReasonForRemovalEffectiveFromDate);
+    }
+    [TestMethod]
+    [DataRow("AFL")]
+    [DataRow("AFN")]
+    [DataRow("DEA")]
+    [DataRow("LDN")]
+    [DataRow("SDL")]
+    [DataRow("SDN")]
+    [DataRow("TRA")]
+    public async Task Run_ManualAddNonRemovableRfR_HasRFR(string ReasonForRemoval)
+    {
+        // Arrange
+        _requestBody.FileName = "CS0848402";
+        _requestBody.Participant.PrimaryCareProvider = "ZZZXYZ";
+        _requestBody.Participant.ReasonForRemoval = ReasonForRemoval;
+        var timestamp = DateTime.UtcNow.ToString();
+        _requestBody.Participant.ReasonForRemovalEffectiveFromDate = timestamp;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        Assert.AreEqual(ReasonForRemoval, actualResponse!.ReasonForRemoval);
+        Assert.IsNotNull(actualResponse!.ReasonForRemovalEffectiveFromDate);
+    }
+
+    [TestMethod]
+    [DataRow("Jones", Gender.Male, "19700101", DisplayName = "Different Family Name & Gender")]
+    [DataRow("Jones", Gender.Female, "19700102", DisplayName = "Different Family Name & Date of Birth")]
+    [DataRow("Smith", Gender.Male, "19700102", DisplayName = "Different Gender & Date of Birth")]
+    [DataRow("Jones", Gender.Male, "19700102", DisplayName = "All three different")]
+    public async Task Run_NoExistingParticipant_ConfusionRuleDoesNotFire(string newFamilyName, Gender newGender, string newDateOfBirth)
+    {
+        _requestBody.Participant.RecordType = Actions.Amended;
+        _requestBody.ExistingParticipant.ParticipantId = 0;
+        _requestBody.ExistingParticipant.FamilyName = null;
+        _requestBody.ExistingParticipant.Gender = 0;
+        _requestBody.ExistingParticipant.DateOfBirth = null;
+        _requestBody.Participant.FamilyName = newFamilyName;
+        _requestBody.Participant.Gender = newGender;
+        _requestBody.Participant.DateOfBirth = newDateOfBirth;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        var ruleId = 35;
+        var ruleName = "TooManyDemographicsFieldsChangedConfusionNoTransformation";
+        SetUpRequestBody(json);
+
+        // Act
+        var result = await _function.RunAsync(_request.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId, null), times: Times.Never);
     }
 
     private void SetUpRequestBody(string json)

@@ -142,7 +142,7 @@ public class DistributeParticipantActivities
 
     /// <summary>
     /// Updates the ServiceNow case status to 'Complete' in the database.
-    /// Handles multiple rows with the same ServiceNowId (when ServiceNowId is not the primary key).
+    /// Handles multiple rows with the same ServiceNowId.
     /// </summary>
     /// <param name="serviceNowCaseNumber"></param>
     [Function(nameof(UpdateServiceNowCaseStatus))]
@@ -186,5 +186,24 @@ public class DistributeParticipantActivities
             _logger.LogError(ex, "Error updating ServiceNow case {ServiceNowId} status", serviceNowCaseNumber);
             return false;
         }
+    }
+
+    /// <summary>
+    /// Sends a failure message to ServiceNow indicating the participant will not be sent to BS Select
+    /// </summary>
+    /// <param name="notification">The failure notification containing the case number and reason</param>
+    [Function(nameof(SendServiceNowFailureMessage))]
+    public async Task SendServiceNowFailureMessage([ActivityTrigger] ServiceNowFailureNotification notification)
+    {
+        var url = $"{_config.SendServiceNowMessageURL}/{notification.ServiceNowCaseNumber}";
+        var requestBody = new SendServiceNowMessageRequestBody
+        {
+            MessageType = ServiceNowMessageType.UnableToAddParticipant
+        };
+        var json = JsonSerializer.Serialize(requestBody);
+
+        _logger.LogInformation("Sending ServiceNow failure message for case {CaseNumber}. MessageType: {MessageType}", notification.ServiceNowCaseNumber, notification.MessageType);
+
+        await _httpClientFunction.SendPut(url, json);
     }
 }

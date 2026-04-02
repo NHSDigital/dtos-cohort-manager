@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Globalization;
 using Common;
 using Hl7.Fhir.Utility;
 using Microsoft.Azure.Functions.Worker.Http;
@@ -281,9 +282,25 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
     {
         var entityParameter = Expression.Parameter(typeof(TEntity));
         var entityKey = Expression.Property(entityParameter, _keyInfo.Name);
-        var filterConstant = Expression.Constant(Convert.ChangeType(filter, ReflectionUtilities.GetPropertyType(typeof(TEntity), _keyInfo.Name)));
-        var expr = Expression.Equal(entityKey, filterConstant);
+        var keyType = ReflectionUtilities.GetPropertyType(typeof(TEntity), _keyInfo.Name);
 
+        // Support nullable keys by comparing on the underlying type
+        var underlyingType = Nullable.GetUnderlyingType(keyType) ?? keyType;
+
+        // Convert the incoming filter string to the correct key type (e.g., Guid, int, etc.)
+        object typedValue = ConvertKeyString(filter, underlyingType);
+
+        // Build a constant for the typed key value
+        var filterConstant = Expression.Constant(typedValue, underlyingType);
+
+        // If the property is nullable, convert it to the underlying type for comparison
+        Expression left = entityKey;
+        if (underlyingType != keyType)
+        {
+            left = Expression.Convert(entityKey, underlyingType);
+        }
+
+        var expr = Expression.Equal(left, filterConstant);
         return Expression.Lambda<Func<TEntity, bool>>(expr, entityParameter);
     }
 
@@ -395,5 +412,30 @@ public class RequestHandler<TEntity> : IRequestHandler<TEntity> where TEntity : 
         return response;
     }
 
+
+
+    private static object ConvertKeyString(string filter, Type targetType)
+    {
+        // Handle common non-ChangeType primitives
+        if (targetType == typeof(Guid))
+        {
+            return Guid.Parse(filter);
+        }
+        if (targetType.IsEnum)
+        {
+            return Enum.Parse(targetType, filter, ignoreCase: true);
+        }
+        if (targetType == typeof(DateTime))
+        {
+            return DateTime.Parse(filter, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+        }
+        if (targetType == typeof(string))
+        {
+            return filter;
+        }
+
+        // Fallback to Convert.ChangeType with invariant culture
+        return Convert.ChangeType(filter, targetType, CultureInfo.InvariantCulture);
+    }
 
 }
