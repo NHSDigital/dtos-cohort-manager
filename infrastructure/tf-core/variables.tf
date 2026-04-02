@@ -58,6 +58,13 @@ variable "TARGET_SUBSCRIPTION_ID" {
   type        = string
 }
 
+variable "OCP_APIM_SUBSCRIPTION_KEY" {
+  description = "API Management subscription key"
+  type        = string
+  sensitive   = true
+  default     = null
+}
+
 variable "application" {
   description = "Project/Application code for deployment"
   type        = string
@@ -91,6 +98,32 @@ variable "environment" {
 variable "features" {
   description = "Feature flags for the deployment"
   type        = map(bool)
+}
+
+variable "availability_test" {
+  description = "Configuration for the Application Insights Standard Web Test"
+  type = object({
+    name_suffix = string
+    target_url  = string
+
+    frequency = optional(number, 900)
+    timeout   = optional(number, 30)
+
+    ssl_validation = optional(object({
+      enabled                     = optional(bool, true)
+      expected_status_code        = optional(number, 200)
+      ssl_cert_remaining_lifetime = optional(number, 30)
+    }), {})
+
+    alert = optional(object({
+      description   = optional(string, "Endpoint Availability & Certificate Expiry Monitoring")
+      frequency     = optional(string, "PT1H")
+      window_size   = optional(string, "P1D")
+      auto_mitigate = optional(bool, false)
+    }), {})
+  })
+
+  default = null
 }
 
 variable "regions" {
