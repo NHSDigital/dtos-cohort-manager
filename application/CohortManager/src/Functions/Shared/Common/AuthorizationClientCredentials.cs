@@ -40,7 +40,7 @@ public class AuthorizationClientCredentials : IAuthorizationClientCredentials
 
         if (response.StatusCode != HttpStatusCode.OK)
         {
-            _logger.LogError("there was an error getting the bearer token from the NHS token service. Response: {resBody}", resBody);
+            _logger.LogError("there was an error getting the bearer token from the NHS token service. Response: {ResBody}", resBody);
             return null;
         }
 
