@@ -14,6 +14,7 @@ using DataServices.Client;
 using NHS.CohortManager.Tests.TestUtils;
 using System.Linq.Expressions;
 using Microsoft.Extensions.Options;
+using Model.Enums;
 
 [TestClass]
 public class ReceiveCaasFileTests
@@ -184,6 +185,11 @@ public class ReceiveCaasFileTests
                 It.IsAny<Exception>(),
                 It.IsAny<Func<It.IsAnyType, Exception, string>>()),
             Times.Once);
+
+        _auditQueueSenderMock.Verify(x => x.SendAuditAsync(It.Is<ParticipantAuditMessage>(m =>
+            m.Source == AuditSource.ParquetFile &&
+            m.CreatedBy == nameof(ReceiveCaasFile)
+        )), Times.AtLeastOnce);
 
         Assert.IsFalse(File.Exists(tempFilePath), "Temporary file was not deleted.");
     }

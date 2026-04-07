@@ -315,6 +315,12 @@ public class ManageServiceNowParticipantFunctionTests
 
         _queueClientMock.Verify();
         _queueClientMock.VerifyNoOtherCalls();
+
+        _auditQueueSenderMock.Verify(x => x.SendAuditAsync(It.Is<ParticipantAuditMessage>(m =>
+            m.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+            m.Source == AuditSource.ManualAdd &&
+            m.CreatedBy == nameof(ManageServiceNowParticipantFunction)
+        )), Times.Once);
     }
 
     [TestMethod]
@@ -431,6 +437,12 @@ public class ManageServiceNowParticipantFunctionTests
 
         _queueClientMock.Verify();
         _queueClientMock.VerifyNoOtherCalls();
+
+        _auditQueueSenderMock.Verify(x => x.SendAuditAsync(It.Is<ParticipantAuditMessage>(m =>
+            m.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+            m.Source == AuditSource.ManualAdd &&
+            m.CreatedBy == nameof(ManageServiceNowParticipantFunction)
+        )), Times.Once);
     }
 
     [TestMethod]

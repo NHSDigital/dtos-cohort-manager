@@ -97,13 +97,14 @@ public class AuditWriterFunctionTests
     }
 
     [TestMethod]
-    public async Task Run_InvalidJson_LogsErrorAndDoesNotWrite()
+    public async Task Run_InvalidJson_LogsErrorAndThrows()
     {
         // Arrange
         var messageText = "not-valid-json!!!";
 
-        // Act & Assert - should not throw
-        await _sut.Run(messageText, _mockFunctionContext.Object);
+        // Act & Assert
+        await Assert.ThrowsExceptionAsync<JsonException>(() =>
+            _sut.Run(messageText, _mockFunctionContext.Object));
 
         Assert.AreEqual(0, _addedEntities.Count);
         _mockDbContext.Verify(x => x.SaveChangesAsync(default), Times.Never);

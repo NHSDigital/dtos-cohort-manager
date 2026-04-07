@@ -13,6 +13,7 @@ using Model;
 using Microsoft.Extensions.Options;
 using DataServices.Client;
 using Model.Constants;
+using Model.Enums;
 using Common.Interfaces;
 
 [TestClass]
@@ -93,6 +94,11 @@ public class ReceiveServiceNowMessageFunctionTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.Accepted, result.StatusCode);
+        _mockAuditQueueSender.Verify(x => x.SendAuditAsync(It.Is<ParticipantAuditMessage>(m =>
+            m.NhsNumber == nhsNumber &&
+            m.Source == AuditSource.ManualAdd &&
+            m.CreatedBy == nameof(ReceiveServiceNowMessageFunction)
+        )), Times.Once);
     }
 
     [TestMethod]
@@ -263,6 +269,10 @@ public class ReceiveServiceNowMessageFunctionTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Accepted, result.StatusCode);
         _mockServiceNowClient.VerifyNoOtherCalls();
+        _mockAuditQueueSender.Verify(x => x.SendAuditAsync(It.Is<ParticipantAuditMessage>(m =>
+            m.NhsNumber == nhsNumber &&
+            m.Source == AuditSource.ManualAdd
+        )), Times.Once);
     }
 
     private static string CreateRequestBodyJson(
