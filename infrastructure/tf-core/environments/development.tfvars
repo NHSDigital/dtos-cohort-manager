@@ -20,6 +20,11 @@ tags = {
   Environment = "development"
 }
 
+availability_test = {
+  name_suffix = "retrieve-cohort-request-audit-webtest"
+  target_url  = "https://api.non-live.nationalscreening.nhs.uk/dev-uks-retrieve-cohort-request-audit/health"
+}
+
 regions = {
   uksouth = {
     is_primary_region = true
