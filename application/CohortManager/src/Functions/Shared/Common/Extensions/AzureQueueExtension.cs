@@ -92,7 +92,7 @@ public static class AzureQueueExtension
     {
         return hostBuilder.ConfigureServices(_ =>
         {
-            _.AddTransient<IAuditQueueSender, AuditQueueSender>();
+            _.AddSingleton<IAuditQueueSender, AuditQueueSender>();
         });
     }
 }
