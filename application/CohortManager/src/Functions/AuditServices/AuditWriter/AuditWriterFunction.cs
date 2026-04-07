@@ -61,7 +61,7 @@ public class AuditWriterFunction
         await _dbContext.SaveChangesAsync();
 
         _logger.LogInformation(
-            "Audit written | NHS: {NhsNumber} | Source: {Source} | Correlation: {CorrelationId}",
-            audit.NhsNumber, audit.Source, audit.CorrelationId);
+            "Audit written | Source: {Source} | Correlation: {CorrelationId}",
+            audit.Source, audit.CorrelationId);
     }
 }
