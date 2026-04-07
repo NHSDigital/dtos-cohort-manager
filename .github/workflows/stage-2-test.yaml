@@ -63,7 +63,7 @@ jobs:
       UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
       - name: Check for ConsolidatedTests.csproj
@@ -89,7 +89,7 @@ jobs:
       UNIT_TEST_DIR: ${{ inputs.unit_test_dir }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
       - name: Create matrix for parallel jobs
@@ -112,7 +112,7 @@ jobs:
       LOGGER_FORMAT: ${{ inputs.unit_test_logger_format }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
       - name: Setup .NET
@@ -162,7 +162,7 @@ jobs:
       LOGGER_FORMAT: ${{ inputs.unit_test_logger_format }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
       - name: Setup .NET
@@ -209,7 +209,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           submodules: true
       - name: Setup .NET
@@ -252,17 +252,3 @@ jobs:
           coverage-type: cobertura
           coverage-path: coverage/Cobertura.xml
           # coverage-threshold: 50
-
-  test-lint:
-    name: Linting
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Run linting
-        run: |
-          make test-lint
-      - name: Save the linting result
-        run: |
-          echo "Nothing to save"

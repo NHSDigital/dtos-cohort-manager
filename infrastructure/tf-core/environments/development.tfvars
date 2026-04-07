@@ -20,6 +20,11 @@ tags = {
   Environment = "development"
 }
 
+availability_test = {
+  name_suffix = "retrieve-cohort-request-audit-webtest"
+  target_url  = "https://api.non-live.nationalscreening.nhs.uk/dev-uks-retrieve-cohort-request-audit/health"
+}
+
 regions = {
   uksouth = {
     is_primary_region = true
@@ -667,7 +672,7 @@ function_apps = {
         }
       ]
       env_vars_static = {
-        AcceptableLatencyThresholdMs = "500"
+        AcceptableLatencyThresholdMs  = "500"
         RetrieveSupersededRecordsLast = "true"
       }
     }
@@ -868,7 +873,7 @@ function_apps = {
       ]
       env_vars_static = {
         AcceptableLatencyThresholdMs = "500"
-        MaxRetryCount=3
+        MaxRetryCount                = 3
       }
     }
 
@@ -966,10 +971,15 @@ function_apps = {
       ]
       env_vars_static = {
         # Using Wiremock Container App in place of a real ServiceNow integration
-        ServiceNowRefreshAccessTokenUrl      = "https://ca-wiremock-uksouth.jollyriver-9baa4a9a.uksouth.azurecontainerapps.io/oauth_token.do"
-        ServiceNowUpdateUrl                  = "https://ca-wiremock-uksouth.jollyriver-9baa4a9a.uksouth.azurecontainerapps.io/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
-        ServiceNowResolutionUrl              = "https://ca-wiremock-uksouth.jollyriver-9baa4a9a.uksouth.azurecontainerapps.io/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution"
-        ServiceNowGrantType                  = "refresh_token"
+        # ServiceNowRefreshAccessTokenUrl    = "https://ca-wiremock-uksouth.jollyriver-9baa4a9a.uksouth.azurecontainerapps.io/oauth_token.do"
+        # ServiceNowUpdateUrl                = "https://ca-wiremock-uksouth.jollyriver-9baa4a9a.uksouth.azurecontainerapps.io/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+        # ServiceNowResolutionUrl            = "https://ca-wiremock-uksouth.jollyriver-9baa4a9a.uksouth.azurecontainerapps.io/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution"
+        
+        # Connect to ServiceNow Integration Instance (can be swapped for Wiremock for testing, or to ServiceNow Dev Instance if we want to align the environments correctly)
+        ServiceNowRefreshAccessTokenUrl      = "https://nhsdigitaltraining.service-now.com/oauth_token.do"
+        ServiceNowUpdateUrl                  = "https://nhsdigitaltraining.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
+        ServiceNowResolutionUrl              = "https://nhsdigitaltraining.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution"
+        ServiceNowGrantType                  = "client_credentials"
         ServiceNowParticipantManagementTopic = "servicenow-participant-management" # Sends messages to the servicenow participant manage topic
       }
     }

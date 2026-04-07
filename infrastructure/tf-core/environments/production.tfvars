@@ -20,6 +20,11 @@ tags = {
   Environment = "production"
 }
 
+availability_test = {
+  name_suffix = "retrieve-cohort-request-audit-webtest"
+  target_url  = "https://api.nationalscreening.nhs.uk/prod-uks-retrieve-cohort-request-audit/health"
+}
+
 regions = {
   uksouth = {
     is_primary_region = true
