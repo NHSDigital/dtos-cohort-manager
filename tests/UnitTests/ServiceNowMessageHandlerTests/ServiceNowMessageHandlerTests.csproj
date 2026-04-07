@@ -22,6 +22,7 @@
 
   <ItemGroup>
     <ProjectReference Include="../../../application/CohortManager/src/Functions/ServiceNowIntegration/ServiceNowMessageHandler/ServiceNowMessageHandler.csproj" />
+    <ProjectReference Include="../../TestUtils/TestUtils.csproj" />
   </ItemGroup>
 
 </Project>

@@ -309,4 +309,36 @@ public class ReceiveCaasFileTests
 
         Assert.IsFalse(File.Exists(tempFilePath), "Temporary file was not deleted.");
     }
+
+    [TestMethod]
+    public async Task Run_WhenAuditEnqueueFails_CompletesSuccessfullyAndLogsWarning()
+    {
+        // Arrange
+        string parquetFilePath = GetParquetFilePath(_blobName);
+        await using var fileSteam = File.OpenRead(parquetFilePath);
+        var screeningLkp = new ScreeningLkp
+        {
+            ScreeningName = "test screening name",
+            ScreeningId = 1,
+            ScreeningWorkflowId = "TestWorkflow"
+        };
+
+        _mockScreeningLkpClient
+            .Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>()))
+            .ReturnsAsync(screeningLkp);
+        _auditQueueSenderMock.Setup(x => x.SendAuditAsync(It.IsAny<ParticipantAuditMessage>()))
+            .ReturnsAsync(false);
+
+        // Act
+        await _receiveCaasFileInstance.Run(fileSteam, _blobName);
+
+        // Assert
+        _auditQueueSenderMock.Verify(x => x.SendAuditAsync(It.IsAny<ParticipantAuditMessage>()), Times.AtLeastOnce);
+        _mockLogger.Verify(x => x.Log(
+            It.Is<LogLevel>(l => l == LogLevel.Warning),
+            It.IsAny<EventId>(),
+            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Audit enqueue failed")),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.AtLeastOnce);
+    }
 }

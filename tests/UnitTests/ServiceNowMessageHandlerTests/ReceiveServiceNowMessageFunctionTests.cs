@@ -15,6 +15,7 @@ using DataServices.Client;
 using Model.Constants;
 using Model.Enums;
 using Common.Interfaces;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class ReceiveServiceNowMessageFunctionTests
@@ -294,5 +295,33 @@ public class ReceiveServiceNowMessageFunctionTests
         };
 
         return JsonSerializer.Serialize(obj);
+    }
+
+    [TestMethod]
+    [DataRow("CS123", "9434765919", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
+    public async Task Run_WhenAuditEnqueueFails_ReturnsAcceptedAndLogsWarning(
+        string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string dummyGpCode)
+    {
+        // Arrange
+        var requestBodyJson = CreateRequestBodyJson(caseNumber, nhsNumber, forename, familyName, dateOfBirth, bsoCode, reasonForAdding, dummyGpCode);
+        var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
+        _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
+        _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
+                c.ServicenowId == caseNumber &&
+                c.NhsNumber == long.Parse(nhsNumber) &&
+                c.Status == ServiceNowStatus.New
+            ))).ReturnsAsync(true);
+        _mockQueueClient.Setup(x => x.AddAsync(It.IsAny<ServiceNowParticipant>(),
+            _mockConfig.Object.Value.ServiceNowParticipantManagementTopic))
+            .ReturnsAsync(true);
+        _mockAuditQueueSender.Setup(x => x.SendAuditAsync(It.IsAny<ParticipantAuditMessage>()))
+            .ReturnsAsync(false);
+
+        // Act
+        var result = await _function.Run(_mockHttpRequest.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Accepted, result.StatusCode);
+        _mockLogger.VerifyLogger(LogLevel.Warning, $"Audit enqueue failed for ServiceNow case {caseNumber}");
     }
 }

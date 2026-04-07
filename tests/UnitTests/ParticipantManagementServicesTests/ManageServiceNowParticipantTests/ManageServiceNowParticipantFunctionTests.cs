@@ -1086,4 +1086,38 @@ public class ManageServiceNowParticipantFunctionTests
         _dataServiceClientMock.VerifyNoOtherCalls();
 
     }
+
+    [TestMethod]
+    public async Task Run_WhenAuditEnqueueFails_CompletesSuccessfullyAndLogsWarning()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            });
+        _httpClientFunctionMock.Setup(x => x.SendPost(_configMock.Object.Value.ManageNemsSubscriptionSubscribeURL,
+                It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+        _dataServiceClientMock.Setup(client => client.GetSingleByFilter(
+            It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync((ParticipantManagement)null!);
+        _dataServiceClientMock.Setup(x => x.Add(It.IsAny<ParticipantManagement>()))
+            .ReturnsAsync(true);
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(),
+                _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true);
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>(), null))
+            .Returns(Task.CompletedTask);
+        _auditQueueSenderMock.Setup(x => x.SendAuditAsync(It.IsAny<ParticipantAuditMessage>()))
+            .ReturnsAsync(false);
+
+        // Act
+        await _function.Run(_serviceNowParticipant);
+
+        // Assert
+        _auditQueueSenderMock.Verify(x => x.SendAuditAsync(It.IsAny<ParticipantAuditMessage>()), Times.Once);
+        _loggerMock.VerifyLogger(LogLevel.Warning, $"Audit enqueue failed for AuditSource {AuditSource.ManualAdd}");
+    }
 }
