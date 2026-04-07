@@ -35,13 +35,13 @@ public class AuditWriterFunction
         catch (JsonException ex)
         {
             _logger.LogError(ex, "Failed to deserialise audit message");
-            return;
+            throw;
         }
 
         if (audit is null)
         {
             _logger.LogError("Failed to deserialise audit message");
-            return;
+            throw new JsonException("Audit message deserialised to null.");
         }
 
         var auditLog = new ParticipantAuditLog
