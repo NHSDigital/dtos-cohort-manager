@@ -24,6 +24,7 @@ public class DistributeParticipantConfig
     public required string RemoveOldValidationRecordUrl { get; set; }
     [Required]
     public required string SendServiceNowMessageURL { get; set; }
+    [Required]
     public required string ServiceNowCasesDataServiceURL { get; set; }
     public int MaxLookupValidationRetries { get; set; } = 3;
     public bool IsExtractedToBSSelect { get; set; } = false;
