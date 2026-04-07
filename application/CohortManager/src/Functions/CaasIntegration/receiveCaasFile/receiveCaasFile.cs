@@ -156,7 +156,7 @@ public class ReceiveCaasFile
             });
             if (!auditSent)
             {
-                _logger.LogWarning("Audit enqueue failed for NHS number {NhsNumber} in batch {BatchId}", participant.NhsNumber, batchId);
+                _logger.LogWarning("Audit enqueue failed in batch {BatchId}", batchId);
             }
         }
     }
