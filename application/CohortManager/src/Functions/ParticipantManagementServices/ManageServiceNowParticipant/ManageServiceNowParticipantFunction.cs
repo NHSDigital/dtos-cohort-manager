@@ -99,7 +99,7 @@ public class ManageServiceNowParticipantFunction
             });
             if (!auditSent)
             {
-                _logger.LogWarning("Audit enqueue failed for NHS number {NhsNumber}", serviceNowParticipant.NhsNumber);
+                _logger.LogWarning("Audit enqueue failed for AuditSource {Source}", AuditSource.ManualAdd);
             }
         }
         catch (Exception ex)
