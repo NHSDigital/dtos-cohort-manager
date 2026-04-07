@@ -15,6 +15,7 @@ public class AuditQueueSender : IAuditQueueSender
     private readonly QueueClient _queueClient;
     private readonly BlobServiceClient _blobServiceClient;
     private readonly Lazy<Task> _queueInitialization;
+    private readonly Lazy<Task<BlobContainerClient>> _containerInitialization;
 
     public AuditQueueSender(ILogger<AuditQueueSender> logger)
     {
@@ -27,6 +28,12 @@ public class AuditQueueSender : IAuditQueueSender
         _queueClient = new QueueClient(connectionString, QueueName);
         _blobServiceClient = new BlobServiceClient(connectionString);
         _queueInitialization = new Lazy<Task>(() => _queueClient.CreateIfNotExistsAsync());
+        _containerInitialization = new Lazy<Task<BlobContainerClient>>(async () =>
+        {
+            var container = _blobServiceClient.GetBlobContainerClient(AuditBlobContainer);
+            await container.CreateIfNotExistsAsync();
+            return container;
+        });
     }
 
     public async Task<bool> SendAuditAsync(ParticipantAuditMessage message)
@@ -52,8 +59,7 @@ public class AuditQueueSender : IAuditQueueSender
 
     private async Task<string> WriteSnapshotToBlobAsync(ParticipantAuditMessage message)
     {
-        var container = _blobServiceClient.GetBlobContainerClient(AuditBlobContainer);
-        await container.CreateIfNotExistsAsync();
+        var container = await _containerInitialization.Value;
 
         var blobPath = $"{message.Source}/{message.CreatedDatetime:yyyy-MM-dd}/{message.CorrelationId}.json";
         var blobClient = container.GetBlobClient(blobPath);
