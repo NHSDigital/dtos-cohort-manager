@@ -143,7 +143,7 @@ public class ReceiveCaasFile
     {
         foreach (var participant in participants.Where(v => v.NhsNumber.HasValue))
         {
-            await _auditQueueSender.SendAuditAsync(new ParticipantAuditMessage
+            var auditSent = await _auditQueueSender.SendAuditAsync(new ParticipantAuditMessage
             {
                 NhsNumber = participant.NhsNumber!.Value.ToString(),
                 Source = AuditSource.ParquetFile,
@@ -154,6 +154,10 @@ public class ReceiveCaasFile
                 ScreeningId = screeningId,
                 RequestSnapshot = participant
             });
+            if (!auditSent)
+            {
+                _logger.LogWarning("Audit enqueue failed for NHS number {NhsNumber} in batch {BatchId}", participant.NhsNumber, batchId);
+            }
         }
     }
 }

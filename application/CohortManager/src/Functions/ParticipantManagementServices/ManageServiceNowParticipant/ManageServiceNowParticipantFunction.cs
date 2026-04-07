@@ -87,7 +87,7 @@ public class ManageServiceNowParticipantFunction
                 await HandleException(new Exception($"Failed to send participant from ServiceNow to topic: {_config.CohortDistributionTopic}"), serviceNowParticipant, ServiceNowMessageType.AddRequestInProgress);
             }
 
-            await _auditQueueSender.SendAuditAsync(new ParticipantAuditMessage
+            var auditSent = await _auditQueueSender.SendAuditAsync(new ParticipantAuditMessage
             {
                 NhsNumber = serviceNowParticipant.NhsNumber.ToString(),
                 Source = AuditSource.ManualAdd,
@@ -97,6 +97,10 @@ public class ManageServiceNowParticipantFunction
                 ScreeningId = (int)serviceNowParticipant.ScreeningId,
                 RequestSnapshot = serviceNowParticipant,
             });
+            if (!auditSent)
+            {
+                _logger.LogWarning("Audit enqueue failed for NHS number {NhsNumber}", serviceNowParticipant.NhsNumber);
+            }
         }
         catch (Exception ex)
         {

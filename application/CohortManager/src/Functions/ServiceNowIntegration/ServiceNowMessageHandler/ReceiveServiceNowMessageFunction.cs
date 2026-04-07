@@ -127,7 +127,7 @@ public class ReceiveServiceNowMessageFunction
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
             }
 
-            await _auditQueueSender.SendAuditAsync(new ParticipantAuditMessage
+            var auditSent = await _auditQueueSender.SendAuditAsync(new ParticipantAuditMessage
             {
                 NhsNumber = requestBody.VariableData.NhsNumber,
                 Source = AuditSource.ManualAdd,
@@ -137,6 +137,10 @@ public class ReceiveServiceNowMessageFunction
                 ScreeningId = 1,
                 RequestSnapshot = requestBody
             });
+            if (!auditSent)
+            {
+                _logger.LogWarning("Audit enqueue failed for ServiceNow case {CaseNumber}", requestBody.ServiceNowCaseNumber);
+            }
         }
         catch (JsonException ex)
         {
