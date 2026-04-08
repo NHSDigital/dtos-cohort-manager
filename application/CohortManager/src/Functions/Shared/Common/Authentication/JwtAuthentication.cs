@@ -7,14 +7,14 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Logging;
 
-public class JWTAuthentication : IAuthenticationService
+public class JwtAuthentication : IAuthenticationService
 {
-    private readonly ILogger<JWTAuthentication> _logger;
+    private readonly ILogger<JwtAuthentication> _logger;
     private readonly AuthConfig _authConfig;
     private readonly ConfigurationManager<OpenIdConnectConfiguration> _configurationManager;
 
 
-    public JWTAuthentication(IOptions<AuthConfig> authConfig, ILogger<JWTAuthentication> logger)
+    public JwtAuthentication(IOptions<AuthConfig> authConfig, ILogger<JwtAuthentication> logger)
     {
         _authConfig = authConfig.Value;
         _logger = logger;

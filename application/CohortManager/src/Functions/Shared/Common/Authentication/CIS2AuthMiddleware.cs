@@ -5,14 +5,14 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.Logging;
 
-public class CIS2AuthMiddleware : IFunctionsWorkerMiddleware
+public class Cis2AuthMiddleware : IFunctionsWorkerMiddleware
 {
 
-    private readonly ILogger<CIS2AuthMiddleware> _logger;
+    private readonly ILogger<Cis2AuthMiddleware> _logger;
     private readonly ICreateResponse _createResponse;
     private readonly IAuthenticationService _authService;
 
-    public CIS2AuthMiddleware(ILogger<CIS2AuthMiddleware> logger, ICreateResponse createResponse, IAuthenticationService authService)
+    public Cis2AuthMiddleware(ILogger<Cis2AuthMiddleware> logger, ICreateResponse createResponse, IAuthenticationService authService)
     {
         _logger = logger;
         _createResponse = createResponse;
