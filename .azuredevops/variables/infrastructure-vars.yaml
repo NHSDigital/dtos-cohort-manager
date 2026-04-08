@@ -21,7 +21,7 @@ variables:
     - name: hubBackendStorageCont
       value: development
     - name: SERVICE_CONNECTION
-      value: sc-cohort-manager-sbrk
+      value: sc-cohort-manager-sbx
 
   - ${{ if eq(parameters.environmentName, 'development') }}:
     - name: envShort
