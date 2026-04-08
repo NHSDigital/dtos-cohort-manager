@@ -5,21 +5,21 @@ parameters:
 variables:
 
   # 1. ENVIRONMENT DICTIONARY & CONDITIONAL MAPPINGS
-  # - ${{ if eq(parameters.environmentName, 'sandbox') }}:
-  #   - name: envShort
-  #     value: sbrk
-  #   - name: backendStorageAccountName
-  #     value: sacohortmanagertfstate
-  #   - name: selectImageTag
-  #     value: development
-  #   - name: srcRegistryName
-  #     value: acrukshubdevcohman
-  #   - name: destRegistryName
-  #     value: acrukshubdevcohman
-  #   - name: hubBackendStorageAcc
-  #     value: sadtoshubtfstate
-  #   - name: hubBackendStorageCont
-  #     value: development
+  - ${{ if eq(parameters.environmentName, 'sandbox') }}:
+    - name: envShort
+      value: sbx
+    - name: backendStorageAccountName
+      value: sacohortmanagertfstate
+    - name: selectImageTag
+      value: development
+    - name: srcRegistryName
+      value: acrukshubdevcohman
+    - name: destRegistryName
+      value: acrukshubdevcohman
+    - name: hubBackendStorageAcc
+      value: sadtoshubtfstate
+    - name: hubBackendStorageCont
+      value: development
 
   - ${{ if eq(parameters.environmentName, 'development') }}:
     - name: envShort

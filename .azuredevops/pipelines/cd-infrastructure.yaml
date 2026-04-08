@@ -21,7 +21,7 @@ parameters:
     type: string
     default: 'development'
     values:
-      # - sandbox
+      - sandbox
       - development
       - nft
       - integration
