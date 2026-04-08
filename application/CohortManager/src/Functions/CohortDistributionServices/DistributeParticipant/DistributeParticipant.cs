@@ -69,6 +69,13 @@ public class DistributeParticipant
     public async Task DistributeParticipantOrchestrator([OrchestrationTrigger] TaskOrchestrationContext context)
     {
         var participantRecord = context.GetInput<BasicParticipantCsvRecord>();
+
+        if (participantRecord is null)
+        {
+            _logger.LogError("Orchestration was started with null input");
+            return;
+        }
+
         try
         {
             // Retrieve participant data
@@ -87,16 +94,17 @@ public class DistributeParticipant
                 return;
             }
 
-            ValidationRecord validationRecord = new() { FileName = participantRecord.FileName, Participant = participantData };
+            ValidationRecord validationRecord = new() { FileName = participantRecord.FileName, Participant = participantData, ReasonForAdding = participantRecord.ReasonForAdding };
 
             var serviceNowParticipant = participantRecord?.Participant.ReferralFlag == "1";
+
             if (serviceNowParticipant && !string.IsNullOrEmpty(participantRecord?.Participant.PrimaryCareProvider))
             {
                 validationRecord.Participant.PrimaryCareProvider = participantRecord.Participant.PrimaryCareProvider;
             }
 
             // Allocate service provider
-            validationRecord.ServiceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), participantRecord.Participant);
+            validationRecord.ServiceProvider = await context.CallActivityAsync<string>(nameof(Activities.AllocateServiceProvider), validationRecord.Participant);
 
             // Validation & Transformation
             var transformedParticipant = await context.CallSubOrchestratorAsync<CohortDistributionParticipant?>(nameof(ValidateParticipant.ValidationOrchestrator), validationRecord);

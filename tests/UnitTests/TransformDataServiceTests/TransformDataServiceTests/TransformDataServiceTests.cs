@@ -66,6 +66,7 @@ public class TransformDataServiceTests
         _transformLookups.Setup(x => x.GetBsoCode(It.IsAny<string>())).Returns("ELD");
         _transformLookups.Setup(x => x.GetBsoCodeUsingPCP(It.IsAny<string>())).Returns("ELD");
         _transformLookups.Setup(x => x.ValidateLanguageCode(It.IsAny<string>())).Returns(true);
+        _transformLookups.Setup(x => x.CheckIfPrimaryCareProviderExists(It.IsAny<string>())).Returns(true);
 
         _transformReasonForRemoval = new TransformReasonForRemoval(_handleException.Object, _transformLookups.Object);
         _function = new TransformDataService(_createResponse.Object, _handleException.Object, _logger.Object, _transformReasonForRemoval, _transformLookups.Object, _reasonForRemovalLookup);
@@ -996,7 +997,7 @@ public class TransformDataServiceTests
         _requestBody.Participant.PrimaryCareProvider = "ZZZXYZ";
         _requestBody.Participant.ReasonForRemoval = ReasonForRemoval;
         _requestBody.Participant.ReasonForRemovalEffectiveFromDate = DateTime.UtcNow.ToString();
-
+        _requestBody.ReasonForAdding = ReasonForAdding.VeryHighRisk;
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
 
@@ -1070,6 +1071,109 @@ public class TransformDataServiceTests
         // Assert
         Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
         _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), ruleName, ruleId, null), times: Times.Never);
+    }
+    [TestMethod]
+    [DataRow("RDR",DisplayName = "Reason for Removal is RDR")]
+    [DataRow("RDI",DisplayName = "Reason for Removal is RDI")]
+    [DataRow("RPR",DisplayName = "Reason for Removal is RPR")]
+    public async Task Run_DummyGPCodeRemovalWithRemovedFromGPCode_TransformsToORRandRaisesException(string reasonForRemoval)
+    {
+        // arrange
+        _requestBody.ReasonForAdding = ReasonForAdding.DummyGpCodeRemoval;
+        _requestBody.Participant.RecordType = Actions.New;
+        _requestBody.Participant.PrimaryCareProvider = null;
+        _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // act
+        var result = await _function.RunAsync(_request.Object);
+
+        // assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+        Assert.AreEqual("ORR", actualResponse?.ReasonForRemoval);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "DummyGpCodeRemoval", 71, null), times: Times.Once);
+
+    }
+    [TestMethod]
+    [DataRow("AFL",DisplayName = "Reason for Removal is RDR")]
+    [DataRow("",DisplayName = "Reason for Removal is empty")]
+    [DataRow(null,DisplayName = "Reason for Removal is null")]
+    [DataRow("LDN",DisplayName = "Reason for Removal is LDN")]
+    public async Task Run_DummyGPCodeRemovalWithOtherReasons_NoTransform(string reasonForRemoval)
+    {
+        // arrange
+        _requestBody.ReasonForAdding = ReasonForAdding.DummyGpCodeRemoval;
+        _requestBody.Participant.RecordType = Actions.New;
+        _requestBody.Participant.PrimaryCareProvider = null;
+        _requestBody.Participant.ReasonForRemoval = reasonForRemoval;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        // act
+        var result = await _function.RunAsync(_request.Object);
+
+        // assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+        Assert.AreEqual(reasonForRemoval, actualResponse?.ReasonForRemoval);
+        _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "DummyGpCodeRemoval", 71, null), times: Times.Never);
+
+    }
+    [TestMethod]
+    public async Task Run_DummyGPCodeRemovalWithWelshGP_AddsReasonForRemovalOfORR()
+    {
+        // arrange
+        var primaryCareProvider = "W12345";
+
+        _requestBody.ReasonForAdding = ReasonForAdding.DummyGpCodeRemoval;
+        _requestBody.Participant.RecordType = Actions.New;
+        _requestBody.Participant.PrimaryCareProvider = primaryCareProvider;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _transformLookups.Setup(x => x.CheckIfPrimaryCareProviderExists(primaryCareProvider)).Returns(false);
+
+        // act
+        var result = await _function.RunAsync(_request.Object);
+
+        // assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+        Assert.AreEqual("ORR", actualResponse?.ReasonForRemoval);
+         _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "RemoveWelshGPCodeForDummyGpRemoval", 72, null), times: Times.Once);
+    }
+    [TestMethod]
+    public async Task Run_DummyGPCodeRemovalWithValidNonWelshGP_NoReasonForRemovalAdded()
+    {
+        // arrange
+        var primaryCareProvider = "G12345";
+
+        _requestBody.ReasonForAdding = ReasonForAdding.DummyGpCodeRemoval;
+        _requestBody.Participant.RecordType = Actions.New;
+        _requestBody.Participant.PrimaryCareProvider = primaryCareProvider;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _transformLookups.Setup(x => x.CheckIfPrimaryCareProviderExists(primaryCareProvider)).Returns(true);
+
+        // act
+        var result = await _function.RunAsync(_request.Object);
+
+        // assert
+        Assert.AreEqual(HttpStatusCode.OK, result.StatusCode);
+        string responseBody = await AssertionHelper.ReadResponseBodyAsync(result);
+        var actualResponse = JsonSerializer.Deserialize<CohortDistributionParticipant>(responseBody);
+        Assert.IsNull(actualResponse?.ReasonForRemoval);
+         _handleException.Verify(i => i.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "RemoveWelshGPCodeForDummyGpRemoval", 72, null), times: Times.Never);
     }
 
     private void SetUpRequestBody(string json)

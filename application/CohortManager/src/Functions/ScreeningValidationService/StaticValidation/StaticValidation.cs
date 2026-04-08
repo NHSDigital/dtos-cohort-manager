@@ -60,7 +60,7 @@ public class StaticValidation
 
             var reSettings = new ReSettings
             {
-                CustomTypes = [typeof(Regex), typeof(RegexOptions), typeof(ValidationHelper), typeof(Status), typeof(Actions)],
+                CustomTypes = [typeof(Regex), typeof(RegexOptions), typeof(ValidationHelper), typeof(Status), typeof(Actions), typeof(ReasonForAdding)],
                 UseFastExpressionCompiler = false
             };
 
@@ -69,7 +69,8 @@ public class StaticValidation
             var ruleParameters = new[] {
                 new RuleParameter("participant", participantCsvRecord.Participant),
                 new RuleParameter("reasonForRemovalLkp", _reasonForRemovalLookup),
-                new RuleParameter("manualAdd",isManualAdd)
+                new RuleParameter("manualAdd",isManualAdd),
+                new RuleParameter("reasonForAdding", participantCsvRecord.ReasonForAdding)
             };
 
             var resultList = new List<RuleResultTree>();
@@ -84,7 +85,7 @@ public class StaticValidation
                 }
             }
 
-            if (isManualAdd)
+            if (isManualAdd && participantCsvRecord.ReasonForAdding != ReasonForAdding.DummyGpCodeRemoval)
             {
                 var manualAddResults = await re.ExecuteAllRulesAsync("Manual_Add", ruleParameters);
                 resultList.AddRange(manualAddResults);

@@ -14,6 +14,7 @@ using Moq;
 using NHS.CohortManager.ScreeningValidationService;
 using Microsoft.Extensions.Logging.Abstractions;
 using NHS.CohortManager.Tests.TestUtils;
+using Model.Enums;
 
 [TestClass]
 public class LookupValidationTests
@@ -187,7 +188,7 @@ public class LookupValidationTests
         var response = await _sut.RunAsync(_request.Object);
 
         // Assert
-        Assert.AreEqual(response.StatusCode, HttpStatusCode.NoContent);
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
     }
 
     [TestMethod]
@@ -482,6 +483,7 @@ public class LookupValidationTests
         _requestBody.NewParticipant.AddressLine1 = "123 Test Street";
         _requestBody.NewParticipant.Postcode = "TE57 1NG";
         _requestBody.ExistingParticipant = null;
+        _requestBody.ReasonForAdding = ReasonForAdding.VeryHighRisk;
 
         var json = JsonSerializer.Serialize(_requestBody);
         SetUpRequestBody(json);
@@ -495,6 +497,80 @@ public class LookupValidationTests
 
         // Assert
         StringAssert.Contains(body, "3601.ValidatePrimaryCareProvider.NBO.NonFatal");
+    }
+    [TestMethod]
+    public async Task Run_DummyGPCodeRemovalValidPCP_ReturnsNoContent()
+    {
+        // arrange
+
+        _requestBody.FileName = "CS0848402";
+        _requestBody.NewParticipant.RecordType = Actions.New;
+        _requestBody.NewParticipant.PrimaryCareProvider = "ZZZAGA";
+        _requestBody.NewParticipant.AddressLine1 = "123 Test Street";
+        _requestBody.NewParticipant.Postcode = "TE57 1NG";
+        _requestBody.ExistingParticipant.PrimaryCareProvider = "ZZZAGA";
+        _requestBody.ReasonForAdding = Model.Enums.ReasonForAdding.DummyGpCodeRemoval;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists("ZZZAGA")).Returns(true);
+
+        // act
+        var response = await _sut.RunAsync(_request.Object);
+
+        // assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+
+    }
+    [TestMethod]
+    public async Task Run_DummyGPCodeRemovalWelshGP_ReturnsNoContent()
+    {
+        // arrange
+
+        _requestBody.FileName = "CS0848402";
+        _requestBody.NewParticipant.RecordType = Actions.New;
+        _requestBody.NewParticipant.PrimaryCareProvider = "W02688";
+        _requestBody.NewParticipant.AddressLine1 = "123 Test Street";
+        _requestBody.NewParticipant.Postcode = "TE57 1NG";
+        _requestBody.ReasonForAdding = Model.Enums.ReasonForAdding.DummyGpCodeRemoval;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists("W02688")).Returns(false);
+
+        // act
+        var response = await _sut.RunAsync(_request.Object);
+
+        // assert
+        Assert.AreEqual(HttpStatusCode.NoContent, response.StatusCode);
+
+    }
+    [TestMethod]
+    public async Task Run_DummyGPCodeRemovalInvalidPCP_ReturnsValidationException()
+    {
+        // arrange
+
+        _requestBody.FileName = "CS0848402";
+        _requestBody.NewParticipant.RecordType = Actions.New;
+        _requestBody.NewParticipant.PrimaryCareProvider = "ZZZAGA";
+        _requestBody.NewParticipant.AddressLine1 = "123 Test Street";
+        _requestBody.NewParticipant.Postcode = "TE57 1NG";
+        _requestBody.ReasonForAdding = Model.Enums.ReasonForAdding.DummyGpCodeRemoval;
+
+        var json = JsonSerializer.Serialize(_requestBody);
+        SetUpRequestBody(json);
+
+        _lookupValidation.Setup(x => x.CheckIfPrimaryCareProviderExists("ZZZAGA")).Returns(false);
+
+        // act
+        var response = await _sut.RunAsync(_request.Object);
+        string body = await AssertionHelper.ReadResponseBodyAsync(response);
+
+        // assert
+        Assert.AreEqual(HttpStatusCode.OK, response.StatusCode);
+        StringAssert.Contains(body, "70.DummyGpRemovalWithInvalidGP.BSS.NonFatal");
     }
 
     private void SetUpRequestBody(string json)

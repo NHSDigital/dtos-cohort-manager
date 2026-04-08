@@ -8,6 +8,7 @@ public class LookupValidationRequestBody
     public Participant ExistingParticipant { get; set; }
     public Participant NewParticipant { get; set; }
     public string FileName { get; set; }
+    public ReasonForAdding? ReasonForAdding { get; set; } = null;
 
     public LookupValidationRequestBody() { }
 

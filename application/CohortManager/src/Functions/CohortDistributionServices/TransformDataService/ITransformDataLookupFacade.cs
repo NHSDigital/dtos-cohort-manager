@@ -10,4 +10,5 @@ public interface ITransformDataLookupFacade
     public bool ValidateLanguageCode(string languageCode);
     public Task<HashSet<string>> GetCachedExcludedSMUValues();
     string RetrievePostingCategory(string currentPosting);
+    bool CheckIfPrimaryCareProviderExists(string primaryCareProvider);
 }

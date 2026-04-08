@@ -796,5 +796,66 @@
         }
       }
     ]
+  },
+  {
+    "WorkflowName": "DummyGpRemoval",
+    "Rules": [
+      {
+        "RuleName": "71.DummyGpCodeRemoval",
+        "Expression": "new string[] { \"RDR\", \"RDI\", \"RPR\" }.Contains(participant.ReasonForRemoval)",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "ReasonForRemoval",
+                  "value": "ORR",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": "DateTime.UtcNow.Date.ToString(\"yyyyMMdd\")",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "72.RemoveWelshGPCodeForDummyGpRemoval",
+        "LocalParams": [
+          {
+            "Name": "ValidPrimaryCareProvider",
+            "Expression": "string.IsNullOrEmpty(participant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(participant.PrimaryCareProvider)"
+          },
+          {
+            "Name" : "WelshGPCode",
+            "Expression": "string.IsNullOrEmpty(participant.PrimaryCareProvider) ? false : participant.PrimaryCareProvider.StartsWith(\"W\")"
+          }
+        ],
+        "Expression": "!ValidPrimaryCareProvider && WelshGPCode",
+        "Actions": {
+          "OnSuccess": {
+            "Name": "TransformAction",
+            "Context": {
+              "transformFields": [
+                {
+                  "field": "ReasonForRemoval",
+                  "value": "ORR",
+                  "isExpression": false
+                },
+                {
+                  "field": "ReasonForRemovalEffectiveFromDate",
+                  "value": "DateTime.UtcNow.Date.ToString(\"yyyyMMdd\")",
+                  "isExpression": true
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
   }
 ]

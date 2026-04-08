@@ -5,6 +5,10 @@
       {
         "Name": "ValidPrimaryCareProvider",
         "Expression": "string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) || dbLookup.CheckIfPrimaryCareProviderExists(newParticipant.PrimaryCareProvider)"
+      },
+      {
+        "Name": "DummyGPCodeRemovalAdd",
+        "Expression": "(reasonForAdding == null ? false : reasonForAdding == ReasonForAdding.DummyGpCodeRemoval)"
       }
     ],
     "Rules": [
@@ -20,12 +24,24 @@
             "Expression": "dbLookup.CheckIfPrimaryCareProviderInExcludedSmuList(newParticipant.PrimaryCareProvider)"
           }
         ],
-        "Expression": "(WelshPostingCategory || ValidPrimaryCareProvider  || IsExcluded)",
+        "Expression": "(DummyGPCodeRemovalAdd || WelshPostingCategory || ValidPrimaryCareProvider  || IsExcluded)",
         "Actions": {
           "OnFailure": {
             "Name": "OutputExpression",
             "Context": {
               "Expression": "\"GP practice code does not exist\""
+            }
+          }
+        }
+      },
+      {
+        "RuleName": "70.DummyGpRemovalWithInvalidGP.BSS.NonFatal",
+        "Expression": "!DummyGPCodeRemovalAdd OR ValidPrimaryCareProvider OR (string.IsNullOrEmpty(newParticipant.PrimaryCareProvider) ? false : newParticipant.PrimaryCareProvider.StartsWith(\"W\"))",
+        "Actions":{
+          "OnFailure":{
+            "Name":"OutputExpression",
+            "Context":{
+              "Expression":"\"Reason for adding is Dummy GP code removal but primary care provider is not a valid GP code\""
             }
           }
         }

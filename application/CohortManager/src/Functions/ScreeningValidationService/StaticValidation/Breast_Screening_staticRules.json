@@ -91,7 +91,7 @@
           }
         }
       },
-            {
+      {
         "RuleName": "3.PrimaryCareProviderAndReasonForRemoval.NBO.NonFatal",
         "Expression": "manualAdd OR ((string.IsNullOrEmpty(participant.PrimaryCareProvider) AND !string.IsNullOrEmpty(participant.ReasonForRemoval)) OR (!string.IsNullOrEmpty(participant.PrimaryCareProvider) AND string.IsNullOrEmpty(participant.ReasonForRemoval)))",
         "Actions": {
@@ -180,7 +180,7 @@
     "Rules": [
       {
         "RuleName": "97.NoDummyGPorPCP.NBO.NonFatal",
-        "LocalParams" : [
+        "LocalParams": [
           {
             "Name": "ValidReasonForRemoval",
             "Expression": "participant.ReasonForRemoval == \"RDR\" || participant.ReasonForRemoval == \"RPR\" || participant.ReasonForRemoval == \"RDI\" "
