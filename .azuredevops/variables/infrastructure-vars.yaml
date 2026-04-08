@@ -20,6 +20,8 @@ variables:
       value: sadtoshubtfstate
     - name: hubBackendStorageCont
       value: development
+    - name: SERVICE_CONNECTION
+      value: sc-cohort-manager-sbrk
 
   - ${{ if eq(parameters.environmentName, 'development') }}:
     - name: envShort
