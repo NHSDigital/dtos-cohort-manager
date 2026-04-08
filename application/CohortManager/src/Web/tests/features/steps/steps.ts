@@ -175,6 +175,15 @@ Then("I see the button {string}", async ({ page }, buttonText: string) => {
 });
 
 Then(
+  "I see the input with label {string}",
+  async ({ page }, labelText: string) => {
+    await test
+      .expect(page.getByLabel(labelText, { exact: true }))
+      .toBeVisible();
+  }
+);
+
+Then(
   "I see the link {string} with the href {string}",
   async ({ page }, linkText: string, expectedHref: string) => {
     const exactName = new RegExp(`^\\s*${escapeRegExp(linkText)}\\s*$`, "i");
@@ -190,8 +199,11 @@ Then(
     const mapping: Record<string, number> = { first: 0, second: 1, third: 2 };
     const index = mapping[ordinal.toLowerCase()];
     const card = page.getByTestId("card").nth(index);
-    const text = await card.textContent();
-    const num = parseInt(text || "0", 10);
+    const numberElement = card.getByTestId("card-number").first();
+    await test.expect(numberElement).toContainText(/\d+/, { timeout: 10_000 });
+    const numberText = (await numberElement.textContent()) ?? "";
+    const digitsOnly = numberText.replace(/[^\d-]/g, "");
+    const num = Number.parseInt(digitsOnly, 10);
     await test.expect(num).toBeGreaterThanOrEqual(Number(min));
   }
 );

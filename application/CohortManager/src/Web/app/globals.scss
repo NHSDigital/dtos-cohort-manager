@@ -148,6 +148,32 @@
 }
 
 // Header
+
+// Loading shimmer for card placeholders
+.app-loading-shimmer {
+  display: inline-block;
+  color: transparent;
+  background: linear-gradient(90deg, #d8dde0 25%, #e8ebee 50%, #d8dde0 75%);
+  background-size: 200% 100%;
+  animation: app-shimmer 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+@keyframes app-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loading-shimmer {
+    animation: none;
+    background-position: 0 0;
+  }
+}
+
 .nhsuk-header__content {
   display: flex;
   align-items: center;

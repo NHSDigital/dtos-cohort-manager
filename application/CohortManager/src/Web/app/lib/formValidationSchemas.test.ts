@@ -1,4 +1,4 @@
-import { updateExceptionsSchema } from "./formValidationSchemas";
+import { updateExceptionsSchema, removeDummyGpCodeSchema } from "./formValidationSchemas";
 
 describe("formValidationSchemas", () => {
   describe("updateExceptionsSchema", () => {
@@ -326,6 +326,278 @@ describe("formValidationSchemas", () => {
             expect(result.data.serviceNowID).toBe("CS1234567");
           }
         });
+      });
+    });
+  });
+
+  describe("removeDummyGpCodeSchema", () => {
+    describe("valid submissions", () => {
+      it("should accept valid form data", () => {
+        const validData = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(validData);
+        expect(result.success).toBe(true);
+      });
+    });
+
+    describe("NHS Number validation", () => {
+      it("should reject empty NHS Number", () => {
+        const data = {
+          nhsNumber: "",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("NHS Number is required");
+        }
+      });
+
+      it("should reject NHS Number with fewer than 10 digits", () => {
+        const data = {
+          nhsNumber: "123456789",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("NHS Number must be 10 digits");
+        }
+      });
+
+      it("should reject NHS Number with more than 10 digits", () => {
+        const data = {
+          nhsNumber: "12345678901",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("NHS Number must be 10 digits");
+        }
+      });
+
+      it("should reject NHS Number with letters", () => {
+        const data = {
+          nhsNumber: "12345ABCDE",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("NHS Number must be 10 digits");
+        }
+      });
+
+      it("should reject NHS Number with invalid checksum", () => {
+        const data = {
+          nhsNumber: "1234567890",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("Invalid NHS Number");
+        }
+      });
+
+      it("should reject all-zeros NHS Number", () => {
+        const data = {
+          nhsNumber: "0000000000",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("Invalid NHS Number");
+        }
+      });
+    });
+
+    describe("Forename validation", () => {
+      it("should reject empty forename", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("Forename is required");
+        }
+      });
+    });
+
+    describe("Surname validation", () => {
+      it("should reject empty surname", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("Surname is required");
+        }
+      });
+    });
+
+    describe("Date of Birth validation", () => {
+      it("should reject empty date of birth", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("Date of Birth is required");
+        }
+      });
+
+      it("should reject invalid date string", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "not-a-date",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("Date of Birth must be a valid date");
+        }
+      });
+
+      it("should reject impossible calendar dates", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "2024-02-31",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("Date of Birth must be a valid date");
+        }
+      });
+
+      it("should reject dates that are not zero-padded ISO format", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "2024-2-3",
+          serviceNowTicketNumber: "CS1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("Date of Birth must be a valid date");
+        }
+      });
+    });
+
+    describe("Service Now Ticket Number validation", () => {
+      it("should reject empty ticket number", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe("Service Now Ticket Number is required");
+        }
+      });
+
+      it("should reject ticket number shorter than 9 characters", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "CS12345",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe(
+            "Service Now Ticket Number must be nine characters or more"
+          );
+        }
+      });
+
+      it("should reject ticket number with spaces", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "CS 1234567",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe(
+            "Service Now Ticket Number must not contain spaces"
+          );
+        }
+      });
+
+      it("should reject ticket number with invalid format", () => {
+        const data = {
+          nhsNumber: "9434765919",
+          forename: "Jane",
+          surname: "Smith",
+          dateOfBirth: "1990-01-15",
+          serviceNowTicketNumber: "123456789",
+        };
+        const result = removeDummyGpCodeSchema.safeParse(data);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues[0].message).toBe(
+            "Service Now Ticket Number must start with two letters followed by at least seven digits (e.g. CS0619153)"
+          );
+        }
       });
     });
   });
