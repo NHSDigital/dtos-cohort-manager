@@ -1,0 +1,136 @@
+---
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+pool:
+  name: private-pool-dev-uks
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 8d9323116e7e0442e3f89750df39af27a2e1a4a7
+      endpoint: NHSDigital
+
+# 1. RUNTIME PARAMETERS
+parameters:
+  - name: targetEnvironment
+    displayName: 'Target Environment'
+    type: string
+    default: 'development'
+    values:
+      - sandbox
+      - development
+      - nft
+      - integration
+      - preprod
+      - production
+
+  - name: terraformActionsAudit
+    displayName: 'Audit: Apply Terraform Plan'
+    type: string
+    values:
+      - 'PlanOnly'
+      - 'Apply'
+    default: 'Apply'
+
+  - name: dockerImageTag
+    displayName: 'Core: Docker Image Tag'
+    type: string
+    default: development
+
+  - name: retagImages
+    displayName: 'Core: Re-tag Images'
+    type: boolean
+    default: false
+
+  - name: dockerImageReTagFrom
+    displayName: 'Core: Docker Image Retag from value'
+    type: string
+    default: development
+
+  - name: dockerImageReTagTo
+    displayName: 'Core: Docker Image Retag to value'
+    type: string
+    default: development
+
+  - name: terraformActionsCore
+    displayName: 'Core: Apply Terraform Plan'
+    type: string
+    values:
+      - 'PlanOnly'
+      - 'Apply'
+    default: 'Apply'
+
+  - name: testTypes
+    type: object
+    default:
+      - smoke_e2e
+
+# 2. DYNAMIC VARIABLES
+variables:
+  - name: hostPoolName
+    value: private-pool-dev-uks
+  - name: TF_VERSION
+    value: 1.14.4
+  - name: TF_PLAN_ARTIFACT
+    value: tf_plan_core_${{ upper(parameters.targetEnvironment) }}
+  - name: TF_DIRECTORY_CORE
+    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
+  - name: TF_DIRECTORY_AUDIT
+    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
+
+  # Variable Template
+  - template: ../variables/infrastructure-vars.yaml
+    parameters:
+      environmentName: ${{ parameters.targetEnvironment }}
+
+  # New Secret groups
+  - group: ${{ parameters.targetEnvironment }}-secrets
+  - group: ${{ parameters.targetEnvironment }}-automation-testing
+
+
+# 3. DEPLOYMENT STAGES
+stages:
+  # --- STAGE 1: AUDIT ---
+  - template: ../templates/cd-infrastructure-audit-common.yaml
+    parameters:
+      terraformActions: ${{ parameters.terraformActionsAudit }}
+      environment: $(ENVIRONMENT)
+
+  # --- STAGE 2: CORE ---
+  - template: ../templates/cd-infrastructure-core-common.yaml
+    parameters:
+      hostPoolName: $(hostPoolName)
+      serviceConnection: $(SERVICE_CONNECTION)
+      targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID_CORE)
+      terraformActions: ${{ parameters.terraformActionsCore }}
+      tfVarsFile: environments/$(ENVIRONMENT).tfvars
+      environment: $(ENVIRONMENT)
+      resourceGroupNameSql: $(RESOURCE_GROUP_NAME_SQL)
+      databaseManagementJobName: $(DATABASE_MANAGEMENT_JOB_NAME)
+      dockerImageTag: ${{ parameters.dockerImageTag }}
+      retagImages: ${{ parameters.retagImages }}
+      retagImagesFrom: ${{ parameters.dockerImageReTagFrom }}
+      retagImagesTo: ${{ parameters.dockerImageReTagTo }}
+      slackWebHook: $(SLACK_WEBHOOK_URL_WORKFLOWS)
+
+  # --- STAGE 3: AUTOMATED TESTING ---
+  - ${{ each testType in parameters.testTypes }}:
+      - stage: ${{ testType }}_stage
+        displayName: "Core: Run ${{ testType }} Tests"
+        condition: always()
+        jobs:
+          - job: ${{ testType }}_job
+            pool:
+              name: $(hostPoolName)
+            steps:
+              - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+                parameters:
+                  serviceConnection: $(SERVICE_CONNECTION)
+                  testProjectDirectory: "tests/playwright-tests"
+                  testfileDirectory: "src/tests/e2e/testFiles"
+                  testProjectName: "tests"
+                  testType: ${{ testType }}

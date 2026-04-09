@@ -1,0 +1,127 @@
+---
+
+name: $(Build.SourceBranchName)-$(Date:yyyyMMdd)_$(Rev:r)
+trigger: none
+pr: none
+
+pool:
+  #vmImage: ubuntu-latest
+  name: private-pool-dev-uks
+
+resources:
+  repositories:
+    - repository: dtos-devops-templates
+      type: github
+      name: NHSDigital/dtos-devops-templates
+      ref: 8d9323116e7e0442e3f89750df39af27a2e1a4a7
+      endpoint: NHSDigital
+
+parameters:
+  - name: terraformActionsAudit
+    # This parameter allows the user to run only the plan for testing purposes
+    displayName: 'Audit: Apply Terraform Plan'
+    type: string
+    values:
+      - 'PlanOnly'
+      - 'Apply'
+    default: 'Apply'
+
+  - name: dockerImageTag
+    # Used to set the Docker image tag via Terraform in the Continuous Deployment settings of function and container apps
+    displayName: 'Core: Docker Image Tag'
+    type: string
+    default: sbrk
+
+  - name: retagImages
+    # Only required until commit hashes are passed in by calling pipeline, except for the
+    # PreProd pipeline which needs to retag images to move them from the Dev ACR to the Prod ACR
+    displayName: 'Core: Re-tag Images'
+    type: boolean
+    default: false
+
+  - name: dockerImageReTagFrom
+    # Only required until commit hashes are passed in by calling pipeline
+    displayName: 'Core: Docker Image Retag from value'
+    type: string
+    default: development
+
+  - name: dockerImageReTagTo
+    # Only required until commit hashes are passed in by calling pipeline
+    displayName: 'Core: Docker Image Retag to value'
+    type: string
+    default: sbrk
+
+  - name: terraformActionsCore
+    # This parameter allows the user to run only the plan for testing purposes
+    displayName: 'Core: Apply Terraform Plan'
+    type: string
+    values:
+      - 'PlanOnly'
+      - 'Apply'
+    default: 'Apply'
+
+  - name: testTypes
+    type: object
+    default:
+      - smoke_e2e
+
+variables:
+  - name: hostPoolName
+    value: private-pool-dev-uks
+  - group: SBRK_backend
+  - group: SBRK_audit_backend_remote_state
+  - group: SBRK_image_pipelines
+  - group: SBRK_automation_testing_pipeline
+  - group: DEV_hub_backend_remote_state
+  - name: TF_VERSION
+    value: 1.14.4
+  - name: TF_PLAN_ARTIFACT
+    value: tf_plan_core_SANDBOX
+  - name: TF_DIRECTORY_CORE
+    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-core
+  - name: TF_DIRECTORY_AUDIT
+    value: $(System.DefaultWorkingDirectory)/$(System.TeamProject)/infrastructure/tf-audit
+  - name: ENVIRONMENT
+    value: sandbox
+
+
+stages:
+  # STAGE 1: AUDIT DEPLOYMENT
+  - template: ../templates/cd-infrastructure-audit-common.yaml
+    parameters:
+      terraformActions: ${{ parameters.terraformActionsAudit }}
+      environment: $(ENVIRONMENT)
+
+  # STAGE 2: CORE DEPLOYMENT
+  - template: ../templates/cd-infrastructure-core-common.yaml
+    parameters:
+      hostPoolName: $(hostPoolName)
+      serviceConnection: $(SERVICE_CONNECTION)
+      targetSubscriptionId: $(TF_VAR_TARGET_SUBSCRIPTION_ID_CORE)
+      terraformActions: ${{ parameters.terraformActionsCore }}
+      tfVarsFile: environments/$(ENVIRONMENT).tfvars
+      environment: $(ENVIRONMENT)
+      resourceGroupNameSql: $(RESOURCE_GROUP_NAME_SQL)
+      databaseManagementJobName: $(DATABASE_MANAGEMENT_JOB_NAME)
+      dockerImageTag: ${{ parameters.dockerImageTag }}
+      retagImages: ${{ parameters.retagImages }}
+      retagImagesFrom: ${{ parameters.dockerImageReTagFrom }}
+      retagImagesTo: ${{ parameters.dockerImageReTagTo }}
+      slackWebHook: $(SLACK_WEBHOOK_URL_WORKFLOWS)
+
+  - ${{ each testType in parameters.testTypes }}:
+      - stage: ${{ testType }}_stage
+        displayName: "Core: Run ${{ testType }} Tests"
+        condition: always()
+        jobs:
+          - job: ${{ testType }}_job
+            pool:
+              name: $(hostPoolName)
+            steps:
+              - template: .azuredevops/templates/steps/run-post-deployment-pw-tests.yaml@dtos-devops-templates
+                parameters:
+                  serviceConnection: $(SERVICE_CONNECTION)
+                  testProjectDirectory: "tests/playwright-tests"
+                  testfileDirectory: "src/tests/e2e/testFiles"
+                  testProjectName: "tests"
+                  testType: ${{ testType }}

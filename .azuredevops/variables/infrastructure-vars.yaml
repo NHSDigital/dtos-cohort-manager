@@ -1,0 +1,167 @@
+parameters:
+  - name: environmentName
+    type: string
+
+variables:
+
+  # 1. ENVIRONMENT DICTIONARY & CONDITIONAL MAPPINGS
+  - ${{ if eq(parameters.environmentName, 'sandbox') }}:
+    - name: envShort
+      value: sbx
+    - name: backendStorageAccountName
+      value: sacohortmanagertfstate
+    - name: selectImageTag
+      value: development
+    - name: srcRegistryName
+      value: acrukshubdevcohman
+    - name: destRegistryName
+      value: acrukshubdevcohman
+    - name: hubBackendStorageAcc
+      value: sadtoshubtfstate
+    - name: hubBackendStorageCont
+      value: development
+    - name: SERVICE_CONNECTION
+      value: sc-cohort-manager-sbx
+
+  - ${{ if eq(parameters.environmentName, 'development') }}:
+    - name: envShort
+      value: dev
+    - name: backendStorageAccountName
+      value: sacohortmanagertfstate
+    - name: selectImageTag
+      value: development
+    - name: srcRegistryName
+      value: acrukshubdevcohman
+    - name: destRegistryName
+      value: acrukshubdevcohman
+    - name: hubBackendStorageAcc
+      value: sadtoshubtfstate
+    - name: hubBackendStorageCont
+      value: development
+    - name: SERVICE_CONNECTION
+      value: sc-cohort-manager-dev
+
+  - ${{ if eq(parameters.environmentName, 'nft') }}:
+    - name: envShort
+      value: nft
+    - name: backendStorageAccountName
+      value: sacohortmanagertfstate
+    - name: selectImageTag
+      value: development
+    - name: srcRegistryName
+      value: acrukshubdevcohman
+    - name: destRegistryName
+      value: acrukshubdevcohman
+    - name: hubBackendStorageAcc
+      value: sadtoshubtfstate
+    - name: hubBackendStorageCont
+      value: development
+    - name: SERVICE_CONNECTION
+      value: sc-cohort-manager-nft
+
+  - ${{ if eq(parameters.environmentName, 'integration') }}:
+    - name: envShort
+      value: int
+    - name: backendStorageAccountName
+      value: sacohortmanagertfstate
+    - name: selectImageTag
+      value: nft
+    - name: srcRegistryName
+      value: acrukshubdevcohman
+    - name: destRegistryName
+      value: acrukshubdevcohman
+    - name: hubBackendStorageAcc
+      value: sadtoshubtfstate
+    - name: hubBackendStorageCont
+      value: development
+    - name: SERVICE_CONNECTION
+      value: sc-cohort-manager-int
+
+  - ${{ if eq(parameters.environmentName, 'preprod') }}:
+    - name: envShort
+      value: pre
+    - name: backendStorageAccountName
+      value: sacohmanprodtfstate
+    - name: selectImageTag
+      value: integration
+    - name: srcRegistryName
+      value: acrukshubdevcohman
+    - name: destRegistryName
+      value: acrukshubprodcohman
+    - name: hubBackendStorageAcc
+      value: sadtoshubprodtfstate
+    - name: hubBackendStorageCont
+      value: production
+    - name: SERVICE_CONNECTION
+      value: sc-cohort-manager-preprod
+
+  - ${{ if eq(parameters.environmentName, 'production') }}:
+    - name: envShort
+      value: prod
+    - name: backendStorageAccountName
+      value: sacohmanprodtfstate
+    - name: selectImageTag
+      value: preprod
+    - name: srcRegistryName
+      value: acrukshubprodcohman
+    - name: destRegistryName
+      value: acrukshubprodcohman
+    - name: hubBackendStorageAcc
+      value: sadtoshubprodtfstate
+    - name: hubBackendStorageCont
+      value: production
+    - name: SERVICE_CONNECTION
+      value: sc-cohort-manager-prod
+
+
+  # 2. STRICTLY DYNAMIC VARIABLES
+  - name: ENVIRONMENT
+    value: ${{ parameters.environmentName }}
+  - name: ENVIRONMENT_SHORT
+    value: $(envShort)
+  - name: BACKEND_AZURE_STORAGE_ACCOUNT_NAME
+    value: $(backendStorageAccountName)
+  - name: TF_VAR_AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_NAME
+    value: $(backendStorageAccountName)
+  - name: BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME_CORE
+    value: ${{ parameters.environmentName }}-core
+  - name: BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME_AUDIT
+    value: ${{ parameters.environmentName }}-audit
+  - name: TF_VAR_AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
+    value: ${{ parameters.environmentName }}-audit
+  - name: FUNCTION_RESOURCE_GROUP
+    value: rg-cohman-$(envShort)-uks
+  - name: RESOURCE_GROUP_NAME_SQL
+    value: rg-cohman-$(envShort)-uks
+  # - name: SERVICE_CONNECTION
+  #   value: sc-cohort-manager-$(envShort)
+  - name: SELECT_IMAGE_TAG
+    value: $(selectImageTag)
+  - name: SRC_REGISTRY
+    value: $(srcRegistryName)
+  - name: DEST_REGISTRY
+    value: $(destRegistryName)
+  - name: TF_VAR_HUB_BACKEND_AZURE_STORAGE_ACCOUNT_NAME
+    value: $(hubBackendStorageAcc)
+  - name: TF_VAR_HUB_BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME
+    value: $(hubBackendStorageCont)
+
+  # 3. GLOBAL CONSTANTS
+  - name: BACKEND_AZURE_RESOURCE_GROUP_NAME
+    value: rg-dtos-state-files
+  - name: TF_VAR_HUB_BACKEND_AZURE_RESOURCE_GROUP_NAME
+    value: rg-dtos-state-files
+  - name: TF_VAR_AUDIT_BACKEND_AZURE_RESOURCE_GROUP_NAME
+    value: rg-dtos-state-files
+  - name: TF_VAR_BACKEND_AZURE_STORAGE_ACCOUNT_KEY
+    value: resources.tfstate
+  - name: TF_VAR_AUDIT_BACKEND_AZURE_STORAGE_ACCOUNT_KEY
+    value: resources.tfstate
+  - name: PROJECT_NAME
+    value: cohort-manager
+  - name: DATABASE_MANAGEMENT_JOB_NAME
+    value: ca-db-management-uksouth
+  - name: TF_VAR_HUB_BACKEND_AZURE_STORAGE_ACCOUNT_KEY
+    value: resources-hub.tfstate
+  - name: hostPoolName
+    value: private-pool-dev-uks

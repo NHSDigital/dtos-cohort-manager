@@ -31,7 +31,7 @@ stages:
 - stage: retag_images_stage
   # Only required until commit hashes are passed in by calling pipeline, except for the
   # PreProd pipeline which needs to retag images to move them from the Dev ACR to the Prod ACR
-  displayName: ACR re-tag
+  displayName: "Core: ACR re-tag"
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
@@ -68,12 +68,15 @@ stages:
 
 - stage: terraform_deploy_stage
   ${{ if eq(parameters.terraformActions, 'Apply') }}:
-    displayName: Terraform Deploy
+    displayName: "Core: Terraform Deploy"
   ${{ else }}:
-    displayName: Terraform Plan Only
+    displayName: "Core: Terraform Plan Only"
   condition: in(dependencies.retag_images_stage.result, 'Succeeded', 'Skipped')
   variables:
     tfVarsFile: ${{ parameters.tfVarsFile }}
+    BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME: $(BACKEND_AZURE_STORAGE_ACCOUNT_CONTAINER_NAME_CORE)
+    TF_VAR_TARGET_SUBSCRIPTION_ID: $(TF_VAR_TARGET_SUBSCRIPTION_ID_CORE)
+    TF_DIRECTORY: $(TF_DIRECTORY_CORE)
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
@@ -126,9 +129,11 @@ stages:
           displayName: Set Stage Status
 
 - stage: db_changes_stage
-  displayName: Database changes
+  displayName: "Core: Database changes"
   dependsOn: terraform_deploy_stage
   condition: in(dependencies.terraform_deploy_stage.result, 'Succeeded', 'Skipped')
+  variables:
+    TF_VAR_TARGET_SUBSCRIPTION_ID: $(TF_VAR_TARGET_SUBSCRIPTION_ID_CORE)
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
@@ -165,7 +170,7 @@ stages:
           displayName: Set Stage Status
 
 - stage: restart_functions_stage
-  displayName: Restart Function Apps
+  displayName: "Core: Restart Function Apps"
   dependsOn:
   - terraform_deploy_stage
   - db_changes_stage
@@ -174,6 +179,8 @@ stages:
       in(dependencies.terraform_deploy_stage.result, 'Succeeded', 'Skipped'),
       in(dependencies.db_changes_stage.result, 'Succeeded', 'Skipped')
     )
+  variables:
+    TF_VAR_TARGET_SUBSCRIPTION_ID: $(TF_VAR_TARGET_SUBSCRIPTION_ID_CORE)
   pool:
     name: ${{ parameters.hostPoolName }}
   jobs:
@@ -205,7 +212,7 @@ stages:
           displayName: Set Stage Status
 
 - stage: notify_stage
-  displayName: Send Slack Notification
+  displayName: "Core: Send Slack Notification"
   dependsOn:
     - retag_images_stage
     - terraform_deploy_stage
