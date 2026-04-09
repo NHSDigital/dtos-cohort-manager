@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.CohortDistributionServicesTests;
+namespace NHS.CohortManager.Tests.CohortDistributionServiceTests;
 
 using System.Linq.Expressions;
 using System.Net;
