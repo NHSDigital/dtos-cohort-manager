@@ -1,21 +1,14 @@
 namespace NHS.CohortManager.Tests.UnitTests.AuditServicesTests;
 
 using System.Text.Json;
-using DataServices.Database;
-using Microsoft.Azure.Functions.Worker;
-using Microsoft.Extensions.Logging;
-using Model;
-using Model.Enums;
-using Moq;
-using NHS.CohortManager.AuditServices;
 
 [TestClass]
-public class AuditWriterFunctionTests
+public class AuditWriterTests
 {
     private Mock<DataServicesContext> _mockDbContext;
-    private Mock<ILogger<AuditWriterFunction>> _mockLogger;
+    private Mock<ILogger<AuditWriter>> _mockLogger;
     private Mock<FunctionContext> _mockFunctionContext;
-    private AuditWriterFunction _sut;
+    private AuditWriter _auditWriterService;
     private List<ParticipantAuditLog> _addedEntities;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
@@ -38,10 +31,10 @@ public class AuditWriterFunctionTests
         _mockDbContext.Setup(x => x.Set<ParticipantAuditLog>()).Returns(mockDbSet.Object);
         _mockDbContext.Setup(x => x.SaveChangesAsync(default)).ReturnsAsync(1);
 
-        _mockLogger = new Mock<ILogger<AuditWriterFunction>>();
+        _mockLogger = new Mock<ILogger<AuditWriter>>();
         _mockFunctionContext = new Mock<FunctionContext>();
 
-        _sut = new AuditWriterFunction(_mockDbContext.Object, _mockLogger.Object);
+        _auditWriterService = new AuditWriter(_mockDbContext.Object, _mockLogger.Object);
     }
 
     [TestMethod]
@@ -52,7 +45,7 @@ public class AuditWriterFunctionTests
         var messageText = JsonSerializer.Serialize(audit, JsonOptions);
 
         // Act
-        await _sut.Run(messageText, _mockFunctionContext.Object);
+        await _auditWriterService.Run(messageText, _mockFunctionContext.Object);
 
         // Assert
         Assert.AreEqual(1, _addedEntities.Count);
@@ -73,7 +66,7 @@ public class AuditWriterFunctionTests
         var messageText = JsonSerializer.Serialize(audit, JsonOptions);
 
         // Act
-        await _sut.Run(messageText, _mockFunctionContext.Object);
+        await _auditWriterService.Run(messageText, _mockFunctionContext.Object);
 
         // Assert
         Assert.AreEqual(1, _addedEntities.Count);
@@ -89,7 +82,7 @@ public class AuditWriterFunctionTests
         var messageText = JsonSerializer.Serialize(audit, JsonOptions);
 
         // Act
-        await _sut.Run(messageText, _mockFunctionContext.Object);
+        await _auditWriterService.Run(messageText, _mockFunctionContext.Object);
 
         // Assert
         Assert.AreEqual(1, _addedEntities.Count);
@@ -104,7 +97,7 @@ public class AuditWriterFunctionTests
 
         // Act & Assert
         await Assert.ThrowsExceptionAsync<JsonException>(() =>
-            _sut.Run(messageText, _mockFunctionContext.Object));
+            _auditWriterService.Run(messageText, _mockFunctionContext.Object));
 
         Assert.AreEqual(0, _addedEntities.Count);
         _mockDbContext.Verify(x => x.SaveChangesAsync(default), Times.Never);
@@ -130,7 +123,7 @@ public class AuditWriterFunctionTests
         var messageText = JsonSerializer.Serialize(audit, JsonOptions);
 
         // Act
-        await _sut.Run(messageText, _mockFunctionContext.Object);
+        await _auditWriterService.Run(messageText, _mockFunctionContext.Object);
 
         // Assert
         Assert.AreEqual(1, _addedEntities.Count);

@@ -25,7 +25,10 @@ public class AuditQueueSender : IAuditQueueSender
         {
             throw new InvalidOperationException("The AzureWebJobsStorage environment variable must be configured to send audit messages.");
         }
-        _queueClient = new QueueClient(connectionString, QueueName);
+        _queueClient = new QueueClient(connectionString, QueueName, new QueueClientOptions
+        {
+            MessageEncoding = QueueMessageEncoding.Base64
+        });
         _blobServiceClient = new BlobServiceClient(connectionString);
         _queueInitialization = new Lazy<Task>(() => _queueClient.CreateIfNotExistsAsync());
         _containerInitialization = new Lazy<Task<BlobContainerClient>>(async () =>
@@ -61,7 +64,7 @@ public class AuditQueueSender : IAuditQueueSender
     {
         var container = await _containerInitialization.Value;
 
-        var blobPath = $"{message.Source}/{message.CreatedDatetime:yyyy-MM-dd}/{message.CorrelationId}.json";
+        var blobPath = $"{message.Source}/{message.CreatedDatetime:dd-MM-yyyy}/{message.CorrelationId}.json";
         var blobClient = container.GetBlobClient(blobPath);
 
         var payload = JsonSerializer.SerializeToUtf8Bytes(message.RequestSnapshot);

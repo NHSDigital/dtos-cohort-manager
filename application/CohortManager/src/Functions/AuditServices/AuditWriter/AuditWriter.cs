@@ -6,26 +6,25 @@ using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
 using Model;
 
-public class AuditWriterFunction
+public class AuditWriter
 {
     private readonly DataServicesContext _dbContext;
-    private readonly ILogger<AuditWriterFunction> _logger;
+    private readonly ILogger<AuditWriter> _logger;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
-    public AuditWriterFunction(DataServicesContext dbContext, ILogger<AuditWriterFunction> logger)
+    public AuditWriter(DataServicesContext dbContext, ILogger<AuditWriter> logger)
     {
         _dbContext = dbContext;
         _logger = logger;
     }
 
-    [Function(nameof(AuditWriterFunction))]
+    [Function(nameof(AuditWriter))]
     public async Task Run(
-        [QueueTrigger("participant-audit-queue", Connection = "AzureWebJobsStorage")] string messageText,
-        FunctionContext context)
+        [QueueTrigger("participant-audit-queue", Connection = "AzureWebJobsStorage")] string messageText, FunctionContext context)
     {
         ParticipantAuditMessage? audit;
         try
@@ -60,8 +59,7 @@ public class AuditWriterFunction
         _dbContext.Set<ParticipantAuditLog>().Add(auditLog);
         await _dbContext.SaveChangesAsync();
 
-        _logger.LogInformation(
-            "Audit written | Source: {Source} | Correlation: {CorrelationId}",
+        _logger.LogInformation("Audit written | Source: {Source} | Correlation: {CorrelationId}",
             audit.Source, audit.CorrelationId);
     }
 }
