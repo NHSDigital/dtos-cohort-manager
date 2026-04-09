@@ -1,6 +1,6 @@
 application           = "cohman"
 application_full_name = "cohort-manager"
-environment           = "SBRK"
+environment           = "SBX"
 
 features = {
   acr_enabled                          = false
