@@ -1,4 +1,4 @@
-namespace NHS.CohortManager.CohortDistributionServicesTests;
+namespace NHS.CohortManager.Tests.CohortDistributionServiceTests;
 
 using System.Linq.Expressions;
 using System.Net;
@@ -39,7 +39,8 @@ public class ValidationTests
             CohortDistributionTopic = "cohort-distribution-topic",
             DistributeParticipantSubscription = "distribute-participant-sub",
             RemoveOldValidationRecordUrl = "RemoveOldValidationRecordUrl",
-            SendServiceNowMessageURL = "SendServiceNowMessageURL"
+            SendServiceNowMessageURL = "SendServiceNowMessageURL",
+            ServiceNowCasesDataServiceURL = "ServiceNowCasesDataServiceURL"
         };
 
         _config.Setup(x => x.Value).Returns(config);
@@ -145,7 +146,8 @@ public class ValidationTests
             CohortDistributionTopic = "cohort-distribution-topic",
             DistributeParticipantSubscription = "distribute-participant-sub",
             RemoveOldValidationRecordUrl = "RemoveOldValidationRecordUrl",
-            SendServiceNowMessageURL = "SendServiceNowMessageURL"
+            SendServiceNowMessageURL = "SendServiceNowMessageURL",
+            ServiceNowCasesDataServiceURL = "ServiceNowCasesDataServiceURL"
         };
 
         _config.Setup(x => x.Value).Returns(config);
