@@ -70,7 +70,7 @@ public class DurableDemographicTests
         var mockContext = new Mock<TaskOrchestrationContext>();
         var logger = Mock.Of<ILogger>();
         mockContext.Setup(ctx => ctx.CreateReplaySafeLogger(It.IsAny<string>())).Returns(logger);
-        mockContext.Setup(ctx => ctx.GetInput<string>()).Returns("[{\"NhsNumber\": \"111111\", \"FirstName\": \"Test\"}]");
+        mockContext.Setup(ctx => ctx.GetInput<string>()).Returns("{\"NhsNumber\": \"111111\", \"FirstName\": \"Test\"}");
 
         mockContext
             .Setup(ctx => ctx.CallActivityAsync<bool>(nameof(function.InsertDemographicData), It.IsAny<string>(), It.IsAny<TaskOptions>()))
@@ -94,12 +94,12 @@ public class DurableDemographicTests
     public async Task InsertDemographicData_DataInsertedSuccessfully_ReturnsTrue()
     {
         // Arrange
-        var Participants = new List<ParticipantDemographic>();
+        var participant = new ParticipantDemographic();
         var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
         var mockLogger = new Mock<ILogger>();
 
-        var demographicJsonData = JsonSerializer.Serialize(Participants);
-        _participantDemographic.Setup(x => x.AddRange(It.IsAny<IEnumerable<ParticipantDemographic>>())).ReturnsAsync(true);
+        var demographicJsonData = JsonSerializer.Serialize(participant);
+        _participantDemographic.Setup(x => x.Add(It.IsAny<ParticipantDemographic>())).ReturnsAsync(true);
 
         // Act
         await function.InsertDemographicData(demographicJsonData, CreateMockFunctionContext().Object);
@@ -121,12 +121,12 @@ public class DurableDemographicTests
     public async Task InsertDemographicData_DataInsertionFails_ReturnsFalseAndLogsError()
     {
         // Arrange
-        var Participants = new List<ParticipantDemographic>();
+        var participant = new ParticipantDemographic();
         var function = new DurableDemographicFunction(_participantDemographic.Object, _logger.Object, _createResponse.Object, _demographicDurableFunctionConfig.Object);
         var mockLogger = new Mock<ILogger>();
 
-        var demographicJsonData = JsonSerializer.Serialize(Participants);
-        _participantDemographic.Setup(x => x.AddRange(It.IsAny<IEnumerable<ParticipantDemographic>>()))
+        var demographicJsonData = JsonSerializer.Serialize(participant);
+        _participantDemographic.Setup(x => x.Add(It.IsAny<ParticipantDemographic>()))
             .ThrowsAsync(new Exception("some new exception"));
 
         // Act

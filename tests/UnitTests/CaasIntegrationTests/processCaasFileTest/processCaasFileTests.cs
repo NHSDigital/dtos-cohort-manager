@@ -1,6 +1,5 @@
 namespace NHS.CohortManager.Tests.CaasIntegrationTests;
 
-using System.Collections.Concurrent;
 using System.Linq.Expressions;
 using System.Reflection;
 using Common;
@@ -64,12 +63,7 @@ public class ProcessCaasFileTests
     {
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
-        var participants = new List<ParticipantsParquetMap>
-        {
-            new ParticipantsParquetMap { NhsNumber = 1234567890 },
-            new ParticipantsParquetMap { NhsNumber = 9876543210 }
-        };
-        var options = new ParallelOptions();
+        var record = new ParticipantsParquetMap { NhsNumber = 9876543210 };
         var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
@@ -78,22 +72,16 @@ public class ProcessCaasFileTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()))
-            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
+            .Returns(new Participant { NhsNumber = "9876543210", RecordType = Actions.New });
 
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
+        _validateDates.Setup(v => v.ValidateAllDates(It.IsAny<Participant>())).Returns(true);
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<ParticipantDemographic>(), It.IsAny<string>(), It.IsAny<string>())).ReturnsAsync(true);
 
         // Act
-        await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
+        await processCaasFile.ProcessRecord(record, screeningService, fileName);
 
         // Assert
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
-
-        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
-           It.IsAny<EventId>(),
-           It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sending 0 records to queue")),
-           It.IsAny<Exception>(),
-           It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-       Times.Once);
+        _addBatchToQueueMock.Verify(queue => queue.AddMessage(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -101,34 +89,23 @@ public class ProcessCaasFileTests
     {
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
-        var participants = new List<ParticipantsParquetMap>
-        {
-            new ParticipantsParquetMap { NhsNumber = 1234567890 },
-            new ParticipantsParquetMap { NhsNumber = 9876543210 }
-        };
+        var record = new ParticipantsParquetMap { NhsNumber = 9876543210 };
 
-        var options = new ParallelOptions();
         var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
         _receiveCaasFileHelperMock.Setup(helper => helper.MapParticipant(It.IsAny<ParticipantsParquetMap>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.Amended });
+            .Returns(new Participant { NhsNumber = "9876543210", RecordType = Actions.Amended });
 
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
+        _validateDates.Setup(v => v.ValidateAllDates(It.IsAny<Participant>())).Returns(true);
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<ParticipantDemographic>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
         // Act
-        await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
-        // Assert
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
+        await processCaasFile.ProcessRecord(record, screeningService, fileName);
 
-        _addBatchToQueueMock.Verify(queue => queue.ProcessBatch(It.IsAny<ConcurrentQueue<BasicParticipantCsvRecord>>(), It.IsAny<string>()), Times.AtLeastOnce);
-        _loggerMock.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
-            It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("sending 0 records to queue")),
-            It.IsAny<Exception>(),
-            It.IsAny<Func<It.IsAnyType, Exception, string>>()),
-            Times.Once);
+        // Assert
+        _addBatchToQueueMock.Verify(queue => queue.AddMessage(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -136,11 +113,7 @@ public class ProcessCaasFileTests
     {
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
-        var participants = new List<ParticipantsParquetMap>
-        {
-            new ParticipantsParquetMap { NhsNumber = 1 }
-        };
-        var options = new ParallelOptions();
+        var record = new ParticipantsParquetMap { NhsNumber = 1 };
         var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
@@ -152,7 +125,7 @@ public class ProcessCaasFileTests
             .Returns(new Participant { NhsNumber = "InvalidNHS", RecordType = Actions.New });
 
         // Act
-        await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
+        await processCaasFile.ProcessRecord(record, screeningService, fileName);
 
         // Assert
         _exceptionHandlerMock.Verify(handler => handler.CreateSystemExceptionLog(
@@ -165,12 +138,7 @@ public class ProcessCaasFileTests
     {
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
-        var participants = new List<ParticipantsParquetMap>
-        {
-            new ParticipantsParquetMap { NhsNumber = 1234567890 },
-            new ParticipantsParquetMap { NhsNumber = 1234567890 }
-        };
-        var options = new ParallelOptions();
+        var record = new ParticipantsParquetMap { NhsNumber = 9876543210 };
         var screeningService = new ScreeningLkp { ScreeningId = 1, ScreeningName = "Test Screening" };
         const string fileName = "TestFile";
 
@@ -179,10 +147,13 @@ public class ProcessCaasFileTests
             It.IsAny<string>(),
             It.IsAny<string>(),
             It.IsAny<string>()))
-            .Returns(new Participant { NhsNumber = "1234567890", RecordType = Actions.New });
+            .Returns(new Participant { NhsNumber = "9876543210", RecordType = Actions.New });
+
+        _validateDates.Setup(v => v.ValidateAllDates(It.IsAny<Participant>())).Returns(true);
 
         // Act
-        await processCaasFile.ProcessRecords(participants, options, screeningService, fileName);
+        await processCaasFile.ProcessRecord(record, screeningService, fileName);
+        await processCaasFile.ProcessRecord(record, screeningService, fileName);
 
         // Assert
         _exceptionHandlerMock.Verify(handler => handler.CreateSystemExceptionLog(
@@ -195,7 +166,7 @@ public class ProcessCaasFileTests
     {
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
-        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(demo => demo.PostDemographicDataAsync(It.IsAny<ParticipantDemographic>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
         var updateParticipant = processCaasFile.GetType().GetMethod("UpdateOldDemographicRecord", BindingFlags.Instance | BindingFlags.NonPublic);
@@ -227,21 +198,20 @@ public class ProcessCaasFileTests
     {
         // Arrange
         var processCaasFile = CreateProcessCaasFile(GetDefaultConfig(true));
-        var method = processCaasFile.GetType().GetMethod("AddRecordToBatch", BindingFlags.Instance | BindingFlags.NonPublic);
-        var participant = new Participant { NhsNumber = "1234567890", RecordType = Actions.New };
-        var currentBatch = new Batch();
+        var method = processCaasFile.GetType().GetMethod("SendRecord", BindingFlags.Instance | BindingFlags.NonPublic);
+        var participant = new Participant { NhsNumber = "9876543210", RecordType = Actions.New };
 
-        _callDurableFunc.Setup(m => m.PostDemographicDataAsync(It.IsAny<List<ParticipantDemographic>>(), It.IsAny<string>(), It.IsAny<string>()))
+        _callDurableFunc.Setup(m => m.PostDemographicDataAsync(It.IsAny<ParticipantDemographic>(), It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
-        var arguments = new object[] { participant, currentBatch, "testFile" };
+        var arguments = new object[] { participant, "testFile" };
 
         // Act
         var task = (Task)method.Invoke(processCaasFile, arguments);
         await task;
 
         // Assert
-        Assert.AreEqual(1, currentBatch.AddRecords.Count);
+        _addBatchToQueueMock.Verify(queue => queue.AddMessage(It.IsAny<BasicParticipantCsvRecord>(), It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]

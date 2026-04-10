@@ -279,20 +279,16 @@ public class ReceiveCaasFileTests
         _mockScreeningLkpClient.Setup(x => x.GetSingleByFilter(It.IsAny<Expression<Func<ScreeningLkp, bool>>>())).ReturnsAsync(screeningLkp);
         _mockIReceiveCaasFileHelper.Setup(x => x.MapParticipant(_participantsParquetMap, It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>())).Returns(_participant);
 
-        var batchSize = 1;
-        Environment.SetEnvironmentVariable("BatchSize", batchSize.ToString());
-
         // Act
         await _receiveCaasFileInstance.Run(fileSteam, _blobName);
 
         // Assert
         _mockProcessCaasFile
-            .Verify(x => x.ProcessRecords(
-                It.Is<List<ParticipantsParquetMap>>(list => list.Count == batchSize),
-                It.IsAny<ParallelOptions>(),
+            .Verify(x => x.ProcessRecord(
+                It.IsAny<ParticipantsParquetMap>(),
                 It.IsAny<ScreeningLkp>(),
                 _blobName),
-            Times.Exactly(1));
+            Times.AtLeastOnce);
 
         _mockLogger.Verify(x => x.Log(It.Is<LogLevel>(l => l == LogLevel.Information),
                It.IsAny<EventId>(),
