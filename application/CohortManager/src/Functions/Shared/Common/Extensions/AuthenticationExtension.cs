@@ -16,6 +16,7 @@ public static class AuthenticationExtension
         hostBuilder.ConfigureServices((context, services) =>
         {
             services.AddSingleton<IAuthenticationService, JwtAuthentication>();
+            services.AddSingleton<ICis2UserService,Cis2UserService>();
         });
         return hostBuilder;
      }

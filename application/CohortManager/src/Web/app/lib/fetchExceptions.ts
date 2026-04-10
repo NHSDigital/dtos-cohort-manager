@@ -43,14 +43,17 @@ function buildQueryString(params: FetchExceptionsParams): string {
 
 async function getAuthHeaders() {
   const session = await auth();
-  const bearerToken = session?.idToken ?? session?.accessToken;
+  const bearerToken = session?.idToken;
+  const accessToken = session?.accessToken;
 
-  if (!bearerToken) {
+  if (!bearerToken || !accessToken) {
     return undefined;
   }
 
+
   return {
     Authorization: `Bearer ${bearerToken}`,
+    "X-Access-Token": accessToken
   };
 }
 
