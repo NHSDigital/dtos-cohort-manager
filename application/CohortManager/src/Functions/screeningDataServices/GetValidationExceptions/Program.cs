@@ -10,11 +10,10 @@ using NHS.Screening.GetValidationExceptions;
 
 var host = new HostBuilder()
     .AddConfiguration<GetValidationExceptionsConfig>(out GetValidationExceptionsConfig config)
-    .ConfigureFunctionsWorkerDefaults()
+    .AddAuthentication()
     .AddDataServicesHandler()
     .AddDataService<ExceptionManagement>(config.ExceptionManagementDataServiceURL)
     .AddDataService<ParticipantDemographic>(config.DemographicDataServiceURL)
-
     .Build()
     .ConfigureServices(services =>
     {

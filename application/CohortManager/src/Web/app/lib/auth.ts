@@ -5,6 +5,20 @@ import { jwtDecode } from "jwt-decode";
 import { OAuthConfig } from "next-auth/providers";
 import { DecodedCIS2Token } from "@/app/types/auth";
 
+const isDevelopment = process.env.APP_ENV === "development";
+
+function getDevelopmentIdToken() {
+  return (
+    process.env.AUTH_CIS2_DEV_ID_TOKEN ??
+    process.env.AUTH_CIS2_DEV_JWT_TOKEN ??
+    process.env.AUTH_CIS2_DEV_JWT
+  );
+}
+
+function getDevelopmentAccessToken() {
+  return process.env.AUTH_CIS2_DEV_ACCESS_TOKEN ?? getDevelopmentIdToken();
+}
+
 const NHS_CIS2: OAuthConfig<Profile> = {
   id: "nhs-cis2",
   name: "NHS CIS2 Authentication",
@@ -31,7 +45,7 @@ const NHS_CIS2: OAuthConfig<Profile> = {
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     NHS_CIS2,
-    ...(process.env.APP_ENV === "development"
+    ...(isDevelopment
       ? [
           Credentials({
             credentials: {
@@ -61,10 +75,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async signIn({ account }) {
       // Handle test accounts in development
-      if (
-        process.env.APP_ENV === "development" &&
-        account?.provider === "credentials"
-      ) {
+      if (isDevelopment && account?.provider === "credentials") {
         return true;
       }
 
@@ -88,6 +99,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return isValidToken;
     },
     async jwt({ account, token, profile }) {
+      if (typeof account?.access_token === "string") {
+        token.accessToken = account.access_token;
+      }
+
+      if (typeof account?.id_token === "string") {
+        token.idToken = account.id_token;
+      }
+
       if (account?.access_token) {
         try {
           const response = await fetch(
@@ -111,10 +130,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       // Handle test accounts in development
-      if (
-        process.env.APP_ENV === "development" &&
-        account?.provider === "credentials"
-      ) {
+      if (isDevelopment && account?.provider === "credentials") {
         Object.assign(token, {
           uid: "testuid",
           firstName: "Test",
@@ -123,10 +139,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           sid: "5678",
           workgroups: ["Test Workgroup"],
           workgroups_codes: ["000000000000"],
+          accessToken: token.accessToken ?? getDevelopmentAccessToken(),
+          idToken: token.idToken ?? getDevelopmentIdToken(),
         });
       }
 
-      if (profile) {
+      const sourceProfile = (profile ?? token.profile) as Profile | undefined;
+
+      if (sourceProfile) {
         const {
           uid,
           given_name: firstName,
@@ -134,7 +154,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           sub,
           sid,
           nhsid_nrbac_roles,
-        } = profile;
+        } = sourceProfile;
 
         const workgroups = (nhsid_nrbac_roles as Array<unknown>).flatMap(
           (role) => (role as { workgroups?: unknown[] }).workgroups || []
@@ -179,6 +199,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           workgroups_codes,
         });
       }
+
+      session.accessToken =
+        typeof token.accessToken === "string" ? token.accessToken : undefined;
+      session.idToken =
+        typeof token.idToken === "string" ? token.idToken : undefined;
+
       return session;
     },
   },

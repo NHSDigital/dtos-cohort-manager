@@ -9,6 +9,7 @@ export const metadata: Metadata = {
 export default async function Page() {
   const breadcrumbItems = [{ label: "Home", url: "/" }];
   const session = await auth();
+  const isDevelopment = process.env.APP_ENV === "development";
 
   return (
     <>
@@ -52,6 +53,33 @@ export default async function Page() {
                   </ul>
                 </dd>
               </div>
+              {isDevelopment ? (
+                <>
+                  <div className="nhsuk-summary-list__row">
+                    <dt className="nhsuk-summary-list__key">
+                      Development ID token
+                    </dt>
+                    <dd className="nhsuk-summary-list__value">
+                      <p>
+                        Set AUTH_CIS2_DEV_ID_TOKEN or AUTH_CIS2_DEV_JWT_TOKEN
+                        in your local env to supply a JWT when using the
+                        development credentials sign-in.
+                      </p>
+                      <pre>{session?.idToken || "No ID token available"}</pre>
+                    </dd>
+                  </div>
+                  <div className="nhsuk-summary-list__row">
+                    <dt className="nhsuk-summary-list__key">
+                      Development access token
+                    </dt>
+                    <dd className="nhsuk-summary-list__value">
+                      <pre>
+                        {session?.accessToken || "No access token available"}
+                      </pre>
+                    </dd>
+                  </div>
+                </>
+              ) : null}
             </dl>
           </div>
         </div>

@@ -569,6 +569,7 @@ function_apps = {
       function_endpoint_name = "GetValidationExceptions"
       app_service_plan_key   = "NonScaling"
       db_connection_string   = "DtOsDatabaseConnectionString"
+      key_vault_url          = "KeyVaultConnectionString"
       app_urls = [
         {
           env_var_name     = "DemographicDataServiceURL"
@@ -970,7 +971,7 @@ function_apps = {
         # ServiceNowRefreshAccessTokenUrl    = "https://ca-wiremock-uksouth.jollyriver-9baa4a9a.uksouth.azurecontainerapps.io/oauth_token.do"
         # ServiceNowUpdateUrl                = "https://ca-wiremock-uksouth.jollyriver-9baa4a9a.uksouth.azurecontainerapps.io/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"
         # ServiceNowResolutionUrl            = "https://ca-wiremock-uksouth.jollyriver-9baa4a9a.uksouth.azurecontainerapps.io/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseResolution"
-        
+
         # Connect to ServiceNow Integration Instance (can be swapped for Wiremock for testing, or to ServiceNow Dev Instance if we want to align the environments correctly)
         ServiceNowRefreshAccessTokenUrl      = "https://nhsdigitaltraining.service-now.com/oauth_token.do"
         ServiceNowUpdateUrl                  = "https://nhsdigitaltraining.service-now.com/api/x_nhsd_intstation/nhs_integration/9c78f87c97912e10dd80f2df9153aff5/CohortCaseUpdate"

@@ -25,10 +25,12 @@
         <PackageReference Include="Microsoft.Extensions.Azure" />
         <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
         <PackageReference Include="Microsoft.Identity.Client" />
+        <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
         <PackageReference Include="Microsoft.IdentityModel.Tokens" />
         <PackageReference Include="RulesEngine" />
         <PackageReference Include="Polly" />
         <PackageReference Include="Hl7.Fhir.R4" />
+        <PackageReference Include="System.Configuration.ConfigurationManager" />
         <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
     </ItemGroup>
 

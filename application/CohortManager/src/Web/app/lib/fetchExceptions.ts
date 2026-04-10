@@ -1,5 +1,7 @@
 "use server";
 
+import { auth } from "@/app/lib/auth";
+
 type FetchExceptionsParams = {
   exceptionId?: number;
   page?: number;
@@ -39,10 +41,29 @@ function buildQueryString(params: FetchExceptionsParams): string {
   return searchParams.toString();
 }
 
+async function getAuthHeaders() {
+  const session = await auth();
+  const bearerToken = session?.idToken;
+  const accessToken = session?.accessToken;
+
+  if (!bearerToken || !accessToken) {
+    return undefined;
+  }
+
+
+  return {
+    Authorization: `Bearer ${bearerToken}`,
+    "X-Access-Token": accessToken
+  };
+}
+
 export async function fetchExceptions(params: FetchExceptionsParams = {}) {
   const query = buildQueryString(params);
   const apiUrl = `${process.env.EXCEPTIONS_API_URL}/api/GetValidationExceptions?${query}`;
-  const response = await fetch(apiUrl, { cache: 'no-store' });
+  const response = await fetch(apiUrl, {
+    cache: 'no-store',
+    headers: await getAuthHeaders(),
+  });
 
   if (!response.ok) {
     throw new Error(`Error fetching data: ${response.statusText}`);
@@ -79,7 +100,9 @@ export async function fetchExceptionsByType(
     process.env.EXCEPTIONS_API_URL
   }/api/GetValidationExceptionsByType?${query.toString()}`;
 
-  const response = await fetch(apiUrl);
+  const response = await fetch(apiUrl, {
+    headers: await getAuthHeaders(),
+  });
 
   if (response.status === 204 || response.status === 400 || response.status === 404) {
     return {

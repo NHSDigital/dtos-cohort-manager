@@ -85,4 +85,10 @@ public interface IHttpClientFunction
     /// <param name="response">HTTP response message.</param>
     /// <returns>string<returns>
     Task<string> GetResponseText(HttpResponseMessage response);
+
+    /// <summary>
+    /// Sets the bearer token to be used in HttpClient requests.
+    /// </summary>
+    /// <param name="token">Bearer token to be used in HttpClient requests.</param>
+    void SetBearerToken(string token);
 }

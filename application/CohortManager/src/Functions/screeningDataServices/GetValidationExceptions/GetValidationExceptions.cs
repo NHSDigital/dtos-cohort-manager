@@ -57,7 +57,6 @@ public class GetValidationExceptions
         var isReport = _httpParserHelper.GetQueryParameterAsBool(req, "isReport");
         var ruleId = _httpParserHelper.GetQueryParameterAsNullableInt(req, "ruleId");
         var dateCreated = _httpParserHelper.GetQueryParameterAsDateTime(req, "dateCreated");
-
         try
         {
             if (exceptionId > 0)

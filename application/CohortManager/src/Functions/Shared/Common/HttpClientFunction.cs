@@ -11,6 +11,7 @@ public class HttpClientFunction : IHttpClientFunction
     private readonly IHttpClientFactory _factory;
     public static readonly TimeSpan _timeout = TimeSpan.FromSeconds(300);
     private const string errorMessage = "Failed to execute request to {Url}, message: {Message}";
+    private string _bearerToken = string.Empty;
 
     public HttpClientFunction(ILogger<HttpClientFunction> logger, IHttpClientFactory factory)
     {
@@ -25,7 +26,7 @@ public class HttpClientFunction : IHttpClientFunction
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
-
+        SetClientBearerToken(client);
         try
         {
             HttpResponseMessage response = await client.PostAsync(url, jsonContent);
@@ -45,6 +46,7 @@ public class HttpClientFunction : IHttpClientFunction
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+        SetClientBearerToken(client);
 
         try
         {
@@ -64,6 +66,7 @@ public class HttpClientFunction : IHttpClientFunction
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+        SetClientBearerToken(client);
 
         return await GetAsync(client);
     }
@@ -76,6 +79,7 @@ public class HttpClientFunction : IHttpClientFunction
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+        SetClientBearerToken(client);
 
         return await GetAsync(client);
     }
@@ -88,6 +92,7 @@ public class HttpClientFunction : IHttpClientFunction
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+        SetClientBearerToken(client);
 
         return await client.GetAsync(url);
     }
@@ -99,6 +104,7 @@ public class HttpClientFunction : IHttpClientFunction
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+        SetClientBearerToken(client);
 
         return await client.GetAsync(url);
     }
@@ -109,6 +115,7 @@ public class HttpClientFunction : IHttpClientFunction
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+        SetClientBearerToken(client);
 
         return await GetOrThrowAsync(client);
     }
@@ -155,6 +162,7 @@ public class HttpClientFunction : IHttpClientFunction
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+        SetClientBearerToken(client);
 
         try
         {
@@ -174,6 +182,7 @@ public class HttpClientFunction : IHttpClientFunction
 
         client.BaseAddress = new Uri(url);
         client.Timeout = _timeout;
+        SetClientBearerToken(client);
 
         try
         {
@@ -196,6 +205,19 @@ public class HttpClientFunction : IHttpClientFunction
     public async Task<string> GetResponseText(HttpResponseMessage response)
     {
         return await response.Content.ReadAsStringAsync();
+    }
+
+    public void SetBearerToken(string token)
+    {
+        _bearerToken = token;
+    }
+
+    private void SetClientBearerToken(HttpClient client)
+    {
+        if (!string.IsNullOrEmpty(_bearerToken))
+        {
+            client.DefaultRequestHeaders.Add("Authorization", "Bearer " + _bearerToken);
+        }
     }
 
     /// <summary>
