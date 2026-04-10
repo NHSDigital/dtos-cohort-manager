@@ -10,6 +10,11 @@ declare module "next-auth" {
     workgroups?: string[];
     workgroups_codes?: string[];
   }
+  interface Session {
+    user?: DefaultSession["user"] & User;
+    accessToken?: string;
+    idToken?: string;
+  }
 }
 
 export interface DecodedCIS2Token {
