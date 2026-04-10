@@ -16,15 +16,18 @@ public class DeleteParticipant
     private readonly ILogger<DeleteParticipant> _logger;
     private readonly IExceptionHandler _exceptionHandler;
     private readonly IDataServiceClient<CohortDistribution> _cohortDistributionClient;
+    private readonly IDataServiceClient<ParticipantDemographic> _participantDemographic;
 
     public DeleteParticipant(ICreateResponse createResponse, ILogger<DeleteParticipant> logger,
                                 IDataServiceClient<CohortDistribution> cohortDistributionClient,
+                                IDataServiceClient<ParticipantDemographic> participantDemographic,
                                 IExceptionHandler exceptionHandler)
     {
         _createResponse = createResponse;
         _logger = logger;
         _exceptionHandler = exceptionHandler;
         _cohortDistributionClient = cohortDistributionClient;
+        _participantDemographic = participantDemographic;
     }
 
     /// <summary>
@@ -95,6 +98,7 @@ public class DeleteParticipant
             foreach (var participant in participantsToDelete)
             {
                 await _cohortDistributionClient.Delete(participant.CohortDistributionId.ToString());
+                await _participantDemographic.Delete(participant.ParticipantId.ToString());
             }
 
             _logger.LogInformation("Deleted participants");
