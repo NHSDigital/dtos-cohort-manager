@@ -40,30 +40,16 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
     }
 
     /// <summary>
-    /// Posts demographic data for a list of participants to the specified demographic function URI.
+    /// Posts a single participant's demographic data to the durable demographic function URI.
+    /// Handles posting, logging, status checking, and retry logic.
+    /// Returns true if successful.
     /// </summary>
-    /// <param name="participants">A list of <see cref="ParticipantDemographic"/> objects representing the participants to send.</param>
-    /// <param name="DemographicFunctionURI">The URI of the demographic function to post data to.</param>
-    /// <returns>
-    /// A task representing the asynchronous operation. Returns true if the operation completes successfully or if no participants were provided.
-    /// </returns>
-    /// <remarks>
-    /// This method handles posting data, logging, and checking the status of the durable function.
-    /// Implements retry logic for status checking.
-    /// </remarks>
-    public async Task<bool> PostDemographicDataAsync(List<ParticipantDemographic> participants, string DemographicFunctionURI, string fileName)
+    public async Task<bool> PostDemographicDataAsync(ParticipantDemographic participant, string DemographicFunctionURI, string fileName)
     {
-        var batchSize = participants.Count;
         var responseContent = "";
-        if (participants.Count == 0)
-        {
-            _logger.LogInformation("There were no items to to send to the demographic durable function");
-            return true;
-        }
-
         try
         {
-            var content = JsonSerializer.Serialize(participants);
+            var content = JsonSerializer.Serialize(participant);
             var response = await _httpClientFunction.SendPost(DemographicFunctionURI, content);
 
             responseContent = response.Headers.Location!.ToString();
@@ -88,10 +74,10 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
             }
             else
             {
-                _logger.LogError("Check limit reached or demographic function failed for a batch of size: {BatchSize} {FinalStatus}", batchSize, finalStatus);
+                _logger.LogError("Check limit reached or demographic function failed. Status: {FinalStatus}", finalStatus);
                 await _copyFailedBatchToBlob.writeBatchToBlob(
-                    JsonSerializer.Serialize(participants),
-                    new InvalidOperationException("There was an error while adding batch of participants to the demographic table")
+                    JsonSerializer.Serialize(participant),
+                    new InvalidOperationException("There was an error while adding a participant to the demographic table")
                 );
 
                 return false;
@@ -99,13 +85,12 @@ public class CallDurableDemographicFunc : ICallDurableDemographicFunc
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred: {Message}. not sending {BatchSize} records to queue", ex.Message, batchSize);
-            //we process the participant record here in batch so don't have a single record or know why a single record has failed
+            _logger.LogError(ex, "An error occurred: {Message}. Not sending record to queue", ex.Message);
             await _exceptionHandler.CreateSystemExceptionLog(ex, new Participant(), fileName);
 
             await _copyFailedBatchToBlob.writeBatchToBlob(
-                JsonSerializer.Serialize(participants),
-                new InvalidOperationException("there was an error while adding batch of participants to the demographic table")
+                JsonSerializer.Serialize(participant),
+                new InvalidOperationException("There was an error while adding a participant to the demographic table")
             );
 
             return false;

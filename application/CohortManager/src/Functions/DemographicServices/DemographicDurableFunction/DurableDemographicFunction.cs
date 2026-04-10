@@ -70,7 +70,7 @@ public class DurableDemographicFunction
     }
 
     /// <summary>
-    /// Inserts demographic data into the data store.
+    /// Inserts a single demographic record into the data store.
     /// </summary>
     /// <param name="demographicJsonData"></param>
     /// <param name="executionContext"></param>
@@ -78,12 +78,12 @@ public class DurableDemographicFunction
     [Function(nameof(InsertDemographicData))]
     public async Task InsertDemographicData([ActivityTrigger] string demographicJsonData, FunctionContext executionContext)
     {
-        var participantData = JsonSerializer.Deserialize<List<ParticipantDemographic>>(demographicJsonData);
-        var recordsInserted = await _participantDemographic.AddRange(participantData!);
+        var participantData = JsonSerializer.Deserialize<ParticipantDemographic>(demographicJsonData);
+        var recordInserted = await _participantDemographic.Add(participantData!);
 
-        if (!recordsInserted)
+        if (!recordInserted)
         {
-            throw new InvalidOperationException("Demographic records were not added to the database in the orchestration function");
+            throw new InvalidOperationException("Demographic record was not added to the database in the orchestration function");
         }
         _logger.LogInformation("InsertDemographicData function has successfully completed");
     }

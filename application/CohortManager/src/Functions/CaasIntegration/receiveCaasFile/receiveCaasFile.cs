@@ -10,7 +10,6 @@ using System.Threading.Tasks;
 using Common;
 using DataServices.Client;
 using Microsoft.Extensions.Options;
-using Azure.Messaging.ServiceBus;
 
 public class ReceiveCaasFile
 {
@@ -43,8 +42,6 @@ public class ReceiveCaasFile
     {
         var downloadFilePath = string.Empty;
         string screeningName = string.Empty;
-        // for larger batches use size of 5000 - this works the best
-        var BatchSize = _config.BatchSize;
         try
         {
             FileNameParser fileNameParser = new(name);
@@ -57,41 +54,34 @@ public class ReceiveCaasFile
             downloadFilePath = Path.Combine(Path.GetTempPath(), name);
 
             _logger.LogInformation("Downloading file from the blob, file: {Name}.", name);
-            
-            // In order to use the parquet file we need to download it 
+
+            // In order to use the parquet file we need to download it
             await using (var fileStream = File.Create(downloadFilePath))
             {
                 await blobStream.CopyToAsync(fileStream);
             }
-
-            var options = new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount };
 
             using (var rowReader = ParquetFile.CreateRowReader<ParticipantsParquetMap>(downloadFilePath))
             {
                 // A Parquet file is divided into one or more row groups. Each row group contains a specific number of rows.
                 for (var i = 0; i < rowReader.FileMetaData.NumRowGroups; ++i)
                 {
-                    var values = rowReader.ReadRows(i);
-                    var listOfAllValues = values.ToList();
-                    var allTasks = new List<Task>();
-
-                    //split list of all into N amount of chunks to be processed as batches.
-                    var chunks = listOfAllValues.Chunk(BatchSize).ToList();
-
-                    foreach (var chunk in chunks)
+                    var recordIndex = 0;
+                    foreach (var record in rowReader.ReadRows(i))
                     {
-                        var batch = chunk.ToList();
-                        allTasks.Add(
-                            _processCaasFile.ProcessRecords(batch, options, screeningService, name)
-                        );
+                        try
+                        {
+                            await _processCaasFile.ProcessRecord(record, screeningService, name);
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex,
+                                "Unhandled exception at row group {RowGroup}, record index {RecordIndex} in file {FileName}. Continuing with remaining records.",
+                                i, recordIndex, name);
+                            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(ex, record.NhsNumber.ToString(), name, screeningName, "");
+                        }
+                        recordIndex++;
                     }
-
-                    // process each of the batches
-                    Task.WaitAll(allTasks.ToArray());
-
-                    // dispose of all lists and variables from memory because they are no longer needed
-                    listOfAllValues.Clear();
-                    values.ToList().Clear();
                 }
             }
             _logger.LogInformation("All rows processed for file named {Name}. time {Time}", name, DateTime.UtcNow);

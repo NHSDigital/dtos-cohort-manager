@@ -52,61 +52,44 @@ public class ProcessCaasFile : IProcessCaasFile
     }
 
     /// <summary>
-    /// process a given batch and send it the queue
+    /// <summary>
+    /// Validates and processes a single participant record, inserting demographic data and routing to the appropriate queue.
     /// </summary>
-    /// <param name="values"></param>
-    /// <param name="options"></param>
-    /// <param name="screeningService"></param>
-    /// <param name="name"></param>
-    /// <returns></returns>
-    public async Task ProcessRecords(List<ParticipantsParquetMap> values, ParallelOptions options, ScreeningLkp screeningService, string name)
+    public async Task ProcessRecord(ParticipantsParquetMap record, ScreeningLkp screeningService, string name)
     {
-        var currentBatch = new Batch();
-        await Parallel.ForEachAsync(values, options, async (rec, cancellationToken) =>
+        var participant = _receiveCaasFileHelper.MapParticipant(record, screeningService.ScreeningId.ToString(), screeningService.ScreeningName, name);
+
+        if (participant == null)
         {
-            var participant = _receiveCaasFileHelper.MapParticipant(rec, screeningService.ScreeningId.ToString(), screeningService.ScreeningName, name);
-
-            if (participant == null)
-            {
-                await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception($"Could not map participant in file {name}"), rec.NhsNumber.ToString(), name, screeningService.ScreeningName, "");
-                return;
-            }
-
-            if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
-            {
-                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number was passed in for participant {participant} and file {name}"), participant, name, nameof(ExceptionCategory.CaaS));
-                return; // skip current participant
-            }
-
-            if (!_validateDates.ValidateAllDates(participant))
-            {
-                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date found in participant data {participant} and file name {name}"), participant, name);
-                return; // Skip current participant
-            }
-
-            if (!_recordsProcessTracker.RecordAlreadyProcessed(participant.RecordType, participant.NhsNumber))
-            {
-                await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Duplicate Participant was in the file"), participant, name);
-                return; // Skip current participant
-            }
-
-            await AddRecordToBatch(participant, currentBatch, name);
-        });
-
-        if (await _callDurableDemographicFunc.PostDemographicDataAsync(currentBatch.DemographicData.ToList(), DemographicURI, name))
-        {
-            await AddBatchToQueue(currentBatch, name);
+            await _exceptionHandler.CreateSystemExceptionLogFromNhsNumber(new Exception($"Could not map participant in file {name}"), record.NhsNumber.ToString(), name, screeningService.ScreeningName, "");
+            return;
         }
+
+        if (!ValidationHelper.ValidateNHSNumber(participant.NhsNumber))
+        {
+            await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid NHS Number in file {name}"), participant, name, nameof(ExceptionCategory.CaaS));
+            return;
+        }
+
+        if (!_validateDates.ValidateAllDates(participant))
+        {
+            await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Invalid effective date in file {name}"), participant, name);
+            return;
+        }
+
+        if (!_recordsProcessTracker.RecordAlreadyProcessed(participant.RecordType, participant.NhsNumber))
+        {
+            await _exceptionHandler.CreateSystemExceptionLog(new Exception($"Duplicate Participant was in the file"), participant, name);
+            return;
+        }
+
+        await SendRecord(participant, name);
     }
 
     /// <summary>
-    /// adds a given record to the current given batch
+    /// Routes a single validated participant record: inserts demographic data if required, then sends to the appropriate queue.
     /// </summary>
-    /// <param name="participant"></param>
-    /// <param name="currentBatch"></param>
-    /// <param name="FileName"></param>
-    /// <returns></returns>
-    private async Task AddRecordToBatch(Participant participant, Batch currentBatch, string fileName)
+    private async Task SendRecord(Participant participant, string fileName)
     {
         var basicParticipantCsvRecord = new BasicParticipantCsvRecord
         {
@@ -114,55 +97,37 @@ public class ProcessCaasFile : IProcessCaasFile
             FileName = fileName,
             Participant = participant
         };
-        // take note: we don't need to add DemographicData to the queue for update because we loop through all updates in the UpdateParticipant method
+
         switch (participant.RecordType?.Trim())
         {
-
             case Actions.New:
-
-                currentBatch.AddRecords.Enqueue(basicParticipantCsvRecord);
-                if (await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
+                if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
                 {
-                    break;
+                    if (!await _callDurableDemographicFunc.PostDemographicDataAsync(participant.ToParticipantDemographic(), DemographicURI, fileName))
+                        return;
                 }
-                currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                await _addBatchToQueue.AddMessage(basicParticipantCsvRecord, _config.ParticipantManagementTopic);
                 break;
             case Actions.Amended:
                 if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
                 {
-                    currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
-                    currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
-                    break;
+                    if (!await _callDurableDemographicFunc.PostDemographicDataAsync(participant.ToParticipantDemographic(), DemographicURI, fileName))
+                        return;
                 }
-                currentBatch.UpdateRecords.Enqueue(basicParticipantCsvRecord);
+                await _addBatchToQueue.AddMessage(basicParticipantCsvRecord, _config.ParticipantManagementTopic);
                 break;
             case Actions.Removed:
                 if (!await UpdateOldDemographicRecord(basicParticipantCsvRecord, fileName))
                 {
-                    currentBatch.DemographicData.Enqueue(participant.ToParticipantDemographic());
+                    if (!await _callDurableDemographicFunc.PostDemographicDataAsync(participant.ToParticipantDemographic(), DemographicURI, fileName))
+                        return;
                 }
-                currentBatch.DeleteRecords.Enqueue(basicParticipantCsvRecord);
+                await RemoveParticipant(basicParticipantCsvRecord, fileName);
                 break;
             default:
                 await _exceptionHandler.CreateSchemaValidationException(basicParticipantCsvRecord, "RecordType was not set to an expected value");
                 break;
         }
-
-    }
-
-    private async Task AddBatchToQueue(Batch currentBatch, string name)
-    {
-        _logger.LogInformation("sending {Count} records to queue", currentBatch.AddRecords.Count + currentBatch.UpdateRecords.Count);
-
-        await _addBatchToQueue.ProcessBatch(currentBatch.AddRecords, _config.ParticipantManagementTopic);
-        await _addBatchToQueue.ProcessBatch(currentBatch.UpdateRecords, _config.ParticipantManagementTopic);
-
-        foreach (var updateRecords in currentBatch.DeleteRecords)
-        {
-            await RemoveParticipant(updateRecords, name);
-        }
-        // this used to release memory from being used
-        currentBatch = null;
     }
 
     private async Task<bool> UpdateOldDemographicRecord(BasicParticipantCsvRecord basicParticipantCsvRecord, string name)
