@@ -13,6 +13,9 @@ using Model;
 using Microsoft.Extensions.Options;
 using DataServices.Client;
 using Model.Constants;
+using Model.Enums;
+using Common.Interfaces;
+using NHS.CohortManager.Tests.TestUtils;
 
 [TestClass]
 public class ReceiveServiceNowMessageFunctionTests
@@ -25,6 +28,7 @@ public class ReceiveServiceNowMessageFunctionTests
     private readonly Mock<HttpRequestData> _mockHttpRequest;
     private Mock<IDataServiceClient<ServicenowCase>> _mockServiceNowCasesClient = new();
     private readonly Mock<IServiceNowClient> _mockServiceNowClient = new();
+    private readonly Mock<IAuditQueueSender> _mockAuditQueueSender = new();
     private readonly ReceiveServiceNowMessageFunction _function;
 
     public ReceiveServiceNowMessageFunctionTests()
@@ -42,7 +46,7 @@ public class ReceiveServiceNowMessageFunctionTests
             ServiceBusConnectionString_client_internal = "Endpoint=",
             ServiceNowParticipantManagementTopic = "servicenow-participant-management-topic"
         });
-        _function = new ReceiveServiceNowMessageFunction(_mockLogger.Object, _createResponse, _mockQueueClient.Object, _mockConfig.Object, _mockServiceNowCasesClient.Object, _mockServiceNowClient.Object);
+        _function = new ReceiveServiceNowMessageFunction(_mockLogger.Object, _createResponse, _mockQueueClient.Object, _mockConfig.Object, _mockServiceNowCasesClient.Object, _mockServiceNowClient.Object, _mockAuditQueueSender.Object);
         _mockHttpRequest = new Mock<HttpRequestData>(_mockContext.Object);
 
         _mockHttpRequest.Setup(r => r.CreateResponse()).Returns(() =>
@@ -91,6 +95,11 @@ public class ReceiveServiceNowMessageFunctionTests
 
         // Assert
         Assert.AreEqual(HttpStatusCode.Accepted, result.StatusCode);
+        _mockAuditQueueSender.Verify(x => x.SendAuditAsync(It.Is<ParticipantAuditMessage>(m =>
+            m.NhsNumber == nhsNumber &&
+            m.Source == AuditSource.ManualAdd &&
+            m.CreatedBy == nameof(ReceiveServiceNowMessageFunction)
+        )), Times.Once);
     }
 
     [TestMethod]
@@ -261,6 +270,10 @@ public class ReceiveServiceNowMessageFunctionTests
         // Assert
         Assert.AreEqual(HttpStatusCode.Accepted, result.StatusCode);
         _mockServiceNowClient.VerifyNoOtherCalls();
+        _mockAuditQueueSender.Verify(x => x.SendAuditAsync(It.Is<ParticipantAuditMessage>(m =>
+            m.NhsNumber == nhsNumber &&
+            m.Source == AuditSource.ManualAdd
+        )), Times.Once);
     }
 
     private static string CreateRequestBodyJson(
@@ -282,5 +295,33 @@ public class ReceiveServiceNowMessageFunctionTests
         };
 
         return JsonSerializer.Serialize(obj);
+    }
+
+    [TestMethod]
+    [DataRow("CS123", "9434765919", "Charlie", "Bloggs", "1970-01-01", "ABC", ServiceNowReasonsForAdding.VeryHighRisk, null)]
+    public async Task Run_WhenAuditEnqueueFails_ReturnsAcceptedAndLogsWarning(
+        string caseNumber, string nhsNumber, string forename, string familyName, string dateOfBirth, string bsoCode, string reasonForAdding, string dummyGpCode)
+    {
+        // Arrange
+        var requestBodyJson = CreateRequestBodyJson(caseNumber, nhsNumber, forename, familyName, dateOfBirth, bsoCode, reasonForAdding, dummyGpCode);
+        var requestBodyStream = new MemoryStream(Encoding.UTF8.GetBytes(requestBodyJson));
+        _mockHttpRequest.Setup(r => r.Body).Returns(requestBodyStream);
+        _mockServiceNowCasesClient.Setup(x => x.Add(It.Is<ServicenowCase>(c =>
+                c.ServicenowId == caseNumber &&
+                c.NhsNumber == long.Parse(nhsNumber) &&
+                c.Status == ServiceNowStatus.New
+            ))).ReturnsAsync(true);
+        _mockQueueClient.Setup(x => x.AddAsync(It.IsAny<ServiceNowParticipant>(),
+            _mockConfig.Object.Value.ServiceNowParticipantManagementTopic))
+            .ReturnsAsync(true);
+        _mockAuditQueueSender.Setup(x => x.SendAuditAsync(It.IsAny<ParticipantAuditMessage>()))
+            .ReturnsAsync(false);
+
+        // Act
+        var result = await _function.Run(_mockHttpRequest.Object);
+
+        // Assert
+        Assert.AreEqual(HttpStatusCode.Accepted, result.StatusCode);
+        _mockLogger.VerifyLogger(LogLevel.Warning, $"Audit enqueue failed for ServiceNow case {caseNumber}");
     }
 }

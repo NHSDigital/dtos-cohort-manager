@@ -5,6 +5,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using Common;
+using Common.Interfaces;
 using DataServices.Client;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -24,6 +25,7 @@ public class ManageServiceNowParticipantFunctionTests
     private readonly Mock<IExceptionHandler> _handleExceptionMock = new();
     private readonly Mock<IDataServiceClient<ParticipantManagement>> _dataServiceClientMock = new();
     private readonly Mock<IQueueClient> _queueClientMock = new();
+    private readonly Mock<IAuditQueueSender> _auditQueueSenderMock = new();
     private readonly ServiceNowParticipant _serviceNowParticipant;
     private readonly ManageServiceNowParticipantFunction _function;
     private readonly string _messageType1Request;
@@ -62,7 +64,8 @@ public class ManageServiceNowParticipantFunctionTests
             _httpClientFunctionMock.Object,
             _handleExceptionMock.Object,
             _dataServiceClientMock.Object,
-            _queueClientMock.Object
+            _queueClientMock.Object,
+            _auditQueueSenderMock.Object
         );
 
         _messageType1Request = JsonSerializer.Serialize(new SendServiceNowMessageRequestBody
@@ -293,7 +296,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -312,6 +315,12 @@ public class ManageServiceNowParticipantFunctionTests
 
         _queueClientMock.Verify();
         _queueClientMock.VerifyNoOtherCalls();
+
+        _auditQueueSenderMock.Verify(x => x.SendAuditAsync(It.Is<ParticipantAuditMessage>(m =>
+            m.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+            m.Source == AuditSource.ManualAdd &&
+            m.CreatedBy == nameof(ManageServiceNowParticipantFunction)
+        )), Times.Once);
     }
 
     [TestMethod]
@@ -409,7 +418,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -428,6 +437,12 @@ public class ManageServiceNowParticipantFunctionTests
 
         _queueClientMock.Verify();
         _queueClientMock.VerifyNoOtherCalls();
+
+        _auditQueueSenderMock.Verify(x => x.SendAuditAsync(It.Is<ParticipantAuditMessage>(m =>
+            m.NhsNumber == _serviceNowParticipant.NhsNumber.ToString() &&
+            m.Source == AuditSource.ManualAdd &&
+            m.CreatedBy == nameof(ManageServiceNowParticipantFunction)
+        )), Times.Once);
     }
 
     [TestMethod]
@@ -474,7 +489,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
         // Act
@@ -552,7 +567,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -619,7 +634,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -707,7 +722,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -784,7 +799,7 @@ public class ManageServiceNowParticipantFunctionTests
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
 
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
 
@@ -859,7 +874,7 @@ public class ManageServiceNowParticipantFunctionTests
                     x.ReasonForAdding == ReasonForAdding.RequiresCeasing),
                 _configMock.Object.Value.CohortDistributionTopic))
             .ReturnsAsync(true).Verifiable();
-        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null))
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null))
             .Returns(Task.FromResult(default(object))).Verifiable();
 
         // Act
@@ -1065,10 +1080,44 @@ public class ManageServiceNowParticipantFunctionTests
                 && p.FamilyName == _serviceNowParticipant.FamilyName
                 && p.DateOfBirth == _serviceNowParticipant.DateOfBirth
                 && p.ServiceNowCaseNumber == _serviceNowParticipant.ServiceNowCaseNumber)), Times.Once);
-        _handleExceptionMock.Verify(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(),"98.UpdateServiceNowData.ReferralWithPrimaryCareProvider",98,null),Times.Never);
+        _handleExceptionMock.Verify(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), "98.UpdateServiceNowData.ReferralWithPrimaryCareProvider", 98, null), Times.Never);
         _handleExceptionMock.VerifyNoOtherCalls();
 
         _dataServiceClientMock.VerifyNoOtherCalls();
 
+    }
+
+    [TestMethod]
+    public async Task Run_WhenAuditEnqueueFails_CompletesSuccessfullyAndLogsWarning()
+    {
+        // Arrange
+        var json = JsonSerializer.Serialize(_matchingPdsDemographic);
+        _httpClientFunctionMock.Setup(x => x.SendGetResponse($"{_configMock.Object.Value.RetrievePdsDemographicURL}?nhsNumber={_serviceNowParticipant.NhsNumber}"))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            });
+        _httpClientFunctionMock.Setup(x => x.SendPost(_configMock.Object.Value.ManageNemsSubscriptionSubscribeURL,
+                It.IsAny<Dictionary<string, string>>()))
+            .ReturnsAsync(new HttpResponseMessage(HttpStatusCode.OK));
+        _dataServiceClientMock.Setup(client => client.GetSingleByFilter(
+            It.IsAny<Expression<Func<ParticipantManagement, bool>>>()))
+            .ReturnsAsync((ParticipantManagement)null!);
+        _dataServiceClientMock.Setup(x => x.Add(It.IsAny<ParticipantManagement>()))
+            .ReturnsAsync(true);
+        _queueClientMock.Setup(x => x.AddAsync(It.IsAny<BasicParticipantCsvRecord>(),
+                _configMock.Object.Value.CohortDistributionTopic))
+            .ReturnsAsync(true);
+        _handleExceptionMock.Setup(x => x.CreateTransformExecutedExceptions(It.IsAny<CohortDistributionParticipant>(), It.IsAny<string>(), It.IsAny<int>(), null))
+            .Returns(Task.CompletedTask);
+        _auditQueueSenderMock.Setup(x => x.SendAuditAsync(It.IsAny<ParticipantAuditMessage>()))
+            .ReturnsAsync(false);
+
+        // Act
+        await _function.Run(_serviceNowParticipant);
+
+        // Assert
+        _auditQueueSenderMock.Verify(x => x.SendAuditAsync(It.IsAny<ParticipantAuditMessage>()), Times.Once);
+        _loggerMock.VerifyLogger(LogLevel.Warning, $"Audit enqueue failed for AuditSource {AuditSource.ManualAdd}");
     }
 }

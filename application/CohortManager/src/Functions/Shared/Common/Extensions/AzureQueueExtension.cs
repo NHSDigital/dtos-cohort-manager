@@ -1,6 +1,7 @@
 namespace Common;
 
 using Azure.Identity;
+using Common.Interfaces;
 using Hl7.FhirPath.Expressions;
 using Microsoft.Extensions.Azure;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,20 +19,20 @@ public static class AzureQueueExtension
 
         hostBuilder.ConfigureServices(_ =>
             {
-            _.AddAzureClients(builder =>
-            {
-                if (serviceBusConnectionString.StartsWith("Endpoint="))
+                _.AddAzureClients(builder =>
                 {
-                    builder.AddServiceBusClient(serviceBusConnectionString);
-                }
-                else
-                {
-                    builder.AddServiceBusClientWithNamespace(serviceBusConnectionString)
-                        .WithCredential(new ManagedIdentityCredential ());
-                }
+                    if (serviceBusConnectionString.StartsWith("Endpoint="))
+                    {
+                        builder.AddServiceBusClient(serviceBusConnectionString);
+                    }
+                    else
+                    {
+                        builder.AddServiceBusClientWithNamespace(serviceBusConnectionString)
+                            .WithCredential(new ManagedIdentityCredential());
+                    }
+                });
+                _.AddSingleton<IQueueClient, AzureServiceBusClient>();
             });
-            _.AddSingleton<IQueueClient, AzureServiceBusClient>();
-        });
 
         return hostBuilder;
     }
@@ -68,7 +69,7 @@ public static class AzureQueueExtension
                         else
                         {
                             builder.AddServiceBusClientWithNamespace(serviceBusConnectionString)
-                                .WithCredential(new ManagedIdentityCredential ());
+                                .WithCredential(new ManagedIdentityCredential());
                         }
                     });
                     _.AddKeyedSingleton<IQueueClient, AzureServiceBusClient>(keyName);
@@ -83,5 +84,15 @@ public static class AzureQueueExtension
         return hostBuilder;
     }
 
-
+    /// <summary>
+    /// Registers the audit queue sender for enqueuing participant audit messages
+    /// to the Azure Storage Queue.
+    /// </summary>
+    public static IHostBuilder AddAuditQueueSender(this IHostBuilder hostBuilder)
+    {
+        return hostBuilder.ConfigureServices(_ =>
+        {
+            _.AddSingleton<IAuditQueueSender, AuditQueueSender>();
+        });
+    }
 }

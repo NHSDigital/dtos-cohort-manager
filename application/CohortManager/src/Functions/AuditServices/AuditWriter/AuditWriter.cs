@@ -1,0 +1,65 @@
+namespace NHS.CohortManager.AuditServices;
+
+using System.Text.Json;
+using DataServices.Database;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.Extensions.Logging;
+using Model;
+
+public class AuditWriter
+{
+    private readonly DataServicesContext _dbContext;
+    private readonly ILogger<AuditWriter> _logger;
+
+    private static readonly JsonSerializerOptions JsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
+
+    public AuditWriter(DataServicesContext dbContext, ILogger<AuditWriter> logger)
+    {
+        _dbContext = dbContext;
+        _logger = logger;
+    }
+
+    [Function(nameof(AuditWriter))]
+    public async Task Run(
+        [QueueTrigger("participant-audit-queue", Connection = "AzureWebJobsStorage")] string messageText, FunctionContext context)
+    {
+        ParticipantAuditMessage? audit;
+        try
+        {
+            audit = JsonSerializer.Deserialize<ParticipantAuditMessage>(messageText, JsonOptions);
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialise audit message");
+            throw;
+        }
+
+        if (audit is null)
+        {
+            _logger.LogError("Failed to deserialise audit message");
+            throw new JsonException("Audit message deserialised to null.");
+        }
+
+        var auditLog = new ParticipantAuditLog
+        {
+            CorrelationId = audit.CorrelationId,
+            NhsNumber = audit.NhsNumber,
+            BatchId = audit.BatchId,
+            CreatedDatetime = audit.CreatedDatetime,
+            RecordSource = (int)audit.Source,
+            RecordSourceDesc = audit.RecordSourceDesc,
+            CreatedBy = audit.CreatedBy,
+            ScreeningId = audit.ScreeningId,
+            RawDataRef = audit.RawDataRef
+        };
+
+        _dbContext.Set<ParticipantAuditLog>().Add(auditLog);
+        await _dbContext.SaveChangesAsync();
+
+        _logger.LogInformation("Audit written | Source: {Source} | Correlation: {CorrelationId}",
+            audit.Source, audit.CorrelationId);
+    }
+}

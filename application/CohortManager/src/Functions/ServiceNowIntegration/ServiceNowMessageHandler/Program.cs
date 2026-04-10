@@ -24,6 +24,7 @@ var host = new HostBuilder()
     })
     .AddTelemetry()
     .AddServiceBusClient(config.ServiceBusConnectionString_client_internal)
+    .AddAuditQueueSender()
     .Build();
 
 await host.RunAsync();

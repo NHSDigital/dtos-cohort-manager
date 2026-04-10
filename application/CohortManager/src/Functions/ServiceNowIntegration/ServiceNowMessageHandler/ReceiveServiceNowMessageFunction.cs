@@ -10,8 +10,10 @@ using System.Text.Json;
 using System.ComponentModel.DataAnnotations;
 using NHS.CohortManager.ServiceNowIntegrationService.Models;
 using Model;
+using Model.Enums;
 using Microsoft.Extensions.Options;
 using DataServices.Client;
+using Common.Interfaces;
 
 public class ReceiveServiceNowMessageFunction
 {
@@ -21,10 +23,11 @@ public class ReceiveServiceNowMessageFunction
     private readonly ServiceNowMessageHandlerConfig _config;
     private readonly IDataServiceClient<ServicenowCase> _serviceNowCaseClient;
     private readonly IServiceNowClient _serviceNowClient;
+    private readonly IAuditQueueSender _auditQueueSender;
 
     public ReceiveServiceNowMessageFunction(ILogger<ReceiveServiceNowMessageFunction> logger, ICreateResponse createResponse,
         IQueueClient queueClient, IOptions<ServiceNowMessageHandlerConfig> config, IDataServiceClient<ServicenowCase> serviceNowCaseClient,
-        IServiceNowClient serviceNowClient)
+        IServiceNowClient serviceNowClient, IAuditQueueSender auditQueueSender)
     {
         _logger = logger;
         _createResponse = createResponse;
@@ -32,6 +35,7 @@ public class ReceiveServiceNowMessageFunction
         _config = config.Value;
         _serviceNowCaseClient = serviceNowCaseClient;
         _serviceNowClient = serviceNowClient;
+        _auditQueueSender = auditQueueSender;
     }
 
     /// <summary>
@@ -121,6 +125,21 @@ public class ReceiveServiceNowMessageFunction
             {
                 _logger.LogError("Failed to send Participant from ServiceNow to Service Bus Topic. CaseNumber: {CaseNumber}", requestBody.ServiceNowCaseNumber);
                 return _createResponse.CreateHttpResponse(HttpStatusCode.InternalServerError, req);
+            }
+
+            var auditSent = await _auditQueueSender.SendAuditAsync(new ParticipantAuditMessage
+            {
+                NhsNumber = requestBody.VariableData.NhsNumber,
+                Source = AuditSource.ManualAdd,
+                RecordSourceDesc = $"ServiceNow case {requestBody.ServiceNowCaseNumber}",
+                CreatedDatetime = DateTime.UtcNow,
+                CreatedBy = nameof(ReceiveServiceNowMessageFunction),
+                ScreeningId = 1,
+                RequestSnapshot = requestBody
+            });
+            if (!auditSent)
+            {
+                _logger.LogWarning("Audit enqueue failed for ServiceNow case {CaseNumber}", requestBody.ServiceNowCaseNumber);
             }
         }
         catch (JsonException ex)

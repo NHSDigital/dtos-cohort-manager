@@ -21,6 +21,7 @@ public class DataServicesContext : DbContext
     DbSet<GenderMaster> genderMasters { get; set; }
     DbSet<NemsSubscription> nemsSubscriptions { get; set; }
     DbSet<ServicenowCase> servicenowCases { get; set; }
+    DbSet<ParticipantAuditLog> participantAuditLogs { get; set; }
 
     public DataServicesContext(DbContextOptions<DataServicesContext> options) : base(options)
     { }
@@ -68,7 +69,7 @@ public class DataServicesContext : DbContext
             .HasIndex(c => new { c.NHSNumber }, "IX_BS_COHORT_DISTRIBUTION_NHSNUMBER");
 
         modelBuilder.Entity<CohortDistribution>()
-            .HasIndex(i => new { i.ParticipantId },"IX_BS_COHORT_DISTRIBUTION_PARTICIPANTID");
+            .HasIndex(i => new { i.ParticipantId }, "IX_BS_COHORT_DISTRIBUTION_PARTICIPANTID");
 
         modelBuilder.Entity<CohortDistribution>()
             .HasIndex(c => new { c.IsExtracted, c.RequestId }, "IX_BSCOHORT_IS_EXTACTED_REQUESTID");
@@ -91,5 +92,23 @@ public class DataServicesContext : DbContext
         modelBuilder.Entity<ServicenowCase>()
             .ToTable("SERVICENOW_CASES", "dbo")
             .HasIndex(s => s.ServicenowId, "IX_SERVICENOW_CASES_SERVICENOW_ID");
+
+        modelBuilder.Entity<ParticipantAuditLog>()
+            .ToTable("PARTICIPANT_AUDIT_LOG", "dbo");
+
+        modelBuilder.Entity<ParticipantAuditLog>()
+            .HasIndex(a => new { a.NhsNumber, a.CreatedDatetime }, "IX_AUDIT_NHS_NUMBER")
+            .IsDescending(false, true);
+
+        modelBuilder.Entity<ParticipantAuditLog>()
+            .HasIndex(a => a.CorrelationId, "IX_AUDIT_CORRELATION");
+
+        modelBuilder.Entity<ParticipantAuditLog>()
+            .HasIndex(a => new { a.BatchId, a.CreatedDatetime }, "IX_AUDIT_BATCH")
+            .IsDescending(false, true);
+
+        modelBuilder.Entity<ParticipantAuditLog>()
+            .HasIndex(a => new { a.RecordSource, a.CreatedDatetime }, "IX_AUDIT_SOURCE")
+            .IsDescending(false, true);
     }
 }

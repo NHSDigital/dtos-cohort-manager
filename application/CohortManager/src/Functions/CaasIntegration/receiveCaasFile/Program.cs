@@ -1,4 +1,3 @@
-using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Common;
@@ -9,7 +8,6 @@ using NHS.Screening.ReceiveCaasFile;
 using Model;
 using DataServices.Client;
 using HealthChecks.Extensions;
-using Microsoft.Extensions.Options;
 
 
 var loggerFactory = LoggerFactory.Create(builder => builder.AddConsole());
@@ -46,6 +44,7 @@ try
     .AddServiceBusClient(config.ServiceBusConnectionString_client_internal)
     .AddExceptionHandler()
     .AddDatabaseConnection()
+    .AddAuditQueueSender()
     .Build();
 
     await host.RunAsync();

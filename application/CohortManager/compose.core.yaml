@@ -183,6 +183,20 @@ services:
       - CohortDistributionDataServiceURL=http://cohort-distribution-data-service:7992/api/CohortDistributionDataService/
       - AcceptableLatencyThresholdMs=500
 
+  # Audit Services
+  audit-writer:
+    container_name: audit-writer
+    image: cohort-manager-audit-writer
+    networks: [cohman-network]
+    build:
+      context: ./src/Functions/
+      dockerfile: AuditServices/AuditWriter/Dockerfile
+      args:
+        BASE_IMAGE: ${FUNCTION_BASE_IMAGE}
+    environment:
+      - AzureWebJobsStorage=${AZURITE_CONNECTION_STRING}
+      - DtOsDatabaseConnectionString=Server=db,1433;Database=${DB_NAME};User Id=SA;Password=${PASSWORD};TrustServerCertificate=True
+
 
   # Screening Data Service
   create-exception:
