@@ -1,6 +1,14 @@
 namespace NHS.CohortManager.Tests.UnitTests.AuditServicesTests;
 
 using System.Text.Json;
+using DataServices.Database;
+using Microsoft.Azure.Functions.Worker;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using Model;
+using Model.Enums;
+using Moq;
+using NHS.CohortManager.AuditServices;
 
 [TestClass]
 public class AuditWriterTests
@@ -19,12 +27,12 @@ public class AuditWriterTests
     [TestInitialize]
     public void Setup()
     {
-        _addedEntities = new List<ParticipantAuditLog>();
+        _addedEntities = [];
 
         _mockDbContext = new Mock<DataServicesContext>(
-            new Microsoft.EntityFrameworkCore.DbContextOptions<DataServicesContext>());
+            new DbContextOptions<DataServicesContext>());
 
-        var mockDbSet = new Mock<Microsoft.EntityFrameworkCore.DbSet<ParticipantAuditLog>>();
+        var mockDbSet = new Mock<DbSet<ParticipantAuditLog>>();
         mockDbSet.Setup(x => x.Add(It.IsAny<ParticipantAuditLog>()))
             .Callback<ParticipantAuditLog>(entity => _addedEntities.Add(entity));
 
@@ -62,7 +70,7 @@ public class AuditWriterTests
     {
         // Arrange
         var audit = CreateAuditMessage();
-        audit.RawDataRef = "https://storage.blob.core.windows.net/audit-request-snapshots/ManualAdd/2025-03-15/test.json";
+        audit.RawDataRef = "https://storage.blob.core.windows.net/audit-request-snapshots/ManualAdd/2026-04-08/test.json";
         var messageText = JsonSerializer.Serialize(audit, JsonOptions);
 
         // Act
@@ -115,7 +123,7 @@ public class AuditWriterTests
             Source = AuditSource.ParquetFile,
             BatchId = batchId,
             RecordSourceDesc = "Parquet file import",
-            CreatedDatetime = new DateTime(2025, 6, 15, 10, 30, 0, DateTimeKind.Utc),
+            CreatedDatetime = new DateTime(2026, 4, 8, 10, 30, 0, DateTimeKind.Utc),
             CreatedBy = "TestFunction",
             ScreeningId = 1,
             RawDataRef = null
