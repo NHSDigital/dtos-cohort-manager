@@ -1,4 +1,4 @@
-﻿namespace NHS.Screening.ProcessNemsUpdate;
+namespace NHS.Screening.ProcessNemsUpdate;
 
 using System.Collections.Concurrent;
 using System.Collections.Specialized;
@@ -119,7 +119,7 @@ public class ProcessNemsUpdate
 
     private async Task CopyToPoisonContainer(string fileName)
     {
-        await _blobStorageHelper.CopyFileToPoisonAsync(_config.nemsmeshfolder_STORAGE, fileName, _config.NemsMessages, _config.NemsPoisonContainer, addTimestamp: true);
+        await _blobStorageHelper.CopyFileToPoisonAsync(new Uri(_config.nemsmeshfolder_STORAGE__blobServiceUri), fileName, _config.NemsMessages, _config.NemsPoisonContainer, addTimestamp: true);
         _logger.LogInformation("Copied failed NEMS file {FileName} to poison container with timestamp.", fileName);
     }
 

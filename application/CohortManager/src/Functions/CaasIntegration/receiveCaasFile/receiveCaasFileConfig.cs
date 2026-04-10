@@ -16,7 +16,7 @@ public class ReceiveCaasFileConfig
     [Required]
     public int maxNumberOfChecks { get; set; }
     [Required]
-    public string caasfolder_STORAGE { get; set; }
+    public string caasfolder_STORAGE__blobServiceUri { get; set; }
     [Required]
     public string inboundBlobName { get; set; }
     [Required]

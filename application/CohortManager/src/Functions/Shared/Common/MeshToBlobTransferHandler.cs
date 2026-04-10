@@ -16,7 +16,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
     private readonly IBlobStorageHelper _blobStorageHelper;
     private readonly ILogger<MeshToBlobTransferHandler> _logger;
 
-    private string _blobConnectionString;
+    private Uri _blobServiceUri;
     private string _mailboxId;
     private string _destinationContainer;
 
@@ -31,9 +31,9 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
 
     }
 
-    public async Task<bool> MoveFilesFromMeshToBlob(Func<MessageMetaData,bool> predicate, Func<MessageMetaData,string> fileNameFunction, string mailboxId, string blobConnectionString, string destinationContainer, bool executeHandshake = false)
+    public async Task<bool> MoveFilesFromMeshToBlob(Func<MessageMetaData,bool> predicate, Func<MessageMetaData,string> fileNameFunction, string mailboxId, Uri blobServiceUri, string destinationContainer, bool executeHandshake = false)
     {
-        _blobConnectionString = blobConnectionString;
+        _blobServiceUri = blobServiceUri;
         _mailboxId = mailboxId;
         _destinationContainer = destinationContainer;
         _fileNameFunction = fileNameFunction;
@@ -140,7 +140,7 @@ public class MeshToBlobTransferHandler : IMeshToBlobTransferHandler
             return false;
         }
 
-        var uploadedToBlob = await _blobStorageHelper.UploadFileToBlobStorage(_blobConnectionString,_destinationContainer,blobFile);
+        var uploadedToBlob = await _blobStorageHelper.UploadFileToBlobStorage(_blobServiceUri,_destinationContainer,blobFile);
 
         return uploadedToBlob;
     }

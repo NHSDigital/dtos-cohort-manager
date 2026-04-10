@@ -15,7 +15,7 @@ public class NemsMeshRetrievalConfig
     public string NemsMeshKeyName {get; set;}
     public string KeyVaultConnectionString {get; set;}
     [Required]
-    public string nemsmeshfolder_STORAGE {get; set;}
+    public string nemsmeshfolder_STORAGE__blobServiceUri { get; set;}
     public string NemsMeshInboundContainer { get; set; } = "nems-updates";
     public string NemsMeshConfigContainer { get; set; } = "nems-config";
     public string NemsMeshServerSideCerts { get; set; }

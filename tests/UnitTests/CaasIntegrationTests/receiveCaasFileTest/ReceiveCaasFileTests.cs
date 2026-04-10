@@ -43,7 +43,8 @@ public class ReceiveCaasFileTests
             ScreeningLkpDataServiceURL = "ScreeningLkpDataServiceURL",
             DemographicURI = "DemographicURI",
             BatchSize = 2000,
-            AllowDeleteRecords = true
+            AllowDeleteRecords = true,
+            caasfolder_STORAGE__blobServiceUri = "https://localhost:8888"
         };
 
         _config.Setup(c => c.Value).Returns(testConfig);
@@ -211,7 +212,7 @@ public class ReceiveCaasFileTests
 
         _blobStorageHelperMock
             .Verify(x => x.CopyFileToPoisonAsync(
-                It.IsAny<string>(),
+                It.IsAny<Uri>(),
                 It.IsAny<string>(),
                 It.IsAny<string>()
             ));
@@ -255,7 +256,7 @@ public class ReceiveCaasFileTests
 
         _blobStorageHelperMock
             .Verify(x => x.CopyFileToPoisonAsync(
-                It.IsAny<string>(),
+                It.IsAny<Uri>(),
                 It.IsAny<string>(),
                 It.IsAny<string>()
             ));
